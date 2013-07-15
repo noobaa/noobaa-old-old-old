@@ -1,0 +1,27 @@
+{
+	"name": "NooBaa",
+	"version": "0.0.1",
+	"private": true,
+
+	"engines": {
+		"node": "0.10.x",
+		"npm": "1.3.x"
+	},
+
+	"dependencies": {
+		"underscore": "1.5.x",
+		"express": "3.3.x",
+		"dot": "1.0.x",
+		"express-dot": "0.1.x"
+	},
+
+	"//" : {
+		"==========" : "THIS IS A COMMENTS BLOCK",
+		"socket.io": "0.9.x",
+		"socket.io-client": "0.9.x",
+		"request": "2.22.x",
+		"nat-pmp": "0.0.x",
+		"optimist": "0.6.x",
+		"==========" : "THIS IS A COMMENTS BLOCK"
+	}
+}
