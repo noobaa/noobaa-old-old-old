@@ -6,15 +6,6 @@ var dot = require('dot');
 var dot_emc = require('dot-emc');
 var express = require('express');
 var passport = require('passport');
-var facebook_passport = require('passport-facebook');
-
-
-// setup database
-
-var mongoose = require('mongoose');
-mongoose.connect(process.env.MONGOHQ_URL);
-var users = require('./lib/users');
-
 
 // setup express app
 // configure app handlers in the order to use them
@@ -31,7 +22,9 @@ app.use(express.logger());
 app.use(express.cookieParser());
 app.use(express.bodyParser());
 app.use(express.methodOverride());
-app.use(express.cookieSession({secret: COOKIE_SESSION_SECRET}));
+app.use(express.cookieSession({
+	secret: COOKIE_SESSION_SECRET
+}));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(app.router);
@@ -40,7 +33,9 @@ app.use('/public/', express.static(path.join(__dirname, 'public')));
 
 // setup view template engine
 
-var dot_emc_app = dot_emc.init({app: app});
+var dot_emc_app = dot_emc.init({
+	app: app
+});
 dot.templateSettings.strip = false;
 dot.templateSettings.cache = ('development' != app.get('env'));
 app.set('views', path.join(__dirname, 'views'));
@@ -48,74 +43,26 @@ app.engine('dot', dot_emc_app.__express);
 app.engine('html', dot_emc_app.__express);
 
 
+// setup database
+
+var mongoose = require('mongoose');
+mongoose.connect(process.env.MONGOHQ_URL);
+
+
 // setup auth with passport
 
-passport.use(new facebook_passport.Strategy({
-	clientID: process.env.FACEBOOK_APP_ID,
-	clientSecret: process.env.FACEBOOK_SECRET,
-	callbackURL: process.env.FACEBOOK_AUTHORIZED_URL
-}, function (accessToken, refreshToken, profile, done) {
-	users.User.findOne({'fb.id': profile.id}, function (err, user) {
-		if (err) {
-			console.error('ERROR - FIND USER FAILED:',err);
-			done(err);
-			return;
-		}
-		if (!user) {
-			user = new users.User;
-			user.fb = profile._json;
-			user.save(function (err, user, num) {
-				if (err) {
-					console.error('ERROR - CREATE USER FAILED:', err);
-					done(err);
-					return;
-				}
-				console.log('CREATED USER:', user);
-				done(null, user);
-			});
-			return;
-		}
-		console.log('FOUND USER:', user);
-		done(null, user);
-	});
-}));
+require('./lib/auth').init(app);
 
-passport.serializeUser(function (user, done) {
-	var user_info = {
-		id: user._id,
-		fbid: user.fb.id,
-		name: user.fb.name,
-		username: user.fb.username
-	};
-	done(null, user_info);
-});
 
-passport.deserializeUser(function (user_info, done) {
-	done(null, user_info);
-});
+// setup invitations request
 
-app.get('/facebook_login/', 
-	passport.authenticate('facebook')
-);
+var email = require('./lib/email');
+app.post('/request_invite/', email.email_invite_request);
 
-app.get('/facebook_authorized/', function (req, res, next) {
-	if (req.query.error_code == 901) {
-		res.redirect('/#?nonlisteduser=true');
-		return;
-	}
-	passport.authenticate('facebook', {
-		successRedirect: '/',
-		failureRedirect: '/',
-		failureFlash: true
-	})(req, res, next);
-});
 
-app.get('/logout/', function (req, res) {
-	req.logout();
-	res.redirect('/');
-});
+// setup pages
 
-function context(req) {
+function page_context(req) {
 	return {
 		user: req.user,
 		app_id: process.env.FACEBOOK_APP_ID,
@@ -124,60 +71,19 @@ function context(req) {
 	};
 }
 
-
-// setup mailer
-
-var nodemailer = require("nodemailer");
-var smtp = nodemailer.createTransport("SMTP", {
-	service: "Mailgun",
-	auth: {
-		user: process.env.MAILGUN_SMTP_LOGIN,
-		pass: process.env.MAILGUN_SMTP_PASSWORD
-	},
-	// TODO: this is development configuration
-	// debug: true,
-	maxConnections: 1
-});
-
-
-// setup invitations request
-
-app.post('/request_invite/', function (req, res) {
-	var mail_options = {
-		from: 'mailer@noobaa.com',
-		to: 'guy.margalit@noobaa.com',
-		// to: ['guy.margalit@noobaa.com', 'yuval.dimnik@noobaa.com'],
-		subject: 'request invite',
-		text: JSON.stringify(req.body)
-	};
-	console.log(mail_options);
-	smtp.sendMail(mail_options, function (err, response) {
-		if (err) {
-			console.error('ERROR - REQUEST INVITE FAILED:', err);
-			res.send(500, err);
-		} else {
-			console.log("request invite sent:", response.message);
-			res.send(200);
-		}
-	});
-});
-
-
-// setup pages
-
-app.get('/getstarted.html', function (req, res) {
+app.get('/getstarted.html', function(req, res) {
 	if (req.user) {
-		res.render('getstarted.html', context(req));
+		res.render('getstarted.html', page_context(req));
 	} else {
 		res.redirect('/');
 	}
 });
 
-app.get('/', function (req, res) {
+app.get('/', function(req, res) {
 	if (req.user) {
-		res.render('mydata.html', context(req));
+		res.render('mydata.html', page_context(req));
 	} else {
-		res.render('welcome.html', context(req));
+		res.render('welcome.html', page_context(req));
 	}
 });
 
@@ -188,6 +94,6 @@ if ('development' == app.get('env')) {
 }
 
 // start the default http server
-server.listen(web_port, function () {
+server.listen(web_port, function() {
 	console.log('Web server on port ' + web_port);
 });
