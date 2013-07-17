@@ -7,12 +7,14 @@ var dot_emc = require('dot-emc');
 var express = require('express');
 var passport = require('passport');
 var facebook_passport = require('passport-facebook');
-var mongoose = require('mongoose');
+
 
 // setup database
 
+var mongoose = require('mongoose');
 mongoose.connect(process.env.MONGOHQ_URL);
 var users = require('./lib/users');
+
 
 // setup express app
 // configure app handlers in the order to use them
@@ -35,6 +37,7 @@ app.use(passport.session());
 app.use(app.router);
 app.use('/public/', express.static(path.join(__dirname, 'public')));
 
+
 // setup view template engine
 
 var dot_emc_app = dot_emc.init({app: app});
@@ -43,6 +46,7 @@ dot.templateSettings.cache = ('development' != app.get('env'));
 app.set('views', path.join(__dirname, 'views'));
 app.engine('dot', dot_emc_app.__express);
 app.engine('html', dot_emc_app.__express);
+
 
 // setup auth with passport
 
@@ -120,7 +124,46 @@ function context(req) {
 	};
 }
 
-// setup content routes
+
+// setup mailer
+
+var nodemailer = require("nodemailer");
+var smtp = nodemailer.createTransport("SMTP", {
+	service: "Mailgun",
+	auth: {
+		user: process.env.MAILGUN_SMTP_LOGIN,
+		pass: process.env.MAILGUN_SMTP_PASSWORD
+	},
+	// TODO: this is development configuration
+	// debug: true,
+	maxConnections: 1
+});
+
+
+// setup invitations request
+
+app.post('/request_invite/', function (req, res) {
+	var mail_options = {
+		from: 'mailer@noobaa.com',
+		to: 'guy.margalit@noobaa.com',
+		// to: ['guy.margalit@noobaa.com', 'yuval.dimnik@noobaa.com'],
+		subject: 'request invite',
+		text: JSON.stringify(req.body)
+	};
+	console.log(mail_options);
+	smtp.sendMail(mail_options, function (err, response) {
+		if (err) {
+			console.error('ERROR - REQUEST INVITE FAILED:', err);
+			res.send(500, err);
+		} else {
+			console.log("request invite sent:", response.message);
+			res.send(200);
+		}
+	});
+});
+
+
+// setup pages
 
 app.get('/getstarted.html', function (req, res) {
 	if (req.user) {
