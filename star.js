@@ -56,8 +56,12 @@ require('./lib/auth').init(app);
 
 // setup invitations request
 
-var email = require('./lib/email');
-app.post('/request_invite/', email.email_invite_request);
+app.post('/request_invite/', require('./lib/email').email_invite_request);
+
+
+// setup star API
+
+require('./lib/star_api').init(app);
 
 
 // setup pages
