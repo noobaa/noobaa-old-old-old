@@ -17,8 +17,15 @@ spread and take an entire line each.
 	overflow: hidden; 
 	padding: 20px 20px 0px 10px;
 }
+#nb_righty {
+	float: right;
+	overflow: hidden;
+}
 @media all and (max-width: 768px) {
 	#nb_menu {
+		float: inherit;
+	}
+	#nb_righty {
 		float: inherit;
 	}
 }

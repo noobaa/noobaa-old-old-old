@@ -14,7 +14,8 @@
 		"dot": "1.0.x",
 		"dot-emc": "0.1.x",
 		"passport": "0.1.x",
-		"passport-facebook": "0.1.x"
+		"passport-facebook": "0.1.x",
+		"mongoose": "3.6.x"
 	},
 
 	"//" : {
