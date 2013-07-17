@@ -94,13 +94,17 @@ app.get('/facebook_login/',
 	passport.authenticate('facebook')
 );
 
-app.get('/facebook_authorized/', 
+app.get('/facebook_authorized/', function (req, res, next) {
+	if (req.query.error_code == 901) {
+		res.redirect('/#?nonlisteduser=true');
+		return;
+	}
 	passport.authenticate('facebook', {
 		successRedirect: '/',
 		failureRedirect: '/',
 		failureFlash: true
-	})
-);
+	})(req, res, next);
+});
 
 app.get('/logout/', function (req, res) {
 	req.logout();
