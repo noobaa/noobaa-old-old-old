@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html ng-app="noobaa_app" xmlns:fb="http://ogp.me/ns/fb#" lang="en">
+
+<head>
+	{{# def.include('common_head.html') }}
+	<style>
+		#whatis_content {
+			background-color: #f2f2f2;
+			padding: 30px;
+			border-radius:10px/8px;
+			border-style: dotted;
+			border-width: 1px;
+		}
+		.headlines {
+			margin-top: 10px;
+		}
+	</style>
+</head>
+
+<body ng-controller="WhatIsNooBaaCtrl">
+	<div id="fb-root"></div>
+
+	<table width="100%">
+		<tr>
+			<td valign="top" width="230px">
+				<table>
+					<tr valign="middle">
+						<td width="230px">
+							<img id="logo" src="/public/noobaa/images/noobaa_logo.png" width="230px"></img>
+						</td>
+					</tr>
+					<tr valign="middle" align="center">
+						<td height="100px">
+							<button class="btn btn-warning" ng-click="show_whatis = !show_whatis">
+								<b>What is NooBaa &raquo;</b>
+							</button>
+						</td>
+					</tr>
+					<tr valign="middle" align="center">
+					</tr>
+				</table>
+			</td>
+			
+			<td width="50px"></td>
+			
+			<td>
+				<br/><br/>
+				<div id="whatis_content"
+					class="container-fluid"
+					nb-effect-toggle="show_whatis"
+					nb-effect-options="{effect:'fade', duration:1600}">
+					<div class="row-fluid">
+						<h1>NooBaa is a Crowd-Cloud 
+							<a class="pull-right btn btn-warning btn-large" 
+								ng-click="show_invite_modal()">
+								Join us!
+							</a>
+						</h1>	
+
+						<h5 class="lead">
+							<br/>
+							NooBaa enables you to join the crowd cloud. <be/>
+							Co-Share your existing local storage and enjoy the best possible cloud service. 
+							
+						</h5>
+					</div>
+					<div class="row-fluid">
+						<div class="badge badge-info span3 headlines" align="center">
+							<h1>Simple</h1>
+						</div>
+						<h5 class="lead span9">
+							No additional hardware. No complex plans. No complex decisions.<br/> All your Data. One location.
+						</h5>
+					</div>
+					<div class="row-fluid">
+						<div class="badge badge-info span3 headlines" align="center">
+							<h1>Fast</h1>
+						</div>
+						<h5 class="lead span9">
+							Together we are more powerful than any single corporate. <br/> Join us and enjoy the power of the crowd.
+						</h5>
+					</div>
+					<div class="row-fluid">
+						<div class="badge badge-info span3 headlines" align="center">
+							<h1>Free</h1>
+						</div>
+						<h5 class="lead span9">
+							Unlimited capacity. <br/>NooBaa is absolutely free.
+						</h5>
+					</div>
+				</div>
+			</td>
+
+			<td width="50px"></td>
+
+			<td height="70px" width="100px" valign="top" align="right">
+				<div style="margin: 20px;">
+					<fb:login-button
+						registration-url="/facebook_login/"
+						show-faces="false">
+					</fb:login-button>
+				</div>
+			</td>
+		</tr>
+	</table>
+
+
+<!-- INVITE MODAL -->
+
+	<div id="invite_modal" 
+		class="modal hide fade" 
+		tabindex="-1" 
+		role="dialog" 
+		aria-labelledby="invite_modal_label" 
+		aria-hidden="true"
+		style="background-color: #f2f2f2">
+		<div class="modal-header">
+			<a type="button" class="close" data-dismiss="modal">×</a>
+			<div ng-show="nonlisteduser" align="center">
+				<h4>NooBaa currently requries invitation</h4>
+			</div>
+			<h3 id="invite_modal_label" align="center">Please request an invitation</h3>
+		</div>
+		<div align="center" class="modal-body" style="margin-bottom: 0px">
+			<p>Enter your email address:</p>
+			<div class="row-fluid" style="margin-bottom: 10px">
+				<input ng-model="invite_email"
+					id="email_input"
+					class="input span12"
+					type="email"
+					ng-disabled="submitting || submitted">
+				</input>
+			</div>
+			<div class="alert alert-error" hidden></div>
+			<div class="alert alert-success" hidden></div>
+			<div>
+				<button class="btn btn-warning" ng-show="!submitted" ng-disabled="submitting" ng-click="submit()">
+					<img ng-show="submitting" src="/public/noobaa/images/ajax-loader.gif"></img>
+					Request
+				</button>
+				<button class="btn btn-success" ng-show="submitted" data-dismiss="modal">
+					Close
+				</button>
+			</div>
+		</div>
+		<!-- <div class="modal-footer" style="text-align: center"> </div> -->
+	</div>
+
+
+
+<!--=================================-->
+
+	<script type="text/javascript">
+		var has_running_requests = false;
+		$(function() {
+			window.onbeforeunload = function () {
+				if (has_running_requests) {
+					return "Leaving this page will interrupt your running requests !!!";
+				}
+			};
+		});
+
+		function WhatIsNooBaaCtrl($scope, $http, $location) {
+			$scope.show_whatis = false;
+			$scope.submitting = false;
+			$scope.submitted = false; 
+			$scope.location = $location;
+			$scope.nonlisteduser = ($location.search()).nonlisteduser;
+
+			$scope.show_invite_modal = function () {
+				$('#invite_modal').modal('show');
+			};
+
+			 if ($scope.nonlisteduser) {
+			 	$scope.show_invite_modal();
+			}
+
+			$scope.submit = function () {
+				has_running_requests = true;
+				$scope.submitting = true;
+				$('.alert').html('').hide();
+
+				if (!$scope.invite_email) {
+					$scope.finished_with_error(
+						"We need your valid email to request an invite");
+					return;
+				}
+
+				var ajax = $http.post('/request_invite/', $scope.invite_email)
+				ajax.error(function(data, status, headers, config) {
+					$scope.finished_with_error(
+						"We are sorry but your request could not be sent right now, please try again later");
+				});
+				ajax.success(function(data, status, headers, config) {
+					$scope.finished_with_success(
+						"Your request was sent. Thanks!");
+				});
+			}
+
+			$scope.finished_with_error = function (text) {
+				has_running_requests = false;
+				$scope.submitting = false;
+				$('.alert-success').html('').hide();
+				$('.alert-error').html(text).show().effect('bounce', 'slow');
+			}
+
+			$scope.finished_with_success = function (text) {
+				has_running_requests = false;
+				$scope.submitting = false;
+				$scope.submitted = true;
+				$('.alert-error').html('').hide();
+				$('.alert-success').html(text).show('fade', 'slow');
+			}
+		}
+		WhatIsNooBaaCtrl.$inject = ['$scope', '$http', '$location'];
+	</script>
+
+</body>
+
+</html>

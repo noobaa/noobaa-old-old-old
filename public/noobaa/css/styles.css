@@ -1,53 +1,57 @@
-/*
-	Allow angular.js to be loaded in body, hiding cloaked elements until 
-	templates compile.  The !important is important given that there may be 
-	other selectors that are more specific or come later and might alter display.  
-*/
-[ng\:cloak], [ng-cloak], .ng-cloak {
-	display: none !important;
-}
-
-.hfill { 
-    height: 100%;
-    /*min-height: 100%;*/
-}
-
-.wfill { 
-    width: 100%;
-    min-width: 100%;
-}
-
-.tooltip.in {
-	opacity: 1;
-	filter: alpha(opacity=100);
-	font-weight: bold;
-	font-size: 10pt;
-}
-
-.selectable .ui-selecting { background: #FECA40; }
-.selectable .ui-selected { background: #F39814; color: white; }
-.selectable { list-style-type: none; }
-
-.notextselect {
-	/* begin disable text selection highlight */
-	-webkit-touch-callout: none;
-	-webkit-user-select: none;
-	-khtml-user-select: none;
-	-moz-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
-}
-
-.roundbord {
-	border-radius:10px/8px;
-	border-style: solid;
-	border-width: 1px;
-	padding: 5px;
-}
-
 body {
 	background-image: url('../images/bg2.jpg');
 }
+
+/* 
+see http://stackoverflow.com/questions/1260122/expand-div-to-take-remaining-width 
+that explains why we use "overflow: hidden" in order to cause the divs to
+take the remaining width.
+for smaller screen sizes, we unset the float left in order to cause both to
+spread and take an entire line each.
+*/
+#nb_menu {
+	float: left;
+	overflow: hidden;
+}
+#nb_content {
+	overflow: hidden; 
+	padding: 20px 20px 0px 10px;
+}
+@media all and (max-width: 768px) {
+	#nb_menu {
+		float: inherit;
+	}
+}
+
+/* menubar style */
+#nb_logo {
+	width: 230px;
+}
+#nb_menubar {
+	margin: 0px;
+}
+#nb_menubar #user_pic {
+	text-align: center;
+	cursor: pointer;
+	margin: 20px 0px 15px 0px;
+}
+#nb_menubar #user_pic img {
+	width: 44px;
+}
+#nb_menubar #menu_ext {
+	margin: 0px;
+	padding: 0px 20px 0px 20px;
+	display: none;
+}
+#nb_menubar #menu_list {
+	margin: 0px;
+	padding: 15px 20px 0px 20px;
+}
+
+
+
+/**** CLASSES ****/
+
 
 .bglight {
 	background-color: #f2f2f2;
@@ -70,6 +74,55 @@ body {
 	/*font-weight: normal;*/
 	/*font-size: 14px;*/
 }
+
+.roundbord {
+	border-radius:10px/8px;
+	border-style: solid;
+	border-width: 1px;
+	padding: 5px;
+}
+
+.notextselect {
+	/* begin disable text selection highlight */
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+/* setting the bootstrap tooltips to be more solid and larger font */
+.tooltip.in {
+	opacity: 1;
+	filter: alpha(opacity=100);
+	font-weight: bold;
+	font-size: 10pt;
+}
+
+.selectable .ui-selecting { background: #FECA40; }
+.selectable .ui-selected { background: #F39814; color: white; }
+.selectable { list-style-type: none; }
+
+/*
+	Allow angular.js to be loaded in body, hiding cloaked elements until 
+	templates compile.  The !important is important given that there may be 
+	other selectors that are more specific or come later and might alter display.  
+*/
+[ng\:cloak], [ng-cloak], .ng-cloak {
+	display: none !important;
+}
+
+.hfill { 
+    height: 100%;
+    /*min-height: 100%;*/
+}
+
+.wfill { 
+    width: 100%;
+    min-width: 100%;
+}
+
 
 /*
 .dtable {
