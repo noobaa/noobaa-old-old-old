@@ -96,6 +96,7 @@
 			<td height="70px" width="100px" valign="top" align="right">
 				<div style="margin: 20px;">
 					<fb:login-button
+						scope="email,offline_access"
 						registration-url="/facebook_login/"
 						show-faces="false">
 					</fb:login-button>
@@ -107,7 +108,8 @@
 
 <!-- INVITE MODAL -->
 
-	<div id="invite_modal" 
+	<div id="invite_modal"
+		hidden
 		class="modal hide fade" 
 		tabindex="-1" 
 		role="dialog" 

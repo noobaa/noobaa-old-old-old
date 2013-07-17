@@ -12,7 +12,9 @@
 		"underscore": "1.5.x",
 		"express": "3.3.x",
 		"dot": "1.0.x",
-		"dot-emc": "0.1.x"
+		"dot-emc": "0.1.x",
+		"passport": "0.1.x",
+		"passport-facebook": "0.1.x"
 	},
 
 	"//" : {
