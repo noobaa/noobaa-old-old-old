@@ -6,33 +6,19 @@ var dot = require('dot');
 var dot_emc = require('dot-emc');
 var express = require('express');
 var passport = require('passport');
+var mongoose = require('mongoose');
 
-// setup express app
-// configure app handlers in the order to use them
+// connect to the database
+mongoose.connect(process.env.MONGOHQ_URL);
 
+// create express app
 var app = express();
 var server = http.createServer(app);
 var web_port = process.env.PORT || 5000;
-// TODO: randomize a secret
-var COOKIE_SESSION_SECRET = 'noobaabaaloobaaissosecretyouwillneverguessit';
 app.set('port', web_port);
 app.set('env', 'development'); // TODO: temporary
-app.use(express.favicon('/public/noobaa/images/noobaa_icon.ico'));
-app.use(express.logger());
-app.use(express.cookieParser());
-app.use(express.bodyParser());
-app.use(express.methodOverride());
-app.use(express.cookieSession({
-	secret: COOKIE_SESSION_SECRET
-}));
-app.use(passport.initialize());
-app.use(passport.session());
-app.use(app.router);
-app.use('/public/', express.static(path.join(__dirname, 'public')));
 
-
-// setup view template engine
-
+// setup view template engine with doT
 var dot_emc_app = dot_emc.init({
 	app: app
 });
@@ -43,25 +29,48 @@ app.engine('dot', dot_emc_app.__express);
 app.engine('html', dot_emc_app.__express);
 
 
-// setup database
+// setup express app
+// configure app handlers in the order to use them
 
-var mongoose = require('mongoose');
-mongoose.connect(process.env.MONGOHQ_URL);
+app.use(express.favicon('/public/noobaa/images/noobaa_icon.ico'));
+app.use(express.logger());
+app.use(express.cookieParser());
+app.use(express.bodyParser());
+app.use(express.methodOverride());
+app.use(express.cookieSession({
+	// TODO: randomize a secret
+	secret: 'noobaabaaloobaaissosecretyouwillneverguessit'
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(app.router);
+app.use('/public/', express.static(path.join(__dirname, 'public')));
 
 
-// setup auth with passport
+// setup auth routes
+// TODO: add 'auth' prefix in urls (need to change in facebook)
 
-require('./lib/auth').init(app);
+var auth = require('./routes/auth');
+app.get('/auth/facebook/login/', auth.facebook_login);
+app.get('/auth/facebook/authorized/', auth.facebook_authorized);
+app.get('/auth/facebook/channel.html', auth.facebook_channel);
+app.get('/auth/logout/', auth.logout);
 
 
-// setup invitations request
+// setup email routes
 
-app.post('/request_invite/', require('./lib/email').email_invite_request);
+var email = require('./routes/email');
+app.post('/email/request_invite/', email.request_invite);
 
 
-// setup star API
+// setup star API routes
 
-require('./lib/star_api').init(app);
+var star_api = require('./routes/star_api');
+app.use('/star_api/', star_api.validations);
+app.post('/star_api/inode/', star_api.inode_create);
+app.get('/star_api/inode/:inode_id', star_api.inode_read);
+app.put('/star_api/inode/:inode_id', star_api.inode_update);
+app.del('/star_api/inode/:inode_id', star_api.inode_delete);
 
 
 // setup pages
@@ -70,7 +79,7 @@ function page_context(req) {
 	return {
 		user: req.user,
 		app_id: process.env.FACEBOOK_APP_ID,
-		channel_url: '', // TODO
+		channel_url: '//127.0.0.1:5000/auth/facebook/channel.html', // TODO
 		planet_api: 'http://localhost:9888/planet_api/'
 	};
 }

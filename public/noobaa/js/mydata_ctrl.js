@@ -259,8 +259,10 @@ Inode.prototype.mkdir = function(name) {
 	var me = this;
 	this.$scope.http({
 		method: 'POST',
-		url: this.$scope.inode_api_url + this.id + '/' + name,
+		url: this.$scope.inode_api_url,
 		data: {
+			id: this.id,
+			name: name,
 			isdir: true
 		}
 	}).on('all', function() {
@@ -348,8 +350,10 @@ Inode.prototype.upload_file = function(file_data, filename, filesize) {
 	// first create an inode in the server
 	var ev = this.$scope.http({
 		method: 'POST',
-		url: this.$scope.inode_api_url + this.id + '/' + filename,
+		url: this.$scope.inode_api_url,
 		data: {
+			id: this.id,
+			name: filename,
 			isdir: false,
 			size: filesize,
 			uploading: true

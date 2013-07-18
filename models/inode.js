@@ -27,6 +27,4 @@ inode_schema.index({
 	unique: true
 });
 
-var Inode = mongoose.model('Inode', inode_schema);
-
-exports.Inode = Inode;
+exports.Inode = mongoose.model('Inode', inode_schema);

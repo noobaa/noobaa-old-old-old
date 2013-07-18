@@ -1,6 +1,6 @@
-// setup mailer
-
 var nodemailer = require("nodemailer");
+
+// setup mailer
 var smtp = nodemailer.createTransport("SMTP", {
 	service: "Mailgun",
 	auth: {
@@ -13,12 +13,10 @@ var smtp = nodemailer.createTransport("SMTP", {
 });
 
 
-exports.email_invite_request = function(req, res) {
+exports.request_invite = function(req, res) {
 	var mail_options = {
 		from: 'mailer@noobaa.com',
-		to: 'guy.margalit@noobaa.com',
-		// TODO: send to yuval too...
-		// to: ['guy.margalit@noobaa.com', 'yuval.dimnik@noobaa.com'],
+		to: ['guy.margalit@noobaa.com', 'yuval.dimnik@noobaa.com'],
 		subject: 'request invite',
 		text: JSON.stringify(req.body)
 	};

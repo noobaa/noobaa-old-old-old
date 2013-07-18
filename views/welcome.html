@@ -32,8 +32,8 @@
 	<div id="nb_righty" height="70px" width="100px" valign="top" align="center">
 		<div style="margin: 20px;">
 			<fb:login-button
-				scope="email,offline_access"
-				registration-url="/facebook_login/"
+				scope="email"
+				registration-url="/auth/facebook/login/"
 				show-faces="false">
 			</fb:login-button>
 		</div>
@@ -183,7 +183,9 @@
 					return;
 				}
 
-				var ajax = $http.post('/request_invite/', {email: $scope.invite_email})
+				var ajax = $http.post('/email/request_invite/', {
+					email: $scope.invite_email
+				});
 				ajax.error(function(data, status, headers, config) {
 					$scope.finished_with_error(
 						"We are sorry but your request could not be sent right now, please try again later");

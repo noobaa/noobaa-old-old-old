@@ -12,6 +12,4 @@ user_schema.index({
 	unique: true
 });
 
-var User = mongoose.model('User', user_schema);
-
-exports.User = User;
+exports.User = mongoose.model('User', user_schema);
