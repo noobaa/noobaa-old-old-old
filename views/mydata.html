@@ -452,7 +452,7 @@
 				class="nbfont">
 				<span ng-click="inode_dclick(dir_inode)"
 		 			style="vertical-align: middle;" 
-					ng-switch on="dir_inode.dir_state.refreshing">
+					ng-switch on="!!dir_inode.dir_state.refreshing">
 					<span ng-switch-when="false">
 						<span ng-switch on="dir_inode.dir_state.expanded">
 							<i ng-switch-when="false" class="icon-circle-arrow-right"></i>

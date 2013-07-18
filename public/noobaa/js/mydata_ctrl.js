@@ -130,8 +130,7 @@ function Inode($scope, id, name, isdir, parent) {
 			subdirs: {},
 			subfiles: {},
 			populated: false,
-			expanded: false,
-			refreshing: false
+			expanded: false
 		};
 	}
 }
@@ -177,25 +176,27 @@ Inode.prototype.expand_path = function() {
 };
 
 // send readdir request to the server
-// readdir will read the dir regardless if it was already populated - in such case it will refresh.
-// however it will avoid if another readdir is already working (refreshing).
+// readdir will read the dir regardless if it was already populated
+// - in such case it will refresh.
+// however it will avoid if another readdir is currently working (refreshing),
+// and will return the same events object to allow registering handlers.
 Inode.prototype.read_dir = function() {
 	if (this.dir_state.refreshing) {
-		return;
+		return this.dir_state.refreshing;
 	}
-	this.dir_state.refreshing = true;
 	var me = this; // needed for callbacks propagation
-	var h = this.$scope.http({
+	var ev = this.$scope.http({
 		method: 'GET',
-		url: this.$scope.crud_api_url + this.id
+		url: this.$scope.inode_api_url + this.id
 	});
-	h.on('all', function() {
-		me.dir_state.refreshing = false;
+	ev.on('all', function() {
+		delete me.dir_state.refreshing;
 	});
-	h.on('success', function(data) {
+	ev.on('success', function(data) {
 		me.populate_dir(data.entries);
 	});
-	return h;
+	this.dir_state.refreshing = ev;
+	return ev;
 };
 
 
@@ -256,14 +257,13 @@ Inode.prototype.populate_dir = function(entries) {
 // create new dir under this dir
 Inode.prototype.mkdir = function(name) {
 	var me = this;
-	var h = this.$scope.http({
+	this.$scope.http({
 		method: 'POST',
-		url: this.$scope.crud_api_url + this.id + '/' + name,
+		url: this.$scope.inode_api_url + this.id + '/' + name,
 		data: {
 			isdir: true
 		}
-	});
-	h.on('all', function() {
+	}).on('all', function() {
 		me.read_dir();
 	});
 };
@@ -276,30 +276,33 @@ Inode.prototype.delete_inode = function() {
 		this.$scope.alerts.add("You shouldn't delete root dir");
 		return;
 	}
-	var h = this.$scope.http({
+	this.$scope.http({
 		method: 'DELETE',
-		url: this.$scope.crud_api_url + this.id
-	});
-	h.on('all', function() {
+		url: this.$scope.inode_api_url + this.id
+	}).on('all', function() {
 		parent.read_dir();
 	});
 };
 
 // rename this inode to the given target dir,name
 Inode.prototype.rename = function(to_parent, to_name) {
-	var dir_inode = this.parent;
-	if (!dir_inode) {
-		me.$scope.alerts.add("You shouldn't delete root dir");
+	var me = this;
+	var parent = this.parent;
+	if (!parent) {
+		this.$scope.alerts.add("You shouldn't rename root dir");
 		return;
 	}
-	var args = {
-		id: this.id,
-		from_dir: dir_inode.id,
-		from_name: this.name,
-		to_dir: to_parent.id,
-		to_name: to_name
-	};
-	this.do_post('rename', args, to_parent, dir_inode);
+	this.$scope.http({
+		method: 'PUT',
+		url: this.$scope.inode_api_url + this.id,
+		data: {
+			parent: to_parent.id,
+			name: to_name
+		}
+	}).on('all', function() {
+		to_parent.read_dir();
+		parent.read_dir();
+	});
 };
 
 // send device upload request
@@ -494,28 +497,14 @@ function InodesRootCtrl($scope, $safe, $timeout) {
 
 	$scope.curr_dir_refresh = function() {
 		var dir_inode = $scope.dir_selection.inode;
-		if (dir_inode) {
-			var h = dir_inode.read_dir();
-			if (h) {
-				h.on('success', function() {
-					delete $scope.curr_dir_refresh_failed;
-					if ($scope.do_refresh_selection) {
-						$timeout($scope.curr_dir_refresh, 5000);
-					}
-				});
-				h.on('error', function() {
-					$scope.curr_dir_refresh_failed = true;
-					if ($scope.do_refresh_selection) {
-						$timeout($scope.curr_dir_refresh, 5000);
-					}
-				});
-			} else {
-				// dir is refreshing, try later
-				if ($scope.do_refresh_selection) {
-					$timeout($scope.curr_dir_refresh, 5000);
-				}
-			}
+		if (!dir_inode) {
+			return;
 		}
+		dir_inode.read_dir().on('all', function() {
+			if ($scope.do_refresh_selection) {
+				$timeout($scope.curr_dir_refresh, 20000);
+			}
+		});
 	};
 	$scope.curr_dir_refresh();
 
@@ -838,27 +827,27 @@ function UploadCtrl($scope, $safe, $http, $timeout) {
 
 	// set the api url to the planet
 	$scope.api_url = planet_api;
-	$scope.crud_api_url = planet_api + "crud/";
+	$scope.inode_api_url = planet_api + "inode/";
 
+	// returns an event object with 'success' and 'error' events,
+	// which allows multiple events can be registered on the ajax result.
 	$scope.http = function(req) {
 		console.log('[http]', req);
-		// create an event dispathcer that allows
-		// callers to add handling for the ajax events.
-		var event_dispatcher = _.clone(Backbone.Events);
-		event_dispatcher.on('success', function(data, status) {
+		var ev = _.clone(Backbone.Events);
+		ev.on('success', function(data, status) {
 			console.log('[http ok]', [status, req]);
 		});
-		event_dispatcher.on('error', function(data, status) {
+		ev.on('error', function(data, status) {
 			$scope.alerts.add(data || 'http request failed', [status, req]);
 		});
 		var ajax = $http(req);
 		ajax.success(function(data, status, headers, config) {
-			event_dispatcher.trigger('success', data, status, headers, config);
+			ev.trigger('success', data, status, headers, config);
 		});
 		ajax.error(function(data, status, headers, config) {
-			event_dispatcher.trigger('error', data, status, headers, config);
+			ev.trigger('error', data, status, headers, config);
 		});
-		return event_dispatcher;
+		return ev;
 	};
 
 	// calling directly since we just want to include the inodes root scope here
@@ -943,27 +932,27 @@ function MyDataCtrl($scope, $safe, $http, $timeout) {
 	$scope.alerts = new Alerts();
 
 	$scope.api_url = "/star_api/";
-	$scope.crud_api_url = "/star_api/crud/";
+	$scope.inode_api_url = $scope.api_url + "inode/";
 
+	// returns an event object with 'success' and 'error' events,
+	// which allows multiple events can be registered on the ajax result.
 	$scope.http = function(req) {
 		console.log('[http]', req);
-		// create an event dispathcer that allows
-		// callers to add handling for the ajax events.
-		var event_dispatcher = _.clone(Backbone.Events);
-		event_dispatcher.on('success', function(data, status) {
+		var ev = _.clone(Backbone.Events);
+		ev.on('success', function(data, status) {
 			console.log('[http ok]', [status, req]);
 		});
-		event_dispatcher.on('error', function(data, status) {
+		ev.on('error', function(data, status) {
 			$scope.alerts.add(data || 'http request failed', [status, req]);
 		});
 		var ajax = $http(req);
 		ajax.success(function(data, status, headers, config) {
-			event_dispatcher.trigger('success', data, status, headers, config);
+			ev.trigger('success', data, status, headers, config);
 		});
 		ajax.error(function(data, status, headers, config) {
-			event_dispatcher.trigger('error', data, status, headers, config);
+			ev.trigger('error', data, status, headers, config);
 		});
-		return event_dispatcher;
+		return ev;
 	};
 
 	$scope.layout = {
