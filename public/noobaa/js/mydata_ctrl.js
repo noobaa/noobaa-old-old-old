@@ -307,11 +307,16 @@ Inode.prototype.rename = function(to_parent, to_name) {
 
 // send device upload request
 Inode.prototype.dev_upload = function(dir_inode) {
-	var args = {
-		id: this.id,
-		dir_id: dir_inode.id
-	};
-	this.do_post('upload', args, dir_inode);
+	this.$scope.http({
+		method: 'POST',
+		url: this.$scope.api_url + 'upload',
+		data: {
+			id: this.id,
+			dir_id: dir_inode.id
+		}
+	}).on('all', function() {
+		dir_inode.read_dir();
+	});
 };
 
 // open a download window on this file
@@ -319,9 +324,10 @@ Inode.prototype.download_file = function() {
 	if (this.uploading) {
 		return;
 	}
-	var url = this.$scope.api_make_request('download', {
+	var query = $.param({
 		id: this.id
 	});
+	var url = $scope.api_url + 'download' + "?" + query;
 	var win = window.open(url, '_blank');
 	win.focus();
 };
@@ -340,23 +346,25 @@ Inode.prototype.upload_files = function(event, file_data) {
 Inode.prototype.upload_file = function(file_data, filename, filesize) {
 	var me = this;
 	// first create an inode in the server
-	var args = {
-		id: this.id,
-		name: filename,
-		isdir: false,
-		size: filesize,
-		uploading: true
-	};
-	this.do_post('mknode', args, this, null, function(mknode_data) {
-		// mknode succeeded, now send the upload data request
-		console.log('mknode reply:', mknode_data);
+	var ev = this.$scope.http({
+		method: 'POST',
+		url: this.$scope.inode_api_url + this.id + '/' + filename,
+		data: {
+			isdir: false,
+			size: filesize,
+			uploading: true
+		}
+	});
+	// after create succeeds, send the upload data request
+	ev.on('success', function(create_data) {
+		console.log('create inode reply:', create_data);
 		me.read_dir();
-		var upload_args = {
-			id: mknode_data.id
-		};
+		// TODO: use s3 upload with signed url
 		file_data.method = 'PUT';
 		file_data.url = me.$scope.api_url + 'upload';
-		file_data.formData = upload_args;
+		file_data.formData = {
+			id: create_data.id
+		};
 		num_running_uploads++;
 
 		// use the submit function of the plugin to send ajax with multipart data
@@ -378,20 +386,25 @@ Inode.prototype.upload_file = function(file_data, filename, filesize) {
 	});
 };
 
-Inode.prototype.get_share_list = function(data_callback) {
-	var args = {
-		id: this.id
-	};
-	this.do_post('get_share_list', args, null, null, data_callback);
+Inode.prototype.get_share_list = function() {
+	return this.$scope.http({
+		method: 'POST',
+		url: this.$scope.api_url + 'get_share_list',
+		data: {
+			id: this.id
+		}
+	});
 };
 
-Inode.prototype.share = function(share_list) {
-	var args = {
-		id: this.id,
-		share_list: share_list
-	};
-	this.do_post('share', args);
-	this.do_post('get_share_list', args, null, null, data_callback);
+Inode.prototype.share = function() {
+	return this.$scope.http({
+		method: 'POST',
+		url: this.$scope.api_url + 'share',
+		data: {
+			id: this.id,
+			share_list: share_list
+		}
+	});
 };
 
 
@@ -500,9 +513,17 @@ function InodesRootCtrl($scope, $safe, $timeout) {
 		if (!dir_inode) {
 			return;
 		}
-		dir_inode.read_dir().on('all', function() {
-			if ($scope.do_refresh_selection) {
-				$timeout($scope.curr_dir_refresh, 20000);
+		dir_inode.read_dir().on({
+			'all': function() {
+				if ($scope.do_refresh_selection) {
+					$timeout($scope.curr_dir_refresh, 20000);
+				}
+			},
+			'error': function() {
+				$scope.curr_dir_refresh_failed = true;
+			},
+			'success': function() {
+				$scope.curr_dir_refresh_failed = false;
 			}
 		});
 	};
@@ -795,7 +816,7 @@ function ShareModalCtrl($scope, $safe) {
 	var share_modal = $('#share_modal');
 	share_modal.on('show', $safe.$callback($scope, function() {
 		$scope.share_inode = $scope.inode_selection.inode;
-		$scope.share_inode.get_share_list(function(data) {
+		$scope.share_inode.get_share_list().on('success', function(data) {
 			$scope.share_list = data.list;
 		});
 	}));
@@ -808,7 +829,9 @@ function ShareModalCtrl($scope, $safe) {
 		var inode = $scope.share_inode;
 		var share_list = $scope.share_list;
 		share_modal.modal('hide');
-		inode.share(share_list);
+		inode.share(share_list).on('success', function(data) {
+			// TODO: better show working sign of the ajax operation and only here hide the modal
+		});
 	};
 }
 
