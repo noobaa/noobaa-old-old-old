@@ -1,1 +1,1 @@
-web: node star.js
+web: supervisor star.js

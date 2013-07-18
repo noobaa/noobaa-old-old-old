@@ -17,7 +17,7 @@ var web_port = process.env.PORT || 5000;
 var COOKIE_SESSION_SECRET = 'noobaabaaloobaaissosecretyouwillneverguessit';
 app.set('port', web_port);
 app.set('env', 'development'); // TODO: temporary
-app.use(express.favicon());
+app.use(express.favicon('/public/noobaa/images/noobaa_icon.ico'));
 app.use(express.logger());
 app.use(express.cookieParser());
 app.use(express.bodyParser());

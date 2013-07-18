@@ -5,7 +5,7 @@ var upload_dir_input;
 var num_running_uploads = 0;
 
 $(function() {
-	window.onbeforeunload = function () {
+	window.onbeforeunload = function() {
 		if (num_running_uploads) {
 			return "Leaving this page will interrupt your running Uploads !!!";
 		}
@@ -16,10 +16,14 @@ $(function() {
 
 	// enable bootstrap tooltips.
 	// the container=body is needed due to https://github.com/twitter/bootstrap/issues/5687
-	$("[rel=tooltip]").tooltip({ container: 'body' });
+	$("[rel=tooltip]").tooltip({
+		container: 'body'
+	});
 
 	// enable dragging of class draggable
-	$(".draggable").draggable({ helper: "clone" });
+	$(".draggable").draggable({
+		helper: "clone"
+	});
 
 	$(".selectable").selectable();
 
@@ -38,10 +42,11 @@ $(function() {
 });
 
 // open the page context menu element on the given mouse event position
+
 function open_context_menu(event) {
 	var context_menu = $('#context_menu');
 	var context_menu_toggle = $('#context_menu_toggle');
-	context_menu.css('position','fixed');
+	context_menu.css('position', 'fixed');
 	context_menu.css('left', event.clientX);
 	context_menu.css('top', event.clientY);
 	context_menu_toggle.dropdown('toggle');
@@ -67,6 +72,7 @@ function sync_property(to, from, key) {
 ////////////////////////////////
 
 // Keep list of alerts, and their unread state
+
 function Alerts() {
 	this.alerts = [];
 	this.num_unread = 0;
@@ -75,7 +81,11 @@ function Alerts() {
 // push new alert in front of existing ones and increase counter
 Alerts.prototype.add = function(text, info) {
 	console.log("[ERR]", text, info);
-	this.alerts.unshift({text: text, time: new Date(), unread: true});
+	this.alerts.unshift({
+		text: text,
+		time: new Date(),
+		unread: true
+	});
 	this.num_unread++;
 };
 
@@ -97,6 +107,7 @@ Alerts.prototype.mark_read = function(alert) {
 
 
 // Inode model for dir/file
+
 function Inode($scope, id, name, isdir, parent) {
 
 	// link to the scope that serves the inode - 
@@ -111,7 +122,7 @@ function Inode($scope, id, name, isdir, parent) {
 	this.parent = parent;
 
 	// computed level - better save the result here than call recursive func
-	this.level = parent ? (parent.level+1) : 0;
+	this.level = parent ? (parent.level + 1) : 0;
 
 	// directory state
 	if (isdir) {
@@ -168,30 +179,25 @@ Inode.prototype.expand_path = function() {
 // send readdir request to the server
 // readdir will read the dir regardless if it was already populated - in such case it will refresh.
 // however it will avoid if another readdir is already working (refreshing).
-Inode.prototype.read_dir = function(opt) {
+Inode.prototype.read_dir = function() {
 	if (this.dir_state.refreshing) {
 		return;
 	}
 	this.dir_state.refreshing = true;
 	var me = this; // needed for callbacks propagation
-	var req = 'readdir';
-	var args = {id: this.id};
-	var ajax = this.$scope.api_ajax_get(req, args);
-	ajax.error(function(data, status, headers, config) {
+	var h = this.$scope.http({
+		method: 'GET',
+		url: this.$scope.crud_api_url + this.id
+	});
+	h.on('all', function() {
 		me.dir_state.refreshing = false;
-		me.$scope.alerts.add(data || 'readdir failed', [status, req, me]);
-		if (opt && opt.error) {
-			opt.error(me);
-		}
 	});
-	ajax.success(function(data, status, headers, config) {
-		console.log('[ok]', [status, req, me]);
+	h.on('success', function(data) {
 		me.populate_dir(data.entries);
-		if (opt && opt.success) {
-			opt.success(me);
-		}
 	});
+	return h;
 };
+
 
 // insert given entries as sub items under the this directory item
 Inode.prototype.populate_dir = function(entries) {
@@ -201,7 +207,7 @@ Inode.prototype.populate_dir = function(entries) {
 	var ent;
 	var son;
 
-	for (var i=0; i<entries.length; ++i) {
+	for (var i = 0; i < entries.length; ++i) {
 		ent = entries[i];
 		if (ent.isdir) {
 			son = this.dir_state.subdirs[ent.id];
@@ -243,64 +249,40 @@ Inode.prototype.populate_dir = function(entries) {
 	this.dir_state.subdirs = subdirs;
 	this.dir_state.subfiles = subfiles;
 	this.dir_state.populated = true;
-	this.dir_state.refreshing = false;
 	this.dir_state.during_upload = during_upload;
 	this.$scope.read_dir_callback(this);
 };
 
-// helper method to send post request to server api, 
-// and when the response arrives refresh the given dirs
-Inode.prototype.do_post = function(req, args, read_dir1, read_dir2, data_callback) {
-	console.log("[post]", req, args);
-	var me = this;
-	var ajax = this.$scope.api_ajax_post(req, args);
-	ajax.error(function(data, status, headers, config) {
-		me.$scope.alerts.add(data || ('request failed: ' + req), [status, req, args, me]);
-		if (read_dir1) {
-			read_dir1.read_dir();
-		}
-		if (read_dir2) {
-			read_dir2.read_dir();
-		}
-	});
-	ajax.success(function(data, status, headers, config) {
-		console.log('[ok]', [status, req, args, me]);
-		if (data_callback) {
-			data_callback(data);
-		}
-		if (read_dir1) {
-			read_dir1.read_dir();
-		}
-		if (read_dir2) {
-			read_dir2.read_dir();
-		}
-	});
-	console.log("[post submitted]", req, args);
-};
-
 // create new dir under this dir
 Inode.prototype.mkdir = function(name) {
-	var args = {
-		id: this.id,
-		name: name,
-		isdir: true
-	};
-	this.do_post('mknode', args, this);
+	var me = this;
+	var h = this.$scope.http({
+		method: 'POST',
+		url: this.$scope.crud_api_url + this.id + '/' + name,
+		data: {
+			isdir: true
+		}
+	});
+	h.on('all', function() {
+		me.read_dir();
+	});
 };
 
 // delete this inode
 Inode.prototype.delete_inode = function() {
-	var dir_inode = this.parent;
-	if (!dir_inode) {
-		me.$scope.alerts.add("You shouldn't delete root dir");
+	var me = this;
+	var parent = this.parent;
+	if (!parent) {
+		this.$scope.alerts.add("You shouldn't delete root dir");
 		return;
 	}
-	var args = {
-		id: this.id,
-		dir_id: dir_inode.id,
-		name: this.name
-	};
-	this.do_post('delete', args, dir_inode);
+	var h = this.$scope.http({
+		method: 'DELETE',
+		url: this.$scope.crud_api_url + this.id
+	});
+	h.on('all', function() {
+		parent.read_dir();
+	});
 };
 
 // rename this inode to the given target dir,name
@@ -334,7 +316,9 @@ Inode.prototype.download_file = function() {
 	if (this.uploading) {
 		return;
 	}
-	var url = this.$scope.api_make_request('download', {id: this.id});
+	var url = this.$scope.api_make_request('download', {
+		id: this.id
+	});
 	var win = window.open(url, '_blank');
 	win.focus();
 };
@@ -344,7 +328,7 @@ Inode.prototype.download_file = function() {
 // and upload each one - since each one is done by ajax, this is in fact parallel.
 Inode.prototype.upload_files = function(event, file_data) {
 	var me = this;
-	$.each(file_data.files, function (index, file) {
+	$.each(file_data.files, function(index, file) {
 		me.upload_file(file_data, file.name, file.size);
 	});
 };
@@ -360,11 +344,13 @@ Inode.prototype.upload_file = function(file_data, filename, filesize) {
 		size: filesize,
 		uploading: true
 	};
-	this.do_post('mknode', args, this, null, function(mknode_data){
+	this.do_post('mknode', args, this, null, function(mknode_data) {
 		// mknode succeeded, now send the upload data request
 		console.log('mknode reply:', mknode_data);
 		me.read_dir();
-		var upload_args = {id: mknode_data.id};
+		var upload_args = {
+			id: mknode_data.id
+		};
 		file_data.method = 'PUT';
 		file_data.url = me.$scope.api_url + 'upload';
 		file_data.formData = upload_args;
@@ -372,16 +358,16 @@ Inode.prototype.upload_file = function(file_data, filename, filesize) {
 
 		// use the submit function of the plugin to send ajax with multipart data
 		var xhr = file_data.submit();
-		xhr.error(function (jqXHR, textStatus, errorThrown) {
+		xhr.error(function(jqXHR, textStatus, errorThrown) {
 			me.$scope.alerts.add('upload error: ' + textStatus + ' ' + errorThrown);
 		});
-		xhr.success(function (result, textStatus, jqXHR) {
+		xhr.success(function(result, textStatus, jqXHR) {
 			console.log('[ok] upload success');
 		});
-		xhr.complete(function (result, textStatus, jqXHR) {
+		xhr.complete(function(result, textStatus, jqXHR) {
 			console.log('[ok] upload complete');
 		});
-		xhr.always(function (e, data) {
+		xhr.always(function(e, data) {
 			// data.result, data.textStatus, data.jqXHR
 			num_running_uploads--;
 			me.read_dir();
@@ -415,6 +401,7 @@ Inode.prototype.share = function(share_list) {
 
 // simple selection model that has one selected inode,
 // and it turns on/off the given tags on the selected inode.
+
 function InodesSelection(tags) {
 	this.tags = tags;
 	this.inode = null;
@@ -446,6 +433,7 @@ InodesSelection.prototype.select = function(inode) {
 
 
 // initializer for the inodes root model/controller
+
 function InodesRootCtrl($scope, $safe, $timeout) {
 	$scope.root_dir = new Inode($scope, null, '', true, null);
 
@@ -453,14 +441,18 @@ function InodesRootCtrl($scope, $safe, $timeout) {
 	$scope.dir_inode = $scope.root_dir;
 
 	// the dir selection will set a dir_active tag
-	$scope.dir_selection = new InodesSelection({'dir_active':'active'});
+	$scope.dir_selection = new InodesSelection({
+		'dir_active': 'active'
+	});
 	$scope.dir_selection.select($scope.root_dir);
 
 	// the inode selection will set a inode_active tag
-	$scope.inode_selection = new InodesSelection({'inode_active':'active'});
+	$scope.inode_selection = new InodesSelection({
+		'inode_active': 'active'
+	});
 	$scope.inode_selection.select($scope.root_dir);
 
-	$scope.select = function (inode, opt) {
+	$scope.select = function(inode, opt) {
 		if (!inode) {
 			return;
 		}
@@ -489,32 +481,40 @@ function InodesRootCtrl($scope, $safe, $timeout) {
 		}
 	};
 
-	$scope.read_dir_callback = function (dir_inode) {
+	$scope.read_dir_callback = function(dir_inode) {
 		if ($scope.hide_root_dir && $scope.dir_selection.inode && !$scope.dir_selection.inode.id) {
 			for (var id in dir_inode.dir_state.subdirs) {
 				break;
 			}
-			$scope.select(dir_inode.dir_state.subdirs[id], {dir: true});
+			$scope.select(dir_inode.dir_state.subdirs[id], {
+				dir: true
+			});
 		}
 	};
 
-	$scope.curr_dir_refresh = function () {
+	$scope.curr_dir_refresh = function() {
 		var dir_inode = $scope.dir_selection.inode;
 		if (dir_inode) {
-			dir_inode.read_dir({
-				success: function () {
+			var h = dir_inode.read_dir();
+			if (h) {
+				h.on('success', function() {
 					delete $scope.curr_dir_refresh_failed;
 					if ($scope.do_refresh_selection) {
 						$timeout($scope.curr_dir_refresh, 5000);
 					}
-				},
-				error: function () {
+				});
+				h.on('error', function() {
 					$scope.curr_dir_refresh_failed = true;
 					if ($scope.do_refresh_selection) {
 						$timeout($scope.curr_dir_refresh, 5000);
 					}
+				});
+			} else {
+				// dir is refreshing, try later
+				if ($scope.do_refresh_selection) {
+					$timeout($scope.curr_dir_refresh, 5000);
 				}
-			});
+			}
 		}
 	};
 	$scope.curr_dir_refresh();
@@ -531,7 +531,10 @@ function InodesRootCtrl($scope, $safe, $timeout) {
 		}
 		if (event.type === 'drop') {
 			// select the drop dir
-			$scope.select(drop_inode, {dir: true, open: true});
+			$scope.select(drop_inode, {
+				dir: true,
+				open: true
+			});
 
 			if (drag_inode) {
 				// when drag is an inode, then move it under the drop dir
@@ -544,11 +547,13 @@ function InodesRootCtrl($scope, $safe, $timeout) {
 				// setup the uploader and send it the files
 				upload_files_input.fileupload({
 					dataType: 'json',
-					add: $safe.$callback($scope, function (event, file_data) {
+					add: $safe.$callback($scope, function(event, file_data) {
 						drop_inode.upload_files(event, file_data);
 					})
 				});
-				upload_files_input.fileupload('send', {files: event.dataTransfer.files});
+				upload_files_input.fileupload('send', {
+					files: event.dataTransfer.files
+				});
 			}
 			return true;
 		}
@@ -567,13 +572,21 @@ function InodesRootCtrl($scope, $safe, $timeout) {
 
 function InodesTreeCtrl($scope) {
 	$scope.inode_click = function(inode) {
-		$scope.select(inode, {dir: true});
+		$scope.select(inode, {
+			dir: true
+		});
 	};
 	$scope.inode_dclick = function(inode) {
-		$scope.select(inode, {dir: true, toggle: true});
+		$scope.select(inode, {
+			dir: true,
+			toggle: true
+		});
 	};
 	$scope.inode_rclick = function(inode, event) {
-		$scope.select(inode, {dir: true, context: event});
+		$scope.select(inode, {
+			dir: true,
+			context: event
+		});
 	};
 	$scope.inode_drag = function(inode, event) {
 		console.log(event.type + ' ' + inode.name);
@@ -596,10 +609,15 @@ function InodesListCtrl($scope) {
 		$scope.select(inode);
 	};
 	$scope.inode_dclick = function(inode) {
-		$scope.select(inode, {dir: true, open: true});
+		$scope.select(inode, {
+			dir: true,
+			open: true
+		});
 	};
 	$scope.inode_rclick = function(inode, event) {
-		$scope.select(inode, {context: event});
+		$scope.select(inode, {
+			context: event
+		});
 	};
 	$scope.inode_drag = function(inode, event) {
 		console.log(event.type + ' ' + inode.name);
@@ -619,7 +637,10 @@ function InodesListCtrl($scope) {
 
 function InodesBreadcrumbCtrl($scope) {
 	$scope.inode_click = function(inode) {
-		$scope.select(inode, {dir: true, open: true});
+		$scope.select(inode, {
+			dir: true,
+			open: true
+		});
 	};
 }
 
@@ -632,6 +653,7 @@ function InodesBreadcrumbCtrl($scope) {
 ////////////////////////////////
 
 // This controller handles the clicks on the device inodes list to allow navigation.
+
 function InodesDeviceListCtrl($scope) {
 
 	// single click - change selection
@@ -641,7 +663,10 @@ function InodesDeviceListCtrl($scope) {
 
 	// double click - select and also dive into dir
 	$scope.inode_dclick = function(inode) {
-		$scope.select(inode, {dir: true, open_dir: true});
+		$scope.select(inode, {
+			dir: true,
+			open_dir: true
+		});
 		// our parent scope is the device modal, so we can submit
 		// $scope.$parent.submit();
 	};
@@ -662,9 +687,12 @@ function InodesDeviceListCtrl($scope) {
 
 
 function InodesMenuCtrl($scope, $safe) {
-	$scope.click_open = function () {
+	$scope.click_open = function() {
 		var inode = $scope.inode_selection.inode;
-		$scope.select(inode, {dir: true, open: true});
+		$scope.select(inode, {
+			dir: true,
+			open: true
+		});
 	};
 	$scope.click_refresh = function() {
 		var dir_inode = $scope.dir_selection.inode;
@@ -681,7 +709,10 @@ function InodesMenuCtrl($scope, $safe) {
 			return;
 		}
 		inode.delete_inode();
-		$scope.select(inode.parent, {dir: true, open_dir: true});
+		$scope.select(inode.parent, {
+			dir: true,
+			open_dir: true
+		});
 	};
 }
 
@@ -775,7 +806,7 @@ function ShareModalCtrl($scope, $safe) {
 	var share_modal = $('#share_modal');
 	share_modal.on('show', $safe.$callback($scope, function() {
 		$scope.share_inode = $scope.inode_selection.inode;
-		$scope.share_inode.get_share_list(function (data){
+		$scope.share_inode.get_share_list(function(data) {
 			$scope.share_list = data.list;
 		});
 	}));
@@ -802,18 +833,33 @@ function ShareModalCtrl($scope, $safe) {
 
 
 function UploadCtrl($scope, $safe, $http, $timeout) {
+
+	$scope.timeout = $timeout;
+
 	// set the api url to the planet
 	$scope.api_url = planet_api;
-	$scope.api_make_request = function(path, args) {
-		return $scope.api_url + path + "?" + $.param(args);
+	$scope.crud_api_url = planet_api + "crud/";
+
+	$scope.http = function(req) {
+		console.log('[http]', req);
+		// create an event dispathcer that allows
+		// callers to add handling for the ajax events.
+		var event_dispatcher = _.clone(Backbone.Events);
+		event_dispatcher.on('success', function(data, status) {
+			console.log('[http ok]', [status, req]);
+		});
+		event_dispatcher.on('error', function(data, status) {
+			$scope.alerts.add(data || 'http request failed', [status, req]);
+		});
+		var ajax = $http(req);
+		ajax.success(function(data, status, headers, config) {
+			event_dispatcher.trigger('success', data, status, headers, config);
+		});
+		ajax.error(function(data, status, headers, config) {
+			event_dispatcher.trigger('error', data, status, headers, config);
+		});
+		return event_dispatcher;
 	};
-	$scope.api_ajax_get = function(path, args) {
-		return $http.get($scope.api_make_request(path, args));
-	};
-	$scope.api_ajax_post = function(path, args) {
-		return $http.post($scope.api_url + path, args);
-	};
-	$scope.timeout = $timeout;
 
 	// calling directly since we just want to include the inodes root scope here
 	$scope.do_refresh_selection = false;
@@ -851,10 +897,10 @@ function UploadCtrl($scope, $safe, $http, $timeout) {
 		// setup the fileupload plugin and open the dialog
 		upload_files_input.fileupload({
 			dataType: 'json',
-			add: $safe.$callback($scope, function (event, file_data) {
+			add: $safe.$callback($scope, function(event, file_data) {
 				dir_inode.upload_files(event, file_data);
 			}),
-			progressall: $safe.$callback($scope, function (e, data) {
+			progressall: $safe.$callback($scope, function(e, data) {
 				var progress = parseInt(data.loaded / data.total * 100, 10);
 				$('#progressall .bar').css('width', progress + '%');
 			})
@@ -870,10 +916,10 @@ function UploadCtrl($scope, $safe, $http, $timeout) {
 		// setup the fileupload plugin and open the dialog
 		upload_dir_input.fileupload({
 			dataType: 'json',
-			add: $safe.$callback($scope, function (event, file_data) {
+			add: $safe.$callback($scope, function(event, file_data) {
 				dir_inode.upload_files(event, file_data);
 			}),
-			progressall: $safe.$callback($scope, function (e, data) {
+			progressall: $safe.$callback($scope, function(e, data) {
 				var progress = parseInt(data.loaded / data.total * 100, 10);
 				$('#progressall .bar').css('width', progress + '%');
 			})
@@ -893,19 +939,32 @@ function UploadCtrl($scope, $safe, $http, $timeout) {
 
 function MyDataCtrl($scope, $safe, $http, $timeout) {
 
-	$scope.api_url = "/star_api/";
-	$scope.api_make_request = function(path, args) {
-		return $scope.api_url + path + "?" + $.param(args);
-	};
-	$scope.api_ajax_get = function(path, args) {
-		return $http.get($scope.api_make_request(path, args));
-	};
-	$scope.api_ajax_post = function(path, args) {
-		return $http.post($scope.api_url + path, args);
-	};
 	$scope.timeout = $timeout;
-
 	$scope.alerts = new Alerts();
+
+	$scope.api_url = "/star_api/";
+	$scope.crud_api_url = "/star_api/crud/";
+
+	$scope.http = function(req) {
+		console.log('[http]', req);
+		// create an event dispathcer that allows
+		// callers to add handling for the ajax events.
+		var event_dispatcher = _.clone(Backbone.Events);
+		event_dispatcher.on('success', function(data, status) {
+			console.log('[http ok]', [status, req]);
+		});
+		event_dispatcher.on('error', function(data, status) {
+			$scope.alerts.add(data || 'http request failed', [status, req]);
+		});
+		var ajax = $http(req);
+		ajax.success(function(data, status, headers, config) {
+			event_dispatcher.trigger('success', data, status, headers, config);
+		});
+		ajax.error(function(data, status, headers, config) {
+			event_dispatcher.trigger('error', data, status, headers, config);
+		});
+		return event_dispatcher;
+	};
 
 	$scope.layout = {
 		show_tree: true,
@@ -921,14 +980,19 @@ function MyDataCtrl($scope, $safe, $http, $timeout) {
 				"roundbord bglight";
 		},
 		tree_style: function() {
-			return $scope.layout.show_tree ?
-				{"min-height": "300px"} :
-				{"min-height": "300px"};
+			return $scope.layout.show_tree ? {
+				"min-height": "300px"
+			} : {
+				"min-height": "300px"
+			};
 		},
 		list_style: function() {
-			return $scope.layout.show_tree ?
-				{"min-height": "300px"} :
-				{"min-height": "300px", "margin-left": "0px"};
+			return $scope.layout.show_tree ? {
+				"min-height": "300px"
+			} : {
+				"min-height": "300px",
+				"margin-left": "0px"
+			};
 		}
 	};
 
