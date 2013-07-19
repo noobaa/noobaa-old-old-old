@@ -1,9 +1,23 @@
 var _ = require('underscore');
 var AWS = require('aws-sdk');
+var path = require('path');
+
 var inode_model = require('../models/inode');
 var fobj_model = require('../models/fobj');
 var Inode = inode_model.Inode;
 var Fobj = fobj_model.Fobj;
+
+/* loaded automatically from env
+AWS.config.update({
+	accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+	secretAccessKey: process.env.AWS_SECRET_KEY,
+});
+*/
+AWS.config.update({
+	region: 'eu-west-1'
+});
+var s3 = new AWS.S3;
+
 
 // reply_func returns a handler that first treats errors,
 // and if no error, will call the real handler
@@ -27,9 +41,21 @@ function reply_ok(req, res) {
 	});
 }
 
+function get_s3_urls(fobj_id) {
+	var params = {
+		Bucket: process.env.S3_BUCKET,
+		Key: path.join(process.env.S3_PATH, 'fobsj', String(fobj_id))
+	};
+	return {
+		getObject: s3.getSignedUrl('getObject', params),
+		putObject: s3.getSignedUrl('putObject', params)
+	}
+}
+
 // transform the inode and optional fobj to an entry 
 // that is the interface for the client.
-function inode_to_entry(inode, fobj) {
+
+function inode_to_entry(inode, fobj, signed_urls) {
 	var ent = {
 		id: inode._id,
 		name: inode.name,
@@ -41,6 +67,9 @@ function inode_to_entry(inode, fobj) {
 			uploading: fobj.uploading,
 			upload_size: fobj.upload_size
 		});
+		if (signed_urls) {
+			ent.s3 = get_s3_urls(fobj._id);
+		}
 	}
 	return ent;
 }
@@ -127,7 +156,7 @@ exports.inode_create = function(req, res) {
 	var do_save_inode = function() {
 		return inode.save(reply_func(req, res, function() {
 			console.log('CREATED INODE:', inode);
-			return res.json(200, inode_to_entry(inode, fobj));
+			return res.json(200, inode_to_entry(inode, fobj, true));
 		}));
 	};
 
@@ -176,8 +205,7 @@ exports.inode_read = function(req, res) {
 			return res.json(200, inode_to_entry(inode));
 		}
 		Fobj.findById(inode.fobj, reply_func(req, res, function(fobj) {
-			// TODO return signed download link
-			return res.json(200, inode_to_entry(inode, fobj));
+			return res.json(200, inode_to_entry(inode, fobj, true));
 		}));
 	}));
 };

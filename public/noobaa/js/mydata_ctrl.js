@@ -363,12 +363,10 @@ Inode.prototype.upload_file = function(file_data, filename, filesize) {
 	ev.on('success', function(create_data) {
 		console.log('create inode reply:', create_data);
 		me.read_dir();
-		// TODO: use s3 upload with signed url
+		
+		// using s3 upload with signed url
 		file_data.method = 'PUT';
-		file_data.url = me.$scope.api_url + 'upload';
-		file_data.formData = {
-			id: create_data.id
-		};
+		file_data.url = create_data.s3.putObject;
 		num_running_uploads++;
 
 		// use the submit function of the plugin to send ajax with multipart data
