@@ -278,7 +278,7 @@ Inode.prototype.delete_inode = function() {
 		this.$scope.alerts.add("You shouldn't delete root dir");
 		return;
 	}
-	this.$scope.http({
+	return this.$scope.http({
 		method: 'DELETE',
 		url: this.$scope.inode_api_url + this.id
 	}).on('all', function() {
@@ -722,10 +722,13 @@ function InodesMenuCtrl($scope, $safe) {
 			$scope.alerts.add('no selected dir, bailing');
 			return;
 		}
-		inode.delete_inode();
-		$scope.select(inode.parent, {
-			dir: true,
-			open_dir: true
+		inode.delete_inode().on('all', function() {
+			if (inode.id == $scope.inode_selection.inode.id) {
+				$scope.select(inode.parent, {
+					dir: true,
+					open_dir: true
+				});
+			}
 		});
 	};
 }
