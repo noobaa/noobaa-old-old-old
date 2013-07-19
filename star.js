@@ -79,7 +79,8 @@ function page_context(req) {
 	return {
 		user: req.user,
 		app_id: process.env.FACEBOOK_APP_ID,
-		channel_url: '//127.0.0.1:5000/auth/facebook/channel.html', // TODO
+		// TODO: channel_url expects absolute/relative/even needed?
+		channel_url: '/auth/facebook/channel.html',
 		planet_api: 'http://localhost:9888/planet_api/'
 	};
 }

@@ -4,7 +4,7 @@ var user_model = require('../models/user');
 var User = user_model.User;
 
 // setup passport with facebook backend
-var pp = passport.use(new facebook_passport.Strategy({
+passport.use(new facebook_passport.Strategy({
 	clientID: process.env.FACEBOOK_APP_ID,
 	clientSecret: process.env.FACEBOOK_SECRET,
 	callbackURL: process.env.FACEBOOK_AUTHORIZED_URL
@@ -46,7 +46,7 @@ var pp = passport.use(new facebook_passport.Strategy({
 // so keep only what is must.
 // if we will need more info, deserialize can fetch from the database
 // or cache it in memory store.
-pp.serializeUser(function(user, done) {
+passport.serializeUser(function(user, done) {
 	var user_info = {
 		id: user._id,
 		fbid: user.fb.id,
@@ -56,7 +56,7 @@ pp.serializeUser(function(user, done) {
 	done(null, user_info);
 });
 
-pp.deserializeUser(function(user_info, done) {
+passport.deserializeUser(function(user_info, done) {
 	done(null, user_info);
 });
 
