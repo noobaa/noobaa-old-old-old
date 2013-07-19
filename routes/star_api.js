@@ -27,6 +27,8 @@ function reply_ok(req, res) {
 	});
 }
 
+// transform the inode and optional fobj to an entry 
+// that is the interface for the client.
 function inode_to_entry(inode, fobj) {
 	var ent = {
 		id: inode._id,
@@ -43,6 +45,42 @@ function inode_to_entry(inode, fobj) {
 	return ent;
 }
 
+// read_dir finds all the sons of the directory, and sends a json response.
+// for inodes with fobj also add the fobj info to the response.
+
+function do_read_dir(req, res, user_id, dir_id) {
+	// query all sons
+	return Inode.find({
+		owner: user_id,
+		parent: dir_id
+	}, reply_func(req, res, function(list) {
+		console.log('INODE READDIR:', dir_id, 'results:', list.length);
+
+		// find all the fobjs for inode list using one big query.
+		// create the query by removing empty fobj ids.
+		var fobj_ids = _.compact(_.pluck(list, 'fobj'));
+		return Fobj.find({
+			_id: {
+				'$in': fobj_ids
+			}
+		}, reply_func(req, res, function(fobjs) {
+
+			// create a map from fobj._id to fobj
+			var fobj_map = {};
+			_.each(fobjs, function(fobj) {
+				fobj_map[fobj._id] = fobj;
+			});
+
+			// for each inode return an entry with both inode and fobj info
+			var entries = _.map(list, function(inode) {
+				return inode_to_entry(inode, fobj_map[inode.fobj]);
+			});
+			return res.json(200, {
+				entries: entries
+			});
+		}));
+	}));
+}
 
 exports.validations = function(req, res, next) {
 	// TODO add general checks about the req.user etc.
@@ -54,22 +92,27 @@ exports.validations = function(req, res, next) {
 
 
 // INODE CRUD - CREATE
+// create takes params from req.body which is suitable for HTTP POST.
+// it can be used to create a directory inode,
+// or to create a file inode which also creates an fobj.
+// on success it returns a json with the inode info.
 
 exports.inode_create = function(req, res) {
 
 	// create args are passed in post body
 	var args = req.body;
 
-	// create the inode object
+	// prepare the inode object
 	var inode = new Inode({
 		owner: req.user.id,
 		parent: args.id,
 		name: args.name,
 		isdir: args.isdir
-		// TODO handle file fields - uploading, size, etc
 	});
 
-	// create fobj if needed
+	// prepare fobj if needed.
+	// the fobj instance will generate an id immediately 
+	// so we put the link in the inode.
 	if (!inode.isdir && args.uploading) {
 		var fobj = new Fobj({
 			size: args.size,
@@ -92,6 +135,7 @@ exports.inode_create = function(req, res) {
 		// we can save the inode when no fobj is needed
 		return do_save_inode();
 	} else {
+		// first save the fobj, and then save the inode
 		return fobj.save(reply_func(req, res, function() {
 			console.log('CREATED FOBJ:', fobj);
 			do_save_inode();
@@ -104,46 +148,13 @@ exports.inode_create = function(req, res) {
 
 exports.inode_read = function(req, res) {
 
+	// the inode_id param is expected to be parsed as url param
+	// such as /path/to/api/:inode_id/...
 	var id = req.params.inode_id;
-
-	// prepare a callback for read_dir
-	var do_read_dir = function(id) {
-		// query all sons
-		return Inode.find({
-			owner: req.user.id,
-			parent: id
-		}, reply_func(req, res, function(list) {
-			console.log('INODE READDIR:', id, 'results:', list.length);
-
-			// find all the fobjs for inode list using one big query.
-			// create the query by removing empty fobj ids.
-			var fobj_ids = _.compact(_.pluck(list, 'fobj'));
-			return Fobj.find({
-				_id: {
-					'$in': fobj_ids
-				}
-			}, reply_func(req, res, function(fobjs) {
-
-				// create a map from fobj._id to fobj
-				var fobj_map = {};
-				_.each(fobjs, function(fobj) {
-					fobj_map[fobj._id] = fobj;
-				});
-
-				// for each inode return an entry with both inode and fobj info
-				var entries = _.map(list, function(inode) {
-					return inode_to_entry(inode, fobj_map[inode.fobj]);
-				});
-				return res.json(200, {
-					entries: entries
-				});
-			}));
-		}));
-	}
 
 	// readdir of root
 	if (id === 'null') {
-		return do_read_dir(null);
+		return do_read_dir(req, res, req.user.id, null);
 	}
 
 	// find the given inode, and read according to type
@@ -157,7 +168,7 @@ exports.inode_read = function(req, res) {
 
 		// call read_dir for directories
 		if (inode.isdir) {
-			return do_read_dir(id);
+			return do_read_dir(req, res, req.user.id, id);
 		}
 
 		// for files - return attributes of inode and fobj if exists
@@ -176,12 +187,14 @@ exports.inode_read = function(req, res) {
 
 exports.inode_update = function(req, res) {
 
-	// TODO: check the validity of the input
-	// TODO: allow to update the uploading state in fobj
+	// the inode_id param is expected to be parsed as url param
+	// such as /path/to/api/:inode_id/...
+	var id = req.params.inode_id;
 
 	// we pick only the keys we allow to update from the request body
+	// TODO: check the validity of the input
+	// TODO: allow to update the uploading state in fobj
 	var args = _.pick(req.body, 'parent', 'name');
-	var id = req.params.inode_id;
 
 	// send update
 	return Inode.findByIdAndUpdate(id, args,
@@ -214,7 +227,7 @@ exports.inode_delete = function(req, res) {
 				id: id
 			});
 		}
-		
+
 		// for dirs, check that dir is empty
 		if (inode.isdir) {
 			return Inode.count({
@@ -231,7 +244,7 @@ exports.inode_delete = function(req, res) {
 				return inode.remove(reply_ok(req, res));
 			}));
 		}
-		
+
 		// TODO delete fobj !!
 		console.log('INODE DELETE FILE:', id);
 		return inode.remove(reply_ok(req, res));

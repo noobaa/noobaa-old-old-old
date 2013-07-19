@@ -257,7 +257,7 @@ Inode.prototype.populate_dir = function(entries) {
 // create new dir under this dir
 Inode.prototype.mkdir = function(name) {
 	var me = this;
-	this.$scope.http({
+	return this.$scope.http({
 		method: 'POST',
 		url: this.$scope.inode_api_url,
 		data: {
@@ -294,7 +294,7 @@ Inode.prototype.rename = function(to_parent, to_name) {
 		this.$scope.alerts.add("You shouldn't rename root dir");
 		return;
 	}
-	this.$scope.http({
+	return this.$scope.http({
 		method: 'PUT',
 		url: this.$scope.inode_api_url + this.id,
 		data: {
@@ -309,7 +309,7 @@ Inode.prototype.rename = function(to_parent, to_name) {
 
 // send device upload request
 Inode.prototype.dev_upload = function(dir_inode) {
-	this.$scope.http({
+	return this.$scope.http({
 		method: 'POST',
 		url: this.$scope.api_url + 'upload',
 		data: {
@@ -544,16 +544,16 @@ function InodesRootCtrl($scope, $safe, $timeout) {
 			return true;
 		}
 		if (event.type === 'drop') {
-			// select the drop dir
-			$scope.select(drop_inode, {
-				dir: true,
-				open: true
-			});
-
 			if (drag_inode) {
 				// when drag is an inode, then move it under the drop dir
 				console.log('drag ' + drag_inode.name + ' drop ' + drop_inode.name);
-				drag_inode.rename(drop_inode, drag_inode.name);
+				drag_inode.rename(drop_inode, drag_inode.name).on('all', function() {
+					// select the drop dir
+					$scope.select(drop_inode, {
+						dir: true,
+						open: true
+					});
+				});
 			} else {
 				// when drag is something else, upload it as a file
 				console.dir(event.dataTransfer.files);
