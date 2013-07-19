@@ -11,20 +11,24 @@ var inode_schema = new mongoose.Schema({
 	isdir: Boolean,
 	fobj: types.ObjectId,
 	ghost_ref: types.ObjectId,
-	// timestamps - TODO: uncomment when relevant
-	// create_time: Date,
+	// timestamps
+	create_time: {
+		type: Date,
+		default: Date.now
+	}
+	// TODO: uncomment when relevant
 	// change_time: Date,
 	// modify_time: Date,
 	// access_time: Date
 });
 
-// define unique index on the tuple (owner,parent,name)
+// define non-unique index on the tuple (owner,parent,name)
 inode_schema.index({
 	owner: 1,
 	parent: 1,
 	name: 1
 }, {
-	unique: true
+	unique: false
 });
 
 exports.Inode = mongoose.model('Inode', inode_schema);

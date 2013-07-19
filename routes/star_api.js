@@ -1,4 +1,5 @@
 var _ = require('underscore');
+var AWS = require('aws-sdk');
 var inode_model = require('../models/inode');
 var fobj_model = require('../models/fobj');
 var Inode = inode_model.Inode;
@@ -26,12 +27,20 @@ function reply_ok(req, res) {
 	});
 }
 
-function inode_to_entry(inode) {
-	return {
+function inode_to_entry(inode, fobj) {
+	var ent = {
 		id: inode._id,
 		name: inode.name,
 		isdir: inode.isdir
 	};
+	if (fobj) {
+		ent = _.extend(ent, {
+			size: fobj.size,
+			uploading: fobj.uploading,
+			upload_size: fobj.upload_size
+		});
+	}
+	return ent;
 }
 
 
@@ -57,11 +66,32 @@ exports.inode_create = function(req, res) {
 		isdir: args.isdir
 		// TODO handle file fields - uploading, size, etc
 	});
-	// save to the database
-	return inode.save(reply_func(req, res, function(created_inode) {
-		console.log('CREATED INODE:', created_inode);
-		return res.json(200, inode_to_entry(created_inode));
-	}));
+	// create fobj if needed
+	if (!inode.isdir && args.uploading) {
+		var fobj = new Fobj({
+			size: args.size,
+			uploading: args.uploading,
+			upload_size: args.upload_size
+		});
+		// link the inode to the fobj
+		inode.fobj = fobj._id;
+	}
+	// callback to save the inode 
+	var do_save_inode = function() {
+		return inode.save(reply_func(req, res, function() {
+			console.log('CREATED INODE:', inode);
+			return res.json(200, inode_to_entry(inode, fobj));
+		}));
+	};
+	if (!fobj) {
+		// we can save the inode when no fobj is needed
+		return do_save_inode();
+	} else {
+		return fobj.save(reply_func(req, res, function() {
+			console.log('CREATED FOBJ:', fobj);
+			do_save_inode();
+		}));
+	}
 };
 
 
@@ -75,9 +105,28 @@ exports.inode_read = function(req, res) {
 			parent: id
 		}, reply_func(req, res, function(list) {
 			console.log('INODE READDIR:', id);
-			return res.json(200, {
-				entries: _.map(list, inode_to_entry)
-			});
+			// get fobj info using one big query.
+			// create the query by removing empty fobj ids from the inode list
+			var fobj_ids = _.compact(_.pluck(list, 'fobj'));
+			return Fobj.find({
+				_id: {
+					'$in': fobj_ids
+				}
+			}, reply_func(req, res, function(fobjs) {
+				// create a map from fobj._id to fobj
+				var fobj_map = {};
+				_.each(fobjs, function(fobj) {
+					fobj_map[fobj._id] = fobj;
+				});
+				// for each inode return an entry with both inode and fobj info
+				var entries = _.map(list, function(inode) {
+					return inode_to_entry(inode, fobj_map[inode.fobj]);
+				});
+				console.log(entries);
+				return res.json(200, {
+					entries: entries
+				});
+			}));
 		}));
 	}
 	// readdir of root
@@ -92,8 +141,14 @@ exports.inode_read = function(req, res) {
 		if (inode.isdir) {
 			return do_read_dir(id);
 		}
-		// TODO: handle file read - return attributes and signed download link
-		return res.send(501, 'TODO');
+		// for files - return attributes of inode and fobj if exists
+		if (!inode.fobj) {
+			return res.json(200, inode_to_entry(inode));
+		}
+		Fobj.findById(inode.fobj, reply_func(req, res, function(fobj) {
+			// TODO return signed download link
+			return res.json(200, inode_to_entry(inode, fobj));
+		}));
 	}));
 };
 
@@ -102,8 +157,11 @@ exports.inode_read = function(req, res) {
 
 exports.inode_update = function(req, res) {
 	// TODO: check the validity of the input
+	// TODO: allow to update the uploading state in fobj
+	// we pick only the keys we allow to update from the request body
+	var args = _.pick(req.body, 'parent', 'name');
 	var id = req.params.inode_id;
-	return Inode.findByIdAndUpdate(id, req.body,
+	return Inode.findByIdAndUpdate(id, args,
 		reply_func(req, res, function(inode) {
 			if (!inode) {
 				return res.json(404, {
@@ -146,6 +204,7 @@ exports.inode_delete = function(req, res) {
 				return inode.remove(reply_ok(req, res));
 			}));
 		}
+		// TODO delete fobj !!
 		console.log('INODE DELETE FILE:', id);
 		return inode.remove(reply_ok(req, res));
 	}));
