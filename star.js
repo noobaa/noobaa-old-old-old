@@ -7,7 +7,7 @@ var dot_emc = require('dot-emc');
 var express = require('express');
 var passport = require('passport');
 var mongoose = require('mongoose');
-
+var fbapi = require('facebook-api');
 // connect to the database
 mongoose.connect(process.env.MONGOHQ_URL);
 
@@ -94,6 +94,33 @@ app.get('/getstarted.html', function(req, res) {
 });
 
 app.get('/', function(req, res) {
+	if (req.user) {
+		res.render('mydata.html', page_context(req));
+	} else {
+		res.render('welcome.html', page_context(req));
+	}
+});
+
+
+app.get('/get_friends', function(req, res) {
+	console.log("++++++++++++++++++++++++++++++++++++++++++++++++++")
+	console.log("in get friends")
+	console.log("++++++++++++++++++++++++++++++++++++++++++++++++++")
+	console.log('The token as was retreived from req', req.session.fbAccessToken);
+	var client = fbapi.user(req.session.fbAccessToken); // needs a valid access_token
+
+	function viewback(err, data) {
+		if (err) {
+			console.log("Error: " + JSON.stringify(err));
+		} else {
+			console.log("Data: " + JSON.stringify(data));
+		}
+	}
+	client.me.info(viewback);
+	console.log(viewback)
+	client.me.friends(viewback);
+	console.log(viewback)
+
 	if (req.user) {
 		res.render('mydata.html', page_context(req));
 	} else {

@@ -7,8 +7,10 @@ var User = user_model.User;
 passport.use(new facebook_passport.Strategy({
 	clientID: process.env.FACEBOOK_APP_ID,
 	clientSecret: process.env.FACEBOOK_SECRET,
-	callbackURL: process.env.FACEBOOK_AUTHORIZED_URL
-}, function(accessToken, refreshToken, profile, done) {
+
+	callbackURL: process.env.FACEBOOK_AUTHORIZED_URL,
+	passReqToCallback: true,
+}, function(req, accessToken, refreshToken, profile, done) {
 	// when user connects with facebook,
 	// try to find his facebook-id in the database,
 	// if not found, create a new user.
@@ -30,11 +32,17 @@ passport.use(new facebook_passport.Strategy({
 					return;
 				}
 				console.log('CREATED USER:', user);
+				// put the accessToken in the session
+				console.log('Saved user token in session', accessToken);
+				req.session.fbAccessToken = accessToken;
 				done(null, user);
 			});
 			return;
 		}
 		console.log('FOUND USER:', user);
+		// put the accessToken in the session
+		console.log('Saved user token in session', accessToken);
+		req.session.fbAccessToken = accessToken;
 		done(null, user);
 	});
 }));
@@ -86,6 +94,7 @@ exports.facebook_channel = function(req, res) {
 };
 
 exports.logout = function(req, res) {
+	req.session.fbAccessToken = {}
 	req.logout();
 	res.redirect('/');
 };
