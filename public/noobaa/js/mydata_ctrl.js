@@ -1,7 +1,5 @@
 // init jquery stuff
 
-var file_chooser_input;
-var dir_chooser_input;
 var num_running_uploads = 0;
 
 $(function() {
@@ -10,9 +8,6 @@ $(function() {
 			return "Leaving this page will interrupt your running Uploads !!!";
 		}
 	};
-
-	file_chooser_input = $('#file_chooser_input');
-	dir_chooser_input = $('#dir_chooser_input');
 
 	// enable bootstrap tooltips.
 	// the container=body is needed due to https://github.com/twitter/bootstrap/issues/5687
@@ -520,14 +515,8 @@ function InodesRootCtrl($scope, $safe, $timeout) {
 				// when drag is something else, upload it as a file
 				console.dir(event.dataTransfer.files);
 				console.log('drag ' + event.dataTransfer.files + ' drop ' + drop_inode.name);
-				// setup the uploader and send it the files
-				file_chooser_input.fileupload({
-					dataType: 'json',
-					add: $safe.$callback($scope, function(event, file_data) {
-						drop_inode.upload_files(event, file_data);
-					})
-				});
-				file_chooser_input.fileupload('send', {
+				// send the files to the uploader
+				$('#file_upload_input').fileupload('send', {
 					files: event.dataTransfer.files
 				});
 			}
@@ -871,7 +860,12 @@ function UploadCtrl($scope, $safe, $http, $timeout) {
 	$scope.uploads = {};
 	$scope.max_uploads_at_once = 10;
 
-	$scope.add_upload = function(file, dir_inode) {
+	$scope.add_upload = function(file) {
+		var dir_inode = $scope.$parent.dir_selection.inode;
+		if (!dir_inode) {
+			$scope.alerts.add('no selected dir, bailing');
+			return;
+		}
 		var idx = $scope.upload_id_idx;
 		var upload = {
 			idx: idx,
@@ -928,45 +922,31 @@ function UploadCtrl($scope, $safe, $http, $timeout) {
 		$scope.$apply();
 	};
 
-	$scope.add_uploads = function(event, data, dir_inode) {
+	$scope.add_uploads = function(event, data) {
 		if (data.files.length > $scope.max_uploads_at_once) {
 			alert('Don\'t you think that ' + data.files.length +
 				' is too many files to upload at once?');
 			return;
 		}
 		$.each(data.files, function(index, file) {
-			$scope.add_upload(file, dir_inode);
+			$scope.add_upload(file);
 		});
 	}
 
+	// setup the global file/dir input and open the dialog
+	$('#file_upload_input').fileupload({
+		add: $scope.add_uploads
+	});
+	$('#dir_upload_input').fileupload({
+		add: $scope.add_uploads
+	});
+
 	$scope.click_upload_files = function() {
-		var dir_inode = $scope.$parent.dir_selection.inode;
-		if (!dir_inode) {
-			$scope.alerts.add('no selected dir, bailing');
-			return;
-		}
-		// setup the file chooser and open the dialog
-		file_chooser_input.fileupload({
-			add: function(event, data) {
-				$scope.add_uploads(event, data, dir_inode);
-			}
-		});
-		file_chooser_input.click();
+		$('#file_upload_input').click();
 	};
 
 	$scope.click_upload_dir = function() {
-		var dir_inode = $scope.$parent.dir_selection.inode;
-		if (!dir_inode) {
-			$scope.alerts.add('no selected dir, bailing');
-			return;
-		}
-		// setup the dir chooser and open the dialog
-		dir_chooser_input.fileupload({
-			add: function(event, data) {
-				$scope.add_uploads(event, data, dir_inode);
-			}
-		});
-		dir_chooser_input.click();
+		$('#dir_upload_input').click();
 	};
 }
 
