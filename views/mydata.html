@@ -307,7 +307,7 @@
 							[[[upload.dir_inode.name]]]
 						</td>
 						<td>
-							[[[upload.file.size]]]
+							[[[human_size(upload.file.size)]]]
 						</td>
 						<td>
 							[[[upload.status]]]
@@ -583,7 +583,7 @@
 					</span>
 					<span class="span2 nbfont" 
 						style="text-align: right;">
-						[[[file_inode.size]]]
+						[[[human_size(file_inode.size)]]]
 					</span>
 					<div ng-show="file_inode.uploading"
 						class="span11 roundbord progress progress-info"
