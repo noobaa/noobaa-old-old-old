@@ -132,6 +132,8 @@ exports.inode_create = function(req, res) {
 	// create args are passed in post body
 	var args = req.body;
 
+	// TODO handle relative_path param for dir uploads
+
 	// prepare the inode object
 	var inode = new Inode({
 		owner: req.user.id,
@@ -245,7 +247,10 @@ exports.inode_update = function(req, res) {
 
 exports.inode_delete = function(req, res) {
 
+	// TODO support recursive dir deletion
+
 	// TODO: check ownership on the inode against req.user.id
+
 	var id = req.params.inode_id;
 
 	return Inode.findById(id, reply_func(req, res, function(inode) {

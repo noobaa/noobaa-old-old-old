@@ -329,7 +329,7 @@ Inode.prototype.download_file = function() {
 	win.focus();
 };
 
-Inode.prototype.mkfile = function(name, size) {
+Inode.prototype.mkfile = function(name, size, relative_path) {
 	var me = this;
 	return this.$scope.http({
 		method: 'POST',
@@ -339,7 +339,8 @@ Inode.prototype.mkfile = function(name, size) {
 			name: name,
 			isdir: false,
 			size: size,
-			uploading: true
+			uploading: true,
+			relative_path: relative_path
 		}
 	}).on('all', function(mkfile_data) {
 		console.log('create inode reply:', mkfile_data);
@@ -850,87 +851,111 @@ function UploadCtrl($scope, $safe, $http, $timeout) {
 	$scope.uploads = {};
 	$scope.max_uploads_at_once = 10;
 
-	$scope.add_upload = function(file) {
+	$scope.add_upload = function(event, data) {
+		if (num_running_uploads > $scope.max_uploads_at_once) {
+			alert('Don\'t you think that ' + num_running_uploads +
+				' is too many files to upload at once?');
+			return false;
+		}
+
 		var dir_inode = $scope.$parent.dir_selection.inode;
 		if (!dir_inode) {
 			$scope.alerts.add('no selected dir, bailing');
 			return;
 		}
+
+		// make sure the modal shows - this is needed when drop/paste
+		// and the modal is hidden.
+		upload_modal.modal('show');
+
+		// create the upload object and connect to uploads list,
+		var file = data.files[0];
 		var idx = $scope.upload_id_idx;
 		var upload = {
 			idx: idx,
+			dir_inode: dir_inode,
+			data: data,
 			file: file,
+			progress: 0,
+			status: 'Creating...',
+			row_class: '',
 			progress_class: 'progress progress-success'
 		};
+		// link the upload object on the data to propagate progress
+		data.upload_idx = idx;
 		$scope.upload_id_idx++;
 		$scope.uploads[idx] = upload;
-		// call apply to update angular models
-		// only after that we can find the form
-		$scope.$apply();
-		upload.form = $('#upload_table #form_' + idx);
-		upload.form.fileupload({
-			dataType: 'json',
-			add: function(event, data) {
-				console.log('creating file:', file);
-				var ev = dir_inode.mkfile(file.name, file.size);
-				ev.on('success', function(mkfile_data) {
-					// using s3 upload with signed url
-					data.type = 'PUT';
-					data.url = mkfile_data.s3.putObject;
-					var xhr = data.submit();
-					xhr.error(function(jqXHR, textStatus, errorThrown) {
-						$scope.alerts.add('upload error: ' + textStatus + ' ' + errorThrown);
-						upload.progress_class = 'progress progress-danger';
-						$scope.$apply();
-					});
-					xhr.success(function(result, textStatus, jqXHR) {
-						console.log('[ok] upload success');
-					});
-					xhr.complete(function(result, textStatus, jqXHR) {
-						console.log('[ok] upload complete');
-					});
-					xhr.always(function(e, data) {
-						// data.result, data.textStatus, data.jqXHR
-						num_running_uploads--;
-						dir_inode.read_dir();
-					});
-					num_running_uploads++;
-				});
-				ev.on('error', function() {
-					upload.progress_class = 'progress progress-danger';
-					$scope.$apply();
-				});
-			},
-			progress: function(e, data) {
-				upload.progress = parseInt(data.loaded / data.total * 100, 10);
-				$scope.$apply();
-			}
+
+		// create the file and receive upload location info
+		console.log('creating file:', file);
+		var ev = dir_inode.mkfile(file.name, file.size, file.relativePath);
+		ev.on('success', function(mkfile_data) {
+			upload.status = 'Uploading...';
+			// using s3 upload with signed url
+			data.type = 'PUT';
+			data.url = mkfile_data.s3.putObject;
+			upload.xhr = data.submit();
+			upload.xhr.error(function(jqXHR, textStatus, errorThrown) {
+				$scope.alerts.add('upload error: ' + textStatus + ' ' + errorThrown);
+				upload.status = 'Failed!';
+				upload.row_class = 'error';
+				upload.progress_class = 'progress progress-danger';
+				upload.progress = 100;
+				safe_apply($scope);
+			});
+			upload.xhr.success(function(result, textStatus, jqXHR) {
+				console.log('[ok] upload success');
+				upload.status = 'Completed';
+				upload.row_class = 'success';
+				safe_apply($scope);
+			});
+			upload.xhr.always(function(e, data) {
+				// data.result, data.textStatus, data.jqXHR
+				num_running_uploads--;
+				dir_inode.read_dir();
+				safe_apply($scope);
+			});
+			num_running_uploads++;
+			safe_apply($scope);
 		});
-		upload.form.fileupload('add', {
-			files: [file]
+		ev.on('error', function() {
+			upload.status = 'Failed!';
+			upload.row_class = 'error';
+			upload.progress_class = 'progress progress-danger';
+			upload.progress = 100;
+			safe_apply($scope);
 		});
-		$scope.$apply();
+		safe_apply($scope);
 	};
 
-	$scope.add_uploads = function(event, data) {
-		if (data.files.length > $scope.max_uploads_at_once) {
-			alert('Don\'t you think that ' + data.files.length +
-				' is too many files to upload at once?');
-			return;
+	$scope.update_progress = function(event, data) {
+		var upload = $scope.uploads[data.upload_idx];
+		upload.progress = parseInt(data.loaded / data.total * 100, 10);
+		safe_apply($scope);
+	};
+
+	$scope.dismiss_upload = function(upload) {
+		if (upload.xhr) {
+			upload.xhr.abort();
 		}
-		upload_modal.modal('show');
-		$.each(data.files, function(index, file) {
-			$scope.add_upload(file);
-		});
-	}
+		delete $scope.uploads[upload.idx];
+	};
 
 	// setup the global file/dir input and link them to this scope
 	$('#file_upload_input').fileupload({
-		add: $scope.add_uploads
+		singleFileUploads: true,
+		add: $scope.add_upload,
+		progress: $scope.update_progress
 	});
+
+	// disabling drop/paste since the file input will handle them,
+	// and if we don't disable it will handle them twice.
 	$('#dir_upload_input').fileupload({
-		add: $scope.add_uploads,
-		dropZone: null
+		singleFileUploads: true,
+		dropZone: null,
+		pasteZone: null,
+		add: $scope.add_upload,
+		progress: $scope.update_progress
 	});
 }
 

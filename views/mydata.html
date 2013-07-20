@@ -283,32 +283,61 @@
 		style="background-color: #f2f2f2">
 		<div class="modal-header">
 			<a type="button" class="close" data-dismiss="modal">×</a>
-			<h3 id="upload_modal_label">Upload to [[[$parent.dir_selection.inode.name]]]</h3>
+			<h3 id="upload_modal_label">Uploads</h3>
 		</div>
 		<div class="modal-body">
-			<table id="upload_table" class="table table-striped ng-cloak">
-				<tr ng-repeat="(idx,upload) in uploads">
-					<form id="form_[[[idx]]]"
-						method="POST"
-						action="[[[upload.action]]]" 
-						enctype="multipart/form-data">
+			<div class="roundbord">
+				<table id="upload_table" 
+					class="table table-striped ng-cloak"
+					style="margin: 0">
+					<thead>
+						<tr>
+							<th>Name</th>
+							<th>Folder</th>
+							<th>Size</th>
+							<th>Status</th>
+							<th>Progress</th>
+						</tr>
+					</thead>
+					<tr ng-repeat="(idx,upload) in uploads" ng-class="upload.row_class">
 						<td>
-							[[[upload.file.name]]]
+							[[[upload.file.relativePath + upload.file.name]]]
+						</td>
+						<td>
+							[[[upload.dir_inode.name]]]
 						</td>
 						<td>
 							[[[upload.file.size]]]
 						</td>
-						<td width="150px">
-							<div ng-class="upload.progress_class">
-								<div class="bar nbfont"  
-									style="color: black; width: [[[upload.progress]]]%;">
-									uploading... [[[upload.progress]]]%
+						<td>
+							[[[upload.status]]]
+						</td>
+						<td width="100px">
+							<div ng-class="upload.progress_class"
+								style="margin: 0; position: relative">
+								<div class="bar"
+									style="position: absolute;
+										top: 0;
+										left: 0;
+										z-index: 1;
+										width: [[[upload.progress]]]%;">
+								</div>
+								<div class="nbfont"
+									style="position: absolute;
+										top: 0;
+										left: 40%;
+										z-index: 2;
+										color: black;">
+									[[[upload.progress]]]%
 								</div>
 							</div>
 						</td>
-					</form>
-				</tr>
-			</table>
+						<td>
+							<button class="btn btn-mini" ng-click="dismiss_upload(upload)">x</button>
+						</td>
+					</tr>
+				</table>
+			</div>
 			<div ng-show="!curr_dir_refresh_failed"
 				class="row-fluid notextselect roundbord bglight">
 				<div ng-controller="InodesBreadcrumbCtrl" 
