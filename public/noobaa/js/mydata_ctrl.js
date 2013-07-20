@@ -500,26 +500,16 @@ function InodesRootCtrl($scope, $safe, $timeout) {
 		if (event.type === 'dragover' || event.type === 'dragenter') {
 			return true;
 		}
-		if (event.type === 'drop') {
-			if (drag_inode) {
-				// when drag is an inode, then move it under the drop dir
-				console.log('drag ' + drag_inode.name + ' drop ' + drop_inode.name);
-				drag_inode.rename(drop_inode, drag_inode.name).on('all', function() {
-					// select the drop dir
-					$scope.select(drop_inode, {
-						dir: true,
-						open: true
-					});
+		if (event.type === 'drop' && drag_inode) {
+			// when drag is an inode, then move it under the drop dir
+			console.log('drag ' + drag_inode.name + ' drop ' + drop_inode.name);
+			drag_inode.rename(drop_inode, drag_inode.name).on('all', function() {
+				// select the drop dir
+				$scope.select(drop_inode, {
+					dir: true,
+					open: true
 				});
-			} else {
-				// when drag is something else, upload it as a file
-				console.dir(event.dataTransfer.files);
-				console.log('drag ' + event.dataTransfer.files + ' drop ' + drop_inode.name);
-				// send the files to the uploader
-				$('#file_upload_input').fileupload('send', {
-					files: event.dataTransfer.files
-				});
-			}
+			});
 			return true;
 		}
 		return false;
@@ -928,26 +918,20 @@ function UploadCtrl($scope, $safe, $http, $timeout) {
 				' is too many files to upload at once?');
 			return;
 		}
+		upload_modal.modal('show');
 		$.each(data.files, function(index, file) {
 			$scope.add_upload(file);
 		});
 	}
 
-	// setup the global file/dir input and open the dialog
+	// setup the global file/dir input and link them to this scope
 	$('#file_upload_input').fileupload({
 		add: $scope.add_uploads
 	});
 	$('#dir_upload_input').fileupload({
-		add: $scope.add_uploads
+		add: $scope.add_uploads,
+		dropZone: null
 	});
-
-	$scope.click_upload_files = function() {
-		$('#file_upload_input').click();
-	};
-
-	$scope.click_upload_dir = function() {
-		$('#dir_upload_input').click();
-	};
 }
 
 

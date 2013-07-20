@@ -273,23 +273,6 @@
 
 <!-- UPLOAD MODAL -->
 
-	<input id="file_upload_input"
-		type="file"
-		name="file"
-		multiple="multiple"
-		hidden="hidden"
-		style="visibility: hidden"></input>
-
-	<input id="dir_upload_input" 
-		type="file"
-		name="file"
-		multiple="multiple"
-		webkitdirectory=""
-		mozdirectory=""
-		directory=""
-		hidden="hidden"
-		style="visibility: hidden"></input>
-
 	<div ng-controller="UploadCtrl"
 		id="upload_modal"
 		class="modal hide fade "
@@ -349,16 +332,25 @@
 				ng-click="submit()">
 				Upload
 			</button>
-			<button ng-show="curr_dir_refresh_failed"
-				class="btn btn-primary"
-				ng-click="click_upload_files()">
+			<!-- The fileinput-button span is used to style the file input field as button -->
+			<span ng-show="curr_dir_refresh_failed"
+				class="btn btn-primary fileinput-button">
 				Choose Files
-			</button>
-			<button ng-show="curr_dir_refresh_failed"
-				class="btn btn-primary"
-				ng-click="click_upload_dir()">
+				<input id="file_upload_input"
+					type="file"
+					multiple="multiple"></input>
+			</span>
+			<span ng-show="curr_dir_refresh_failed"
+				class="btn btn-primary fileinput-button">
 				Choose Folder
-			</button>
+				<input id="dir_upload_input" 
+					type="file"
+					multiple="multiple"
+					webkitdirectory=""
+					mozdirectory=""
+					directory="">
+				</input>
+			</span>
 			<button class="btn" data-dismiss="modal">Close</button>
 		</div>
 	</div>
