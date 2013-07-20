@@ -44,7 +44,8 @@ function reply_ok(req, res) {
 function get_s3_urls(fobj_id) {
 	var params = {
 		Bucket: process.env.S3_BUCKET,
-		Key: path.join(process.env.S3_PATH, 'fobsj', String(fobj_id))
+		Key: '/' + path.join(process.env.S3_PATH, 'fobsj', String(fobj_id)),
+		Expires: 60
 	};
 	return {
 		getObject: s3.getSignedUrl('getObject', params),

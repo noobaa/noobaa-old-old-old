@@ -4,6 +4,7 @@
 <head>
 	{{# def.include('common_head.html') }}
 
+	<link href="/public/jquery-file-upload-8.3.2/css/jquery.fileupload-ui.css" type="text/css" rel="stylesheet"/>
 	<script src="/public/jquery-file-upload-8.3.2/js/vendor/jquery.ui.widget.js" type="text/javascript"></script>
 	<script src="/public/jquery-file-upload-8.3.2/js/jquery.iframe-transport.js" type="text/javascript"></script>
 	<script src="/public/jquery-file-upload-8.3.2/js/jquery.fileupload.js" type="text/javascript"></script>
@@ -272,22 +273,22 @@
 
 <!-- UPLOAD MODAL -->
 
-	<input id="upload_files_input" 
+	<input id="file_chooser_input"
 		type="file"
 		name="file"
-		hidden
-		multiple
-		style="visibility: hidden;"></input>
+		multiple="multiple"
+		hidden="hidden"
+		style="visibility: hidden"></input>
 
-	<input id="upload_dir_input" 
+	<input id="dir_chooser_input" 
 		type="file"
 		name="file"
-		hidden
-		multiple
+		multiple="multiple"
 		webkitdirectory=""
 		mozdirectory=""
 		directory=""
-		style="visibility: hidden;"></input>
+		hidden="hidden"
+		style="visibility: hidden"></input>
 
 	<div ng-controller="UploadCtrl"
 		id="upload_modal"
@@ -302,11 +303,29 @@
 			<h3 id="upload_modal_label">Upload to [[[$parent.dir_selection.inode.name]]]</h3>
 		</div>
 		<div class="modal-body">
-			<div ng-show="curr_dir_refresh_failed">
-				<div id="progressall" class="progress progress-success">
-					<div class="bar"></div>
-				</div>
-			</div>
+			<table id="upload_table" class="table table-striped ng-cloak">
+				<tr ng-repeat="(idx,upload) in uploads">
+					<form id="form_[[[idx]]]"
+						method="POST"
+						action="[[[upload.action]]]" 
+						enctype="multipart/form-data">
+						<td>
+							[[[upload.file.name]]]
+						</td>
+						<td>
+							[[[upload.file.size]]]
+						</td>
+						<td width="150px">
+							<div ng-class="upload.progress_class">
+								<div class="bar nbfont"  
+									style="color: black; width: [[[upload.progress]]]%;">
+									uploading... [[[upload.progress]]]%
+								</div>
+							</div>
+						</td>
+					</form>
+				</tr>
+			</table>
 			<div ng-show="!curr_dir_refresh_failed"
 				class="row-fluid notextselect roundbord bglight">
 				<div ng-controller="InodesBreadcrumbCtrl" 
@@ -330,17 +349,16 @@
 				ng-click="submit()">
 				Upload
 			</button>
-			<div ng-show="curr_dir_refresh_failed"
-				class="btn-group dropdown">
-				<button class="btn btn-primary dropdown-toggle"
-					data-toggle="dropdown">
-					Choose files
-				</button>
-				<ul class="dropdown-menu">
-					<li><a ng-click="click_upload_files()">Files (one or more)</a></li>
-					<li><a ng-click="click_upload_dir()">Folder (complete)</a></li>
-				</ul>
-			</div>
+			<button ng-show="curr_dir_refresh_failed"
+				class="btn btn-primary"
+				ng-click="click_upload_files()">
+				Choose Files
+			</button>
+			<button ng-show="curr_dir_refresh_failed"
+				class="btn btn-primary"
+				ng-click="click_upload_dir()">
+				Choose Folder
+			</button>
 			<button class="btn" data-dismiss="modal">Close</button>
 		</div>
 	</div>
