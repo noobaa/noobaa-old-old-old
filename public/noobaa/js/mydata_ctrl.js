@@ -322,6 +322,12 @@ Inode.prototype.download_file = function() {
 	if (this.uploading) {
 		return;
 	}
+	var url = this.$scope.inode_api_url + this.id;
+	var win = window.open(url, '_blank');
+	win.focus();
+	/*
+	// removed this code because the browser considered as popup and did blocking
+	// so we prefer to open and be redirected by the server.
 	return this.$scope.http({
 		method: 'GET',
 		url: this.$scope.inode_api_url + this.id
@@ -330,6 +336,7 @@ Inode.prototype.download_file = function() {
 		var win = window.open(data.s3_get_url, '_blank');
 		win.focus();
 	});
+	*/
 };
 
 Inode.prototype.mkfile = function(name, size, content_type, relative_path) {

@@ -39,7 +39,8 @@ function reply_callback(debug_info, err, reply) {
 		} else {
 			return this.json(500, err);
 		}
-	} else {
+	}
+	if (!this.headerSent) {
 		console.log('COMPLETED', debug_info);
 		return this.json(200, reply);
 	}
@@ -74,11 +75,12 @@ function fobj_s3_key(fobj_id) {
 
 // return a signed GET url for the fobj in S3
 
-function s3_get_url(fobj_id) {
+function s3_get_url(fobj_id, name) {
 	var params = {
 		Bucket: process.env.S3_BUCKET,
 		Key: fobj_s3_key(fobj_id),
-		Expires: 24 * 60 * 60 // 24 hours
+		Expires: 24 * 60 * 60, // 24 hours
+		ResponseContentDisposition: name
 	};
 	return S3.getSignedUrl('getObject', params);
 }
@@ -149,7 +151,7 @@ function inode_to_entry(inode, opt) {
 		if (opt.s3_get) {
 			// add S3 get info only if requested specifically
 			// this requires signing which might be heavy if done all the time.
-			ent.s3_get_url = s3_get_url(opt.fobj._id);
+			ent.s3_get_url = s3_get_url(opt.fobj._id, inode.name);
 		}
 	}
 	return ent;
@@ -212,7 +214,7 @@ function do_read_dir(inode, next) {
 // read of file - return attributes of inode and fobj if exists
 
 function do_read_file(inode, next) {
-	async.waterfall([
+	return async.waterfall([
 		// find fobj if exists
 		function(next) {
 			if (!inode.fobj) {
@@ -380,6 +382,14 @@ exports.inode_read = function(req, res) {
 			if (inode.isdir) {
 				return do_read_dir(inode, next);
 			} else {
+				// redirect to the fobj location in S3
+				if (inode.fobj) {
+					var url = s3_get_url(inode.fobj, inode.name);
+					res.redirect(url);
+					return next();
+				}
+				// this is actually quite unused code, 
+				// keeping it in case we want a get_attr sort of logic.
 				return do_read_file(inode, next);
 			}
 		},
@@ -522,7 +532,7 @@ exports.inode_delete = function(req, res) {
 		function(inode, next) {
 			console.log('INODE DELETE:', id);
 			return inode.remove(function(err) {
-				return next(err, null);
+				return next(err, 'OK');
 			});
 		}
 

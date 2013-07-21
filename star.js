@@ -8,6 +8,7 @@ var express = require('express');
 var passport = require('passport');
 var mongoose = require('mongoose');
 var fbapi = require('facebook-api');
+
 // connect to the database
 mongoose.connect(process.env.MONGOHQ_URL);
 
@@ -48,7 +49,6 @@ app.use('/public/', express.static(path.join(__dirname, 'public')));
 
 
 // setup auth routes
-// TODO: add 'auth' prefix in urls (need to change in facebook)
 
 var auth = require('./routes/auth');
 app.get('/auth/facebook/login/', auth.facebook_login);
