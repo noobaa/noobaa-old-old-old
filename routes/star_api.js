@@ -3,13 +3,13 @@ var AWS = require('aws-sdk');
 var path = require('path');
 var moment = require('moment');
 var crypto = require('crypto');
+var auth = require('./auth');
+var async = require('async');
 
 var inode_model = require('../models/inode');
 var fobj_model = require('../models/fobj');
 var Inode = inode_model.Inode;
 var Fobj = fobj_model.Fobj;
-var auth = require('./auth');
-var async = require('async');
 
 
 /* load s3 config from env*/
@@ -43,9 +43,55 @@ function reply_ok(req, res) {
 	});
 }
 
+// convinient callback for handling the reply of async control flows.
+// 'this' should be the bound to the response.
+// usage:
+// 	async.waterfall(
+//		[...],
+//		reply_callback.bind(res, reply, debug_info)
+// 	);
+
+function reply_callback(debug_info, err, reply) {
+	if (err) {
+		console.log('FAILED', debug_info, ':', err);
+		if (err.status) {
+			return this.json(err.status, err.info);
+		} else {
+			return this.json(500, err);
+		}
+	} else {
+		console.log('COMPLETED', debug_info);
+		return this.json(200, reply);
+	}
+}
+
+
+// check the inode's owner matching to the req.user
+// 'this' should be the bound to the request.
+// usage:
+// 	async.waterfall([
+//		check_inode_ownership.bind(req),
+//		], reply_callback.bind(res, reply, debug_info)
+// 	);
+
+function check_inode_ownership(inode, next) {
+	console.log('CHECKING OWNER:', inode.owner, this.user.id);
+	if (String(inode.owner) !== this.user.id) {
+		return next({
+			status: 403,
+			info: 'User Not Owner'
+		});
+	}
+	return next(null, inode);
+}
+
+// return the S3 path of the fobj
+
 function fobj_s3_key(fobj_id) {
 	return path.join(process.env.S3_PATH, 'fobjs', String(fobj_id));
 }
+
+// return a signed GET url for the fobj in S3
 
 function s3_get_url(fobj_id) {
 	var params = {
@@ -55,6 +101,8 @@ function s3_get_url(fobj_id) {
 	};
 	return S3.getSignedUrl('getObject', params);
 }
+
+// return a signed POST form and url for the fobj in S3
 
 function s3_post_info(fobj_id, name, content_type) {
 	var key = fobj_s3_key(fobj_id);
@@ -270,103 +318,137 @@ exports.inode_read = function(req, res) {
 
 exports.inode_update = function(req, res) {
 
-	// the inode_id param is expected to be parsed as url param
-	// such as /path/to/api/:inode_id/...
+	// the inode_id param is parsed as url param (/path/to/api/:inode_id/...)
 	var id = req.params.inode_id;
 
 	// we pick only the keys we allow to update from the request body
 	// TODO: check the validity of the input
 	var inode_args = _.pick(req.body, 'parent', 'name');
 	var fobj_args = _.pick(req.body, 'uploading', 'upsize');
-	console.log('PUTTTT', inode_args, fobj_args);
 
-	if (!_.isEmpty(inode_args)) {
-		return Inode.findByIdAndUpdate(id, inode_args,
-			reply_func(req, res, function(inode) {
-				if (!inode) {
-					return res.json(404, {
-						text: 'Not Found',
-						id: id
-					});
-				}
-				console.log('INODE UPDATE:', inode);
-				return res.json(200, inode_to_entry(inode));
-			})
-		);
-	}
+	// start the delete waterfall
+	async.waterfall([
+		// pass the id
+		function(next) {
+			return next(null, id);
+		},
 
-	if (!_.isEmpty(fobj_args)) {
-		return Inode.findById(id, reply_func(req, res, function(inode) {
-			if (!inode) {
-				return res.json(404, {
-					text: 'Not Found',
-					id: id
-				});
+		// get the inode
+		Inode.findById.bind(Inode),
+
+		// check inode ownership
+		check_inode_ownership.bind(req),
+
+		// update the inode
+		function(inode, next) {
+			if (_.isEmpty(inode_args)) {
+				return next(null, inode);
+			}
+			console.log('INODE UPDATE:', id, inode_args);
+			return inode.update(inode_args, function(err) {
+				return next(err, inode);
+			});
+		},
+
+		// update the fobj
+		function(inode, next) {
+			if (_.isEmpty(fobj_args)) {
+				return next(null, inode);
 			}
 			if (!inode.fobj) {
-				return res.json(404, {
-					text: 'No File Object',
-					id: id
+				return next({
+					status: 404,
+					info: 'File Object Not Found'
 				});
 			}
-			return Fobj.findByIdAndUpdate(inode.fobj, fobj_args,
-				reply_func(req, res, function(fobj) {
-					if (!fobj) {
-						return res.json(404, {
-							text: 'Stale File Object',
-							id: id
-						});
-					}
-					console.log('FOBJ UPDATE:', fobj);
-					return res.json(200, inode_to_entry(inode, {
-						fobj: fobj
-					}));
-				})
-			);
-		}));
-	}
+			console.log('FOBJ UPDATE:', id, inode.fobj, fobj_args);
+			return Fobj.findByIdAndUpdate(inode.fobj, fobj_args, function(err) {
+				return next(err, inode);
+			});
+		},
+
+		// convert inode to entry for the reply
+		function(inode, next) {
+			return next(null, inode_to_entry(inode));
+		}
+
+	], reply_callback.bind(res, 'INODE UPDATE ' + id));
 };
 
 
 // INODE CRUD - DELETE
+
 exports.inode_delete = function(req, res) {
 
-	// TODO support recursive dir deletion
-
-	// TODO: check ownership on the inode against req.user.id
-
+	// the inode_id param is parsed as url param (/path/to/api/:inode_id/...)
 	var id = req.params.inode_id;
 
-	return Inode.findById(id, reply_func(req, res, function(inode) {
-		if (!inode) {
-			// delete + not-found = ok
-			return res.json(200, {
-				text: 'Not Found',
-				id: id
+	// start the delete waterfall
+	async.waterfall([
+		// pass the id
+		function(next) {
+			return next(null, id);
+		},
+
+		// get the inode
+		Inode.findById.bind(Inode),
+
+		// check inode ownership
+		check_inode_ownership.bind(req),
+
+		// for dirs count sons
+		Inode.countDirSons.bind(Inode),
+
+		// fail if dir and has sons
+		function(inode, dir_son_count, next) {
+			// TODO support recursive dir deletion
+			if (inode.isdir && dir_son_count !== 0) {
+				return next({
+					status: 400,
+					info: {
+						text: 'Directory Not Empty',
+						id: id
+					}
+				});
+			}
+			return next(null, inode);
+		},
+
+		// remove s3 object if any
+		function(inode, next) {
+			if (!inode.fobj) {
+				return next(null, inode);
+			}
+			var params = {
+				Bucket: process.env.S3_BUCKET,
+				Key: fobj_s3_key(inode.fobj)
+			};
+			console.log('S3 OBJECT DELETE:', id);
+			return S3.deleteObject(params, function(err) {
+				return next(err, inode);
+			});
+		},
+
+		// remove fobj if any
+		function(inode, next) {
+			if (!inode.fobj) {
+				return next(null, inode);
+			}
+			console.log('FOBJ DELETE:', id);
+			return Fobj.findByIdAndRemove(inode.fobj, function(err) {
+				return next(err, inode);
+			});
+		},
+
+		// delete the inode itself
+		function(inode, next) {
+			console.log('INODE DELETE:', id);
+			return inode.remove(function(err) {
+				return next(err, null);
 			});
 		}
 
-		// for dirs, check that dir is empty
-		if (inode.isdir) {
-			return Inode.count({
-				owner: req.user.id,
-				parent: id
-			}, reply_func(req, res, function(count) {
-				if (count) {
-					return res.json(400, {
-						text: 'Directory Not Empty',
-						id: id
-					});
-				}
-				console.log('INODE DELETE DIR:', id);
-				return inode.remove(reply_ok(req, res));
-			}));
-		}
-
-		// TODO delete fobj !!
-		console.log('INODE DELETE FILE:', id);
-		return inode.remove(reply_ok(req, res));
-	}));
+	], reply_callback.bind(res, 'INODE DELETE ' + id));
 };
 
 exports.inode_get_share_list = function(req, res) {
@@ -395,7 +477,6 @@ exports.inode_get_share_list = function(req, res) {
 
 	async.waterfall([
 		function(next) {
-			console.log("entered first. Next is: ", next);
 			token = req.session.fbAccessToken;
 			next(null, token);
 		},
@@ -403,20 +484,19 @@ exports.inode_get_share_list = function(req, res) {
 		auth.get_noobaa_friends_list,
 	], function(err, users) {
 		if (!err) {
-			console.log(users)
-			users.foreach(
-				console.log(entry)
-			);
-			return res.json(200)
-/*
-			{
-				"name": v.Name,
-				"shared": v.Shared,
-				"pic": "https://graph.facebook.com/" + v.FB_ID + "/picture",
-				"fb_id": v.FB_ID,
-				"nb_id": k,
-			}
-*/
+			return_list = [];
+			_.each(users, function(v) {
+				return_list.push({
+					"name": v.fb.name,
+					"shared": false,
+					"pic": "https://graph.facebook.com/" + v.fb.id + "/picture",
+					"fb_id": v.fb.id,
+					"nb_id": v._id,
+				});
+			});
+			return res.json(200, {
+				"list": return_list
+			});
 		} else {
 			return res.json(500, {
 				text: err,

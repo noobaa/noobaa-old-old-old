@@ -44,5 +44,17 @@ inode_schema.statics.getRefUsers = function(real_id, next) {
 	query.exec(next);
 }
 
+// counts number of dir sons, and call back next(err, inode, dir_son_count)
+inode_schema.statics.countDirSons = function(inode, next) {
+	if (!inode.isdir) {
+		return next(null, inode, 0);
+	}
+	return this.model('Inode').count({
+		owner: inode.owner,
+		parent: inode._id
+	}, function(err, dir_son_count) {
+		next(err, inode, dir_son_count)
+	});
+};
 
 exports.Inode = mongoose.model('Inode', inode_schema);

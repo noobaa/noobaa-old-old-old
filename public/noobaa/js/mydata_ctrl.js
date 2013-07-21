@@ -352,12 +352,11 @@ Inode.prototype.mkfile = function(name, size, content_type, relative_path) {
 }
 
 Inode.prototype.get_share_list = function() {
+	console.log("In get share list!!!!");
+	console.log(this);
 	return this.$scope.http({
-		method: 'POST',
-		url: this.$scope.api_url + 'get_share_list',
-		data: {
-			id: this.id
-		}
+		method: 'GET',
+		url: this.$scope.inode_api_url + this.id + this.$scope.inode_share_sufix
 	});
 };
 
@@ -1006,6 +1005,7 @@ function MyDataCtrl($scope, $safe, $http, $timeout) {
 
 	$scope.api_url = "/star_api/";
 	$scope.inode_api_url = $scope.api_url + "inode/";
+	$scope.inode_share_sufix = "/share_list"
 
 	// returns an event object with 'success' and 'error' events,
 	// which allows multiple events can be registered on the ajax result.
