@@ -2,6 +2,8 @@ var passport = require('passport');
 var facebook_passport = require('passport-facebook');
 var user_model = require('../models/user');
 var User = user_model.User;
+var fbapi = require('facebook-api');
+var _ = require('underscore')
 
 // setup passport with facebook backend
 passport.use(new facebook_passport.Strategy({
@@ -94,7 +96,46 @@ exports.facebook_channel = function(req, res) {
 };
 
 exports.logout = function(req, res) {
-	req.session.fbAccessToken = {}
+	delete req.session.fbAccessToken;
 	req.logout();
 	res.redirect('/');
+};
+
+exports.viewback = function(err, data) {
+	if (err) {
+		console.log("Error: " + JSON.stringify(err));
+	} else {
+		console.log("Data: " + JSON.stringify(data));
+	}
+};
+
+exports.get_friends_list = function(fbAcessToken, callback) {
+	console.log("in auth::get_friends_list");
+	// console.log('fbAcessToken', typeof(fbAcessToken), fbAcessToken);
+	// console.log('callback', typeof(callback), callback);
+	var client = fbapi.user(fbAcessToken); // needs a valid access_token
+	xxx = 5;
+	client.me.friends(callback);
+};
+
+exports.get_noobaa_friends_list = function(err, friends_list) {
+	console.log("in auth::get_noobaa_friends_list");
+	console.log('xxx = ', typeof(xxx), xxx);
+	//console.log('friends_list',friends_list)
+	fb_id_list = _.pluck(friends_list, 'id');
+	//console.log('fb_id_list', fb_id_list);
+	User.find({
+		"fb.id": {
+			"$in": fb_id_list
+			//"$in": myarr
+		}
+	}).exec(function(err, noobaa_friends) {
+		if (!err) {
+			// handle result
+			console.log('noobaa_friends', noobaa_friends);
+		} else {
+			//handle error
+			console.log("Error: ", err);
+		};
+	});
 };

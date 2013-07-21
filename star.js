@@ -71,7 +71,8 @@ app.post('/star_api/inode/', star_api.inode_create);
 app.get('/star_api/inode/:inode_id', star_api.inode_read);
 app.put('/star_api/inode/:inode_id', star_api.inode_update);
 app.del('/star_api/inode/:inode_id', star_api.inode_delete);
-
+app.get('/star_api/inode/:inode_id/share_list', star_api.inode_get_share_list);
+app.put('/star_api/inode/:inode_id/share_list', star_api.inode_set_share_list);
 
 // setup pages
 
