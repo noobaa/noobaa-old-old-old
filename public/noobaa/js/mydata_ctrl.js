@@ -76,7 +76,7 @@ function Alerts() {
 
 // push new alert in front of existing ones and increase counter
 Alerts.prototype.add = function(text, info) {
-	console.log("[ERR]", text, info);
+	console.error("[ERR]", text, info);
 	this.alerts.unshift({
 		text: text,
 		time: new Date(),
@@ -344,7 +344,6 @@ Inode.prototype.mkfile = function(name, size, relative_path) {
 			relative_path: relative_path
 		}
 	}).on('all', function(mkfile_data) {
-		console.log('create inode reply:', mkfile_data);
 		me.read_dir();
 	});
 }
@@ -893,21 +892,26 @@ function UploadCtrl($scope, $safe, $http, $timeout) {
 		ev.on('success', function(mkfile_data) {
 			upload.status = 'Uploading...';
 			// using s3 upload with signed url
-			data.type = 'PUT';
-			data.url = mkfile_data.s3.putObject;
+			data.type = 'POST';
+			data.multipart = true;
+			data.url = mkfile_data.s3.post_url;
+			data.formData = mkfile_data.s3.post_form;
+			console.log('MKFILE:', mkfile_data);
+			console.log('DATA:', data);
+
 			upload.xhr = data.submit();
-			upload.xhr.error(function(jqXHR, textStatus, errorThrown) {
-				$scope.alerts.add('upload error: ' + textStatus + ' ' + errorThrown);
-				upload.status = 'Failed!';
-				upload.row_class = 'error';
-				upload.progress_class = 'progress progress-danger';
-				upload.progress = 100;
-				safe_apply($scope);
-			});
 			upload.xhr.success(function(result, textStatus, jqXHR) {
 				console.log('[ok] upload success');
 				upload.status = 'Completed';
 				upload.row_class = 'success';
+				safe_apply($scope);
+			});
+			upload.xhr.error(function(jqXHR, textStatus, errorThrown) {
+				$scope.alerts.add('upload error: ' + textStatus + ' ' + errorThrown, jqXHR.responseText);
+				upload.status = 'Failed!';
+				upload.row_class = 'error';
+				upload.progress_class = 'progress progress-danger';
+				upload.progress = 100;
 				safe_apply($scope);
 			});
 			upload.xhr.always(function(e, data) {
@@ -944,19 +948,25 @@ function UploadCtrl($scope, $safe, $http, $timeout) {
 
 	// setup the global file/dir input and link them to this scope
 	$('#file_upload_input').fileupload({
-		singleFileUploads: true,
 		add: $scope.add_upload,
-		progress: $scope.update_progress
+		progress: $scope.update_progress,
+		// we want single file per xhr
+		singleFileUploads: true,
+		// xml is is how amazon s3 work
+		dataType: 'xml'
 	});
 
-	// disabling drop/paste since the file input will handle them,
-	// and if we don't disable it will handle them twice.
 	$('#dir_upload_input').fileupload({
-		singleFileUploads: true,
-		dropZone: null,
-		pasteZone: null,
 		add: $scope.add_upload,
-		progress: $scope.update_progress
+		progress: $scope.update_progress,
+		// we want single file per xhr
+		singleFileUploads: true,
+		// xml is is how amazon s3 work
+		dataType: 'xml',
+		// disabling drop/paste, file_upload_input will handle globally,
+		// if we don't disable it will upload twice.
+		dropZone: null,
+		pasteZone: null
 	});
 }
 

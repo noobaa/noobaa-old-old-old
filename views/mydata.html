@@ -367,6 +367,7 @@
 				Choose Files
 				<input id="file_upload_input"
 					type="file"
+					name="file"
 					multiple="multiple"></input>
 			</span>
 			<span ng-show="curr_dir_refresh_failed"
@@ -374,6 +375,7 @@
 				Choose Folder
 				<input id="dir_upload_input" 
 					type="file"
+					name="file"
 					multiple="multiple"
 					webkitdirectory=""
 					mozdirectory=""
@@ -586,13 +588,27 @@
 						[[[human_size(file_inode.size)]]]
 					</span>
 					<div ng-show="file_inode.uploading"
-						class="span11 roundbord progress progress-info"
+						class="span11"
 						role="progressbar" 
 						aria-valuemin="0" 
 						aria-valuemax="100">
-						<div class="bar nbfont"  
-							style="color: black; width: [[[file_inode.progress]]]%;">
-							uploading... [[[file_inode.progress]]]%
+						<div class="progress progress-success"
+							style="margin: 0; position: relative">
+							<div class="bar"
+								style="position: absolute;
+									top: 0;
+									left: 0;
+									z-index: 1;
+									width: [[[file_inode.progress]]]%;">
+							</div>
+							<div class="nbfont"
+								style="position: absolute;
+									top: 0;
+									left: 40%;
+									z-index: 2;
+									color: black;">
+								uploading... [[[file_inode.progress]]] %
+							</div>
 						</div>
 					</div>
 				</a>

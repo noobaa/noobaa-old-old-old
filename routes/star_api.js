@@ -1,22 +1,21 @@
 var _ = require('underscore');
 var AWS = require('aws-sdk');
 var path = require('path');
+var moment = require('moment');
+var crypto = require('crypto');
 
 var inode_model = require('../models/inode');
 var fobj_model = require('../models/fobj');
 var Inode = inode_model.Inode;
 var Fobj = fobj_model.Fobj;
 
-/* loaded automatically from env
+/* load s3 config from env*/
 AWS.config.update({
 	accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-	secretAccessKey: process.env.AWS_SECRET_KEY,
+	secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+	// region: process.env.AWS_REGION
 });
-*/
-AWS.config.update({
-	region: 'eu-west-1'
-});
-var s3 = new AWS.S3;
+var S3 = new AWS.S3;
 
 
 // reply_func returns a handler that first treats errors,
@@ -44,13 +43,39 @@ function reply_ok(req, res) {
 function get_s3_urls(fobj_id) {
 	var params = {
 		Bucket: process.env.S3_BUCKET,
-		Key: '/' + path.join(process.env.S3_PATH, 'fobsj', String(fobj_id)),
-		Expires: 60
+		Key: path.join(process.env.S3_PATH, 'fobjs', String(fobj_id)),
+		Expires: 600
 	};
+	var policy_options = {
+		expiration: moment.utc().add('minutes', 30).format('YYYY-MM-DDTHH:mm:ss\\Z'),
+		conditions: [{
+			bucket: process.env.S3_BUCKET
+		}, {
+			acl: "public-read-write"
+		}, {
+			success_action_status: '201'
+		}, {
+			key: params.Key
+		}]
+	};
+	var policy = new Buffer(JSON.stringify(policy_options)).toString('base64').replace(/\n|\r/, '');
+	var hmac = crypto.createHmac('sha1', process.env.AWS_SECRET_ACCESS_KEY);
+	var hash2 = hmac.update(policy);
+	var signature = hmac.digest('base64');
+	var post_url = 'https://' + process.env.S3_BUCKET + '.s3.amazonaws.com';
+	// S3.getSignedUrl('putObject', params).split('?',2)[0];
 	return {
-		getObject: s3.getSignedUrl('getObject', params),
-		putObject: s3.getSignedUrl('putObject', params)
-	}
+		post_url: post_url,
+		post_form: {
+			'key': params.Key,
+			'AWSAccessKeyId': process.env.AWS_ACCESS_KEY_ID,
+			'acl': 'public-read-write',
+			'policy': policy,
+			'signature': signature,
+			'success_action_status': '201',
+			// 'Content-Type': data.files[0].type
+		}
+	};
 }
 
 // transform the inode and optional fobj to an entry 
