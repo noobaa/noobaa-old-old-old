@@ -22,28 +22,6 @@ AWS.config.update({
 var S3 = new AWS.S3;
 
 
-// reply_func returns a handler that first treats errors,
-// and if no error, will call the real handler
-// with given arguments besides the error argument)
-
-function reply_func(req, res, handler) {
-	return function(err, varargs) {
-		if (err) {
-			console.error('ERROR:', err);
-			res.send(500, err);
-			return;
-		}
-		var args = Array.prototype.slice.call(arguments, 1);
-		handler.apply(null, args);
-	};
-}
-
-function reply_ok(req, res) {
-	return reply_func(req, res, function() {
-		res.send(200);
-	});
-}
-
 // Convinient callback for handling the reply of async control flows.
 // 'this' should be the bound to the response.
 //
@@ -109,6 +87,7 @@ function s3_get_url(fobj_id) {
 
 function s3_post_info(fobj_id, name, content_type) {
 	var key = fobj_s3_key(fobj_id);
+	// create S3 policy object
 	var policy_options = {
 		expiration: moment.utc().add('hours', 24).format('YYYY-MM-DDTHH:mm:ss\\Z'),
 		conditions: [{
@@ -125,10 +104,12 @@ function s3_post_info(fobj_id, name, content_type) {
 			'content-type': content_type
 		}]
 	};
+	// sign the policy object according to S3 requirements (HMAC, SHA1, BASE64).
 	var policy = new Buffer(JSON.stringify(policy_options)).toString('base64').replace(/\n|\r/, '');
 	var hmac = crypto.createHmac('sha1', process.env.AWS_SECRET_ACCESS_KEY);
 	var hash2 = hmac.update(policy);
 	var signature = hmac.digest('base64');
+	// return both the post url, and the post form
 	return {
 		url: 'https://' + process.env.S3_BUCKET + '.s3.amazonaws.com',
 		form: {
@@ -154,15 +135,20 @@ function inode_to_entry(inode, opt) {
 		isdir: inode.isdir
 	};
 	if (opt && opt.fobj) {
+		// when fobj is given add its info to the entry
 		ent = _.extend(ent, {
 			size: opt.fobj.size,
 			uploading: opt.fobj.uploading,
 			upload_size: opt.fobj.upload_size
 		});
 		if (opt.s3_post) {
+			// add S3 post info only if requested specifically
+			// this requires signing which might be heavy if done all the time.
 			ent.s3_post_info = s3_post_info(opt.fobj._id, inode.name, opt.content_type);
 		}
 		if (opt.s3_get) {
+			// add S3 get info only if requested specifically
+			// this requires signing which might be heavy if done all the time.
 			ent.s3_get_url = s3_get_url(opt.fobj._id);
 		}
 	}
@@ -248,12 +234,14 @@ function do_read_file(inode, next) {
 	});
 }
 
+
+// general validations preceding all the star api functions
+
 exports.validations = function(req, res, next) {
-	// TODO add general checks about the req.user etc.
 	if (!req.user) {
 		return res.send(403, "User Not Authenticated");
 	}
-	next();
+	return next();
 };
 
 
@@ -268,9 +256,7 @@ exports.inode_create = function(req, res) {
 	// create args are passed in post body
 	var args = req.body;
 
-	// TODO handle relative_path param for dir uploads
-
-	// prepare the inode object
+	// prepare the inode object (auto generate id).
 	var inode = new Inode({
 		owner: req.user.id,
 		parent: args.id,
@@ -278,9 +264,8 @@ exports.inode_create = function(req, res) {
 		isdir: args.isdir
 	});
 
-	// prepare fobj if needed.
-	// the fobj instance will generate an id immediately 
-	// so we put the link in the inode.
+	// prepare fobj if needed (auto generate id).
+	// then also set the link in the new inode.
 	if (!inode.isdir && args.uploading) {
 		var fobj = new Fobj({
 			size: args.size,
@@ -291,28 +276,76 @@ exports.inode_create = function(req, res) {
 		inode.fobj = fobj._id;
 	}
 
-	// prepare a callback to save the inode 
-	var do_save_inode = function() {
-		return inode.save(reply_func(req, res, function() {
-			console.log('CREATED INODE:', inode);
-			return res.json(200, inode_to_entry(inode, {
+	// start the create waterfall
+	async.waterfall([
+
+		// create relative path if needed
+		// and update the created dir as the new inode parent
+		function(next) {
+			if (!args.relative_path) {
+				return next();
+			}
+			// make an array out of the relative path names
+			// and compact it to remove any empty strings
+			var paths = _.compact(args.relative_path.split('/'));
+			console.log('RELATIVE PATH:', args.relative_path, paths);
+			// do reduce on the paths array and for each name in the path
+			// try to find existing dir, or otherwise create it,
+			// and pass the parent to the next step.
+			return async.reduce(paths, args.id, function(parent_id, name, next) {
+				return Inode.findOneAndUpdate({
+					owner: req.user.id,
+					parent: parent_id,
+					name: name,
+					isdir: true
+				}, {}, {
+					// setting upsert to create if not exist
+					upsert: true
+				}, function(err, inode) {
+					if (err) {
+						return next(err);
+					}
+					console.log('RELATIVE PATH - REDUCE:', parent_id, name, inode._id);
+					return next(null, inode._id);
+				});
+			}, function(err, parent_id) {
+				// finally, set the new inode parent
+				console.log('RELATIVE PATH - RESULT:', parent_id);
+				inode.parent = parent_id;
+				next(err);
+			});
+		},
+
+		// create the new fobj
+		function(next) {
+			if (!fobj) {
+				return next();
+			}
+			console.log('FOBJ CREATE:', fobj);
+			return fobj.save(function(err) {
+				next(err);
+			});
+		},
+
+		// create the new inode
+		function(next) {
+			console.log('INODE CREATE:', inode);
+			return inode.save(function(err) {
+				next(err);
+			});
+		},
+
+		// convert the inode and fobj to an entry to reply
+		function(next) {
+			return next(null, inode_to_entry(inode, {
 				fobj: fobj,
 				s3_post: true,
 				content_type: args.content_type
 			}));
-		}));
-	};
+		}
 
-	if (!fobj) {
-		// we can save the inode when no fobj is needed
-		return do_save_inode();
-	} else {
-		// first save the fobj, and then save the inode
-		return fobj.save(reply_func(req, res, function() {
-			console.log('CREATED FOBJ:', fobj);
-			do_save_inode();
-		}));
-	}
+		// waterfall end
+	], reply_callback.bind(res, 'INODE CREATE ' + inode._id));
 };
 
 
@@ -325,6 +358,7 @@ exports.inode_read = function(req, res) {
 
 	// start the read waterfall
 	async.waterfall([
+
 		// find the inode
 		function(next) {
 			if (id === 'null') {
@@ -350,6 +384,7 @@ exports.inode_read = function(req, res) {
 			}
 		},
 
+		// waterfall end
 	], reply_callback.bind(res, 'INODE READ ' + id));
 };
 
@@ -368,6 +403,7 @@ exports.inode_update = function(req, res) {
 
 	// start the update waterfall
 	async.waterfall([
+
 		// pass the id
 		function(next) {
 			return next(null, id);
@@ -412,6 +448,7 @@ exports.inode_update = function(req, res) {
 			return next(null, inode_to_entry(inode));
 		}
 
+		// waterfall end
 	], reply_callback.bind(res, 'INODE UPDATE ' + id));
 };
 
@@ -425,6 +462,7 @@ exports.inode_delete = function(req, res) {
 
 	// start the delete waterfall
 	async.waterfall([
+
 		// pass the id
 		function(next) {
 			return next(null, id);
@@ -488,6 +526,7 @@ exports.inode_delete = function(req, res) {
 			});
 		}
 
+		// waterfall end
 	], reply_callback.bind(res, 'INODE DELETE ' + id));
 };
 
