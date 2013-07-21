@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+var _ = require('underscore')
 var types = mongoose.Schema.Types;
 
 var inode_schema = new mongoose.Schema({
@@ -30,5 +31,18 @@ inode_schema.index({
 }, {
 	unique: false
 });
+
+inode_schema.statics.getRefGhosts = function(real_id, next) {
+	this.find({
+		ghost_ref: real_id
+	}, next);
+}
+
+inode_schema.statics.getRefUsers = function(real_id, next) {
+	var query = this.find({	ghost_ref: real_id});
+	query.select('owner');
+	query.exec(next);
+}
+
 
 exports.Inode = mongoose.model('Inode', inode_schema);

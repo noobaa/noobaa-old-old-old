@@ -109,33 +109,20 @@ exports.viewback = function(err, data) {
 	}
 };
 
-exports.get_friends_list = function(fbAcessToken, callback) {
+exports.get_friends_list = function(fbAcessToken, next) {
 	console.log("in auth::get_friends_list");
-	// console.log('fbAcessToken', typeof(fbAcessToken), fbAcessToken);
-	// console.log('callback', typeof(callback), callback);
 	var client = fbapi.user(fbAcessToken); // needs a valid access_token
-	xxx = 5;
-	client.me.friends(callback);
+	client.me.friends(next);
 };
 
-exports.get_noobaa_friends_list = function(err, friends_list) {
+exports.get_noobaa_friends_list = function(friends_list, next) {
 	console.log("in auth::get_noobaa_friends_list");
-	console.log('xxx = ', typeof(xxx), xxx);
-	//console.log('friends_list',friends_list)
 	fb_id_list = _.pluck(friends_list, 'id');
-	//console.log('fb_id_list', fb_id_list);
+	//console.log(fb_id_list)
 	User.find({
-		"fb.id": {
-			"$in": fb_id_list
-			//"$in": myarr
-		}
-	}).exec(function(err, noobaa_friends) {
-		if (!err) {
-			// handle result
-			console.log('noobaa_friends', noobaa_friends);
-		} else {
-			//handle error
-			console.log("Error: ", err);
-		};
-	});
+			"fb.id": {
+				"$in": fb_id_list
+			}
+		},
+		next);
 };

@@ -373,17 +373,70 @@ exports.inode_get_share_list = function(req, res) {
 	console.log("star_api::inode_get_share_list");
 
 	var user = req.user.id
-	var id   = req.params.inode_id;
+	var inode_id = req.params.inode_id;
 	console.log("user ", user);
-	console.log("id ", id);
+	console.log("inode_id ", inode_id);
 
-	token=req.session.fbAccessToken;
-	async.series([auth.get_friends_list(token,auth.get_noobaa_friends_list)])
+	/*	async.waterfall([
+		function(next) {
+			next(null, inode_id);
+		},
+		Inode.getRefUsers.bind(Inode),
+		function(owners_list, next) {
+			User.find({
+				_id: {
+					'$in': _.pluck(owners_list, 'id');
+				}
+			})
+
+		},
+	], function(err, result) {});
+*/
+
+	async.waterfall([
+		function(next) {
+			console.log("entered first. Next is: ", next);
+			token = req.session.fbAccessToken;
+			next(null, token);
+		},
+		auth.get_friends_list,
+		auth.get_noobaa_friends_list,
+	], function(err, users) {
+		if (!err) {
+			console.log(users)
+			users.foreach(
+				console.log(entry)
+			);
+			return res.json(200)
+/*
+			{
+				"name": v.Name,
+				"shared": v.Shared,
+				"pic": "https://graph.facebook.com/" + v.FB_ID + "/picture",
+				"fb_id": v.FB_ID,
+				"nb_id": k,
+			}
+*/
+		} else {
+			return res.json(500, {
+				text: err,
+				id: id
+			});
+		}
+	});
 }
+/*
+function (users,)
+{
+			"name":   v.Name,
+			"shared": v.Shared,
+			"pic":    "https://graph.facebook.com/" + v.FB_ID + "/picture",
+			"fb_id":  v.FB_ID,
+			"nb_id":  k,
+		}
+*/
 
 exports.inode_set_share_list = function(req, res) {
-
 	var id = req.params.inode_id;
 	var shre_list = req
-
 }
