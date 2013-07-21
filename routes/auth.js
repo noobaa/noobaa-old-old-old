@@ -1,3 +1,4 @@
+/* jshint node:true */
 var passport = require('passport');
 var facebook_passport = require('passport-facebook');
 var user_model = require('../models/user');
@@ -117,7 +118,7 @@ exports.get_friends_list = function(fbAcessToken, next) {
 
 exports.get_noobaa_friends_list = function(friends_list, next) {
 	console.log("in auth::get_noobaa_friends_list");
-	fb_id_list = _.pluck(friends_list, 'id');
+	var fb_id_list = _.pluck(friends_list, 'id');
 	//console.log(fb_id_list)
 	User.find({
 			"fb.id": {

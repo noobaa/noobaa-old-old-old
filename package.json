@@ -9,7 +9,7 @@
 	},
 
 	"scripts": {
-		"postinstall": "./node_modules/jshint/bin/jshint star.js models/ routes/ public/noobaa/js/"
+		"postinstall": "./node_modules/jshint/bin/jshint star.js --verbose --show-non-errors models/ routes/ public/noobaa/js/"
 	},
 
 	"dependencies": {

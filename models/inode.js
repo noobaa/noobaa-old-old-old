@@ -1,5 +1,5 @@
+/* jshint node:true */
 var mongoose = require('mongoose');
-var _ = require('underscore');
 var types = mongoose.Schema.Types;
 
 var inode_schema = new mongoose.Schema({

@@ -1,3 +1,10 @@
+/*jshint browser:true, jquery:true, devel:true */
+/*global _:false */
+/*global Backbone:false */
+/*global angular:false */
+/*global safe_apply:false */
+/*global planet_api:false */
+
 // init jquery stuff
 
 var num_running_uploads = 0;
@@ -133,8 +140,8 @@ function Inode($scope, id, name, isdir, parent) {
 
 // construct a list of the path of dirs from the root down to this inode.
 Inode.prototype.get_path = function() {
-	path = [];
-	i = this;
+	var path = [];
+	var i = this;
 	while (i) {
 		if (i.parent || !this.$scope.hide_root_dir) {
 			path.unshift(i);
@@ -367,7 +374,7 @@ Inode.prototype.get_share_list = function() {
 	});
 };
 
-Inode.prototype.share = function() {
+Inode.prototype.share = function(share_list) {
 	return this.$scope.http({
 		method: 'POST',
 		url: this.$scope.api_url + 'share',

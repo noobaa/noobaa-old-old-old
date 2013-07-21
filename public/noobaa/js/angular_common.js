@@ -1,3 +1,6 @@
+/*jshint browser:true, jquery:true, devel:true */
+/*global angular:false */
+
 // declare our module with dependancy on the angular-ui module
 var noobaa_app = angular.module('noobaa_app', ['ui']);
 
@@ -73,7 +76,7 @@ noobaa_app.directive('nbDrop', function($parse, $rootScope) {
 		restrict: 'A',
 		link: function(scope, element, attr) {
 			var fn = $parse(attr.nbDrop);
-			handler = function(event) {
+			var handler = function(event) {
 				event.preventDefault();
 				return scope.$apply(function() {
 					fn(scope, {

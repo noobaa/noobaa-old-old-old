@@ -1,6 +1,5 @@
+/* jshint node:true */
 var path = require('path');
-var util = require('util');
-var fs = require('fs');
 var http = require('http');
 var dot = require('dot');
 var dot_emc = require('dot-emc');

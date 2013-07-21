@@ -1,5 +1,5 @@
+/* jshint node:true */
 var mongoose = require('mongoose');
-var types = mongoose.Schema.Types;
 
 var fobj_schema = new mongoose.Schema({
 	size: Number,

@@ -1,3 +1,4 @@
+/* jshint node:true */
 var _ = require('underscore');
 var AWS = require('aws-sdk');
 var path = require('path');
@@ -566,14 +567,14 @@ exports.inode_get_share_list = function(req, res) {
 
 	async.waterfall([
 		function(next) {
-			token = req.session.fbAccessToken;
+			var token = req.session.fbAccessToken;
 			next(null, token);
 		},
 		auth.get_friends_list,
 		auth.get_noobaa_friends_list,
 	], function(err, users) {
 		if (!err) {
-			return_list = [];
+			var return_list = [];
 			_.each(users, function(v) {
 				return_list.push({
 					"name": v.fb.name,
@@ -589,7 +590,7 @@ exports.inode_get_share_list = function(req, res) {
 		} else {
 			return res.json(500, {
 				text: err,
-				id: id
+				id: inode_id
 			});
 		}
 	});

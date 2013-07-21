@@ -1,3 +1,4 @@
+/* jshint node:true */
 var mongoose = require('mongoose');
 
 var user_schema = new mongoose.Schema({
