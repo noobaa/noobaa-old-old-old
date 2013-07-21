@@ -43,9 +43,55 @@ function reply_ok(req, res) {
 	});
 }
 
+// convinient callback for handling the reply of async control flows.
+// 'this' should be the bound to the response.
+// usage:
+// 	async.waterfall(
+//		[...],
+//		reply_callback.bind(res, reply, debug_info)
+// 	);
+
+function reply_callback(debug_info, err, reply) {
+	if (err) {
+		console.log('FAILED', debug_info, ':', err);
+		if (err.status) {
+			return this.json(err.status, err.info);
+		} else {
+			return this.json(500, err);
+		}
+	} else {
+		console.log('COMPLETED', debug_info);
+		return this.json(200, reply);
+	}
+}
+
+
+// check the inode's owner matching to the req.user
+// 'this' should be the bound to the request.
+// usage:
+// 	async.waterfall([
+//		check_inode_ownership.bind(req),
+//		], reply_callback.bind(res, reply, debug_info)
+// 	);
+
+function check_inode_ownership(inode, next) {
+	console.log('CHECKING OWNER:', inode.owner, this.user.id);
+	if (String(inode.owner) !== this.user.id) {
+		return next({
+			status: 403,
+			info: 'User Not Owner'
+		});
+	}
+	return next(null, inode);
+}
+
+// return the S3 path of the fobj
+
 function fobj_s3_key(fobj_id) {
 	return path.join(process.env.S3_PATH, 'fobjs', String(fobj_id));
 }
+
+// return a signed GET url for the fobj in S3
 
 function s3_get_url(fobj_id) {
 	var params = {
@@ -55,6 +101,8 @@ function s3_get_url(fobj_id) {
 	};
 	return S3.getSignedUrl('getObject', params);
 }
+
+// return a signed POST form and url for the fobj in S3
 
 function s3_post_info(fobj_id, name, content_type) {
 	var key = fobj_s3_key(fobj_id);
@@ -270,70 +318,15 @@ exports.inode_read = function(req, res) {
 
 exports.inode_update = function(req, res) {
 
-	// the inode_id param is expected to be parsed as url param
-	// such as /path/to/api/:inode_id/...
+	// the inode_id param is parsed as url param (/path/to/api/:inode_id/...)
 	var id = req.params.inode_id;
 
 	// we pick only the keys we allow to update from the request body
 	// TODO: check the validity of the input
 	var inode_args = _.pick(req.body, 'parent', 'name');
 	var fobj_args = _.pick(req.body, 'uploading', 'upsize');
-	console.log('PUTTTT', inode_args, fobj_args);
 
-	if (!_.isEmpty(inode_args)) {
-		return Inode.findByIdAndUpdate(id, inode_args,
-			reply_func(req, res, function(inode) {
-				if (!inode) {
-					return res.json(404, {
-						text: 'Not Found',
-						id: id
-					});
-				}
-				console.log('INODE UPDATE:', inode);
-				return res.json(200, inode_to_entry(inode));
-			})
-		);
-	}
-
-	if (!_.isEmpty(fobj_args)) {
-		return Inode.findById(id, reply_func(req, res, function(inode) {
-			if (!inode) {
-				return res.json(404, {
-					text: 'Not Found',
-					id: id
-				});
-			}
-			if (!inode.fobj) {
-				return res.json(404, {
-					text: 'No File Object',
-					id: id
-				});
-			}
-			return Fobj.findByIdAndUpdate(inode.fobj, fobj_args,
-				reply_func(req, res, function(fobj) {
-					if (!fobj) {
-						return res.json(404, {
-							text: 'Stale File Object',
-							id: id
-						});
-					}
-					console.log('FOBJ UPDATE:', fobj);
-					return res.json(200, inode_to_entry(inode, {
-						fobj: fobj
-					}));
-				})
-			);
-		}));
-	}
-};
-
-
-// INODE CRUD - DELETE
-
-exports.inode_delete = function(req, res) {
-
-	var id = req.params.inode_id;
-
+	// start the delete waterfall
 	async.waterfall([
 		// pass the id
 		function(next) {
@@ -344,19 +337,64 @@ exports.inode_delete = function(req, res) {
 		Inode.findById.bind(Inode),
 
 		// check inode ownership
+		check_inode_ownership.bind(req),
+
+		// update the inode
 		function(inode, next) {
-			console.log('CHECKING OWNER:', inode.owner, req.user.id);
-			if (String(inode.owner) !== req.user.id) {
+			if (_.isEmpty(inode_args)) {
+				return next(null, inode);
+			}
+			console.log('INODE UPDATE:', id, inode_args);
+			return inode.update(inode_args, function(err) {
+				return next(err, inode);
+			});
+		},
+
+		// update the fobj
+		function(inode, next) {
+			if (_.isEmpty(fobj_args)) {
+				return next(null, inode);
+			}
+			if (!inode.fobj) {
 				return next({
-					status: 403,
-					info: {
-						text: 'User Not Owner',
-						id: id
-					}
+					status: 404,
+					info: 'File Object Not Found'
 				});
 			}
-			return next(null, inode);
+			console.log('FOBJ UPDATE:', id, inode.fobj, fobj_args);
+			return Fobj.findByIdAndUpdate(inode.fobj, fobj_args, function(err) {
+				return next(err, inode);
+			});
 		},
+
+		// convert inode to entry for the reply
+		function(inode, next) {
+			return next(null, inode_to_entry(inode));
+		}
+
+	], reply_callback.bind(res, 'INODE UPDATE ' + id));
+};
+
+
+// INODE CRUD - DELETE
+
+exports.inode_delete = function(req, res) {
+
+	// the inode_id param is parsed as url param (/path/to/api/:inode_id/...)
+	var id = req.params.inode_id;
+
+	// start the delete waterfall
+	async.waterfall([
+		// pass the id
+		function(next) {
+			return next(null, id);
+		},
+
+		// get the inode
+		Inode.findById.bind(Inode),
+
+		// check inode ownership
+		check_inode_ownership.bind(req),
 
 		// for dirs count sons
 		Inode.countDirSons.bind(Inode),
@@ -387,7 +425,7 @@ exports.inode_delete = function(req, res) {
 			};
 			console.log('S3 OBJECT DELETE:', id);
 			return S3.deleteObject(params, function(err) {
-				next(err, inode);
+				return next(err, inode);
 			});
 		},
 
@@ -397,30 +435,20 @@ exports.inode_delete = function(req, res) {
 				return next(null, inode);
 			}
 			console.log('FOBJ DELETE:', id);
-			return Fobj.findByIdAndRemove(inode.fobj, function (err) {
-				next(err, inode);
+			return Fobj.findByIdAndRemove(inode.fobj, function(err) {
+				return next(err, inode);
 			});
 		},
 
 		// delete the inode itself
 		function(inode, next) {
 			console.log('INODE DELETE:', id);
-			return inode.remove(next);
+			return inode.remove(function(err) {
+				return next(err, null);
+			});
 		}
 
-	], function(err) {
-		if (err) {
-			console.log('FAILED INODE DELETE:', err);
-			if (err.status) {
-				return res.json(err.status, err.info);
-			} else {
-				return res.json(500, err);
-			}
-		} else {
-			console.log('COMPLETED INODE DELETE:', id);
-			res.send(200);
-		}
-	});
+	], reply_callback.bind(res, 'INODE DELETE ' + id));
 };
 
 exports.inode_get_share_list = function(req, res) {
