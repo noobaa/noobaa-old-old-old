@@ -5,6 +5,7 @@ var moment = require('moment');
 var crypto = require('crypto');
 var auth = require('./auth');
 var async = require('async');
+var mongoose = require('mongoose');
 
 var inode_model = require('../models/inode');
 var fobj_model = require('../models/fobj');
@@ -43,12 +44,13 @@ function reply_ok(req, res) {
 	});
 }
 
-// convinient callback for handling the reply of async control flows.
+// Convinient callback for handling the reply of async control flows.
 // 'this' should be the bound to the response.
-// usage:
+//
+// Example usage:
 // 	async.waterfall(
 //		[...],
-//		reply_callback.bind(res, reply, debug_info)
+//		reply_callback.bind(res, debug_info)
 // 	);
 
 function reply_callback(debug_info, err, reply) {
@@ -66,19 +68,20 @@ function reply_callback(debug_info, err, reply) {
 }
 
 
-// check the inode's owner matching to the req.user
+// Check the inode's owner matching to the req.user
 // 'this' should be the bound to the request.
-// usage:
+//
+// Example usage:
 // 	async.waterfall([
 //		check_inode_ownership.bind(req),
 //		], reply_callback.bind(res, reply, debug_info)
 // 	);
 
 function check_inode_ownership(inode, next) {
-	console.log('CHECKING OWNER:', inode.owner, this.user.id);
-	if (String(inode.owner) !== this.user.id) {
+	var user_id = mongoose.Types.ObjectId(this.user.id);
+	if (!user_id.equals(inode.owner)) {
 		return next({
-			status: 403,
+			status: 403, // HTTP Forbidden
 			info: 'User Not Owner'
 		});
 	}
@@ -166,26 +169,37 @@ function inode_to_entry(inode, opt) {
 	return ent;
 }
 
-// read_dir finds all the sons of the directory, and sends a json response.
+// read_dir finds all the sons of the directory.
 // for inodes with fobj also add the fobj info to the response.
 
-function do_read_dir(req, res, user_id, dir_id) {
-	// query all sons
-	return Inode.find({
-		owner: user_id,
-		parent: dir_id
-	}, reply_func(req, res, function(list) {
-		console.log('INODE READDIR:', dir_id, 'results:', list.length);
+function do_read_dir(inode, next) {
+	async.waterfall([
+		// query all the dir sons
+		function(next) {
+			return Inode.find({
+				owner: inode.owner,
+				parent: inode._id
+			}, next);
+		},
 
-		// find all the fobjs for inode list using one big query.
-		// create the query by removing empty fobj ids.
-		var fobj_ids = _.compact(_.pluck(list, 'fobj'));
-		return Fobj.find({
-			_id: {
-				'$in': fobj_ids
-			}
-		}, reply_func(req, res, function(fobjs) {
+		// query the fobjs for all the entries found
+		function(list, next) {
+			// find all the fobjs for inode list using one big query.
+			// create the query by removing empty fobj ids.
+			var fobj_ids = _.compact(_.pluck(list, 'fobj'));
+			return Fobj.find({
+				_id: {
+					'$in': fobj_ids
+				}
+			}, function(err, fobjs) {
+				next(err, list, fobjs);
+			});
+		},
 
+		// merge the list of entries with the fobjs
+		function(list, fobjs, next) {
+			console.log('INODE READDIR:', inode._id,
+				'entries', list.length, 'fobjs', fobjs.length);
 			// create a map from fobj._id to fobj
 			var fobj_map = {};
 			_.each(fobjs, function(fobj) {
@@ -198,11 +212,40 @@ function do_read_dir(req, res, user_id, dir_id) {
 					fobj: fobj_map[inode.fobj]
 				});
 			});
-			return res.json(200, {
+			return next(null, {
 				entries: entries
 			});
-		}));
-	}));
+		}
+
+	], function(err, reply) {
+		// on complete, pass the reply to the read_dir callback
+		next(err, reply);
+	});
+}
+
+// read of file - return attributes of inode and fobj if exists
+
+function do_read_file(inode, next) {
+	async.waterfall([
+		// find fobj if exists
+		function(next) {
+			if (!inode.fobj) {
+				return next(null, null);
+			}
+			return Fobj.findById(inode.fobj, next);
+		},
+
+		// convert the inode anf fobj to a reply entry
+		function(fobj, next) {
+			return next(null, inode_to_entry(inode, {
+				fobj: fobj,
+				s3_get: true
+			}));
+		}
+	], function(err, reply) {
+		// on complete, pass the reply to the read_file callback
+		next(err, reply);
+	});
 }
 
 exports.validations = function(req, res, next) {
@@ -277,40 +320,37 @@ exports.inode_create = function(req, res) {
 
 exports.inode_read = function(req, res) {
 
-	// the inode_id param is expected to be parsed as url param
-	// such as /path/to/api/:inode_id/...
+	// the inode_id param is parsed as url param (/path/to/api/:inode_id/...)
 	var id = req.params.inode_id;
 
-	// readdir of root
-	if (id === 'null') {
-		return do_read_dir(req, res, req.user.id, null);
-	}
+	// start the read waterfall
+	async.waterfall([
+		// find the inode
+		function(next) {
+			if (id === 'null') {
+				// pass fictive inode to represent user root
+				var inode = new Inode;
+				inode._id = null;
+				inode.owner = mongoose.Types.ObjectId(req.user.id);
+				inode.isdir = true;
+				return next(null, inode)
+			}
+			return Inode.findById(id, next);
+		},
 
-	// find the given inode, and read according to type
-	return Inode.findById(id, reply_func(req, res, function(inode) {
-		if (!inode) {
-			return res.json(404, {
-				text: 'Not Found',
-				id: id
-			});
-		}
+		// check inode ownership
+		check_inode_ownership.bind(req),
 
-		// call read_dir for directories
-		if (inode.isdir) {
-			return do_read_dir(req, res, req.user.id, id);
-		}
+		// dispatch to read dir/file
+		function(inode, next) {
+			if (inode.isdir) {
+				return do_read_dir(inode, next);
+			} else {
+				return do_read_file(inode, next);
+			}
+		},
 
-		// for files - return attributes of inode and fobj if exists
-		if (!inode.fobj) {
-			return res.json(200, inode_to_entry(inode));
-		}
-		Fobj.findById(inode.fobj, reply_func(req, res, function(fobj) {
-			return res.json(200, inode_to_entry(inode, {
-				fobj: fobj,
-				s3_get: true
-			}));
-		}));
-	}));
+	], reply_callback.bind(res, 'INODE READ ' + id));
 };
 
 
@@ -326,14 +366,14 @@ exports.inode_update = function(req, res) {
 	var inode_args = _.pick(req.body, 'parent', 'name');
 	var fobj_args = _.pick(req.body, 'uploading', 'upsize');
 
-	// start the delete waterfall
+	// start the update waterfall
 	async.waterfall([
 		// pass the id
 		function(next) {
 			return next(null, id);
 		},
 
-		// get the inode
+		// find the inode
 		Inode.findById.bind(Inode),
 
 		// check inode ownership
@@ -390,7 +430,7 @@ exports.inode_delete = function(req, res) {
 			return next(null, id);
 		},
 
-		// get the inode
+		// find the inode
 		Inode.findById.bind(Inode),
 
 		// check inode ownership
