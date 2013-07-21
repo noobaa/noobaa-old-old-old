@@ -3,13 +3,13 @@ var AWS = require('aws-sdk');
 var path = require('path');
 var moment = require('moment');
 var crypto = require('crypto');
+var auth = require('./auth');
+var async = require('async');
 
 var inode_model = require('../models/inode');
 var fobj_model = require('../models/fobj');
 var Inode = inode_model.Inode;
 var Fobj = fobj_model.Fobj;
-var auth = require('./auth');
-var async = require('async');
 
 
 /* load s3 config from env*/
@@ -329,56 +329,110 @@ exports.inode_update = function(req, res) {
 
 
 // INODE CRUD - DELETE
+
 exports.inode_delete = function(req, res) {
-
-	// TODO support recursive dir deletion
-
-	// TODO: check ownership on the inode against req.user.id
 
 	var id = req.params.inode_id;
 
-	return Inode.findById(id, reply_func(req, res, function(inode) {
-		if (!inode) {
-			// delete + not-found = ok
-			return res.json(200, {
-				text: 'Not Found',
-				id: id
-			});
-		}
+	async.waterfall([
+		// pass the id
+		function(next) {
+			return next(null, id);
+		},
 
-		// for dirs, check that dir is empty
-		if (inode.isdir) {
-			return Inode.count({
-				owner: req.user.id,
-				parent: id
-			}, reply_func(req, res, function(count) {
-				if (count) {
-					return res.json(400, {
+		// get the inode
+		Inode.findById.bind(Inode),
+
+		// check inode ownership
+		function(inode, next) {
+			console.log('CHECKING OWNER:', inode.owner, req.user.id);
+			if (String(inode.owner) !== req.user.id) {
+				return next({
+					status: 403,
+					info: {
+						text: 'User Not Owner',
+						id: id
+					}
+				});
+			}
+			return next(null, inode);
+		},
+
+		// for dirs count sons
+		Inode.countDirSons.bind(Inode),
+
+		// fail if dir and has sons
+		function(inode, dir_son_count, next) {
+			// TODO support recursive dir deletion
+			if (inode.isdir && dir_son_count !== 0) {
+				return next({
+					status: 400,
+					info: {
 						text: 'Directory Not Empty',
 						id: id
-					});
-				}
-				console.log('INODE DELETE DIR:', id);
-				return inode.remove(reply_ok(req, res));
-			}));
+					}
+				});
+			}
+			return next(null, inode);
+		},
+
+		// remove s3 object if any
+		function(inode, next) {
+			if (!inode.fobj) {
+				return next(null, inode);
+			}
+			var params = {
+				Bucket: process.env.S3_BUCKET,
+				Key: fobj_s3_key(inode.fobj)
+			};
+			console.log('S3 OBJECT DELETE:', id);
+			return S3.deleteObject(params, function(err) {
+				next(err, inode);
+			});
+		},
+
+		// remove fobj if any
+		function(inode, next) {
+			if (!inode.fobj) {
+				return next(null, inode);
+			}
+			console.log('FOBJ DELETE:', id);
+			return Fobj.findByIdAndRemove(inode.fobj, function (err) {
+				next(err, inode);
+			});
+		},
+
+		// delete the inode itself
+		function(inode, next) {
+			console.log('INODE DELETE:', id);
+			return inode.remove(next);
 		}
 
-		// TODO delete fobj !!
-		console.log('INODE DELETE FILE:', id);
-		return inode.remove(reply_ok(req, res));
-	}));
+	], function(err) {
+		if (err) {
+			console.log('FAILED INODE DELETE:', err);
+			if (err.status) {
+				return res.json(err.status, err.info);
+			} else {
+				return res.json(500, err);
+			}
+		} else {
+			console.log('COMPLETED INODE DELETE:', id);
+			res.send(200);
+		}
+	});
 };
 
 exports.inode_get_share_list = function(req, res) {
 	console.log("star_api::inode_get_share_list");
 
 	var user = req.user.id
-	var id   = req.params.inode_id;
+	var id = req.params.inode_id;
 	console.log("user ", user);
 	console.log("id ", id);
 
-	token=req.session.fbAccessToken;
-	async.series([auth.get_friends_list(token,auth.get_noobaa_friends_list)])
+	token = req.session.fbAccessToken;
+	async.series([auth.get_friends_list(token, auth.get_noobaa_friends_list)])
 }
 
 exports.inode_set_share_list = function(req, res) {
