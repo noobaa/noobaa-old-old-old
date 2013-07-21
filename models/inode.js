@@ -1,5 +1,5 @@
 var mongoose = require('mongoose');
-var _ = require('underscore')
+var _ = require('underscore');
 var types = mongoose.Schema.Types;
 
 var inode_schema = new mongoose.Schema({
@@ -36,13 +36,13 @@ inode_schema.statics.getRefGhosts = function(real_id, next) {
 	this.find({
 		ghost_ref: real_id
 	}, next);
-}
+};
 
 inode_schema.statics.getRefUsers = function(real_id, next) {
 	var query = this.find({	ghost_ref: real_id});
 	query.select('owner');
 	query.exec(next);
-}
+};
 
 // counts number of dir sons, and call back next(err, inode, dir_son_count)
 inode_schema.statics.countDirSons = function(inode, next) {
@@ -53,7 +53,7 @@ inode_schema.statics.countDirSons = function(inode, next) {
 		owner: inode.owner,
 		parent: inode._id
 	}, function(err, dir_son_count) {
-		next(err, inode, dir_son_count)
+		next(err, inode, dir_son_count);
 	});
 };
 

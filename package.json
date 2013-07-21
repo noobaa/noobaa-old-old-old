@@ -8,6 +8,10 @@
 		"npm": "1.3.x"
 	},
 
+	"scripts": {
+		"postinstall": "./node_modules/jshint/bin/jshint star.js models/ routes/ public/noobaa/js/"
+	},
+
 	"dependencies": {
 		"underscore": "1.5.1",
 		"backbone": "1.0.0",
@@ -22,17 +26,18 @@
 		"supervisor": "0.5.3",
 		"facebook-api": "0.1.2",
 		"async": "0.2.9",
-		"moment": "2.1.0"
+		"moment": "2.1.0",
+		"jshint": "2.1.4"
 	},
 
-	"//" : {
-		"==========" : "THIS IS A COMMENTS BLOCK",
+	"//": {
+		"==========": "THIS IS A COMMENTS BLOCK",
 		"express-dot": "0.1.x",
 		"socket.io": "0.9.x",
 		"socket.io-client": "0.9.x",
 		"request": "2.22.x",
 		"nat-pmp": "0.0.x",
 		"optimist": "0.6.x",
-		"==========" : "THIS IS A COMMENTS BLOCK"
+		"==========": "THIS IS A COMMENTS BLOCK"
 	}
 }

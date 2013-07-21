@@ -19,17 +19,17 @@ AWS.config.update({
 	secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
 	// region: process.env.AWS_REGION
 });
-var S3 = new AWS.S3;
+var S3 = new AWS.S3();
 
 
 // Convinient callback for handling the reply of async control flows.
 // 'this' should be the bound to the response.
 //
 // Example usage:
-// 	async.waterfall(
+//	async.waterfall(
 //		[...],
 //		reply_callback.bind(res, debug_info)
-// 	);
+//	);
 
 function reply_callback(debug_info, err, reply) {
 	if (err) {
@@ -51,10 +51,10 @@ function reply_callback(debug_info, err, reply) {
 // 'this' should be the bound to the request.
 //
 // Example usage:
-// 	async.waterfall([
+//	async.waterfall([
 //		check_inode_ownership.bind(req),
 //		], reply_callback.bind(res, reply, debug_info)
-// 	);
+//	);
 
 function check_inode_ownership(inode, next) {
 	var user_id = mongoose.Types.ObjectId(this.user.id);
@@ -365,11 +365,11 @@ exports.inode_read = function(req, res) {
 		function(next) {
 			if (id === 'null') {
 				// pass fictive inode to represent user root
-				var inode = new Inode;
+				var inode = new Inode();
 				inode._id = null;
 				inode.owner = mongoose.Types.ObjectId(req.user.id);
 				inode.isdir = true;
-				return next(null, inode)
+				return next(null, inode);
 			}
 			return Inode.findById(id, next);
 		},
@@ -543,7 +543,7 @@ exports.inode_delete = function(req, res) {
 exports.inode_get_share_list = function(req, res) {
 	console.log("star_api::inode_get_share_list");
 
-	var user = req.user.id
+	var user = req.user.id;
 	var inode_id = req.params.inode_id;
 	console.log("user ", user);
 	console.log("inode_id ", inode_id);
@@ -593,7 +593,7 @@ exports.inode_get_share_list = function(req, res) {
 			});
 		}
 	});
-}
+};
 /*
 function (users,)
 {
@@ -607,5 +607,5 @@ function (users,)
 
 exports.inode_set_share_list = function(req, res) {
 	var id = req.params.inode_id;
-	var shre_list = req
-}
+	var shre_list = req;
+};

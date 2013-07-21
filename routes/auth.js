@@ -3,7 +3,7 @@ var facebook_passport = require('passport-facebook');
 var user_model = require('../models/user');
 var User = user_model.User;
 var fbapi = require('facebook-api');
-var _ = require('underscore')
+var _ = require('underscore');
 
 // setup passport with facebook backend
 passport.use(new facebook_passport.Strategy({
@@ -25,7 +25,7 @@ passport.use(new facebook_passport.Strategy({
 			return;
 		}
 		if (!user) {
-			user = new User;
+			user = new User();
 			user.fb = profile._json;
 			user.save(function(err, user, num) {
 				if (err) {

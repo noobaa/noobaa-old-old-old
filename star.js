@@ -104,9 +104,9 @@ app.get('/', function(req, res) {
 
 
 app.get('/get_friends', function(req, res) {
-	console.log("++++++++++++++++++++++++++++++++++++++++++++++++++")
-	console.log("in get friends")
-	console.log("++++++++++++++++++++++++++++++++++++++++++++++++++")
+	console.log("++++++++++++++++++++++++++++++++++++++++++++++++++");
+	console.log("in get friends");
+	console.log("++++++++++++++++++++++++++++++++++++++++++++++++++");
 	console.log('The token as was retreived from req', req.session.fbAccessToken);
 	var client = fbapi.user(req.session.fbAccessToken); // needs a valid access_token
 
@@ -118,9 +118,9 @@ app.get('/get_friends', function(req, res) {
 		}
 	}
 	client.me.info(viewback);
-	console.log(viewback)
+	console.log(viewback);
 	client.me.friends(viewback);
-	console.log(viewback)
+	console.log(viewback);
 
 	if (req.user) {
 		res.render('mydata.html', page_context(req));
