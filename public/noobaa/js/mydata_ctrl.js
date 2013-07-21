@@ -322,15 +322,17 @@ Inode.prototype.download_file = function() {
 	if (this.uploading) {
 		return;
 	}
-	var query = $.param({
-		id: this.id
+	return this.$scope.http({
+		method: 'GET',
+		url: this.$scope.inode_api_url + this.id
+	}).on('success', function(data) {
+		console.log(data.s3_get_url);
+		var win = window.open(data.s3_get_url, '_blank');
+		win.focus();
 	});
-	var url = $scope.api_url + 'download' + "?" + query;
-	var win = window.open(url, '_blank');
-	win.focus();
 };
 
-Inode.prototype.mkfile = function(name, size, relative_path) {
+Inode.prototype.mkfile = function(name, size, content_type, relative_path) {
 	var me = this;
 	return this.$scope.http({
 		method: 'POST',
@@ -341,6 +343,7 @@ Inode.prototype.mkfile = function(name, size, relative_path) {
 			isdir: false,
 			size: size,
 			uploading: true,
+			content_type: content_type,
 			relative_path: relative_path
 		}
 	}).on('all', function(mkfile_data) {
@@ -888,23 +891,40 @@ function UploadCtrl($scope, $safe, $http, $timeout) {
 
 		// create the file and receive upload location info
 		console.log('creating file:', file);
-		var ev = dir_inode.mkfile(file.name, file.size, file.relativePath);
+		var ev = dir_inode.mkfile(file.name, file.size, file.type, file.relativePath);
 		ev.on('success', function(mkfile_data) {
 			upload.status = 'Uploading...';
 			// using s3 upload with signed url
 			data.type = 'POST';
 			data.multipart = true;
-			data.url = mkfile_data.s3.post_url;
-			data.formData = mkfile_data.s3.post_form;
+			data.url = mkfile_data.s3_post_info.url;
+			data.formData = mkfile_data.s3_post_info.form;
 			console.log('MKFILE:', mkfile_data);
 			console.log('DATA:', data);
 
 			upload.xhr = data.submit();
 			upload.xhr.success(function(result, textStatus, jqXHR) {
 				console.log('[ok] upload success');
-				upload.status = 'Completed';
-				upload.row_class = 'success';
+				upload.status = 'Finishing...';
 				safe_apply($scope);
+				// update the file state to uploading=false
+				return $scope.http({
+					method: 'PUT',
+					url: $scope.$parent.inode_api_url + mkfile_data.id,
+					data: {
+						uploading: false
+					}
+				}).on('success', function() {
+					upload.status = 'Completed';
+					upload.row_class = 'success';
+					safe_apply($scope);
+				}).on('error', function() {
+					upload.status = 'Failed!';
+					upload.row_class = 'error';
+					upload.progress_class = 'progress progress-danger';
+					upload.progress = 100;
+					safe_apply($scope);
+				});
 			});
 			upload.xhr.error(function(jqXHR, textStatus, errorThrown) {
 				$scope.alerts.add('upload error: ' + textStatus + ' ' + errorThrown, jqXHR.responseText);
