@@ -4,6 +4,7 @@
 <head>
 	{{# def.include('common_head.html') }}
 
+	<link href="/public/jquery-file-upload-8.3.2/css/jquery.fileupload-ui.css" type="text/css" rel="stylesheet"/>
 	<script src="/public/jquery-file-upload-8.3.2/js/vendor/jquery.ui.widget.js" type="text/javascript"></script>
 	<script src="/public/jquery-file-upload-8.3.2/js/jquery.iframe-transport.js" type="text/javascript"></script>
 	<script src="/public/jquery-file-upload-8.3.2/js/jquery.fileupload.js" type="text/javascript"></script>
@@ -272,23 +273,6 @@
 
 <!-- UPLOAD MODAL -->
 
-	<input id="upload_files_input" 
-		type="file"
-		name="file"
-		hidden
-		multiple
-		style="visibility: hidden;"></input>
-
-	<input id="upload_dir_input" 
-		type="file"
-		name="file"
-		hidden
-		multiple
-		webkitdirectory=""
-		mozdirectory=""
-		directory=""
-		style="visibility: hidden;"></input>
-
 	<div ng-controller="UploadCtrl"
 		id="upload_modal"
 		class="modal hide fade "
@@ -299,13 +283,60 @@
 		style="background-color: #f2f2f2">
 		<div class="modal-header">
 			<a type="button" class="close" data-dismiss="modal">×</a>
-			<h3 id="upload_modal_label">Upload to [[[$parent.dir_selection.inode.name]]]</h3>
+			<h3 id="upload_modal_label">Uploads</h3>
 		</div>
 		<div class="modal-body">
-			<div ng-show="curr_dir_refresh_failed">
-				<div id="progressall" class="progress progress-success">
-					<div class="bar"></div>
-				</div>
+			<div class="roundbord">
+				<table id="upload_table" 
+					class="table table-striped ng-cloak"
+					style="margin: 0">
+					<thead>
+						<tr>
+							<th>Name</th>
+							<th>Folder</th>
+							<th>Size</th>
+							<th>Status</th>
+							<th>Progress</th>
+						</tr>
+					</thead>
+					<tr ng-repeat="(idx,upload) in uploads" ng-class="upload.row_class">
+						<td>
+							[[[upload.file.relativePath + upload.file.name]]]
+						</td>
+						<td>
+							[[[upload.dir_inode.name]]]
+						</td>
+						<td>
+							[[[human_size(upload.file.size)]]]
+						</td>
+						<td>
+							[[[upload.status]]]
+						</td>
+						<td width="100px">
+							<div ng-class="upload.progress_class"
+								style="margin: 0; position: relative">
+								<div class="bar"
+									style="position: absolute;
+										top: 0;
+										left: 0;
+										z-index: 1;
+										width: [[[upload.progress]]]%;">
+								</div>
+								<div class="nbfont"
+									style="position: absolute;
+										top: 0;
+										left: 40%;
+										z-index: 2;
+										color: black;">
+									[[[upload.progress]]]%
+								</div>
+							</div>
+						</td>
+						<td>
+							<button class="btn btn-mini" ng-click="dismiss_upload(upload)">x</button>
+						</td>
+					</tr>
+				</table>
 			</div>
 			<div ng-show="!curr_dir_refresh_failed"
 				class="row-fluid notextselect roundbord bglight">
@@ -330,17 +361,27 @@
 				ng-click="submit()">
 				Upload
 			</button>
-			<div ng-show="curr_dir_refresh_failed"
-				class="btn-group dropdown">
-				<button class="btn btn-primary dropdown-toggle"
-					data-toggle="dropdown">
-					Choose files
-				</button>
-				<ul class="dropdown-menu">
-					<li><a ng-click="click_upload_files()">Files (one or more)</a></li>
-					<li><a ng-click="click_upload_dir()">Folder (complete)</a></li>
-				</ul>
-			</div>
+			<!-- The fileinput-button span is used to style the file input field as button -->
+			<span ng-show="curr_dir_refresh_failed"
+				class="btn btn-primary fileinput-button">
+				Choose Files
+				<input id="file_upload_input"
+					type="file"
+					name="file"
+					multiple="multiple"></input>
+			</span>
+			<span ng-show="curr_dir_refresh_failed"
+				class="btn btn-primary fileinput-button">
+				Choose Folder
+				<input id="dir_upload_input" 
+					type="file"
+					name="file"
+					multiple="multiple"
+					webkitdirectory=""
+					mozdirectory=""
+					directory="">
+				</input>
+			</span>
 			<button class="btn" data-dismiss="modal">Close</button>
 		</div>
 	</div>
@@ -544,16 +585,30 @@
 					</span>
 					<span class="span2 nbfont" 
 						style="text-align: right;">
-						[[[file_inode.size]]]
+						[[[human_size(file_inode.size)]]]
 					</span>
 					<div ng-show="file_inode.uploading"
-						class="span11 roundbord progress progress-info"
+						class="span11"
 						role="progressbar" 
 						aria-valuemin="0" 
 						aria-valuemax="100">
-						<div class="bar nbfont"  
-							style="color: black; width: [[[file_inode.progress]]]%;">
-							uploading... [[[file_inode.progress]]]%
+						<div class="progress progress-success"
+							style="margin: 0; position: relative">
+							<div class="bar"
+								style="position: absolute;
+									top: 0;
+									left: 0;
+									z-index: 1;
+									width: [[[file_inode.progress]]]%;">
+							</div>
+							<div class="nbfont"
+								style="position: absolute;
+									top: 0;
+									left: 40%;
+									z-index: 2;
+									color: black;">
+								uploading... [[[file_inode.progress]]] %
+							</div>
 						</div>
 					</div>
 				</a>

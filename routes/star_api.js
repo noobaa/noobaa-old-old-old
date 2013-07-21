@@ -1,11 +1,24 @@
 var _ = require('underscore');
 var AWS = require('aws-sdk');
+var path = require('path');
+var moment = require('moment');
+var crypto = require('crypto');
+
 var inode_model = require('../models/inode');
 var fobj_model = require('../models/fobj');
 var Inode = inode_model.Inode;
 var Fobj = fobj_model.Fobj;
 var auth = require('./auth');
 var async = require('async');
+
+
+/* load s3 config from env*/
+AWS.config.update({
+	accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+	secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+	// region: process.env.AWS_REGION
+});
+var S3 = new AWS.S3;
 
 
 // reply_func returns a handler that first treats errors,
@@ -30,22 +43,119 @@ function reply_ok(req, res) {
 	});
 }
 
-function inode_to_entry(inode, fobj) {
+function fobj_s3_key(fobj_id) {
+	return path.join(process.env.S3_PATH, 'fobjs', String(fobj_id));
+}
+
+function s3_get_url(fobj_id) {
+	var params = {
+		Bucket: process.env.S3_BUCKET,
+		Key: fobj_s3_key(fobj_id),
+		Expires: 24 * 60 * 60 // 24 hours
+	};
+	return S3.getSignedUrl('getObject', params);
+}
+
+function s3_post_info(fobj_id, name, content_type) {
+	var key = fobj_s3_key(fobj_id);
+	var policy_options = {
+		expiration: moment.utc().add('hours', 24).format('YYYY-MM-DDTHH:mm:ss\\Z'),
+		conditions: [{
+			bucket: process.env.S3_BUCKET
+		}, {
+			acl: 'private'
+		}, {
+			success_action_status: '201'
+		}, {
+			key: key
+		}, {
+			'content-disposition': name
+		}, {
+			'content-type': content_type
+		}]
+	};
+	var policy = new Buffer(JSON.stringify(policy_options)).toString('base64').replace(/\n|\r/, '');
+	var hmac = crypto.createHmac('sha1', process.env.AWS_SECRET_ACCESS_KEY);
+	var hash2 = hmac.update(policy);
+	var signature = hmac.digest('base64');
+	return {
+		url: 'https://' + process.env.S3_BUCKET + '.s3.amazonaws.com',
+		form: {
+			'key': key,
+			'AWSAccessKeyId': process.env.AWS_ACCESS_KEY_ID,
+			'acl': 'private',
+			'policy': policy,
+			'signature': signature,
+			'success_action_status': '201',
+			'Content-Disposition': name,
+			'Content-Type': content_type
+		}
+	};
+}
+
+// transform the inode and optional fobj to an entry 
+// that is the interface for the client.
+
+function inode_to_entry(inode, opt) {
 	var ent = {
 		id: inode._id,
 		name: inode.name,
 		isdir: inode.isdir
 	};
-	if (fobj) {
+	if (opt && opt.fobj) {
 		ent = _.extend(ent, {
-			size: fobj.size,
-			uploading: fobj.uploading,
-			upload_size: fobj.upload_size
+			size: opt.fobj.size,
+			uploading: opt.fobj.uploading,
+			upload_size: opt.fobj.upload_size
 		});
+		if (opt.s3_post) {
+			ent.s3_post_info = s3_post_info(opt.fobj._id, inode.name, opt.content_type);
+		}
+		if (opt.s3_get) {
+			ent.s3_get_url = s3_get_url(opt.fobj._id);
+		}
 	}
 	return ent;
 }
 
+// read_dir finds all the sons of the directory, and sends a json response.
+// for inodes with fobj also add the fobj info to the response.
+
+function do_read_dir(req, res, user_id, dir_id) {
+	// query all sons
+	return Inode.find({
+		owner: user_id,
+		parent: dir_id
+	}, reply_func(req, res, function(list) {
+		console.log('INODE READDIR:', dir_id, 'results:', list.length);
+
+		// find all the fobjs for inode list using one big query.
+		// create the query by removing empty fobj ids.
+		var fobj_ids = _.compact(_.pluck(list, 'fobj'));
+		return Fobj.find({
+			_id: {
+				'$in': fobj_ids
+			}
+		}, reply_func(req, res, function(fobjs) {
+
+			// create a map from fobj._id to fobj
+			var fobj_map = {};
+			_.each(fobjs, function(fobj) {
+				fobj_map[fobj._id] = fobj;
+			});
+
+			// for each inode return an entry with both inode and fobj info
+			var entries = _.map(list, function(inode) {
+				return inode_to_entry(inode, {
+					fobj: fobj_map[inode.fobj]
+				});
+			});
+			return res.json(200, {
+				entries: entries
+			});
+		}));
+	}));
+}
 
 exports.validations = function(req, res, next) {
 	// TODO add general checks about the req.user etc.
@@ -57,22 +167,29 @@ exports.validations = function(req, res, next) {
 
 
 // INODE CRUD - CREATE
+// create takes params from req.body which is suitable for HTTP POST.
+// it can be used to create a directory inode,
+// or to create a file inode which also creates an fobj.
+// on success it returns a json with the inode info.
 
 exports.inode_create = function(req, res) {
 
 	// create args are passed in post body
 	var args = req.body;
 
-	// create the inode object
+	// TODO handle relative_path param for dir uploads
+
+	// prepare the inode object
 	var inode = new Inode({
 		owner: req.user.id,
 		parent: args.id,
 		name: args.name,
 		isdir: args.isdir
-		// TODO handle file fields - uploading, size, etc
 	});
 
-	// create fobj if needed
+	// prepare fobj if needed.
+	// the fobj instance will generate an id immediately 
+	// so we put the link in the inode.
 	if (!inode.isdir && args.uploading) {
 		var fobj = new Fobj({
 			size: args.size,
@@ -87,7 +204,11 @@ exports.inode_create = function(req, res) {
 	var do_save_inode = function() {
 		return inode.save(reply_func(req, res, function() {
 			console.log('CREATED INODE:', inode);
-			return res.json(200, inode_to_entry(inode, fobj));
+			return res.json(200, inode_to_entry(inode, {
+				fobj: fobj,
+				s3_post: true,
+				content_type: args.content_type
+			}));
 		}));
 	};
 
@@ -95,6 +216,7 @@ exports.inode_create = function(req, res) {
 		// we can save the inode when no fobj is needed
 		return do_save_inode();
 	} else {
+		// first save the fobj, and then save the inode
 		return fobj.save(reply_func(req, res, function() {
 			console.log('CREATED FOBJ:', fobj);
 			do_save_inode();
@@ -107,46 +229,13 @@ exports.inode_create = function(req, res) {
 
 exports.inode_read = function(req, res) {
 
+	// the inode_id param is expected to be parsed as url param
+	// such as /path/to/api/:inode_id/...
 	var id = req.params.inode_id;
-
-	// prepare a callback for read_dir
-	var do_read_dir = function(id) {
-		// query all sons
-		return Inode.find({
-			owner: req.user.id,
-			parent: id
-		}, reply_func(req, res, function(list) {
-			console.log('INODE READDIR:', id, 'results:', list.length);
-
-			// find all the fobjs for inode list using one big query.
-			// create the query by removing empty fobj ids.
-			var fobj_ids = _.compact(_.pluck(list, 'fobj'));
-			return Fobj.find({
-				_id: {
-					'$in': fobj_ids
-				}
-			}, reply_func(req, res, function(fobjs) {
-
-				// create a map from fobj._id to fobj
-				var fobj_map = {};
-				_.each(fobjs, function(fobj) {
-					fobj_map[fobj._id] = fobj;
-				});
-
-				// for each inode return an entry with both inode and fobj info
-				var entries = _.map(list, function(inode) {
-					return inode_to_entry(inode, fobj_map[inode.fobj]);
-				});
-				return res.json(200, {
-					entries: entries
-				});
-			}));
-		}));
-	}
 
 	// readdir of root
 	if (id === 'null') {
-		return do_read_dir(null);
+		return do_read_dir(req, res, req.user.id, null);
 	}
 
 	// find the given inode, and read according to type
@@ -160,7 +249,7 @@ exports.inode_read = function(req, res) {
 
 		// call read_dir for directories
 		if (inode.isdir) {
-			return do_read_dir(id);
+			return do_read_dir(req, res, req.user.id, id);
 		}
 
 		// for files - return attributes of inode and fobj if exists
@@ -168,8 +257,10 @@ exports.inode_read = function(req, res) {
 			return res.json(200, inode_to_entry(inode));
 		}
 		Fobj.findById(inode.fobj, reply_func(req, res, function(fobj) {
-			// TODO return signed download link
-			return res.json(200, inode_to_entry(inode, fobj));
+			return res.json(200, inode_to_entry(inode, {
+				fobj: fobj,
+				s3_get: true
+			}));
 		}));
 	}));
 };
@@ -179,33 +270,71 @@ exports.inode_read = function(req, res) {
 
 exports.inode_update = function(req, res) {
 
-	// TODO: check the validity of the input
-	// TODO: allow to update the uploading state in fobj
-
-	// we pick only the keys we allow to update from the request body
-	var args = _.pick(req.body, 'parent', 'name');
+	// the inode_id param is expected to be parsed as url param
+	// such as /path/to/api/:inode_id/...
 	var id = req.params.inode_id;
 
-	// send update
-	return Inode.findByIdAndUpdate(id, args,
-		reply_func(req, res, function(inode) {
+	// we pick only the keys we allow to update from the request body
+	// TODO: check the validity of the input
+	var inode_args = _.pick(req.body, 'parent', 'name');
+	var fobj_args = _.pick(req.body, 'uploading', 'upsize');
+	console.log('PUTTTT', inode_args, fobj_args);
+
+	if (!_.isEmpty(inode_args)) {
+		return Inode.findByIdAndUpdate(id, inode_args,
+			reply_func(req, res, function(inode) {
+				if (!inode) {
+					return res.json(404, {
+						text: 'Not Found',
+						id: id
+					});
+				}
+				console.log('INODE UPDATE:', inode);
+				return res.json(200, inode_to_entry(inode));
+			})
+		);
+	}
+
+	if (!_.isEmpty(fobj_args)) {
+		return Inode.findById(id, reply_func(req, res, function(inode) {
 			if (!inode) {
 				return res.json(404, {
 					text: 'Not Found',
 					id: id
 				});
 			}
-			console.log('INODE UPDATE:', inode);
-			return res.json(200, inode_to_entry(inode));
-		})
-	);
+			if (!inode.fobj) {
+				return res.json(404, {
+					text: 'No File Object',
+					id: id
+				});
+			}
+			return Fobj.findByIdAndUpdate(inode.fobj, fobj_args,
+				reply_func(req, res, function(fobj) {
+					if (!fobj) {
+						return res.json(404, {
+							text: 'Stale File Object',
+							id: id
+						});
+					}
+					console.log('FOBJ UPDATE:', fobj);
+					return res.json(200, inode_to_entry(inode, {
+						fobj: fobj
+					}));
+				})
+			);
+		}));
+	}
 };
 
 
 // INODE CRUD - DELETE
 exports.inode_delete = function(req, res) {
 
+	// TODO support recursive dir deletion
+
 	// TODO: check ownership on the inode against req.user.id
+
 	var id = req.params.inode_id;
 
 	return Inode.findById(id, reply_func(req, res, function(inode) {
