@@ -7,57 +7,7 @@ var user_model = require('../models/user');
 var User = user_model.User;
 var fbapi = require('facebook-api');
 var _ = require('underscore');
-var inode_model = require('../models/inode');
-var Inode = inode_model.Inode;
-var async = require('async');
-
-/*---------------------------------------------------------
-verify_and_create_base_folder expects 3 parameters:
-==========
-1. expects the folder name to be set for ---- this ----
-=========
-This can be done by 
-	async.waterfall([
-		function(next) {
-			return next(null, user);
-		},
-		verify_and_create_base_folder.bind("folder name"),
-		...
-2. user object as appears in the user model
-3. callback(err,data)
------------------------------------------------------------*/
-
-function verify_and_create_base_folder(user, next) {
-	/*jshint validthis: true */
-	console.log("in verify_and_create_base_folder");
-	var folder_name = _.values(this).join("");
-	// var query = Inode.find({
-	console.log("folder name:", folder_name);
-	console.log("owner:", user._id);
-	// });
-	next(null, user);
-}
-
-
-var verify_and_create_base_folders = function(user, next) {
-	console.log("-------------------------------in verify_and_create_base_folders-------------------");
-	async.waterfall([
-		function(next) {
-			return next(null, user);
-		},
-		verify_and_create_base_folder.bind(inode_model.const_base.mydata),
-		verify_and_create_base_folder.bind(inode_model.const_base.swm),
-	], function(err, user) {
-		if (!err) {
-			console.log("waterfall pool. next: ", next, " user: ", user);
-			next(null, user);
-		} else {
-			console.log("waterfall pool. Error: ", err);
-			next(err, null);
-		}
-	});
-};
-
+var user_inodes = require('../providers/user_inodes');
 
 // setup passport with facebook backend
 passport.use(new facebook_passport.Strategy({
@@ -92,7 +42,7 @@ passport.use(new facebook_passport.Strategy({
 				console.log('Saved user token in session', accessToken);
 				req.session.fbAccessToken = accessToken;
 				//					done(null, user);
-				verify_and_create_base_folders(user, done);
+				user_inodes.verify_and_create_base_folders(user, done);
 			});
 			return;
 		}
@@ -100,7 +50,7 @@ passport.use(new facebook_passport.Strategy({
 		// put the accessToken in the session
 		console.log('Saved user token in session', accessToken);
 		req.session.fbAccessToken = accessToken;
-		verify_and_create_base_folders(user, done);
+		user_inodes.verify_and_create_base_folders(user, done);
 	});
 }));
 
