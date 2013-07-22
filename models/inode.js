@@ -41,7 +41,9 @@ inode_schema.statics.getRefGhosts = function(real_id, next) {
 };
 
 inode_schema.statics.getRefUsers = function(real_id, next) {
-	var query = this.find({	ghost_ref: real_id});
+	var query = this.find({
+		ghost_ref: real_id
+	});
 	query.select('owner');
 	query.exec(next);
 };

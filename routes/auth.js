@@ -7,6 +7,7 @@ var user_model = require('../models/user');
 var User = user_model.User;
 var fbapi = require('facebook-api');
 var _ = require('underscore');
+var user_inodes = require('../providers/user_inodes');
 
 // setup passport with facebook backend
 passport.use(new facebook_passport.Strategy({
@@ -33,14 +34,15 @@ passport.use(new facebook_passport.Strategy({
 			user.save(function(err, user, num) {
 				if (err) {
 					console.error('ERROR - CREATE USER FAILED:', err);
-					done(err);
+					done(err,null);
 					return;
 				}
 				console.log('CREATED USER:', user);
 				// put the accessToken in the session
 				console.log('Saved user token in session', accessToken);
 				req.session.fbAccessToken = accessToken;
-				done(null, user);
+				//					done(null, user);
+				user_inodes.verify_and_create_base_folders(user, done);
 			});
 			return;
 		}
@@ -48,7 +50,7 @@ passport.use(new facebook_passport.Strategy({
 		// put the accessToken in the session
 		console.log('Saved user token in session', accessToken);
 		req.session.fbAccessToken = accessToken;
-		done(null, user);
+		user_inodes.verify_and_create_base_folders(user, done);
 	});
 }));
 
