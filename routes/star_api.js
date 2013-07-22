@@ -80,7 +80,7 @@ function fobj_s3_key(fobj_id) {
 }
 
 function name_to_content_dispos(name) {
-	return 'filename="' + querystring.escape(name) + '"'
+	return 'filename="' + querystring.escape(name) + '"';
 }
 
 // return a signed GET url for the fobj in S3
