@@ -1,4 +1,6 @@
 /* jshint node:true */
+'use strict';
+
 var nodemailer = require("nodemailer");
 
 // setup mailer

@@ -1,4 +1,6 @@
 /* jshint node:true */
+'use strict';
+
 var mongoose = require('mongoose');
 
 var fobj_schema = new mongoose.Schema({

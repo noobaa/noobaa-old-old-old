@@ -1,4 +1,6 @@
 /* jshint node:true */
+'use strict';
+
 var _ = require('underscore');
 var AWS = require('aws-sdk');
 var path = require('path');
@@ -33,6 +35,7 @@ var S3 = new AWS.S3();
 //	);
 
 function reply_callback(debug_info, err, reply) {
+	/* jshint validthis:true */
 	if (err) {
 		console.log('FAILED', debug_info, ':', err);
 		if (err.status) {
@@ -58,6 +61,7 @@ function reply_callback(debug_info, err, reply) {
 //	);
 
 function check_inode_ownership(inode, next) {
+	/* jshint validthis:true */
 	var user_id = mongoose.Types.ObjectId(this.user.id);
 	if (!user_id.equals(inode.owner)) {
 		return next({

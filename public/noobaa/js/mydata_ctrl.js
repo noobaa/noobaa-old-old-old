@@ -1,15 +1,18 @@
-/*jshint browser:true, jquery:true, devel:true */
-/*global _:false */
-/*global Backbone:false */
-/*global angular:false */
-/*global safe_apply:false */
-/*global planet_api:false */
+/* jshint browser:true, jquery:true, devel:true */
+/* global _:false */
+/* global Backbone:false */
+/* global planet_api:false */
 
-// init jquery stuff
+// TODO: how do we fix this warning? - "Use the function form of "use strict". (W097)"
+/* jshint -W097 */
+'use strict';
+
 
 var num_running_uploads = 0;
 
+// init jquery stuff
 $(function() {
+
 	window.onbeforeunload = function() {
 		if (num_running_uploads) {
 			return "Leaving this page will interrupt your running Uploads !!!";
@@ -42,6 +45,7 @@ $(function() {
 	}, false);
 	*/
 });
+
 
 // open the page context menu element on the given mouse event position
 
@@ -421,14 +425,14 @@ InodesSelection.prototype.select = function(inode) {
 
 ////////////////////////////////
 ////////////////////////////////
-// InodesRootCtrl
+// setup_inodes_root_ctrl
 ////////////////////////////////
 ////////////////////////////////
 
 
 // initializer for the inodes root model/controller
 
-function InodesRootCtrl($scope, $safe, $timeout) {
+function setup_inodes_root_ctrl($scope, $timeout) {
 	$scope.root_dir = new Inode($scope, null, '', true, null);
 
 	// dir_inode is needed to bootstrap the recursive rendering templates
@@ -658,7 +662,7 @@ function InodesDeviceListCtrl($scope) {
 ////////////////////////////////
 
 
-function InodesMenuCtrl($scope, $safe) {
+function InodesMenuCtrl($scope) {
 	$scope.click_open = function() {
 		var inode = $scope.inode_selection.inode;
 		$scope.select(inode, {
@@ -700,11 +704,11 @@ function InodesMenuCtrl($scope, $safe) {
 ////////////////////////////////
 
 
-function NewFolderModalCtrl($scope, $safe) {
+function NewFolderModalCtrl($scope) {
 	// since the callback is not in angular context,
 	// we use apply to fire the watches.
 	var new_folder_modal = $('#new_folder_modal');
-	new_folder_modal.on('show', $safe.$callback($scope, function() {
+	new_folder_modal.on('show', $scope.safe_callback(function() {
 		// reset text on show
 		$scope.new_name = '';
 	}));
@@ -736,11 +740,11 @@ function NewFolderModalCtrl($scope, $safe) {
 ////////////////////////////////
 
 
-function RenameModalCtrl($scope, $safe) {
+function RenameModalCtrl($scope) {
 	// since the callback is not in angular context,
 	// we use apply to fire the watches.
 	var rename_modal = $('#rename_modal');
-	rename_modal.on('show', $safe.$callback($scope, function() {
+	rename_modal.on('show', $scope.safe_callback(function() {
 		// reset text on show
 		$scope.new_name = $scope.inode_selection.inode.name;
 	}));
@@ -772,20 +776,20 @@ function RenameModalCtrl($scope, $safe) {
 ////////////////////////////////
 
 
-function ShareModalCtrl($scope, $safe) {
+function ShareModalCtrl($scope) {
 	$scope.share_inode = null;
 	$scope.share_list = [];
 
 	// since the callback is not in angular context,
 	// we use apply to fire the watches.
 	var share_modal = $('#share_modal');
-	share_modal.on('show', $safe.$callback($scope, function() {
+	share_modal.on('show', $scope.safe_callback(function() {
 		$scope.share_inode = $scope.inode_selection.inode;
 		$scope.share_inode.get_share_list().on('success', function(data) {
 			$scope.share_list = data.list;
 		});
 	}));
-	share_modal.on('hiden', $safe.$callback($scope, function() {
+	share_modal.on('hiden', $scope.safe_callback(function() {
 		$scope.share_inode = null;
 		$scope.share_list = [];
 	}));
@@ -809,7 +813,7 @@ function ShareModalCtrl($scope, $safe) {
 ////////////////////////////////
 
 
-function UploadCtrl($scope, $safe, $http, $timeout) {
+function UploadCtrl($scope, $http, $timeout) {
 
 	$scope.timeout = $timeout;
 
@@ -841,10 +845,10 @@ function UploadCtrl($scope, $safe, $http, $timeout) {
 	// calling directly since we just want to include the inodes root scope here
 	$scope.do_refresh_selection = false;
 	$scope.hide_root_dir = false;
-	InodesRootCtrl($scope, $safe, $timeout);
+	setup_inodes_root_ctrl($scope, $timeout);
 
 	var upload_modal = $('#upload_modal');
-	upload_modal.on('show', $safe.$callback($scope, function() {
+	upload_modal.on('show', $scope.safe_callback(function() {
 		$scope.curr_dir_refresh();
 	}));
 
@@ -919,7 +923,7 @@ function UploadCtrl($scope, $safe, $http, $timeout) {
 			upload.xhr.success(function(result, textStatus, jqXHR) {
 				console.log('[ok] upload success');
 				upload.status = 'Finishing...';
-				safe_apply($scope);
+				$scope.safe_apply();
 				// update the file state to uploading=false
 				return $scope.http({
 					method: 'PUT',
@@ -930,13 +934,13 @@ function UploadCtrl($scope, $safe, $http, $timeout) {
 				}).on('success', function() {
 					upload.status = 'Completed';
 					upload.row_class = 'success';
-					safe_apply($scope);
+					$scope.safe_apply();
 				}).on('error', function() {
 					upload.status = 'Failed!';
 					upload.row_class = 'error';
 					upload.progress_class = 'progress progress-danger';
 					upload.progress = 100;
-					safe_apply($scope);
+					$scope.safe_apply();
 				});
 			});
 			upload.xhr.error(function(jqXHR, textStatus, errorThrown) {
@@ -945,31 +949,31 @@ function UploadCtrl($scope, $safe, $http, $timeout) {
 				upload.row_class = 'error';
 				upload.progress_class = 'progress progress-danger';
 				upload.progress = 100;
-				safe_apply($scope);
+				$scope.safe_apply();
 			});
 			upload.xhr.always(function(e, data) {
 				// data.result, data.textStatus, data.jqXHR
 				num_running_uploads--;
 				dir_inode.read_dir();
-				safe_apply($scope);
+				$scope.safe_apply();
 			});
 			num_running_uploads++;
-			safe_apply($scope);
+			$scope.safe_apply();
 		});
 		ev.on('error', function() {
 			upload.status = 'Failed!';
 			upload.row_class = 'error';
 			upload.progress_class = 'progress progress-danger';
 			upload.progress = 100;
-			safe_apply($scope);
+			$scope.safe_apply();
 		});
-		safe_apply($scope);
+		$scope.safe_apply();
 	};
 
 	$scope.update_progress = function(event, data) {
 		var upload = $scope.uploads[data.upload_idx];
 		upload.progress = parseInt(data.loaded / data.total * 100, 10);
-		safe_apply($scope);
+		$scope.safe_apply();
 	};
 
 	$scope.dismiss_upload = function(upload) {
@@ -1012,7 +1016,7 @@ function UploadCtrl($scope, $safe, $http, $timeout) {
 ////////////////////////////////
 
 
-function MyDataCtrl($scope, $safe, $http, $timeout) {
+function MyDataCtrl($scope, $http, $timeout) {
 
 	$scope.timeout = $timeout;
 	$scope.alerts = new Alerts();
@@ -1075,19 +1079,18 @@ function MyDataCtrl($scope, $safe, $http, $timeout) {
 	// calling directly since we just want to include the inodes root scope here
 	$scope.do_refresh_selection = true;
 	$scope.hide_root_dir = true;
-	InodesRootCtrl($scope, $safe, $timeout);
+	setup_inodes_root_ctrl($scope, $timeout);
 }
 
 
 // avoid minification effects by injecting the required angularjs dependencies
-InodesRootCtrl.$inject = ['$scope', '$safe', '$timeout'];
 InodesTreeCtrl.$inject = ['$scope'];
 InodesListCtrl.$inject = ['$scope'];
 InodesBreadcrumbCtrl.$inject = ['$scope'];
 InodesDeviceListCtrl.$inject = ['$scope'];
-InodesMenuCtrl.$inject = ['$scope', '$safe'];
-NewFolderModalCtrl.$inject = ['$scope', '$safe'];
-RenameModalCtrl.$inject = ['$scope', '$safe'];
-ShareModalCtrl.$inject = ['$scope', '$safe'];
-UploadCtrl.$inject = ['$scope', '$safe', '$http', '$timeout'];
-MyDataCtrl.$inject = ['$scope', '$safe', '$http', '$timeout'];
+InodesMenuCtrl.$inject = ['$scope'];
+NewFolderModalCtrl.$inject = ['$scope'];
+RenameModalCtrl.$inject = ['$scope'];
+ShareModalCtrl.$inject = ['$scope'];
+UploadCtrl.$inject = ['$scope', '$http', '$timeout'];
+MyDataCtrl.$inject = ['$scope', '$http', '$timeout'];

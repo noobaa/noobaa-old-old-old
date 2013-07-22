@@ -1,4 +1,6 @@
 /* jshint node:true */
+'use strict';
+
 var passport = require('passport');
 var facebook_passport = require('passport-facebook');
 var user_model = require('../models/user');
