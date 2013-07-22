@@ -9,6 +9,7 @@ var crypto = require('crypto');
 var auth = require('./auth');
 var async = require('async');
 var mongoose = require('mongoose');
+var querystring = require('querystring');
 
 var inode_model = require('../models/inode');
 var fobj_model = require('../models/fobj');
@@ -78,6 +79,10 @@ function fobj_s3_key(fobj_id) {
 	return path.join(process.env.S3_PATH, 'fobjs', String(fobj_id));
 }
 
+function name_to_content_dispos(name) {
+	return 'filename="' + querystring.escape(name) + '"'
+}
+
 // return a signed GET url for the fobj in S3
 
 function s3_get_url(fobj_id, name) {
@@ -85,7 +90,7 @@ function s3_get_url(fobj_id, name) {
 		Bucket: process.env.S3_BUCKET,
 		Key: fobj_s3_key(fobj_id),
 		Expires: 24 * 60 * 60, // 24 hours
-		ResponseContentDisposition: name
+		ResponseContentDisposition: name_to_content_dispos(name)
 	};
 	return S3.getSignedUrl('getObject', params);
 }
@@ -106,7 +111,7 @@ function s3_post_info(fobj_id, name, content_type) {
 		}, {
 			key: key
 		}, {
-			'content-disposition': name
+			'content-disposition': name_to_content_dispos(name)
 		}, {
 			'content-type': content_type
 		}]
@@ -126,7 +131,7 @@ function s3_post_info(fobj_id, name, content_type) {
 			'policy': policy,
 			'signature': signature,
 			'success_action_status': '201',
-			'Content-Disposition': name,
+			'Content-Disposition': name_to_content_dispos(name),
 			'Content-Type': content_type
 		}
 	};
