@@ -3,6 +3,11 @@
 
 var mongoose = require('mongoose');
 var types = mongoose.Schema.Types;
+var const_base = {
+	'mydata': 'My Data',
+	'swm': 'Shared With Me'
+};
+exports.const_base = const_base;
 
 var inode_schema = new mongoose.Schema({
 	// user ownership
@@ -41,7 +46,9 @@ inode_schema.statics.getRefGhosts = function(real_id, next) {
 };
 
 inode_schema.statics.getRefUsers = function(real_id, next) {
-	var query = this.find({	ghost_ref: real_id});
+	var query = this.find({
+		ghost_ref: real_id
+	});
 	query.select('owner');
 	query.exec(next);
 };
