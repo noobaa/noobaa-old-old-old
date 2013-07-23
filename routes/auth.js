@@ -25,8 +25,7 @@ passport.use(new facebook_passport.Strategy({
 	}, function(err, user) {
 		if (err) {
 			console.error('ERROR - FIND USER FAILED:', err);
-			done(err);
-			return;
+			return done(err);
 		}
 		if (!user) {
 			user = new User();
@@ -34,23 +33,21 @@ passport.use(new facebook_passport.Strategy({
 			user.save(function(err, user, num) {
 				if (err) {
 					console.error('ERROR - CREATE USER FAILED:', err);
-					done(err,null);
-					return;
+					return done(err,null);
 				}
 				console.log('CREATED USER:', user);
 				// put the accessToken in the session
 				console.log('Saved user token in session', accessToken);
 				req.session.fbAccessToken = accessToken;
 				//					done(null, user);
-				user_inodes.verify_and_create_base_folders(user, done);
+				return user_inodes.verify_and_create_base_folders(user, done);
 			});
-			return;
 		}
 		console.log('FOUND USER:', user);
 		// put the accessToken in the session
 		console.log('Saved user token in session', accessToken);
 		req.session.fbAccessToken = accessToken;
-		user_inodes.verify_and_create_base_folders(user, done);
+		return user_inodes.verify_and_create_base_folders(user, done);
 	});
 }));
 

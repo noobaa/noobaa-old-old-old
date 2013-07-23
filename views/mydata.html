@@ -457,17 +457,24 @@
 			<div ng-show="!share_list.length">
 				<p>No friends availalbe for sharing.</p>
 				<p>Currenlty sharing is only availalbe for NooBaa users who are your Facebook friends.</p>
-				<p>Invite your Facebook friends to share with them.</p>
+				<p>Invite your Facebook friends to NooBaa today.</p>
 			</div>
 			<div ng-show="share_list.length">
 				<p>Share <span class="label">[[[share_inode.name]]]</span> with friends:</p>
-				<ul class="unstyled">
+<!-- 				<ul class="unstyled">
 					<li ng-repeat="friend in share_list">
 						<input type="checkbox" class="checkbox" ng-model="friend.shared"></input>
 						[[[friend.name]]]
-						<img ng-src="[[[friend.pic]]]"></img>
+						<img ng-src="https://graph.facebook.com/[[[friend.fb_id]]]/picture"></img>
 					</li>
-				</ul>
+				</ul> -->
+				<table>
+					<tr ng-repeat="friend in share_list">
+					<td><img ng-src="https://graph.facebook.com/[[[friend.fb_id]]]/picture"></img></td>
+					<td><input type="checkbox" class="checkbox" ng-model="friend.shared"></input></td>
+					<td>[[[friend.name]]]</td>
+					</tr>
+				</table>
 			</div>
 		</div>
 		<div class="modal-footer">

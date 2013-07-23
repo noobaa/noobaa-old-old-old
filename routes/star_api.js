@@ -12,6 +12,7 @@ var mongoose = require('mongoose');
 
 var inode_model = require('../models/inode');
 var fobj_model = require('../models/fobj');
+var user_inodes = require('../providers/user_inodes');
 var Inode = inode_model.Inode;
 var Fobj = fobj_model.Fobj;
 
@@ -583,7 +584,6 @@ exports.inode_get_share_list = function(req, res) {
 				return_list.push({
 					"name": v.fb.name,
 					"shared": false,
-					"pic": "https://graph.facebook.com/" + v.fb.id + "/picture",
 					"fb_id": v.fb.id,
 					"nb_id": v._id,
 				});
@@ -599,18 +599,32 @@ exports.inode_get_share_list = function(req, res) {
 		}
 	});
 };
-/*
-function (users,)
-{
-			"name":   v.Name,
-			"shared": v.Shared,
-			"pic":    "https://graph.facebook.com/" + v.FB_ID + "/picture",
-			"fb_id":  v.FB_ID,
-			"nb_id":  k,
-		}
-*/
 
 exports.inode_set_share_list = function(req, res) {
-	var id = req.params.inode_id;
-	var shre_list = req;
+	console.log("inode_set_share_list");
+	var inode_id = req.params.inode_id;
+	console.log("inode_id ", inode_id);
+	var share_list = req.body.share_list;
+	var new_nb_ids = _.pluck(_.where(share_list, {
+		shared: true
+	}), 'nb_id');
+	console.log("new_nb_ids", new_nb_ids);
+
+	console.log(share_list);
+	async.waterfall([
+		//get the list of existing users the inode is shared with
+		function(next) {
+			user_inodes.get_inode_refering_nb_ids(inode_id, function(err, old_nb_ids) {
+				console.log("in WF 1");
+				console.log(err);
+				console.log(old_nb_ids);
+				if (err) {
+					return next(err, null);
+				}
+				return next(null, old_nb_ids, new_nb_ids);
+			});
+		},
+		//transfer
+		user_inodes.update_inode_ghost_refs,
+	], reply_callback.bind(res, 'SHARE' + inode_id));
 };
