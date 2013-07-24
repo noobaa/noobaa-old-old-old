@@ -34,6 +34,15 @@ inode_schema.index({
 	unique: false
 });
 
+//If this inode is a ghost inode, it will return it's reference. If not, nothing will be done.
+inode_schema.methods.follow_ref = function(cb) {
+	var inode = this;
+	if (!inode.ghost_ref) {
+		return cb(null, inode);
+	}
+	this.model('Inode').findById(inode.ghost_ref, cb);
+};
+
 inode_schema.statics.get_refering_ghosts = function(real_id, next) {
 	console.log("get_refering_ghosts ", arguments);
 	this.model('Inode').find({

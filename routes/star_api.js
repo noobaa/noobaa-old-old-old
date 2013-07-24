@@ -13,13 +13,10 @@ var querystring = require('querystring');
 
 
 var inode_model = require('../models/inode');
-var fobj_model = require('../models/fobj');
-var user_inodes = require('../providers/user_inodes');
 var Inode = inode_model.Inode;
-// var user_model = require('../models/user');
-// var User = user_model.User;
+var fobj_model = require('../models/fobj');
 var Fobj = fobj_model.Fobj;
-
+var user_inodes = require('../providers/user_inodes');
 
 /* load s3 config from env*/
 AWS.config.update({
@@ -195,6 +192,9 @@ function do_read_dir(inode, next) {
 			}
 		},
 
+		// function(inodes_list, next){
+		// yd todo - follow ghosts to get size and users			
+		// },
 		// query the fobjs for all the entries found
 		function(list, next) {
 			// find all the fobjs for inode list using one big query.
@@ -401,6 +401,10 @@ exports.inode_read = function(req, res) {
 
 		// check inode ownership
 		check_inode_ownership.bind(req),
+
+		function (inode,next){
+			inode.follow_ref(next);
+		},
 
 		// dispatch to read dir/file
 		function(inode, next) {
