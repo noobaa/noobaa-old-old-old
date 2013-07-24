@@ -17,6 +17,8 @@ var Inode = inode_model.Inode;
 var fobj_model = require('../models/fobj');
 var Fobj = fobj_model.Fobj;
 var user_inodes = require('../providers/user_inodes');
+var user_model = require('../models/user');
+var User = user_model.User;
 
 /* load s3 config from env*/
 AWS.config.update({
@@ -147,6 +149,10 @@ function inode_to_entry(inode, opt) {
 		name: inode.name,
 		isdir: inode.isdir
 	};
+	if (inode.ghost_ref && inode.live_owner) {
+		ent.shared_name = inode.live_owner.fb.name;
+		ent.shared_fb_id = inode.live_owner.fb.id;
+	}
 	if (opt && opt.fobj) {
 		// when fobj is given add its info to the entry
 		ent = _.extend(ent, {
@@ -192,9 +198,62 @@ function do_read_dir(inode, next) {
 			}
 		},
 
-		// function(inodes_list, next){
-		// yd todo - follow ghosts to get size and users			
-		// },
+		//for each inode which is a ghost, "inject" the fobj id of the original file. This is used to
+		//access object properties such as size and state. 
+		function(inodes_list, next) {
+			var ghost_inode = _.filter(inodes_list, function(i) {
+				return i.ghost_ref
+			});
+			var referenced_list = _.pluck(ghost_inode, 'ghost_ref');
+			Inode.find({
+				_id: {
+					'$in': referenced_list
+				}
+			}, function(err, live_inodes) {
+				if (err) {
+					return next(err);
+				}
+				var live_owners_ids = [];
+				var live_inode_map = {};
+				_.each(live_inodes, function(v) {
+					live_inode_map[v._id] = v;
+				});
+				_.each(inodes_list, function(i) {
+					if (i.ghost_ref) {
+						i.fobj = live_inode_map[i.ghost_ref].fobj;
+						i.live_owner_id = live_inode_map[i.ghost_ref].owner;
+						live_owners_ids.push(i.live_owner_id);
+					}
+				});
+				next(null, inodes_list, live_owners_ids);
+			});
+		},
+
+		function(inodes_list, live_owners_ids, next) {
+			if (!live_owners_ids.length) {
+				return next(null, inodes_list);
+			}
+			User.find({
+				_id: {
+					'$in': live_owners_ids
+				}
+			}, function(err, users) {
+				if (err) {
+					return next(err);
+				}
+				var live_owner_map = {};
+				_.each(users, function(v) {
+					live_owner_map[v._id] = v;
+				});
+				_.each(inodes_list, function(i) {
+					if (i.live_owner_id) {
+						i.live_owner = live_owner_map[i.live_owner_id];
+					}
+				});
+				return next(null, inodes_list);
+			})
+		},
+
 		// query the fobjs for all the entries found
 		function(list, next) {
 			// find all the fobjs for inode list using one big query.
@@ -402,7 +461,7 @@ exports.inode_read = function(req, res) {
 		// check inode ownership
 		check_inode_ownership.bind(req),
 
-		function (inode,next){
+		function(inode, next) {
 			inode.follow_ref(next);
 		},
 
