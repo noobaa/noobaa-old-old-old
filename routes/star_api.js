@@ -11,10 +11,13 @@ var async = require('async');
 var mongoose = require('mongoose');
 var querystring = require('querystring');
 
+
 var inode_model = require('../models/inode');
 var fobj_model = require('../models/fobj');
 var user_inodes = require('../providers/user_inodes');
 var Inode = inode_model.Inode;
+// var user_model = require('../models/user');
+// var User = user_model.User;
 var Fobj = fobj_model.Fobj;
 
 
@@ -175,10 +178,21 @@ function do_read_dir(inode, next) {
 	async.waterfall([
 		// query all the dir sons
 		function(next) {
-			return Inode.find({
-				owner: inode.owner,
-				parent: inode._id
-			}, next);
+			if (inode._id) {
+				return Inode.find({
+					owner: inode.owner,
+					parent: inode._id
+				}, next);
+			} else {
+				//the only case where the parent is EXPECTED to be null, is one of the basic folders
+				return Inode.find({
+					owner: inode.owner,
+					parent: inode._id,
+					name: {
+						'$in': _.values(user_inodes.CONST_BASE_FOLDERS)
+					}
+				}, next);
+			}
 		},
 
 		// query the fobjs for all the entries found
@@ -559,40 +573,49 @@ exports.inode_get_share_list = function(req, res) {
 	console.log("user ", user);
 	console.log("inode_id ", inode_id);
 
-	/*	async.waterfall([
-		function(next) {
-			next(null, inode_id);
-		},
-		Inode.getRefUsers.bind(Inode),
-		function(owners_list, next) {
-			User.find({
-				_id: {
-					'$in': _.pluck(owners_list, 'id');
-				}
-			})
-
-		},
-	], function(err, result) {});
-*/
-
 	async.waterfall([
 		function(next) {
-			var token = req.session.fbAccessToken;
-			next(null, token);
+			next(null, inode_id, req.session.fbAccessToken);
 		},
-		auth.get_friends_list,
-		auth.get_noobaa_friends_list,
-	], function(err, users) {
+		function(inode_id, token, next) {
+			user_inodes.get_refering_users(inode_id, function(err, ref_users) {
+				if (err) {
+					return next(err);
+				}
+				next(null, ref_users, token);
+			});
+		},
+		function(ref_users, token, next) {
+			auth.get_noobaa_friends_list(token, function(err, friends_list) {
+				if (err) {
+					return next(err);
+				}
+				next(null, ref_users, friends_list);
+			});
+		},
+	], function(err, ref_users, friends_list, next) {
+		var friends_not_sharing_with = _.difference(friends_list, ref_users);
 		if (!err) {
-			var return_list = [];
-			_.each(users, function(v) {
-				return_list.push({
+			var share_users_map = {};
+			friends_list.forEach(function(v) {
+				share_users_map[v._id] = {
 					"name": v.fb.name,
 					"shared": false,
 					"fb_id": v.fb.id,
 					"nb_id": v._id,
-				});
+				};
 			});
+			//this may either add or modify existing entries.
+			ref_users.forEach(function(v) {
+				share_users_map[v._id] = {
+					"name": v.fb.name,
+					"shared": true,
+					"fb_id": v.fb.id,
+					"nb_id": v._id,
+				};
+			});
+
+			var return_list = _.values(share_users_map);
 			return res.json(200, {
 				"list": return_list
 			});
@@ -602,6 +625,7 @@ exports.inode_get_share_list = function(req, res) {
 				id: inode_id
 			});
 		}
+
 	});
 };
 
@@ -609,27 +633,18 @@ exports.inode_set_share_list = function(req, res) {
 	console.log("inode_set_share_list");
 	var inode_id = req.params.inode_id;
 	console.log("inode_id ", inode_id);
-	var share_list = req.body.share_list;
-	var new_nb_ids = _.pluck(_.where(share_list, {
+	var new_nb_ids = _.pluck(_.where(req.body.share_list, {
 		shared: true
 	}), 'nb_id');
 	console.log("new_nb_ids", new_nb_ids);
-
-	console.log(share_list);
 	async.waterfall([
-		//get the list of existing users the inode is shared with
 		function(next) {
-			user_inodes.get_inode_refering_nb_ids(inode_id, function(err, old_nb_ids) {
-				console.log("in WF 1");
-				console.log(err);
-				console.log(old_nb_ids);
-				if (err) {
-					return next(err, null);
-				}
-				return next(null, old_nb_ids, new_nb_ids);
-			});
+			next(null, inode_id);
 		},
-		//transfer
+		user_inodes.get_inode_refering_user_ids,
+		function(old_nb_ids, next) {
+			next(null, inode_id, old_nb_ids, new_nb_ids);
+		},
 		user_inodes.update_inode_ghost_refs,
 	], reply_callback.bind(res, 'SHARE' + inode_id));
 };

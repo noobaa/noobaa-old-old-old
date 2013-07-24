@@ -1,6 +1,7 @@
 /* jshint node:true */
 'use strict';
 
+var async = require('async');
 var passport = require('passport');
 var facebook_passport = require('passport-facebook');
 var user_model = require('../models/user');
@@ -33,7 +34,7 @@ passport.use(new facebook_passport.Strategy({
 			user.save(function(err, user, num) {
 				if (err) {
 					console.error('ERROR - CREATE USER FAILED:', err);
-					return done(err,null);
+					return done(err, null);
 				}
 				console.log('CREATED USER:', user);
 				// put the accessToken in the session
@@ -111,20 +112,27 @@ exports.viewback = function(err, data) {
 	}
 };
 
-exports.get_friends_list = function(fbAcessToken, next) {
+var get_friends_list = function(fbAccessToken, next) {
 	console.log("in auth::get_friends_list");
-	var client = fbapi.user(fbAcessToken); // needs a valid access_token
+	var client = fbapi.user(fbAccessToken); // needs a valid access_token
 	client.me.friends(next);
 };
+exports.get_friends_list = get_friends_list;
 
-exports.get_noobaa_friends_list = function(friends_list, next) {
-	console.log("in auth::get_noobaa_friends_list");
-	var fb_id_list = _.pluck(friends_list, 'id');
-	//console.log(fb_id_list)
-	User.find({
-			"fb.id": {
-				"$in": fb_id_list
-			}
+exports.get_noobaa_friends_list = function(fbAccessToken, next) {
+	async.waterfall([
+		function(next) {
+			return next(null, fbAccessToken);
 		},
-		next);
+		get_friends_list,
+		function(fb_friends_list, next) {
+			var fb_friends_id_list = _.pluck(fb_friends_list, 'id');
+			User.find({
+					"fb.id": {
+						"$in": fb_friends_id_list
+					}
+				},
+				next);
+		},
+	], next);
 };

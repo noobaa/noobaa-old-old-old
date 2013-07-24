@@ -2,35 +2,27 @@ var _ = require('underscore');
 var async = require('async');
 var inode_model = require('../models/inode');
 var Inode = inode_model.Inode;
+var user_model = require('../models/user');
+var User = user_model.User;
+var wnst = require('winston');
 
-
-var const_base_folders = {
-	'mydata': 'My Data',
-	'swm': 'Shared With Me'
+var CONST_BASE_FOLDERS = {
+	'MYDATA': 'My Data',
+	'SWM': 'Shared With Me'
 };
-exports.const_base_folders = const_base_folders;
+exports.CONST_BASE_FOLDERS = CONST_BASE_FOLDERS;
 
-/*---------------------------------------------------------
-verify_and_create_base_folder expects 3 parameters:
-==========
-1. expects the folder name to be set for ---- this ----
-=========
-This can be done by 
-	async.waterfall([
-		function(next) {
-			return next(null, user);
-		},
-		verify_and_create_base_folder.bind("folder name"),
-		...
-2. user object as appears in the user model
-3. callback(err,data)
------------------------------------------------------------*/
+// ---------------------------------------------------------
+// verify_and_create_base_folder 
+// If the requested folder name does not exists, creates a folder with
+// the requested name. Parent is set to null for those folders.  
+// ==========
+// 1. folder name 
+// 2. user object as appears in the user model
+// 3. callback(err,data)
+// -----------------------------------------------------------
 
-function verify_and_create_base_folder(user, next) {
-	/*jshint validthis: true */
-	console.log("in verify_and_create_base_folder");
-	var folder_name = _.values(this).join("");
-	console.log("folder name:", folder_name);
+function verify_and_create_base_folder(folder_name, user, next) {
 	// find the requested base folder
 	Inode.findOne({
 		owner: user._id,
@@ -63,81 +55,156 @@ function verify_and_create_base_folder(user, next) {
 		return next(null, user);
 	});
 }
-/*
-verify_and_create_base_folders is intended to be used upon use login.
-*/
-exports.verify_and_create_base_folders = function(user, next) {
+
+// verify_and_create_base_folders is intended to be used upon use login.
+exports.verify_and_create_base_folders = function(user, cb) {
 	console.log("in verify_and_create_base_folders");
 	async.waterfall([
 		function(next) {
 			return next(null, user);
 		},
-		verify_and_create_base_folder.bind(const_base_folders.mydata),
-		verify_and_create_base_folder.bind(const_base_folders.swm),
-	], function(err, user) {
-		if (!err) {
-			next(null, user);
-		} else {
-			console.log("waterfall pool. Error: ", err);
-			next(err, null);
-		}
-	});
+		//create my data
+		verify_and_create_base_folder.bind(null, CONST_BASE_FOLDERS.MYDATA),
+		//create shared with me
+		verify_and_create_base_folder.bind(null, CONST_BASE_FOLDERS.swm),
+	], cb);
 };
 
-exports.get_user_SWM_id = function(user, next) {
-	return get_user_basic_folder_id(const_base_folders.mydata, user, next);
-}
-exports.get_user_MYD_id = function(user, next) {
-	return get_user_basic_folder_id(const_base_folders.swm, user, next);
-}
+//get's the inodes of the shared with me folder
+var get_user_SWM = function(user_id, next) {
+	return get_user_basic_folder_id(CONST_BASE_FOLDERS.SWM, user_id, next);
+};
+exports.get_user_SWM_id = get_user_SWM;
 
-function get_user_basic_folder_id(foler_name, user, next) {
+//get's the inodes of the my data folder
+var get_user_MYD = function(user_id, next) {
+	return get_user_basic_folder_id(CONST_BASE_FOLDERS.MYDATA, user_id, next);
+}
+exports.get_user_MYD_id = get_user_MYD;
+
+//get's the inodes of requested folder with null parent.
+
+function get_user_basic_folder_id(folder_name, user_id, next) {
 	// find the requested base folder
 	Inode.findOne({
-		owner: user._id,
+		owner: user_id,
 		name: folder_name,
 		isdir: true,
 		parent: null,
 	}, function(err, inode) {
 		if (err) {
-			console.error('ERROR - Failed while searching for user basic folder', err,
+			wnst.error('Failed while searching for user basic folder', err,
 				'user id', user._id, 'folder', folder_name);
 			return next(err, null);
 		}
 		if (!inode) {
-			err = "Basic folder missing. User id " + user.id + " Folder name: " + folder_name
+			err = " Basic folder missing. User id " + user.id + " Folder name: " + folder_name;
 			return next(err, null)
 		}
-		return next(null, inode._id);
+		return next(null, inode);
 	});
 }
 
-exports.get_inode_refering_nb_ids = function(inode_id, next) {
-	console.log("get_inode_refering_nb_ids");
-	Inode.findOne({
-		ghost_ref: inode_id
-	}, function(err, inodes) {
+//gets the user id's this inodes is shred with
+var get_inode_refering_user_ids = function(inode_id, next) {
+	Inode.get_refering_ghosts(inode_id, function(err, inodes) {
 		if (err) {
 			console.error('ERROR - Failed while quering inode: ', inode_id, " ", err);
 			return next(err, null);
 		}
-		var ref_nb_ids = _.pluck(inodes, 'owner');
-		console.log("ref_nb_ids:", ref_nb_ids);
-		return next(null, ref_nb_ids);
+		var ref_user_ids = _.pluck(inodes, 'owner');
+		console.log("ref_user_ids:", ref_user_ids);
+		return next(null, ref_user_ids);
 	});
+};
+exports.get_inode_refering_user_ids = get_inode_refering_user_ids;
+
+//add and remove ghosts as needed
+exports.update_inode_ghost_refs = function(live_inode_id, old_user_ids, new_user_ids, cb) {
+	user_ids_to_add = _.difference(new_user_ids, old_user_ids);
+	user_ids_to_remove = _.difference(old_user_ids, new_user_ids);
+	async.parallel([
+		function(next) {
+			remove_inode_ghost_refs(live_inode_id, user_ids_to_remove, next);
+		},
+		function(next) {
+			add_inode_ghost_refs(live_inode_id, user_ids_to_add, next);
+		},
+	], cb);
 }
 
-exports.update_inode_ghost_refs = function(live_inode_id,old_nb_ids, new_nb_ids, next) {
-	console.log("update_inode_refs");
-	console.log("old_nb_ids", old_nb_ids);
-	console.log("new_nb_ids", new_nb_ids);
+//remove ghosts which refer to the live inode and belong to the users in the list
 
+function remove_inode_ghost_refs(live_inode_id, user_ids, cb) {
+	console.log("remove_inode_ghost_refs", arguments);
+	Inode.remove({
+		ghost_ref: live_inode_id,
+		owner: {
+			'$in': user_ids
+		}
+	}, cb);
 }
 
-function remove_inode_ghost_refs(live_inode_id,nb_ids,next){
+//add ghosts which refer to the live inode and belong to the users in the list
 
+function add_inode_ghost_refs(live_inode_id, user_ids, cb) {
+	console.log("add_inode_ghost_refs", arguments);
+	async.waterfall([
+		function(next) {
+			next(null, live_inode_id);
+		},
+		Inode.findById.bind(Inode),
+		function(live_inode, next) {
+			async.forEach(user_ids, function(user_id, next) {
+				create_ref_ghost_per_user(live_inode, user_id, next);
+			}, function(err) {
+				next(err);
+			});
+		},
+	], cb);
 }
-function add_inode_ghost_refs(live_inode_id,nb_ids,next){
 
+//add a ghost for this specific user
+
+function create_ref_ghost_per_user(live_inode, user_id, cb) {
+	async.waterfall([
+		function(next) {
+			next(null, user_id);
+		},
+
+		get_user_SWM,
+
+		function(SWM_inode, next) {
+			var inode = new Inode({
+				owner: user_id,
+				parent: SWM_inode._id,
+				name: live_inode.name,
+				ghost_ref: live_inode._id
+			});
+			inode.save(function(err, inode) {
+				if (err) return next(err);
+				wnst.info("Cretead ghost inode: ", inode);
+				next(null);
+			});
+		}
+	], cb);
 }
 
+var get_refering_users = function(inode_id, cb) {
+	async.waterfall([
+		function(next) {
+			next(null, inode_id);
+		},
+
+		get_inode_refering_user_ids,
+
+		function(ref_user_id_list, next) {
+			User.find({
+				_id: {
+					'$in': ref_user_id_list
+				}
+			}, next);
+		}
+	], cb);
+};
+exports.get_refering_users = get_refering_users;

@@ -27,7 +27,8 @@
 		"facebook-api": "0.1.2",
 		"async": "0.2.9",
 		"moment": "2.1.0",
-		"jshint": "2.1.4"
+		"jshint": "2.1.4",
+		"winston": "0.7.2"
 	},
 
 	"//": {
