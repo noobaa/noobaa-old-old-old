@@ -48,17 +48,25 @@
 		.bg_item1 {
 			background: url('/public/noobaa/images/canstockphoto7274277.jpg')
 					no-repeat fixed 0 0;
-			background-size: 100% 110%;
 		}
 		.bg_item2 {
 			background: url('/public/noobaa/images/canstockphoto0958150.jpg')
 					no-repeat fixed 0 0;
-			background-size: 100% 110%;
 		}
 		.bg_item3 {
 			background: url('/public/noobaa/images/canstockphoto8442431.jpg')
 					no-repeat fixed 0 0;
-			background-size: 100% 110%;
+		}
+		.bg_item1, .bg_item2, .bg_item3 {
+			background-attachment: scroll;
+			background-size: cover;
+		}
+		@media all and (max-width: 600px) {
+			.bg_item1, .bg_item2, .bg_item3 {
+				background-attachment: scroll;
+				background-size: cover;
+				background-position: 60% 0;
+			}
 		}
 
 		.bg_whatis {
@@ -257,10 +265,8 @@
 					placeholder="Enter your email address...">
 				</input>
 			</div>
-			<div class="alert alert-error"
-				hidden="hidden" style="visibility: hidden"></div>
-			<div class="alert alert-success"
-				hidden="hidden" style="visibility: hidden"></div>
+			<div class="alert alert-error" hidden="hidden"></div>
+			<div class="alert alert-success" hidden="hidden"></div>
 		</div>
 	</div>
 
@@ -342,6 +348,7 @@
 		function WelcomeCtrl($scope, $http) {
 			$scope.submitting = false;
 			$scope.submitted = false; 
+			$('.alert').html('').hide();
 
 			$scope.submit = function () {
 				has_running_requests = true;
