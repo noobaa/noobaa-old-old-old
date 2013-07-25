@@ -1,5 +1,9 @@
-body {
-	background-image: url('../images/bg2.jpg');
+html, body {
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	height: 100%;
+	min-height: 100%;
 }
 
 /* 
@@ -13,26 +17,30 @@ spread and take an entire line each.
 	float: left;
 	overflow: hidden;
 }
-#nb_content {
-	overflow: hidden; 
-	padding: 20px 20px 0px 10px;
-}
-#nb_righty {
+#nb_navbar {
 	float: right;
 	overflow: hidden;
+}
+#nb_content {
+	overflow: hidden;
+	padding: 20px 20px 0px 10px;
 }
 @media all and (max-width: 768px) {
 	#nb_menu {
 		float: inherit;
 	}
-	#nb_righty {
+	#nb_navbar {
 		float: inherit;
+	}
+	#nb_content {
+		padding: 20px 0 0 0;
 	}
 }
 
 /* menubar style */
 #nb_logo {
 	width: 230px;
+	z-index: 1000;
 }
 #nb_menubar {
 	margin: 0px;
@@ -69,9 +77,48 @@ spread and take an entire line each.
 	color: #f2f2f2;
 }
 
-.nbfont {
+.H1 {
+	font-size: 100pt;
+	line-height: 100pt;
+}
+@media all and (max-width: 600px) {
+	.H1 {
+		font-size: 50pt;
+		line-height: 50pt;
+	}
+}
+.H2 {
+	font-size: 50pt;
+	line-height: 50pt;
+}
+
+.nbfont_dark {
 	color: black;
 	font-family: sans-serif;
+}
+
+.nbfont_light {
+	color: white;
+	font-family: sans-serif;
+}
+
+.nbfontx_dark {
+	color: black;
+	font-family: 'Finger Paint', cursive;
+}
+
+.nbfontx_light {
+	color: white;
+	font-family: 'Finger Paint', cursive;
+}
+
+/* GOOGLE FONTS */
+	/*font-family: 'Finger Paint', cursive;*/
+	/*font-family: 'Special Elite', cursive;*/
+	/*font-family: 'Oswald', sans-serif;*/
+	/*font-family: 'Armata', sans-serif;*/
+
+/* OTHER FONTS */
 	/*font-family: "Brush Script MT", cursive;*/
 	/*font-family: "Century Gothic", CenturyGothic, AppleGothic, sans-serif;*/
 	/*font-family: Century Gothic, sans-serif;*/
@@ -80,6 +127,22 @@ spread and take an entire line each.
 	/*font-stretch: condensed;*/
 	/*font-weight: normal;*/
 	/*font-size: 14px;*/
+
+.filling {
+	width: 100%;
+	height: 100%;
+	min-height: 100%;
+	margin: 0;
+}
+
+.hfill { 
+	height: 100%;
+	/*min-height: 100%;*/
+}
+
+.wfill { 
+	width: 100%;
+	min-width: 100%;
 }
 
 .roundbord {
@@ -118,16 +181,6 @@ spread and take an entire line each.
 */
 [ng\:cloak], [ng-cloak], .ng-cloak {
 	display: none !important;
-}
-
-.hfill { 
-    height: 100%;
-    /*min-height: 100%;*/
-}
-
-.wfill { 
-    width: 100%;
-    min-width: 100%;
 }
 
 
