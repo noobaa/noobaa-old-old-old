@@ -47,8 +47,7 @@
 	<a id="_"></a>
 
 	<div id="nb_carousel"
-		class="carousel slide bglight filling"
-		data-interval="10000">
+		class="carousel slide bglight filling">
 
 		<div class="carousel-inner filling nbfontx_light"
 			style="background: url('/public/noobaa/images/bg2.jpg')
@@ -283,7 +282,10 @@
 			nb_nav.affix({offset: {top: get_nav_affix}});
 			
 			// start spinning the carousel
-			nb_carousel.carousel();
+			nb_carousel.carousel({
+				interval: 10000,
+				pause: false
+			});
 
 			// do smooth scrolling to anchors with href
 			var $root = $('html, body');
