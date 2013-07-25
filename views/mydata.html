@@ -594,6 +594,9 @@
 						<i class="icon-file" style="vertical-align: middle;" ></i>
 						<span nb-drag="inode_drag(file_inode, $event, is_start)">
 							[[[file_inode.name]]]
+							<img ng-if="file_inode.shared_fb_id" ng-src="https://graph.facebook.com/[[[file_inode.shared_fb_id]]]/picture">
+							[[[file_inode.shared_name]]]
+							
 						</span>
 					</span>
 					<span class="span2 fntsans fntblk" 
