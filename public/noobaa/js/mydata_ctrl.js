@@ -379,11 +379,12 @@ Inode.prototype.get_share_list = function() {
 };
 
 Inode.prototype.share = function(share_list) {
+	console.log("Going to share with :", share_list, "for inode:");
+	console.log(this);
 	return this.$scope.http({
-		method: 'POST',
-		url: this.$scope.api_url + 'share',
+		method: 'PUT',
+		url: this.$scope.inode_api_url + this.id + this.$scope.inode_share_sufix,
 		data: {
-			id: this.id,
 			share_list: share_list
 		}
 	});
@@ -798,6 +799,10 @@ function ShareModalCtrl($scope) {
 		var inode = $scope.share_inode;
 		var share_list = $scope.share_list;
 		share_modal.modal('hide');
+		console.log('------------------------------');
+		console.log("inode", inode);
+		console.log("share_list", share_list);
+		console.log('------------------------------');
 		inode.share(share_list).on('success', function(data) {
 			// TODO: better show working sign of the ajax operation and only here hide the modal
 		});

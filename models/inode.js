@@ -34,18 +34,22 @@ inode_schema.index({
 	unique: false
 });
 
-inode_schema.statics.getRefGhosts = function(real_id, next) {
-	this.find({
-		ghost_ref: real_id
-	}, next);
+//If this inode is a ghost inode, it will return it's reference. If not, nothing will be done.
+inode_schema.methods.follow_ref = function(cb) {
+	var inode = this;
+	if (!inode.ghost_ref) {
+		return cb(null, inode);
+	}
+	this.model('Inode').findById(inode.ghost_ref, cb);
 };
 
-inode_schema.statics.getRefUsers = function(real_id, next) {
-	var query = this.find({
+inode_schema.statics.get_refering_ghosts = function(real_id, next) {
+	console.log("get_refering_ghosts ", arguments);
+	this.model('Inode').find({
 		ghost_ref: real_id
+	}, function(err, ghosts) {
+		return next(err, ghosts);
 	});
-	query.select('owner');
-	query.exec(next);
 };
 
 // counts number of dir sons, and call back next(err, inode, dir_son_count)
