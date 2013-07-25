@@ -4,39 +4,6 @@
 <head>
 	{{# def.include('common_head.html') }}
 	<style>
-		.blk {
-			color: black;
-		}
-		.wht {
-			color: white;
-		}
-		.fnt {
-			font-family: 'Finger Paint', cursive;
-		}
-		.H1 {
-			font-size: 100pt;
-			line-height: 100pt;
-		}
-		@media all and (max-width: 600px) {
-			.H1 {
-				font-size: 50pt;
-				line-height: 50pt;
-			}
-		}
-		.H2 {
-			font-size: 50pt;
-			line-height: 50pt;
-		}
-		.filling {
-			width: 100%;
-			height: 100%;
-			min-height: 100%;
-			margin: 0;
-		}
-		.wfile {
-			width: 100%;
-			margin: 0;
-		}
 		.carousel-control.left {
 			right: 15px;
 			left: auto;
@@ -83,7 +50,7 @@
 		class="carousel slide bglight filling"
 		data-interval="10000">
 
-		<div class="carousel-inner filling fnt wht"
+		<div class="carousel-inner filling nbfontx_light"
 			style="background: url('/public/noobaa/images/bg2.jpg')
 						top left no-repeat fixed;">
 
@@ -153,8 +120,8 @@
 
 	<div id="nb_nav" class="navbar navbar-inverse"
 		onresize="nb_nav_affix = undefined;">
-		<div class="navbar-inner fnt">
-			<a id="nb_logo" class="brand scroller" href="#_">
+		<div class="navbar-inner nbfontx_light">
+			<a class="brand scroller" href="#_" style="width: 80px">
 				<img src="/public/noobaa/images/noobaa_logo.png"></img>
 			</a>
 			<ul class="nav">
@@ -186,7 +153,7 @@
 		</div>
 	</div>
 
-	<div id="whatis" class="nb_nav_link container fnt">
+	<div id="whatis" class="nb_nav_link container nbfontx_dark">
 		<div class="H2">WHAT IS NOOBAA?</div>
 		<br/><br/>
 		<h2>NooBaa is a Crowd-Cloud!</h2>
@@ -205,7 +172,7 @@
 				top right no-repeat fixed;">
 	</div>
 
-	<div id="vision" class="nb_nav_link container fnt">
+	<div id="vision" class="nb_nav_link container nbfontx_dark">
 		<div class="H2">NOOBAA'S VISION</div>
 		<br/><br/>
 		<h2>In a world of connected devices, the crowd is the strongest force!</h2>
@@ -226,7 +193,7 @@
 				center 70% no-repeat fixed;">
 	</div>
 
-	<div id="join" class="nb_nav_link container fnt">
+	<div id="join" class="nb_nav_link container nbfontx_dark">
 		<div class="H2">JOIN US!</div>
 		<br/><br/>
 		<h2>NooBaa is still in beta.</h2>

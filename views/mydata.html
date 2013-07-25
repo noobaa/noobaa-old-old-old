@@ -4,6 +4,12 @@
 <head>
 	{{# def.include('common_head.html') }}
 
+	<style>
+		body {
+			background-image: url('/public/noobaa/images/bg2.jpg');
+		}
+	</style>
+
 	<link href="/public/jquery-file-upload-8.3.2/css/jquery.fileupload-ui.css" type="text/css" rel="stylesheet"/>
 	<script src="/public/jquery-file-upload-8.3.2/js/vendor/jquery.ui.widget.js" type="text/javascript"></script>
 	<script src="/public/jquery-file-upload-8.3.2/js/jquery.iframe-transport.js" type="text/javascript"></script>
@@ -322,7 +328,7 @@
 										z-index: 1;
 										width: [[[upload.progress]]]%;">
 								</div>
-								<div class="nbfont"
+								<div class="nbfont_dark"
 									style="position: absolute;
 										top: 0;
 										left: 40%;
@@ -493,7 +499,7 @@
 			ng-dblclick="inode_dclick(dir_inode)"
 			nb-drop="inode_drop(dir_inode, $drag, $event)">
 			<span style="margin-left: [[[15*dir_inode.level - 30]]]px;"
-				class="nbfont">
+				class="nbfont_dark">
 				<span ng-click="inode_dclick(dir_inode)"
 		 			style="vertical-align: middle;" 
 					ng-switch on="!!dir_inode.dir_state.refreshing">
@@ -561,7 +567,7 @@
 					ng-dblclick="inode_dclick(dir_inode)"
 					nb-right-click="inode_rclick(dir_inode, $event)"
 					nb-drop="inode_drop(dir_inode, $drag, $event)">
-					<span class="span12 nbfont">
+					<span class="span12 nbfont_dark">
 						<i style="vertical-align: middle;" class="icon-folder-open"></i>
 						<span nb-drag="inode_drag(dir_inode, $event, is_start)">
 							[[[dir_inode.name]]]
@@ -577,13 +583,13 @@
 					ng-dblclick="inode_dclick(file_inode)"
 					nb-right-click="inode_rclick(file_inode, $event)"
 					nb-drop="inode_drop(file_inode, $drag, $event)">
-					<span class="span10 nbfont">
+					<span class="span10 nbfont_dark">
 						<i class="icon-file" style="vertical-align: middle;" ></i>
 						<span nb-drag="inode_drag(file_inode, $event, is_start)">
 							[[[file_inode.name]]]
 						</span>
 					</span>
-					<span class="span2 nbfont" 
+					<span class="span2 nbfont_dark" 
 						style="text-align: right;">
 						[[[human_size(file_inode.size)]]]
 					</span>
@@ -601,7 +607,7 @@
 									z-index: 1;
 									width: [[[file_inode.progress]]]%;">
 							</div>
-							<div class="nbfont"
+							<div class="nbfont_dark"
 								style="position: absolute;
 									top: 0;
 									left: 40%;
