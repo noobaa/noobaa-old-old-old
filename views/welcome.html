@@ -4,205 +4,333 @@
 <head>
 	{{# def.include('common_head.html') }}
 	<style>
-		#whatis_content {
-			background-color: #f2f2f2;
-			margin: 30px;
-			padding: 30px;
+		.blk {
+			color: black;
 		}
-		#invite_modal {
-			background-color: #f2f2f2;
+		.wht {
+			color: white;
 		}
-		#whatis_carousel {
-			/*min-height: 300px;*/
-			background-color: #d2d2d2;
+		.fnt {
+			font-family: 'Finger Paint', cursive;
 		}
-		.carousel-inner > .item {
-			margin-top: 30px;
+		.H1 {
+			font-size: 100pt;
+			line-height: 100pt;
 		}
-		.carousel-control {
+		@media all and (max-width: 600px) {
+			.H1 {
+				font-size: 50pt;
+				line-height: 50pt;
+			}
+		}
+		.H2 {
+			font-size: 50pt;
+			line-height: 50pt;
+		}
+		.filling {
+			width: 100%;
+			height: 100%;
+			min-height: 100%;
+			margin: 0;
+		}
+		.wfile {
+			width: 100%;
+			margin: 0;
+		}
+		.carousel-control.left {
+			right: 15px;
+			left: auto;
 			top: 70px;
+		}
+		.carousel-control.right {
+			right: 15px;
+			top: 140px;
+		}
+		.carousel-indicators {
+			right: 15px;
+		}
+		#nb_nav_marker {
+			position: absolute;
+			bottom: 0;
+		}
+		#nb_nav {
+			position: absolute;
+			bottom: 0;
+			width: 100%;
+			margin: 0;
+			opacity: 0.85;
+			z-index: 1000;
+		}
+		#nb_nav.affix {
+			position: fixed;
+			bottom: auto;
+			top: 0px;
+			width: 100%;
+		}
+		.nb_nav_link {
+			padding-top: 50px;
 		}
 	</style>
 </head>
 
-<body ng-controller="WhatIsNooBaaCtrl">
+<body ng-controller="WelcomeCtrl">
 
 	{{# def.facebook_init_body }}
 
-	<div id="nb_menu" valign="top" align="left" width="1px">
-		<div id="nb_logo" class="brand">
-			<img src="/public/noobaa/images/noobaa_logo.png"></img>
-		</div>
-		<div valign="middle" align="center" style="margin-top: 30px">
-			<button class="btn btn-warning" ng-click="toggle_whatis()">
-				<b>What is NooBaa &raquo;</b>
-			</button>
-		</div>
-	</div>
-	<div id="nb_righty" height="70px" width="100px" valign="top" align="center">
-		<div style="margin: 20px;">
-			<fb:login-button
-				scope="email"
-				registration-url="/auth/facebook/login/"
-				show-faces="false">
-			</fb:login-button>
-		</div>
-	</div>
-	<div id="nb_content" valign="top">
-		<div id="whatis_content"
-			hidden="hidden"
-			class="container-fluid roundbord">
-			<div class="row-fluid">
-				<h1>NooBaa is a Crowd-Cloud 
-					<a class="pull-right btn btn-warning btn-large" 
-						ng-click="show_invite_modal()">
-						Join us!
-					</a>
-				</h1>
-				<h5 class="lead">
-					<br/>
-					NooBaa enables you to join the crowd cloud.
-					<br/>
-					Co-Share your existing local storage 
-					and enjoy the best possible cloud service.
-				</h5>
-			</div>
+	<a id="_"></a>
 
-			<div id="whatis_carousel" class="carousel slide roundbord">
-				<ol class="carousel-indicators">
-					<li data-target="#whatis_carousel" data-slide-to="0" class="active"></li>
-					<li data-target="#whatis_carousel" data-slide-to="1"></li>
-					<li data-target="#whatis_carousel" data-slide-to="2"></li>
-				</ol>
-				<!-- Carousel items -->
-				<div class="carousel-inner">
-					<div class="active item row-fluid" align="center">
-						<div class="offset1 span10">
-							<div class="badge badge-info" align="center">
-								<h1>Simple</h1>
-							</div>
-						</div>
-						<div class="offset1 span10">
-							<h5 class="lead">
-								No additional hardware.
-								No complex plans.
-								No complex decisions.
-								<br/>
-								All your Data.
-								One location.
-							</h5>
-						</div>
+	<div id="nb_carousel"
+		class="carousel slide bglight filling"
+		data-interval="10000">
+
+		<div class="carousel-inner filling fnt wht"
+			style="background: url('/public/noobaa/images/bg2.jpg')
+						top left no-repeat fixed;">
+
+			<div class="active item filling">
+				<div class="container text-left">
+					<div class="row">
+						<img src="/public/noobaa/images/noobaa_logo.png"></img>
 					</div>
-					<div class="item row-fluid" align="center">
-						<div class="offset1 span10">
-							<div class="badge badge-info" align="center">
-								<h1>Fast</h1>
-							</div>
-						</div>
-						<div class="offset1 span10">
-							<h5 class="lead">
-								Together we are more powerful than any single corporate.
-								<br/>
-								Join us and enjoy the power of the crowd.
-							</h5>
-						</div>
-					</div>
-					<div class="item row-fluid" align="center">
-						<div class="offset1 span10">
-							<div class="badge badge-info" align="center">
-								<h1>Free</h1>
-							</div>
-						</div>
-						<div class="offset1 span10">
-							<h5 class="lead">
-								Unlimited capacity.
-								<br/>
-								NooBaa is absolutely free.
-							</h5>
-						</div>
-					</div>
+					<br/><br/><br/>
+					<div class="row H1">SIMPLE</div>
+					<br/><br/><br/>
+					<h3 class="row offset1">
+						No additional hardware.<br/>
+						No complex plans.<br/>
+						No complex decisions.<br/>
+						All your Data.<br/>
+						One location.<br/>
+					</h3>
 				</div>
-				<!-- Carousel nav -->
-				<a class="carousel-control left" href="#whatis_carousel" data-slide="prev">&lsaquo;</a>
-				<a class="carousel-control right" href="#whatis_carousel" data-slide="next">&rsaquo;</a>
 			</div>
 
+			<div class="item filling">
+				<div class="container text-left">
+					<div class="row">
+						<img src="/public/noobaa/images/noobaa_logo.png"></img>
+					</div>
+					<br/><br/><br/>
+					<div class="row H1">FAST</div>
+					<br/><br/><br/>
+					<h3 class="row offset1">
+						Together we are more powerful than any single corporate.<br/>
+						Join us and enjoy the power of the crowd.<br/>
+					</h3>
+				</div>
+			</div>
+
+			<div class="item filling">
+				<div class="container text-left">
+					<div class="row">
+						<img src="/public/noobaa/images/noobaa_logo.png"></img>
+					</div>
+					<br/><br/><br/>
+					<div class="H1">FREE</div>
+					<br/><br/><br/>
+					<h3 class="row offset1">
+						Unlimited capacity.<br/>
+						NooBaa is absolutely free.<br/>
+					</h3>
+				</div>
+			</div>
+
+		</div>
+		<ol class="carousel-indicators">
+			<li data-target="#nb_carousel" data-slide-to="0" class="active"></li>
+			<li data-target="#nb_carousel" data-slide-to="1"></li>
+			<li data-target="#nb_carousel" data-slide-to="2"></li>
+		</ol>
+		<a class="carousel-control left" 
+			href="#nb_carousel" 
+			data-slide="prev">&lsaquo;</a>
+		<a class="carousel-control right"
+			href="#nb_carousel"
+			data-slide="next">&rsaquo;</a>
+	</div>
+
+	<div id="nb_nav_marker"></div>
+
+	<div id="nb_nav" class="navbar navbar-inverse"
+		onresize="nb_nav_affix = undefined;">
+		<div class="navbar-inner fnt">
+			<a id="nb_logo" class="brand scroller" href="#_">
+				<img src="/public/noobaa/images/noobaa_logo.png"></img>
+			</a>
+			<ul class="nav">
+				<li>
+					<a class="scroller" href="#whatis">
+						ABOUT
+					</a>
+				</li>
+				<li>
+					<a class="scroller" href="#vision">
+						THE VISION
+					</a>
+				</li>
+				<li>
+					<button class="btn btn-success scroller" href="#join">
+						<b>JOIN!</b>
+					</button>
+				</li>
+			</ul>
+			<ul class="nav pull-right">
+				<li>
+					<a class="fb-login-button"
+						scope="email"
+						registration-url="/auth/facebook/login/"
+						show-faces="false">
+					</a>
+				</li>
+			</ul>
 		</div>
 	</div>
 
+	<div id="whatis" class="nb_nav_link container fnt">
+		<div class="H2">WHAT IS NOOBAA?</div>
+		<br/><br/>
+		<h2>NooBaa is a Crowd-Cloud!</h2>
+		<h5 class="lead">
+			<br/>
+			NooBaa enables you to join the crowd cloud.
+			<br/>
+			Co-Share your existing local storage 
+			and enjoy the best possible cloud service.
+		</h5>
+	</div>
 
-<!-- INVITE MODAL -->
+	<div class="wfill"
+		style="height: 400px;
+			background: url('/public/noobaa/images/bg4.jpg')
+				top right no-repeat fixed;">
+	</div>
 
-	<div id="invite_modal"
-		class="modal hide fade" 
-		tabindex="-1" 
-		role="dialog" 
-		aria-labelledby="invite_modal_label" 
-		aria-hidden="true">
-		<div class="modal-header">
-			<a type="button" class="close" data-dismiss="modal">×</a>
-			<div ng-show="nonlisteduser" align="center">
-				<h4>NooBaa currently requries invitation</h4>
-			</div>
-			<h3 id="invite_modal_label" align="center">Please request an invitation</h3>
-		</div>
-		<div align="center" class="modal-body" style="margin-bottom: 0px">
-			<p>Enter your email address:</p>
-			<div class="row-fluid" style="margin-bottom: 10px">
+	<div id="vision" class="nb_nav_link container fnt">
+		<div class="H2">NOOBAA'S VISION</div>
+		<br/><br/>
+		<h2>In a world of connected devices, the crowd is the strongest force!</h2>
+		<h5 class="lead">
+			<br/>
+			Joining our devices together will create an entity that can make an impact on every aspect of our life - health, science, engineering, etc.
+			We believe that such a world should be controlled by the people.
+			<br/><br/>
+			We want to democratize the cloud!
+			Don't you?
+		</h5>
+	</div>
+
+	<div class="wfill"
+		style="height: 300px;
+			background: url('/public/noobaa/images/yoda.png')
+				center 70% no-repeat fixed;">
+	</div>
+
+	<div id="join" class="nb_nav_link container fnt">
+		<div class="H2">JOIN US!</div>
+		<h3>NooBaa is still in beta.</h3>
+		<h3>Request an invitation to join:</h3>
+		<div class="row" align="center" style="margin: 40px">
+			<div class="input-prepend" >
+				<button class="btn btn-success"
+					type="button"
+					ng-show="!submitted"
+					ng-disabled="submitting"
+					ng-click="submit()">
+					<img ng-show="submitting"
+						src="/public/noobaa/images/ajax-loader.gif"></img>
+					<b>Request</b>
+				</button>
 				<input ng-model="invite_email"
 					id="email_input"
-					class="input span12"
+					class="input span4"
 					type="email"
-					ng-disabled="submitting || submitted">
+					ng-disabled="submitting || submitted"
+					placeholder="Enter your email address...">
 				</input>
 			</div>
 			<div class="alert alert-error" hidden></div>
 			<div class="alert alert-success" hidden></div>
-			<div>
-				<button class="btn btn-warning" ng-show="!submitted" ng-disabled="submitting" ng-click="submit()">
-					<img ng-show="submitting" src="/public/noobaa/images/ajax-loader.gif"></img>
-					Request
-				</button>
-				<button class="btn btn-success" ng-show="submitted" data-dismiss="modal">
-					Close
-				</button>
-			</div>
 		</div>
-		<!-- <div class="modal-footer" style="text-align: center"> </div> -->
+	</div>
+
+	<div class="wfill"
+		align="center"
+		style="height: 400px;
+			background: url('/public/noobaa/images/bg1.jpg')
+				top left no-repeat fixed;">
+		<img src="/public/noobaa/images/noobaa_logo.png"
+			style="max-height: 150px; position: relative; top: 200px;"></img>
 	</div>
 
 
 
-<!--=================================-->
-
 	<script type="text/javascript">
+
 		var has_running_requests = false;
+		var nb_nav_affix = undefined;
+
 		$(function() {
+
 			window.onbeforeunload = function () {
 				if (has_running_requests) {
 					return "Leaving this page will interrupt your running requests !!!";
 				}
 			};
+
+			var nb_carousel = $('#nb_carousel');
+			var nb_nav = $('#nb_nav');
+			var nb_nav_marker = $('#nb_nav_marker');
+			var nb_nav_links = $('.nb_nav_link');
+
+			var refresh_nav = function() {
+				// invalidate the cached value of the nav affix
+				nb_nav_affix = undefined;
+				// when the nav resizes we need to make room for it
+				// at the top of each nav link.
+				// so set the top padding according to the nav size.
+				nb_nav_links.css({
+					"padding-top": (nb_nav.height() + 30) + 'px'
+				});
+			};
+
+			// returns the affix top of the nav which indicates 
+			// at which scroll point to fixate the nav to the top.
+			// we cache the value because during scrolling it will ask many times.
+			var get_nav_affix = function() {
+				if (nb_nav_affix === undefined) {
+					nb_nav_affix = nb_nav_marker.offset().top - nb_nav.height();
+				}
+				return nb_nav_affix;
+			};
+
+			// refresh now - onload
+			refresh_nav();
+			// refresh on window resize
+			$(window).resize(refresh_nav);
+			// refresh every second
+			setInterval(refresh_nav, 1000);
+			// setup the bootstrap affix plugin on the nav
+			nb_nav.affix({offset: {top: get_nav_affix}});
+			
+			// start spinning the carousel
+			//nb_carousel.carousel();
+
+			// do smooth scrolling to anchors with href
+			var $root = $('html, body');
+			$('.scroller').click(function() {
+				var href = $.attr(this, 'href');
+				$root.animate({
+					scrollTop: $(href).offset().top
+				}, 400, function() {
+					window.location.hash = href;
+				});
+				return false;
+			});
 		});
 
-		function WhatIsNooBaaCtrl($scope, $http, $location) {
+		function WelcomeCtrl($scope, $http) {
 			$scope.submitting = false;
 			$scope.submitted = false; 
-			$scope.location = $location;
-			$scope.nonlisteduser = ($location.search()).nonlisteduser;
-
-			$scope.toggle_whatis = function() {
-				$('#whatis_content').stop().toggle({effect:'fade', duration:1600});
-				$('#whatis_carousel').carousel();
-			};
-
-			$scope.show_invite_modal = function () {
-				$('#invite_modal').modal('show');
-			};
-
-			if ($scope.nonlisteduser) {
-			 	$scope.show_invite_modal();
-			}
 
 			$scope.submit = function () {
 				has_running_requests = true;
@@ -243,7 +371,7 @@
 				$('.alert-success').html(text).show('fade', 'slow');
 			}
 		}
-		WhatIsNooBaaCtrl.$inject = ['$scope', '$http', '$location'];
+		WelcomeCtrl.$inject = ['$scope', '$http'];
 	</script>
 
 </body>

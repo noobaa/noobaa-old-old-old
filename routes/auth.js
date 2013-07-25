@@ -86,7 +86,7 @@ exports.facebook_authorized = function(req, res, next) {
 	// so for all the rest, we redirect back to the welcome page
 	// but with specific tag to cause the request invite pop out immediately.
 	if (req.query.error_code == 901) {
-		res.redirect('/#?nonlisteduser=true');
+		res.redirect('/#join');
 		return;
 	}
 	passport.authenticate('facebook', {
