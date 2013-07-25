@@ -590,10 +590,13 @@
 					ng-dblclick="inode_dclick(file_inode)"
 					nb-right-click="inode_rclick(file_inode, $event)"
 					nb-drop="inode_drop(file_inode, $drag, $event)">
-					<span class="span10 nbfont_dark">
+					<span class="span7 nbfont_dark">
 						<i class="icon-file" style="vertical-align: middle;" ></i>
 						<span nb-drag="inode_drag(file_inode, $event, is_start)">
 							[[[file_inode.name]]]
+							<img ng-if="file_inode.shared_fb_id" ng-src="https://graph.facebook.com/[[[file_inode.shared_fb_id]]]/picture">
+							[[[file_inode.shared_name]]]
+							
 						</span>
 					</span>
 					<span class="span2 nbfont_dark" 

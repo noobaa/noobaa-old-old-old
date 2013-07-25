@@ -246,6 +246,8 @@ Inode.prototype.populate_dir = function(entries) {
 		sync_property(son, ent, "name");
 		sync_property(son, ent, "size");
 		sync_property(son, ent, "uploading");
+		sync_property(son, ent, "shared_name");
+		sync_property(son, ent, "shared_fb_id");
 		sync_property(son, ent, "progress");
 
 		if (son.isdir) {

@@ -44,7 +44,7 @@ function verify_and_create_base_folder(folder_name, user, next) {
 			inode.isdir = true;
 			inode.save(function(err, inode, num) {
 				if (err) {
-					console.log("error while creating inode: ", err)
+					console.log("error while creating inode: ", err);
 					return next(err, null);
 				}
 				console.log("Created basic inode. Inode:", folder_name, user, " Inode id", inode._id);
@@ -66,7 +66,7 @@ exports.verify_and_create_base_folders = function(user, cb) {
 		//create my data
 		verify_and_create_base_folder.bind(null, CONST_BASE_FOLDERS.MYDATA),
 		//create shared with me
-		verify_and_create_base_folder.bind(null, CONST_BASE_FOLDERS.swm),
+		verify_and_create_base_folder.bind(null, CONST_BASE_FOLDERS.SWM),
 	], cb);
 };
 
