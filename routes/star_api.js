@@ -202,7 +202,7 @@ function do_read_dir(inode, next) {
 		//access object properties such as size and state. 
 		function(inodes_list, next) {
 			var ghost_inode = _.filter(inodes_list, function(i) {
-				return i.ghost_ref
+				return i.ghost_ref;
 			});
 			var referenced_list = _.pluck(ghost_inode, 'ghost_ref');
 			Inode.find({
@@ -251,7 +251,7 @@ function do_read_dir(inode, next) {
 					}
 				});
 				return next(null, inodes_list);
-			})
+			});
 		},
 
 		// query the fobjs for all the entries found
