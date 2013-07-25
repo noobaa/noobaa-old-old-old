@@ -78,13 +78,13 @@ spread and take an entire line each.
 }
 
 .H1 {
-	font-size: 100pt;
-	line-height: 100pt;
+	font-size: 120pt;
+	line-height: 120pt;
 }
 @media all and (max-width: 600px) {
 	.H1 {
-		font-size: 50pt;
-		line-height: 50pt;
+		font-size: 60pt;
+		line-height: 60pt;
 	}
 }
 .H2 {
@@ -92,23 +92,23 @@ spread and take an entire line each.
 	line-height: 50pt;
 }
 
-.nbfont_dark {
+.fntblk {
 	color: black;
+}
+.fntwht {
+	color: white;
+}
+.fntpnk {
+	color: #d219b0;
+	/*color: #cf09ab;*/
+}
+.fntsans {
 	font-family: sans-serif;
 }
-
-.nbfont_light {
-	color: white;
-	font-family: sans-serif;
+.fntread {
+	font-family: 'Comfortaa', cursive;
 }
-
-.nbfontx_dark {
-	color: black;
-	font-family: 'Finger Paint', cursive;
-}
-
-.nbfontx_light {
-	color: white;
+.fntpaint {
 	font-family: 'Finger Paint', cursive;
 }
 

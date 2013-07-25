@@ -5,16 +5,16 @@
 	{{# def.include('common_head.html') }}
 	<style>
 		.carousel-control.left {
-			right: 15px;
+			right: 20px;
 			left: auto;
 			top: 70px;
 		}
 		.carousel-control.right {
-			right: 15px;
+			right: 20px;
 			top: 140px;
 		}
 		.carousel-indicators {
-			right: 15px;
+			right: 20px;
 		}
 		#nb_nav_marker {
 			position: absolute;
@@ -37,6 +37,54 @@
 		.nb_nav_link {
 			padding-top: 50px;
 		}
+
+		.pattern {
+			background: url('/public/noobaa/images/pattern.png'); 
+			position: absolute;
+			width: 100%;
+			height: 100%;
+		}
+
+		.bg_item1 {
+			background: url('/public/noobaa/images/canstockphoto7274277.jpg')
+					no-repeat fixed 0 0;
+			background-size: 100% 110%;
+		}
+		.bg_item2 {
+			background: url('/public/noobaa/images/canstockphoto0958150.jpg')
+					no-repeat fixed 0 0;
+			background-size: 100% 110%;
+		}
+		.bg_item3 {
+			background: url('/public/noobaa/images/canstockphoto8442431.jpg')
+					no-repeat fixed 0 0;
+			background-size: 100% 110%;
+		}
+
+		.bg_whatis {
+			background: url('/public/noobaa/images/bg4.jpg')
+				no-repeat fixed 0 0;
+			background-size: 100% 100%;
+		}
+		.bg_whatis, .bg_whatis .pattern {
+			height: 400px;			
+		}
+		.bg_vision {
+			background: url('/public/noobaa/images/yoda.png')
+				no-repeat fixed center 300px;
+			background-size: auto 400px;
+		}
+		.bg_vision, .bg_vision .pattern {
+			height: 400px;			
+		}
+		.bg_join {
+			height: 400px;
+			background: url('/public/noobaa/images/bg1.jpg')
+				no-repeat fixed top left;
+		}
+		.bg_join, .bg_join .pattern {
+			height: 400px;			
+		}
 	</style>
 </head>
 
@@ -49,19 +97,18 @@
 	<div id="nb_carousel"
 		class="carousel slide bglight filling">
 
-		<div class="carousel-inner filling nbfontx_light"
-			style="background: url('/public/noobaa/images/bg2.jpg')
-						top left no-repeat fixed;">
+		<div class="carousel-inner filling">
+			<!-- <div style="position: absolute; z-index: 1000">
+				<img src="/public/noobaa/images/noobaa_logo.png"></img>
+			</div> -->
 
-			<div class="active item filling">
+			<div class="active item filling bg_item1">
+				<!-- <div class="pattern"></div> -->
 				<div class="container text-left">
-					<div class="row">
-						<img src="/public/noobaa/images/noobaa_logo.png"></img>
-					</div>
+					<br/><br/><br/><br/>
+					<div class="row offset1 H1 fntpaint fntblk">SIMPLE</div>
 					<br/><br/><br/>
-					<div class="row H1">SIMPLE</div>
-					<br/><br/><br/>
-					<h3 class="row offset1">
+					<h3 class="row offset1 fntread fntblk">
 						No additional hardware.<br/>
 						No complex plans.<br/>
 						No complex decisions.<br/>
@@ -71,30 +118,27 @@
 				</div>
 			</div>
 
-			<div class="item filling">
+			<div class="item filling bg_item2">
+				<!-- <div class="pattern"></div> -->
 				<div class="container text-left">
-					<div class="row">
-						<img src="/public/noobaa/images/noobaa_logo.png"></img>
-					</div>
+					<br/><br/><br/><br/>
+					<div class="row offset1 H1 fntpaint fntwht">FAST</div>
 					<br/><br/><br/>
-					<div class="row H1">FAST</div>
-					<br/><br/><br/>
-					<h3 class="row offset1">
-						Together we are more powerful than any single corporate.<br/>
-						Join us and enjoy the power of the crowd.<br/>
+					<h3 class="row offset1 fntread fntwht">
+						Together we are more powerful<br/>
+						than any single corporate.<br/>
+						Join to the power of the crowd.<br/>
 					</h3>
 				</div>
 			</div>
 
-			<div class="item filling">
+			<div class="item filling bg_item3">
+				<!-- <div class="pattern"></div> -->
 				<div class="container text-left">
-					<div class="row">
-						<img src="/public/noobaa/images/noobaa_logo.png"></img>
-					</div>
+					<br/><br/><br/><br/>
+					<div class="H1 offset1 fntpaint fntwht">FREE</div>
 					<br/><br/><br/>
-					<div class="H1">FREE</div>
-					<br/><br/><br/>
-					<h3 class="row offset1">
+					<h3 class="row offset1 fntread fntwht">
 						Unlimited capacity.<br/>
 						NooBaa is absolutely free.<br/>
 					</h3>
@@ -119,7 +163,7 @@
 
 	<div id="nb_nav" class="navbar navbar-inverse"
 		onresize="nb_nav_affix = undefined;">
-		<div class="navbar-inner nbfontx_light">
+		<div class="navbar-inner fntread fntwht">
 			<a class="brand scroller" href="#_" style="width: 80px">
 				<img src="/public/noobaa/images/noobaa_logo.png"></img>
 			</a>
@@ -152,7 +196,7 @@
 		</div>
 	</div>
 
-	<div id="whatis" class="nb_nav_link container nbfontx_dark">
+	<div id="whatis" class="nb_nav_link container fntread fntblk">
 		<div class="H2">WHAT IS NOOBAA?</div>
 		<br/><br/>
 		<h2>NooBaa is a Crowd-Cloud!</h2>
@@ -165,13 +209,11 @@
 		</h5>
 	</div>
 
-	<div class="wfill"
-		style="height: 400px;
-			background: url('/public/noobaa/images/bg4.jpg')
-				top right no-repeat fixed;">
+	<div class="wfill bg_whatis">
+		<!-- <div class="pattern"></div> -->
 	</div>
 
-	<div id="vision" class="nb_nav_link container nbfontx_dark">
+	<div id="vision" class="nb_nav_link container fntread fntblk">
 		<div class="H2">NOOBAA'S VISION</div>
 		<br/><br/>
 		<h2>In a world of connected devices, the crowd is the strongest force!</h2>
@@ -186,16 +228,14 @@
 		</h5>
 	</div>
 
-	<div class="wfill"
-		style="height: 300px;
-			background: url('/public/noobaa/images/yoda.png')
-				center 70% no-repeat fixed;">
+	<div class="wfill bg_vision">
+		<!-- <div class="pattern"></div> -->
 	</div>
 
-	<div id="join" class="nb_nav_link container nbfontx_dark">
+	<div id="join" class="nb_nav_link container fntread fntblk">
 		<div class="H2">JOIN US!</div>
 		<br/><br/>
-		<h2>NooBaa is still in beta.</h2>
+		<h2>NooBaa is still in alpha.</h2>
 		<br/>
 		<h2>Request an invitation to join:</h2>
 		<div class="row" align="center" style="margin: 40px">
@@ -222,11 +262,8 @@
 		</div>
 	</div>
 
-	<div class="wfill"
-		align="center"
-		style="height: 400px;
-			background: url('/public/noobaa/images/bg1.jpg')
-				top left no-repeat fixed;">
+	<div class="wfill bg_join" align="center">
+		<!-- <div class="pattern"></div> -->
 		<img src="/public/noobaa/images/noobaa_logo.png"
 			style="max-height: 150px; position: relative; top: 200px;"></img>
 	</div>

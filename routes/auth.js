@@ -14,7 +14,6 @@ var user_inodes = require('../providers/user_inodes');
 passport.use(new facebook_passport.Strategy({
 	clientID: process.env.FACEBOOK_APP_ID,
 	clientSecret: process.env.FACEBOOK_SECRET,
-
 	callbackURL: process.env.FACEBOOK_AUTHORIZED_URL,
 	passReqToCallback: true,
 }, function(req, accessToken, refreshToken, profile, done) {
