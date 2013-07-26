@@ -39,58 +39,56 @@
 		}
 
 		.pattern {
-			background: url('/public/noobaa/images/pattern.png'); 
+			background-image: url('/public/noobaa/images/pattern.png'); 
 			position: absolute;
 			width: 100%;
 			height: 100%;
 		}
 
 		.bg_item1 {
-			background: url('/public/noobaa/images/canstockphoto7274277.jpg')
-					no-repeat fixed 0 0;
+			background-image: url('/public/noobaa/images/canstockphoto7274277.jpg');
 		}
 		.bg_item2 {
-			background: url('/public/noobaa/images/canstockphoto0958150.jpg')
-					no-repeat fixed 0 0;
+			background-image: url('/public/noobaa/images/canstockphoto0958150.jpg');
 		}
 		.bg_item3 {
-			background: url('/public/noobaa/images/canstockphoto8442431.jpg')
-					no-repeat fixed 0 0;
+			background-image: url('/public/noobaa/images/canstockphoto8442431.jpg');
 		}
 		.bg_item1, .bg_item2, .bg_item3 {
-			background-attachment: scroll;
+			background-repeat: no-repeat;
+			background-attachment: fixed;
 			background-size: cover;
 		}
 		@media all and (max-width: 600px) {
 			.bg_item1, .bg_item2, .bg_item3 {
-				background-attachment: scroll;
-				background-size: cover;
 				background-position: 60% 0;
 			}
 		}
 
 		.bg_whatis {
-			background: url('/public/noobaa/images/bg4.jpg')
-				no-repeat fixed 0 0;
-			background-size: 100% 100%;
-		}
-		.bg_whatis, .bg_whatis .pattern {
-			height: 400px;			
+			background-image: url('/public/noobaa/images/bg4.jpg');
+			/*background-position: 0 -200px;*/
+			background-size: cover;
 		}
 		.bg_vision {
-			background: url('/public/noobaa/images/yoda.png')
-				no-repeat fixed center 300px;
+			background-image: url('/public/noobaa/images/yoda.png');
+			background-position: center 300px;
 			background-size: auto 400px;
 		}
-		.bg_vision, .bg_vision .pattern {
-			height: 400px;			
-		}
 		.bg_join {
-			height: 400px;
-			background: url('/public/noobaa/images/bg1.jpg')
-				no-repeat fixed top left;
+			background-image: url('/public/noobaa/images/bg1.jpg');
+			background-size: cover;
 		}
-		.bg_join, .bg_join .pattern {
+		.bg_whatis, .bg_vision, .bg_join {
+			background-repeat: no-repeat;
+			background-attachment: fixed;
+		}
+		.bg_whatis, 
+		.bg_vision, 
+		.bg_join, 
+		.bg_whatis .pattern,
+		.bg_vision .pattern,
+		.bg_join .pattern {
 			height: 400px;			
 		}
 	</style>
