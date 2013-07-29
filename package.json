@@ -7,7 +7,7 @@
 		"npm": "1.3.x"
 	},
 	"scripts": {
-		"postinstall": "node_modules/grunt-cli/bin/grunt"
+		"postinstall": "./node_modules/.bin/grunt"
 	},
 	"dependencies": {
 		"underscore": "1.5.1",
@@ -18,13 +18,13 @@
 		"passport": "0.1.17",
 		"passport-facebook": "0.1.5",
 		"mongoose": "3.6.15",
-		"nodemailer": "0.5.0",
-		"aws-sdk": "1.3.2",
+		"nodemailer": "0.5.2",
+		"aws-sdk": "1.4.1",
 		"supervisor": "0.5.3",
 		"facebook-api": "0.1.2",
 		"async": "0.2.9",
 		"moment": "2.1.0",
-		"jshint": "2.1.4",
+		"jshint": "2.1.7",
 		"winston": "0.7.2",
 		"blueimp-file-upload": "8.6.1",
 		"grunt": "0.4.1",

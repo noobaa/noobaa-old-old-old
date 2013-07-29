@@ -1,1 +1,1 @@
-web: node node_modules/supervisor/lib/cli-wrapper.js star/star.js
+web: node ./node_modules/.bin/supervisor star/star.js
