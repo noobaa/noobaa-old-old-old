@@ -2,16 +2,13 @@
 	"name": "NooBaa",
 	"version": "0.0.1",
 	"private": true,
-
 	"engines": {
 		"node": "0.10.x",
 		"npm": "1.3.x"
 	},
-
 	"scripts": {
-		"postinstall": "./node_modules/jshint/bin/jshint star.js --verbose --show-non-errors models/ routes/ public/noobaa/js/"
+		"postinstall": "node_modules/grunt-cli/bin/grunt"
 	},
-
 	"dependencies": {
 		"underscore": "1.5.1",
 		"backbone": "1.0.0",
@@ -28,17 +25,13 @@
 		"async": "0.2.9",
 		"moment": "2.1.0",
 		"jshint": "2.1.4",
-		"winston": "0.7.2"
-	},
-
-	"//": {
-		"==========": "THIS IS A COMMENTS BLOCK",
-		"express-dot": "0.1.x",
-		"socket.io": "0.9.x",
-		"socket.io-client": "0.9.x",
-		"request": "2.22.x",
-		"nat-pmp": "0.0.x",
-		"optimist": "0.6.x",
-		"==========": "THIS IS A COMMENTS BLOCK"
+		"winston": "0.7.2",
+		"blueimp-file-upload": "8.6.1",
+		"grunt": "0.4.1",
+		"grunt-cli": "0.1.9",
+		"grunt-contrib-jshint": "0.6.1",
+		"grunt-contrib-uglify": "0.2.2",
+		"grunt-contrib-nodeunit": "0.2.0",
+		"grunt-contrib-requirejs": "0.4.1"
 	}
 }

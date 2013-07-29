@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html ng-app="noobaa_app" xmlns:fb="http://ogp.me/ns/fb#" lang="en">
+
+<head>
+	{{# def.include('common_head.html') }}
+
+	<style>
+		body {
+			background: url('/public/images/canstockphoto7274277.jpg')
+				repeat-y fixed 0 0;
+			background-attachment: scroll;
+			background-size: cover;
+		}
+	</style>
+</head>
+
+<body>
+
+	{{# def.facebook_init_body }}
+
+	{{# def.include('common_menubar.html') }}
+
+	<div id="nb_content" valign="top">
+
+
+
+<!-- ======== CONTENT ======== -->
+
+
+
+<div class="row-fluid" ng-controller="GetStartedCtrl">
+	<div class="well">
+
+{{    if (!it.user) {   }}
+
+		<div class="well">
+			<div class="badge badge-inverse">
+				<h1>First Step - Sign In</h1>
+			</div>
+			<br/><br/>
+			<h3>Sign in with your facebook acount:</h3>
+			<div align="center">
+				<a style="min-width: 100px;">
+					<fb:login-button
+						scope="email"
+						registration-url="/auth/facebook/login/"
+						show-faces="true">
+					</fb:login-button>
+				</a>
+			</div>
+			<br/>
+			<h3>We use facebook for authentication only.</h3>
+			<h3>We will not post/share anything on your behalf,</h3>
+			<h3>unless you explicitely request to.<h3>
+		</div>
+
+{{    } else {    }}
+
+		<div class="well" 
+			nb-effect-toggle="connected" 
+			nb-effect-options="{effect:'fade', duration:1600}">
+			<div class="badge badge-inverse">
+				<h1>Congratulations !!!</h1>
+			</div>
+			<br/>
+			<h3>You are all set to use your fastest and free cloud storage !!!</h3>
+			<h3>Go to 
+				<a class="btn btn-primary btn-large" href="/">
+					My Data
+				</a>
+			</h3>
+			<h3>Show download and install
+				<button class="btn " ng-click="show_downloads = !show_downloads">
+					 &raquo
+				</button>
+			</h3>
+		</div>
+
+		<div class="well" ng-hide="connected && !show_downloads">
+			<div class="badge badge-inverse">
+				<h1>Download and Install</h1>
+			</div>
+			<br/><br/>
+			<h3>
+				Get the client:
+			</h3>
+			<div align="center">
+				<div class="btn-group">
+					<a class="btn btn-primary btn-large" href="[[[client_download_url()]]]">Download for [[[client_platform]]]</a>
+					<!-- <span class="dropdown"> -->
+					<a class="btn btn-primary btn-large dropdown-toggle" id="dl_clients_dropdown" role="button" data-toggle="dropdown">
+						<i class="caret"></i>
+					</a>
+				  	<ul class="dropdown-menu" role="menu" aria-labelledby="dl_clients_dropdown">
+				  		<li ng-repeat="(plat,url) in plat_download_urls">
+				  			<button class="btn btn-link" ng-click="$parent.client_platform = plat;">[[[plat]]]</button>
+				  		</li>
+				  	</ul>
+				  	<!-- </span> -->
+				</div>
+			</div>
+			<br/>
+			<h3>Run the client you downloaded.</h3>
+			<h3>The client will start a local service and connect to the network.</h3>
+			<h3>This guide will automatically advance once the connection is made.</h3>
+			<i><h3 class="muted" align="center" ng-hide="connected">
+				Waiting for connection...
+			</h3></i>
+		</div>
+
+{{    }    }}
+
+	</div>
+</div>
+
+<script type="text/javascript">
+
+	function GetStartedCtrl($scope, $http, $window, $timeout) {
+
+		function plat_download_url(plat) {
+			return "/packages/noobaa_planet_" + plat + ".zip";
+		}
+
+		$scope.plat_download_urls = {
+			"linux_386" : plat_download_url("linux_386"),
+			"linux_amd64" : plat_download_url("linux_amd64"),
+			"windows_386" : plat_download_url("windows_386"),
+			"windows_amd64" : plat_download_url("windows_amd64"),
+			"darwin_386" : plat_download_url("darwin_386"),
+			"darwin_amd64" : plat_download_url("darwin_amd64"),
+		};
+
+		$scope.client_platforms = {
+			"Linux i686": "linux_386",
+		};
+
+		$scope.client_platform = $scope.client_platforms[navigator.platform];
+		
+		$scope.client_download_url = function() {
+			// console.log($scope.client_platform)
+			return $scope.plat_download_urls[$scope.client_platform];
+		}
+
+		$scope.connected = false;
+		$scope.show_downloads = false;
+		
+		$scope.do_connect = function(){
+			var ajax = $http.post("{{= it.planet_api}}" + "login", {
+				cookie: document.cookie
+			});
+			ajax.error(function(data, status, headers, config) {
+				console.log('[ERR]', [status, data]);
+				$timeout($scope.do_connect, 2000);
+			});
+			ajax.success(function(data, status, headers, config) {
+				console.log('[ok]', [status, data]);
+				$scope.connected = true;
+			});
+		};
+
+	{{? it.user }}
+		$timeout($scope.do_connect, 0);
+	{{?}}
+
+	}
+
+	// also specify dependencies explicitly to avoid minification effects:
+	GetStartedCtrl.$inject = ['$scope', '$http', '$window', '$timeout'];
+</script>
+
+
+
+
+<!-- ======== CONTENT END ======== -->
+
+
+
+	</div>
+</body>
+</html>

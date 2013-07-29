@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html ng-app="noobaa_app" xmlns:fb="http://ogp.me/ns/fb#" lang="en">
+
+<head>
+	{{# def.include('common_head.html') }}
+	<style>
+		.carousel-control.left {
+			right: 20px;
+			left: auto;
+			top: 70px;
+		}
+		.carousel-control.right {
+			right: 20px;
+			top: 140px;
+		}
+		.carousel-indicators {
+			right: 20px;
+		}
+		#nb_nav_marker {
+			position: absolute;
+			bottom: 0;
+		}
+		#nb_nav {
+			position: absolute;
+			bottom: 0;
+			width: 100%;
+			margin: 0;
+			opacity: 0.85;
+			z-index: 1000;
+		}
+		#nb_nav.affix {
+			position: fixed;
+			bottom: auto;
+			top: 0px;
+			width: 100%;
+		}
+		.nb_nav_link {
+			padding-top: 50px;
+		}
+
+		.pattern {
+			background-image: url('/public/images/pattern.png'); 
+			position: absolute;
+			width: 100%;
+			height: 100%;
+		}
+
+		.bg_item1 {
+			background-image: url('/public/images/canstockphoto7274277.jpg');
+		}
+		.bg_item2 {
+			background-image: url('/public/images/canstockphoto0958150.jpg');
+		}
+		.bg_item3 {
+			background-image: url('/public/images/canstockphoto8442431.jpg');
+		}
+		.bg_item1, .bg_item2, .bg_item3 {
+			background-repeat: no-repeat;
+			background-attachment: fixed;
+			background-size: cover;
+		}
+		@media all and (max-width: 600px) {
+			.bg_item1, .bg_item2, .bg_item3 {
+				background-position: 60% 0;
+			}
+		}
+
+		.bg_whatis {
+			background-image: url('/public/images/bg4.jpg');
+			/*background-position: 0 -200px;*/
+			background-size: cover;
+		}
+		.bg_vision {
+			background-image: url('/public/images/yoda.png');
+			background-position: center 300px;
+			background-size: auto 400px;
+		}
+		.bg_join {
+			background-image: url('/public/images/bg1.jpg');
+			background-size: cover;
+		}
+		.bg_whatis, .bg_vision, .bg_join {
+			background-repeat: no-repeat;
+			background-attachment: fixed;
+		}
+		.bg_whatis, 
+		.bg_vision, 
+		.bg_join, 
+		.bg_whatis .pattern,
+		.bg_vision .pattern,
+		.bg_join .pattern {
+			height: 400px;			
+		}
+	</style>
+</head>
+
+<body ng-controller="WelcomeCtrl">
+
+	{{# def.facebook_init_body }}
+
+	<a id="_"></a>
+
+	<div id="nb_carousel"
+		class="carousel slide bglight filling">
+
+		<div class="carousel-inner filling">
+			<!-- <div style="position: absolute; z-index: 1000">
+				<img src="/public/images/noobaa_logo.png"></img>
+			</div> -->
+
+			<div class="active item filling bg_item1">
+				<!-- <div class="pattern"></div> -->
+				<div class="container text-left">
+					<br/><br/><br/><br/>
+					<div class="row offset1 H1 fntpaint fntblk">SIMPLE</div>
+					<br/><br/><br/>
+					<h3 class="row offset1 fntread fntblk">
+						No additional hardware.<br/>
+						No complex plans.<br/>
+						No complex decisions.<br/>
+						All your Data.<br/>
+						One location.<br/>
+					</h3>
+				</div>
+			</div>
+
+			<div class="item filling bg_item2">
+				<!-- <div class="pattern"></div> -->
+				<div class="container text-left">
+					<br/><br/><br/><br/>
+					<div class="row offset1 H1 fntpaint fntwht">FAST</div>
+					<br/><br/><br/>
+					<h3 class="row offset1 fntread fntwht">
+						Together we are more powerful<br/>
+						than any single corporate.<br/>
+						Join the power of the crowd.<br/>
+					</h3>
+				</div>
+			</div>
+
+			<div class="item filling bg_item3">
+				<!-- <div class="pattern"></div> -->
+				<div class="container text-left">
+					<br/><br/><br/><br/>
+					<div class="H1 offset1 fntpaint fntwht">FREE</div>
+					<br/><br/><br/>
+					<h3 class="row offset1 fntread fntwht">
+						Unlimited capacity.<br/>
+						NooBaa is absolutely free.<br/>
+					</h3>
+				</div>
+			</div>
+
+		</div>
+		<ol class="carousel-indicators">
+			<li data-target="#nb_carousel" data-slide-to="0" class="active"></li>
+			<li data-target="#nb_carousel" data-slide-to="1"></li>
+			<li data-target="#nb_carousel" data-slide-to="2"></li>
+		</ol>
+		<a class="carousel-control left" 
+			href="#nb_carousel" 
+			data-slide="prev">&lsaquo;</a>
+		<a class="carousel-control right"
+			href="#nb_carousel"
+			data-slide="next">&rsaquo;</a>
+	</div>
+
+	<div id="nb_nav_marker"></div>
+
+	<div id="nb_nav" class="navbar navbar-inverse"
+		onresize="nb_nav_affix = undefined;">
+		<div class="navbar-inner fntread fntwht">
+			<a class="brand scroller" href="#_" style="width: 80px">
+				<img src="/public/images/noobaa_logo.png"></img>
+			</a>
+			<ul class="nav">
+				<li>
+					<a class="scroller" href="#whatis">
+						ABOUT
+					</a>
+				</li>
+				<li>
+					<a class="scroller" href="#vision">
+						THE VISION
+					</a>
+				</li>
+				<li>
+					<button class="btn btn-success scroller" href="#join">
+						<b>JOIN!</b>
+					</button>
+				</li>
+			</ul>
+			<ul class="nav pull-right">
+				<li>
+					<a class="fb-login-button"
+						scope="email"
+						registration-url="/auth/facebook/login/"
+						show-faces="false">
+					</a>
+				</li>
+			</ul>
+		</div>
+	</div>
+
+	<div id="whatis" class="nb_nav_link container fntread fntblk">
+		<div class="H2">WHAT IS NOOBAA?</div>
+		<br/><br/>
+		<h2>NooBaa is a Crowd-Cloud!</h2>
+		<h5 class="lead">
+			<br/>
+			NooBaa enables you to join to a network of people like you and me, and get access to the absolute best computer resource in the world in a simple way.
+			<br/><br/>
+			With NooBaa you Co-Share your existing local storage and enjoy the best possible cloud service.
+			<br/><br/>
+		</h5>
+	</div>
+
+	<div class="wfill bg_whatis">
+		<!-- <div class="pattern"></div> -->
+	</div>
+
+	<div id="vision" class="nb_nav_link container fntread fntblk">
+		<div class="H2">NOOBAA'S VISION</div>
+		<br/><br/>
+		<h2>In a world of connected devices, the crowd is the strongest force!</h2>
+		<h5 class="lead">
+			<br/>
+			Joining our devices together will create an entity that can make an impact on every aspect of our life - health, science, engineering, etc.
+			We believe that such a world should be controlled by the people.
+			<br/><br/>
+			We want to democratize the cloud!
+			Don't you?
+			<br/><br/>
+		</h5>
+	</div>
+
+	<div class="wfill bg_vision">
+		<!-- <div class="pattern"></div> -->
+	</div>
+
+	<div id="join" class="nb_nav_link container fntread fntblk">
+		<div class="H2">JOIN US!</div>
+		<br/><br/>
+		<h2>NooBaa is still in alpha.</h2>
+		<br/>
+		<h2>Request an invitation to join:</h2>
+		<div class="row" align="center" style="margin: 40px">
+			<div class="input-prepend" >
+				<button class="btn btn-success"
+					type="button"
+					ng-show="!submitted"
+					ng-disabled="submitting"
+					ng-click="submit()">
+					<img ng-show="submitting"
+						src="/public/images/ajax-loader.gif"></img>
+					<b>Request</b>
+				</button>
+				<input ng-model="invite_email"
+					id="email_input"
+					class="input span4"
+					type="email"
+					ng-disabled="submitting || submitted"
+					placeholder="Enter your email address...">
+				</input>
+			</div>
+			<div class="alert alert-error" hidden="hidden"></div>
+			<div class="alert alert-success" hidden="hidden"></div>
+		</div>
+	</div>
+
+	<div class="wfill bg_join" align="center">
+		<!-- <div class="pattern"></div> -->
+		<img src="/public/images/noobaa_logo.png"
+			style="max-height: 150px; position: relative; top: 200px;"></img>
+	</div>
+
+
+
+	<script type="text/javascript">
+
+		var has_running_requests = false;
+		var nb_nav_affix = undefined;
+
+		$(function() {
+
+			window.onbeforeunload = function () {
+				if (has_running_requests) {
+					return "Leaving this page will interrupt your running requests !!!";
+				}
+			};
+
+			var nb_carousel = $('#nb_carousel');
+			var nb_nav = $('#nb_nav');
+			var nb_nav_marker = $('#nb_nav_marker');
+			var nb_nav_links = $('.nb_nav_link');
+
+			var refresh_nav = function() {
+				// invalidate the cached value of the nav affix
+				nb_nav_affix = undefined;
+				// when the nav resizes we need to make room for it
+				// at the top of each nav link.
+				// so set the top padding according to the nav size.
+				nb_nav_links.css({
+					"padding-top": (nb_nav.height() + 30) + 'px'
+				});
+			};
+
+			// returns the affix top of the nav which indicates 
+			// at which scroll point to fixate the nav to the top.
+			// we cache the value because during scrolling it will ask many times.
+			var get_nav_affix = function() {
+				if (nb_nav_affix === undefined) {
+					nb_nav_affix = nb_nav_marker.offset().top - nb_nav.height();
+				}
+				return nb_nav_affix;
+			};
+
+			// refresh now - onload
+			refresh_nav();
+			// refresh on window resize
+			$(window).resize(refresh_nav);
+			// refresh every second
+			setInterval(refresh_nav, 1000);
+			// setup the bootstrap affix plugin on the nav
+			nb_nav.affix({offset: {top: get_nav_affix}});
+			
+			// start spinning the carousel
+			nb_carousel.carousel({
+				interval: 10000,
+				pause: false
+			});
+
+			// do smooth scrolling to anchors with href
+			var $root = $('html, body');
+			$('.scroller').click(function() {
+				var href = $.attr(this, 'href');
+				$root.animate({
+					scrollTop: $(href).offset().top
+				}, 400, function() {
+					window.location.hash = href;
+				});
+				return false;
+			});
+		});
+
+		function WelcomeCtrl($scope, $http) {
+			$scope.submitting = false;
+			$scope.submitted = false; 
+			$('.alert').html('').hide();
+
+			$scope.submit = function () {
+				has_running_requests = true;
+				$scope.submitting = true;
+				$('.alert').html('').hide();
+
+				if (!$scope.invite_email) {
+					$scope.finished_with_error(
+						"We need your valid email to request an invite");
+					return;
+				}
+
+				var ajax = $http.post('/email/request_invite/', {
+					email: $scope.invite_email
+				});
+				ajax.error(function(data, status, headers, config) {
+					$scope.finished_with_error(
+						"We are sorry but your request could not be sent right now, please try again later");
+				});
+				ajax.success(function(data, status, headers, config) {
+					$scope.finished_with_success(
+						"Your request was sent. Thanks!");
+				});
+			}
+
+			$scope.finished_with_error = function (text) {
+				has_running_requests = false;
+				$scope.submitting = false;
+				$('.alert-success').html('').hide();
+				$('.alert-error').html(text).show().effect('bounce', 'slow');
+			}
+
+			$scope.finished_with_success = function (text) {
+				has_running_requests = false;
+				$scope.submitting = false;
+				$scope.submitted = true;
+				$('.alert-error').html('').hide();
+				$('.alert-success').html(text).show('fade', 'slow');
+			}
+		}
+		WelcomeCtrl.$inject = ['$scope', '$http'];
+	</script>
+
+</body>
+
+</html>
