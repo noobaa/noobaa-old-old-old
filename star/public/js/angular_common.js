@@ -10,8 +10,8 @@
 
 	// set the symbol to avoid collision with server side templates (jinja)
 	noobaa_app.config(function($interpolateProvider) {
-		$interpolateProvider.startSymbol('[[[');
-		$interpolateProvider.endSymbol(']]]');
+		$interpolateProvider.startSymbol('{{');
+		$interpolateProvider.endSymbol('}}');
 	});
 
 	// safe apply handles cases when apply may fail with:
