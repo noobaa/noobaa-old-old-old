@@ -5,8 +5,8 @@ module.exports = function(grunt) {
 	grunt.registerTask('default', [
 		'bower',
 		'jshint',
-		'concat'
-		// 'uglify'
+		'concat',
+		'uglify'
 	]);
 
 
@@ -42,16 +42,21 @@ module.exports = function(grunt) {
 				],
 				dest: 'planet/build/concat.css'
 			}
+		},
+		uglify: {
+			options: {
+				banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
+			},
+			planet_bundle: {
+				files: {
+					'planet/build/concat.min.js': ['planet/build/concat.js']
+				}
+			}
+			// build: {
+				// src: 'planet/build/<%= pkg.name %>.js',
+				// dest: 'build/<%= pkg.name %>.min.js'
+			// }
 		}
-		// uglify: {
-		//	options: {
-		//		banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
-		//	},
-		//	build: {
-		//		src: 'src/<%= pkg.name %>.js',
-		//		dest: 'build/<%= pkg.name %>.min.js'
-		//	}
-		// }
 	});
 
 
