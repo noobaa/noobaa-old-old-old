@@ -6,14 +6,14 @@
 		<div id="user_pic" class="toggle_menu_ext"
 			title="Click to expand user actions..."
 			data-placement="bottom" rel="tooltip">
-			<img src="https://graph.facebook.com/{{! it.user.username }}/picture"></img>
+			<img src="https://graph.facebook.com/<?! it.user.username ?>/picture"></img>
 		</div>
 		<div id="menu_ext">
 			<ul class="nav nav-list well" style="margin: 0px">
 				<li align="center">
-					<h5 class="lead" style="word-break: break-all">{{! it.user.name }}</h5>
+					<h5 class="lead" style="word-break: break-all"><?! it.user.name ?></h5>
 				</li>
-				<li class="{{? it.nav1 }}active{{?}}">
+				<li class="<?? it.nav1 ?>active<???>">
 					<a class="btn btn-link" href="/getstarted.html" style="white-space: nowrap;">
 						<i class="icon-play pull-left"></i>
 						Get Started

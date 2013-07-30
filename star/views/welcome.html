@@ -2,7 +2,7 @@
 <html ng-app="noobaa_app" xmlns:fb="http://ogp.me/ns/fb#" lang="en">
 
 <head>
-	{{# def.include('common_head.html') }}
+	<?# def.include('common_head.html') ?>
 	<style>
 		.carousel-control.left {
 			right: 20px;
@@ -96,7 +96,7 @@
 
 <body ng-controller="WelcomeCtrl">
 
-	{{# def.facebook_init_body }}
+	<?# def.facebook_init_body ?>
 
 	<a id="_"></a>
 
@@ -322,7 +322,7 @@
 			// refresh every second
 			setInterval(refresh_nav, 1000);
 			// setup the bootstrap affix plugin on the nav
-			nb_nav.affix({offset: {top: get_nav_affix}});
+			nb_nav.affix({offset: {top: get_nav_affix} });
 			
 			// start spinning the carousel
 			nb_carousel.carousel({

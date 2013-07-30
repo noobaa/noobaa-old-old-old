@@ -10,6 +10,30 @@ var passport = require('passport');
 var mongoose = require('mongoose');
 var fbapi = require('facebook-api');
 
+
+// replace dot regexp to use <% %> to avoid collision with angular {{ }}
+for (var i in dot.templateSettings) {
+	var reg = dot.templateSettings[i];
+	if (!(reg instanceof RegExp)) {
+		continue;
+	}
+	var pattern = reg.source;
+	pattern = pattern.replace(/\\\{\\\{/, '\\<\\?');
+	pattern = pattern.replace(/\\\}\\\}/, '\\?\\>');
+	var flags = '';
+	if (reg.global) {
+		flags += 'g';
+	}
+	if (reg.ignoreCase) {
+		flags += 'i';
+	}
+	if (reg.multiline) {
+		flags += 'm';
+	}
+	dot.templateSettings[i] = new RegExp(pattern, flags);
+}
+
+
 // connect to the database
 mongoose.connect(process.env.MONGOHQ_URL);
 

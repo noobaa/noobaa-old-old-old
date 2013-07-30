@@ -7,20 +7,20 @@
 <meta name="viewport" 
 	content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes" />
 
-{{#''/*
+<?#''/*
 <!-- These are Open Graph tags.  They add meta data to your  -->
 <!-- site that facebook uses when your content is shared     -->
 <!-- over facebook.  You should fill these tags in with      -->
 <!-- your data.  To learn more about Open Graph, visit       -->
 <!-- 'https://developers.facebook.com/docs/opengraph/'       -->
-*/}}
+*/?>
 <meta content="" property="og:title" />
 <meta content="" property="og:type" />
 <meta content="" property="og:url" />
 <meta content="" property="og:image" />
 <meta content="" property="og:site_name" />
 <meta property="og:description" content="My First App" />
-<meta content="{{= it.app_id}}" property="fb:app_id" />
+<meta content="<?= it.app_id ?>" property="fb:app_id" />
 <meta name="google-site-verification"
 	content="b9-qjbu-C0OP5e7s-CzA0z02i-xggvWs-Op9hlJikL0" />
 
@@ -36,21 +36,23 @@
 <!-- <link href="/vendor/Flat-UI-master/css/flat-ui.css" type="text/css" rel="stylesheet"> -->
 <link href="/public/css/styles.css" type="text/css" rel="stylesheet"/>
 
-{{#''/*
+<?#''/*
  <!-- jquery-ui themes: smoothness, start, ui-darkness, etc -->
 <!-- <link href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" type="text/css" rel="stylesheet" /> -->
 <!-- <link href="/vendor/angular-ui/build/angular-ui.min.css" type="text/css" rel="stylesheet" > -->
-*/}}
+*/?>
 
 <!-- Google Fonts -->
 <link href='http://fonts.googleapis.com/css?family=Finger+Paint' rel='stylesheet' type='text/css'>
 <link href='http://fonts.googleapis.com/css?family=Comfortaa:400,700,300' rel='stylesheet' type='text/css'>
+<?#''/*
 <!-- 
 <link href='http://fonts.googleapis.com/css?family=Armata' rel='stylesheet' type='text/css'>
 <link href='http://fonts.googleapis.com/css?family=Oswald:400,700,300' rel='stylesheet' type='text/css'>
 <link href='http://fonts.googleapis.com/css?family=Special+Elite' rel='stylesheet' type='text/css'>
 <link href='http://fonts.googleapis.com/css?family=Andika' rel='stylesheet' type='text/css'>
  -->
+*/?>
 
 
 
@@ -111,15 +113,15 @@
 
 
 
-{{## def.facebook_init_body:
+<?## def.facebook_init_body:
 	<!-- facebook init - best be included right after body tag -->
 	<div id="fb-root"></div>
 	<script type="text/javascript">
 		// Facebook initialization code
 		window.fbAsyncInit = function() {
 			FB.init({
-				appId      : '{{= it.app_id }}', // App ID
-				channelUrl : '{{= it.channel_url }}', // Channel File
+				appId      : '<?= it.app_id ?>', // App ID
+				channelUrl : '<?= it.channel_url ?>', // Channel File
 				status     : true, // check login status
 				cookie     : true, // enable cookies to allow the server to access the session
 				xfbml      : true // parse XFBML
@@ -149,4 +151,4 @@
 			fjs.parentNode.insertBefore(js, fjs);
 		}(document, 'script', 'facebook-jssdk'));
 	</script>
-#}}
+#?>

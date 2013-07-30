@@ -2,7 +2,7 @@
 <html ng-app="noobaa_app" xmlns:fb="http://ogp.me/ns/fb#" lang="en">
 
 <head>
-	{{# def.include('common_head.html') }}
+	<?# def.include('common_head.html') ?>
 
 	<style>
 		body {
@@ -16,9 +16,9 @@
 
 <body>
 
-	{{# def.facebook_init_body }}
+	<?# def.facebook_init_body ?>
 
-	{{# def.include('common_menubar.html') }}
+	<?# def.include('common_menubar.html') ?>
 
 	<div id="nb_content" valign="top">
 
@@ -31,7 +31,7 @@
 <div class="row-fluid" ng-controller="GetStartedCtrl">
 	<div class="well">
 
-{{    if (!it.user) {   }}
+<?    if (!it.user) {   ?>
 
 		<div class="well">
 			<div class="badge badge-inverse">
@@ -54,7 +54,7 @@
 			<h3>unless you explicitely request to.<h3>
 		</div>
 
-{{    } else {    }}
+<?    } else {    ?>
 
 		<div class="well" 
 			nb-effect-toggle="connected" 
@@ -108,7 +108,7 @@
 			</h3></i>
 		</div>
 
-{{    }    }}
+<?    }    ?>
 
 	</div>
 </div>
@@ -145,7 +145,7 @@
 		$scope.show_downloads = false;
 		
 		$scope.do_connect = function(){
-			var ajax = $http.post("{{= it.planet_api}}" + "login", {
+			var ajax = $http.post("<?= it.planet_api ?>" + "login", {
 				cookie: document.cookie
 			});
 			ajax.error(function(data, status, headers, config) {
@@ -158,9 +158,9 @@
 			});
 		};
 
-	{{? it.user }}
+	<?? it.user ?>
 		$timeout($scope.do_connect, 0);
-	{{?}}
+	<???>
 
 	}
 
