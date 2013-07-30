@@ -96,8 +96,8 @@
 							<tr ng-repeat="alert in alerts.alerts" 
 								ng-class="{true:'error', false:''}[alert.unread]"
 								ng-click="alerts.mark_read(alert)">
-								<td><b>[[[alert.time.toLocaleString()]]]</b></td>
-								<td>[[[alert.text]]]</td>
+								<td><b>{{alert.time.toLocaleString()}}</b></td>
+								<td>{{alert.text}}</td>
 							</tr>
 						</table>
 					</div>
@@ -312,16 +312,16 @@
 					</thead>
 					<tr ng-repeat="(idx,upload) in uploads" ng-class="upload.row_class">
 						<td>
-							[[[upload.file.relativePath + upload.file.name]]]
+							{{upload.file.relativePath + upload.file.name}}
 						</td>
 						<td>
-							[[[upload.dir_inode.name]]]
+							{{upload.dir_inode.name}}
 						</td>
 						<td>
-							[[[human_size(upload.file.size)]]]
+							{{human_size(upload.file.size)}}
 						</td>
 						<td>
-							[[[upload.status]]]
+							{{upload.status}}
 						</td>
 						<td width="100px">
 							<div ng-class="upload.progress_class"
@@ -331,7 +331,7 @@
 										top: 0;
 										left: 0;
 										z-index: 1;
-										width: [[[upload.progress]]]%;">
+										width: {{upload.progress}}%;">
 								</div>
 								<div class="fntsans fntblk"
 									style="position: absolute;
@@ -339,7 +339,7 @@
 										left: 40%;
 										z-index: 2;
 										color: black;">
-									[[[upload.progress]]]%
+									{{upload.progress}}%
 								</div>
 							</div>
 						</td>
@@ -413,7 +413,7 @@
 			<h3 id="new_folder_modal_label">New Folder</h3>
 		</div>
 		<div class="modal-body">
-			<p>Create folder in <span class="label">[[[dir_selection.inode.name]]]</span> :</p>
+			<p>Create folder in <span class="label">{{dir_selection.inode.name}}</span> :</p>
 			<input ng-model="new_name" id="new_folder_input" class="input" type="text" style="width: 95%;"></input>
 		</div>
 		<div class="modal-footer">
@@ -439,7 +439,7 @@
 			<h3 id="rename_modal_label">Rename...</h3>
 		</div>
 		<div class="modal-body">
-			<p>New name for <span class="label">[[[inode_selection.inode.name]]]</span> :</p>
+			<p>New name for <span class="label">{{inode_selection.inode.name}}</span> :</p>
 			<input ng-model="new_name" id="rename_input" class="input" type="text" style="width: 95%;"></input>
 		</div>
 		<div class="modal-footer">
@@ -471,19 +471,19 @@
 				<p>Invite your Facebook friends to NooBaa today.</p>
 			</div>
 			<div ng-show="share_list.length">
-				<p>Share <span class="label">[[[share_inode.name]]]</span> with friends:</p>
+				<p>Share <span class="label">{{share_inode.name}}</span> with friends:</p>
 <!-- 				<ul class="unstyled">
 					<li ng-repeat="friend in share_list">
 						<input type="checkbox" class="checkbox" ng-model="friend.shared"></input>
-						[[[friend.name]]]
-						<img ng-src="https://graph.facebook.com/[[[friend.fb_id]]]/picture"></img>
+						{{friend.name}}
+						<img ng-src="https://graph.facebook.com/{{friend.fb_id}}/picture"></img>
 					</li>
 				</ul> -->
 				<table>
 					<tr ng-repeat="friend in share_list">
-					<td><img ng-src="https://graph.facebook.com/[[[friend.fb_id]]]/picture"></img></td>
+					<td><img ng-src="https://graph.facebook.com/{{friend.fb_id}}/picture"></img></td>
 					<td><input type="checkbox" class="checkbox" ng-model="friend.shared"></input></td>
-					<td>[[[friend.name]]]</td>
+					<td>{{friend.name}}</td>
 					</tr>
 				</table>
 			</div>
@@ -510,7 +510,7 @@
 			nb-right-click="inode_rclick(dir_inode, $event)"
 			ng-dblclick="inode_dclick(dir_inode)"
 			nb-drop="inode_drop(dir_inode, $drag, $event)">
-			<span style="margin-left: [[[15*dir_inode.level - 30]]]px;"
+			<span style="margin-left: {{15*dir_inode.level - 30}}px;"
 				class="fntsans fntblk">
 				<span ng-click="inode_dclick(dir_inode)"
 		 			style="vertical-align: middle;" 
@@ -524,7 +524,7 @@
 					<i ng-switch-when="true" class="icon-refresh"></i>
 				</span>
 				<span nb-drag="drag_item(dir_inode, $event, is_start)">
-					[[[dir_inode.name]]]
+					{{dir_inode.name}}
 				</span>
 			</span>
 		</a>
@@ -554,10 +554,10 @@
 		<li ng-repeat="inode in dir_selection.inode.get_path()"
 			ng-class="inode.dir_active">
 			<span ng-show="inode.dir_active">
-				<b>[[[inode.name || "@"]]]</b>
+				<b>{{inode.name || "@"}}</b>
 			</span>
 			<a ng-hide="inode.dir_active" ng-click="inode_click(inode)" href="#">
-				<b>[[[inode.name || "@"]]]</b>
+				<b>{{inode.name || "@"}}</b>
 			</a>
 			<span ng-hide="inode.dir_active" class="divider">/</span>
 		</li>
@@ -582,7 +582,7 @@
 					<span class="span12 fntsans fntblk">
 						<i style="vertical-align: middle;" class="icon-folder-open"></i>
 						<span nb-drag="inode_drag(dir_inode, $event, is_start)">
-							[[[dir_inode.name]]]
+							{{dir_inode.name}}
 						</span>
 					</span>
 				</a>
@@ -598,15 +598,15 @@
 					<span class="span10 fntsans fntblk">
 						<i class="icon-file" style="vertical-align: middle;" ></i>
 						<span nb-drag="inode_drag(file_inode, $event, is_start)">
-							[[[file_inode.name]]]
-							<img ng-if="file_inode.shared_fb_id" ng-src="https://graph.facebook.com/[[[file_inode.shared_fb_id]]]/picture">
-							[[[file_inode.shared_name]]]
+							{{file_inode.name}}
+							<img ng-if="file_inode.shared_fb_id" ng-src="https://graph.facebook.com/{{file_inode.shared_fb_id}}/picture">
+							{{file_inode.shared_name}}
 							
 						</span>
 					</span>
 					<span class="span2 fntsans fntblk" 
 						style="text-align: right;">
-						[[[human_size(file_inode.size)]]]
+						{{human_size(file_inode.size)}}
 					</span>
 					<div ng-show="file_inode.uploading"
 						class="span11"
@@ -620,7 +620,7 @@
 									top: 0;
 									left: 0;
 									z-index: 1;
-									width: [[[file_inode.progress]]]%;">
+									width: {{file_inode.progress}}%;">
 							</div>
 							<div class="fntsans fntblk"
 								style="position: absolute;
@@ -628,7 +628,7 @@
 									left: 40%;
 									z-index: 2;
 									color: black;">
-								uploading... [[[file_inode.progress]]] %
+								uploading... {{file_inode.progress}} %
 							</div>
 						</div>
 					</div>
