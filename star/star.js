@@ -46,15 +46,21 @@ app.use(express.cookieSession({
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(app.router);
+
+
+// setup static files
+
+// use public star files
 app.use('/public/', express.static(path.join(__dirname, 'public')));
 // use vendor content which is loaded by npm
-app.use('/vendor/blueimp-file-upload/',
-	express.static(path.join(
-		__dirname, '..', 'node_modules', 'blueimp-file-upload'
-	))
-);
+app.use('/vendor/blueimp-file-upload/', express.static(
+	path.join(__dirname, '..', 'node_modules', 'blueimp-file-upload')
+));
+// add vendor content loaded by bower
+app.use('/vendor/', express.static(path.join(__dirname, '..', 'bower_components')));
 // add static vendor content
 app.use('/vendor/', express.static(path.join(__dirname, '..', 'vendor')));
+
 
 // setup auth routes
 
@@ -82,6 +88,7 @@ app.del('/star_api/inode/:inode_id', star_api.inode_delete);
 app.get('/star_api/inode/:inode_id/share_list', star_api.inode_get_share_list);
 app.put('/star_api/inode/:inode_id/share_list', star_api.inode_set_share_list);
 
+
 // setup pages
 
 function page_context(req) {
@@ -103,33 +110,6 @@ app.get('/getstarted.html', function(req, res) {
 });
 
 app.get('/', function(req, res) {
-	if (req.user) {
-		res.render('mydata.html', page_context(req));
-	} else {
-		res.render('welcome.html', page_context(req));
-	}
-});
-
-
-app.get('/get_friends', function(req, res) {
-	console.log("++++++++++++++++++++++++++++++++++++++++++++++++++");
-	console.log("in get friends");
-	console.log("++++++++++++++++++++++++++++++++++++++++++++++++++");
-	console.log('The token as was retreived from req', req.session.fbAccessToken);
-	var client = fbapi.user(req.session.fbAccessToken); // needs a valid access_token
-
-	function viewback(err, data) {
-		if (err) {
-			console.log("Error: " + JSON.stringify(err));
-		} else {
-			console.log("Data: " + JSON.stringify(data));
-		}
-	}
-	client.me.info(viewback);
-	console.log(viewback);
-	client.me.friends(viewback);
-	console.log(viewback);
-
 	if (req.user) {
 		res.render('mydata.html', page_context(req));
 	} else {

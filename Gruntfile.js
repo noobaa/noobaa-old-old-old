@@ -1,19 +1,29 @@
 module.exports = function(grunt) {
 
+
+	// Default tasks
+	grunt.registerTask('default', [
+		'bower',
+		'jshint'
+		//,
+		// 'uglify'
+	]);
+
+
 	// Project configuration.
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
+		bower: {
+			install: true
+		},
 		jshint: {
 			all: [
 				'Gruntfile.js',
-				'star.js',
-				'models/**/*.js',
-				'routes/**/*.js',
-				'providers/**/*.js',
-				'public/noobaa/**/*.js',
+				'star/**/*.js',
 				'planet/js/**/*.js'
 			]
-		}//,
+		}
+		//,
 		// uglify: {
 		//	options: {
 		//		banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
@@ -25,14 +35,19 @@ module.exports = function(grunt) {
 		// }
 	});
 
-	// Load the plugin that provides the "uglify" task.
-	grunt.loadNpmTasks('grunt-contrib-uglify');
+
+	// Load the plugins
 	grunt.loadNpmTasks('grunt-contrib-jshint');
+	// grunt.loadNpmTasks('grunt-contrib-uglify');
 
-	// Default task(s).
-	grunt.registerTask('default', [
-		'jshint'//,
-		// 'uglify'
-	]);
 
+	// Define custom tasks
+	grunt.task.registerMultiTask('bower', 'Bower', function() {
+		// Force task into async mode and grab a handle to the "done" function.
+		var done = this.async();
+		grunt.util.spawn({
+			cmd: './node_modules/.bin/bower',
+			args: [this.target]
+		}, done);
+	});
 };
