@@ -4,8 +4,8 @@ module.exports = function(grunt) {
 	// Default tasks
 	grunt.registerTask('default', [
 		'bower',
-		'jshint'
-		//,
+		'jshint',
+		'concat'
 		// 'uglify'
 	]);
 
@@ -22,8 +22,27 @@ module.exports = function(grunt) {
 				'star/**/*.js',
 				'planet/js/**/*.js'
 			]
+		},
+		concat: {
+			js: {
+				src: [
+					'planet/vendor/jquery-2.0.3.min.js',
+					'bower_components/bootstrap/js/bootstrap.min.js',
+					'planet/vendor/webrtc-adapter.js',
+					'planet/js/store.js',
+					'planet/js/net.js',
+					'planet/js/main.js'
+				],
+				dest: 'planet/build/concat.js'
+			},
+			css: {
+				src: [
+					'bower_components/bootstrap/css/bootstrap.min.css',
+					'bower_components/bootstrap/css/bootstrap-responsive.min.css'
+				],
+				dest: 'planet/build/concat.css'
+			}
 		}
-		//,
 		// uglify: {
 		//	options: {
 		//		banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
@@ -38,7 +57,8 @@ module.exports = function(grunt) {
 
 	// Load the plugins
 	grunt.loadNpmTasks('grunt-contrib-jshint');
-	// grunt.loadNpmTasks('grunt-contrib-uglify');
+	grunt.loadNpmTasks('grunt-contrib-concat');
+	grunt.loadNpmTasks('grunt-contrib-uglify');
 
 
 	// Define custom tasks
