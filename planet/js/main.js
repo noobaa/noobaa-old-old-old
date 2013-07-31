@@ -71,9 +71,9 @@
 		this.fssize = fssize;
 	}
 
-	// init PlanetFS object and run the given planet_fs_main(pfs)
+	// async init of PlanetFS object and run the given planet_fs_main(pfs)
 
-	function PlanetFS_init(fssize, planet_fs_main) {
+	function init_PlanetFS(fssize, planet_fs_main) {
 		return requestFileSystem(
 			window.PERSISTENT,
 			fssize,
@@ -127,7 +127,7 @@
 				return writer.write(ZEROBLOB);
 			}
 		], callback);
-	}
+	};
 
 
 	// create more chunks to consume all the unused space
@@ -156,7 +156,7 @@
 					}, next);
 			}
 		], callback);
-	}
+	};
 
 
 	PlanetFS.prototype.foreach_chunk = function(iterator, callback) {
@@ -184,7 +184,7 @@
 			});
 		};
 		return readdir(); // start the readdir
-	}
+	};
 
 	function show_entry(entry, callback) {
 		show_log('PlanetFS', 'show_entry:', entry);
@@ -201,7 +201,7 @@
 	}
 
 
-	PlanetFS_init(FSSIZE, function(pfs) {
+	init_PlanetFS(FSSIZE, function(pfs) {
 		return async.waterfall([
 			pfs.foreach_chunk.bind(pfs, show_entry),
 			pfs.foreach_chunk.bind(pfs, delete_entry),
