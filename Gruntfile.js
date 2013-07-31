@@ -27,11 +27,12 @@ module.exports = function(grunt) {
 			js: {
 				src: [
 					'planet/vendor/jquery-2.0.3.min.js',
+					'node_modules/async/lib/async.js',
 					'bower_components/bootstrap/js/bootstrap.min.js',
-					'planet/vendor/webrtc-adapter.js',
-					'planet/js/store.js',
-					'planet/js/net.js',
-					'planet/js/main.js'
+					'planet/vendor/webrtc-adapter.js'
+					// 'planet/js/planetfs.js',
+					// 'planet/js/net.js',
+					// 'planet/js/main.js'
 				],
 				dest: 'planet/build/concat.js'
 			},
