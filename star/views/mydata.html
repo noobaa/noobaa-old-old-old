@@ -667,6 +667,7 @@
 	<div ng-style="{ cursor: row.cursor }"
 		ng-repeat="col in renderedColumns"
 		ng-click="inode_click(row.entity)"
+		nb-right-click="inode_rclick(row.entity, $event)"
 		ng-dblclick="inode_dclick(row.entity)"
 		class="ngCell {{col.cellClass}} {{col.colIndex()}}" ng-cell>
 	</div>
