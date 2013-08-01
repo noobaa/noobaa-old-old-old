@@ -1017,6 +1017,7 @@ function UploadCtrl($scope, $http, $timeout) {
 			upload.xhr.success(function(result, textStatus, jqXHR) {
 				console.log('[ok] upload success');
 				upload.status = 'Finishing...';
+				delete upload.last_star_update;
 				$scope.safe_apply();
 				// update the file state to uploading=false
 				return $scope.http({
@@ -1068,25 +1069,15 @@ function UploadCtrl($scope, $http, $timeout) {
 		var upload = $scope.uploads[data.upload_idx];
 		upload.progress = parseInt(data.loaded / data.total * 100, 10);
 
-		////////////////////@@@
-		//the upload has a progress counter. Will issue a DB addition every 10 of those
+		//in order to make sure we don't overload the DB, we'll limit update per 10sec
+		var curr_time = new Date();
 		if (!upload.last_star_update) {
-			upload.last_star_update = 0;
+			upload.last_star_update = curr_time;
 		}
-		if (upload.progress - upload.last_star_update >= 2) {
-
-			// console.log("in $scope.update_progress");
-			// console.log(upload.inode_id);
-			console.log(upload);
-			// console.log(event);
-			// console.log(data);
-			console.log(upload.data._progress.loaded);
-			console.log(upload.data._progress.total);
-			console.log($scope.$parent.inode_api_url + upload.inode_id);
-
+		if (curr_time - upload.last_star_update >= 10 * 1000) {
 			//As this is updating the DB on the progress, there is little that can be done
 			//except for logging. 
-			upload.last_star_update = upload.progress;
+			upload.last_star_update = curr_time;
 			return $scope.http({
 				method: 'PUT',
 				url: $scope.$parent.inode_api_url + upload.inode_id,
