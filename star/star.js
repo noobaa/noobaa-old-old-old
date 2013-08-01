@@ -90,18 +90,11 @@ app.use('/vendor/', express.static(path.join(__dirname, '..', 'vendor')));
 
 var auth = require('./routes/auth');
 app.get('/auth/facebook/login/', auth.facebook_login);
+app.get('/auth/facebook/planet/', auth.facebook_planet);
 app.get('/auth/facebook/authorized/', auth.facebook_authorized);
 app.get('/auth/facebook/channel.html', auth.facebook_channel);
 app.get('/auth/logout/', auth.logout);
 
-// TODO: is this right for the planet login sequence?
-app.get('/planet/', function(req, res) {
-	if (req.user) {
-		return res.end(req.user.name);
-	} else {
-		return auth.facebook_login(req, res);
-	}
-});
 
 // setup email routes
 
