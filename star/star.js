@@ -58,7 +58,7 @@ app.engine('html', dot_emc_app.__express);
 // setup express app
 // configure app handlers in the order to use them
 
-app.use(express.favicon('/public/images/noobaa_icon.ico'));
+app.use(express.favicon('/public/nblib/img/noobaa_icon.ico'));
 app.use(express.logger());
 app.use(express.cookieParser());
 app.use(express.bodyParser());
@@ -94,6 +94,14 @@ app.get('/auth/facebook/authorized/', auth.facebook_authorized);
 app.get('/auth/facebook/channel.html', auth.facebook_channel);
 app.get('/auth/logout/', auth.logout);
 
+// TODO: is this right for the planet login sequence?
+app.get('/planet/', function(req, res) {
+	if (req.user) {
+		return res.end(req.user.name);
+	} else {
+		return auth.facebook_login(req, res);
+	}
+});
 
 // setup email routes
 
@@ -144,7 +152,7 @@ app.get('/', function(req, res) {
 
 // errorHandler should be last handler
 if ('development' == app.get('env')) {
-	app.use(express.errorHandler());
+	app.use(express.errorHandler({showStack: true, dumpExceptions: true}));
 }
 
 // start the default http server

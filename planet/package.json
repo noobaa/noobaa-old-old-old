@@ -1,0 +1,14 @@
+{
+	"name": "NooBaa App",
+	"description": "NooBaa App",
+	"version": "0.1",
+	"main": "views/dashboard.html",
+	"node-main": "js/main.js",
+	"window": {
+		"show": false,
+		"toolbar": false,
+		"icon": "nblib/img/noobaa_icon.ico",
+		"width": 600,
+		"height": 500
+	}
+}
