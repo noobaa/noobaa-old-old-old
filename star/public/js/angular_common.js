@@ -6,7 +6,7 @@
 
 
 	// declare our module with dependancy on the angular-ui module
-	var noobaa_app = angular.module('noobaa_app', ['ui']);
+	var noobaa_app = angular.module('noobaa_app', ['ui','ngGrid']);
 
 	// set the symbol to avoid collision with server side templates (jinja)
 	noobaa_app.config(function($interpolateProvider) {
@@ -47,6 +47,7 @@
 	}
 
 	function human_size(bytes) {
+		if (!bytes) return " ";
 		var units = ['', ' KB', ' MB', ' GB', ' TB'];
 		for (var u = 0; u < units.length && bytes >> 10 > 0; u++) {
 			bytes = bytes >> 10;

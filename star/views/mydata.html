@@ -14,11 +14,13 @@
 	</style>
 
 	<link href="/vendor/blueimp-file-upload/css/jquery.fileupload-ui.css" type="text/css" rel="stylesheet"/>
+	<link href="/vendor/ng-grid/ng-grid.min.css" type="text/css" rel="stylesheet"/>
+
 	<script src="/vendor/blueimp-file-upload/js/vendor/jquery.ui.widget.js" type="text/javascript"></script>
 	<script src="/vendor/blueimp-file-upload/js/jquery.iframe-transport.js" type="text/javascript"></script>
 	<script src="/vendor/blueimp-file-upload/js/jquery.fileupload.js" type="text/javascript"></script>
 
-	<script src="/vendor/ng-grid/build/ng-grid.min.js" type="text/javascript"></script>
+	<script src="/vendor/ng-grid/build/ng-grid.debug.js" type="text/javascript"></script>
 	
 	<script type="text/javascript">
 		var planet_api = '<?! it.planet_api ?>';
@@ -189,7 +191,7 @@
 
 	<div ng-controller="InodesMenuCtrl"
 		id="context_menu" 
-		class="dropdown">
+		class="dropdown" style="z-index:1000;">
 		<a id="context_menu_toggle" class="dropdown-toggle" href="#" hidden="true"></a>
 		<ul class="dropdown-menu" 
 			role="menu" 
@@ -568,7 +570,7 @@
 <!-- LIST TEMPLATE -->
 
 <script type="text/ng-template" id="list_view_template.html">
-	<div nb-right-click="inode_rclick(dir_selection.inode, $event)"
+	<div hidden="hidden" nb-right-click="inode_rclick(dir_selection.inode, $event)"
 		nb-drop="inode_drop(dir_selection.inode, $drag, $event)">
 		<ul class="nav nav-list" style="padding: 0px;" ng-cloak>
 			<li ng-repeat="(__id,dir_inode) in dir_selection.inode.dir_state.subdirs"
@@ -636,9 +638,63 @@
 			</li>
 		</ul>
 	</div>
+	<div id='gridFiles' class="gridStyle" ng-grid="gridOptions"></div>
 </script>
 
 
+
+<!-- PATH TEMPLATE -->
+
+<script type="text/ng-template" id="path_view_template.html">
+	<ul class="inline" style="margin: 4px">
+		<li ng-repeat="inode in dir_selection.inode.get_path()"
+			ng-class="inode.dir_active">
+			<span ng-show="inode.dir_active">
+				<b>{{inode.name || "@"}}</b>
+			</span>
+			<a ng-hide="inode.dir_active" ng-click="inode_click(inode)" href="#">
+				<b>{{inode.name || "@"}}</b>
+			</a>
+			<span ng-hide="inode.dir_active" class="divider">/</span>
+		</li>
+	</ul>
+</script>
+
+
+<!-- GRID TEMPLATE -->
+
+<script type="text/ng-template" id="list_view_grid_template.html">
+	<div ng-style="{ cursor: row.cursor }"
+		ng-repeat="col in renderedColumns"
+		ng-click="inode_click(row.entity)"
+		nb-right-click="inode_rclick(row.entity, $event)"
+		ng-dblclick="inode_dclick(row.entity)"
+		class="ngCell {{col.cellClass}} {{col.colIndex()}}" ng-cell>
+	</div>
+</script>
+
+<!-- Uploading bar template -->
+
+<script type="text/ng-template" id="upload_progress_template.html">
+<div ng-show="row.entity[col.field]" class="progress progress-success" 
+	 style="margin: 0; position: relative;top: 5px;">
+		<div class="bar"
+			style="position: absolute;
+				top: 0;
+				left: 0;
+				z-index: 1000;
+				width: {{row.entity[col.field]}}%;">
+		</div>
+		<div class="fntsans fntblk"
+			style="position: absolute;
+				top: 0;
+				left: 40%;
+				z-index: 2000;
+				color: black;">
+			{{row.entity[col.field]}}%
+		</div>
+</div>
+</script>
 <!-- ======== CONTENT END ======== -->
 
 

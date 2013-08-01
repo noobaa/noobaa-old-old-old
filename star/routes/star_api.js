@@ -158,7 +158,7 @@ function inode_to_entry(inode, opt) {
 		ent = _.extend(ent, {
 			size: opt.fobj.size,
 			uploading: opt.fobj.uploading,
-			upload_size: opt.fobj.upload_size
+			upsize: opt.fobj.upsize
 		});
 		if (opt.s3_post) {
 			// add S3 post info only if requested specifically
@@ -356,7 +356,7 @@ exports.inode_create = function(req, res) {
 		var fobj = new Fobj({
 			size: args.size,
 			uploading: args.uploading,
-			upload_size: args.upload_size
+			upsize: args.upsize
 		});
 		// link the inode to the fobj
 		inode.fobj = fobj._id;
@@ -499,7 +499,6 @@ exports.inode_update = function(req, res) {
 	var inode_args = _.pick(req.body, 'parent', 'name');
 	var fobj_args = _.pick(req.body, 'uploading', 'upsize');
 
-	// start the update waterfall
 	async.waterfall([
 
 		// pass the id
