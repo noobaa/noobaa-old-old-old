@@ -60,13 +60,16 @@ function open_context_menu(event) {
 
 
 function sync_property(to, from, key) {
+	if (!from[key]) {
+		to[key] = "";
+		return;
+	};
 	if (to[key] === from[key]) {
 		return;
 	}
 	if (from[key]) {
 		to[key] = from[key];
-	} else {
-		delete to[key];
+		return;
 	}
 }
 
@@ -136,6 +139,17 @@ function Inode($scope, id, name, isdir, parent) {
 		this.dir_state = {
 			subdirs: {},
 			subfiles: {},
+			grid_data: [{
+				$scope: " ",
+				isdir: false,
+				name: " ",
+				uploading: '',
+				shared_name: '',
+				shared_fb_id: '',
+				progress: '',
+				size: 0
+			}],
+			grid_selected: [],
 			populated: false,
 			expanded: false
 		};
@@ -211,9 +225,12 @@ Inode.prototype.read_dir = function() {
 Inode.prototype.populate_dir = function(entries) {
 	var subdirs = {};
 	var subfiles = {};
+	var gridEntries = [];
 	var during_upload = false;
 	var ent;
 	var son;
+
+	gridEntries = [];
 
 	for (var i = 0; i < entries.length; ++i) {
 		ent = entries[i];
@@ -250,15 +267,32 @@ Inode.prototype.populate_dir = function(entries) {
 		sync_property(son, ent, "shared_fb_id");
 		sync_property(son, ent, "progress");
 
+		if (son.uploading) {
+			son['state'] = 'Uploading...';
+		} else {
+			son['state'] = ' ';
+		}
+
 		if (son.isdir) {
+			son['icon'] = 'icon-folder-open';
 			subdirs[son.id] = son;
 		} else {
+			son['icon'] = 'icon-file';
 			subfiles[son.id] = son;
 		}
+		if (son.shared_fb_id) {
+			son['fb_pic'] = "https://graph.facebook.com/" + son.shared_fb_id + "/picture?width=30&height=30";
+		} else {
+			son['fb_pic'] = "";
+		}
+		//console.log("===", son);
+		gridEntries.unshift(son);
 	}
+
 	this.dir_state.subdirs = subdirs;
 	this.dir_state.subfiles = subfiles;
 	this.dir_state.populated = true;
+	this.dir_state.grid_data = gridEntries;
 	this.dir_state.during_upload = during_upload;
 	this.$scope.read_dir_callback(this);
 };
@@ -584,6 +618,64 @@ function InodesTreeCtrl($scope) {
 
 
 function InodesListCtrl($scope) {
+
+	var sortingGridName = function(a, b) {
+		console.log("=============== in sorting =========================");
+		console.log(a);
+	};
+
+	var rowTempl = '<div ng-style="{ \'cursor\': row.cursor }" ' +
+		'ng-repeat="col in renderedColumns" ' +
+		'ng-click="inode_click(row.entity)"' +
+		'ng-dblclick="inode_dclick(row.entity)"' +
+	//		'nb-right-click="inode_rclick(row.entity, $event)"' +
+	'class="ngCell {{col.cellClass}} {{col.colIndex()}}" ng-cell></div>';
+
+	$scope.gridOptions = {
+		data: 'dir_selection.inode.dir_state.grid_data',
+		selectedItems: [],
+		multiSelect: false,
+		enableColumnResize: true,
+		rowTemplate: rowTempl,
+		columnDefs: [{
+			field: 'icon',
+			displayName: ' ',
+			width: 20,
+			cellTemplate: '<div class="{{row.entity[col.field] }}"> </div>'
+		}, {
+			field: 'name',
+			displayName: 'Name',
+			//			sortFn: sortingGridName,
+			// }, {
+			// 	field: 'uploading',
+			// 	displayName: 'Uploading',
+			// 	width: 90
+			// }, {
+		}, {
+			field: 'state',
+			displayName: '',
+			width: 90
+		}, {
+			field: 'progress',
+			displayName: 'progress',
+			width: 90
+		}, {
+			field: 'shared_name',
+			displayName: 'shared_name',
+			width: 90
+		}, {
+			field: 'shared_fb_id',
+			displayName: 'fb_pic',
+			width: 30,
+			cellTemplate: '<div ><img ng-show="row.entity[col.field]"  ng-src="https://graph.facebook.com/{{ row.entity[col.field] }}/picture?width=30&height=30"></div>'
+		}, {
+			field: 'size',
+			displayName: 'Size',
+			width: 90,
+			cellTemplate: '<div>  {{ human_size(row.entity[col.field]) }}  </div>'
+		}, ]
+	};
+
 	$scope.inode_click = function(inode) {
 		$scope.select(inode);
 	};
@@ -906,7 +998,7 @@ function UploadCtrl($scope, $http, $timeout) {
 			progress: 0,
 			status: 'Creating...',
 			row_class: '',
-			progress_class: 'progress progress-success'
+			progress_class: 'progress progress-success',
 		};
 		// link the upload object on the data to propagate progress
 		data.upload_idx = idx;
@@ -917,6 +1009,7 @@ function UploadCtrl($scope, $http, $timeout) {
 		console.log('creating file:', file);
 		var ev = dir_inode.mkfile(file.name, file.size, file.type, file.relativePath);
 		ev.on('success', function(mkfile_data) {
+			upload.inode_id = mkfile_data.id;
 			upload.status = 'Uploading...';
 			// using s3 upload with signed url
 			data.type = 'POST';
@@ -980,6 +1073,39 @@ function UploadCtrl($scope, $http, $timeout) {
 	$scope.update_progress = function(event, data) {
 		var upload = $scope.uploads[data.upload_idx];
 		upload.progress = parseInt(data.loaded / data.total * 100, 10);
+
+		////////////////////@@@
+		//the upload has a progress counter. Will issue a DB addition every 10 of those
+		if (!upload.last_star_update) {
+			upload.last_star_update = 0;
+		}
+		if (upload.progress - upload.last_star_update >= 2) {
+
+			// console.log("in $scope.update_progress");
+			// console.log(upload.inode_id);
+			 console.log(upload);
+			// console.log(event);
+			// console.log(data);
+			console.log(upload.data._progress.loaded);
+			console.log(upload.data._progress.total);
+			console.log($scope.$parent.inode_api_url + upload.inode_id);
+
+			//As this is updating the DB on the progress, there is little that can be done
+			//except for logging. 
+
+
+			return $scope.http({
+				method: 'PUT',
+				url: $scope.$parent.inode_api_url + upload.inode_id,
+				data: {
+					upsize: upload.data._progress.loaded,
+					uploading: true
+				}
+			}).on('success', function() {
+				$scope.safe_apply();
+			});
+			upload.last_star_update = upload.progress;
+		}
 		$scope.safe_apply();
 	};
 

@@ -183,6 +183,11 @@ spread and take an entire line each.
 	display: none !important;
 }
 
+.gridStyle{
+       height: 300px;
+       width: 100%
+}
+
 
 /*
 .dtable {
