@@ -58,7 +58,7 @@ app.engine('html', dot_emc_app.__express);
 // setup express app
 // configure app handlers in the order to use them
 
-app.use(express.favicon('/public/images/noobaa_icon.ico'));
+app.use(express.favicon('/public/nblib/img/noobaa_icon.ico'));
 app.use(express.logger());
 app.use(express.cookieParser());
 app.use(express.bodyParser());
@@ -90,6 +90,7 @@ app.use('/vendor/', express.static(path.join(__dirname, '..', 'vendor')));
 
 var auth = require('./routes/auth');
 app.get('/auth/facebook/login/', auth.facebook_login);
+app.get('/auth/facebook/planet/', auth.facebook_planet);
 app.get('/auth/facebook/authorized/', auth.facebook_authorized);
 app.get('/auth/facebook/channel.html', auth.facebook_channel);
 app.get('/auth/logout/', auth.logout);
@@ -144,7 +145,7 @@ app.get('/', function(req, res) {
 
 // errorHandler should be last handler
 if ('development' == app.get('env')) {
-	app.use(express.errorHandler());
+	app.use(express.errorHandler({showStack: true, dumpExceptions: true}));
 }
 
 // start the default http server

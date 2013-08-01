@@ -1,28 +1,77 @@
-/* jshint browser:true, jquery:true, devel:true */
-/* global angular:false */
+/* jshint node:true */
+'use strict';
 
-(function(global) {
-	'use strict';
+var tray = null;
 
-	function log(msg) {
-		console.log(msg);
-		$('#log').append('<p><i class="label">' + msg + '</i></p>');
+function App(window) {
+	// load native ui library
+	var gui = this.gui = window.require('nw.gui');
+
+	// make window hide on close
+	gui.Window.get().on('close', function() {
+		this.hide();
+	});
+
+	var open = this.open = function() {
+		var w = gui.Window.get();
+		w.show();
+		w.restore();
+		w.focus();
+		w.requestAttention(true);
+	};
+
+	var new_win = this.new_win = function(url) {
+		window.open(url, '_blank');
+	};
+
+	var quit = this.quit = function() {
+		var q = 'Closing the application will stop the co-sharing. Are you sure?';
+		if (window.confirm(q)) {
+			gui.App.quit();
+			//gui.Window.get().close(true);
+		}
+	};
+
+	if (!tray) {
+		// create tray icon
+		tray = this.tray = new gui.Tray({
+			title: 'NooBaa',
+			tooltip: 'Click to open NooBaa\'s Dashboard...',
+			icon: 'nblib/img/noobaa_icon.ico',
+			menu: new gui.Menu()
+		});
+		tray.on('click', open);
+
+		// create tray menu
+		var m = tray.menu;
+		m.append(new gui.MenuItem({
+			label: 'NooBaa\'s Dashboard',
+			click: open
+		}));
+		m.append(new gui.MenuItem({
+			type: 'separator'
+		}));
+		// TODO: show only for development
+		m.append(new gui.MenuItem({
+			label: '(Show Dev Tools)',
+			click: function() {
+				gui.Window.get().showDevTools();
+			}
+		}));
+		m.append(new gui.MenuItem({
+			label: '(Reload)',
+			click: function() {
+				gui.Window.get().reload();
+			}
+		}));
+		m.append(new gui.MenuItem({
+			type: 'separator'
+		}));
+		m.append(new gui.MenuItem({
+			label: 'Quit NooBaa',
+			click: quit
+		}));
 	}
+}
 
-	var store = new global.Store(100 * 1024 * 1024 * 1024);
-
-	store.onerror = function(err) {
-		console.error(err);
-		$('#log').append('<p style="color: red">' + err + '</p>');
-	};
-
-	store.onload = function(fs) {
-		log('FS inited');
-		store.query_usage();
-	};
-
-	store.onusage = function(usage, quota) {
-		log('Usage: ' + usage + ' Quota: ' + quota);
-	};
-
-}(this)); // passing global this to allow exporting
+exports.App = App;
