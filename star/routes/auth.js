@@ -81,7 +81,7 @@ exports.facebook_planet = function(req, res) {
 };
 
 function redirection(req) {
-	return (req.session.planet ? '/planet.html' : '/')
+	return (req.session.planet ? '/planet.html' : '/');
 }
 
 // when authorization is complete (either success/failed)
