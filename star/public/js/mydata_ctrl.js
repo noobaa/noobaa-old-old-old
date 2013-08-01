@@ -63,7 +63,7 @@ function sync_property(to, from, key) {
 	if (!from[key]) {
 		to[key] = "";
 		return;
-	};
+	}
 	if (to[key] === from[key]) {
 		return;
 	}
@@ -268,22 +268,22 @@ Inode.prototype.populate_dir = function(entries) {
 		sync_property(son, ent, "progress");
 
 		if (son.uploading) {
-			son['state'] = 'Uploading...';
+			son.state = 'Uploading...';
 		} else {
-			son['state'] = ' ';
+			son.state = ' ';
 		}
 
 		if (son.isdir) {
-			son['icon'] = 'icon-folder-open';
+			son.icon = 'icon-folder-open';
 			subdirs[son.id] = son;
 		} else {
-			son['icon'] = 'icon-file';
+			son.icon = 'icon-file';
 			subfiles[son.id] = son;
 		}
 		if (son.shared_fb_id) {
-			son['fb_pic'] = "https://graph.facebook.com/" + son.shared_fb_id + "/picture?width=30&height=30";
+			son.fb_pic = "https://graph.facebook.com/" + son.shared_fb_id + "/picture?width=30&height=30";
 		} else {
-			son['fb_pic'] = "";
+			son.fb_pic = "";
 		}
 		//console.log("===", son);
 		gridEntries.unshift(son);
@@ -645,12 +645,6 @@ function InodesListCtrl($scope) {
 		}, {
 			field: 'name',
 			displayName: 'Name',
-			//			sortFn: sortingGridName,
-			// }, {
-			// 	field: 'uploading',
-			// 	displayName: 'Uploading',
-			// 	width: 90
-			// }, {
 		}, {
 			field: 'state',
 			displayName: '',
@@ -1083,7 +1077,7 @@ function UploadCtrl($scope, $http, $timeout) {
 
 			// console.log("in $scope.update_progress");
 			// console.log(upload.inode_id);
-			 console.log(upload);
+			console.log(upload);
 			// console.log(event);
 			// console.log(data);
 			console.log(upload.data._progress.loaded);
@@ -1092,8 +1086,7 @@ function UploadCtrl($scope, $http, $timeout) {
 
 			//As this is updating the DB on the progress, there is little that can be done
 			//except for logging. 
-
-
+			upload.last_star_update = upload.progress;
 			return $scope.http({
 				method: 'PUT',
 				url: $scope.$parent.inode_api_url + upload.inode_id,
@@ -1104,7 +1097,6 @@ function UploadCtrl($scope, $http, $timeout) {
 			}).on('success', function() {
 				$scope.safe_apply();
 			});
-			upload.last_star_update = upload.progress;
 		}
 		$scope.safe_apply();
 	};
