@@ -4,11 +4,12 @@
 	"version": "0.1",
 	"main": "views/dashboard.html",
 	"node-main": "js/main.js",
+	"chromium-args": "--disable-web-security",
 	"window": {
 		"show": false,
 		"toolbar": false,
 		"icon": "nblib/img/noobaa_icon.ico",
 		"width": 600,
-		"height": 500
+		"height": 400
 	}
 }

@@ -76,14 +76,13 @@ passport.deserializeUser(function(user_info, done) {
 exports.facebook_login = passport.authenticate('facebook');
 
 exports.facebook_planet = function(req, res) {
-	if (req.user) {
-		return res.end('<p>' + JSON.stringify(req.user) + '</p>' +
-			'<a href="/auth/logout/">logout</a>');
-	} else {
-		req.session.planet = true;
-		return exports.facebook_login(req, res);
-	}
+	req.session.planet = true;
+	return exports.facebook_login(req, res);
 };
+
+function redirection(req) {
+	return (req.session.planet ? '/planet.html' : '/')
+}
 
 // when authorization is complete (either success/failed)
 // facebook will redirect here.
@@ -96,10 +95,9 @@ exports.facebook_authorized = function(req, res, next) {
 		res.redirect('/#join');
 		return;
 	}
-	var redirect = (req.session.planet ? '/auth/facebook/planet/' : '/');
 	passport.authenticate('facebook', {
-		successRedirect: redirect,
-		failureRedirect: redirect,
+		successRedirect: redirection(req),
+		failureRedirect: redirection(req),
 		failureFlash: true
 	})(req, res, next);
 };
@@ -109,11 +107,10 @@ exports.facebook_channel = function(req, res) {
 };
 
 exports.logout = function(req, res) {
-	var redirect = (req.session.planet ? '/auth/facebook/planet/' : '/');
 	delete req.session.fbAccessToken;
 	delete req.session.planet;
 	req.logout();
-	res.redirect(redirect);
+	res.redirect(redirection(req));
 };
 
 exports.viewback = function(err, data) {

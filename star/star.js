@@ -126,6 +126,11 @@ function page_context(req) {
 	};
 }
 
+app.get('/planet.html', function(req, res) {
+	console.log('PLANET:', req.user);
+	res.render('planet.html', page_context(req));
+});
+
 app.get('/getstarted.html', function(req, res) {
 	if (req.user) {
 		res.render('getstarted.html', page_context(req));

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html ng-app="noobaa_app" xmlns:fb="http://ogp.me/ns/fb#" lang="en">
+
+<head>
+	<?# def.include('common_head.html') ?>
+</head>
+
+<body class="bglight">
+	<?# def.facebook_init_body ?>
+
+<?? it.user ?>
+	<a class="btn" href="/auth/logout/">
+		Logout
+	</a>
+<????>
+	<a class="fb-login-button"
+		scope="email"
+		registration-url="/auth/facebook/planet/"
+		show-faces="false">
+	</a>
+<???>
+
+</body>
+
+</html>
