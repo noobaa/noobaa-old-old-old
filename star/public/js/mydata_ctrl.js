@@ -144,9 +144,9 @@ function Inode($scope, id, name, isdir, parent) {
 				isdir: false,
 				name: " ",
 				uploading: '',
-				shared_name: '',
-				shared_fb_id: '',
-				progress: '',
+				shared_name: ' ',
+				shared_fb_id: ' ',
+				progress: ' ',
 				size: 0
 			}],
 			grid_selected: [],
@@ -619,24 +619,12 @@ function InodesTreeCtrl($scope) {
 
 function InodesListCtrl($scope) {
 
-	var sortingGridName = function(a, b) {
-		console.log("=============== in sorting =========================");
-		console.log(a);
-	};
-
-	var rowTempl = '<div ng-style="{ \'cursor\': row.cursor }" ' +
-		'ng-repeat="col in renderedColumns" ' +
-		'ng-click="inode_click(row.entity)"' +
-		'ng-dblclick="inode_dclick(row.entity)"' +
-	//		'nb-right-click="inode_rclick(row.entity, $event)"' +
-	'class="ngCell {{col.cellClass}} {{col.colIndex()}}" ng-cell></div>';
-
 	$scope.gridOptions = {
 		data: 'dir_selection.inode.dir_state.grid_data',
 		selectedItems: [],
 		multiSelect: false,
 		enableColumnResize: true,
-		rowTemplate: rowTempl,
+		rowTemplate: 'list_view_grid_template.html', //this template can be found in mydata.html
 		columnDefs: [{
 			field: 'icon',
 			displayName: ' ',
@@ -645,14 +633,17 @@ function InodesListCtrl($scope) {
 		}, {
 			field: 'name',
 			displayName: 'Name',
+//			headerCellTemplate: 'list_view_grid_template_names_header.html',
 		}, {
 			field: 'state',
 			displayName: '',
-			width: 90
+			width: 90,
 		}, {
 			field: 'progress',
 			displayName: 'progress',
-			width: 90
+			width: 200,
+			cellTemplate: '<div ng-include="\'upload_progress_template.html\'"> </div>',
+			// cellTemplate: '<div>  {{ row.entity[col.field] }}  </div>'
 		}, {
 			field: 'shared_name',
 			displayName: 'shared_name',
@@ -669,6 +660,15 @@ function InodesListCtrl($scope) {
 			cellTemplate: '<div>  {{ human_size(row.entity[col.field]) }}  </div>'
 		}, ]
 	};
+
+	$scope.$on('ngGridEventSorted', function(SortedColumn) {
+		console.log("==========================================");
+		console.log(SortedColumn);
+		console.log($scope.dir_selection.inode.dir_state.grid_data);
+		console.log("==========================================");
+	});
+
+
 
 	$scope.inode_click = function(inode) {
 		$scope.select(inode);

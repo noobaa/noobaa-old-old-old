@@ -642,6 +642,58 @@
 </script>
 
 
+
+<!-- PATH TEMPLATE -->
+
+<script type="text/ng-template" id="path_view_template.html">
+	<ul class="inline" style="margin: 4px">
+		<li ng-repeat="inode in dir_selection.inode.get_path()"
+			ng-class="inode.dir_active">
+			<span ng-show="inode.dir_active">
+				<b>{{inode.name || "@"}}</b>
+			</span>
+			<a ng-hide="inode.dir_active" ng-click="inode_click(inode)" href="#">
+				<b>{{inode.name || "@"}}</b>
+			</a>
+			<span ng-hide="inode.dir_active" class="divider">/</span>
+		</li>
+	</ul>
+</script>
+
+
+<!-- GRID TEMPLATE -->
+
+<script type="text/ng-template" id="list_view_grid_template.html">
+	<div ng-style="{ cursor: row.cursor }"
+		ng-repeat="col in renderedColumns"
+		ng-click="inode_click(row.entity)"
+		ng-dblclick="inode_dclick(row.entity)"
+		class="ngCell {{col.cellClass}} {{col.colIndex()}}" ng-cell>
+	</div>
+</script>
+
+<!-- Uploading bar template -->
+
+<script type="text/ng-template" id="upload_progress_template.html">
+<div ng-show="row.entity[col.field]" class="progress progress-success" 
+	 style="margin: 0; position: relative;top: 5px;">
+		<div class="bar"
+			style="position: absolute;
+				top: 0;
+				left: 0;
+				z-index: 1000;
+				width: {{row.entity[col.field]}}%;">
+		</div>
+		<div class="fntsans fntblk"
+			style="position: absolute;
+				top: 0;
+				left: 40%;
+				z-index: 2000;
+				color: black;">
+			{{row.entity[col.field]}}%
+		</div>
+</div>
+</script>
 <!-- ======== CONTENT END ======== -->
 
 
