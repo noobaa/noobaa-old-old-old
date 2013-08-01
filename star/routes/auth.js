@@ -95,9 +95,10 @@ exports.facebook_authorized = function(req, res, next) {
 		res.redirect('/#join');
 		return;
 	}
+	var redirect = redirection(req);
 	passport.authenticate('facebook', {
-		successRedirect: redirection(req),
-		failureRedirect: redirection(req),
+		successRedirect: redirect,
+		failureRedirect: redirect,
 		failureFlash: true
 	})(req, res, next);
 };
@@ -107,10 +108,11 @@ exports.facebook_channel = function(req, res) {
 };
 
 exports.logout = function(req, res) {
+	var redirect = redirection(req);
 	delete req.session.fbAccessToken;
 	delete req.session.planet;
 	req.logout();
-	res.redirect(redirection(req));
+	res.redirect(redirect);
 };
 
 exports.viewback = function(err, data) {
