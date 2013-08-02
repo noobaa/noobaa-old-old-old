@@ -62,3 +62,9 @@ spread and take an entire line each.
 	margin: 0px;
 	padding: 15px 20px 0px 20px;
 }
+
+
+#gridFiles {
+	height: 300px;
+	width: 100%;
+}
