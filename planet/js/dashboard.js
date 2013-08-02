@@ -9,6 +9,8 @@
 	var noobaa_app = angular.module('noobaa_app', [ /*'ui'*/ ]);
 })();
 
+
+
 // the dashboard angular controller
 
 function DashboardCtrl($scope) {
@@ -16,7 +18,10 @@ function DashboardCtrl($scope) {
 
 	console.log('DashboardCtrl');
 
+	// keep original location as home location
+	// to be able to restore to it if we redirect
 	$scope.home_location = window.location.href;
+
 	$scope.reload_home = function() {
 		window.console.log(window.location, $scope.home_location);
 		window.location.href = $scope.home_location;
@@ -31,6 +36,7 @@ function DashboardCtrl($scope) {
 		this.hide();
 	});
 
+	// open this window
 	$scope.open = function() {
 		var w = gui.Window.get();
 		w.show();
@@ -39,41 +45,18 @@ function DashboardCtrl($scope) {
 		w.requestAttention(true);
 	};
 
+	// open a new window
 	$scope.new_win = function(url) {
-		var w = gui.Window.open(url, {
+		return gui.Window.open(url, {
 			toolbar: false,
 			frame: false,
 			icon: "nblib/img/noobaa_icon.ico",
 			width: 750,
 			height: 550
 		});
-		/*
-		console.log(w);
-		w.on('loaded', function() {
-			var ngui = w.window.require('nw.gui');
-			var menu = new ngui.Menu();
-			// {type: 'menubar'});
-			var item = new ngui.MenuItem({
-				submenu: new ngui.Menu()
-			});
-			menu.append(item);
-			item.submenu.append(new ngui.MenuItem({
-				label: '(Show Dev Tools)',
-				click: function() {
-					w.showDevTools();
-				}
-			}));
-			console.log(w.window);
-			w.window.document.body.addEventListener('contextmenu', function(ev) {
-				console.log(ev);
-				ev.preventDefault();
-				menu.popup(ev.x, ev.y);
-				return false;
-			});
-		});
-		*/
 	};
 
+	// terminate the entire application
 	$scope.quit = function() {
 		var q = 'Closing the application will stop the co-sharing. Are you sure?';
 		if (window.confirm(q)) {
@@ -81,8 +64,12 @@ function DashboardCtrl($scope) {
 		}
 	};
 
+	// create tray icon.
+	// we create oncefor the entire application,
+	// and store it in the main module (js/main.js)
+	// so that even if more windows are created,
+	// it will only have single tray.
 	if (!process.mainModule.exports.tray) {
-		// create tray icon
 		var tray = process.mainModule.exports.tray = new gui.Tray({
 			title: 'NooBaa',
 			tooltip: 'Click to open NooBaa\'s Dashboard...',

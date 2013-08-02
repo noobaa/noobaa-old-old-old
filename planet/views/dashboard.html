@@ -39,13 +39,15 @@
 	 			Device Login
 			</td>
 			<td align="center">
+				<!-- TODO: change domain to noobaa.com -->
+				<div ng-cloak ng-show="planet_frame_error"
+					class="badge badge-warning">
+					Unable to Connect...
+				</div>
 				<iframe nwdisable nwfaketop
 					src="http://127.0.0.1:5000/planet.html"
 					width="300" height="30"
 					scrolling="no" frameborder="0">
-					<div class="badge badge-important">
-						Unable to Connect...
-					</div>
 				</iframe>
 			</td>
 		</tr>

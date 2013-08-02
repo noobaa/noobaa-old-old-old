@@ -4,7 +4,6 @@
 	"version": "0.1",
 	"main": "views/dashboard.html",
 	"node-main": "js/main.js",
-	"//chromium-args": "--disable-web-security",
 	"window": {
 		"show": false,
 		"toolbar": false,
