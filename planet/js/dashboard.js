@@ -1,6 +1,125 @@
 /* jshint node:true, browser:true, jquery:true, devel:true */
 /* global angular:false */
 
+// script initializer
+(function() {
+	'use strict';
+
+	// declare our module with dependancy on the angular-ui module
+	var noobaa_app = angular.module('noobaa_app', [ /*'ui'*/ ]);
+})();
+
+
+
+// the dashboard angular controller
+
+function DashboardCtrl($scope) {
+	'use strict';
+
+	console.log('DashboardCtrl');
+
+	// keep original location as home location
+	// to be able to restore to it if we redirect
+	$scope.home_location = window.location.href;
+
+	$scope.reload_home = function() {
+		window.console.log(window.location, $scope.home_location);
+		window.location.href = $scope.home_location;
+		//gui.Window.get().reload();
+	};
+
+	// load native ui library
+	var gui = $scope.gui = window.require('nw.gui');
+
+	// make window hide on close
+	gui.Window.get().on('close', function() {
+		this.hide();
+	});
+
+	// open this window
+	$scope.open = function() {
+		var w = gui.Window.get();
+		w.show();
+		w.restore();
+		w.focus();
+		w.requestAttention(true);
+	};
+
+	// open a new window
+	$scope.new_win = function(url) {
+		return gui.Window.open(url, {
+			toolbar: false,
+			frame: false,
+			icon: "nblib/img/noobaa_icon.ico",
+			width: 750,
+			height: 550
+		});
+	};
+
+	// terminate the entire application
+	$scope.quit = function() {
+		var q = 'Closing the application will stop the co-sharing. Are you sure?';
+		if (window.confirm(q)) {
+			gui.App.quit();
+		}
+	};
+
+	// create tray icon.
+	// we create oncefor the entire application,
+	// and store it in the main module (js/main.js)
+	// so that even if more windows are created,
+	// it will only have single tray.
+	if (!process.mainModule.exports.tray) {
+		var tray = process.mainModule.exports.tray = new gui.Tray({
+			title: 'NooBaa',
+			tooltip: 'Click to open NooBaa\'s Dashboard...',
+			icon: 'nblib/img/noobaa_icon.ico',
+			menu: new gui.Menu()
+		});
+		tray.on('click', $scope.open);
+
+		// create tray menu
+		var m = tray.menu;
+		m.append(new gui.MenuItem({
+			label: 'NooBaa\'s Dashboard',
+			click: $scope.open
+		}));
+		m.append(new gui.MenuItem({
+			label: 'Launch NooBaa website',
+			click: function() {
+				gui.Shell.openExternal('https://www.noobaa.com');
+			}
+		}));
+		m.append(new gui.MenuItem({
+			type: 'separator'
+		}));
+		// TODO: show only for development
+		m.append(new gui.MenuItem({
+			label: '(Show Dev Tools)',
+			click: function() {
+				gui.Window.get().showDevTools();
+			}
+		}));
+		m.append(new gui.MenuItem({
+			label: '(Reload)',
+			click: $scope.reload_home
+		}));
+		m.append(new gui.MenuItem({
+			type: 'separator'
+		}));
+		m.append(new gui.MenuItem({
+			label: 'Quit NooBaa',
+			click: $scope.quit
+		}));
+	}
+
+	// after all is inited, open the window
+	$scope.open();
+}
+
+// avoid minification effects by injecting the required angularjs dependencies
+DashboardCtrl.$inject = ['$scope'];
+
 
 $(function() {
 	'use strict';
@@ -37,8 +156,6 @@ $(function() {
 
 	var FSSIZE = 10 * 1024 * 1024;
 	var ZEROBLOB = new Blob([zerobuf(1024 * 1024)]);
-
-	show_log('TODO: display chunks space info');
 
 
 	// Planet filesystem class

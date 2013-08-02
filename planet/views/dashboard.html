@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html style="overflow-y: auto">
+<html ng-app="noobaa_app" style="overflow-y: auto">
 
 <head>
 	<meta charset="utf-8" />
@@ -17,45 +17,76 @@
 
 	<!-- NooBaa css -->
 	<link href="../nblib/css/nb_classes.css" type="text/css" rel="stylesheet"/>
+</head>
+
+<body ng-controller="DashboardCtrl" class="bglight">
+
+	<div class="fntpaint fntblk" align="center"
+		style="font-size: 30pt; line-height: 30pt; margin: 30px 0 0 0;">
+		NooBaa Dashboard
+		<button class="btn btn-small pull-right"
+			ng-click="reload_home()">
+			<i class="icon-refresh"></i>
+		</button>
+	</div>
+
+	<br/>
+	<br/>
+
+	<table class="table">
+		<tr>
+			<td class="fntread fntblk">
+	 			Device Login
+			</td>
+			<td align="center">
+				<!-- TODO: change domain to noobaa.com -->
+				<div ng-cloak ng-show="planet_frame_error"
+					class="badge badge-warning">
+					Unable to Connect...
+				</div>
+				<iframe nwdisable nwfaketop
+					src="http://127.0.0.1:5000/planet.html"
+					width="300" height="30"
+					scrolling="no" frameborder="0">
+				</iframe>
+			</td>
+		</tr>
+		<tr>
+			<td class="fntread fntblk">
+				Co-Shared Space
+			</td>
+			<td>
+				<span class="badge badge-info">
+					100 GB
+				</span>
+				<a class="btn btn-link">
+					Increase...
+				</a>
+			</td>
+		</tr>
+		<tr>
+			<td class="fntread fntblk">
+				Used Space
+			</td>
+			<td>
+				<span class="badge badge-info">
+					0 GB
+				</span>
+			</td>
+		</tr>
+	</table>
+
+	<div id="log" class="fntread fntblk"></div>
+
 
 	<!-- SCRIPTS -->
-
-	<script type="text/javascript">
-		// use the planet main (main.js) to initialize the application
-		window.noobaa_planet_app = 
-			new process.mainModule.exports.App(window);
-	</script>
 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.min.js"></script>
 	<script src="../vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
 	<script src="../js/dashboard.js" type="text/javascript"></script>
-</head>
 
-<body class="bglight">
-
-	<div class="fntpaint fntblk" align="center"
-		style="font-size: 30pt; line-height: 30pt; margin: 30px 0 0 0;">
-		NooBaa Dashboard
-	</div>
-
-	<div align="center">
-		<br/><br/>
-		<iframe nwdisable nwfaketop src="http://127.0.0.1:5000/auth/facebook/planet/"
-			width="90%" scrolling="auto" frameborder="no" align="center"></iframe>
-		<br/><br/>
-	</div>
-
-	<button onclick="window.noobaa_planet_app.new_win('http://www.facebook.com')">FB</button>
-
-	<div id="log" class="fntread fntblk"></div>
-
-
-	<script type="text/javascript">
-		// once all loading scripts are done, show the window
-		window.noobaa_planet_app.open();
-	</script>
 </body>
 
 </html>
