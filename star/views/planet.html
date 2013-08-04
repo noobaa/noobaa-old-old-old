@@ -8,33 +8,11 @@
 <body class="bglight">
 	<?# def.facebook_init_body ?>
 
-<?? it.user ?>
-	<span class="badge badge-info">
-		<i class="icon-user icon-white"></i>
-		<?! it.user.name ?>
-	</span>
-	<a class="btn btn-mini" 
-		href="/auth/logout/">
-		<i class="icon-remove"></i>
-	</a>
-<????>
 	<script>
-		function do_login() {		
-			FB.login(function(res) {
-				console.log(res);
-				if (res.authResponse) {
-					window.location.href = "/auth/facebook/planet/";
-				}
-			});
-		}
+		var noobaa_info = {
+			user: <?= JSON.stringify(it.user) ?>
+		};
 	</script>
-	<span class="badge badge-warning">
-		Disconnected
-	</span>
-	<a onclick="do_login()" style="cursor: pointer">
-		<img src="/public/nblib/img/facebook_login_button.png"></img>
-	</a>
-<???>
 
 </body>
 

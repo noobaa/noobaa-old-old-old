@@ -4,9 +4,6 @@
 // script initializer
 (function() {
 	'use strict';
-
-	// declare our module with dependancy on the angular-ui module
-	var noobaa_app = angular.module('noobaa_app', [ /*'ui'*/ ]);
 })();
 
 
@@ -62,6 +59,43 @@ function DashboardCtrl($scope) {
 		if (window.confirm(q)) {
 			gui.App.quit();
 		}
+	};
+
+	var connect_frame = $('#connect_frame');
+
+	// TODO: change domain to noobaa.com
+	$scope.connect_frame_host = 'http://127.0.0.1:5000';
+	$scope.connect_frame_path = '/planet.html';
+	$scope.connected_user = null;
+
+	connect_frame[0].onload = function() {
+		console.log('FRAME LOADED');
+		var c = connect_frame[0].contentWindow;
+
+		$scope.connected_user = null;
+		$scope.safe_apply();
+
+		c.FB.Event.subscribe('auth.statusChange', function(res) {
+			if (c.noobaa_info) {
+				$scope.connected_user = c.noobaa_info.user;
+				$scope.safe_apply();
+			}
+		});
+	};
+
+	$scope.do_connect = function() {
+		var c = connect_frame[0].contentWindow;
+		c.FB.login(function(res) {
+			console.log(res);
+			if (res.authResponse) {
+				$scope.connect_frame_path = "/auth/facebook/planet/";
+				$scope.safe_apply();
+			}
+		});
+	};
+
+	$scope.do_disconnect = function() {
+		$scope.connect_frame_path = "/auth/logout/";
 	};
 
 	// create tray icon.
