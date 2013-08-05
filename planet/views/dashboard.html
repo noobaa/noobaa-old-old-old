@@ -28,6 +28,14 @@
 			ng-click="reload_home()">
 			<i class="icon-refresh"></i>
 		</button>
+		<button class="btn btn-small pull-right"
+			ng-click="gui.Window.get().showDevTools()">
+			<i class="icon-cog"></i>
+		</button>
+		<button class="btn btn-small pull-right"
+			ng-click="new_win()">
+			<i class="icon-plus"></i>
+		</button>
 	</div>
 
 	<br/>
@@ -84,14 +92,8 @@
 		</tr>
 	</table>
 
-	<iframe id="connect_frame"
-		nwdisable nwfaketop hidden
-		ng-src="{{connect_frame_host}}{{connect_frame_path}}"
-		width="300" height="30"
-		scrolling="no" frameborder="0">
-	</iframe>
-
-	<div id="log" class="fntread fntblk"></div>
+	<!-- iframe used to make planet connect -->
+	<iframe id="connect_frame" hidden nwdisable nwfaketop></iframe>
 
 
 	<!-- SCRIPTS -->

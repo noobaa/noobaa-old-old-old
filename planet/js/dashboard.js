@@ -1,12 +1,6 @@
 /* jshint node:true, browser:true, jquery:true, devel:true */
 /* global angular:false */
 
-// script initializer
-(function() {
-	'use strict';
-})();
-
-
 
 // the dashboard angular controller
 
@@ -14,6 +8,9 @@ function DashboardCtrl($scope) {
 	'use strict';
 
 	console.log('DashboardCtrl');
+
+	// TODO: change domain to noobaa.com
+	$scope.star_url = 'http://127.0.0.1:5000';
 
 	// keep original location as home location
 	// to be able to restore to it if we redirect
@@ -44,9 +41,10 @@ function DashboardCtrl($scope) {
 
 	// open a new window
 	$scope.new_win = function(url) {
+		url = url || $scope.star_url;
 		return gui.Window.open(url, {
-			toolbar: false,
-			frame: false,
+			toolbar: true,
+			frame: true,
 			icon: "nblib/img/noobaa_icon.ico",
 			width: 750,
 			height: 550
@@ -57,46 +55,82 @@ function DashboardCtrl($scope) {
 	$scope.quit = function() {
 		var q = 'Closing the application will stop the co-sharing. Are you sure?';
 		if (window.confirm(q)) {
+			// save window state in localStorage
+			// for next time.
+			var w = gui.Window.get();
+			localStorage.win_x = w.x;
+			localStorage.win_y = w.y;
+			localStorage.win_width = w.width;
+			localStorage.win_height = w.height;
 			gui.App.quit();
 		}
 	};
 
-	var connect_frame = $('#connect_frame');
+	// restore window state from locaoStorage
+	if (localStorage.win_width && localStorage.win_height) {
+		var w = gui.Window.get();
+		w.resizeTo(
+			parseInt(localStorage.win_width, 10),
+			parseInt(localStorage.win_height, 10));
+		w.moveTo(
+			parseInt(localStorage.win_x, 10),
+			parseInt(localStorage.win_y, 10));
+	}
 
-	// TODO: change domain to noobaa.com
-	$scope.connect_frame_host = 'http://127.0.0.1:5000';
-	$scope.connect_frame_path = '/planet.html';
+
+	// user login info
 	$scope.connected_user = null;
 
-	connect_frame[0].onload = function() {
-		console.log('FRAME LOADED');
-		var c = connect_frame[0].contentWindow;
+	// update the connect frame src to load a new url
+	// the frame is used to contain the facebook connect code
+	// which cannot be used inside a 'file://' type url 
+	// which is used by node-webkit.
 
-		$scope.connected_user = null;
+	function connect_frame_path(path) {
+		$('#connect_frame')[0].src = $scope.star_url + path;
+	}
+
+	// pull info from the frame once it loads
+	$('#connect_frame')[0].onload = function() {
+		var c = window.frames.connect_frame;
+		$scope.connected_user = c.noobaa_info ? c.noobaa_info.user : null;
 		$scope.safe_apply();
-
+		console.log('LOAD:', c.document.URL, c.noobaa_info);
 		c.FB.Event.subscribe('auth.statusChange', function(res) {
-			if (c.noobaa_info) {
-				$scope.connected_user = c.noobaa_info.user;
-				$scope.safe_apply();
-			}
+			$scope.connected_user = c.noobaa_info ? c.noobaa_info.user : null;
+			$scope.safe_apply();
+			console.log('AUTH:', c.document.URL, c.noobaa_info);
 		});
 	};
 
+	// submit connect request - will open facebool login dialog window.
 	$scope.do_connect = function() {
-		var c = connect_frame[0].contentWindow;
-		c.FB.login(function(res) {
-			console.log(res);
+		window.frames.connect_frame.FB.login(function(res) {
 			if (res.authResponse) {
-				$scope.connect_frame_path = "/auth/facebook/planet/";
-				$scope.safe_apply();
+				connect_frame_path('/auth/facebook/planet/');
 			}
 		});
 	};
 
+	// logout - not really needed here, just for testing
 	$scope.do_disconnect = function() {
-		$scope.connect_frame_path = "/auth/logout/";
+		connect_frame_path('/auth/logout/');
 	};
+
+	// on init load the planet login page into the frame.
+	connect_frame_path('/planet.html');
+
+
+	var planetfs = require('./planetfs');
+	var fs = new planetfs.PlanetFS(gui.App.dataPath.toString(), 10, 1024 * 1024);
+	fs.init_chunks(function(err) {
+		if (err) {
+			console.log('PLANET FS INIT FAILED:', err.toString());
+		} else {
+			console.log('PLANET FS INIT DONE');
+		}
+	});
+
 
 	// create tray icon.
 	// we create oncefor the entire application,
@@ -129,14 +163,18 @@ function DashboardCtrl($scope) {
 		}));
 		// TODO: show only for development
 		m.append(new gui.MenuItem({
+			label: '(Reload)',
+			click: $scope.reload_home
+		}));
+		m.append(new gui.MenuItem({
 			label: '(Show Dev Tools)',
 			click: function() {
 				gui.Window.get().showDevTools();
 			}
 		}));
 		m.append(new gui.MenuItem({
-			label: '(Reload)',
-			click: $scope.reload_home
+			label: '(New Window)',
+			click: $scope.new_win
 		}));
 		m.append(new gui.MenuItem({
 			type: 'separator'
@@ -153,195 +191,3 @@ function DashboardCtrl($scope) {
 
 // avoid minification effects by injecting the required angularjs dependencies
 DashboardCtrl.$inject = ['$scope'];
-
-
-$(function() {
-	'use strict';
-
-	var util = require('util');
-	var fs = require('fs');
-	var _ = require('underscore');
-
-	function show_log() {
-		var args = _.map(arguments, function(x) {
-			return util.inspect(x);
-		});
-		console.log.apply(console, args);
-		$('#log').append('<p>' + args.join(' ') + '</p>');
-	}
-
-	function show_error() {
-		var args = _.map(arguments, function(x) {
-			return util.inspect(x);
-		});
-		console.error.apply(console, args);
-		$('#log').append('<p style="color: red">' +
-			args.join(' ') + '</p>');
-	}
-
-	function zerobuf(len) {
-		var buf = new ArrayBuffer(len);
-		var view = new Uint8Array(buf);
-		for (var i = 0; i < len; i++) {
-			view[i] = 0;
-		}
-		return buf;
-	}
-
-	var FSSIZE = 10 * 1024 * 1024;
-	var ZEROBLOB = new Blob([zerobuf(1024 * 1024)]);
-
-
-	// Planet filesystem class
-
-	function PlanetFS(fs, fssize) {
-		this.fs = fs;
-		this.fssize = fssize;
-	}
-
-	// async init of PlanetFS object and run the given planet_fs_main(pfs)
-
-	function init_PlanetFS(fssize, planet_fs_main) {
-		return requestFileSystem(
-			window.PERSISTENT,
-			fssize,
-			function(fs) {
-				var f = new PlanetFS(fs, fssize);
-				planet_fs_main(f);
-			}, function(err) {
-				show_error('PlanetFS_init:', err);
-				// TODO: throw?
-			}
-		);
-	}
-
-	// create one more chunk file on the fs to consume the space
-
-	PlanetFS.prototype.create_chunk = function(callback) {
-		var me = this;
-		var time = new Date().getTime();
-		var fname = 'chunk-' + time + '.noobaa';
-		return async.waterfall([
-			// create the file
-			function(next) {
-				show_log('PlanetFS', 'create_chunk:', fname);
-				return me.fs.root.getFile(fname, {
-					create: true,
-					exclusive: true
-				}, function(fileEntry) {
-					return next(null, fileEntry);
-				}, function(err) {
-					return next(err);
-				});
-			},
-			// open for write
-			function(fileEntry, next) {
-				show_log('PlanetFS', 'create_chunk:', 'open for write...');
-				return fileEntry.createWriter(function(writer) {
-					return next(null, writer);
-				}, function(err) {
-					return next(err);
-				});
-			},
-			// write buffer (zeros)
-			function(writer, next) {
-				show_log('PlanetFS', 'create_chunk:', 'writing...');
-				writer.onwriteend = function() {
-					return next();
-				};
-				writer.onerror = function(err) {
-					return next(err);
-				};
-				return writer.write(ZEROBLOB);
-			}
-		], callback);
-	};
-
-
-	// create more chunks to consume all the unused space
-
-	PlanetFS.prototype.create_chunks_for_unused = function(callback) {
-		var me = this;
-		return async.waterfall([
-			function(next) {
-				show_log('PlanetFS', 'create_chunks_for_unused:', 'query usage...');
-				return storage.queryUsageAndQuota(function(usage, quota) {
-					show_log('PlanetFS', 'Quota - usage:' + usage + ' quota:' + quota);
-					return next(null, usage);
-				}, function(err) {
-					return next(err);
-				});
-			},
-			function(usage, next) {
-				var unused = me.fssize - usage;
-				show_log('PlanetFS', 'create_chunks_for_unused:', 'unused=', unused);
-				return async.whilst(
-					function() {
-						unused -= 1024 * 1024;
-						return unused > 0;
-					}, function(next_while) {
-						return me.create_chunk(next_while);
-					}, next);
-			}
-		], callback);
-	};
-
-
-	PlanetFS.prototype.foreach_chunk = function(iterator, callback) {
-		show_log('PlanetFS', 'foreach_chunk', 'start');
-		var reader = this.fs.root.createReader();
-		var readdir = function() {
-			// call the reader.readEntries() until no more results are returned
-			return reader.readEntries(function(results) {
-				if (!results.length) {
-					// readdir done
-					show_log('PlanetFS', 'foreach_chunk', 'done');
-					return callback();
-				}
-				var entries = _.toArray(results);
-				return async.every(entries, iterator, function(err) {
-					if (err) {
-						return callback(err);
-					} else {
-						// continue to next read
-						return readdir();
-					}
-				});
-			}, function(err) {
-				return callback(err);
-			});
-		};
-		return readdir(); // start the readdir
-	};
-
-	function show_entry(entry, callback) {
-		show_log('PlanetFS', 'show_entry:', entry);
-		return callback();
-	}
-
-	function delete_entry(entry, callback) {
-		entry.remove(function() {
-			show_log('PlanetFS', 'delete_entry:', entry);
-			return callback();
-		}, function(err) {
-			return callback(err);
-		});
-	}
-
-	/*
-	init_PlanetFS(FSSIZE, function(pfs) {
-		return async.waterfall([
-			pfs.foreach_chunk.bind(pfs, show_entry),
-			pfs.foreach_chunk.bind(pfs, delete_entry),
-			pfs.create_chunks_for_unused.bind(pfs)
-		], function(err) {
-			if (err) {
-				show_error(err);
-			} else {
-				show_log('PlanetFS:', 'all done.');
-			}
-		});
-	});
-	*/
-
-});
