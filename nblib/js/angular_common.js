@@ -47,7 +47,6 @@
 	}
 
 	function human_size(bytes) {
-		if (!bytes) return " ";
 		var units = ['', ' KB', ' MB', ' GB', ' TB'];
 		for (var u = 0; u < units.length && bytes >> 10 > 0; u++) {
 			bytes = bytes >> 10;

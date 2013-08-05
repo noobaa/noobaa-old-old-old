@@ -122,8 +122,13 @@ function DashboardCtrl($scope) {
 
 
 	var planetfs = require('./planetfs');
-	var fs = new planetfs.PlanetFS(gui.App.dataPath.toString(), 10, 1024 * 1024);
-	fs.init_chunks(function(err) {
+
+	$scope.planetfs = new planetfs.PlanetFS(
+		gui.App.dataPath.toString(), // root_dir
+		10, // num_chunks
+		1024 * 1024); // chunk_size
+
+	$scope.planetfs.init_chunks(function(err) {
 		if (err) {
 			console.log('PLANET FS INIT FAILED:', err.toString());
 		} else {

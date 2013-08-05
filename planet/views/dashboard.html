@@ -73,7 +73,7 @@
 			</td>
 			<td>
 				<span class="badge badge-info">
-					100 GB
+					{{ human_size(planetfs.total_size()) }}
 				</span>
 				<a class="btn btn-link">
 					Increase...
@@ -86,7 +86,7 @@
 			</td>
 			<td>
 				<span class="badge badge-info">
-					0 GB
+					{{ human_size(planetfs.used_size()) }}
 				</span>
 			</td>
 		</tr>

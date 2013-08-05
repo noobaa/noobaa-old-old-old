@@ -73,3 +73,12 @@ PlanetFS.prototype.create_chunks = function(callback) {
 		return fs.writeFile(fname, me.zero_chunk, next);
 	}, callback);
 };
+
+PlanetFS.prototype.total_size = function() {
+	return this.num_chunks * this.chunk_size;
+}
+
+PlanetFS.prototype.used_size = function() {
+	// TODO
+	return 0;
+}
