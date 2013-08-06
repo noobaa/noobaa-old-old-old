@@ -127,7 +127,9 @@ function page_context(req) {
 
 app.get('/planet.html', function(req, res) {
 	console.log('PLANET:', req.user);
-	res.render('planet.html', page_context(req));
+	var ctx = page_context(req);
+	// ctx.cookies = req.cookies;
+	res.render('planet.html', ctx);
 });
 
 app.get('/getstarted.html', function(req, res) {

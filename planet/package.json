@@ -1,5 +1,5 @@
 {
-	"name": "NooBaa App",
+	"name": "NooBaaApp",
 	"description": "NooBaa App",
 	"version": "0.1",
 	"main": "views/dashboard.html",
