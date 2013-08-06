@@ -68,23 +68,8 @@ function DashboardCtrl($scope, $http, $timeout) {
 	};
 
 
-	/* TODO: REMOVE COOKIE SHIT
-	function random_str(len) {
-		var text = "";
-		var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-		for (var i = 0; i < len; i++) {
-			text += possible.charAt(Math.floor(Math.random() * possible.length));
-		}
-		return text;
-	}
-	*/
-
-	// load persistent login info
-	/* TODO: REMOVE COOKIE SHIT
-	$scope.planet_cookie = localStorage.planet_cookie;
-	$scope.planet_user = localStorage.planet_user ?
-		JSON.parse(localStorage.planet_user) : null;
-	*/
+	// user login state
+	$scope.planet_user = null;
 
 	// update the connect frame src to load a new url
 	// the frame is used to contain the facebook connect code
@@ -101,21 +86,8 @@ function DashboardCtrl($scope, $http, $timeout) {
 			// when the user login returned info, pull it to our state
 			console.log('USER:', f.noobaa_user);
 			$scope.planet_user = f.noobaa_user;
-		/* TODO: REMOVE COOKIE SHIT
-			$scope.planet_cookie = f.document.cookie;
-			localStorage.planet_user = JSON.stringify(f.noobaa_user);
-			localStorage.planet_cookie = f.document.cookie;
-		} else if ($scope.planet_cookie) {
-			// when no user, load the existing cookies into the auth frame
-			var c = $scope.planet_cookie.split('; ');
-			for (var i = 0; i < c.length; i++) {
-				// setting a cookie is the weirdest api:
-				f.document.cookie = c[i];
-			}
-			console.log('LOAD COOKIES:', f.document.cookie);
-		*/
+			$scope.safe_apply();
 		}
-		$scope.safe_apply();
 	};
 
 	// on init load the auth login page into the frame.
@@ -132,21 +104,6 @@ function DashboardCtrl($scope, $http, $timeout) {
 
 	// logout - mostly for testing
 	$scope.do_disconnect = function() {
-		/* TODO: REMOVE COOKIE SHIT
-		if ($scope.planet_cookie) {
-			var f = window.frames.auth_frame;
-			var c = $scope.planet_cookie.split('; ');
-			for (var i = 0; i < c.length; i++) {
-				// unsetting a cookie is the weirdest api:
-				f.document.cookie = c[i].split('=')[0] +
-					'=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-			}
-			console.log('REMOVED COOKIES:', f.document.cookie);
-		}
-		delete localStorage.planet_cookie;
-		delete localStorage.planet_user;
-		$scope.planet_cookie = '';
-		*/
 		$scope.planet_user = null;
 		$scope.auth_frame_path('/auth/logout/?state=auth.html');
 	};

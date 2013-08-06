@@ -64,7 +64,8 @@ app.use(express.cookieParser(SECRET));
 app.use(express.bodyParser());
 app.use(express.methodOverride());
 app.use(express.cookieSession({
-	// no need for secret since itsw signed by cookieParser
+	// no need for secret since its signed by cookieParser
+	key: 'noobaa_session',
 	cookie: {
 		// TODO: setting max-age for all sessions although we prefer only for /auth.html
 		// but express/connect seems broken to accept individual session maxAge,
@@ -74,16 +75,6 @@ app.use(express.cookieSession({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(function(req, res, next) {
-	/* TODO: REMOVE COOKIE SHIT
-	// middleware to receive a user also from the noobaa_auth_cookie
-	// see route for auth.html below
-	if (!req.user && req.signedCookies.noobaa_auth_cookie) {
-		req.user = req.signedCookies.noobaa_auth_cookie.user;
-	}
-	*/
-	return next();
-});
 app.use('/star_api/', function(req, res, next) {
 	// general validations preceding all the star api functions
 	if (!req.user) {
@@ -147,26 +138,8 @@ function page_context(req) {
 	};
 }
 
-// the auth.html route is used for planet login
-// it allows the planet to get a cookie that
-// can be used to pass the user credentials.
-// this is instead of the session which is defined as httpOnly
-// and therefore not allowing to fetch on client javascript.
+// route for planet login
 app.get('/auth.html', function(req, res) {
-	console.log('USER:', req.user);
-	/* TODO: REMOVE COOKIE SHIT
-	if (req.user) {
-		// return a custom cookie
-		res.cookie('noobaa_auth_cookie', {
-			user: req.user,
-			planet_id: req.query.planet_id
-		}, {
-			signed: true // make it signed
-		});
-	}
-	*/
-	// This user won't have to log in for a year
-	console.log(req.session.cookie);
 	res.render('auth.html', page_context(req));
 });
 
