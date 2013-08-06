@@ -321,16 +321,6 @@ function do_read_file(inode, next) {
 }
 
 
-// general validations preceding all the star api functions
-
-exports.validations = function(req, res, next) {
-	if (!req.user) {
-		return res.send(403, "User Not Authenticated");
-	}
-	return next();
-};
-
-
 // INODE CRUD - CREATE
 // create takes params from req.body which is suitable for HTTP POST.
 // it can be used to create a directory inode,

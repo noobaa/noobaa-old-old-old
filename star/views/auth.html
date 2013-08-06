@@ -9,11 +9,11 @@
 	<?# def.facebook_init_body ?>
 
 	<script>
-		var noobaa_info = {
-			user: <?= JSON.stringify(it.user) ?>
-			// cookies: < ?= JSON.stringify(it.cookies) ? >,
-			// jq: $
-		};
+		<?? it.user ?>
+		var noobaa_user = <?= JSON.stringify(it.user) ?>;
+		<????>
+		var noobaa_user = null;
+		<???>
 	</script>
 
 </body>
