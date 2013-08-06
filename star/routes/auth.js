@@ -9,47 +9,105 @@ var User = user_model.User;
 var fbapi = require('facebook-api');
 var _ = require('underscore');
 var user_inodes = require('../providers/user_inodes');
+var user_invitations = require('../providers/user_invitations');
+
+// Gets the FB profile and current user DB appearance and makes sure we the uptodate details
+// mainly - email, privilages and the likes which are important for our communication 
+// with the user.
+var user_details_update = function(profile, user, callback) {
+	async.waterfall([
+		function(next) {
+			next(null, profile, user, false);
+		},
+
+		//check the profile
+		function(profile, user, modified, next) {
+			if (_.isEqual(user.fb, profile._json)) {
+				return next(null, profile, user, modified);
+			}
+			modified = true;
+			user.fb = profile._json;
+			return next(null, profile, user, modified);
+		},
+
+	], function(err, profile, user, modified) {
+		if (err) {
+			return callback(err, null);
+		}
+		if (!modified) {
+			return callback(null, err);
+		}
+		user.save(function(err, user, num) {
+			if (err) {
+				console.error('ERROR - UPDATE USER FAILED:', err);
+				return callback(err, null);
+			}
+			console.log('USER updated: ', user);
+			callback(null, user);
+		});
+	});
+};
 
 // setup passport with facebook backend
-passport.use(new facebook_passport.Strategy({
-	clientID: process.env.FACEBOOK_APP_ID,
-	clientSecret: process.env.FACEBOOK_SECRET,
-	callbackURL: process.env.FACEBOOK_AUTHORIZED_URL,
-	passReqToCallback: true,
-}, function(req, accessToken, refreshToken, profile, done) {
-	// when user connects with facebook,
-	// try to find his facebook-id in the database,
-	// if not found, create a new user.
-	User.findOne({
-		'fb.id': profile.id
-	}, function(err, user) {
-		if (err) {
-			console.error('ERROR - FIND USER FAILED:', err);
-			return done(err);
-		}
-		if (!user) {
-			user = new User();
+var create_user = function(profile, callback) {
+	async.waterfall([
+		function(next) {
+			return next(null, profile);
+			},
+
+		function(profile, next) {
+			return user_invitations.was_user_invited(profile, next);
+		},
+
+		function(fb_profile, invited, next) {
+			var user = new User();
+			user.privileges = [];
+			if (invited) {
+				user.privileges.push(user_model.CONST_PRIVILEGES.LOGIN);
+			}
 			user.fb = profile._json;
 			user.save(function(err, user, num) {
 				if (err) {
 					console.error('ERROR - CREATE USER FAILED:', err);
-					return done(err, null);
+					return next(err, null);
 				}
 				console.log('CREATED USER:', user);
-				// put the accessToken in the session
-				console.log('Saved user token in session', accessToken);
-				req.session.fbAccessToken = accessToken;
-				//					done(null, user);
-				return user_inodes.verify_and_create_base_folders(user, done);
+				next(null, user);
 			});
-		}
-		console.log('FOUND USER:', user);
-		// put the accessToken in the session
-		console.log('Saved user token in session', accessToken);
-		req.session.fbAccessToken = accessToken;
-		return user_inodes.verify_and_create_base_folders(user, done);
-	});
-}));
+		},
+
+		user_inodes.verify_and_create_base_folders,
+
+	], callback);
+};
+
+var user_login = function(req, accessToken, refreshToken, profile, done) {
+	async.waterfall([
+		//find the user in the DB
+		function(next) {
+			User.findOne({
+				'fb.id': profile.id
+			}, function(err, user) {
+				if (err) {
+					console.error('ERROR - FIND USER FAILED:', err);
+					return next(err, null);
+				}
+				if (!user) {
+					return create_user(profile, next);
+				}
+				return next(null, user);
+			});
+		},
+		user_details_update.bind(null, profile),
+	], done);
+};
+
+passport.use(new facebook_passport.Strategy({
+	clientID: process.env.FACEBOOK_APP_ID,
+	clientSecret: process.env.FACEBOOK_SECRET,
+	callbackURL: process.env.FACEBOOK_AUTHORIZED_URL,
+	passReqToCallback: true
+}, user_login));
 
 // define what kind of info will be saved in the session.
 // this info will be encoded inside a cookie,
@@ -63,8 +121,18 @@ passport.serializeUser(function(user, done) {
 		id: user._id,
 		fbid: user.fb.id,
 		name: user.fb.name,
-		username: user.fb.username
+		username: user.fb.username,
+		privileges: user.privileges,
+		email: null,
 	};
+
+	//fill in the email. The user fed email takes presidence over FB's so we do it last.
+	if (user.fb.email){
+		user_info.email = user.fb.email;
+	}
+	if (user.email){
+		user_info.email = user.email;
+	}
 	done(null, user_info);
 });
 
@@ -75,6 +143,8 @@ passport.deserializeUser(function(user_info, done) {
 // facebook login is handled by passport
 exports.facebook_login = function(req, res, next) {
 	passport.authenticate('facebook', {
+		scope: ['email', 'publish_actions'],
+		// passing the query state to next steps to allow custom redirect
 		state: req.query.state
 	})(req, res, next);
 };
@@ -144,4 +214,8 @@ exports.get_noobaa_friends_list = function(fbAccessToken, next) {
 				next);
 		},
 	], next);
+};
+
+exports.can_login = function(user) {
+	return _.contains(user.privileges, user_model.CONST_PRIVILEGES.LOGIN);
 };
