@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html ng-app="noobaa_app" xmlns:fb="http://ogp.me/ns/fb#" lang="en">
+
+<head>
+	<?# def.include('common_head.html') ?>
+	<style type="text/css">
+		.bg_item1 {
+			background-image: url('/public/images/canstockphoto7322234.jpg');
+		}
+		.bg_item1, .bg_item2, .bg_item3 {
+			background-repeat: no-repeat;
+			background-attachment: fixed;
+			background-size: cover;
+		}
+		@media all and (max-width: 600px) {
+			.bg_item1, .bg_item2, .bg_item3 {
+				background-position: 60% 0;
+			}
+		}
+	</style>
+	<script src="/public/js/thank_you.js" type="text/javascript"></script>
+	<script type="text/javascript">
+		<??it.user?>
+			var noobaa_user = <?= JSON.stringify(it.user) ?>;
+		<????>
+			var noobaa_user = null;
+		<???>
+	</script>
+</head>
+
+<body ng-controller="ThankYouCtrl">
+	<a id="_"></a>
+	<div id="nb_nav" class="navbar navbar-inverse"
+		onresize="nb_nav_affix = undefined;" style="margin-bottom: 0px;">
+		<div class="navbar-inner fntread fntwht">
+			<a class="brand scroller" href="/welcome" style="width: 80px">
+				<img src="/public/nblib/img/noobaa_logo.png"></img>
+			</a>
+		</div>
+	</div>
+
+	<div id="nb_thankyou"
+		class="slide bglight filling">
+			<div class="active item filling bg_item1">
+				<!-- <div class="pattern"></div> -->
+				<div class="container text-left">
+					<br/><br/><br/><br/>
+					<div class="row offset0 H2 fntpaint fntblk" >Thank you for joining!</div>
+					<h3 class="row offset0 fntread fntblk">
+						<br/>NooBaa is still in Alpha.<br/>
+						As soon as we can accomodate more users, we'll contact you via:
+						<span class="row" align="center" style="margin: 40px">
+								<div class="input-prepend" >
+									<button class="btn btn-success"
+										type="button"
+										ng-show="!submitted"
+										ng-disabled="submitting"
+										ng-click="submit()">
+										<img ng-show="submitting"
+											src="/public/nblib/img/ajax-loader.gif"></img>
+										<b>Change</b>
+									</button>
+									<input ng-model="new_email"
+										id="email_input"
+										class="input span4"
+										type="email"
+										ng-disabled="submitting || submitted"
+										placeholder="<?! it.user.email ?>">
+									</input>
+								</div>
+								<div class="alert alert-error" hidden="hidden"></div>
+								<div class="alert alert-success" hidden="hidden"></div>
+						</span><br/>
+						Feel free to drop us a note:  
+						<a href="mailto:info@noobaa.com" style="color:black">info@noobaa.com</a><br/> 
+						Thank you.<br/>
+						The NooBaa team.
+					</h3>
+				</div>
+			</div>
+	</div>
+
+</body>
+
+</html>

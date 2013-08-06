@@ -10,7 +10,6 @@ var passport = require('passport');
 var mongoose = require('mongoose');
 var fbapi = require('facebook-api');
 
-
 // replace dot regexp to use <% %> to avoid collision with angular {{ }}
 for (var i in dot.templateSettings) {
 	var reg = dot.templateSettings[i];
@@ -57,7 +56,6 @@ app.engine('html', dot_emc_app.__express);
 
 // setup express app
 // configure app handlers in the order to use them
-
 app.use(express.favicon('/public/nblib/img/noobaa_icon.ico'));
 app.use(express.logger());
 app.use(express.cookieParser());
@@ -95,7 +93,6 @@ app.get('/auth/facebook/authorized/', auth.facebook_authorized);
 app.get('/auth/facebook/channel.html', auth.facebook_channel);
 app.get('/auth/logout/', auth.logout);
 
-
 // setup email routes
 
 var email = require('./routes/email');
@@ -112,6 +109,8 @@ app.put('/star_api/inode/:inode_id', star_api.inode_update);
 app.del('/star_api/inode/:inode_id', star_api.inode_delete);
 app.get('/star_api/inode/:inode_id/share_list', star_api.inode_get_share_list);
 app.put('/star_api/inode/:inode_id/share_list', star_api.inode_set_share_list);
+
+app.put('/star_api/user/:user_id', star_api.user_update);
 
 
 // setup pages
@@ -139,18 +138,38 @@ app.get('/getstarted.html', function(req, res) {
 	}
 });
 
-app.get('/', function(req, res) {
-	if (req.user) {
-		res.render('mydata.html', page_context(req));
+app.get('/welcome', function(req, res) {
+	return res.render('welcome.html', page_context(req));
+});
+
+app.get('/thankyou', function(req, res) {
+	res.render('thankyou.html', page_context(req));
+});
+
+app.get('/mydata', function(req, res) {
+	if (req.user && auth.can_login(req.user)) {
+		return res.render('mydata.html', page_context(req));
 	} else {
-		res.render('welcome.html', page_context(req));
+		return res.redirect('/welcome');
 	}
 });
 
+app.get('/', function(req, res) {
+	if (!req.user) {
+		return res.redirect('/welcome');
+	}
+	if (auth.can_login(req.user)) {
+		return res.redirect('/mydata');
+	}
+	return res.redirect('/thankyou');
+});
 
 // errorHandler should be last handler
 if ('development' == app.get('env')) {
-	app.use(express.errorHandler({showStack: true, dumpExceptions: true}));
+	app.use(express.errorHandler({
+		showStack: true,
+		dumpExceptions: true
+	}));
 }
 
 // start the default http server
