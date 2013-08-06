@@ -47,7 +47,7 @@
 	 			Device Login
 			</td>
 			<td>
-				<div ng-cloak ng-hide="connected_user">
+				<div ng-cloak ng-hide="planet_user">
 					<span class="badge badge-warning">
 						Disconnected
 					</span>
@@ -55,15 +55,15 @@
 						<img src="../nblib/img/facebook_login_button.png"></img>
 					</a>
 				</div>
-				<div ng-cloak ng-show="connected_user">
+				<div ng-cloak ng-show="planet_user">
 					<span class="badge badge-info">
 						<i class="icon-user icon-white"></i>
-						{{connected_user.name}}
+						{{planet_user.name}}
 					</span>
-					<button class="btn btn-mini" 
+					<a class="btn btn-link" 
 						ng-click="do_disconnect()">
-						<i class="icon-remove"></i>
-					</button>
+						Disconnect this device...
+					</a>
 				</div>
 			</td>
 		</tr>
@@ -72,7 +72,7 @@
 				Co-Shared Space
 			</td>
 			<td>
-				<span class="badge badge-info">
+				<span ng-cloak class="badge badge-info">
 					{{ human_size(planetfs.total_size()) }}
 				</span>
 				<a class="btn btn-link">
@@ -85,15 +85,15 @@
 				Used Space
 			</td>
 			<td>
-				<span class="badge badge-info">
+				<span ng-cloak class="badge badge-info">
 					{{ human_size(planetfs.used_size()) }}
 				</span>
 			</td>
 		</tr>
 	</table>
 
-	<!-- iframe used to make planet connect -->
-	<iframe id="connect_frame" hidden nwdisable nwfaketop></iframe>
+	<!-- iframe used to make authentication -->
+	<iframe id="auth_frame" hidden  nwfaketop></iframe>
 
 
 	<!-- SCRIPTS -->

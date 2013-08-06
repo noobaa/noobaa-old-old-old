@@ -1,12 +1,17 @@
 /* jshint node:true, browser:true, jquery:true, devel:true */
 /* global angular:false */
-
+var _ = require('underscore');
 
 // the dashboard angular controller
 
-function DashboardCtrl($scope) {
+function DashboardCtrl($scope, $http, $timeout) {
 	'use strict';
 
+	// keep local refs here so that any callback functions
+	// defined here will resolve to the window.* members
+	// and avoid failures when console is null on fast refresh.
+	var console = window.console;
+	var localStorage = window.localStorage;
 	console.log('DashboardCtrl');
 
 	// TODO: change domain to noobaa.com
@@ -17,9 +22,12 @@ function DashboardCtrl($scope) {
 	$scope.home_location = window.location.href;
 
 	$scope.reload_home = function() {
-		window.console.log(window.location, $scope.home_location);
-		window.location.href = $scope.home_location;
-		//gui.Window.get().reload();
+		if (window.location.href !== $scope.home_location) {
+			window.console.log(window.location, $scope.home_location);
+			window.location.href = $scope.home_location;
+		} else {
+			gui.Window.get().reload();
+		}
 	};
 
 	// load native ui library
@@ -55,77 +63,70 @@ function DashboardCtrl($scope) {
 	$scope.quit = function() {
 		var q = 'Closing the application will stop the co-sharing. Are you sure?';
 		if (window.confirm(q)) {
-			// save window state in localStorage
-			// for next time.
-			var w = gui.Window.get();
-			localStorage.win_x = w.x;
-			localStorage.win_y = w.y;
-			localStorage.win_width = w.width;
-			localStorage.win_height = w.height;
 			gui.App.quit();
 		}
 	};
 
-	// restore window state from locaoStorage
-	if (localStorage.win_width && localStorage.win_height) {
-		var w = gui.Window.get();
-		w.resizeTo(
-			parseInt(localStorage.win_width, 10),
-			parseInt(localStorage.win_height, 10));
-		w.moveTo(
-			parseInt(localStorage.win_x, 10),
-			parseInt(localStorage.win_y, 10));
-	}
 
-
-	// user login info
-	$scope.connected_user = null;
+	// user login state
+	$scope.planet_user = null;
 
 	// update the connect frame src to load a new url
 	// the frame is used to contain the facebook connect code
 	// which cannot be used inside a 'file://' type url 
 	// which is used by node-webkit.
-
-	function connect_frame_path(path) {
-		$('#connect_frame')[0].src = $scope.star_url + path;
-	}
+	$scope.auth_frame_path = function(path) {
+		$('#auth_frame')[0].src = $scope.star_url + path;
+	};
 
 	// pull info from the frame once it loads
-	$('#connect_frame')[0].onload = function() {
-		var c = window.frames.connect_frame;
-		$scope.connected_user = c.noobaa_info ? c.noobaa_info.user : null;
-		$scope.safe_apply();
-		console.log('LOAD:', c.document.URL, c.noobaa_info);
-		c.FB.Event.subscribe('auth.statusChange', function(res) {
-			$scope.connected_user = c.noobaa_info ? c.noobaa_info.user : null;
+	$('#auth_frame')[0].onload = function() {
+		var f = window.frames.auth_frame;
+		if (f.noobaa_user) {
+			// when the user login returned info, pull it to our state
+			console.log('USER:', f.noobaa_user);
+			$scope.planet_user = f.noobaa_user;
 			$scope.safe_apply();
-			console.log('AUTH:', c.document.URL, c.noobaa_info);
-		});
+		}
 	};
+
+	// on init load the auth login page into the frame.
+	$scope.auth_frame_path('/auth.html');
 
 	// submit connect request - will open facebool login dialog window.
 	$scope.do_connect = function() {
-		window.frames.connect_frame.FB.login(function(res) {
+		window.frames.auth_frame.FB.login(function(res) {
 			if (res.authResponse) {
-				connect_frame_path('/auth/facebook/planet/');
+				$scope.auth_frame_path('/auth/facebook/login/?state=auth.html');
 			}
 		});
 	};
 
-	// logout - not really needed here, just for testing
+	// logout - mostly for testing
 	$scope.do_disconnect = function() {
-		connect_frame_path('/auth/logout/');
+		$scope.planet_user = null;
+		$scope.auth_frame_path('/auth/logout/?state=auth.html');
 	};
 
-	// on init load the planet login page into the frame.
-	connect_frame_path('/planet.html');
+	function do_get() {
+		$http({
+			method: 'GET',
+			url: $scope.star_url + '/star_api/inode/null'
+		}).success(function(data, status, headers, config) {
+			console.log('[ok]', status);
+		}).error(function(data, status, headers, config) {
+			console.error('[ERR]', data, status);
+		});
+		$timeout(do_get, 10000);
+	}
+	$timeout(do_get, 10000);
 
 
 	var planetfs = require('./planetfs');
 
 	$scope.planetfs = new planetfs.PlanetFS(
 		gui.App.dataPath.toString(), // root_dir
-		10, // num_chunks
+		0, // num_chunks
 		1024 * 1024); // chunk_size
 
 	$scope.planetfs.init_chunks(function(err) {
@@ -195,4 +196,4 @@ function DashboardCtrl($scope) {
 }
 
 // avoid minification effects by injecting the required angularjs dependencies
-DashboardCtrl.$inject = ['$scope'];
+DashboardCtrl.$inject = ['$scope', '$http', '$timeout'];

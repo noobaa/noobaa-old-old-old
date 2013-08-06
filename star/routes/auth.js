@@ -141,17 +141,16 @@ passport.deserializeUser(function(user_info, done) {
 });
 
 // facebook login is handled by passport
-exports.facebook_login = passport.authenticate('facebook', {
-	scope: ['email', 'publish_actions']
-});
-
-exports.facebook_planet = function(req, res) {
-	req.session.planet = true;
-	return exports.facebook_login(req, res);
+exports.facebook_login = function(req, res, next) {
+	passport.authenticate('facebook', {
+		scope: ['email', 'publish_actions'],
+		// passing the query state to next steps to allow custom redirect
+		state: req.query.state
+	})(req, res, next);
 };
 
-function redirection(req) {
-	return (req.session.planet ? '/planet.html' : '/');
+function redirection(state) {
+	return (state==='auth.html' ? '/auth.html' : '/');
 }
 
 // when authorization is complete (either success/failed)
@@ -165,7 +164,7 @@ exports.facebook_authorized = function(req, res, next) {
 		res.redirect('/#join');
 		return;
 	}
-	var redirect = redirection(req);
+	var redirect = redirection(req.query.state);
 	passport.authenticate('facebook', {
 		successRedirect: redirect,
 		failureRedirect: redirect,
@@ -178,9 +177,8 @@ exports.facebook_channel = function(req, res) {
 };
 
 exports.logout = function(req, res) {
-	var redirect = redirection(req);
+	var redirect = redirection(req.query.state);
 	delete req.session.fbAccessToken;
-	delete req.session.planet;
 	req.logout();
 	res.redirect(redirect);
 };
