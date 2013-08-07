@@ -3,6 +3,8 @@
 
 var path = require('path');
 var http = require('http');
+var https = require('https');
+var fs = require('fs');
 var dot = require('dot');
 var dot_emc = require('dot-emc');
 var express = require('express');
@@ -38,7 +40,6 @@ mongoose.connect(process.env.MONGOHQ_URL);
 
 // create express app
 var app = express();
-var server = http.createServer(app);
 var web_port = process.env.PORT || 5000;
 app.set('port', web_port);
 app.set('env', 'development'); // TODO: temporary
@@ -58,6 +59,14 @@ app.engine('html', dot_emc_app.__express);
 // configure app handlers in the order to use them
 app.use(express.favicon('/public/nblib/img/noobaa_icon.ico'));
 app.use(express.logger());
+app.use(function(req, res, next) {
+	// force https login when not local
+	var host = req.get('Host');
+	if (!req.secure && !host.match(/127\.0\.0\.1:[0-9]+/)) {
+		return res.redirect('https://' + host + req.url);
+	}
+	return next();
+});
 var SECRET = '.9n>(3(Tl.~8Q4mL9fhzqFnD;*vbd\\8cI!&3r#I!y&kP>PkAksV4&SNLj+iXl?^{O)XIrRDAFr+CTOx1Gq/B/sM+=P&j)|X|cI}c>jmEf@2TZmQJhEMk_WZMT:l6Z(4rQK$\\NT*Gcnv.0F9<c<&?E>Uj(x!z_~%075:%DHRhL"3w-0W+r)bV!)x)Ya*i]QReP"T+e@;_';
 app.use(express.cookieParser(SECRET));
 app.use(express.bodyParser());
@@ -185,7 +194,15 @@ if ('development' == app.get('env')) {
 	}));
 }
 
-// start the default http server
+// start http server
+/*
+var https_options = {
+	key: fs.readFileSync('privatekey.pem'),
+	cert: fs.readFileSync('certificate.pem')
+};
+var server = https.createServer(https_options, app);
+*/
+var server = http.createServer(app);
 server.listen(web_port, function() {
 	console.log('Web server on port ' + web_port);
 });
