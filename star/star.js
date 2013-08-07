@@ -59,6 +59,7 @@ app.engine('html', dot_emc_app.__express);
 // configure app handlers in the order to use them
 app.use(express.favicon('/public/nblib/img/noobaa_icon.ico'));
 app.use(express.logger());
+/* TODO: the req.secure flag is not available on heroku (because only the router does ssl)
 app.use(function(req, res, next) {
 	// force https login when not local
 	var host = req.get('Host');
@@ -67,6 +68,7 @@ app.use(function(req, res, next) {
 	}
 	return next();
 });
+*/
 var SECRET = '.9n>(3(Tl.~8Q4mL9fhzqFnD;*vbd\\8cI!&3r#I!y&kP>PkAksV4&SNLj+iXl?^{O)XIrRDAFr+CTOx1Gq/B/sM+=P&j)|X|cI}c>jmEf@2TZmQJhEMk_WZMT:l6Z(4rQK$\\NT*Gcnv.0F9<c<&?E>Uj(x!z_~%075:%DHRhL"3w-0W+r)bV!)x)Ya*i]QReP"T+e@;_';
 app.use(express.cookieParser(SECRET));
 app.use(express.bodyParser());
