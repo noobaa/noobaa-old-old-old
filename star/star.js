@@ -73,7 +73,7 @@ app.use(function(req, res, next) {
 	// TODO: the req.secure flag is not available on heroku (because only the router does ssl)
 	// force https login when not local
 	// if (!req.secure && !host.match(/127\.0\.0\.1:[0-9]+/)) {
-	// 	return res.redirect('https://' + host + req.url);
+	// return res.redirect('https://' + host + req.url);
 	// }
 	return next();
 });
