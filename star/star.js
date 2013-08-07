@@ -12,6 +12,22 @@ var passport = require('passport');
 var mongoose = require('mongoose');
 var fbapi = require('facebook-api');
 
+
+// connect to the database
+mongoose.connect(process.env.MONGOHQ_URL);
+
+// create express app
+var app = express();
+var web_port = process.env.PORT || 5000;
+app.set('port', web_port);
+app.set('env', 'development'); // TODO: temporary
+
+// setup view template engine with doT
+var dot_emc_app = dot_emc.init({
+	app: app
+});
+dot.templateSettings.strip = false;
+dot.templateSettings.cache = ('development' != app.get('env'));
 // replace dot regexp to use <% %> to avoid collision with angular {{ }}
 for (var i in dot.templateSettings) {
 	var reg = dot.templateSettings[i];
@@ -33,52 +49,42 @@ for (var i in dot.templateSettings) {
 	}
 	dot.templateSettings[i] = new RegExp(pattern, flags);
 }
-
-
-// connect to the database
-mongoose.connect(process.env.MONGOHQ_URL);
-
-// create express app
-var app = express();
-var web_port = process.env.PORT || 5000;
-app.set('port', web_port);
-app.set('env', 'development'); // TODO: temporary
-
-// setup view template engine with doT
-var dot_emc_app = dot_emc.init({
-	app: app
-});
-dot.templateSettings.strip = false;
-dot.templateSettings.cache = ('development' != app.get('env'));
 app.set('views', path.join(__dirname, 'views'));
 app.engine('dot', dot_emc_app.__express);
 app.engine('html', dot_emc_app.__express);
 
 
-// setup express app
-// configure app handlers in the order to use them
+
+////////////////
+// MIDDLEWARE //
+////////////////
+
+// configure app middleware handlers in the order to use them
+
 app.use(express.favicon('/public/nblib/img/noobaa_icon.ico'));
 app.use(express.logger());
 app.use(function(req, res, next) {
-
-	var host = req.get('Host');
-	// heroku router headers
-	var fwd_ip = req.get('X-Forwarded-For');
+	// we want to use ssl connections for the entire application,
+	// so once a request for http arrives we redirect to https.
+	// expressjs suggested to use the req.secure flag, 
+	// but on heroku since only the router does ssl express receives plain http, 
+	// so we need to pull the heroku router headers to check.
+	// var fwd_ip = req.get('X-Forwarded-For');
+	// var fwd_port = req.get('X-Forwarded-Port');
+	// var fwd_start = req.get('X-Request-Start');
 	var fwd_proto = req.get('X-Forwarded-Proto');
-	var fwd_port = req.get('X-Forwarded-Port');
-	var fwd_start = req.get('X-Request-Start');
-	if (fwd_proto) {
-		console.log('FWD', fwd_ip, fwd_proto, fwd_port, fwd_start);
+	if (fwd_proto === 'http') {
+		var host = req.get('Host');
+		return res.redirect('https://' + host + req.url);
 	}
-	// TODO: the req.secure flag is not available on heroku (because only the router does ssl)
-	// force https login when not local
-	// if (!req.secure && !host.match(/127\.0\.0\.1:[0-9]+/)) {
-	// return res.redirect('https://' + host + req.url);
-	// }
 	return next();
 });
-var SECRET = '.9n>(3(Tl.~8Q4mL9fhzqFnD;*vbd\\8cI!&3r#I!y&kP>PkAksV4&SNLj+iXl?^{O)XIrRDAFr+CTOx1Gq/B/sM+=P&j)|X|cI}c>jmEf@2TZmQJhEMk_WZMT:l6Z(4rQK$\\NT*Gcnv.0F9<c<&?E>Uj(x!z_~%075:%DHRhL"3w-0W+r)bV!)x)Ya*i]QReP"T+e@;_';
-app.use(express.cookieParser(SECRET));
+var COOKIE_SECRET =
+	'.9n>(3(Tl.~8Q4mL9fhzqFnD;*vbd\\8cI!&3r#I!y&kP>' +
+	'PkAksV4&SNLj+iXl?^{O)XIrRDAFr+CTOx1Gq/B/sM+=P&' +
+	'j)|X|cI}c>jmEf@2TZmQJhEMk_WZMT:l6Z(4rQK$\\NT*G' +
+	'cnv.0F9<c<&?E>Uj(x!z_~%075:%DHRhL"3w-0W+r)bV!)x)Ya*i]QReP"T+e@;_';
+app.use(express.cookieParser(COOKIE_SECRET));
 app.use(express.bodyParser());
 app.use(express.methodOverride());
 app.use(express.cookieSession({
@@ -120,6 +126,11 @@ app.use('/vendor/', express.static(path.join(__dirname, '..', 'vendor')));
 // errorHandler should be last handler
 app.use(express.errorHandler());
 
+
+
+////////////
+// ROUTES //
+////////////
 
 
 // setup auth routes
