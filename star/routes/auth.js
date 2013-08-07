@@ -32,15 +32,15 @@ var user_details_update = function(profile, user, callback) {
 
 	], function(err, profile, user, modified) {
 		if (err) {
-			return callback(err, null);
+			return callback(err);
 		}
 		if (!modified) {
-			return callback(null, err);
+			return callback(null, user);
 		}
 		user.save(function(err, user, num) {
 			if (err) {
 				console.error('ERROR - UPDATE USER FAILED:', err);
-				return callback(err, null);
+				return callback(err);
 			}
 			console.log('USER updated: ', user);
 			callback(null, user);
@@ -53,7 +53,7 @@ var create_user = function(profile, callback) {
 	async.waterfall([
 		function(next) {
 			return next(null, profile);
-			},
+		},
 
 		function(profile, next) {
 			return user_invitations.was_user_invited(profile, next);
@@ -90,7 +90,7 @@ var user_login = function(req, accessToken, refreshToken, profile, done) {
 			}, function(err, user) {
 				if (err) {
 					console.error('ERROR - FIND USER FAILED:', err);
-					return next(err, null);
+					return next(err);
 				}
 				if (!user) {
 					return create_user(profile, next);
@@ -127,10 +127,10 @@ passport.serializeUser(function(user, done) {
 	};
 
 	//fill in the email. The user fed email takes presidence over FB's so we do it last.
-	if (user.fb.email){
+	if (user.fb.email) {
 		user_info.email = user.fb.email;
 	}
-	if (user.email){
+	if (user.email) {
 		user_info.email = user.email;
 	}
 	done(null, user_info);
@@ -150,7 +150,7 @@ exports.facebook_login = function(req, res, next) {
 };
 
 function redirection(state) {
-	return (state==='auth.html' ? '/auth.html' : '/');
+	return (state === 'auth.html' ? '/auth.html' : '/');
 }
 
 // when authorization is complete (either success/failed)
@@ -167,8 +167,7 @@ exports.facebook_authorized = function(req, res, next) {
 	var redirect = redirection(req.query.state);
 	passport.authenticate('facebook', {
 		successRedirect: redirect,
-		failureRedirect: redirect,
-		failureFlash: true
+		failureRedirect: redirect + '#failed'
 	})(req, res, next);
 };
 
