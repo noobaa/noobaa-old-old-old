@@ -64,16 +64,20 @@ app.engine('html', dot_emc_app.__express);
 app.use(express.favicon('/public/nblib/img/noobaa_icon.ico'));
 app.use(express.logger());
 app.use(function(req, res, next) {
-	// we want to use ssl connections for the entire application,
-	// so once a request for http arrives we redirect to https.
-	// expressjs suggested to use the req.secure flag, 
-	// but on heroku since only the router does ssl express receives plain http, 
+	// HTTPS redirect:
+	// since we want to provide secure and certified connections 
+	// for the entire application, so once a request for http arrives,
+	// we redirect it to https.
+	// it was suggested to use the req.secure flag to check that.
+	// however our nodejs server is always http so the flag is false,
+	// and on heroku only the router does ssl,
 	// so we need to pull the heroku router headers to check.
-	// var fwd_ip = req.get('X-Forwarded-For');
-	// var fwd_port = req.get('X-Forwarded-Port');
-	// var fwd_start = req.get('X-Request-Start');
 	var fwd_proto = req.get('X-Forwarded-Proto');
-	if (fwd_proto === 'http') {
+	// var fwd_port = req.get('X-Forwarded-Port');
+	// var fwd_from = req.get('X-Forwarded-For');
+	// var fwd_start = req.get('X-Request-Start');
+	// TODO: we do not redirect the welcome page for now till we have ssl certificate
+	if (fwd_proto === 'http' && req.url !== '/' && req.url !== '/welcome') {
 		var host = req.get('Host');
 		return res.redirect('https://' + host + req.url);
 	}
