@@ -142,6 +142,11 @@ passport.deserializeUser(function(user_info, done) {
 
 // facebook login is handled by passport
 exports.facebook_login = function(req, res, next) {
+	// force https login when not local
+	var host = req.get('Host');
+	if (!req.secure && !host.match(/127\.0\.0\.1:[0-9]+/)) {
+		return res.redirect('https://' + host + req.url);
+	}
 	passport.authenticate('facebook', {
 		scope: ['email', 'publish_actions'],
 		// passing the query state to next steps to allow custom redirect
