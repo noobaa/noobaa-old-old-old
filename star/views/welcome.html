@@ -195,10 +195,15 @@
 			</ul>
 			<ul class="nav pull-right">
 				<li>
+					<!--
 					<a class="fb-login-button"
-						scope="email"
+						scope="email,publish_actions"
 						registration-url="/auth/facebook/login/"
 						show-faces="false">
+					</a>
+					-->
+					<a ng-click="do_facebook_login()" style="cursor: pointer">
+						<img src="/public/nblib/img/facebook_login_button.png"></img>
 					</a>
 				</li>
 			</ul>
@@ -350,6 +355,14 @@
 			$scope.submitting = false;
 			$scope.submitted = false; 
 			$('.alert').html('').hide();
+
+			$scope.do_facebook_login = function() {
+				FB.login(function(res) {
+					if(res.authResponse) {
+						window.location = '/auth/facebook/login/';
+					}
+				});
+			};
 
 			$scope.submit = function () {
 				has_running_requests = true;
