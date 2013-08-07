@@ -59,16 +59,24 @@ app.engine('html', dot_emc_app.__express);
 // configure app handlers in the order to use them
 app.use(express.favicon('/public/nblib/img/noobaa_icon.ico'));
 app.use(express.logger());
-/* TODO: the req.secure flag is not available on heroku (because only the router does ssl)
 app.use(function(req, res, next) {
-	// force https login when not local
+
 	var host = req.get('Host');
-	if (!req.secure && !host.match(/127\.0\.0\.1:[0-9]+/)) {
-		return res.redirect('https://' + host + req.url);
+	// heroku router headers
+	var fwd_ip = req.get('X-Forwarded-For');
+	var fwd_proto = req.get('X-Forwarded-Proto');
+	var fwd_port = req.get('X-Forwarded-Port');
+	var fwd_start = req.get('X-Request-Start');
+	if (fwd_proto) {
+		console.log('FWD', fwd_ip, fwd_proto, fwd_port, fwd_start);
 	}
+	// TODO: the req.secure flag is not available on heroku (because only the router does ssl)
+	// force https login when not local
+	// if (!req.secure && !host.match(/127\.0\.0\.1:[0-9]+/)) {
+	// 	return res.redirect('https://' + host + req.url);
+	// }
 	return next();
 });
-*/
 var SECRET = '.9n>(3(Tl.~8Q4mL9fhzqFnD;*vbd\\8cI!&3r#I!y&kP>PkAksV4&SNLj+iXl?^{O)XIrRDAFr+CTOx1Gq/B/sM+=P&j)|X|cI}c>jmEf@2TZmQJhEMk_WZMT:l6Z(4rQK$\\NT*Gcnv.0F9<c<&?E>Uj(x!z_~%075:%DHRhL"3w-0W+r)bV!)x)Ya*i]QReP"T+e@;_';
 app.use(express.cookieParser(SECRET));
 app.use(express.bodyParser());
@@ -93,11 +101,11 @@ app.use('/star_api/', function(req, res, next) {
 	}
 	return next();
 });
+// using router before static files is optimized
+// since we have less routes then files, and the routes are in memory.
 app.use(app.router);
 
-
 // setup static files
-
 // use public star files
 app.use('/public/', express.static(path.join(__dirname, 'public')));
 // use vendor content which is loaded by npm
@@ -108,6 +116,10 @@ app.use('/vendor/blueimp-file-upload/', express.static(
 app.use('/vendor/', express.static(path.join(__dirname, '..', 'bower_components')));
 // add static vendor content
 app.use('/vendor/', express.static(path.join(__dirname, '..', 'vendor')));
+
+// errorHandler should be last handler
+app.use(express.errorHandler());
+
 
 
 // setup auth routes
@@ -188,13 +200,6 @@ app.get('/', function(req, res) {
 	return res.redirect('/thankyou');
 });
 
-// errorHandler should be last handler
-if ('development' == app.get('env')) {
-	app.use(express.errorHandler({
-		showStack: true,
-		dumpExceptions: true
-	}));
-}
 
 // start http server
 /*
