@@ -6,9 +6,9 @@
 
 	<style>
 		body {
-			background: url('/public/images/canstockphoto7274277.jpg')
-				repeat-y fixed 0 0;
-			background-attachment: scroll;
+			background-image: url('/public/images/canstockphoto7274277.jpg');
+			background-repeat: no-repeat;
+			background-attachment: fixed;
 			background-size: cover;
 		}
 	</style>
@@ -33,15 +33,13 @@
 
 	<?# def.include('common_menubar.html') ?>
 
-	<div id="nb_content" valign="top">
-
-
+	<div id="nb_content" valign="top" style="z-index: 0">
 
 <!-- ======== CONTENT ======== -->
 
 
 
-<div ng-controller="MyDataCtrl">
+<div ng-controller="MyDataCtrl" class="container-fluid">
 
 
 <!-- TOOLBAR -->
@@ -49,65 +47,8 @@
 
 	<div ng-controller="InodesMenuCtrl">
 
-		<?#''/* commented out
-		<div class="row-fluid">
-			<div class="span8">
-				<form class="form-search">
-					<input type="text" class="span10"></input>
-					<button type="submit" class="btn btn-warning">
-						<i class="icon-search"></i>
-					</button>
-				</form>
-			</div>
-			<div class="pull-right">
-				<div class="btn-group dropdown">
-					<a class="btn dropdown-toggle" 
-						data-toggle="dropdown" href="#">
-						<span class="icon-cog"></span>
-						<!-- <span class="icon-wrench"></span> -->
-					</a>
-					<ul class="dropdown-menu pull-right">
-						<li>
-							<a ng-click="layout.show_tree=!layout.show_tree">
-								Show/Hide Tree
-								<b ng-show="layout.show_tree" class="icon-ok pull-right"></b>
-							</a>
-						</li>
-						<li>
-							<a ng-click="layout.show_path=!layout.show_path">
-								Show/Hide Path
-								<b ng-show="layout.show_path" class="icon-ok pull-right"></b>
-							</a>
-						</li>
-					</ul>
-				</div>
-				<div class="btn-group dropdown">
-					<a class="btn dropdown-toggle 
-							ng-class: {true:'btn-danger'}[alerts.num_unread > 0]"
-						data-toggle="dropdown" href="#">
-						Alerts
-						<span class="icon-bell"></span>
-					</a>
-					<div class="dropdown-menu pull-right">
-						<table class="table"
-							style="width: 700px;
-								word-wrap: break-all;
-								white-space: normal;">
-							<tr ng-repeat="alert in alerts.alerts" 
-								ng-class="{true:'error', false:''}[alert.unread]"
-								ng-click="alerts.mark_read(alert)">
-								<td><b>{{alert.time.toLocaleString()}}</b></td>
-								<td>{{alert.text}}</td>
-							</tr>
-						</table>
-					</div>
-				</div>
-			</div>
-		</div>
-		*/?>
-
 		<div class="row-fluid"
-			style="margin-bottom: 30px; margin-top: 0px;">
+			style="margin-bottom: 30px;">
 			<div class="btn-group">
 				<button class="btn"
 					data-target="#upload_modal" 
@@ -257,25 +198,18 @@
 
 	<div class="row-fluid notextselect"
 		style="min-height: 300px; margin-bottom: 20px;">
-		<div ng-controller="InodesTreeCtrl"
-			ng-include="'tree_view_template.html'"
-			ng-show="layout.show_tree"
-			ng-class="layout.tree_class()"
-			ng-style="layout.tree_style()">
-		</div>
-		<div ng-class="layout.list_class()"
-			ng-style="layout.list_style()">
-			<div ng-controller="InodesBreadcrumbCtrl" 
-				ng-include="'path_view_template.html'"
-				ng-show="layout.show_path"
-				class="roundbord"
-				style="font-size: 11px;
-					background-color: #e2e2e2;
-					padding: 0;
-					margin: 0 0 8px 0;">
+		<div class="span3">
+			<div ng-controller="InodesTreeCtrl"
+				ng-include="'tree_view_template.html'"
+				class="roundbord bglight"
+				style="min-height: 300px">
 			</div>
+		</div>
+		<div class="span9">
 			<div ng-controller="InodesListCtrl"
-				ng-include="'list_view_template.html'">
+				ng-include="'list_view_template.html'"
+				class="roundbord bglight"
+				style="min-height: 300px">
 			</div>
 		</div>
 	</div>
@@ -505,12 +439,12 @@
 	<li ng-repeat="(__id,dir_inode) in dir_inode.dir_state.subdirs" 
 		class="draggable ui-widget-content ng-class: dir_inode.dir_active;"
 		style="padding: 0px;">
-		<a style="cursor: pointer;" class="span12"
+		<a style="cursor: pointer; margin: 0"
 			ng-click="inode_click(dir_inode)"
 			nb-right-click="inode_rclick(dir_inode, $event)"
 			ng-dblclick="inode_dclick(dir_inode)"
 			nb-drop="inode_drop(dir_inode, $drag, $event)">
-			<span style="margin-left: {{15*dir_inode.level - 30}}px;"
+			<span style="margin-left: {{15*dir_inode.level - 20}}px;"
 				class="fntsans fntblk">
 				<span ng-click="inode_dclick(dir_inode)"
 		 			style="vertical-align: middle;" 

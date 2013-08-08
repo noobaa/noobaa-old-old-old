@@ -19,12 +19,6 @@ $(function() {
 		}
 	};
 
-	// enable bootstrap tooltips.
-	// the container=body is needed due to https://github.com/twitter/bootstrap/issues/5687
-	$("[rel=tooltip]").tooltip({
-		container: 'body'
-	});
-
 	// enable dragging of class draggable
 	$(".draggable").draggable({
 		helper: "clone"
@@ -75,39 +69,6 @@ function sync_property(to, from, key) {
 
 
 
-////////////////////////////////
-////////////////////////////////
-// Alerts
-////////////////////////////////
-////////////////////////////////
-
-// Keep list of alerts, and their unread state
-
-function Alerts() {
-	this.alerts = [];
-	this.num_unread = 0;
-}
-
-// push new alert in front of existing ones and increase counter
-Alerts.prototype.add = function(text, info) {
-	console.error("[ERR]", text, info);
-	this.alerts.unshift({
-		text: text,
-		time: new Date(),
-		unread: true
-	});
-	this.num_unread++;
-};
-
-// turn off the unread and reduce counter
-Alerts.prototype.mark_read = function(alert) {
-	if (alert.unread) {
-		this.num_unread--;
-		alert.unread = false;
-	}
-};
-
-
 
 ////////////////////////////////
 ////////////////////////////////
@@ -121,8 +82,7 @@ Alerts.prototype.mark_read = function(alert) {
 function Inode($scope, id, name, isdir, parent) {
 
 	// link to the scope that serves the inode - 
-	// it is used mainly for access to api functions to act on the inode in the server,
-	// and also for creating alerts and stuff like these.
+	// it is used mainly for access to api functions to act on the inode in the server
 	this.$scope = $scope;
 
 	// basic properties
@@ -318,7 +278,7 @@ Inode.prototype.delete_inode = function() {
 	var me = this;
 	var parent = this.parent;
 	if (!parent) {
-		this.$scope.alerts.add("You shouldn't delete root dir");
+		console.error("You shouldn't delete root dir");
 		return;
 	}
 	return this.$scope.http({
@@ -334,7 +294,7 @@ Inode.prototype.rename = function(to_parent, to_name) {
 	var me = this;
 	var parent = this.parent;
 	if (!parent) {
-		this.$scope.alerts.add("You shouldn't rename root dir");
+		console.error("You shouldn't rename root dir");
 		return;
 	}
 	return this.$scope.http({
@@ -762,7 +722,7 @@ function InodesMenuCtrl($scope) {
 	$scope.click_refresh = function() {
 		var dir_inode = $scope.dir_selection.inode;
 		if (!dir_inode) {
-			$scope.alerts.add('no selected dir, bailing');
+			console.error('no selected dir, bailing');
 			return;
 		}
 		dir_inode.read_dir();
@@ -770,7 +730,7 @@ function InodesMenuCtrl($scope) {
 	$scope.click_delete = function() {
 		var inode = $scope.inode_selection.inode;
 		if (!inode) {
-			$scope.alerts.add('no selected dir, bailing');
+			console.error('no selected dir, bailing');
 			return;
 		}
 		inode.delete_inode().on('all', function() {
@@ -811,7 +771,7 @@ function NewFolderModalCtrl($scope) {
 		new_folder_modal.modal('hide');
 		var dir_inode = $scope.dir_selection.inode;
 		if (!dir_inode) {
-			$scope.alerts.add('no selected inode, bailing');
+			console.error('no selected inode, bailing');
 			return;
 		}
 		if ($scope.new_name) {
@@ -847,7 +807,7 @@ function RenameModalCtrl($scope) {
 		rename_modal.modal('hide');
 		var inode = $scope.inode_selection.inode;
 		if (!inode) {
-			$scope.alerts.add('no selected inode, bailing');
+			console.error('no selected inode, bailing');
 			return;
 		}
 		if ($scope.new_name !== inode.name) {
@@ -923,7 +883,7 @@ function UploadCtrl($scope, $http, $timeout) {
 			console.log('[http ok]', [status, req]);
 		});
 		ev.on('error', function(data, status) {
-			$scope.alerts.add(data || 'http request failed', [status, req]);
+			console.error(data || 'http request failed', [status, req]);
 		});
 		var ajax = $http(req);
 		ajax.success(function(data, status, headers, config) {
@@ -949,12 +909,12 @@ function UploadCtrl($scope, $http, $timeout) {
 		upload_modal.modal('hide');
 		var dir_inode = $scope.$parent.dir_selection.inode;
 		if (!dir_inode) {
-			$scope.alerts.add('no selected dir, bailing');
+			console.error('no selected dir, bailing');
 			return;
 		}
 		var inode = $scope.inode_selection.inode;
 		if (!inode) {
-			$scope.alerts.add('no selected inode, bailing');
+			console.error('no selected inode, bailing');
 			return;
 		}
 		inode.dev_upload(dir_inode);
@@ -973,7 +933,7 @@ function UploadCtrl($scope, $http, $timeout) {
 
 		var dir_inode = $scope.$parent.dir_selection.inode;
 		if (!dir_inode) {
-			$scope.alerts.add('no selected dir, bailing');
+			console.error('no selected dir, bailing');
 			return;
 		}
 
@@ -1039,7 +999,7 @@ function UploadCtrl($scope, $http, $timeout) {
 				});
 			});
 			upload.xhr.error(function(jqXHR, textStatus, errorThrown) {
-				$scope.alerts.add('upload error: ' + textStatus + ' ' + errorThrown, jqXHR.responseText);
+				console.error('upload error: ' + textStatus + ' ' + errorThrown, jqXHR.responseText);
 				upload.status = 'Failed!';
 				upload.row_class = 'error';
 				upload.progress_class = 'progress progress-danger';
@@ -1135,8 +1095,6 @@ function UploadCtrl($scope, $http, $timeout) {
 function MyDataCtrl($scope, $http, $timeout) {
 
 	$scope.timeout = $timeout;
-	$scope.alerts = new Alerts();
-
 	$scope.api_url = "/star_api/";
 	$scope.inode_api_url = $scope.api_url + "inode/";
 	$scope.inode_share_sufix = "/share_list";
@@ -1150,7 +1108,7 @@ function MyDataCtrl($scope, $http, $timeout) {
 			console.log('[http ok]', [status, req]);
 		});
 		ev.on('error', function(data, status) {
-			$scope.alerts.add(data || 'http request failed', [status, req]);
+			console.error(data || 'http request failed', [status, req]);
 		});
 		var ajax = $http(req);
 		ajax.success(function(data, status, headers, config) {
@@ -1160,36 +1118,6 @@ function MyDataCtrl($scope, $http, $timeout) {
 			ev.trigger('error', data, status, headers, config);
 		});
 		return ev;
-	};
-
-	$scope.layout = {
-		show_tree: true,
-		show_path: true,
-		tree_class: function() {
-			return $scope.layout.show_tree ?
-				"roundbord bglight span4" :
-				"roundbord bglight";
-		},
-		list_class: function() {
-			return $scope.layout.show_tree ?
-				"roundbord bglight span8" :
-				"roundbord bglight";
-		},
-		tree_style: function() {
-			return $scope.layout.show_tree ? {
-				"min-height": "300px"
-			} : {
-				"min-height": "300px"
-			};
-		},
-		list_style: function() {
-			return $scope.layout.show_tree ? {
-				"min-height": "300px"
-			} : {
-				"min-height": "300px",
-				"margin-left": "0px"
-			};
-		}
 	};
 
 	// calling directly since we just want to include the inodes root scope here

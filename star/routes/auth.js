@@ -1,6 +1,7 @@
 /* jshint node:true */
 'use strict';
 
+var URL = require('url');
 var async = require('async');
 var passport = require('passport');
 var facebook_passport = require('passport-facebook');
@@ -10,6 +11,11 @@ var fbapi = require('facebook-api');
 var _ = require('underscore');
 var user_inodes = require('../providers/user_inodes');
 var user_invitations = require('../providers/user_invitations');
+
+function can_login(user) {
+	return _.contains(user.privileges, user_model.CONST_PRIVILEGES.LOGIN);
+}
+exports.can_login = can_login;
 
 // Gets the FB profile and current user DB appearance and makes sure we the uptodate details
 // mainly - email, privilages and the likes which are important for our communication 
@@ -150,10 +156,6 @@ exports.facebook_login = function(req, res, next) {
 	})(req, res, next);
 };
 
-function redirection(state) {
-	return (state === 'auth.html' ? '/auth.html' : '/');
-}
-
 // when authorization is complete (either success/failed)
 // facebook will redirect here.
 exports.facebook_authorized = function(req, res, next) {
@@ -165,10 +167,17 @@ exports.facebook_authorized = function(req, res, next) {
 		res.redirect('/#join');
 		return;
 	}
-	var redirect = redirection(req.query.state);
+	// allow to pass in req.query.state the url to redirect
+	var redirect_url = req.query.state || '/';
+	var failure_url = (function() {
+		// for failure, add the #login_failed hash to the url
+		var u = URL.parse(redirect_url);
+		u.hash = 'login_failed';
+		return URL.format(u);
+	})();
 	passport.authenticate('facebook', {
-		successRedirect: redirect,
-		failureRedirect: redirect + '#failed'
+		successRedirect: redirect_url,
+		failureRedirect: failure_url
 	})(req, res, next);
 };
 
@@ -177,10 +186,11 @@ exports.facebook_channel = function(req, res) {
 };
 
 exports.logout = function(req, res) {
-	var redirect = redirection(req.query.state);
 	delete req.session.fbAccessToken;
 	req.logout();
-	res.redirect(redirect);
+	// allow to pass in req.query.state the url to redirect
+	var redirect_url = req.query.state || '/';
+	res.redirect(redirect_url);
 };
 
 exports.viewback = function(err, data) {
@@ -214,8 +224,4 @@ exports.get_noobaa_friends_list = function(fbAccessToken, next) {
 				next);
 		},
 	], next);
-};
-
-exports.can_login = function(user) {
-	return _.contains(user.privileges, user_model.CONST_PRIVILEGES.LOGIN);
 };

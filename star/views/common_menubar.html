@@ -1,3 +1,54 @@
+<div class="nb_navbar navbar navbar-inverse">
+	<div class="navbar-inner fntread fntwht">
+		<a class="brand scroller" href="/" style="width: 80px">
+			<img src="/public/nblib/img/noobaa_logo.png"></img>
+		</a>
+		<ul class="nav pull-left">
+			<li class="divider-vertical"></li>
+			<li><a href="/mydata">MY DATA</a></li>
+			<li class="divider-vertical"></li>
+			<li><a href="#/mydevices">MY DEVICES</a></li>
+			<li class="divider-vertical"></li>
+		</ul>
+		<ul class="nav pull-right">
+			<li>
+				<button class="dropdown-toggle btn btn-primary"
+					id="userLabel" role="button"
+					data-toggle="dropdown" href="#">
+					<div style="max-width: 200px;
+						overflow: hidden;
+						white-space: nowrap;
+						text-overflow: ellipsis;">
+						<span class="icon-user icon-white"></span>
+						<?! it.user.name ?>
+					</div>
+				</button>
+				<ul class="dropdown-menu"
+					role="menu"
+					aria-labelledby="userLabel">
+					<li align="center">
+						<img src="https://graph.facebook.com/<?! it.user.fbid ?>/picture\" style="height: 40px"></img>
+					</li>
+					<li class="divider"></li>
+					<li>
+						<a class="btn btn-link" href="#">
+							<i class='icon-wrench pull-left'></i>
+							Account
+						</a>
+					</li>
+					<li>
+						<a class="btn btn-link" href="/auth/logout/">
+							<i class='icon-off pull-left'></i>
+							Logout
+						</a>
+					</li>
+				</ul>
+			</li>
+		</ul>
+	</div>
+</div>
+
+<?#''/* commented out!
 <div id="nb_menu" valign="top" align="left" width="1px">
 	<div id="nb_logo" class="brand">
 		<img src="/public/nblib/img/noobaa_logo.png"></img>
@@ -6,14 +57,14 @@
 		<div id="user_pic" class="toggle_menu_ext"
 			title="Click to expand user actions..."
 			data-placement="bottom" rel="tooltip">
-			<img src="https://graph.facebook.com/<?! it.user.fbid ?>/picture"></img>
+			<img src="https://graph.facebook.com/< ?! it.user.fbid ? >/picture"></img>
 		</div>
 		<div id="menu_ext">
 			<ul class="nav nav-list well" style="margin: 0px">
 				<li align="center">
-					<h5 class="lead" style="word-break: break-all"><?! it.user.name ?></h5>
+					<h5 class="lead" style="word-break: break-all">< ?! it.user.name ? ></h5>
 				</li>
-				<li class="<?? it.nav1 ?>active<???>">
+				<li class="< ?? it.nav1 ? >active< ??? >">
 					<a class="btn btn-link" href="/getstarted.html" style="white-space: nowrap;">
 						<i class="icon-play pull-left"></i>
 						Get Started
@@ -41,3 +92,4 @@
 		</div>
 	</div>
 </div>
+*/?>

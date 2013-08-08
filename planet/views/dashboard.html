@@ -49,7 +49,7 @@
 			<td>
 				<div ng-cloak ng-hide="planet_user">
 					<span class="badge badge-warning">
-						Disconnected
+						Not Connected
 					</span>
 					<a ng-click="do_connect()" style="cursor: pointer">
 						<img src="../nblib/img/facebook_login_button.png"></img>
@@ -93,7 +93,7 @@
 	</table>
 
 	<!-- iframe used to make authentication -->
-	<iframe id="auth_frame" hidden  nwfaketop></iframe>
+	<iframe id="auth_frame" hidden nwdisable nwfaketop></iframe>
 
 
 	<!-- SCRIPTS -->

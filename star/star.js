@@ -176,17 +176,9 @@ function page_context(req) {
 	};
 }
 
-// route for planet login
-app.get('/auth.html', function(req, res) {
-	res.render('auth.html', page_context(req));
-});
-
-app.get('/getstarted.html', function(req, res) {
-	if (req.user) {
-		res.render('getstarted.html', page_context(req));
-	} else {
-		res.redirect('/');
-	}
+app.get('/auth', function(req, res) {
+	// route for planet login
+	return res.render('auth.html', page_context(req));
 });
 
 app.get('/welcome', function(req, res) {
@@ -194,25 +186,33 @@ app.get('/welcome', function(req, res) {
 });
 
 app.get('/thankyou', function(req, res) {
-	res.render('thankyou.html', page_context(req));
-});
-
-app.get('/mydata', function(req, res) {
-	if (req.user && auth.can_login(req.user)) {
-		return res.render('mydata.html', page_context(req));
-	} else {
-		return res.redirect('/welcome');
-	}
-});
-
-app.get('/', function(req, res) {
 	if (!req.user) {
 		return res.redirect('/welcome');
 	}
 	if (auth.can_login(req.user)) {
 		return res.redirect('/mydata');
 	}
-	return res.redirect('/thankyou');
+	return res.render('thankyou.html', page_context(req));
+});
+
+app.get('/mydata', function(req, res) {
+	if (!req.user) {
+		return res.redirect('/welcome');
+	}
+	if (!auth.can_login(req.user)) {
+		return res.redirect('/thankyou');
+	}
+	return res.render('mydata.html', page_context(req));
+});
+
+app.get('/', function(req, res) {
+	if (!req.user) {
+		return res.redirect('/welcome');
+	}
+	if (!auth.can_login(req.user)) {
+		return res.redirect('/thankyou');
+	}
+	return res.redirect('/mydata');
 });
 
 

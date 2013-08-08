@@ -91,21 +91,24 @@ function DashboardCtrl($scope, $http, $timeout) {
 	};
 
 	// on init load the auth login page into the frame.
-	$scope.auth_frame_path('/auth.html');
+	$scope.auth_frame_path('/auth');
 
 	// submit connect request - will open facebool login dialog window.
 	$scope.do_connect = function() {
 		window.frames.auth_frame.FB.login(function(res) {
 			if (res.authResponse) {
-				$scope.auth_frame_path('/auth/facebook/login/?state=auth.html');
+				$scope.auth_frame_path('/auth/facebook/login/?state=/auth');
 			}
 		});
 	};
 
 	// logout - mostly for testing
 	$scope.do_disconnect = function() {
-		$scope.planet_user = null;
-		$scope.auth_frame_path('/auth/logout/?state=auth.html');
+		var q = 'Disconnecting the device will stop the co-sharing. Are you sure?';
+		if (window.confirm(q)) {
+			$scope.planet_user = null;
+			$scope.auth_frame_path('/auth/logout/?state=/auth');
+		}
 	};
 
 	function do_get() {
@@ -113,9 +116,9 @@ function DashboardCtrl($scope, $http, $timeout) {
 			method: 'GET',
 			url: $scope.star_url + '/star_api/inode/null'
 		}).success(function(data, status, headers, config) {
-			console.log('[ok]', status);
+			console.log('[ok] readdir', status);
 		}).error(function(data, status, headers, config) {
-			console.error('[ERR]', data, status);
+			console.error('[ERR] readdir', data, status);
 		});
 		$timeout(do_get, 10000);
 	}

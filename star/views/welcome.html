@@ -23,10 +23,6 @@
 		#nb_nav {
 			position: absolute;
 			bottom: 0;
-			width: 100%;
-			margin: 0;
-			opacity: 0.85;
-			z-index: 1000;
 		}
 		#nb_nav.affix {
 			position: fixed;
@@ -76,20 +72,22 @@
 			background-size: auto 400px;
 		}
 		.bg_join {
-			background-image: url('/public/images/bg1.jpg');
-			background-size: cover;
+			/*background-image: url('/public/images/bg1.jpg');*/
+			/*background-size: cover;*/
+			background-color: #f2f2f2;
 		}
 		.bg_whatis, .bg_vision, .bg_join {
 			background-repeat: no-repeat;
 			background-attachment: fixed;
 		}
-		.bg_whatis, 
-		.bg_vision, 
-		.bg_join, 
-		.bg_whatis .pattern,
-		.bg_vision .pattern,
-		.bg_join .pattern {
-			height: 400px;			
+		.bg_whatis, .bg_whatis .pattern {
+			height: 400px;
+		}
+		.bg_vision, .bg_vision .pattern {
+			height: 400px;
+		}
+		.bg_join, .bg_join .pattern {
+			height: 200px;			
 		}
 	</style>
 </head>
@@ -170,7 +168,7 @@
 
 	<div id="nb_nav_marker"></div>
 
-	<div id="nb_nav" class="navbar navbar-inverse"
+	<div id="nb_nav" class="nb_navbar navbar navbar-inverse"
 		onresize="nb_nav_affix = undefined;">
 		<div class="navbar-inner fntread fntwht">
 			<a class="brand scroller" href="#_" style="width: 80px">
@@ -243,9 +241,10 @@
 		</h5>
 	</div>
 
-	<div class="wfill bg_vision">
+	<!-- <div class="wfill bg_vision"> -->
 		<!-- <div class="pattern"></div> -->
-	</div>
+	<!-- </div> -->
+	<hr/>
 
 	<div id="join" class="nb_nav_link container fntread fntblk">
 		<div class="H2">JOIN US!</div>
@@ -277,10 +276,10 @@
 		</div>
 	</div>
 
-	<div class="wfill bg_join" align="center">
+	<div class="wfill bg_join" align="center" valign="middle">
 		<!-- <div class="pattern"></div> -->
 		<img src="/public/nblib/img/noobaa_logo.png"
-			style="max-height: 150px; position: relative; top: 200px;"></img>
+			style="height: 80px; position: relative; top: 60px;"></img>
 	</div>
 
 

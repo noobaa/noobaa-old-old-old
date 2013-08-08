@@ -98,10 +98,20 @@
 <![endif]-->
 
 
-<!-- menubar -->
+<!-- jquery initializations -->
 
 <script type="text/javascript">
 	$(function(){
+		// enable bootstrap tooltips and popovers
+		// the container=body is needed due to https://github.com/twitter/bootstrap/issues/5687
+		$("[rel=tooltip]").tooltip({
+			container: 'body'
+		});
+		$('[rel=popover]').popover({
+			container: 'body'
+		});
+
+		// TODO: remove menubar stuff?
 		var m = $("#nb_menubar #menu_ext");
 		var effects = {
 			height:'toggle',
