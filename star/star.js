@@ -76,10 +76,10 @@ app.use(function(req, res, next) {
 	// var fwd_port = req.get('X-Forwarded-Port');
 	// var fwd_from = req.get('X-Forwarded-For');
 	// var fwd_start = req.get('X-Request-Start');
-	// TODO: we do not redirect the welcome page for now till we have ssl certificate
-	if (fwd_proto === 'http' && req.url !== '/' && req.url !== '/welcome') {
+	// TODO: redirecting to http till we have ssl certificate
+	if (fwd_proto === 'https' /*&& req.url !== '/' && req.url !== '/welcome'*/) {
 		var host = req.get('Host');
-		return res.redirect('https://' + host + req.url);
+		return res.redirect('http://' + host + req.url);
 	}
 	return next();
 });
