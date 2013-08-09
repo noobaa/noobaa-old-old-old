@@ -80,18 +80,19 @@ var create_user = function(profile, callback) {
 
 		user_inodes.verify_and_create_base_folders,
 
-		// function(user, next) {
-		// 	console.log('sending welcome mail to: ', user); 
-		// 	if (user.email) {
-		// 		return email.welcome(user, next);
-		// 	}
-		// 	if (user.fb.email) {
-		// 		user.email = user.fb.email;
-		// 		return email.welcome(user, next);
-		// 	}
-		// 	return next(null,user);
-		// },
-
+/*
+		function(user, next) {
+			console.log('sending welcome mail to: ', user); 
+			if (user.email) {
+				return email.welcome(user, next);
+			}
+			if (user.fb.email) {
+				user.email = user.fb.email;
+				return email.welcome(user, next);
+			}
+			return next(null,user);
+		},
+*/
 	], callback);
 };
 

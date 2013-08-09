@@ -4,6 +4,10 @@
 
 var _s = require('underscore.string');
 var mandrill = require('node-mandrill')('hHtPZqX1hKW7nmPdzTABvg');
+var path = require('path');
+var templatesDir = path.resolve(__dirname, '..', 'email_templates');
+var emailTemplates = require('email-templates');
+var nodemailer = require('nodemailer');
 
 // to see how to add dynamic info:
 //help.mandrill.com/entries/21678522-how-do-i-use-merge-tags-to-add-dynamic-content
@@ -42,6 +46,17 @@ exports.send_welcome = function(user, callback) {
 
 };
 
+
+var smtp = nodemailer.createTransport("SMTP", {
+	service: "Mailgun",
+	auth: {
+		user: process.env.MAILGUN_SMTP_LOGIN,
+		pass: process.env.MAILGUN_SMTP_PASSWORD
+	},
+	// TODO: this is development configuration
+	// debug: true,
+	maxConnections: 1
+});
 
 exports.request_invite = function(req, res) {
 	var mail_options = {
@@ -174,16 +189,6 @@ emailTemplates(templatesDir, function(err, template) {
 // MAILGUN_NB_TMP_PAS:      86cw-sbbmoo8
 
 
-var smtp = nodemailer.createTransport("SMTP", {
-	service: "Mailgun",
-	auth: {
-		user: process.env.MAILGUN_SMTP_LOGIN,
-		pass: process.env.MAILGUN_SMTP_PASSWORD
-	},
-	// TODO: this is development configuration
-	// debug: true,
-	maxConnections: 1
-});
 
 
 
