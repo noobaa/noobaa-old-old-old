@@ -5,10 +5,12 @@ var URL = require('url');
 var async = require('async');
 var passport = require('passport');
 var facebook_passport = require('passport-facebook');
-var user_model = require('../models/user');
-var User = user_model.User;
 var fbapi = require('facebook-api');
 var _ = require('underscore');
+
+var user_model = require('../models/user');
+var User = user_model.User;
+var email = require('./email');
 var user_inodes = require('../providers/user_inodes');
 var user_invitations = require('../providers/user_invitations');
 
@@ -84,6 +86,19 @@ var create_user = function(profile, callback) {
 
 		user_inodes.verify_and_create_base_folders,
 
+/*
+		function(user, next) {
+			console.log('sending welcome mail to: ', user); 
+			if (user.email) {
+				return email.welcome(user, next);
+			}
+			if (user.fb.email) {
+				user.email = user.fb.email;
+				return email.welcome(user, next);
+			}
+			return next(null,user);
+		},
+*/
 	], callback);
 };
 
