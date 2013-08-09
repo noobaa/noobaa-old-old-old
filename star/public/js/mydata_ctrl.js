@@ -221,7 +221,7 @@ Inode.prototype.populate_dir = function(entries) {
 		}
 
 		if (son.isdir) {
-			son.icon = 'icon-folder-open';
+			son.icon = 'icon-folder-close-alt';
 			subdirs[son.id] = son;
 		} else {
 			son.icon = 'icon-file';
@@ -576,7 +576,7 @@ function InodesListCtrl($scope) {
 			field: 'icon',
 			displayName: ' ',
 			width: 20,
-			cellTemplate: '<div class="{{row.entity[col.field] }}"> </div>'
+			cellTemplate: '<i class="icon-large {{row.entity[col.field] }}"> </i>'
 		}, {
 			field: 'name',
 			displayName: 'Name',

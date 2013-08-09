@@ -90,6 +90,12 @@
 	/*font-weight: normal;*/
 	/*font-size: 14px;*/
 
+.text-ellipses {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
 .filling {
 	width: 100%;
 	height: 100%;
@@ -108,8 +114,8 @@
 }
 
 .roundbord {
-	border-radius:2px/1px;
-	/*border-radius:10px/8px;*/
+	border-radius: 5px/4px;
+	/*border-radius: 10px/8px;*/
 	/*border-style: solid;*/
 	/*border-width: 1px;*/
 	/*padding: 5px;*/

@@ -39,7 +39,7 @@
 
 
 
-<div ng-controller="MyDataCtrl" class="fntread">
+<div ng-controller="MyDataCtrl">
 
 
 <!-- TOOLBAR -->
@@ -195,22 +195,22 @@
 
 <!-- VIEWS -->
 
-	<div class="notextselect"
+	<div class="notextselect row-fluid"
 		style="min-height: 300px; margin-bottom: 20px;">
-		<span style="width: 20%">
+		<div class="span3">
 			<div ng-controller="InodesTreeCtrl"
 				ng-include="'tree_view_template.html'"
 				class="roundbord bglight"
 				style="min-height: 300px">
 			</div>
-		</span>
-		<span style="width: 70%">
+		</div>
+		<div class="span9">
 			<div ng-controller="InodesListCtrl"
 				ng-include="'list_view_template.html'"
 				class="roundbord bglight"
 				style="min-height: 300px">
 			</div>
-		</span>
+		</div>
 	</div>
 
 
@@ -438,13 +438,15 @@
 	<li ng-repeat="(__id,dir_inode) in dir_inode.dir_state.subdirs" 
 		class="draggable ui-widget-content ng-class: dir_inode.dir_active;"
 		style="padding: 0px;">
-		<a style="cursor: pointer; margin: 0; height: 30px"
+		<a class="text-ellipses"
+			style="cursor: pointer; margin: 0; height: 30px"
+			data-title="{{dir_inode.name}}"
 			ng-click="inode_click(dir_inode)"
 			nb-right-click="inode_rclick(dir_inode, $event)"
 			ng-dblclick="inode_dclick(dir_inode)"
 			nb-drop="inode_drop(dir_inode, $drag, $event)">
 			<span style="margin-left: {{15*dir_inode.level - 20}}px; vertical-align: middle"
-				class="fntread fntblk">
+				class="fntsans fntblk">
 				<span ng-click="inode_dclick(dir_inode)"
 		 			style="vertical-align: middle;" 
 					ng-switch on="!!dir_inode.dir_state.refreshing">
