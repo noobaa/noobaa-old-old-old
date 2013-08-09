@@ -93,6 +93,14 @@
 	/*padding: 5px;*/
 }
 
+.bgpattern {
+	z-index: -1000;
+	background-image: url('/public/nblib/img/pattern.png'); 
+	position: absolute;
+	width: 100%;
+	height: 100%;
+}
+
 .notextselect {
 	/* begin disable text selection highlight */
 	-webkit-touch-callout: none;
