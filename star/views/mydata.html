@@ -39,7 +39,7 @@
 
 
 
-<div ng-controller="MyDataCtrl" class="container-fluid">
+<div ng-controller="MyDataCtrl" class="container-fluid fntread">
 
 
 <!-- TOOLBAR -->
@@ -55,26 +55,26 @@
 					data-toggle="modal"
 					title="Upload" data-placement="bottom" rel="tooltip"
 					ng-disabled="!dir_selection.inode">
-					<i class="icon-upload"></i>
+					<i class="icon-cloud-upload icon-large"></i>
 				</button>
 				<button class="btn"
 					ng-click="click_open()"
 					title="Open" data-placement="bottom" rel="tooltip"
 					ng-disabled="!inode_selection.inode">
-					<i class="icon-download-alt"></i>
+					<i class="icon-play icon-large"></i>
 				</button>
 				<button class="btn"  
 					data-target="#share_modal" 
 					data-toggle="modal"
 					title="Share" data-placement="bottom" rel="tooltip"
 					ng-disabled="!inode_selection.inode">
-					<i class="icon-share-alt"></i>
+					<i class="icon-share icon-large"></i>
 				</button>
 				<button class="btn"
 					ng-click="click_refresh()"
 					title="Refresh" data-placement="bottom" rel="tooltip"
 					ng-disabled="!dir_selection.inode">
-					<i class="icon-refresh"></i>
+					<i class="icon-refresh icon-large"></i>
 				</button>
 			</div>
 			<div class="dropdown btn-group" align="left">
@@ -88,35 +88,35 @@
 					<li>
  						<a data-target="#new_folder_modal"
 							data-toggle="modal">
-							<i class="icon-folder-open"></i>
+							<i class="icon-plus icon-large icon-fixed-width"></i>
 							New Folder
-						</a>
-					</li>
-					<li>
-						<a data-target="#copy_modal" 
-							data-toggle="modal">
-							<i class="icon-plus"></i>
-							Copy To
-						</a>
-					</li>
-					<li>
-						<a data-target="#move_modal" 
-							data-toggle="modal">
-							<i class="icon-random"></i>
-							Move To
 						</a>
 					</li>
 					<li>
 						<a data-target="#rename_modal" 
 							data-toggle="modal">
-							<i class="icon-pencil"></i>
+							<i class="icon-edit icon-large icon-fixed-width"></i>
 							Rename
+						</a>
+					</li>
+					<li class="disabled">
+						<a data-target="#copy_modal" 
+							data-toggle="modal">
+							<i class="icon-copy icon-large icon-fixed-width"></i>
+							Copy To
+						</a>
+					</li>
+					<li class="disabled">
+						<a data-target="#move_modal" 
+							data-toggle="modal">
+							<i class="icon-move icon-large icon-fixed-width"></i>
+							Move To
 						</a>
 					</li>
 					<li class="divider"></li>
 					<li>
 						<a ng-click="click_delete()">
-							<i class="icon-trash"></i>
+							<i class="icon-trash icon-large icon-fixed-width"></i>
 							Delete
 						</a>
 					</li>
@@ -137,20 +137,20 @@
 			aria-labelledby="dLabel">
 			<li>
 				<a ng-click="click_open()">
-					<i class="icon-download-alt"></i>
+					<i class="icon-play icon-fixed-width"></i>
 					Open
 				</a>
 			</li>
 			<li>
 				<a data-target="#share_modal" 
 					data-toggle="modal">
-					<i class="icon-share-alt"></i>
+					<i class="icon-share icon-fixed-width"></i>
 					Share
 				</a>
 			</li>
 			<li>
 				<a ng-click="click_refresh()">
-					<i class="icon-refresh"></i>
+					<i class="icon-refresh icon-fixed-width"></i>
 					Refresh
 				</a>
 			</li>
@@ -158,35 +158,35 @@
 			<li>
 				<a data-target="#new_folder_modal" 
 					data-toggle="modal">
-					<i class="icon-folder-open"></i>
+					<i class="icon-plus icon-fixed-width"></i>
 					New folder
-				</a>
-			</li>
-			<li>
-				<a data-target="#copy_modal" 
-					data-toggle="modal">
-					<i class="icon-plus"></i>
-					Copy To
-				</a>
-			</li>
-			<li>
-				<a data-target="#move_modal" 
-					data-toggle="modal">
-					<i class="icon-random"></i>
-					Move To
 				</a>
 			</li>
 			<li>
 				<a data-target="#rename_modal" 
 					data-toggle="modal">
-					<i class="icon-pencil"></i>
+					<i class="icon-edit icon-fixed-width"></i>
 					Rename
+				</a>
+			</li>
+			<li class="disabled">
+				<a data-target="#copy_modal" 
+					data-toggle="modal">
+					<i class="icon-copy icon-fixed-width"></i>
+					Copy To
+				</a>
+			</li>
+			<li class="disabled">
+				<a data-target="#move_modal" 
+					data-toggle="modal">
+					<i class="icon-move icon-fixed-width"></i>
+					Move To
 				</a>
 			</li>
 			<li class="divider"></li>
 			<li>
 				<a ng-click="click_delete()">
-					<i class="icon-trash"></i>
+					<i class="icon-trash icon-fixed-width"></i>
 					Delete
 				</a>
 			</li>
@@ -439,20 +439,20 @@
 	<li ng-repeat="(__id,dir_inode) in dir_inode.dir_state.subdirs" 
 		class="draggable ui-widget-content ng-class: dir_inode.dir_active;"
 		style="padding: 0px;">
-		<a style="cursor: pointer; margin: 0"
+		<a style="cursor: pointer; margin: 0; height: 30px"
 			ng-click="inode_click(dir_inode)"
 			nb-right-click="inode_rclick(dir_inode, $event)"
 			ng-dblclick="inode_dclick(dir_inode)"
 			nb-drop="inode_drop(dir_inode, $drag, $event)">
-			<span style="margin-left: {{15*dir_inode.level - 20}}px;"
-				class="fntsans fntblk">
+			<span style="margin-left: {{15*dir_inode.level - 20}}px; vertical-align: middle"
+				class="fntread fntblk">
 				<span ng-click="inode_dclick(dir_inode)"
 		 			style="vertical-align: middle;" 
 					ng-switch on="!!dir_inode.dir_state.refreshing">
 					<span ng-switch-when="false">
 						<span ng-switch on="dir_inode.dir_state.expanded">
-							<i ng-switch-when="false" class="icon-circle-arrow-right"></i>
-							<i ng-switch-when="true" class="icon-circle-arrow-down"></i>
+							<i ng-switch-when="false" class="icon-folder-close-alt icon-large"></i>
+							<i ng-switch-when="true" class="icon-folder-open-alt icon-large"></i>
 						</span>
 					</span>
 					<i ng-switch-when="true" class="icon-refresh"></i>

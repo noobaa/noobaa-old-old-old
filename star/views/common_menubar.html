@@ -4,13 +4,13 @@
 			<img src="/public/nblib/img/noobaa_logo.png"></img>
 		</a>
 		<ul class="nav pull-left">
-			<li class="divider-vertical"></li>
 			<li><a href="/mydata">MY DATA</a></li>
-			<li class="divider-vertical"></li>
 			<li><a href="#/mydevices">MY DEVICES</a></li>
-			<li class="divider-vertical"></li>
 		</ul>
 		<ul class="nav pull-right">
+			<li>
+				<a href="#"><i class="icon-bell icon-large"></i></a>
+			</li>
 			<li>
 				<button class="dropdown-toggle btn btn-primary"
 					id="userLabel" role="button"
@@ -32,13 +32,13 @@
 					<li class="divider"></li>
 					<li>
 						<a class="btn btn-link" href="#">
-							<i class='icon-wrench pull-left'></i>
+							<i class='icon-cog pull-left'></i>
 							Account
 						</a>
 					</li>
 					<li>
 						<a class="btn btn-link" href="/auth/logout/">
-							<i class='icon-off pull-left'></i>
+							<i class='icon-signout pull-left'></i>
 							Logout
 						</a>
 					</li>
@@ -47,49 +47,3 @@
 		</ul>
 	</div>
 </div>
-
-<?#''/* commented out!
-<div id="nb_menu" valign="top" align="left" width="1px">
-	<div id="nb_logo" class="brand">
-		<img src="/public/nblib/img/noobaa_logo.png"></img>
-	</div>
-	<div id="nb_menubar">
-		<div id="user_pic" class="toggle_menu_ext"
-			title="Click to expand user actions..."
-			data-placement="bottom" rel="tooltip">
-			<img src="https://graph.facebook.com/< ?! it.user.fbid ? >/picture"></img>
-		</div>
-		<div id="menu_ext">
-			<ul class="nav nav-list well" style="margin: 0px">
-				<li align="center">
-					<h5 class="lead" style="word-break: break-all">< ?! it.user.name ? ></h5>
-				</li>
-				<li class="< ?? it.nav1 ? >active< ??? >">
-					<a class="btn btn-link" href="/getstarted.html" style="white-space: nowrap;">
-						<i class="icon-play pull-left"></i>
-						Get Started
-					</a>
-				</li>
-				<li>
-					<a href="/auth/logout/" 
-						class="btn btn-link"
-						style="white-space: nowrap;">
-						<!-- onclick="FB.logout();" -->
-						<i class="icon-off pull-left"></i>
-						Log Out
-					</a>
-				</li>
-			</ul>
-		</div>
-		<div id="menu_list">
-			<ul class="nav roundbord" style="margin: 0px">
-				<li class="menu_text_img">
-					<a class="btn btn-link" href="/" style="white-space: nowrap;">
-						My Data
-					</a>
-				</li>
-			</ul>
-		</div>
-	</div>
-</div>
-*/?>

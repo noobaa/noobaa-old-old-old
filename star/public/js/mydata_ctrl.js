@@ -25,19 +25,6 @@ $(function() {
 	});
 
 	$(".selectable").selectable();
-
-	/* 
-	// this tries to prevent drop in the window, 
-	// but unfortunately it also prevents drop on elements which have their own ondrop event...
-	window.addEventListener("dragover", function(e) {
-		e = e || event;
-		e.preventDefault();
-	}, false);
-	window.addEventListener("drop", function(e) {
-		e = e || event;
-		e.preventDefault();
-	}, false);
-	*/
 });
 
 

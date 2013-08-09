@@ -150,7 +150,7 @@ passport.deserializeUser(function(user_info, done) {
 exports.facebook_login = function(req, res, next) {
 	passport.authenticate('facebook', {
 		// display: 'popup',
-		scope: ['email', 'publish_actions'],
+		scope: ['email'],
 		// passing the query state to next steps to allow custom redirect
 		state: req.query.state
 	})(req, res, next);
