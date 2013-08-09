@@ -4,6 +4,7 @@
 <head>
 	<?# def.include('common_head.html') ?>
 	<style>
+		/*
 		.carousel-control.left {
 			right: 20px;
 			left: auto;
@@ -15,7 +16,7 @@
 		}
 		.carousel-indicators {
 			right: 20px;
-		}
+		}*/
 		#nb_nav_marker {
 			position: absolute;
 			bottom: 0;
@@ -68,6 +69,7 @@
 			/*background-image: url('/public/images/bg1.jpg');*/
 			/*background-size: cover;*/
 			background-color: #222222;
+			border-top-style: groove;
 		}
 		.bg_whatis, .bg_vision, .bg_join {
 			background-repeat: no-repeat;
@@ -92,15 +94,14 @@
 	<a id="_"></a>
 
 	<div id="nb_carousel" class="carousel slide filling">
-
 		<div class="carousel-inner filling">
+			
 			<div class="active item filling bg_item1">
-				<div class="container text-left">
+				<div class="nb_page_pad text-left">
 					<br/><br/><br/><br/>
-					<div class="row offset1 H2 fntpaint fntblk" >Cloud storage made</div>
-					<div class="row offset1 H1 fntpaint fntblk" >SIMPLE</div>
-					
-					<h3 class="row offset1 fntread fntblk">
+					<div class="H2 fntpaint fntblk" >Cloud storage made</div>
+					<div class="H1 fntpaint fntblk" >SIMPLE</div>
+					<h3 class="fntread fntblk">
 						All your Data.<br/>
 						One location.<br/>
 						No complex plans.<br/>
@@ -111,12 +112,12 @@
 			</div>
 
 			<div class="item filling bg_item2">
-				<div class="container text-left">
+				<div class="nb_page_pad text-left">
 					<br/><br/><br/><br/>
-					<div class="row offset1 H2 fntpaint fntwht">Cloud storage made</div>
-					<div class="row offset1 H1 fntpaint fntwht">FAST</div>
+					<div class="H2 fntpaint fntwht">Cloud storage made</div>
+					<div class="H1 fntpaint fntwht">FAST</div>
 					<br/><br/><br/>
-					<h3 class="row offset1 fntread fntwht">
+					<h3 class="fntread fntwht">
 						Join the power of the crowd.<br/>
 						Together we are more powerful<br/>
 						than any single corporate.<br/>
@@ -125,12 +126,12 @@
 			</div>
 
 			<div class="item filling bg_item3">
-				<div class="container text-left">
+				<div class="nb_page_pad text-left">
 					<br/><br/><br/><br/>
-					<div class="row offset1 H2 fntpaint fntwht">Cloud storage made</div>
-					<div class="H1 offset1 fntpaint fntwht">FREE</div>
+					<div class="H2 fntpaint fntwht">Cloud storage made</div>
+					<div class="H1 fntpaint fntwht">FREE</div>
 					<br/><br/><br/>
-					<h3 class="row offset1 fntread fntwht">
+					<h3 class="fntread fntwht">
 						Unlimited capacity.<br/>
 						Absolutely free.<br/>
 					</h3>
@@ -155,9 +156,9 @@
 
 	<div id="nb_nav" class="nb_navbar navbar navbar-inverse"
 		onresize="nb_nav_affix = undefined;">
-		<div class="navbar-inner fntread fntwht">
-			<a class="brand scroller" href="#_" style="width: 80px">
-				<img src="/public/nblib/img/noobaa_logo.png"></img>
+		<div class="nb_page_pad navbar-inner fntread fntwht">
+			<a class="brandy pull-left scroller" href="#_">
+				<img src="/public/nblib/img/noobaa_logo2.png"></img>
 			</a>
 			<ul class="nav">
 				<li>
@@ -170,13 +171,13 @@
 						THE VISION
 					</a>
 				</li>
+			</ul>
+			<ul class="nav pull-right">
 				<li>
 					<button class="btn btn-success scroller" href="#join">
 						<b>JOIN!</b>
 					</button>
 				</li>
-			</ul>
-			<ul class="nav pull-right">
 				<li>
 					<!--
 					<a class="fb-login-button"
@@ -194,7 +195,7 @@
 		</div>
 	</div>
 
-	<div id="whatis" class="nb_nav_link container fntread fntblk">
+	<div id="whatis" class="nb_nav_link nb_page_pad fntread fntblk">
 		<div class="H2">WHAT IS NOOBAA?</div>
 		<br/><br/>
 		<h2>NooBaa is a Crowd-Cloud!</h2>
@@ -209,7 +210,7 @@
 
 	<div class="wfill bg_whatis"></div>
 
-	<div id="vision" class="nb_nav_link container fntread fntblk">
+	<div id="vision" class="nb_nav_link nb_page_pad fntread fntblk">
 		<div class="H2">NOOBAA'S VISION</div>
 		<br/><br/>
 		<h2>In a world of connected devices, the crowd is the strongest force!</h2>
@@ -227,14 +228,16 @@
 	<!-- <div class="wfill bg_vision"></div> -->
 	<hr/>
 
-	<div id="join" class="nb_nav_link container fntread fntblk">
+	<div id="join" class="nb_nav_link nb_page_pad fntread fntblk text-center"
+		style="margin-bottom: 40px">
 		<div class="H2">JOIN US!</div>
 		<br/><br/>
-		<h2>NooBaa is still in alpha.</h2>
-		<br/>
-		<h2>Request an invitation to join:</h2>
-		<div class="row" align="center" style="margin: 40px">
-			<div class="input-prepend" >
+		<div>
+			<h2>NooBaa is still in alpha.</h2>
+			<br/>
+			<h2>Request an invitation to join:</h2>
+			<br/>
+			<div class="input-prepend">
 				<button class="btn btn-success"
 					type="button"
 					ng-show="!submitted"
@@ -257,8 +260,8 @@
 		</div>
 	</div>
 
-	<div class="wfill bg_join" align="center" valign="middle">
-		<img src="/public/nblib/img/noobaa_logo.png"
+	<div class="wfill bg_join text-center">
+		<img src="/public/nblib/img/noobaa_logo2.png"
 			style="height: 80px; position: relative; top: 60px;"></img>
 	</div>
 

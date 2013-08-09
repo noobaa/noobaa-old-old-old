@@ -33,13 +33,13 @@
 
 	<?# def.include('common_menubar.html') ?>
 
-	<div id="nb_content" valign="top" style="z-index: 0">
+	<div id="nb_content" valign="top" class="nb_page_pad" style="margin-top: 40px">
 
 <!-- ======== CONTENT ======== -->
 
 
 
-<div ng-controller="MyDataCtrl" class="container-fluid fntread">
+<div ng-controller="MyDataCtrl" class="fntread">
 
 
 <!-- TOOLBAR -->
@@ -47,8 +47,7 @@
 
 	<div ng-controller="InodesMenuCtrl">
 
-		<div class="row-fluid"
-			style="margin-bottom: 30px;">
+		<div style="margin-bottom: 30px;">
 			<div class="btn-group">
 				<button class="btn"
 					data-target="#upload_modal" 
@@ -196,22 +195,22 @@
 
 <!-- VIEWS -->
 
-	<div class="row-fluid notextselect"
+	<div class="notextselect"
 		style="min-height: 300px; margin-bottom: 20px;">
-		<div class="span3">
+		<span style="width: 20%">
 			<div ng-controller="InodesTreeCtrl"
 				ng-include="'tree_view_template.html'"
 				class="roundbord bglight"
 				style="min-height: 300px">
 			</div>
-		</div>
-		<div class="span9">
+		</span>
+		<span style="width: 70%">
 			<div ng-controller="InodesListCtrl"
 				ng-include="'list_view_template.html'"
 				class="roundbord bglight"
 				style="min-height: 300px">
 			</div>
-		</div>
+		</span>
 	</div>
 
 

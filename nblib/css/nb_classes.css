@@ -1,14 +1,36 @@
 /**** CLASSES ****/
 
 .nb_navbar {
-	width: 100%;
-	margin: 0;
+	width: 100% !important;
+	margin: 0 !important;
 	opacity: 0.85;
-	z-index: 10000;
 }
 
-.nb_navbar * {
-	z-index: 10000;
+.nb_navbar a.brandy {
+	padding: 0;
+	text-align: left;
+}
+
+.nb_navbar a.brandy img {
+	text-align: left;
+	height: 40px;
+	margin-right: 20px;
+}
+
+.nb_page_pad {
+	padding-left: 150px !important;
+	padding-right: 150px !important;
+}
+
+@media all and (max-width: 600px) {
+	.nb_page_pad {
+		padding-left: 50px !important;
+		padding-right: 50px !important;
+	}
+}
+
+.active > a {
+	background-color: #f26262 !important;
 }
 
 .bglight {
