@@ -21,11 +21,16 @@
 	padding-left: 150px !important;
 	padding-right: 150px !important;
 }
-
-@media all and (max-width: 600px) {
+@media all and (min-width: 480px) and (max-width: 768px) {
 	.nb_page_pad {
 		padding-left: 50px !important;
 		padding-right: 50px !important;
+	}
+}
+@media all and (max-width: 480px) {
+	.nb_page_pad {
+		padding-left: 10px !important;
+		padding-right: 10px !important;
 	}
 }
 
@@ -47,15 +52,25 @@
 	font-size: 120pt;
 	line-height: 120pt;
 }
-@media all and (max-width: 600px) {
+.H2 {
+	font-size: 50pt;
+	line-height: 50pt;
+}
+@media all and (min-width: 480px) and (max-width: 768px) {
 	.H1 {
 		font-size: 60pt;
 		line-height: 60pt;
 	}
 }
-.H2 {
-	font-size: 50pt;
-	line-height: 50pt;
+@media all and (max-width: 480px) {
+	.H1 {
+		font-size: 40pt;
+		line-height: 40pt;
+	}
+	.H2 {
+		font-size: 40pt;
+		line-height: 40pt;
+	}
 }
 
 .fntblk {
