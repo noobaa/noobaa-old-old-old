@@ -156,7 +156,6 @@ html, body {
 }
 
 .bgpattern {
-	z-index: -1000;
 	background-image: url('/public/nblib/img/pattern.png'); 
 	position: absolute;
 	width: 100%;

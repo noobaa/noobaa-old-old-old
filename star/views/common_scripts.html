@@ -1,0 +1,32 @@
+<!-- SCRIPTS -->
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.1/underscore-min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js"></script>
+
+<!-- jquery -->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+<script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+
+<!-- angular -->
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.min.js"></script>
+<script src="/vendor/angular-ui/build/angular-ui.min.js" type="text/javascript"></script>
+<script src="/vendor/ng-grid/build/ng-grid.debug.js" type="text/javascript"></script>
+
+<script src="/public/nblib/js/angular_common.js" type="text/javascript"></script>
+
+
+<!-- jquery initializations -->
+
+<script type="text/javascript">
+	$(function(){
+		// enable bootstrap tooltips and popovers
+		// the container=body is needed due to https://github.com/twitter/bootstrap/issues/5687
+		$("[rel=tooltip]").tooltip({
+			container: 'body'
+		});
+		$('[rel=popover]').popover({
+			container: 'body'
+		});
+	});
+</script>

@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html ng-app="noobaa_app" xmlns:fb="http://ogp.me/ns/fb#" lang="en">
-
 <head>
 	<?# def.include('common_head.html') ?>
 	<style>
@@ -11,14 +10,6 @@
 			background-size: cover;
 		}
 	</style>
-	<script src="/public/js/thank_you.js" type="text/javascript"></script>
-	<script type="text/javascript">
-		<??it.user?>
-			var noobaa_user = <?= JSON.stringify(it.user) ?>;
-		<????>
-			var noobaa_user = null;
-		<???>
-	</script>
 </head>
 
 <body ng-controller="ThankYouCtrl">
@@ -80,6 +71,19 @@
 		</h3>
 	</div>
 	</div>
+
+
+	<?# def.include('common_scripts.html') ?>
+
+	<script type="text/javascript">
+		<??it.user?>
+			var noobaa_user = <?= JSON.stringify(it.user) ?>;
+		<????>
+			var noobaa_user = null;
+		<???>
+	</script>
+
+	<script src="/public/js/thank_you.js" type="text/javascript"></script>
 
 </body>
 

@@ -1,9 +1,7 @@
 <!DOCTYPE html>
 <html ng-app="noobaa_app" xmlns:fb="http://ogp.me/ns/fb#" lang="en">
-
 <head>
 	<?# def.include('common_head.html') ?>
-
 	<style>
 		body {
 			background-image: url('/public/images/canstockphoto7274277.jpg');
@@ -16,66 +14,6 @@
 			width: 100%;
 		}
 	</style>
-
-	<link href="/vendor/blueimp-file-upload/css/jquery.fileupload-ui.css" type="text/css" rel="stylesheet"/>
-	<link href="/vendor/ng-grid/ng-grid.min.css" type="text/css" rel="stylesheet"/>
-
-	<script src="/vendor/blueimp-file-upload/js/vendor/jquery.ui.widget.js" type="text/javascript"></script>
-	<script src="/vendor/blueimp-file-upload/js/jquery.iframe-transport.js" type="text/javascript"></script>
-	<script src="/vendor/blueimp-file-upload/js/jquery.fileupload.js" type="text/javascript"></script>
-
-	<link href="/vendor/bootstrap-tour/css/bootstrap-tour.min.css" type="text/css" rel="stylesheet"/>
-	<script src="/vendor/bootstrap-tour/js/bootstrap-tour.min.js" type="text/javascript"></script>
-	<script type="text/javascript">
-		var nb_tour = new Tour({
-			backdrop: true,
-			template: [
-				'<div class="popover tour fntread" style="width: 800px; background-color: #f2f2f2; color: black;">',
-					'<div class="arrow"></div>',
-					// '<h3 class="popover-title"></h3>',
-					'<div class="popover-content"></div>',
-					'<div class="popover-navigation">',
-						'<button class="btn" data-role="end"',
-							'style="float: left !important">Close</button>',
-						'<button class="btn" data-role="prev"',
-							'style="float: none !important">« Prev</button>',
-						'<button class="btn btn-primary" data-role="next"',
-							'style="float: right !important">Next »</button>',
-					'</div>',
-				'</div>'
-			].join('\n')
-		});
-		nb_tour.addSteps([{
-			element: "#logo_link", // jQuery selector
-			placement: 'bottom',
-			// title: "NooBaa",
-			content: [
-				'<h2>WELCOME TO NOOBAA</h2>',
-				'<p class="lead">We want to show you around...<br/>',
-				'So press next...<br/></p>'
-			].join('\n')
-		}, {
-			element: "#my_data_link",
-			placement: 'bottom',
-			// title: "MY DATA",
-			content: '<p class="lead">This is your MY DATA page ... </p>'
-		}, {
-			element: "#my_dev_link",
-			placement: 'bottom',
-			// title: "MY DEVICES",
-			content: '<p class="lead">This is your MY DEVICES page ... </p>'
-		}]);
-		function nb_show_tour() {
-			nb_tour.end();
-			nb_tour.restart();
-		}
-	</script>
-
-	<script type="text/javascript">
-		var planet_api = '<?! it.planet_api ?>';
-	</script>
-	
-	<script src="/public/js/mydata_ctrl.js" type="text/javascript"></script>
 </head>
 
 <body>
@@ -180,7 +118,7 @@
 
 	<div ng-controller="InodesMenuCtrl"
 		id="context_menu" 
-		class="dropdown" style="z-index:1000;">
+		class="dropdown" style="z-index: 100;">
 		<a id="context_menu_toggle" class="dropdown-toggle" href="#" hidden="true"></a>
 		<ul class="dropdown-menu" 
 			role="menu" 
@@ -666,14 +604,14 @@
 			style="position: absolute;
 				top: 0;
 				left: 0;
-				z-index: 1000;
+				z-index: 10;
 				width: {{row.entity[col.field]}}%;">
 		</div>
 		<div class="fntsans fntblk"
 			style="position: absolute;
 				top: 0;
 				left: 40%;
-				z-index: 2000;
+				z-index: 20;
 				color: black;">
 			{{row.entity[col.field]}}%
 		</div>
@@ -682,7 +620,22 @@
 <!-- ======== CONTENT END ======== -->
 
 
-
 	</div>
+
+
+	<?# def.include('common_scripts.html') ?>
+
+	<script src="/vendor/blueimp-file-upload/js/vendor/jquery.ui.widget.js" type="text/javascript"></script>
+	<script src="/vendor/blueimp-file-upload/js/jquery.iframe-transport.js" type="text/javascript"></script>
+	<script src="/vendor/blueimp-file-upload/js/jquery.fileupload.js" type="text/javascript"></script>
+
+	<script type="text/javascript">
+		var planet_api = '<?! it.planet_api ?>';
+	</script>
+	<script src="/public/js/mydata_ctrl.js" type="text/javascript"></script>
+	
+	<script src="/vendor/bootstrap-tour/js/bootstrap-tour.min.js" type="text/javascript"></script>
+	<script src="/public/js/tour_guide.js" type="text/javascript"></script>
+
 </body>
 </html>

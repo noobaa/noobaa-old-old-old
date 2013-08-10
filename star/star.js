@@ -189,9 +189,10 @@ app.get('/thankyou', function(req, res) {
 	if (!req.user) {
 		return res.redirect('/welcome');
 	}
-	if (auth.can_login(req.user)) {
-		return res.redirect('/mydata');
-	}
+	// TODO: uncomment
+	// if (auth.can_login(req.user)) {
+		// return res.redirect('/mydata');
+	// }
 	return res.render('thankyou.html', page_context(req));
 });
 
