@@ -25,31 +25,29 @@
 		
 		<div style="margin-bottom: 30px;">
 			<div class="btn-group">
-				<button class="btn" ng-click="add_device()">
+				<a id="add_dev_btn" class="btn" ng-click="add_device()">
 					<!-- <i class="icon-cloud-upload icon-large"></i> -->
 					Add Device
-				</button>
+				</a>
 			</div>
 		</div>
 
 		<!-- TABLE -->
 
-		<div class="roundbord bglight">
-			<div ng-hide="has_devices()" 
-				style="padding: 20px">
-				<div style="padding: 40px;
+		<div class="roundbord bglight" style="padding: 20px">
+			<div id="devices_table" ng-hide="has_devices()" 
+				style="padding: 40px;
 					border-style: dashed;
 					text-align: center">
-					<h3>No devices</h3>
-					<h3>Add a device to start co-sharing...</h3>
-				</div>
+				<h3>No devices</h3>
+				<h3>Add a device to start co-sharing...</h3>
 			</div>
-			<table class="table" ng-show="has_devices()">
-				<thead>
+			<table id="devices_table" class="table table-hover" ng-show="has_devices()">
+				<!-- <thead>
 					<th>Device Name</th>
 					<th>OS</th>
-					<th>Access Time</th>
-				</thead>
+					<th>Connectivity</th>
+				</thead> -->
 				<tbody>
 					<tr ng-repeat="(__id,dev) in devices">
 						<td>{{dev.name}}</td>

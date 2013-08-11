@@ -287,6 +287,7 @@
 			</div>
 		</div>
 		<div class="modal-footer">
+			<button class="btn pull-left" data-dismiss="modal">Hide</button>
 			<button ng-show="!curr_dir_refresh_failed"
 				class="btn btn-primary"	
 				data-dismiss="modal" 
@@ -314,7 +315,6 @@
 					directory="">
 				</input>
 			</span>
-			<button class="btn" data-dismiss="modal">Hide</button>
 		</div>
 	</div>
 
@@ -337,7 +337,7 @@
 			<input ng-model="new_name" id="new_folder_input" class="input" type="text" style="width: 95%;"></input>
 		</div>
 		<div class="modal-footer">
-			<button class="btn" data-dismiss="modal">Close</button>
+			<button class="btn pull-left" data-dismiss="modal">Close</button>
 			<button class="btn btn-primary"	data-dismiss="modal" 
 				ng-click="submit()">Create</button>
 		</div>
@@ -362,7 +362,7 @@
 			<input ng-model="new_name" id="rename_input" class="input" type="text" style="width: 95%;"></input>
 		</div>
 		<div class="modal-footer">
-			<button class="btn" data-dismiss="modal">Close</button>
+			<button class="btn pull-left" data-dismiss="modal">Close</button>
 			<button class="btn btn-primary" data-dismiss="modal" 
 				ng-click="submit()">Rename</button>
 		</div>
@@ -407,7 +407,7 @@
 			</div>
 		</div>
 		<div class="modal-footer">
-			<button class="btn" data-dismiss="modal">Close</button>
+			<button class="btn pull-left" data-dismiss="modal">Close</button>
 			<button class="btn btn-primary"	data-dismiss="modal" 
 				ng-click="submit()">Save</button>
 		</div>
@@ -430,18 +430,18 @@
 			nb-right-click="inode_rclick(dir_inode, $event)"
 			ng-dblclick="inode_dclick(dir_inode)"
 			nb-drop="inode_drop(dir_inode, $drag, $event)">
-			<span style="margin-left: {{15*dir_inode.level - 20}}px; vertical-align: middle"
+			<span style="margin-left: {{20*dir_inode.level - 30}}px; vertical-align: middle"
 				class="fntsans fntblk">
 				<span ng-click="inode_dclick(dir_inode)"
 		 			style="vertical-align: middle;" 
 					ng-switch on="!!dir_inode.dir_state.refreshing">
 					<span ng-switch-when="false">
 						<span ng-switch on="dir_inode.dir_state.expanded">
-							<i ng-switch-when="false" class="icon-folder-close-alt icon-large"></i>
-							<i ng-switch-when="true" class="icon-folder-open-alt icon-large"></i>
+							<i ng-switch-when="false" class="icon-folder-close-alt icon-large icon-fixed-width"></i>
+							<i ng-switch-when="true" class="icon-folder-open-alt icon-large icon-fixed-width"></i>
 						</span>
 					</span>
-					<i ng-switch-when="true" class="icon-refresh"></i>
+					<i ng-switch-when="true" class="icon-refresh icon-large icon-fixed-width"></i>
 				</span>
 				<span nb-drag="drag_item(dir_inode, $event, is_start)">
 					{{dir_inode.name}}
@@ -461,7 +461,7 @@
 	<div nb-right-click="inode_rclick(dir_inode, $event)">
 		<ul ng-include="'tree_item_template.html'"
 			class="nav nav-list" 
-			style="padding: 0px;">
+			style="padding: 3px;">
 		</ul>
 	</div>
 </script>
