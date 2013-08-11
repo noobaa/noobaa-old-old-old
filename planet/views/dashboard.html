@@ -22,7 +22,7 @@
 <body ng-controller="DashboardCtrl" class="bglight">
 
 	<div class="fntpaint fntblk" align="center"
-		style="font-size: 30pt; line-height: 30pt; margin: 30px 0 0 0;">
+		style="font-size: 30pt; line-height: 30pt; padding: 30px 0 0 0;">
 		NooBaa Dashboard
 		<button class="btn btn-small pull-right"
 			ng-click="reload_home()">
@@ -91,6 +91,12 @@
 			</td>
 		</tr>
 	</table>
+
+	<div style="padding: 30px">
+		<button class="btn pull-right" ng-click="hide_win()">
+			Close
+		</button>
+	</div>
 
 	<!-- iframe used to make authentication -->
 	<iframe id="auth_frame" hidden nwdisable nwfaketop></iframe>

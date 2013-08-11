@@ -34,9 +34,10 @@ function DashboardCtrl($scope, $http, $timeout) {
 	var gui = $scope.gui = window.require('nw.gui');
 
 	// make window hide on close
-	gui.Window.get().on('close', function() {
-		this.hide();
-	});
+	$scope.hide_win = function() {
+		gui.Window.get().hide();
+	}
+	gui.Window.get().on('close', $scope.hide_win);
 
 	// open this window
 	$scope.open = function() {
