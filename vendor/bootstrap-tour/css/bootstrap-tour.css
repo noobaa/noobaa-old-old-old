@@ -21,7 +21,7 @@
   padding: 9px 14px;
 }
 .popover.tour .popover-navigation *[data-role=end] {
-  float: right;
+  /*float: right;*/
 }
 .popover.tour .popover-navigation *[data-role=prev],
 .popover.tour .popover-navigation *[data-role=next],

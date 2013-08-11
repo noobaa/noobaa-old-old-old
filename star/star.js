@@ -77,7 +77,7 @@ app.use(function(req, res, next) {
 	// var fwd_from = req.get('X-Forwarded-For');
 	// var fwd_start = req.get('X-Request-Start');
 	// TODO: redirecting to http till we have ssl certificate
-	if (fwd_proto === 'https' /*&& req.url !== '/' && req.url !== '/welcome'*/) {
+	if (fwd_proto === 'https' /*&& req.url !== '/' && req.url !== '/welcome'*/ ) {
 		var host = req.get('Host');
 		return res.redirect('http://' + host + req.url);
 	}
@@ -176,6 +176,18 @@ function page_context(req) {
 	};
 }
 
+function redirect_no_user(req, res) {
+	if (!req.user) {
+		res.redirect('/welcome');
+		return true;
+	}
+	if (!auth.can_login(req.user)) {
+		res.redirect('/thankyou');
+		return true;
+	}
+	return false;
+}
+
 app.get('/auth', function(req, res) {
 	// route for planet login
 	return res.render('auth.html', page_context(req));
@@ -189,31 +201,29 @@ app.get('/thankyou', function(req, res) {
 	if (!req.user) {
 		return res.redirect('/welcome');
 	}
-	// TODO: uncomment
+	// TODO: uncomment this redirect
 	// if (auth.can_login(req.user)) {
-		// return res.redirect('/mydata');
+	// return res.redirect('/mydata');
 	// }
 	return res.render('thankyou.html', page_context(req));
 });
 
+app.get('/mydevices', function(req, res) {
+	if (!redirect_no_user(req, res)) {
+		return res.render('mydevices.html', page_context(req));
+	}
+});
+
 app.get('/mydata', function(req, res) {
-	if (!req.user) {
-		return res.redirect('/welcome');
+	if (!redirect_no_user(req, res)) {
+		return res.render('mydata.html', page_context(req));
 	}
-	if (!auth.can_login(req.user)) {
-		return res.redirect('/thankyou');
-	}
-	return res.render('mydata.html', page_context(req));
 });
 
 app.get('/', function(req, res) {
-	if (!req.user) {
-		return res.redirect('/welcome');
+	if (!redirect_no_user(req, res)) {
+		return res.redirect('/mydata');
 	}
-	if (!auth.can_login(req.user)) {
-		return res.redirect('/thankyou');
-	}
-	return res.redirect('/mydata');
 });
 
 

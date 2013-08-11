@@ -16,7 +16,7 @@
 	</style>
 </head>
 
-<body>
+<body ng-cloak>
 
 	<?# def.facebook_init_body ?>
 
@@ -208,12 +208,11 @@
 
 	<div ng-controller="UploadCtrl"
 		id="upload_modal"
-		class="modal hide fade "
+		class="modal hide fade"
 		tabindex="-1" 
 		role="dialog" 
 		aria-labelledby="upload_modal_label" 
-		aria-hidden="true"
-		style="background-color: #f2f2f2">
+		aria-hidden="true">
 		<div class="modal-header">
 			<a type="button" class="close" data-dismiss="modal">×</a>
 			<h3 id="upload_modal_label">Uploads</h3>
@@ -315,7 +314,7 @@
 					directory="">
 				</input>
 			</span>
-			<button class="btn" data-dismiss="modal">Close</button>
+			<button class="btn" data-dismiss="modal">Hide</button>
 		</div>
 	</div>
 
@@ -328,8 +327,7 @@
 		tabindex="-1" 
 		role="dialog" 
 		aria-labelledby="new_folder_modal_label" 
-		aria-hidden="true"
-		style="background-color: #f2f2f2">
+		aria-hidden="true">
 		<div class="modal-header">
 			<a type="button" class="close" data-dismiss="modal">×</a>
 			<h3 id="new_folder_modal_label">New Folder</h3>
@@ -354,8 +352,7 @@
 		tabindex="-1" 
 		role="dialog" 
 		aria-labelledby="rename_modal_label" 
-		aria-hidden="true"
-		style="background-color: #f2f2f2">
+		aria-hidden="true">
 		<div class="modal-header">
 			<a type="button" class="close" data-dismiss="modal">×</a>
 			<h3 id="rename_modal_label">Rename...</h3>
@@ -380,8 +377,7 @@
 		tabindex="-1" 
 		role="dialog" 
 		aria-labelledby="share_modal_label" 
-		aria-hidden="true"
-		style="background-color: #f2f2f2">
+		aria-hidden="true">
 		<div class="modal-header">
 			<a type="button" class="close" data-dismiss="modal">×</a>
 			<h3 id="share_modal_label">Share...</h3>

@@ -58,13 +58,13 @@ html, body {
 }*/
 
 .bglight {
-	/*background-color: #f2f2f2;*/
-	background-color: white;
+	background-color: #f4f4f4;
+	/*background-color: white;*/
 }
 
 .bgdark {
 	background-color: black;
-	color: #f2f2f2;
+	color: #fafafa;
 }
 
 .H1 {
@@ -150,8 +150,8 @@ html, body {
 .roundbord {
 	border-radius: 5px/4px;
 	/*border-radius: 10px/8px;*/
-	/*border-style: solid;*/
-	/*border-width: 1px;*/
+	border-style: solid;
+	border-width: 1px;
 	/*padding: 5px;*/
 }
 

@@ -14,6 +14,9 @@ var email = require('./email');
 var user_inodes = require('../providers/user_inodes');
 var user_invitations = require('../providers/user_invitations');
 
+// NOTE: this check uses the session, and not the DB.
+// so in order to notice a db change it requires logout & login 
+// which will create a new session.
 function can_login(user) {
 	return _.contains(user.privileges, user_model.CONST_PRIVILEGES.LOGIN);
 }

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html ng-app="noobaa_app" xmlns:fb="http://ogp.me/ns/fb#" lang="en">
+<head>
+	<?# def.include('common_head.html') ?>
+	<style>
+		body {
+			background-image: url('/public/images/canstockphoto7274277.jpg');
+			background-repeat: no-repeat;
+			background-attachment: fixed;
+			background-size: cover;
+		}
+	</style>
+</head>
+
+<body ng-cloak>
+
+	<?# def.facebook_init_body ?>
+
+	<?# def.include('common_menubar.html') ?>
+
+	<div class="nb_page_pad nb_nav_top_pad"
+		ng-controller="MyDevicesCtrl">
+
+		<!-- TOOLBAR -->
+		
+		<div style="margin-bottom: 30px;">
+			<div class="btn-group">
+				<button class="btn" ng-click="add_device()">
+					<!-- <i class="icon-cloud-upload icon-large"></i> -->
+					Add Device
+				</button>
+			</div>
+		</div>
+
+		<!-- TABLE -->
+
+		<div class="roundbord bglight">
+			<div ng-hide="has_devices()" 
+				style="padding: 20px">
+				<div style="padding: 40px;
+					border-style: dashed;
+					text-align: center">
+					<h3>No devices</h3>
+					<h3>Add a device to start co-sharing...</h3>
+				</div>
+			</div>
+			<table class="table" ng-show="has_devices()">
+				<thead>
+					<th>Device Name</th>
+					<th>OS</th>
+					<th>Access Time</th>
+				</thead>
+				<tbody>
+					<tr ng-repeat="(__id,dev) in devices">
+						<td>{{dev.name}}</td>
+						<td>{{dev.os}}</td>
+						<td>{{dev.atime}}</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+
+	</div>
+
+	<!--
+	<div class="well">
+
+		<div class="well" 
+			nb-effect-toggle="connected" 
+			nb-effect-options="{effect:'fade', duration:1600}">
+			<div class="badge badge-inverse">
+				<h1>Congratulations !!!</h1>
+			</div>
+			<br/>
+			<h3>You are all set to use your fastest and free cloud storage !!!</h3>
+			<h3>Go to 
+				<a class="btn btn-primary btn-large" href="/">
+					My Data
+				</a>
+			</h3>
+			<h3>Show download and install
+				<button class="btn " ng-click="show_downloads = !show_downloads">
+					 &raquo
+				</button>
+			</h3>
+		</div>
+
+		<div class="well" ng-hide="connected && !show_downloads">
+			<div class="badge badge-inverse">
+				<h1>Download and Install</h1>
+			</div>
+			<br/><br/>
+			<h3>
+				Get the client:
+			</h3>
+			<div align="center">
+				<div class="btn-group">
+					<a class="btn btn-primary btn-large" href="{{client_download_url()}}">Download for {{client_platform}}</a>
+					<!- - <span class="dropdown"> - ->
+					<a class="btn btn-primary btn-large dropdown-toggle" id="dl_clients_dropdown" role="button" data-toggle="dropdown">
+						<i class="caret"></i>
+					</a>
+				  	<ul class="dropdown-menu" role="menu" aria-labelledby="dl_clients_dropdown">
+				  		<li ng-repeat="(plat,url) in plat_download_urls">
+				  			<button class="btn btn-link" ng-click="$parent.client_platform = plat;">{{plat}}</button>
+				  		</li>
+				  	</ul>
+				  	<!- - </span> - ->
+				</div>
+			</div>
+			<br/>
+			<h3>Run the client you downloaded.</h3>
+			<h3>The client will start a local service and connect to the network.</h3>
+			<h3>This guide will automatically advance once the connection is made.</h3>
+			<i><h3 class="muted" align="center" ng-hide="connected">
+				Waiting for connection...
+			</h3></i>
+		</div>
+
+	</div>
+</div>
+	-->
+
+
+
+	<?# def.include('common_scripts.html') ?>
+
+	<script src="/public/js/mydevices_ctrl.js" type="text/javascript"></script>
+	<script src="/vendor/bootstrap-tour/js/bootstrap-tour.min.js" type="text/javascript"></script>
+	<script src="/public/js/tour_guide.js" type="text/javascript"></script>
+
+</body>
+</html>
