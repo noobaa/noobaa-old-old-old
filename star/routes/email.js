@@ -12,6 +12,17 @@ var nodemailer = require('nodemailer');
 // to see how to add dynamic info:
 //help.mandrill.com/entries/21678522-how-do-i-use-merge-tags-to-add-dynamic-content
 exports.send_welcome = function(user, callback) {
+
+	var localemail;
+	if (user.email) {
+			localemail = user.email;
+	} else if (user.fb.email) {
+			localemail = user.fb.email;
+	} else {
+		console.log("User has not email defined.");
+		return callback(null, user);		
+	}
+
 	mandrill('/messages/send-Template', {
 		template_name: "alpha-welcome",
 		template_content: [],
@@ -24,14 +35,14 @@ exports.send_welcome = function(user, callback) {
 				content: 'http://www.noobaa.com/'
 			}, {
 				name: "UNAME",
-				content: _s.words(user.name)[0]
+				content: _s.words(user.fb.name)[0]
 			}],
 			subject: 'Welcome to NooBaa!',
 			from_email: 'info@noobaa.com',
 			from_name: 'NooBaa Team',
 			to: [{
-				email: user.email,
-				name: user.name
+				email: localemail,
+				name: user.fb.name
 			}],
 		}
 	}, function(err, result) {

@@ -60,7 +60,9 @@ var user_details_update = function(profile, user, callback) {
 };
 
 // setup passport with facebook backend
-var create_user = function(profile, callback) {
+
+function create_user(profile, callback) {
+	console.log("CREATE USER", profile);
 	async.waterfall([
 		function(next) {
 			return next(null, profile);
@@ -83,29 +85,20 @@ var create_user = function(profile, callback) {
 					return next(err, null);
 				}
 				console.log('CREATED USER:', user);
-				next(null, user);
+				return next(null, user);
 			});
 		},
 
 		user_inodes.verify_and_create_base_folders,
 
-/*
-		function(user, next) {
-			console.log('sending welcome mail to: ', user); 
-			if (user.email) {
-				return email.welcome(user, next);
-			}
-			if (user.fb.email) {
-				user.email = user.fb.email;
-				return email.welcome(user, next);
-			}
-			return next(null,user);
-		},
-*/
-	], callback);
-};
+		email.send_welcome,
 
-var user_login = function(req, accessToken, refreshToken, profile, done) {
+	], callback);
+}
+exports.create_user = create_user;
+
+function user_login(req, accessToken, refreshToken, profile, done) {
+	console.log("USER LOGIN");
 	async.waterfall([
 		//find the user in the DB
 		function(next) {
@@ -124,7 +117,8 @@ var user_login = function(req, accessToken, refreshToken, profile, done) {
 		},
 		user_details_update.bind(null, profile),
 	], done);
-};
+}
+exports.user_login = user_login;
 
 passport.use(new facebook_passport.Strategy({
 	clientID: process.env.FACEBOOK_APP_ID,
@@ -166,6 +160,7 @@ passport.deserializeUser(function(user_info, done) {
 
 // facebook login is handled by passport
 exports.facebook_login = function(req, res, next) {
+	console.log("auth.facebook_login");
 	passport.authenticate('facebook', {
 		// display: 'popup',
 		scope: ['email'],
