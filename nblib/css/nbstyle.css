@@ -108,6 +108,13 @@ html, body {
 	font-family: 'Finger Paint', cursive;
 }
 
+.fnttour {
+	font-family: 'Comfortaa', cursive;
+	font-size: 14pt;
+	line-height: 14pt;
+	font-weight: 300;
+}
+
 /* GOOGLE FONTS */
 	/*font-family: 'Finger Paint', cursive;*/
 	/*font-family: 'Special Elite', cursive;*/
@@ -148,11 +155,14 @@ html, body {
 }
 
 .roundbord {
-	border-radius: 5px/4px;
-	/*border-radius: 10px/8px;*/
-	border-style: solid;
-	border-width: 1px;
+	/*border-radius: 7px/7px;*/
 	/*padding: 5px;*/
+	border-style: solid;
+	border-width: 2px;
+	border-color: rgba(50, 50, 100, 0.4);
+	-moz-box-shadow: 0 0 6px 6px rgba(50, 50, 100, 0.25);
+	-webkit-box-shadow: 0 0 6px 6px rgba(50, 50, 100, 0.25);
+	box-shadow: 0 0 6px 6px rgba(50, 50, 100, 0.25);
 }
 
 .bgpattern {

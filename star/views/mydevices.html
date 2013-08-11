@@ -9,6 +9,22 @@
 			background-attachment: fixed;
 			background-size: cover;
 		}
+		#dl {
+			overflow: hidden;
+			text-align: center;
+			padding: 10px;
+			margin-bottom: 30px;
+		}
+		#dl table {
+			width: 100%;
+		}
+		#dl a {
+			cursor: pointer;
+		}
+		#dl img {
+			height: 50px;
+			width: auto;
+		}
 	</style>
 </head>
 
@@ -21,28 +37,40 @@
 	<div class="nb_page_pad nb_nav_top_pad"
 		ng-controller="MyDevicesCtrl">
 
-		<!-- TOOLBAR -->
-		
-		<div style="margin-bottom: 30px;">
-			<div class="btn-group">
-				<a id="add_dev_btn" class="btn" ng-click="add_device()">
-					<!-- <i class="icon-cloud-upload icon-large"></i> -->
-					Add Device
-				</a>
-			</div>
+		<div id="dl" class="roundbord bglight">
+			<table>
+				<tr>
+					<td>
+						<a>
+							<img src="/public/nblib/img/windows_logo.png"></img>
+							Download for Windows
+						</a>
+					</td>
+					<td>
+						<a>
+							<img src="/public/nblib/img/linux_logo.png"></img>
+							Download for Linux
+						</a>
+					</td>
+					<td>
+						<a>
+							<img src="/public/nblib/img/mac_logo.png"></img>
+							Download for Mac
+						</a>
+					</td>
+				</tr>
+			</table>
 		</div>
 
-		<!-- TABLE -->
-
-		<div class="roundbord bglight" style="padding: 20px">
-			<div id="devices_table" ng-hide="has_devices()" 
+		<div id="devs" class="roundbord bglight" style="padding: 20px">
+			<div ng-hide="has_devices()" 
 				style="padding: 40px;
 					border-style: dashed;
 					text-align: center">
-				<h3>No devices</h3>
-				<h3>Add a device to start co-sharing...</h3>
+				<h3>No devices connected</h3>
+				<h3>Download and install a device to start co-sharing</h3>
 			</div>
-			<table id="devices_table" class="table table-hover" ng-show="has_devices()">
+			<table class="table table-hover" ng-show="has_devices()">
 				<!-- <thead>
 					<th>Device Name</th>
 					<th>OS</th>
