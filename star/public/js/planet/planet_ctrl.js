@@ -18,6 +18,8 @@ function PlanetCtrl($scope, $http, $timeout) {
 	// to be able to restore to it if we redirect
 	$scope.home_location = window.location.href;
 
+	var os = require('os');
+
 	// load native node-webkit library
 	var gui = $scope.gui = window.require('nw.gui');
 
@@ -193,13 +195,17 @@ function PlanetCtrl($scope, $http, $timeout) {
 	////////////////////////////////////////////////////////////
 
 
-	function do_periodic_poll() {
-		// schedule the next poll
-		$timeout(do_periodic_poll, 10000);
+	function do_periodic_update() {
+		// schedule the next update
+		$timeout(do_periodic_update, 10000);
 		
 		$http({
-			method: 'GET',
-			url: '/star_api/planet/'
+			method: 'PUT',
+			url: '/star_api/device/stam',
+			data: {
+				hostname: os.hostname(),
+				platform: os.platform()
+			}
 		}).success(function(data, status, headers, config) {
 			console.log('[ok] poll', status);
 			if (data.reload) {
@@ -210,7 +216,7 @@ function PlanetCtrl($scope, $http, $timeout) {
 			console.error('[ERR] poll', data, status);
 		});
 	}
-	$timeout(do_periodic_poll, 10000);
+	$timeout(do_periodic_update, 10000);
 }
 
 // avoid minification effects by injecting the required angularjs dependencies

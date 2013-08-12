@@ -11,14 +11,11 @@ var async = require('async');
 var mongoose = require('mongoose');
 var querystring = require('querystring');
 
-
-var inode_model = require('../models/inode');
-var Inode = inode_model.Inode;
-var fobj_model = require('../models/fobj');
-var Fobj = fobj_model.Fobj;
+var Inode = require('../models/inode').Inode;
+var Fobj = require('../models/fobj').Fobj;
+var User = require('../models/user').User;
 var user_inodes = require('../providers/user_inodes');
-var user_model = require('../models/user');
-var User = user_model.User;
+
 
 /* load s3 config from env*/
 AWS.config.update({

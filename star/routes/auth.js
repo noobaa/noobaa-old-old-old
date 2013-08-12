@@ -8,19 +8,10 @@ var facebook_passport = require('passport-facebook');
 var fbapi = require('facebook-api');
 var _ = require('underscore');
 
-var user_model = require('../models/user');
-var User = user_model.User;
+var User = require('../models/user').User;
 var email = require('./email');
 var user_inodes = require('../providers/user_inodes');
-var user_invitations = require('../providers/user_invitations');
 
-// NOTE: this check uses the session, and not the DB.
-// so in order to notice a db change it requires logout & login 
-// which will create a new session.
-function can_login(user) {
-	return _.contains(user.privileges, user_model.CONST_PRIVILEGES.LOGIN);
-}
-exports.can_login = can_login;
 
 // Gets the FB profile and current user DB appearance and makes sure we the uptodate details
 // mainly - email, privilages and the likes which are important for our communication 
@@ -59,25 +50,13 @@ var user_details_update = function(profile, user, callback) {
 	});
 };
 
-// setup passport with facebook backend
 
 function create_user(profile, callback) {
 	console.log("CREATE USER", profile);
 	async.waterfall([
 		function(next) {
-			return next(null, profile);
-		},
-
-		function(profile, next) {
-			return user_invitations.was_user_invited(profile, next);
-		},
-
-		function(fb_profile, invited, next) {
 			var user = new User();
-			user.privileges = [];
-			if (invited) {
-				user.privileges.push(user_model.CONST_PRIVILEGES.LOGIN);
-			}
+			// user.alpha_tester = false; // will be changed manually for alpha users
 			user.fb = profile._json;
 			user.save(function(err, user, num) {
 				if (err) {
@@ -95,7 +74,6 @@ function create_user(profile, callback) {
 
 	], callback);
 }
-exports.create_user = create_user;
 
 function user_login(req, accessToken, refreshToken, profile, done) {
 	console.log("USER LOGIN");
@@ -118,8 +96,8 @@ function user_login(req, accessToken, refreshToken, profile, done) {
 		user_details_update.bind(null, profile),
 	], done);
 }
-exports.user_login = user_login;
 
+// setup passport with facebook backend
 passport.use(new facebook_passport.Strategy({
 	clientID: process.env.FACEBOOK_APP_ID,
 	clientSecret: process.env.FACEBOOK_SECRET,
@@ -140,17 +118,10 @@ passport.serializeUser(function(user, done) {
 		fbid: user.fb.id,
 		name: user.fb.name,
 		username: user.fb.username,
-		privileges: user.privileges,
-		email: null,
+		alpha_tester: user.alpha_tester,
+		// user custom fed email takes presidence over FB's email
+		email: user.email || user.fb.email
 	};
-
-	//fill in the email. The user fed email takes presidence over FB's so we do it last.
-	if (user.fb.email) {
-		user_info.email = user.fb.email;
-	}
-	if (user.email) {
-		user_info.email = user.email;
-	}
 	done(null, user_info);
 });
 
@@ -176,10 +147,13 @@ exports.facebook_authorized = function(req, res, next) {
 	// we defined in facebook exactly who can join for private beta,
 	// so for all the rest, we redirect back to the welcome page
 	// but with specific tag to cause the request invite pop out immediately.
+	
+	// TODO: remove this once we change from sandbox app mode
 	if (req.query.error_code == 901) {
 		res.redirect('/#join');
 		return;
 	}
+	
 	// allow to pass in req.query.state the url to redirect
 	var redirect_url = req.query.state || '/';
 	var failure_url = (function() {
@@ -188,6 +162,8 @@ exports.facebook_authorized = function(req, res, next) {
 		u.hash = 'login_failed';
 		return URL.format(u);
 	})();
+
+	// let passport complete the authentication
 	passport.authenticate('facebook', {
 		successRedirect: redirect_url,
 		failureRedirect: failure_url

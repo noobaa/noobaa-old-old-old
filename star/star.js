@@ -165,8 +165,11 @@ app.put('/star_api/inode/:inode_id/share_list', inode_api.inode_set_share_list);
 // TODO: move user routes to user_api module...
 app.put('/star_api/user/:user_id', inode_api.user_update);
 
-var planet_api = require('./routes/planet_api');
-app.get('/star_api/planet/', planet_api.poll);
+var device_api = require('./routes/device_api');
+app.post('/star_api/device/', device_api.device_create);
+app.get('/star_api/device/', device_api.device_list);
+app.get('/star_api/device/:device_id', device_api.device_read);
+app.put('/star_api/device/:device_id', device_api.device_update);
 
 
 // setup planet pages
@@ -185,7 +188,10 @@ function redirect_no_user(req, res) {
 		res.redirect('/welcome');
 		return true;
 	}
-	if (!auth.can_login(req.user)) {
+	// NOTE: this check uses the session, and not the DB.
+	// so in order to notice a db change it requires logout & login 
+	// which will create a new session.
+	if (!req.user.alpha_tester) {
 		res.redirect('/thankyou');
 		return true;
 	}
@@ -201,7 +207,7 @@ app.get('/thankyou', function(req, res) {
 		return res.redirect('/welcome');
 	}
 	// TODO: uncomment this redirect
-	// if (auth.can_login(req.user)) {
+	// if (req.user.alpha_tester) {
 	// return res.redirect('/mydata');
 	// }
 	return res.render('thankyou.html', page_context(req));

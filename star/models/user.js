@@ -2,19 +2,12 @@
 'use strict';
 
 var mongoose = require('mongoose');
-
-//constants to be used in the privileges array of a user
-var CONST_PRIVILEGES = {
-	'LOGIN': 2,
-};
-exports.CONST_PRIVILEGES = CONST_PRIVILEGES;
+var Device = require('./device');
 
 var user_schema = new mongoose.Schema({
-	// facebook info has free form
-	// _id - is suggested from mongose
-	fb: {}, //fb information		
-	privileges: [Number], //see CONST_PRIVILEGES
+	fb: {}, // facebook info has free form
 	email: String, //this is used when the user updates a different email than the one in FB.
+	alpha_tester: Boolean // true to allow login to alpha testing
 });
 
 // create a unique index on the facebook id field

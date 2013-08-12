@@ -1,9 +1,7 @@
 var _ = require('underscore');
 var async = require('async');
-var inode_model = require('../models/inode');
-var Inode = inode_model.Inode;
-var user_model = require('../models/user');
-var User = user_model.User;
+var Inode = require('../models/inode').Inode;
+var User = require('../models/user').User;
 var wnst = require('winston');
 
 var CONST_BASE_FOLDERS = {
