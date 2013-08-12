@@ -2,6 +2,7 @@
 (function() {
 	'use strict';
 
+	var console = window.console;
 	var util = require('util');
 	var path = require('path');
 	var fs = require('fs');

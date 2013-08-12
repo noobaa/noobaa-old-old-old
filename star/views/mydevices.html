@@ -25,6 +25,14 @@
 			height: 50px;
 			width: auto;
 		}
+		#devs {
+			padding: 30px;
+		}
+		#nodev {
+			padding: 20px;
+			border-style: dashed;
+			text-align: center;
+		}
 	</style>
 </head>
 
@@ -62,11 +70,8 @@
 			</table>
 		</div>
 
-		<div id="devs" class="roundbord bglight" style="padding: 20px">
-			<div ng-hide="has_devices()" 
-				style="padding: 40px;
-					border-style: dashed;
-					text-align: center">
+		<div id="devs" class="roundbord bglight">
+			<div id="nodev" ng-hide="has_devices()">
 				<h3>No devices connected</h3>
 				<h3>Download and install a device to start co-sharing</h3>
 			</div>

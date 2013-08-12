@@ -3,8 +3,6 @@
 
 var path = require('path');
 var http = require('http');
-var https = require('https');
-var fs = require('fs');
 var dot = require('dot');
 var dot_emc = require('dot-emc');
 var express = require('express');
@@ -131,6 +129,15 @@ app.use(express.errorHandler());
 ////////////
 
 
+function page_context(req) {
+	return {
+		user: req.user,
+		app_id: process.env.FACEBOOK_APP_ID,
+		// TODO: channel_url expects absolute/relative/even needed?
+		channel_url: '/auth/facebook/channel.html'
+	};
+}
+
 // setup auth routes
 
 var auth = require('./routes/auth');
@@ -147,28 +154,31 @@ app.post('/email/request_invite/', email.request_invite);
 
 // setup star API routes
 
-var star_api = require('./routes/star_api');
-app.post('/star_api/inode/', star_api.inode_create);
-app.get('/star_api/inode/:inode_id', star_api.inode_read);
-app.put('/star_api/inode/:inode_id', star_api.inode_update);
-app.del('/star_api/inode/:inode_id', star_api.inode_delete);
-app.get('/star_api/inode/:inode_id/share_list', star_api.inode_get_share_list);
-app.put('/star_api/inode/:inode_id/share_list', star_api.inode_set_share_list);
+var inode_api = require('./routes/inode_api');
+app.post('/star_api/inode/', inode_api.inode_create);
+app.get('/star_api/inode/:inode_id', inode_api.inode_read);
+app.put('/star_api/inode/:inode_id', inode_api.inode_update);
+app.del('/star_api/inode/:inode_id', inode_api.inode_delete);
+app.get('/star_api/inode/:inode_id/share_list', inode_api.inode_get_share_list);
+app.put('/star_api/inode/:inode_id/share_list', inode_api.inode_set_share_list);
 
-app.put('/star_api/user/:user_id', star_api.user_update);
+// TODO: move user routes to user_api module...
+app.put('/star_api/user/:user_id', inode_api.user_update);
+
+var planet_api = require('./routes/planet_api');
+app.get('/star_api/planet/', planet_api.poll);
 
 
-// setup pages
+// setup planet pages
 
-function page_context(req) {
-	return {
-		user: req.user,
-		app_id: process.env.FACEBOOK_APP_ID,
-		// TODO: channel_url expects absolute/relative/even needed?
-		channel_url: '/auth/facebook/channel.html'
-		// planet_api: 'http://localhost:9888/planet_api/'
-	};
-}
+app.get('/planet', function(req, res) {
+	return res.render('planet.html', page_context(req));
+});
+app.get('/planet/auth', function(req, res) {
+	return res.render('planet_auth.html', page_context(req));
+});
+
+// setup user pages
 
 function redirect_no_user(req, res) {
 	if (!req.user) {
@@ -181,15 +191,6 @@ function redirect_no_user(req, res) {
 	}
 	return false;
 }
-
-// route for planet with node-webkit
-app.get('/planet', function(req, res) {
-	return res.render('planet.html', page_context(req));
-});
-// auth route for planet frame login
-app.get('/auth', function(req, res) {
-	return res.render('auth.html', page_context(req));
-});
 
 app.get('/welcome', function(req, res) {
 	return res.render('welcome.html', page_context(req));
@@ -226,13 +227,6 @@ app.get('/', function(req, res) {
 
 
 // start http server
-/*
-var https_options = {
-	key: fs.readFileSync('privatekey.pem'),
-	cert: fs.readFileSync('certificate.pem')
-};
-var server = https.createServer(https_options, app);
-*/
 var server = http.createServer(app);
 server.listen(web_port, function() {
 	console.log('Web server on port ' + web_port);
