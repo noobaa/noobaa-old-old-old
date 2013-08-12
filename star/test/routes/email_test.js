@@ -3,6 +3,49 @@
 
 var email = require('../../routes/email.js');
 
+var profile = {
+  provider: 'facebook',
+  id: '100000601353304',
+  username: 'yuval.dimnik',
+  displayName: 'Yuval Dimnik',
+  name: {
+    familyName: 'Dimnik',
+    givenName: 'Yuval',
+    middleName: undefined
+  },
+  gender: 'male',
+  profileUrl: 'https://www.facebook.com/yuval.dimnik',
+  emails: [
+    [Object]
+  ],
+  _raw: '{"id":"100000601353304","name":"Yuval Dimnik","first_name":"Yuval","last_name":"Dimnik","link":"https:\\/\\/www.facebook.com\\/yuval.dimnik","username":"yuval.dimnik","hometown":{"id":"103113623062213","name":"Bat Yam"},"location":{"id":"114749948541219","name":"Ramot Me\'ir"},"quotes":"\\"Smile, you don\'t have much left\\" - Me","work":[{"employer":{"id":"7706457055","name":"Dell"},"start_date":"2010-02-01","end_date":"2013-05-01"},{"employer":{"id":"109337459095423","name":"Exanet"},"start_date":"2005-07-01","end_date":"2010-02-01"}],"sports":[{"id":"111932052156866","name":"Surfing","with":[{"id":"679921464","name":"Tomer Mizrahi"},{"id":"596358122","name":"Kfir Dahan"}]}],"education":[{"school":{"id":"105960532777745","name":"Shazar High School"},"year":{"id":"137409666290034","name":"1995"},"type":"High School"},{"school":{"id":"176662212386543","name":"Tel Aviv University | \\u05d0\\u05d5\\u05e0\\u05d9\\u05d1\\u05e8\\u05e1\\u05d9\\u05d8\\u05ea \\u05ea\\u05dc-\\u05d0\\u05d1\\u05d9\\u05d1"},"type":"College"},{"school":{"id":"176662212386543","name":"Tel Aviv University | \\u05d0\\u05d5\\u05e0\\u05d9\\u05d1\\u05e8\\u05e1\\u05d9\\u05d8\\u05ea \\u05ea\\u05dc-\\u05d0\\u05d1\\u05d9\\u05d1"},"degree":{"id":"196378900380313","name":"MBA"},"year":{"id":"140617569303679","name":"2007"},"type":"Graduate School"}],"gender":"male","email":"yuval.dimnik\\u0040gmail.com","timezone":3,"locale":"en_US","verified":true,"updated_time":"2013-08-06T09:32:25+0000"}',
+  _json: {
+    id: '100000601353304',
+    name: 'Yuval Dimnik',
+    first_name: 'Yuval',
+    last_name: 'Dimnik',
+    link: 'https://www.facebook.com/yuval.dimnik',
+    username: 'yuval.dimnik',
+    hometown: [Object],
+    location: [Object],
+    quotes: '"Smile, you don\'t have much left" - Me',
+    work: [Object],
+    sports: [Object],
+    education: [Object],
+    gender: 'male',
+    email: 'yuval.dimnik@gmail.com',
+    timezone: 3,
+    locale: 'en_US',
+    verified: true,
+    updated_time: '2013-08-06T09:32:25+0000'
+  }
+};
+
+var user = {
+  id: '123',
+  fb: profile._json,
+};
+
 
 /*
   ======== A Handy Little Nodeunit Reference ========
@@ -32,10 +75,7 @@ exports.test_emails = {
   // },
   'send welcome mail': function(test) {
     test.ifError(
-      email.send_welcome({
-          name: 'Yuval The Shark',
-          email: 'yuval.dimnik@gmail.com'
-        },
+      email.send_welcome(user,
         function(err, res) {
           if (!err) {
             console.log(res);
@@ -46,6 +86,20 @@ exports.test_emails = {
         })
     );
     test.done();
+  },
+  'send update email': function(test) {
+    test.ifError(
+      email.send_mail_changed(user,
+        function(err, res) {
+          if (!err) {
+            console.log(res);
+          } else {
+            console.log(JSON.stringify(err));
+          }
+        })
+    );
+    test.done();
+
   },
   // 'get templates': function(test) {
   //   test.ifError(email.get_templates(function(err, res) {}));

@@ -15,6 +15,7 @@ var Inode = require('../models/inode').Inode;
 var Fobj = require('../models/fobj').Fobj;
 var User = require('../models/user').User;
 var user_inodes = require('../providers/user_inodes');
+var email = require('./email');
 
 
 /* load s3 config from env*/
@@ -734,6 +735,8 @@ exports.user_update = function(req, res) {
 				return next(null, user);
 			});
 		},
+
+		email.send_mail_changed,
 
 	], reply_callback.bind(res, 'USER UPDATE ' + id));
 };

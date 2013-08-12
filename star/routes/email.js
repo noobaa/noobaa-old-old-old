@@ -2,25 +2,30 @@
 'use strict';
 
 
-var _s = require('underscore.string');
 var mandrill = require('node-mandrill')('hHtPZqX1hKW7nmPdzTABvg');
 var path = require('path');
 var templatesDir = path.resolve(__dirname, '..', 'email_templates');
 var emailTemplates = require('email-templates');
 var nodemailer = require('nodemailer');
 
+function choose_mail(user) {
+	if (user.email) {
+		return user.email;
+	}
+	if (user.fb.email) {
+		return user.fb.email;
+	}
+	return null;
+}
+
 // to see how to add dynamic info:
 //help.mandrill.com/entries/21678522-how-do-i-use-merge-tags-to-add-dynamic-content
 exports.send_welcome = function(user, callback) {
 
-	var localemail;
-	if (user.email) {
-			localemail = user.email;
-	} else if (user.fb.email) {
-			localemail = user.fb.email;
-	} else {
-		console.log("User has not email defined.");
-		return callback(null, user);		
+	var localemail = choose_mail(user);
+	if (!localemail) {
+		console.log("User has no email defined.");
+		return callback(null, user);
 	}
 
 	mandrill('/messages/send-Template', {
@@ -34,10 +39,58 @@ exports.send_welcome = function(user, callback) {
 				name: "UPDATE_PROFILE",
 				content: 'http://www.noobaa.com/'
 			}, {
-				name: "UNAME",
-				content: _s.words(user.fb.name)[0]
+				name: "FNAME",
+				content: user.fb.first_name
 			}],
 			subject: 'Welcome to NooBaa!',
+			from_email: 'info@noobaa.com',
+			from_name: 'NooBaa Team',
+			to: [{
+				email: localemail,
+				name: user.fb.name
+			}],
+		}
+	}, function(err, result) {
+		if (!err) {
+			console.log(result);
+		} else {
+			console.log(JSON.stringify(err));
+		}
+		//we're ignoring errors on email for now.
+		callback(null, user);
+	});
+
+};
+
+exports.send_mail_changed = function(user, callback) {
+	console.log('send mail change email ');
+	var localemail = choose_mail(user);
+	if (!localemail) {
+		console.log("User has no email defined.");
+		return callback(null, user);
+	}
+
+	mandrill('/messages/send-Template', {
+		template_name: "email-changed",
+		template_content: [],
+		message: {
+			"global_merge_vars": [{
+				name: "subject",
+				content: 'NooBaa account updated'
+			}, {
+				name: "UPDATE_PROFILE",
+				content: 'http://www.noobaa.com/'
+			}, {
+				name: "NEWMAIL",
+				content: localemail
+			}, {
+				name: "FNAME",
+				content: user.fb.first_name
+			}, {
+				name: "UNAME",
+				content: user.fb.name
+			}],
+			subject: 'NooBaa account updated',
 			from_email: 'info@noobaa.com',
 			from_name: 'NooBaa Team',
 			to: [{

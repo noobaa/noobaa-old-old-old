@@ -117,6 +117,7 @@ passport.serializeUser(function(user, done) {
 		id: user._id,
 		fbid: user.fb.id,
 		name: user.fb.name,
+		first_name: user.fb.first_name,
 		username: user.fb.username,
 		alpha_tester: user.alpha_tester,
 		// user custom fed email takes presidence over FB's email
