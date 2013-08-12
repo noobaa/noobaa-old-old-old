@@ -116,16 +116,10 @@ app.use('/star_api/', function(req, res, next) {
 app.use(app.router);
 
 // setup static files
-// use public star files
 app.use('/public/', express.static(path.join(__dirname, 'public')));
-// use vendor content which is loaded by npm
-app.use('/vendor/blueimp-file-upload/', express.static(
-	path.join(__dirname, '..', 'node_modules', 'blueimp-file-upload')
-));
-// add vendor content loaded by bower
-app.use('/vendor/', express.static(path.join(__dirname, '..', 'bower_components')));
-// add static vendor content
 app.use('/vendor/', express.static(path.join(__dirname, '..', 'vendor')));
+app.use('/vendor/', express.static(path.join(__dirname, '..', 'bower_components')));
+app.use('/vendor/', express.static(path.join(__dirname, '..', 'node_modules')));
 
 // errorHandler should be last handler
 app.use(express.errorHandler());
@@ -171,8 +165,8 @@ function page_context(req) {
 		user: req.user,
 		app_id: process.env.FACEBOOK_APP_ID,
 		// TODO: channel_url expects absolute/relative/even needed?
-		channel_url: '/auth/facebook/channel.html',
-		planet_api: 'http://localhost:9888/planet_api/'
+		channel_url: '/auth/facebook/channel.html'
+		// planet_api: 'http://localhost:9888/planet_api/'
 	};
 }
 
@@ -188,8 +182,12 @@ function redirect_no_user(req, res) {
 	return false;
 }
 
+// route for planet with node-webkit
+app.get('/planet', function(req, res) {
+	return res.render('planet.html', page_context(req));
+});
+// auth route for planet frame login
 app.get('/auth', function(req, res) {
-	// route for planet login
 	return res.render('auth.html', page_context(req));
 });
 

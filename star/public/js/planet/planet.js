@@ -1,10 +1,10 @@
 /* jshint node:true, browser:true, jquery:true, devel:true */
 /* global angular:false */
-var _ = require('underscore');
+// var _ = require('underscore');
 
-// the dashboard angular controller
+// the planet angular controller
 
-function DashboardCtrl($scope, $http, $timeout) {
+function PlanetCtrl($scope, $http, $timeout) {
 	'use strict';
 
 	// keep local refs here so that any callback functions
@@ -12,7 +12,7 @@ function DashboardCtrl($scope, $http, $timeout) {
 	// and avoid failures when console is null on fast refresh.
 	var console = window.console;
 	var localStorage = window.localStorage;
-	console.log('DashboardCtrl');
+	console.log('PlanetCtrl');
 
 	// TODO: change domain to noobaa.com
 	$scope.star_url = 'http://127.0.0.1:5000';
@@ -33,11 +33,9 @@ function DashboardCtrl($scope, $http, $timeout) {
 	// load native ui library
 	var gui = $scope.gui = window.require('nw.gui');
 
-	// make window hide on close
 	$scope.hide_win = function() {
 		gui.Window.get().hide();
 	}
-	gui.Window.get().on('close', $scope.hide_win);
 
 	// open this window
 	$scope.open = function() {
@@ -54,7 +52,7 @@ function DashboardCtrl($scope, $http, $timeout) {
 		return gui.Window.open(url, {
 			toolbar: true,
 			frame: true,
-			icon: "nblib/img/noobaa_icon.ico",
+			icon: 'noobaa_icon.ico',
 			width: 750,
 			height: 550
 		});
@@ -67,7 +65,6 @@ function DashboardCtrl($scope, $http, $timeout) {
 			gui.App.quit();
 		}
 	};
-
 
 	// user login state
 	$scope.planet_user = null;
@@ -121,16 +118,16 @@ function DashboardCtrl($scope, $http, $timeout) {
 		}).error(function(data, status, headers, config) {
 			console.error('[ERR] readdir', data, status);
 		});
-		$timeout(do_get, 10000);
+		$timeout(do_get, 60000);
 	}
 	$timeout(do_get, 10000);
 
 
-	var planetfs = require('./planetfs');
+	var planetfs = global;//require('./planetfs');
 
 	$scope.planetfs = new planetfs.PlanetFS(
 		gui.App.dataPath.toString(), // root_dir
-		0, // num_chunks
+		1, // num_chunks
 		1024 * 1024); // chunk_size
 
 	$scope.planetfs.init_chunks(function(err) {
@@ -141,17 +138,16 @@ function DashboardCtrl($scope, $http, $timeout) {
 		}
 	});
 
-
 	// create tray icon.
 	// we create oncefor the entire application,
 	// and store it in the main module (js/main.js)
 	// so that even if more windows are created,
 	// it will only have single tray.
-	if (!process.mainModule.exports.tray) {
-		var tray = process.mainModule.exports.tray = new gui.Tray({
+	if (!global.tray) {
+		var tray = global.tray = new gui.Tray({
 			title: 'NooBaa',
 			tooltip: 'Click to open NooBaa\'s Dashboard...',
-			icon: 'nblib/img/noobaa_icon.ico',
+			icon: 'noobaa_icon.ico',
 			menu: new gui.Menu()
 		});
 		tray.on('click', $scope.open);
@@ -195,9 +191,11 @@ function DashboardCtrl($scope, $http, $timeout) {
 		}));
 	}
 
+	// make window hide on close
+	gui.Window.get().on('close', $scope.hide_win);
 	// after all is inited, open the window
 	$scope.open();
 }
 
 // avoid minification effects by injecting the required angularjs dependencies
-DashboardCtrl.$inject = ['$scope', '$http', '$timeout'];
+PlanetCtrl.$inject = ['$scope', '$http', '$timeout'];

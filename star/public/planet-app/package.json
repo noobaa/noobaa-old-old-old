@@ -1,0 +1,15 @@
+{
+	"name": "NooBaaApp",
+	"description": "NooBaa App",
+	"version": "0.1",
+	"main": "http://127.0.0.1:5000/planet",
+	"node-remote": "127.0.0.1:5000",
+	"window": {
+		"icon": "noobaa_icon.ico",
+		"show": true,
+		"toolbar": true,
+		"width": 700,
+		"height": 500,
+		"position": "mouse"
+	}
+}

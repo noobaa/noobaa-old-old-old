@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html ng-app="noobaa_app" xmlns:fb="http://ogp.me/ns/fb#" lang="en">
+<head>
+	<?# def.include('common_head.html') ?>
+	<style>
+		body {
+			background-image: url('/public/images/canstockphoto7274277.jpg');
+			background-repeat: no-repeat;
+			background-attachment: fixed;
+			background-size: cover;
+		}
+	</style>
+</head>
+
+<body ng-cloak ng-controller="PlanetCtrl">
+
+	<?# def.facebook_init_body ?>
+
+	<!--?# def.include('common_menubar.html') ?-->
+
+	<div class="nb_page_pad nb_nav_top_pad">
+
+<!-- ======== CONTENT ======== -->
+	
+	<div class="roundbord bglight">
+
+		<div class="fntpaint fntblk H2 text-center"
+			style="margin-bottom: 30px">
+			NooBaa
+		</div>
+		<div class="fntpaint fntblk text-center"
+			style="font-size: 30pt; line-height: 30pt;">
+			Device Dashboard
+		</div>
+
+		<br/>
+		<br/>
+
+		<table class="table">
+			<tr>
+				<td class="fntread fntblk">
+		 			Device Login
+				</td>
+				<td>
+					<div ng-cloak ng-hide="planet_user">
+						<span class="badge badge-warning">
+							Not Connected
+						</span>
+						<a ng-click="do_connect()" style="cursor: pointer">
+							<img src="/public/nblib/img/facebook_login_button.png"></img>
+						</a>
+					</div>
+					<div ng-cloak ng-show="planet_user">
+						<span class="badge badge-info">
+							<i class="icon-user icon-white"></i>
+							{{planet_user.name}}
+						</span>
+						<a class="btn btn-link" 
+							ng-click="do_disconnect()">
+							Disconnect this device...
+						</a>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td class="fntread fntblk">
+					Co-Shared Space
+				</td>
+				<td>
+					<span ng-cloak class="badge badge-info">
+						{{ human_size(planetfs.total_size()) }}
+					</span>
+					<a class="btn btn-link">
+						Increase...
+					</a>
+				</td>
+			</tr>
+			<tr>
+				<td class="fntread fntblk">
+					Used Space
+				</td>
+				<td>
+					<span ng-cloak class="badge badge-info">
+						{{ human_size(planetfs.used_size()) }}
+					</span>
+				</td>
+			</tr>
+		</table>
+
+		<div style="padding: 30px">
+			<button class="btn pull-right" ng-click="hide_win()">
+				Close
+			</button>
+			<button class="btn btn-small pull-left"
+				ng-click="reload_home()">
+				<i class="icon-refresh"></i>
+			</button>
+			<button class="btn btn-small pull-left"
+				ng-click="gui.Window.get().showDevTools()">
+				<i class="icon-cog"></i>
+			</button>
+			<button class="btn btn-small pull-left"
+				ng-click="new_win()">
+				<i class="icon-plus"></i>
+			</button>
+		</div>
+
+		<!-- iframe used to make authentication -->
+		<iframe id="auth_frame" hidden nwdisable nwfaketop></iframe>
+
+	</div>
+
+<!-- ======== CONTENT END ======== -->
+
+
+	</div>
+
+	<?# def.include('common_scripts.html') ?>
+
+	<script src="/vendor/async/lib/async.js" type="text/javascript"></script>
+	<script src="/public/js/planet/planetfs.js" type="text/javascript"></script>
+	<script src="/public/js/planet/planet.js" type="text/javascript"></script>
+
+</body>
+</html>
