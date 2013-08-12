@@ -61,7 +61,7 @@ app.engine('html', dot_emc_app.__express);
 
 // configure app middleware handlers in the order to use them
 
-app.use(express.favicon('/public/nblib/img/noobaa_icon.ico'));
+app.use(express.favicon('/public/images/noobaa_icon.ico'));
 app.use(express.logger());
 app.use(function(req, res, next) {
 	// HTTPS redirect:

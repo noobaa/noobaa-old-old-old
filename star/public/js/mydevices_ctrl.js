@@ -8,7 +8,7 @@ function MyDevicesCtrl($scope, $http, $window, $timeout) {
 
 	$scope.add_device = function() {
 		console.log('add_device');
-		$scope.devices['a'] = {
+		$scope.devices.a = {
 			name: 'aaaa aaaa',
 			os: 'osssoosss',
 			atime: '123123123'

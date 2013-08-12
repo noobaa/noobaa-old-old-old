@@ -30,9 +30,7 @@ module.exports = function(grunt) {
 		jshint: {
 			all: [
 				'Gruntfile.js',
-				'nblib/**/*.js',
-				'star/**/*.js',
-				'planet/js/**/*.js'
+				'star/**/*.js'
 			]
 		},
 		// concat: {

@@ -35,7 +35,7 @@ function PlanetCtrl($scope, $http, $timeout) {
 
 	$scope.hide_win = function() {
 		gui.Window.get().hide();
-	}
+	};
 
 	// open this window
 	$scope.open = function() {
