@@ -217,36 +217,54 @@
 	<!-- <div class="wfill bg_vision"></div> -->
 	<hr/>
 
-	<div id="join" class="nb_nav_link nb_page_pad fntread fntblk text-center"
+	<div id="join" class="nb_nav_link nb_page_pad fntread fntblk "
 		style="margin-bottom: 40px">
-		<div class="H2">JOIN US!</div>
-		<br/><br/>
-		<div>
-			<h2>NooBaa is still in alpha.</h2>
-			<br/>
-			<h2>Request an invitation to join:</h2>
-			<br/>
-			<div class="input-prepend">
-				<button class="btn btn-success"
-					type="button"
-					ng-show="!submitted"
-					ng-disabled="submitting"
-					ng-click="submit()">
-					<img ng-show="submitting"
-						src="/public/images/ajax-loader.gif"></img>
-					<b>Request</b>
-				</button>
-				<input ng-model="invite_email"
-					id="email_input"
-					class="input span4"
-					type="email"
-					ng-disabled="submitting || submitted"
-					placeholder="Enter your email address...">
-				</input>
+		<table style="width:100%">
+			<tr>
+				<td align="right">
+					<div class="H2">JOIN US: </div>
+				</td>
+				<td align="center">
+					<a href="/auth/facebook/login/" style="cursor: pointer">
+					<img src="/public/images/facebook_login_button_big.png" style="max-width:300px"></img>
+					</a>
+				</td>
+			</tr>
+		</table>
+		<br/>
+
+		<div ng-repeat="(subject, questions) in faq" class="accordion-group">
+			<div class="accordion-heading">
+				<a class="accordion-toggle collapsed" data-toggle="collapse" 
+					data-parent="#accordion" href="#{{subject.split(' ').join('')}}">
+							     <h5><i class="icon-plus"></i>{{subject}}</h5>
+				</a>
 			</div>
-			<div class="alert alert-error" hidden="hidden"></div>
-			<div class="alert alert-success" hidden="hidden"></div>
+			 <div id="{{subject.split(' ').join('')}}" class="accordion-body collapse" style="height: 0px;">
+				   <div class="accordion-inner">
+				      <!-- Para -->
+				     <p>
+							<div ng-repeat="(idx, question) in questions" class="accordion-group">
+							 <div class="accordion-heading">
+							   <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#accordion" href="#{{subject.split(' ').join('')}}{{idx}}">
+							      <!-- Title. Don't forget the <i> tag. -->
+							     <h5><i class="icon-plus"></i>{{question.q}}</h5>
+							   </a>
+							 </div>
+							 <div id="{{subject.split(' ').join('')}}{{idx}}" class="accordion-body collapse" style="height: 0px;">
+							   <div class="accordion-inner">
+							      <!-- Para -->
+							     <p>{{question.a}}</p>
+							   </div>
+							 </div>
+							</div>		     	
+
+				     </p>
+				   </div>
+			 </div>
+
 		</div>
+
 	</div>
 
 	<div class="wfill bg_join text-center">
@@ -328,6 +346,29 @@
 			$scope.submitting = false;
 			$scope.submitted = false; 
 			$('.alert').html('').hide();
+	
+
+			$scope.faq = {
+				'Facebook Login': [{
+					q: 'Why do you require a Facebook login?',
+					a: 'We can never remember our last user and password. We also know that using the same one is bad. And Wrong. Why would we force another nuisance on you?! In addition it is more secured as there are lest repositories with your ID.'
+				}, {
+					q: 'I don\'t have a Facebook user and would like to use Noobaa’s login.',
+					a: 'We currently only support Facebook login. We plan to never have a NooBaa login (unless many of you indicate it is an absolute must) though in the future we plan to allow a variety of other logins accounts such as Google, Twitter etc.'
+				}, {
+					q: 'Why only Facebook and why Facebook first?',
+					a: 'Simply because their big and because we actually love Facebook. In general we are a loving company.'
+				}, {
+					q: 'Do you have access to my Facebook password or data?',
+					a: 'No. You authenticate against Facebook. This is actually as secured as it gets. Technical background can be found at: http://en.wikipedia.org/wiki/OAuth'
+				}, {
+					q: 'Must I Like your page on Facebook?',
+					a: 'Absolutely not. You don’t need to like our page though it would be beneficial to everybody as we\'re building a community. Not a passive service so we would like to hear you.'
+				}, {
+					q: 'Why do you require access to my email?',
+					a: 'Because we would like to send you information on your account changes, account state etc. We won’t add you to any newsletter without opting in first.'
+				}],
+			};
 
 			$scope.do_facebook_login = function() {
 				FB.login(function(res) {

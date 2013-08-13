@@ -17,36 +17,17 @@ var user_inodes = require('../providers/user_inodes');
 // mainly - email, privilages and the likes which are important for our communication 
 // with the user.
 var user_details_update = function(profile, user, callback) {
-	async.waterfall([
-		function(next) {
-			next(null, profile, user, false);
-		},
-
-		//check the profile
-		function(profile, user, modified, next) {
-			if (_.isEqual(user.fb, profile._json)) {
-				return next(null, profile, user, modified);
-			}
-			modified = true;
-			user.fb = profile._json;
-			return next(null, profile, user, modified);
-		},
-
-	], function(err, profile, user, modified) {
+	if (_.isEqual(user.fb, profile._json)) {
+		return callback(null, user);
+	}
+	user.fb = profile._json;
+	user.save(function(err, user, num) {
 		if (err) {
+			console.error('ERROR - UPDATE USER FAILED:', err);
 			return callback(err);
 		}
-		if (!modified) {
-			return callback(null, user);
-		}
-		user.save(function(err, user, num) {
-			if (err) {
-				console.error('ERROR - UPDATE USER FAILED:', err);
-				return callback(err);
-			}
-			console.log('USER updated: ', user);
-			callback(null, user);
-		});
+		console.log('USER updated: ', user);
+		callback(null, user);
 	});
 };
 
@@ -70,7 +51,7 @@ function create_user(profile, callback) {
 
 		user_inodes.verify_and_create_base_folders,
 
-		email.send_welcome,
+		email.send_alpha_welcome,
 
 	], callback);
 }

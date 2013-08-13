@@ -9,18 +9,12 @@ var emailTemplates = require('email-templates');
 var nodemailer = require('nodemailer');
 
 function choose_mail(user) {
-	if (user.email) {
-		return user.email;
-	}
-	if (user.fb.email) {
-		return user.fb.email;
-	}
-	return null;
+	return user.email || user.fb.email || null;
 }
 
 // to see how to add dynamic info:
 //help.mandrill.com/entries/21678522-how-do-i-use-merge-tags-to-add-dynamic-content
-exports.send_welcome = function(user, callback) {
+exports.send_alpha_welcome = function(user, callback) {
 
 	var localemail = choose_mail(user);
 	if (!localemail) {
