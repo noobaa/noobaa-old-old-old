@@ -40,7 +40,7 @@ function verify_and_create_base_folder(folder_name, user, next) {
 			inode.parent = null;
 			inode.name = folder_name;
 			inode.isdir = true;
-			inode.save(function(err, inode, num) {
+			return inode.save(function(err, inode, num) {
 				if (err) {
 					console.log("error while creating inode: ", err);
 					return next(err, null);
