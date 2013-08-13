@@ -144,17 +144,6 @@ exports.facebook_login = function(req, res, next) {
 // when authorization is complete (either success/failed)
 // facebook will redirect here.
 exports.facebook_authorized = function(req, res, next) {
-	// we handle the error of "sandbox app" specifically
-	// we defined in facebook exactly who can join for private beta,
-	// so for all the rest, we redirect back to the welcome page
-	// but with specific tag to cause the request invite pop out immediately.
-	
-	// TODO: remove this once we change from sandbox app mode
-	if (req.query.error_code == 901) {
-		res.redirect('/#join');
-		return;
-	}
-	
 	// allow to pass in req.query.state the url to redirect
 	var redirect_url = req.query.state || '/';
 	var failure_url = (function() {
