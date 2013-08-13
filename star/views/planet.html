@@ -83,7 +83,8 @@
 						<img src="/public/images/facebook_login_button.png"></img>
 					</a>
 					<a ng-if="planet_user"
-						ng-click="do_disconnect()">
+						ng-click="do_disconnect()"
+						class="fntsans">
 						Disconnect...
 					</a>
 				</td>
@@ -107,7 +108,8 @@
 				</td>
 				<td>
 					<a ng-if="planet_user && planet_device"
-						ng-click="reset_device()">
+						ng-click="reset_device()"
+						class="fntsans">
 						Reset...
 					</a>
 				</td>
@@ -119,7 +121,7 @@
 					icon-large icon-fixed-width"></i>
 				</td>
 				<td><b>{{ human_size(planetfs.total_size()) }}</b></td>
-				<td><a>Increase...</a></td>
+				<td><a class="fntsans">Increase...</a></td>
 			</tr>
 		</table>
 
