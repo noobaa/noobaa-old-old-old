@@ -85,9 +85,4 @@
 		return this.num_chunks * this.chunk_size;
 	};
 
-	PlanetFS.prototype.used_size = function() {
-		// TODO
-		return 0;
-	};
-
 })();

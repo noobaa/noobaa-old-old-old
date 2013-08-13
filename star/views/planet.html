@@ -9,6 +9,30 @@
 			background-attachment: fixed;
 			background-size: cover;
 		}
+		#logobar {
+			margin-bottom: 30px;
+		}
+		#logobar > img {
+			height: 40px;
+		}
+		#headline {
+			font-size: 30pt;
+			line-height: 30pt;
+		}
+		#info, #info .badge {
+			font-size: 12pt;
+			font-weight: 400;
+		}
+		#info .badge {
+			padding: 4px;
+		}
+		#info .head_col {
+			padding-left: 30px;
+		}
+		#info .icon_col {
+			width: 40px;
+			text-align: right;
+		}
 	</style>
 </head>
 
@@ -24,66 +48,78 @@
 	
 	<div class="roundbord bglight">
 
-		<div class="fntpaint fntblk text-center bgdark"
-			style="margin-bottom: 30px">
-			<img src="/public/images/noobaa_logo2.png" style="height: 40px"></img>
+		<div id="logobar" class="text-center bgdark">
+			<img src="/public/images/noobaa_logo2.png"></img>
 		</div>
-		<div class="fntpaint fntblk text-center"
-			style="font-size: 30pt; line-height: 30pt;">
+		
+		<div id="headline" class="fntpaint fntblk text-center">
 			Device Dashboard
 		</div>
 
 		<br/>
 		<br/>
 
-		<table class="table">
+		<table id="info" class="table fntread fntblk">
 			<tr>
-				<td class="fntread fntblk">
-		 			Device Login
+				<td class="head_col">User</td>
+				<td class="icon_col">
+					<i class="icon-user icon-white 
+					icon-large icon-fixed-width"></i>
 				</td>
 				<td>
-					<div ng-cloak ng-hide="planet_user">
-						<span class="badge badge-warning">
-							Not Connected
-						</span>
-						<a ng-click="do_connect()" style="cursor: pointer">
-							<img src="/public/images/facebook_login_button.png"></img>
-						</a>
+					<div ng-if="!planet_user && !planet_loading"
+						class="badge badge-warning">
+						Not Connected
 					</div>
-					<div ng-cloak ng-show="planet_user">
-						<span class="badge badge-info">
-							<i class="icon-user icon-white"></i>
-							{{planet_user.name}}
-						</span>
-						<a class="btn btn-link" 
-							ng-click="do_disconnect()">
-							Disconnect this device...
-						</a>
+					<div ng-if="!planet_user && planet_loading" class="badge">
+						Connecting...
 					</div>
-				</td>
-			</tr>
-			<tr>
-				<td class="fntread fntblk">
-					Co-Shared Space
+					<b ng-if="planet_user">{{planet_user.name}}</b>
 				</td>
 				<td>
-					<span ng-cloak class="badge badge-info">
-						{{ human_size(planetfs.total_size()) }}
-					</span>
-					<a class="btn btn-link">
-						Increase...
+					<a ng-if="!planet_user"
+						ng-click="do_connect()"
+						style="cursor: pointer; margin-left: 10px">
+						<img src="/public/images/facebook_login_button.png"></img>
+					</a>
+					<a ng-if="planet_user"
+						ng-click="do_disconnect()">
+						Disconnect...
 					</a>
 				</td>
 			</tr>
 			<tr>
-				<td class="fntread fntblk">
-					Used Space
+				<td class="head_col">Device</td>
+				<td class="icon_col">
+					<i class="icon-desktop icon-white 
+					icon-large icon-fixed-width"></i>
 				</td>
 				<td>
-					<span ng-cloak class="badge badge-info">
-						{{ human_size(planetfs.used_size()) }}
-					</span>
+					<div ng-if="!planet_user && !planet_loading"
+						class="badge badge-warning">
+						Not Connected
+					</div>
+					<div ng-if="(!planet_user && planet_loading) || !planet_device" 
+						class="badge">
+						Connecting...
+					</div>
+					<b ng-if="planet_user && planet_device">{{planet_device.name}}</b>
 				</td>
+				<td>
+					<a ng-if="planet_user && planet_device"
+						ng-click="reset_device()">
+						Reset...
+					</a>
+				</td>
+			</tr>
+			<tr>
+				<td class="head_col">Co-Shared Space</td>
+				<td class="icon_col">
+					<i class="icon-hdd icon-white 
+					icon-large icon-fixed-width"></i>
+				</td>
+				<td><b>{{ human_size(planetfs.total_size()) }}</b></td>
+				<td><a>Increase...</a></td>
 			</tr>
 		</table>
 

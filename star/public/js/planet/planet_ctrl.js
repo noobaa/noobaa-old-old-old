@@ -129,6 +129,7 @@ function PlanetCtrl($scope, $http, $timeout) {
 
 	// init the planet authentication.
 	// user login state
+	$scope.planet_loading = true;
 	$scope.planet_user = null;
 
 	// update the connect frame src to load a new url
@@ -137,17 +138,18 @@ function PlanetCtrl($scope, $http, $timeout) {
 	// which is used by node-webkit.
 	$scope.auth_frame_path = function(path) {
 		$('#auth_frame')[0].src = path;
+		$scope.planet_loading = true;
+		$scope.safe_apply();
 	};
 
 	// pull info from the frame once it loads
 	$('#auth_frame')[0].onload = function() {
 		var f = window.frames.auth_frame;
-		if (f.noobaa_user) {
-			// when the user login returned info, pull it to our state
-			console.log('USER:', f.noobaa_user);
-			$scope.planet_user = f.noobaa_user;
-			$scope.safe_apply();
-		}
+		// when the user login returned info, pull it to our state
+		console.log('USER:', f.noobaa_user);
+		$scope.planet_loading = false;
+		$scope.planet_user = f.noobaa_user;
+		$scope.safe_apply();
 	};
 
 	// submit connect request - will open facebool login dialog window.
@@ -161,9 +163,8 @@ function PlanetCtrl($scope, $http, $timeout) {
 
 	// logout - mostly for testing
 	$scope.do_disconnect = function() {
-		var q = 'Disconnecting the device will stop the co-sharing. Are you sure?';
+		var q = 'Disconnecting will stop the co-sharing. Are you sure?';
 		if (window.confirm(q)) {
-			$scope.planet_user = null;
 			$scope.auth_frame_path('/auth/logout/?state=/planet/auth');
 		}
 	};
@@ -195,28 +196,81 @@ function PlanetCtrl($scope, $http, $timeout) {
 	////////////////////////////////////////////////////////////
 
 
-	function do_periodic_update() {
-		// schedule the next update
-		$timeout(do_periodic_update, 10000);
-		
-		$http({
-			method: 'PUT',
-			url: '/star_api/device/stam',
-			data: {
-				hostname: os.hostname(),
-				platform: os.platform()
-			}
+	if (localStorage.planet_device) {
+		$scope.planet_device = JSON.parse(localStorage.planet_device);
+	}
+
+	$scope.reset_device = function() {
+		delete $scope.planet_device;
+		delete localStorage.planet_device;
+		schedule_device(1000);
+	};
+
+	function schedule_device(time) {
+		$timeout.cancel($scope.device_promise);
+		$scope.device_promise = $timeout(periodic_device, time);
+	}
+
+	function periodic_device() {
+		if (!$scope.planet_user) {
+			// no user connected, reschedule to check later
+			schedule_device(5000);
+		} else if (!$scope.planet_device) {
+			// no device id - ask to create
+			create_device();
+		} else {
+			update_device();
+		}
+	}
+
+	function create_device() {
+		return $http({
+			method: 'POST',
+			url: '/star_api/device/',
+			data: get_local_device_info()
 		}).success(function(data, status, headers, config) {
-			console.log('[ok] poll', status);
+			console.log('[ok] create device', status);
 			if (data.reload) {
 				console.log('RELOAD REQUESTED');
-				$scope.reload_home();
+				return $scope.reload_home();
 			}
+			if (data.device) {
+				$scope.planet_device = data.device;
+				localStorage.planet_device = JSON.stringify(data.device);
+			}
+			schedule_device(5000);
 		}).error(function(data, status, headers, config) {
-			console.error('[ERR] poll', data, status);
+			console.error('[ERR] create device', data, status);
+			schedule_device(5000);
 		});
 	}
-	$timeout(do_periodic_update, 10000);
+
+	function update_device() {
+		return $http({
+			method: 'PUT',
+			url: '/star_api/device/' + $scope.planet_device._id,
+			data: get_local_device_info()
+		}).success(function(data, status, headers, config) {
+			console.log('[ok] update device', status);
+			if (data.reload) {
+				console.log('RELOAD REQUESTED');
+				return $scope.reload_home();
+			}
+			schedule_device(60000);
+		}).error(function(data, status, headers, config) {
+			console.error('[ERR] update device', data, status);
+			schedule_device(60000);
+		});
+	}
+
+	function get_local_device_info() {
+		return {
+			hostname: os.hostname(),
+			platform: os.platform()
+		};
+	}
+
+	periodic_device();
 }
 
 // avoid minification effects by injecting the required angularjs dependencies
