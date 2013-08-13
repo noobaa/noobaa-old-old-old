@@ -78,12 +78,12 @@
 				</td>
 				<td>
 					<a ng-if="!planet_user"
-						ng-click="do_connect()"
-						style="cursor: pointer; margin-left: 10px">
+						ng-click="do_connect()" href="#"
+						style="margin-left: 10px">
 						<img src="/public/images/facebook_login_button.png"></img>
 					</a>
 					<a ng-if="planet_user"
-						ng-click="do_disconnect()"
+						ng-click="do_disconnect()" href="#"
 						class="fntsans">
 						Disconnect...
 					</a>
@@ -108,7 +108,7 @@
 				</td>
 				<td>
 					<a ng-if="planet_user && planet_device"
-						ng-click="reset_device()"
+						ng-click="reset_device()" href="#"
 						class="fntsans">
 						Reset...
 					</a>
@@ -121,7 +121,7 @@
 					icon-large icon-fixed-width"></i>
 				</td>
 				<td><b>{{ human_size(planetfs.total_size()) }}</b></td>
-				<td><a class="fntsans">Increase...</a></td>
+				<td><a href="#" class="fntsans">Increase...</a></td>
 			</tr>
 		</table>
 
