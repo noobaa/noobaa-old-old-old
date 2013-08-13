@@ -175,6 +175,19 @@ app.put('/star_api/device/:device_id', device_api.device_update);
 // setup planet pages
 
 app.get('/planet', function(req, res) {
+	res.write('<html><body><script>');
+	res.write(' var gui = require("nw.gui");');
+	res.write(' gui.Window.open("planet/window",');
+	res.write(JSON.stringify({
+		toolbar: false,
+		icon: "noobaa_icon.ico",
+		position: "mouse"
+	}));
+	res.write(');');
+	res.write('</script></body></html>');
+	res.end();
+});
+app.get('/planet/window', function(req, res) {
 	return res.render('planet.html', page_context(req));
 });
 app.get('/planet/auth', function(req, res) {
