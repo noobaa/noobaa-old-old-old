@@ -100,7 +100,8 @@
 						class="badge badge-warning">
 						Not Connected
 					</div>
-					<div ng-if="(!planet_user && planet_loading) || !planet_device" 
+					<div ng-if="(planet_user || planet_loading)
+						&& (!planet_user || !planet_device)"
 						class="badge">
 						Connecting...
 					</div>
@@ -125,7 +126,7 @@
 			</tr>
 		</table>
 
-		<div style="padding: 30px">
+		<div ng-if="false" style="padding: 30px">
 			<button class="btn pull-right" ng-click="hide_win()">
 				Close
 			</button>
