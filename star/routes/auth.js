@@ -75,7 +75,14 @@ function user_login(req, accessToken, refreshToken, profile, done) {
 			});
 		},
 		user_details_update.bind(null, profile),
-	], done);
+	], function(err, user) {
+		if (err) {
+			delete req.session.fbAccessToken;
+			return done(err);
+		}
+		req.session.fbAccessToken = accessToken;
+		return done(null, user);
+	});
 }
 
 // setup passport with facebook backend
@@ -169,6 +176,13 @@ var get_friends_list = function(fbAccessToken, next) {
 exports.get_friends_list = get_friends_list;
 
 exports.get_noobaa_friends_list = function(fbAccessToken, next) {
+	if (!fbAccessToken) {
+		var err = new Error("the fbAccessToken was not supplied");
+		console.log(err);
+		console.log(err.stack);
+		return next(err);
+	}
+
 	async.waterfall([
 		function(next) {
 			return next(null, fbAccessToken);
