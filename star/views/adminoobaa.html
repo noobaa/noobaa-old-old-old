@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html ng-app="noobaa_app" xmlns:fb="http://ogp.me/ns/fb#" lang="en">
+
+<head>
+	<?# def.include('common_head.html') ?>
+</head>
+
+<body class="bglight">
+	<?# def.facebook_init_body ?>
+
+	<div class="nb_page_pad">
+		<table class="table">
+			<thead>
+				<th>Name</th>
+				<th>Alpha</th>
+				<th>Custom Email</th>
+			</thead>
+			<tbody>
+				<?~it.users :user:idx?>
+				<tr>
+					<td><?!user.fb.name?></td>
+					<td><?!user.alpha_tester?></td>
+					<td><?!user.email?></td>
+				</tr>
+				<?~?>
+			</tbody>
+		</table>
+	</div>
+
+	<?# def.include('common_scripts.html') ?>
+
+</body>
+
+</html>

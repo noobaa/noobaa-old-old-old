@@ -9,7 +9,7 @@ var express = require('express');
 var passport = require('passport');
 var mongoose = require('mongoose');
 var fbapi = require('facebook-api');
-
+var common_api = require('./routes/common_api');
 
 // connect to the database
 mongoose.connect(process.env.MONGOHQ_URL);
@@ -33,8 +33,8 @@ for (var i in dot.templateSettings) {
 		continue;
 	}
 	var pattern = reg.source;
-	pattern = pattern.replace(/\\\{\\\{/, '\\<\\?');
-	pattern = pattern.replace(/\\\}\\\}/, '\\?\\>');
+	pattern = pattern.replace(/\\\{\\\{/g, '\\<\\?');
+	pattern = pattern.replace(/\\\}\\\}/g, '\\?\\>');
 	var flags = '';
 	if (reg.global) {
 		flags += 'g';
@@ -109,6 +109,15 @@ app.use('/star_api/', function(req, res, next) {
 	}
 	return next();
 });
+app.use('/adminoobaa/', function(req, res, next) {
+	// admin validation
+	if (!req.user || !req.user.adminoobaa) {
+		console.log('ERROR: /adminoobaa/', 'User Not Admin', req.user,
+			'HEADERS', req.headers);
+		return res.send(404);
+	}
+	return next();
+});
 // using router before static files is optimized
 // since we have less routes then files, and the routes are in memory.
 app.use(app.router);
@@ -129,15 +138,6 @@ app.use(express.errorHandler());
 ////////////
 
 
-function page_context(req) {
-	return {
-		user: req.user,
-		app_id: process.env.FACEBOOK_APP_ID,
-		// TODO: channel_url expects absolute/relative/even needed?
-		channel_url: '/auth/facebook/channel.html'
-	};
-}
-
 // setup auth routes
 
 var auth = require('./routes/auth');
@@ -145,6 +145,7 @@ app.get('/auth/facebook/login/', auth.facebook_login);
 app.get('/auth/facebook/authorized/', auth.facebook_authorized);
 app.get('/auth/facebook/channel.html', auth.facebook_channel);
 app.get('/auth/logout/', auth.logout);
+
 
 // setup email routes
 
@@ -162,14 +163,20 @@ app.del('/star_api/inode/:inode_id', inode_api.inode_delete);
 app.get('/star_api/inode/:inode_id/share_list', inode_api.inode_get_share_list);
 app.put('/star_api/inode/:inode_id/share_list', inode_api.inode_set_share_list);
 
-// TODO: move user routes to user_api module...
-app.put('/star_api/user/:user_id', inode_api.user_update);
+var user_api = require('./routes/user_api');
+app.put('/star_api/user/:user_id', user_api.user_update);
 
 var device_api = require('./routes/device_api');
 app.post('/star_api/device/', device_api.device_create);
 app.get('/star_api/device/', device_api.device_list);
 app.get('/star_api/device/:device_id', device_api.device_read);
 app.put('/star_api/device/:device_id', device_api.device_update);
+
+
+// setup admin pages
+
+var adminoobaa = require('./routes/adminoobaa');
+app.get('/adminoobaa/', adminoobaa.admin_view);
 
 
 // setup planet pages
@@ -188,11 +195,12 @@ app.get('/planet', function(req, res) {
 	res.end();
 });
 app.get('/planet/window', function(req, res) {
-	return res.render('planet.html', page_context(req));
+	return res.render('planet.html', common_api.page_context(req));
 });
 app.get('/planet/auth', function(req, res) {
-	return res.render('planet_auth.html', page_context(req));
+	return res.render('planet_auth.html', common_api.page_context(req));
 });
+
 
 // setup user pages
 
@@ -212,7 +220,7 @@ function redirect_no_user(req, res) {
 }
 
 app.get('/welcome', function(req, res) {
-	return res.render('welcome.html', page_context(req));
+	return res.render('welcome.html', common_api.page_context(req));
 });
 
 app.get('/thankyou', function(req, res) {
@@ -223,18 +231,18 @@ app.get('/thankyou', function(req, res) {
 	// if (req.user.alpha_tester) {
 	// return res.redirect('/mydata');
 	// }
-	return res.render('thankyou.html', page_context(req));
+	return res.render('thankyou.html', common_api.page_context(req));
 });
 
 app.get('/mydevices', function(req, res) {
 	if (!redirect_no_user(req, res)) {
-		return res.render('mydevices.html', page_context(req));
+		return res.render('mydevices.html', common_api.page_context(req));
 	}
 });
 
 app.get('/mydata', function(req, res) {
 	if (!redirect_no_user(req, res)) {
-		return res.render('mydata.html', page_context(req));
+		return res.render('mydata.html', common_api.page_context(req));
 	}
 });
 

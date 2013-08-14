@@ -93,6 +93,11 @@ passport.use(new facebook_passport.Strategy({
 	passReqToCallback: true
 }, user_login));
 
+var adminoobaa_fbid_list = [
+	'532326962', // guy
+	'100000601353304' // yuval
+];
+
 // define what kind of info will be saved in the session.
 // this info will be encoded inside a cookie,
 // but can't keep the entire facebook info because 
@@ -111,6 +116,11 @@ passport.serializeUser(function(user, done) {
 		// user custom fed email takes presidence over FB's email
 		email: user.email || user.fb.email
 	};
+	// insert the adminoobaa field only if admin user,
+	// and avoid exposing it (even with false value) when not.
+	if (_.contains(adminoobaa_fbid_list, user.fb.id)) {
+		user_info.adminoobaa = true;
+	}
 	done(null, user_info);
 });
 

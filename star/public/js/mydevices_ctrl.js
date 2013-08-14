@@ -1,3 +1,11 @@
+// jquery init
+$(function() {
+	// $('#dl img').hover(function() {
+	//	$(this).effect("shake", "slow");
+	// });
+});
+
+
 function MyDevicesCtrl($scope, $http, $window, $timeout) {
 
 	$scope.devices = {};

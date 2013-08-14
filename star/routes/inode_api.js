@@ -16,10 +16,7 @@ var Fobj = require('../models/fobj').Fobj;
 var User = require('../models/user').User;
 var user_inodes = require('../providers/user_inodes');
 var email = require('./email');
-
 var common_api = require('./common_api');
-var reply_callback = common_api.reply_callback;
-var check_inode_ownership = common_api.check_ownership;
 
 
 /* load s3 config from env*/
@@ -375,7 +372,7 @@ exports.inode_create = function(req, res) {
 		}
 
 		// waterfall end
-	], reply_callback.bind(res, 'INODE CREATE ' + inode._id));
+	], common_api.reply_callback.bind(res, 'INODE CREATE ' + inode._id));
 };
 
 
@@ -403,7 +400,7 @@ exports.inode_read = function(req, res) {
 		},
 
 		// check inode ownership
-		check_inode_ownership.bind(req),
+		common_api.check_ownership.bind(req),
 
 		function(inode, next) {
 			inode.follow_ref(next);
@@ -427,7 +424,7 @@ exports.inode_read = function(req, res) {
 		},
 
 		// waterfall end
-	], reply_callback.bind(res, 'INODE READ ' + id));
+	], common_api.reply_callback.bind(res, 'INODE READ ' + id));
 };
 
 
@@ -454,7 +451,7 @@ exports.inode_update = function(req, res) {
 		Inode.findById.bind(Inode),
 
 		// check inode ownership
-		check_inode_ownership.bind(req),
+		common_api.check_ownership.bind(req),
 
 		// update the inode
 		function(inode, next) {
@@ -490,7 +487,7 @@ exports.inode_update = function(req, res) {
 		}
 
 		// waterfall end
-	], reply_callback.bind(res, 'INODE UPDATE ' + id));
+	], common_api.reply_callback.bind(res, 'INODE UPDATE ' + id));
 };
 
 
@@ -513,7 +510,7 @@ exports.inode_delete = function(req, res) {
 		Inode.findById.bind(Inode),
 
 		// check inode ownership
-		check_inode_ownership.bind(req),
+		common_api.check_ownership.bind(req),
 
 		// for dirs count sons
 		Inode.countDirSons.bind(Inode),
@@ -568,7 +565,7 @@ exports.inode_delete = function(req, res) {
 		}
 
 		// waterfall end
-	], reply_callback.bind(res, 'INODE DELETE ' + id));
+	], common_api.reply_callback.bind(res, 'INODE DELETE ' + id));
 };
 
 exports.inode_get_share_list = function(req, res) {
@@ -652,47 +649,5 @@ exports.inode_set_share_list = function(req, res) {
 			next(null, inode_id, old_nb_ids, new_nb_ids);
 		},
 		user_inodes.update_inode_ghost_refs,
-	], reply_callback.bind(res, 'SHARE' + inode_id));
-};
-
-// USER CRUD - UPDATE
-exports.user_update = function(req, res) {
-	// the user_id param is parsed as url param (/path/to/api/:user_id/...)
-	var id = req.params.user_id;
-
-	//currently we only allow to add email to a user
-	//var user_args = _.pick(req.body, 'new_email');
-	var new_email = req.body.new_email;
-	async.waterfall([
-
-		function(next) {
-			User.findOne({
-				'_id': id
-			}, function(err, user) {
-				if (err || !user) {
-					console.error('ERROR - FIND USER FAILED:', err);
-					return next(err, null);
-				}
-				return next(null, user);
-			});
-		},
-
-		function(user, next) {
-			if (user.email == new_email) {
-				return next(null, user);
-			}
-			user.email = new_email;
-			user.save(function(err, user, num) {
-				if (err) {
-					console.error('ERROR - UPDATE USER FAILED:', err);
-					return next(err, null);
-				}
-				console.log('USER updated: ', user);
-				return next(null, user);
-			});
-		},
-
-		email.send_mail_changed,
-
-	], reply_callback.bind(res, 'USER UPDATE ' + id));
+	], common_api.reply_callback.bind(res, 'SHARE' + inode_id));
 };

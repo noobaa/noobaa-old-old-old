@@ -3,10 +3,7 @@
 
 var async = require('async');
 var Device = require('../models/device.js').Device;
-
 var common_api = require('./common_api');
-var reply_callback = common_api.reply_callback;
-var check_ownership = common_api.check_ownership;
 
 
 // DEVICE CRUD - CREATE
@@ -51,7 +48,7 @@ exports.device_create = function(req, res) {
 				device: dev
 			});
 		}
-	], reply_callback.bind(res, 'DEVICE CREATE ' + new_dev.name));
+	], common_api.reply_callback.bind(res, 'DEVICE CREATE ' + new_dev.name));
 };
 
 // DEVICE CRUD - UPDATE
@@ -71,7 +68,7 @@ exports.device_update = function(req, res) {
 		Device.findById.bind(Device),
 
 		// check device ownership
-		check_ownership.bind(req),
+		common_api.check_ownership.bind(req),
 
 		// update the device
 		function(dev, next) {
@@ -93,7 +90,7 @@ exports.device_update = function(req, res) {
 				reload: false
 			});
 		}
-	], reply_callback.bind(res, 'DEVICE UPDATE ' + id));
+	], common_api.reply_callback.bind(res, 'DEVICE UPDATE ' + id));
 };
 
 exports.device_read = function(req, res) {
