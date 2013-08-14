@@ -16,13 +16,38 @@
 				<th>Custom Email</th>
 			</thead>
 			<tbody>
-				<?~it.users :user:idx?>
+			<? for (var user_id in it.users) { var user = it.users[user_id]; ?>
 				<tr>
 					<td><?!user.fb.name?></td>
 					<td><?!user.alpha_tester?></td>
 					<td><?!user.email?></td>
 				</tr>
-				<?~?>
+
+				<? if (user.devices) { ?>
+				<tr>
+					<td width="10%"></td>
+					<td colspan="0">
+						<table class="table">
+							<thead>
+								<th>Device</th>
+								<th>Info</th>
+								<th>Last Update</th>
+							</thead>
+							<tbody>
+								<? for (var dev_id in user.devices) { var dev = user.devices[dev_id]; ?>
+								<tr>
+									<td><?!dev.name?></td>
+									<td><?! JSON.stringify(dev.host_info)?></td>
+									<td><?!dev.updates_log[dev.updates_log.length-1] ?> </td>
+								</tr>
+								<? } ?>
+							</tbody>
+						</table>
+					</td>
+				</tr>
+				<? } ?>
+
+			<? } ?>
 			</tbody>
 		</table>
 	</div>
