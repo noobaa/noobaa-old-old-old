@@ -3,19 +3,6 @@
 <head>
 	<?# def.include('common_head.html') ?>
 	<style>
-		/*
-		.carousel-control.left {
-			right: 20px;
-			left: auto;
-			top: 70px;
-		}
-		.carousel-control.right {
-			right: 20px;
-			top: 140px;
-		}
-		.carousel-indicators {
-			right: 20px;
-		}*/
 		#nb_nav_marker {
 			position: absolute;
 			bottom: 0;
@@ -58,35 +45,27 @@
 			background-image: url('/public/images/bg4.jpg');
 			/*background-position: 0 -200px;*/
 			background-size: cover;
+			height: 400px;
 		}
 		.bg_vision {
 			background-image: url('/public/images/yoda.png');
 			background-position: center 300px;
 			background-size: auto 400px;
+			height: 400px;
 		}
 		.bg_join {
-			/*background-image: url('/public/images/bg1.jpg');*/
-			/*background-size: cover;*/
 			background-color: #222222;
 			border-top-style: groove;
+			height: 200px;			
 		}
 		.bg_whatis, .bg_vision, .bg_join {
 			background-repeat: no-repeat;
 			background-attachment: fixed;
 		}
-		.bg_whatis, .bg_whatis .bgpattern {
-			height: 400px;
-		}
-		.bg_vision, .bg_vision .bgpattern {
-			height: 400px;
-		}
-		.bg_join, .bg_join .bgpattern {
-			height: 200px;			
-		}
 	</style>
 </head>
 
-<body ng-controller="WelcomeCtrl">
+<body ng-cloak ng-controller="WelcomeCtrl">
 
 	<?# def.facebook_init_body ?>
 
@@ -159,28 +138,31 @@
 			<a class="brandy pull-left scroller" href="#_">
 				<img src="/public/images/noobaa_logo.png"></img>
 			</a>
-			<ul class="nav">
+			<ul class="nav pull-right">
 				<li>
-					<a class="scroller" href="#whatis">
-						ABOUT
+					<a class="scroller" href="#whatis"
+						style="background-color: #000000; color: white">
+						<b>ABOUT</b>
 					</a>
 				</li>
 				<li>
-					<a class="scroller" href="#vision">
-						THE VISION
+					<a class="scroller" href="#vision"
+						style="background-color: #666666; color: black">
+						<b>THE VISION</b>
 					</a>
 				</li>
-			</ul>
-			<ul class="nav pull-right" style="margin-left: 20px">
 				<li>
-					<a href="/auth/facebook/login/" style="cursor: pointer">
+					<a class="scroller" href="#join"
+						style="background-color: #ffffff; color: black">
+						<b>JOIN US</b>
+					</a>
+				</li>
+				<li>
+					<a href="/auth/facebook/login/" style="margin-left: 60px">
 						<img src="/public/images/facebook_login_button.png"></img>
 					</a>
 				</li>
 			</ul>
-			<button class="pull-right btn btn-success scroller" href="#join">
-				<b>JOIN!</b>
-			</button>
 		</div>
 	</div>
 
@@ -219,52 +201,52 @@
 
 	<div id="join" class="nb_nav_link nb_page_pad fntread fntblk "
 		style="margin-bottom: 40px">
-		<table style="width:100%">
-			<tr>
-				<td align="right">
-					<div class="H2">JOIN US: </div>
-				</td>
-				<td align="center">
-					<a href="/auth/facebook/login/" style="cursor: pointer">
-					<img src="/public/images/facebook_login_button_big.png" style="max-width:300px"></img>
-					</a>
-				</td>
-			</tr>
-		</table>
-		<br/>
-
+		<div class="H2 text-center">JOIN US</div>
+		<br/><br/><br/>
+		<div class="text-center">
+			<a href="/auth/facebook/login/">
+				<img src="/public/images/facebook_login_button_big.png"
+					style="max-width: 300px"></img>
+			</a>
+		</div>
+		<br/><br/><br/>
 		<div ng-repeat="(subject, questions) in faq" class="accordion-group">
-			<div class="accordion-heading">
-				<a class="accordion-toggle collapsed" data-toggle="collapse" 
-					data-parent="#accordion" href="#{{subject.split(' ').join('')}}">
-							     <h5><i class="icon-plus"></i>{{subject}}</h5>
+			<div class="accordion-heading text-center">
+				<a class="accordion-toggle collapsed"
+					data-toggle="collapse"
+					data-parent="#accordion"
+					href="#{{subject.split(' ').join('')}}">
+					<h4>{{subject}}</h4>
 				</a>
 			</div>
-			 <div id="{{subject.split(' ').join('')}}" class="accordion-body collapse" style="height: 0px;">
-				   <div class="accordion-inner">
-				      <!-- Para -->
-				     <p>
-							<div ng-repeat="(idx, question) in questions" class="accordion-group">
-							 <div class="accordion-heading">
-							   <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#accordion" href="#{{subject.split(' ').join('')}}{{idx}}">
-							      <!-- Title. Don't forget the <i> tag. -->
-							     <h5><i class="icon-plus"></i>{{question.q}}</h5>
-							   </a>
-							 </div>
-							 <div id="{{subject.split(' ').join('')}}{{idx}}" class="accordion-body collapse" style="height: 0px;">
-							   <div class="accordion-inner">
-							      <!-- Para -->
-							     <p>{{question.a}}</p>
-							   </div>
-							 </div>
-							</div>		     	
-
-				     </p>
-				   </div>
-			 </div>
-
+			<div class="accordion-body collapse"
+				id="{{subject.split(' ').join('')}}"
+				style="height: 0px;">
+				<div class="accordion-inner">
+					<div class="accordion-group"
+						ng-repeat="(idx, question) in questions">
+						<div class="accordion-heading">
+							<a class="accordion-toggle collapsed"
+								data-toggle="collapse"
+								data-parent="#accordion"
+								href="#{{subject.split(' ').join('')}}{{idx}}">
+								<h5>
+									<i class="icon-plus icon-fixed-width"></i>
+									{{question.q}}
+								</h5>
+							</a>
+						</div>
+						<div class="accordion-body collapse"
+							id="{{subject.split(' ').join('')}}{{idx}}"
+							style="height: 0px;">
+							<div class="accordion-inner">
+								<p>{{question.a}}</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
-
 	</div>
 
 	<div class="wfill bg_join text-center">
@@ -277,16 +259,10 @@
 
 	<script type="text/javascript">
 
-		var has_running_requests = false;
 		var nb_nav_affix = undefined;
 
+		// jquery init
 		$(function() {
-
-			window.onbeforeunload = function () {
-				if (has_running_requests) {
-					return "Leaving this page will interrupt your running requests !!!";
-				}
-			};
 
 			var nb_carousel = $('#nb_carousel');
 			var nb_nav = $('#nb_nav');
@@ -343,15 +319,10 @@
 		});
 
 		function WelcomeCtrl($scope, $http) {
-			$scope.submitting = false;
-			$scope.submitted = false; 
-			$('.alert').html('').hide();
-	
-
 			$scope.faq = {
-				'Facebook Login': [{
+				'Facebook Login FAQ': [{
 					q: 'Why do you require a Facebook login?',
-					a: 'We can never remember our last user and password. We also know that using the same one is bad. And Wrong. Why would we force another nuisance on you?! In addition it is more secured as there are lest repositories with your ID.'
+					a: 'We can never remember our last user and password. We also know that using the same one is bad. And Wrong. Why would we force another nuisance on you?! In addition it is more secured as there are less repositories with your ID.'
 				}, {
 					q: 'I don\'t have a Facebook user and would like to use Noobaa’s login.',
 					a: 'We currently only support Facebook login. We plan to never have a NooBaa login (unless many of you indicate it is an absolute must) though in the future we plan to allow a variety of other logins accounts such as Google, Twitter etc.'
@@ -369,53 +340,6 @@
 					a: 'Because we would like to send you information on your account changes, account state etc. We won’t add you to any newsletter without opting in first.'
 				}],
 			};
-
-			$scope.do_facebook_login = function() {
-				FB.login(function(res) {
-					if(res.authResponse) {
-						window.location = '/auth/facebook/login/';
-					}
-				});
-			};
-
-			$scope.submit = function () {
-				has_running_requests = true;
-				$scope.submitting = true;
-				$('.alert').html('').hide();
-
-				if (!$scope.invite_email) {
-					$scope.finished_with_error(
-						"We need your valid email to request an invite");
-					return;
-				}
-
-				var ajax = $http.post('/email/request_invite/', {
-					email: $scope.invite_email
-				});
-				ajax.error(function(data, status, headers, config) {
-					$scope.finished_with_error(
-						"We are sorry but your request could not be sent right now, please try again later");
-				});
-				ajax.success(function(data, status, headers, config) {
-					$scope.finished_with_success(
-						"Your request was sent. Thanks!");
-				});
-			}
-
-			$scope.finished_with_error = function (text) {
-				has_running_requests = false;
-				$scope.submitting = false;
-				$('.alert-success').html('').hide();
-				$('.alert-error').html(text).show().effect('bounce', 'slow');
-			}
-
-			$scope.finished_with_success = function (text) {
-				has_running_requests = false;
-				$scope.submitting = false;
-				$scope.submitted = true;
-				$('.alert-error').html('').hide();
-				$('.alert-success').html(text).show('fade', 'slow');
-			}
 		}
 		WelcomeCtrl.$inject = ['$scope', '$http'];
 	</script>
