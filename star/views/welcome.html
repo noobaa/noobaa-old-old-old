@@ -210,7 +210,7 @@
 			</a>
 		</div>
 		<br/><br/><br/>
-		<div ng-repeat="(subject, questions) in faq" class="accordion-group">
+		<div ng-repeat="(subject, questions) in login_faq" class="accordion-group">
 			<div class="accordion-heading text-center">
 				<a class="accordion-toggle collapsed"
 					data-toggle="collapse"
@@ -315,29 +315,39 @@
 					window.location.hash = href;
 				});
 				return false;
-			});
+			}); 	
 		});
 
 		function WelcomeCtrl($scope, $http) {
-			$scope.faq = {
+			$scope.client_faq = {
+				'NooBaa client FAQ': [{
+					q: 'Must I download and install the client to use NooBaa?',
+					a: 'No. You can take NooBaa for a test drive without downloading the client. Keep in mind that this is a co-sharing community. If you don\'t intend to share you won\'t be able to fully enjoy the power of the crowd cloud'
+				}, {
+					q: 'Which operating systems do you support?',
+					a: 'Access to the dashboard is done using a web browser so you can access your data from anywhere. The NooBaa client is currently available for MacOS, Windows and Linux. '
+				}]
+			};
+
+			$scope.login_faq = {
 				'Facebook Login FAQ': [{
 					q: 'Why do you require a Facebook login?',
-					a: 'We can never remember our last user and password. We also know that using the same one is bad. And Wrong. Why would we force another nuisance on you?! In addition it is more secured as there are less repositories with your ID.'
+					a: 'All you data on NooBaa is kept private, so we had to provide you with way to authenticate your identity. As we can never remember our own passwords, and reusing passwords is a bad habit, why would we force another nuisance on you?!'
 				}, {
-					q: 'I don\'t have a Facebook user and would like to use Noobaa’s login.',
-					a: 'We currently only support Facebook login. We plan to never have a NooBaa login (unless many of you indicate it is an absolute must) though in the future we plan to allow a variety of other logins accounts such as Google, Twitter etc.'
+					q: 'I don\'t have a Facebook user and would like to use NooBaa anyway.',
+					a: 'We currently only support Facebook login so the easiest path would be to sign up to Facebook. We do plan to allow a variety of other login accounts such as: Google, Twitter etc but not very soon.'
 				}, {
 					q: 'Why only Facebook and why Facebook first?',
-					a: 'Simply because their big and because we actually love Facebook. In general we are a loving company.'
+					a: 'We love Facebook. In addition, chances are you already have a Facebook user.'
 				}, {
 					q: 'Do you have access to my Facebook password or data?',
-					a: 'No. You authenticate against Facebook. This is actually as secured as it gets. Technical background can be found at: http://en.wikipedia.org/wiki/OAuth'
+					a: 'No. You authenticate with Facebook in a method called OAuth.' 
 				}, {
 					q: 'Must I Like your page on Facebook?',
-					a: 'Absolutely not. You don’t need to like our page though it would be beneficial to everybody as we\'re building a community. Not a passive service so we would like to hear you.'
+					a: 'Not really but it would be beneficial to everybody as we\'re building a community and not a passive service. Communicating with our customers would help us do the right thing.'
 				}, {
-					q: 'Why do you require access to my email?',
-					a: 'Because we would like to send you information on your account changes, account state etc. We won’t add you to any newsletter without opting in first.'
+					q: 'Why does Facebook ask me to approve your access?',
+					a: 'This is done in order to keep your privacy. We would like to access your friends list to strengthen the crowd cloud and we need your email to be able to communicate with you outside of NooBaa. We won\'t post on your wall or add you to any newsletter without getting your explicit permission first.'
 				}],
 			};
 		}
