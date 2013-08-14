@@ -45,17 +45,6 @@ function PlanetCtrl($scope, $http, $timeout) {
 		w.requestAttention(true);
 	};
 
-	// open a new window
-	$scope.new_win = function(url) {
-		return gui.Window.open(url || '/', {
-			toolbar: true,
-			frame: true,
-			icon: 'noobaa_icon.ico',
-			width: 750,
-			height: 550
-		});
-	};
-
 	// terminate the entire application
 	$scope.quit = function() {
 		var q = 'Closing the application will stop the co-sharing. Are you sure?';
@@ -103,10 +92,6 @@ function PlanetCtrl($scope, $http, $timeout) {
 			click: function() {
 				gui.Window.get().showDevTools();
 			}
-		}));
-		m.append(new gui.MenuItem({
-			label: '(New Window)',
-			click: $scope.new_win
 		}));
 		m.append(new gui.MenuItem({
 			type: 'separator'
@@ -227,7 +212,7 @@ function PlanetCtrl($scope, $http, $timeout) {
 		return $http({
 			method: 'POST',
 			url: '/star_api/device/',
-			data: get_local_device_info()
+			data: get_host_info()
 		}).success(function(data, status, headers, config) {
 			console.log('[ok] create device', status);
 			if (data.reload) {
@@ -241,6 +226,10 @@ function PlanetCtrl($scope, $http, $timeout) {
 			schedule_device(5000);
 		}).error(function(data, status, headers, config) {
 			console.error('[ERR] create device', data, status);
+			if (data.reload) {
+				console.log('RELOAD REQUESTED');
+				return $scope.reload_home();
+			}
 			schedule_device(5000);
 		});
 	}
@@ -249,7 +238,7 @@ function PlanetCtrl($scope, $http, $timeout) {
 		return $http({
 			method: 'PUT',
 			url: '/star_api/device/' + $scope.planet_device._id,
-			data: get_local_device_info()
+			data: get_host_info()
 		}).success(function(data, status, headers, config) {
 			console.log('[ok] update device', status);
 			if (data.reload) {
@@ -259,14 +248,20 @@ function PlanetCtrl($scope, $http, $timeout) {
 			schedule_device(60000);
 		}).error(function(data, status, headers, config) {
 			console.error('[ERR] update device', data, status);
+			if (data.reload) {
+				console.log('RELOAD REQUESTED');
+				return $scope.reload_home();
+			}
 			schedule_device(60000);
 		});
 	}
 
-	function get_local_device_info() {
+	function get_host_info() {
 		return {
-			hostname: os.hostname(),
-			platform: os.platform()
+			host_info: {
+				hostname: os.hostname(),
+				platform: os.platform()
+			}
 		};
 	}
 

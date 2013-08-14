@@ -17,6 +17,10 @@ var User = require('../models/user').User;
 var user_inodes = require('../providers/user_inodes');
 var email = require('./email');
 
+var common_api = require('./common_api');
+var reply_callback = common_api.reply_callback;
+var check_inode_ownership = common_api.check_ownership;
+
 
 /* load s3 config from env*/
 AWS.config.update({
@@ -25,54 +29,6 @@ AWS.config.update({
 	// region: process.env.AWS_REGION
 });
 var S3 = new AWS.S3();
-
-
-// Convinient callback for handling the reply of async control flows.
-// 'this' should be the bound to the response.
-//
-// Example usage:
-//	async.waterfall(
-//		[...],
-//		reply_callback.bind(res, debug_info)
-//	);
-
-function reply_callback(debug_info, err, reply) {
-	/* jshint validthis:true */
-	if (err) {
-		console.log('FAILED', debug_info, ':', err);
-		if (err.status) {
-			return this.json(err.status, err.info);
-		} else {
-			return this.json(500, err);
-		}
-	}
-	if (!this.headerSent) {
-		console.log('COMPLETED', debug_info);
-		return this.json(200, reply);
-	}
-}
-
-
-// Check the inode's owner matching to the req.user
-// 'this' should be the bound to the request.
-//
-// Example usage:
-//	async.waterfall([
-//		check_inode_ownership.bind(req),
-//		], reply_callback.bind(res, reply, debug_info)
-//	);
-
-function check_inode_ownership(inode, next) {
-	/* jshint validthis:true */
-	var user_id = mongoose.Types.ObjectId(this.user.id);
-	if (!user_id.equals(inode.owner)) {
-		return next({
-			status: 403, // HTTP Forbidden
-			info: 'User Not Owner'
-		});
-	}
-	return next(null, inode);
-}
 
 // return the S3 path of the fobj
 
