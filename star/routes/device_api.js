@@ -48,7 +48,7 @@ function push_update(date, dev, next) {
 			changes.$inc['updates_stats.' + last + '.count'] = 1;
 		}
 	}
-	console.log('DEVICE UPDATE:', dev.id, changes);
+	console.log('DEVICE UPDATE:', dev.id);
 	return dev.update(changes, function(err, num, raw) {
 		return next(err, dev);
 	});
