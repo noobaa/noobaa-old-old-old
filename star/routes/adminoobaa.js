@@ -11,7 +11,9 @@ var Device = require('../models/device.js').Device;
 exports.admin_view = function(req, res) {
 	async.parallel({
 		users: User.find.bind(User),
-		devices: Device.find.bind(Device)
+		devices: Device.find.bind(Device, {}, {
+			updates_stats: 0
+		})
 	}, function(err, result) {
 		if (err) {
 			return res.send(500, err);
