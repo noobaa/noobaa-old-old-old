@@ -208,27 +208,24 @@ var get_refering_users = function(inode_id, cb) {
 };
 exports.get_refering_users = get_refering_users;
 
-exports.get_user_quota_bytes = get_user_quota_bytes;
 
-function get_user_quota_bytes(user, cb) {
-	// console.log("======================================", user);
-	// console.log(user.id);
-	// console.log(typeof(user._id));
+//This will return the sum of all fobjs' sizes that are referenced by owned 
+//inodes of the user.
 
+exports.get_user_usage_bytes = get_user_usage_bytes;
+
+function get_user_usage_bytes(user_id, cb) {
 	async.waterfall([
-
+		//get all owned inodes which are files. 
 		function(next) {
-			// console.log(user._id);
-			// console.log(typeof(user._id));
 			return Inode.find({
-				owner: user.id,
+				owner: user_id,
 				isdir: false
 			}, 'fobj', next);
 		},
+		//sum all the referenced fobj's
 		function(fobj_list, next) {
 			lfobj_list = _.pluck(fobj_list, 'fobj');
-			// console.log('---------------', fobj_list);
-			// console.log('---------------', lfobj_list);
 			return Fobj.aggregate(
 				[{
 					$match: {
@@ -243,19 +240,18 @@ function get_user_quota_bytes(user, cb) {
 							$sum: '$size'
 						}
 					}
-				}, {
-					$project: {
-						_id: 0,
-						size: 1
-					}
 				}], next);
 		}
-	], function(err,result){
-		if (err){
+	], function(err, result) {
+		if (err) {
 			return cb(err);
+		}
+		var usage = 0;
+		if (result && result.length){
+			usage = result[0].size;
 		}
 		//the aggregate returns an array with an embeded object. This is not a very clear return.
 		//so cleaning it to reduce coupling. 
-		return cb(null,result[0].size);
+		return cb(null, usage);
 	});
 }

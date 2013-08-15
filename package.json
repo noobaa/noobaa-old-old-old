@@ -30,6 +30,7 @@
 		"moment": "2.1.0",
 		"winston": "0.7.2",
 		"blueimp-file-upload": "8.6.1",
+		"filesize": "1.10.0",
 		"bower": "1.0.2",
 		"grunt": "0.4.1",
 		"grunt-cli": "0.1.9",

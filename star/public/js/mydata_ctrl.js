@@ -1002,8 +1002,16 @@ function UploadCtrl($scope, $http, $timeout) {
 			num_running_uploads++;
 			$scope.safe_apply();
 		});
-		ev.on('error', function() {
+		ev.on('error', function(data) {
+			console.log('Failed in creation: ', data);
+
 			upload.status = 'Failed!';
+			if (data.text) {
+				upload.status += " " + data.text;
+			}
+			if (data.rejection.reason) {
+				upload.status += " " + data.rejection.reason;
+			}
 			upload.row_class = 'error';
 			upload.progress_class = 'progress progress-danger';
 			upload.progress = 100;

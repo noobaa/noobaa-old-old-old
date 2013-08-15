@@ -17,7 +17,7 @@ var User = require('../models/user').User;
 var user_inodes = require('../providers/user_inodes');
 var email = require('./email');
 var common_api = require('./common_api');
-
+var filesize = require('filesize');
 
 /* load s3 config from env*/
 AWS.config.update({
@@ -305,6 +305,24 @@ exports.inode_create = function(req, res) {
 
 	// start the create waterfall
 	async.waterfall([
+
+		function(next) {
+			return validate_inode_creation_conditions(inode, fobj, req.user, function(err, rejection) {
+				if (err) {
+					return next(err);
+				}
+				if (rejection) {
+					return next({
+						status: 400,
+						info: {
+							text: 'File creation failed.',
+							rejection: rejection
+						}
+					});
+				}
+				return next();
+			});
+		},
 
 		// create relative path if needed
 		// and update the created dir as the new inode parent
@@ -651,3 +669,35 @@ exports.inode_set_share_list = function(req, res) {
 		user_inodes.update_inode_ghost_refs,
 	], common_api.reply_callback.bind(res, 'SHARE' + inode_id));
 };
+
+function validate_inode_creation_conditions(inode, fobj, user, callback) {
+
+	var rejection = null;
+
+	async.waterfall([
+		//get the user to read specific quota
+		function(next) {
+			return User.findById(user.id, next);
+		},
+
+		//compare user quota to usage and reject if new file and usage exceeds quota
+		function(user, next) {
+			return user_inodes.get_user_usage_bytes(user.id, function(err, usage) {
+				if (err) {
+					next(err);
+				}
+				if (fobj.size + usage > user.quota) {
+					rejection = {
+						reason: 'User reached quota limitaion of ' + filesize(user.quota),
+						quota: user.quota,
+						usage: usage,
+						file_size: fobj.size
+					};
+					console.log("Reject: ", rejection);
+					return next(null, rejection);
+				}
+				return next();
+			});
+		},
+	], callback);
+}

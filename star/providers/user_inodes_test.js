@@ -40,7 +40,8 @@ exports.test_user_inodes = {
 				test.ifError(err);
 				return test.done();
 			}
-			user_inodes.get_user_quota_bytes(user, function(err, result) {
+			console.log(user.id);
+			user_inodes.get_user_usage_bytes(user.id, function(err, result) {
 				console.log(result);
 				test.notEqual(result, 0, 'Quota for user was zero');
 				test.ifError(err);
