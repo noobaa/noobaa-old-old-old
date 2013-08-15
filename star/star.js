@@ -186,9 +186,12 @@ app.get('/planet', function(req, res) {
 	res.write(' var gui = require("nw.gui");');
 	res.write(' gui.Window.open("planet/window",');
 	res.write(JSON.stringify({
-		toolbar: false,
 		icon: "noobaa_icon.ico",
-		position: "mouse"
+		toolbar: false,
+		frame: false,
+		resizable: false,
+		position: "mouse",
+		height: 300
 	}));
 	res.write(');');
 	res.write('</script></body></html>');

@@ -3,21 +3,43 @@
 <head>
 	<?# def.include('common_head.html') ?>
 	<style>
+		::selection {
+			background: #d02020;
+		}
+		::-moz-selection {
+			background: #d02020;
+		}
 		body {
-			background-image: url('/public/images/canstockphoto7274277.jpg');
-			background-repeat: no-repeat;
-			background-attachment: fixed;
-			background-size: cover;
+			background-color: white;
+			color: black;
+			box-shadow: 0 0 1px 1px black inset;
+			-moz-box-shadow: 0 0 1px 1px black inset;
+			-webkit-box-shadow: 0 0 1px 1px black inset;
 		}
 		#logobar {
+			-webkit-app-region: drag;
+			background-color: #222222;
+			padding: 3px 20px 3px 20px;
 			margin-bottom: 30px;
+			vertical-align: middle;
 		}
-		#logobar > img {
+		#logobar > a > img {
 			height: 40px;
 		}
+		#logobar > a {
+			-webkit-app-region: no-drag;
+		}
+		#logobar > button {
+			-webkit-app-region: no-drag;
+			margin-top: 6px;
+		}
 		#headline {
+			margin-bottom: 30px;
 			font-size: 30pt;
 			line-height: 30pt;
+		}
+		#info {
+			margin: 0 40px 0 40px;
 		}
 		#info, #info .badge {
 			font-size: 12pt;
@@ -33,33 +55,38 @@
 			width: 40px;
 			text-align: right;
 		}
+		#sketch {
+			background-image: url('/public/images/sketch_skate.png');
+			background-repeat: no-repeat;
+			background-attachment: scroll;
+			background-size: cover;
+			background-position: 0 0;
+			height: 0;
+		}
 	</style>
 </head>
 
-<body ng-cloak ng-controller="PlanetCtrl">
+<body ng-cloak ng-controller="PlanetCtrl" class="bglighish">
 
-	<?# def.facebook_init_body ?>
-
-	<!--?# def.include('common_menubar.html') ?-->
-
-	<div class="nb_page_pad nb_nav_top_pad">
-
-<!-- ======== CONTENT ======== -->
-	
-	<div class="roundbord bglight">
-
-		<div id="logobar" class="text-center navbar-inner">
+	<div id="logobar" ng-dblclick="toggle_beer()">
+		<a data-title="You can double click"
+			data-placement="right" rel="tooltip">
 			<img src="/public/images/noobaa_logo.png"></img>
-		</div>
-		
-		<div id="headline" class="fntpaint fntblk text-center">
-			Device Dashboard
-		</div>
+		</a>
+		<button class="btn btn-small pull-right"
+			ng-click="hide_win()"
+			data-title="Minimize to tray"
+			data-placement="left" rel="tooltip">
+			<i class="icon-caret-down icon-large"></i>
+		</button>
+	</div>
 
-		<br/>
-		<br/>
+	<div id="headline" class="fntpaint text-center">
+		Device Dashboard
+	</div>
 
-		<table id="info" class="table fntread fntblk">
+	<div id="info">
+		<table class="table fntread">
 			<tr>
 				<td class="head_col">User</td>
 				<td class="icon_col">
@@ -125,30 +152,13 @@
 				<td><a href="#" class="fntsans">Increase...</a></td>
 			</tr>
 		</table>
-
-		<div ng-if="false" style="padding: 30px">
-			<button class="btn pull-right" ng-click="hide_win()">
-				Close
-			</button>
-			<button class="btn btn-small pull-left"
-				ng-click="reload_home()">
-				<i class="icon-refresh"></i>
-			</button>
-			<button class="btn btn-small pull-left"
-				ng-click="gui.Window.get().showDevTools()">
-				<i class="icon-cog"></i>
-			</button>
-		</div>
-
-		<!-- iframe used to make authentication -->
-		<iframe id="auth_frame" hidden nwdisable nwfaketop></iframe>
-
 	</div>
 
-<!-- ======== CONTENT END ======== -->
-
-
+	<div id="sketch_place">
+		<div id="sketch"></div>
 	</div>
+
+	<iframe id="auth_frame" hidden nwdisable nwfaketop></iframe>
 
 	<?# def.include('common_scripts.html') ?>
 

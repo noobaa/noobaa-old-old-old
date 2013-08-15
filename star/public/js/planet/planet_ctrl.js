@@ -1,8 +1,9 @@
 /* jshint node:true, browser:true, jquery:true, devel:true */
 /* global angular:false */
-// var _ = require('underscore');
 
 // the planet angular controller
+
+PlanetCtrl.$inject = ['$scope', '$http', '$timeout'];
 
 function PlanetCtrl($scope, $http, $timeout) {
 	'use strict';
@@ -32,7 +33,16 @@ function PlanetCtrl($scope, $http, $timeout) {
 		}
 	};
 
+	$scope.is_beer = false;
+	$scope.toggle_beer = function() {
+		$scope.is_beer = gui.Window.get().isFullscreen = !$scope.is_beer;
+		$('#sketch').css('height', ($scope.is_beer ? '400px':'0'));
+	};
+
 	$scope.hide_win = function() {
+		if ($scope.is_beer) {
+			$scope.toggle_beer();
+		}
 		gui.Window.get().hide();
 	};
 
@@ -267,6 +277,3 @@ function PlanetCtrl($scope, $http, $timeout) {
 
 	periodic_device();
 }
-
-// avoid minification effects by injecting the required angularjs dependencies
-PlanetCtrl.$inject = ['$scope', '$http', '$timeout'];

@@ -25,13 +25,14 @@
 
 				<? if (user.devices) { ?>
 				<tr>
-					<td width="10%"></td>
-					<td colspan="0">
-						<table class="table">
+					<td colspan="100">
+						<table class="table table-condensed pull-right"
+							style="width: 90%">
 							<thead>
 								<th>Device</th>
 								<th>Info</th>
 								<th>Last Update</th>
+								<th>#Updates</th>
 							</thead>
 							<tbody>
 								<? for (var dev_id in user.devices) { var dev = user.devices[dev_id]; ?>
@@ -39,6 +40,7 @@
 									<td><?!dev.name?></td>
 									<td><?! JSON.stringify(dev.host_info)?></td>
 									<td><?!dev.updates_log[dev.updates_log.length-1] ?> </td>
+									<td><?!dev.updates_log.length?> </td>
 								</tr>
 								<? } ?>
 							</tbody>
