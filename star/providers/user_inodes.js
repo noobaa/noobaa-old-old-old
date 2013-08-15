@@ -2,6 +2,7 @@ var _ = require('underscore');
 var async = require('async');
 var Inode = require('../models/inode').Inode;
 var User = require('../models/user').User;
+var Fobj = require('../models/fobj').Fobj;
 var wnst = require('winston');
 
 var CONST_BASE_FOLDERS = {
@@ -206,3 +207,55 @@ var get_refering_users = function(inode_id, cb) {
 	], cb);
 };
 exports.get_refering_users = get_refering_users;
+
+exports.get_user_quota_bytes = get_user_quota_bytes;
+
+function get_user_quota_bytes(user, cb) {
+	// console.log("======================================", user);
+	// console.log(user.id);
+	// console.log(typeof(user._id));
+
+	async.waterfall([
+
+		function(next) {
+			// console.log(user._id);
+			// console.log(typeof(user._id));
+			return Inode.find({
+				owner: user.id,
+				isdir: false
+			}, 'fobj', next);
+		},
+		function(fobj_list, next) {
+			lfobj_list = _.pluck(fobj_list, 'fobj');
+			// console.log('---------------', fobj_list);
+			// console.log('---------------', lfobj_list);
+			return Fobj.aggregate(
+				[{
+					$match: {
+						_id: {
+							$in: lfobj_list
+						}
+					}
+				}, {
+					$group: {
+						_id: '',
+						size: {
+							$sum: '$size'
+						}
+					}
+				}, {
+					$project: {
+						_id: 0,
+						size: 1
+					}
+				}], next);
+		}
+	], function(err,result){
+		if (err){
+			return cb(err);
+		}
+		//the aggregate returns an array with an embeded object. This is not a very clear return.
+		//so cleaning it to reduce coupling. 
+		return cb(null,result[0].size);
+	});
+}
