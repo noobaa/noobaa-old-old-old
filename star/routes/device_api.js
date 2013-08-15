@@ -6,6 +6,55 @@ var Device = require('../models/device.js').Device;
 var common_api = require('./common_api');
 
 
+var MILLIS_IN_HOUR = 1000 * 60 * 60;
+
+function push_update(date, dev, next) {
+	// prepare the change set assuming the update will be pushed
+	var changes = {
+		// TODO: remove this temporary removal of old updates_log
+		$unset: {
+			updates_log: 1
+		},
+		$inc: {
+			total_updates: 1
+		},
+		$set: {
+			last_update: date
+		},
+		$push: {
+			updates_stats: {
+				start: date,
+				end: date,
+				count: 1
+			}
+		}
+	};
+	if (dev.updates_stats.length) {
+		// check if the current update is close enough (1 hour diff)
+		// to the last update record, and if so update
+		// the last record instead of pushing new one.
+		var last = dev.updates_stats.length - 1;
+		var stat = dev.updates_stats[last];
+		var start = stat.start.getTime();
+		var end = stat.end.getTime();
+		var curr = date.getTime();
+		if (curr <= end || curr <= start) {
+			console.error('ignoring early date', stat, date);
+			changes = {};
+		} else if (curr - start <= MILLIS_IN_HOUR) {
+			// remove the $push and update the last element instead
+			delete changes.$push;
+			changes.$set['updates_stats.' + last + '.end'] = date;
+			changes.$inc['updates_stats.' + last + '.count'] = 1;
+		}
+	}
+	console.log('DEVICE UPDATE:', dev.id);
+	return dev.update(changes, function(err, num, raw) {
+		return next(err, dev);
+	});
+}
+
+
 // DEVICE CRUD - CREATE
 
 exports.device_create = function(req, res) {
@@ -17,7 +66,8 @@ exports.device_create = function(req, res) {
 		owner: req.user.id,
 		name: args.name || 'MyDevice',
 		host_info: args.host_info,
-		updates_log: []
+		total_updates: 0,
+		last_update: Date.now()
 	});
 	console.log('DEVICE CREATE', new_dev);
 
@@ -71,18 +121,7 @@ exports.device_update = function(req, res) {
 		common_api.check_ownership.bind(req),
 
 		// update the device
-		function(dev, next) {
-			console.log('DEVICE UPDATE:', id);
-			return dev.update({
-				$push: {
-					updates_log: Date.now()
-				}
-			}, function(err) {
-				return next(err, dev);
-			});
-		},
-
-		// TODO: merge updates_log into statistics to reduce size
+		push_update.bind(null, new Date()),
 
 		// make the reply
 		function(dev, next) {
@@ -99,13 +138,10 @@ exports.device_list = function(req, res) {
 		// lookup devices by owner
 		function(next) {
 			return Device.find({
-				owner: req.user.id,
+				owner: req.user.id
 			}, {
-				name: 1,
-				host_info: 1,
-				updates_log: {
-					$slice: -1 // only last element
-				}
+				owner: 0,
+				updates_stats: 0
 			}, next);
 		}
 	], common_api.reply_callback.bind(res, 'DEVICE LIST ' + req.user.id));

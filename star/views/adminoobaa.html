@@ -38,9 +38,9 @@
 								<? for (var dev_id in user.devices) { var dev = user.devices[dev_id]; ?>
 								<tr>
 									<td><?!dev.name?></td>
-									<td><?! JSON.stringify(dev.host_info)?></td>
-									<td><?!dev.updates_log[dev.updates_log.length-1] ?> </td>
-									<td><?!dev.updates_log.length?> </td>
+									<td><?!JSON.stringify(dev.host_info)?></td>
+									<td><?!(dev.last_update ? dev.last_update.toLocaleString() : '') ?> </td>
+									<td><?!dev.total_updates?> </td>
 								</tr>
 								<? } ?>
 							</tbody>

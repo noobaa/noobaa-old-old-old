@@ -9,7 +9,14 @@ var device_schema = new mongoose.Schema({
 	owner: types.ObjectId,
 	name: String,
 	host_info: {},
-	updates_log: [Date]
+	total_updates: Number,
+	last_update: Date,
+	updates_stats: [{
+		start: Date,
+		end: Date,
+		count: Number
+	}],
+	updates_log: [Date] // TODO: remove
 });
 
 // create a unique index on owner + name
