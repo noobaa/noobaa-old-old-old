@@ -24,7 +24,8 @@ function MyDevicesCtrl($scope, $http, $window, $timeout) {
 			console.log('[ok] got devices', data);
 			$scope.devices = data;
 			for (var i=0; i<data.length; i++) {
-				data[i].last_update = new Date(data[i].last_update);
+				data[i].last_update = data[i].last_update ? 
+					new Date(data[i].last_update) : new Date();
 			}
 		}).error(function(data, status, headers, config) {
 			console.error('[ERR] get devices failed', data, status);

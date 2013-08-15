@@ -67,8 +67,7 @@ exports.device_create = function(req, res) {
 		name: args.name || 'MyDevice',
 		host_info: args.host_info,
 		total_updates: 0,
-		last_update: null,
-		updates_stats: []
+		last_update: Date.now()
 	});
 	console.log('DEVICE CREATE', new_dev);
 
