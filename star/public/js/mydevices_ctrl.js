@@ -6,22 +6,30 @@ $(function() {
 });
 
 
+MyDevicesCtrl.$inject = ['$scope', '$http', '$window', '$timeout'];
+
 function MyDevicesCtrl($scope, $http, $window, $timeout) {
 
-	$scope.devices = {};
+	$scope.devices = null;
 
 	$scope.has_devices = function() {
-		return !_.isEmpty($scope.devices);
+		return !!$scope.devices;
 	};
 
-	/*
-	$scope.client_platforms = {
-		"Linux i686": "linux_386",
+	$scope.load_devices = function() {
+		$http({
+			method: 'GET',
+			url: '/star_api/device/'
+		}).success(function(data, status, headers, config) {
+			console.log('[ok] got devices', data);
+			$scope.devices = data;
+			for (var i=0; i<data.length; i++) {
+				data[i].last_update = new Date(data[i].updates_log[0]);
+			}
+		}).error(function(data, status, headers, config) {
+			console.error('[ERR] get devices failed', data, status);
+		});
 	};
-	$scope.client_platform = $scope.client_platforms[navigator.platform];
-	*/
 
+	$scope.load_devices();
 }
-
-// also specify dependencies explicitly to avoid minification effects:
-MyDevicesCtrl.$inject = ['$scope', '$http', '$window', '$timeout'];

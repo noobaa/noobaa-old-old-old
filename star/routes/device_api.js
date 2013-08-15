@@ -93,12 +93,25 @@ exports.device_update = function(req, res) {
 	], common_api.reply_callback.bind(res, 'DEVICE UPDATE ' + id));
 };
 
-exports.device_read = function(req, res) {
-	console.log('TODO: DEVICE READ', req.params, req.query);
-	return res.json(200, {});
+exports.device_list = function(req, res) {
+	console.log('DEVICE LIST');
+	async.waterfall([
+		// lookup devices by owner
+		function(next) {
+			return Device.find({
+				owner: req.user.id,
+			}, {
+				name: 1,
+				host_info: 1,
+				updates_log: {
+					$slice: -1 // only last element
+				}
+			}, next);
+		}
+	], common_api.reply_callback.bind(res, 'DEVICE LIST ' + req.user.id));
 };
 
-exports.device_list = function(req, res) {
-	console.log('TODO: DEVICE LIST', req.query);
+exports.device_read = function(req, res) {
+	console.log('TODO: DEVICE READ', req.params, req.query);
 	return res.json(200, {});
 };
