@@ -104,17 +104,19 @@ app.use(passport.session());
 app.use('/star_api/', function(req, res, next) {
 	// general validations preceding all the star api functions
 	if (!req.user) {
-		console.log('/star_api/', 'User Not Authenticated');
-		return res.send(403, "User Not Authenticated");
+		return error_403(req, res, next);
 	}
 	return next();
 });
 app.use('/adminoobaa/', function(req, res, next) {
 	// admin validation
+	// to make sure admin url cannot be spotted from outside,
+	// we skip the route as if it was never defined.
 	if (!req.user || !req.user.adminoobaa) {
-		console.log('ERROR: /adminoobaa/', 'User Not Admin', req.user,
-			'HEADERS', req.headers);
-		return res.send(404);
+		console.error('SECURITY ERROR:',
+			'User Not Admin', req.user,
+			'Headers', req.headers);
+		return error_404(req, res, next);
 	}
 	return next();
 });
@@ -127,9 +129,50 @@ app.use('/public/', express.static(path.join(__dirname, 'public')));
 app.use('/vendor/', express.static(path.join(__dirname, '..', 'vendor')));
 app.use('/vendor/', express.static(path.join(__dirname, '..', 'bower_components')));
 app.use('/vendor/', express.static(path.join(__dirname, '..', 'node_modules')));
+app.use('/', express.static(path.join(__dirname, 'public', 'google')));
 
-// errorHandler should be last handler
-app.use(express.errorHandler());
+
+// error handlers should be last
+// roughly based on express.errorHandler from connect's errorHandler.js
+app.use(error_404);
+app.use(function(err, req, res, next) {
+	console.error('ERROR:', err);
+	var e = {};
+	if (app.get('env') === 'development') {
+		// show internal info only on development
+		e = err;
+	}
+	e.status = err.status || res.statusCode;
+	if (e.status < 400) {
+		e.status = 500;
+	}
+	res.status(e.status);
+
+	if (req.accepts('html')) {
+		return res.render('error.html', {
+			err: e,
+			req: req
+		});
+	} else if (req.accepts('json')) {
+		return res.json(e);
+	} else {
+		return res.type('txt').send(e.message || e.toString());
+	}
+});
+
+function error_404(req, res, next) {
+	next({
+		status: 404,
+		message: 'We dug the earth, but we can\'t find ' + req.originalUrl
+	});
+}
+
+function error_403(req, res, next) {
+	next({
+		status: 403,
+		message: 'Forgot to login?'
+	});
+}
 
 
 
@@ -207,19 +250,19 @@ app.get('/planet/auth', function(req, res) {
 
 // setup user pages
 
-function redirect_no_user(req, res) {
+function redirect_no_user(req, res, next) {
 	if (!req.user) {
 		res.redirect('/welcome');
-		return true;
+		return;
 	}
 	// NOTE: this check uses the session, and not the DB.
 	// so in order to notice a db change it requires logout & login 
 	// which will create a new session.
 	if (!req.user.alpha_tester) {
 		res.redirect('/thankyou');
-		return true;
+		return;
 	}
-	return false;
+	next();
 }
 
 app.get('/welcome', function(req, res) {
@@ -237,22 +280,16 @@ app.get('/thankyou', function(req, res) {
 	return res.render('thankyou.html', common_api.page_context(req));
 });
 
-app.get('/mydevices', function(req, res) {
-	if (!redirect_no_user(req, res)) {
-		return res.render('mydevices.html', common_api.page_context(req));
-	}
+app.get('/mydevices', redirect_no_user, function(req, res) {
+	return res.render('mydevices.html', common_api.page_context(req));
 });
 
-app.get('/mydata', function(req, res) {
-	if (!redirect_no_user(req, res)) {
-		return res.render('mydata.html', common_api.page_context(req));
-	}
+app.get('/mydata', redirect_no_user, function(req, res) {
+	return res.render('mydata.html', common_api.page_context(req));
 });
 
-app.get('/', function(req, res) {
-	if (!redirect_no_user(req, res)) {
-		return res.redirect('/mydata');
-	}
+app.get('/', redirect_no_user, function(req, res) {
+	return res.redirect('/mydata');
 });
 
 
