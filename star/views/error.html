@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html ng-app="noobaa_app" xmlns:fb="http://ogp.me/ns/fb#" lang="en">
+
+<head>
+	<?# def.include('common_head.html') ?>
+	<style>
+		body {
+			background-color: #f2f2f2 !important;
+		}
+		#sketch {
+			background-image: url('/public/images/sketch_skate.png');
+			background-repeat: no-repeat;
+			background-attachment: scroll;
+			background-size: cover;
+			background-position: 0 0;
+			height: 300px;
+			margin-bottom: 50px
+		}
+	</style>
+</head>
+
+<body class="bglight">
+	<div class="nb_navbar navbar navbar-inverse navbar-static-top">
+		<div class="nb_page_pad navbar-inner fntread fntwht">
+			<a class="brandy pull-left" href="/">
+				<img src="/public/images/noobaa_logo.png"></img>
+			</a>
+		</div>
+	</div>
+
+	<div class="nb_page_pad text-center">
+		<div id="pic">
+			<div id="sketch"></div>
+		</div>
+		<h1 class="fntread fntblk">
+			<?! it.err.message ?>
+		</h1>
+		<div class="H2 fntpaint fntblk">
+			&lt;<?! it.err.status ?>&gt;
+		</div>
+		<div>
+			<?! it.err.stack ?>
+		</div>
+	</div>
+
+	<?# def.include('common_scripts.html') ?>
+
+	<script type="text/javascript">
+		function ErrorCtrl($scope) {
+		}
+	</script>
+
+</body>
+
+</html>
