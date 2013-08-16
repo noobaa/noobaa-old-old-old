@@ -158,7 +158,7 @@ app.use(function(err, req, res, next) {
 	} else {
 		return res.type('txt').send(e.message || e.toString());
 	}
-})
+});
 
 function error_404(req, res, next) {
 	next({
