@@ -127,6 +127,7 @@ app.use('/public/', express.static(path.join(__dirname, 'public')));
 app.use('/vendor/', express.static(path.join(__dirname, '..', 'vendor')));
 app.use('/vendor/', express.static(path.join(__dirname, '..', 'bower_components')));
 app.use('/vendor/', express.static(path.join(__dirname, '..', 'node_modules')));
+app.use('/', express.static(path.join(__dirname, 'public', 'google')));
 
 // errorHandler should be last handler
 app.use(express.errorHandler());
