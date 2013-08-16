@@ -673,6 +673,11 @@ exports.inode_set_share_list = function(req, res) {
 function validate_inode_creation_conditions(inode, fobj, user, callback) {
 
 	var rejection = null;
+	//we currently have nothing special to test about a folder.
+	if (inode.isdir){
+		return callback(null,null);
+	}
+
 
 	async.waterfall([
 		//get the user to read specific quota

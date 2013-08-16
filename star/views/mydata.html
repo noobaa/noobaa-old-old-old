@@ -37,7 +37,7 @@
 	<div ng-controller="InodesMenuCtrl">
 
 		<div style="margin-bottom: 30px;">
-			<div class="btn-group">
+			<div class="btn-group" id="main-btn-group">
 				<button class="btn"
 					data-target="#upload_modal" 
 					data-toggle="modal"
@@ -190,7 +190,8 @@
 			<div ng-controller="InodesTreeCtrl"
 				ng-include="'tree_view_template.html'"
 				class="roundbord bglight"
-				style="min-height: 300px">
+				style="min-height: 300px"
+				id="inodes_tree">
 			</div>
 		</div>
 		<div class="span9">

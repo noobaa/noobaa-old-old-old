@@ -23,9 +23,9 @@ $(function() {
 		backdrop: true,
 		title: "WELCOME TO NOOBAA !",
 		content: [
-			'<p>This tour will show you around.</p>',
-			'<p>It\'s all free, and you\'ll be up and running in a minute.</p>',
-			'<p>Press Next...</p>',
+			'<p>Hi. I am your tour guide.<br></p>',
+			'<p>To re-take the tour just press',
+			' the <i class="icon-info-sign text-info"></i> button</p><p> on the top bar</p>',
 			// '<p>* You can also navigate this tour using the left & right arrow keys</p>',
 			// '<p>* This tour is always available using the',
 			// '<i class="icon-info-sign text-info"></i> button at the top</p>'
@@ -86,6 +86,39 @@ $(function() {
 		title: "MY DATA",
 		content: [
 			'<p>Let\'s see how to manage your data...</p>'
+		].join('\n')
+	},{
+		element: "#inodes_tree",
+		placement: 'right',
+		path: "/mydata#/mydata",
+		title: "Accessing Data",
+		content: [
+			'<p>The two basic folder are "My Data" and "Shared with me".</p>',
+			'<ui><li><strong>"My Data" </strong>holds all files that were uploaded by you.</li>',
+			'<li><strong>"Shared with me"</strong> shows friends files that were shared with you.</li></ul>'
+		].join('\n')
+	},{
+		element: "#main-btn-group",
+		placement: 'bottom',
+		path: "/mydata#/mydata",
+		title: "Uploading, Consuming, Sharing",
+		content: [
+			'<p>This is an area that is very useful when you access your data via tablet.</p>',
+			'<p>Just mark the line in the files list, and activate the required action on it.</p>'
+		].join('\n')
+	}, {
+		element: "#tour_link", // jQuery selector
+		placement: 'bottom',
+		backdrop: true,
+		title: "WELCOME TO NOOBAA !",
+		content: [
+			'<p>This is where the tour ends.</p>',
+			'<p>Remember you can re-take the tour by pressing',
+			' the <i class="icon-info-sign text-info"></i> button</p><p> on the top bar.</p>',
+			'<p>Press the <strong>Close</strong> button or go back to any step by pressing the <strong>Prev</strong> button.</p>',
+			// '<p>* You can also navigate this tour using the left & right arrow keys</p>',
+			// '<p>* This tour is always available using the',
+			// '<i class="icon-info-sign text-info"></i> button at the top</p>'
 		].join('\n')
 	}]);
 
