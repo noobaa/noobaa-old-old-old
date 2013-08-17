@@ -56,7 +56,6 @@ function sync_property(to, from, key) {
 
 
 
-
 ////////////////////////////////
 ////////////////////////////////
 // Inode
@@ -227,12 +226,6 @@ Inode.prototype.populate_dir = function(entries) {
 			son.icon = 'icon-file';
 			subfiles[son.id] = son;
 		}
-		if (son.shared_fb_id) {
-			son.fb_pic = "https://graph.facebook.com/" + son.shared_fb_id + "/picture?width=30&height=30";
-		} else {
-			son.fb_pic = "";
-		}
-		//console.log("===", son);
 		gridEntries.unshift(son);
 	}
 
@@ -482,7 +475,7 @@ function setup_inodes_root_ctrl($scope, $timeout) {
 		dir_inode.read_dir().on({
 			'all': function() {
 				if ($scope.do_refresh_selection) {
-					$timeout($scope.curr_dir_refresh, 20000);
+					$timeout($scope.curr_dir_refresh, 30000);
 				}
 			},
 			'error': function() {
@@ -574,35 +567,35 @@ function InodesListCtrl($scope) {
 		rowTemplate: 'list_view_grid_template.html', //this template can be found in mydata.html
 		columnDefs: [{
 			field: 'icon',
-			displayName: ' ',
+			displayName: '',
 			width: 20,
 			cellTemplate: '<i class="icon-large {{row.entity[col.field] }}"> </i>'
 		}, {
 			field: 'name',
-			displayName: 'Name',
-//			headerCellTemplate: 'list_view_grid_template_names_header.html',
+			displayName: '',
+			//			headerCellTemplate: 'list_view_grid_template_names_header.html',
 		}, {
 			field: 'state',
 			displayName: '',
 			width: 90,
 		}, {
 			field: 'progress',
-			displayName: 'progress',
+			displayName: '',
 			width: 200,
 			cellTemplate: '<div ng-include="\'upload_progress_template.html\'"> </div>',
 			// cellTemplate: '<div>  {{ row.entity[col.field] }}  </div>'
 		}, {
 			field: 'shared_name',
-			displayName: 'shared_name',
+			displayName: '',
 			width: 90
 		}, {
 			field: 'shared_fb_id',
-			displayName: 'fb_pic',
+			displayName: '',
 			width: 30,
-			cellTemplate: '<div ><img ng-show="row.entity[col.field]"  ng-src="https://graph.facebook.com/{{ row.entity[col.field] }}/picture?width=30&height=30"></div>'
+			cellTemplate: '<div ><img ng-show="row.entity[col.field]" ng-src="{{fb_pic_url(row.entity[col.field])}}"></div>'
 		}, {
 			field: 'size',
-			displayName: 'Size',
+			displayName: '',
 			width: 90,
 			cellTemplate: '<div>  {{ human_size(row.entity[col.field]) }}  </div>'
 		}, ]
@@ -615,6 +608,13 @@ function InodesListCtrl($scope) {
 		console.log("==========================================");
 	});
 
+	$scope.fb_pic_url = function(fbid) {
+		if (!fbid || fbid == ' ') {
+			return '';
+		}
+		return 'https://graph.facebook.com/' +
+			fbid + '/picture?width=30&height=30';
+	};
 
 
 	$scope.inode_click = function(inode) {
@@ -885,7 +885,8 @@ function UploadCtrl($scope, $http, $timeout) {
 	// calling directly since we just want to include the inodes root scope here
 	$scope.do_refresh_selection = false;
 	$scope.hide_root_dir = false;
-	setup_inodes_root_ctrl($scope, $timeout);
+	// TODO: commenting the planet stuff for now, but should probably cleanup
+	// setup_inodes_root_ctrl($scope, $timeout);
 
 	var upload_modal = $('#upload_modal');
 	upload_modal.on('show', $scope.safe_callback(function() {

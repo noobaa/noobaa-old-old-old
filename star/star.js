@@ -148,7 +148,9 @@ app.use(function(err, req, res, next) {
 	}
 	res.status(e.status);
 
-	if (req.accepts('html')) {
+	if (req.xhr) {
+		return res.json(e);
+	} else if (req.accepts('html')) {
 		return res.render('error.html', {
 			err: e,
 			req: req
@@ -220,7 +222,7 @@ app.put('/star_api/device/:device_id', device_api.device_update);
 
 var adminoobaa = require('./routes/adminoobaa');
 app.get('/adminoobaa/', adminoobaa.admin_view);
-
+app.put('/adminoobaa/', adminoobaa.admin_update);
 
 // setup planet pages
 

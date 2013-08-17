@@ -271,6 +271,7 @@
 					</tr>
 				</table>
 			</div>
+				<!-- UNUSED FOR NOW
 			<div ng-show="!curr_dir_refresh_failed"
 				class="row-fluid notextselect roundbord bglight">
 				<div ng-controller="InodesBreadcrumbCtrl" 
@@ -286,6 +287,7 @@
 					style="height: 250px; overflow: auto;">
 				</div>
 			</div>
+				-->
 		</div>
 		<div class="modal-footer">
 			<button class="btn pull-left" data-dismiss="modal">Hide</button>
@@ -520,9 +522,9 @@
 						<i class="icon-file" style="vertical-align: middle;" ></i>
 						<span nb-drag="inode_drag(file_inode, $event, is_start)">
 							{{file_inode.name}}
-							<img ng-if="file_inode.shared_fb_id" ng-src="https://graph.facebook.com/{{file_inode.shared_fb_id}}/picture">
+							<img ng-show="file_inode.shared_fb_id"
+								ng-src="{{fb_pic_url(file_inode.shared_fb_id)}}">
 							{{file_inode.shared_name}}
-							
 						</span>
 					</span>
 					<span class="span2 fntsans fntblk" 

@@ -3,6 +3,8 @@
 
 var mongoose = require('mongoose');
 
+// TODO: change reply_callback to return a function - less complex
+
 // Convinient callback for handling the reply of async control flows.
 // 'this' should be the bound to the response.
 //
@@ -27,7 +29,6 @@ function reply_callback(debug_info, err, reply) {
 		return this.json(200, reply);
 	}
 }
-exports.reply_callback = reply_callback;
 
 // Check the object owner matching to the req.user
 // 'this' should be the bound to the request.
@@ -55,7 +56,6 @@ function check_ownership(obj, next) {
 	}
 	return next(null, obj);
 }
-exports.check_ownership = check_ownership;
 
 function page_context(req) {
 	return {
@@ -65,4 +65,8 @@ function page_context(req) {
 		channel_url: '/auth/facebook/channel.html'
 	};
 }
+
+
+exports.reply_callback = reply_callback;
+exports.check_ownership = check_ownership;
 exports.page_context = page_context;

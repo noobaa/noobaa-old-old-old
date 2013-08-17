@@ -94,22 +94,22 @@
 					icon-large icon-fixed-width"></i>
 				</td>
 				<td>
-					<div ng-if="!planet_user && !planet_loading"
+					<div ng-show="!planet_user && !planet_loading"
 						class="badge badge-warning">
 						Not Connected
 					</div>
-					<div ng-if="!planet_user && planet_loading" class="badge">
+					<div ng-show="!planet_user && planet_loading" class="badge">
 						Connecting...
 					</div>
-					<b ng-if="planet_user">{{planet_user.name}}</b>
+					<b ng-show="planet_user">{{planet_user.name}}</b>
 				</td>
 				<td>
-					<a ng-if="!planet_user"
+					<a ng-show="!planet_user"
 						ng-click="do_connect()" href="#"
 						style="margin-left: 10px">
 						<img src="/public/images/facebook_login_button.png"></img>
 					</a>
-					<a ng-if="planet_user"
+					<a ng-show="planet_user"
 						ng-click="do_disconnect()" href="#"
 						class="fntsans">
 						Disconnect...
@@ -123,19 +123,19 @@
 					icon-large icon-fixed-width"></i>
 				</td>
 				<td>
-					<div ng-if="!planet_user && !planet_loading"
+					<div ng-show="!planet_user && !planet_loading"
 						class="badge badge-warning">
 						Not Connected
 					</div>
-					<div ng-if="(planet_user || planet_loading)
+					<div ng-show="(planet_user || planet_loading)
 						&& (!planet_user || !planet_device)"
 						class="badge">
 						Connecting...
 					</div>
-					<b ng-if="planet_user && planet_device">{{planet_device.name}}</b>
+					<b ng-show="planet_user && planet_device">{{planet_device.name}}</b>
 				</td>
 				<td>
-					<a ng-if="planet_user && planet_device"
+					<a ng-show="planet_user && planet_device"
 						ng-click="reset_device()" href="#"
 						class="fntsans">
 						Reset...

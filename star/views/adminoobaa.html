@@ -5,7 +5,7 @@
 	<?# def.include('common_head.html') ?>
 </head>
 
-<body class="bglight">
+<body ng-cloak ng-controller="AdminoobaaCtrl" class="bglight">
 	<?# def.facebook_init_body ?>
 
 	<div class="nb_page_pad">
@@ -14,52 +14,95 @@
 				<th>Name</th>
 				<th>Alpha</th>
 				<th>Custom Email</th>
+				<th>Devices</th>
 			</thead>
 			<tbody>
-			<? for (var user_id in it.users) { var user = it.users[user_id]; ?>
-				<tr>
-					<td><?!user.fb.name?></td>
-					<td><?!user.alpha_tester?></td>
-					<td><?!user.email?></td>
-				</tr>
 
-				<? if (user.devices) { ?>
-				<tr>
-					<td colspan="100">
-						<table class="table table-condensed pull-right"
-							style="width: 90%">
+				<tr ng-repeat="(user_id,user) in users">
+					<td>{{user.fb.name}}</td>
+					<td>
+						<button class="btn btn-small"
+							ng-click="toggle_alpha(user)">
+							{{user.alpha_tester || 'false'}}
+						</button>
+					</td>
+					<td>{{user.email}}</td>
+					<td>
+						<table
+							class="table table-condensed">
 							<thead>
 								<th>Device</th>
-								<th>Info</th>
+								<th>Host</th>
+								<th>OS</th>
 								<th>Last Update</th>
 								<th>#Updates</th>
 							</thead>
 							<tbody>
-								<? for (var dev_id in user.devices) { var dev = user.devices[dev_id]; ?>
-								<tr>
-									<td><?!dev.name?></td>
-									<td><?!JSON.stringify(dev.host_info)?></td>
-									<td><?!(dev.last_update ? dev.last_update.toLocaleString() : '') ?> </td>
-									<td><?!dev.total_updates?> </td>
+								<tr ng-repeat="(dev_id,dev) in user.devices">
+									<td>{{dev.name}}</td>
+									<td>{{dev.host_info.hostname}}</td>
+									<td>{{dev.host_info.platform}}</td>
+									<td>{{locale_date(dev.last_update)}}</td>
+									<td>{{dev.total_updates}}</td>
 								</tr>
-								<? } ?>
 							</tbody>
 						</table>
 					</td>
 				</tr>
-				<? } ?>
 
-			<? } ?>
+
 			</tbody>
 		</table>
 	</div>
 
 	<?# def.include('common_scripts.html') ?>
 
+	<!-- server data is safely embedded in a json type script -->
+	<script id="users_data" type="application/json">
+		<?= JSON.stringify(it.users) ?>
+	</script>
+
 	<script type="text/javascript">
-		function AdminoobaaCtrl($scope) {
-			// TODO: switch to use angular instead of server side template
-			// $scope.users
+		
+		AdminoobaaCtrl.$inject = ['$scope', '$http', '$window', '$timeout'];
+		
+		function AdminoobaaCtrl($scope, $http, $window, $timeout) {
+			// parse user data from safe json in html
+			$scope.users = JSON.parse($('#users_data').html());
+			console.log('USERS AND DEVICES DATA:', $scope.users);
+			
+			$scope.locale_date = function(date) {
+				if (!date) {
+					return '';
+				}
+				// convert using Locale to have proper timezone displayed
+				date = new Date(date);
+				return date.toLocaleString();
+			}
+			$scope.toggle_alpha = function(user) {
+				var question = 'Change alpha to ' + !user.alpha_tester + ' ?';
+				if (!$window.confirm(question)) {
+					return;
+				}
+				$http({
+					method: 'PUT',
+					url: '/adminoobaa/',
+					data: {
+						updates: [{
+							user_id: user._id,
+							args: {
+								alpha_tester: !user.alpha_tester
+							}
+						}]
+					}
+				}).success(function(data, status, headers, config) {
+					console.log('[ok] toggle_alpha', data);
+					$window.location.reload();
+				}).error(function(data, status, headers, config) {
+					console.error('[ERR] toggle_alpha failed', data, status);
+					$window.alert(JSON.stringify(data));
+				});
+			}
 		}
 	</script>
 
