@@ -50,7 +50,7 @@ $(function() {
 		element: "#dl",
 		placement: 'bottom',
 		backdrop: true,
-		path: "/mydevices#/mydevices", // TODO: the #/mydevices is needed due to angular bug
+		path: "/mydevices",
 		title: "Install Device",
 		content: [
 			'<p>Start co-sharing by installing your first device.</p>',
@@ -60,7 +60,7 @@ $(function() {
 		element: "#devs",
 		placement: 'bottom',
 		backdrop: true,
-		path: "/mydevices#/mydevices",
+		path: "/mydevices",
 		title: "Connecting the Device",
 		content: [
 			'<p>When the application starts you will see the dashboard screen.</p>',
@@ -72,7 +72,7 @@ $(function() {
 		placement: 'bottom',
 		backdrop: true,
 		reflex: true,
-		path: "/mydevices#/mydevices",
+		path: "/mydevices",
 		title: "First device added",
 		content: [
 			'<p>Once your device is up and running,',
@@ -82,7 +82,7 @@ $(function() {
 	}, {
 		element: "#my_data_link",
 		placement: 'bottom',
-		path: "/mydata#/mydata",
+		path: "/mydata",
 		title: "MY DATA",
 		content: [
 			'<p>Let\'s see how to manage your data...</p>'
@@ -90,7 +90,7 @@ $(function() {
 	},{
 		element: "#inodes_tree",
 		placement: 'right',
-		path: "/mydata#/mydata",
+		path: "/mydata",
 		title: "Accessing Data",
 		content: [
 			'<p>The two basic folder are "My Data" and "Shared with me".</p>',
@@ -100,7 +100,7 @@ $(function() {
 	},{
 		element: "#main-btn-group",
 		placement: 'bottom',
-		path: "/mydata#/mydata",
+		path: "/mydata",
 		title: "Uploading, Consuming, Sharing",
 		content: [
 			'<p>This is an area that is very useful when you access your data via tablet.</p>',
