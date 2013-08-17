@@ -48,7 +48,7 @@ $(function() {
 		].join('\n')
 	}, {
 		element: "#dl",
-		placement: 'bottom',
+		placement: 'top',
 		backdrop: true,
 		path: "/mydevices",
 		title: "Install Device",

@@ -13,7 +13,7 @@
 			overflow: hidden;
 			text-align: center;
 			padding: 10px;
-			margin-bottom: 30px;
+			margin-top: 80px;
 		}
 		#dl table {
 			width: 100%;
@@ -24,12 +24,18 @@
 		}
 		#devs {
 			padding: 30px;
-			min-height: 200px;
+			min-height: 160px;
+			font-size: 12pt;
+			line-height: 12pt;
 		}
 		#nodev {
 			padding: 20px;
 			border-style: dashed;
+			border-width: 2px;
+			border-color: rgba(0,0,0,0.2);
 			text-align: center;
+			font-size: 14pt;
+			line-height: 14pt;
 		}
 	</style>
 </head>
@@ -42,6 +48,36 @@
 
 	<div class="nb_page_pad nb_nav_top_pad fntread"
 		ng-controller="MyDevicesCtrl">
+
+		<div id="devs" class="roundbord bglight">
+			<div class="text-center" style="margin-bottom: 20px">
+				<button id="load_devices" class="btn btn-primary"
+					ng-click="load_devices()">
+					<i class="icon-refresh icon-large"></i>
+				</button>
+			</div>
+
+			<div id="nodev" ng-hide="has_devices()">
+				<p>No devices connected</p>
+				<p>Download and install a device to start co-sharing</p>
+			</div>
+			<table class="table table-hover" ng-show="has_devices()">
+				<thead>
+					<th>Device Name</th>
+					<th>Host</th>
+					<th>OS</th>
+					<th>Last Update</th>
+				</thead>
+				<tbody>
+					<tr ng-repeat="dev in devices">
+						<td>{{dev.name}}</td>
+						<td>{{dev.host_info.hostname}}</td>
+						<td>{{dev.host_info.platform}}</td>
+						<td>{{dev.last_update_str}}</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
 
 		<div id="dl" class="roundbord bglight fntsans">
 			<table>
@@ -65,36 +101,6 @@
 						</a>
 					</td>
 				</tr>
-			</table>
-		</div>
-
-		<div id="devs" class="roundbord bglight">
-			<div class="text-center" style="margin-bottom: 20px">
-				<button id="load_devices" class="btn btn-primary"
-					ng-click="load_devices()">
-					<i class="icon-refresh icon-large"></i>
-				</button>
-			</div>
-
-			<div id="nodev" ng-hide="has_devices()">
-				<p class="lead">No devices connected</p>
-				<p class="lead">Download and install a device to start co-sharing</p>
-			</div>
-			<table class="table table-hover" ng-show="has_devices()">
-				<thead>
-					<th>Device Name</th>
-					<th>Host</th>
-					<th>OS</th>
-					<th>Last Update</th>
-				</thead>
-				<tbody>
-					<tr ng-repeat="dev in devices">
-						<td>{{dev.name}}</td>
-						<td>{{dev.host_info.hostname}}</td>
-						<td>{{dev.host_info.platform}}</td>
-						<td>{{dev.last_update_str}}</td>
-					</tr>
-				</tbody>
 			</table>
 		</div>
 
