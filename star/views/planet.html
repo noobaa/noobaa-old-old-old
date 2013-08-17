@@ -66,7 +66,7 @@
 	</style>
 </head>
 
-<body ng-cloak ng-controller="PlanetCtrl" class="bglighish">
+<body ng-cloak ng-controller="PlanetCtrl">
 
 	<div id="logobar" ng-dblclick="toggle_beer()">
 		<a data-title="You can double click"
@@ -85,71 +85,86 @@
 		Device Dashboard
 	</div>
 
-	<div id="info">
-		<table class="table fntread">
+	<div id="info" class="fntread">
+		<div ng-show="!planet_user && !planet_loading" class="text-center ">
+			<a ng-show="!planet_user"
+				ng-click="do_connect()" href="#"
+				style="margin-left: 10px">
+				<img src="/public/images/facebook_login_button_big.png"
+					width="300px"></img>
+			</a>
+		</div>
+		<div ng-show="planet_loading" class="text-center">
+			<h3>
+				<img src="/public/images/ajax-loader.gif" width="20px"></img>
+				Connecting...
+			</h3>
+		</div>
+		<table ng-show="planet_user && !planet_loading" class="table">
 			<tr>
 				<td class="head_col">User</td>
-				<td class="icon_col">
-					<i class="icon-user icon-white 
-					icon-large icon-fixed-width"></i>
-				</td>
+				<!-- <td class="icon_col"></td> -->
 				<td>
-					<div ng-show="!planet_user && !planet_loading"
-						class="badge badge-warning">
-						Not Connected
+					<div class="dropdown">
+						<span class="dropdown-toggle"
+							data-toggle="dropdown"
+							id="userLabel"
+							style="cursor: pointer">
+							<i class="icon-user icon-white 
+								icon-large icon-fixed-width"></i>
+							<b>{{planet_user.name}}</b>
+						</span>
+						<ul class="dropdown-menu"
+							role="menu"
+							aria-labelledby="userLabel">
+							<li>
+								<a ng-click="do_disconnect()" href="#">
+									<i class="icon-signout icon-fixed-width"></i>
+									Disconnect...
+								</a>
+							</li>
+						</ul>
 					</div>
-					<div ng-show="!planet_user && planet_loading" class="badge">
-						Connecting...
-					</div>
-					<b ng-show="planet_user">{{planet_user.name}}</b>
-				</td>
-				<td>
-					<a ng-show="!planet_user"
-						ng-click="do_connect()" href="#"
-						style="margin-left: 10px">
-						<img src="/public/images/facebook_login_button.png"></img>
-					</a>
-					<a ng-show="planet_user"
-						ng-click="do_disconnect()" href="#"
-						class="fntsans">
-						Disconnect...
-					</a>
 				</td>
 			</tr>
 			<tr>
 				<td class="head_col">Device</td>
-				<td class="icon_col">
-					<i class="icon-desktop icon-white 
-					icon-large icon-fixed-width"></i>
-				</td>
+				<!-- <td class="icon_col"></td> -->
 				<td>
-					<div ng-show="!planet_user && !planet_loading"
-						class="badge badge-warning">
-						Not Connected
-					</div>
-					<div ng-show="(planet_user || planet_loading)
-						&& (!planet_user || !planet_device)"
+					<div ng-show="!planet_device"
 						class="badge">
 						Connecting...
 					</div>
-					<b ng-show="planet_user && planet_device">{{planet_device.name}}</b>
-				</td>
-				<td>
-					<a ng-show="planet_user && planet_device"
-						ng-click="reset_device()" href="#"
-						class="fntsans">
-						Reset...
-					</a>
+					<div ng-show="planet_device" class="dropdown">
+						<span class="dropdown-toggle"
+							data-toggle="dropdown"
+							id="devLabel"
+							style="cursor: pointer">
+							<i class="icon-desktop icon-white 
+								icon-large icon-fixed-width"></i>
+							<b>{{planet_device.name}}</b>
+						</span>
+						<ul class="dropdown-menu" role="menu"
+							aria-labelledby="userLabel">
+							<li>
+								<a ng-click="reconnect_device()" href="#">
+									<i class="icon-repeat icon-fixed-width"></i>
+									Reconnect...
+								</a>
+							</li>
+						</ul>
+					</div>
 				</td>
 			</tr>
 			<tr>
 				<td class="head_col">Co-Shared Space</td>
-				<td class="icon_col">
+				<!-- <td class="icon_col"></td> -->
+				<td>
 					<i class="icon-hdd icon-white 
-					icon-large icon-fixed-width"></i>
+						icon-large icon-fixed-width"></i>
+					<b>{{ human_size(planetfs.total_size()) }}</b>
+					<a href="#" class="btn btn-link">Increase...</a>
 				</td>
-				<td><b>{{ human_size(planetfs.total_size()) }}</b></td>
-				<td><a href="#" class="fntsans">Increase...</a></td>
 			</tr>
 		</table>
 	</div>

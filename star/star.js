@@ -236,7 +236,8 @@ app.get('/planet', function(req, res) {
 		frame: false,
 		resizable: false,
 		position: "mouse",
-		height: 300
+		width: 600,
+		height: 320
 	}));
 	res.write(');');
 	res.write('</script></body></html>');

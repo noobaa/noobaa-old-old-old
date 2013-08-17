@@ -25,7 +25,8 @@ function PlanetCtrl($scope, $http, $timeout) {
 	var gui = $scope.gui = window.require('nw.gui');
 
 	$scope.reload_home = function() {
-		if (window.location.href !== $scope.home_location) {
+		if (window.location.href !== $scope.home_location &&
+			window.location.href !== $scope.home_location + '#') {
 			window.console.log(window.location, $scope.home_location);
 			window.location.href = $scope.home_location;
 		} else {
@@ -195,7 +196,7 @@ function PlanetCtrl($scope, $http, $timeout) {
 		$scope.planet_device = JSON.parse(localStorage.planet_device);
 	}
 
-	$scope.reset_device = function() {
+	$scope.reconnect_device = function() {
 		delete $scope.planet_device;
 		delete localStorage.planet_device;
 		schedule_device(1000);

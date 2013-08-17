@@ -75,11 +75,16 @@
 
 	<?# def.include('common_scripts.html') ?>
 
+	<!-- server data is safely embedded in a JSON type script -->
+	<script id="user_data" type="application/json">
+		<?= JSON.stringify(it.user) ?>
+	</script>
+
 	<script type="text/javascript">
-		<??it.user?>
-			var noobaa_user = <?= JSON.stringify(it.user) ?>;
+		<?? it.user ?>
+		var noobaa_user = JSON.parse($('#user_data').html());
 		<????>
-			var noobaa_user = null;
+		var noobaa_user = null;
 		<???>
 	</script>
 
