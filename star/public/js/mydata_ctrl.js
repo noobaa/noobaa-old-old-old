@@ -950,7 +950,7 @@ function UploadCtrl($scope, $http, $timeout) {
 
 		// create the file and receive upload location info
 		console.log('creating file:', file);
-		var ev = dir_inode.mkfile(file.name, file.size, file.type, file.relativePath);
+		var ev = dir_inode.mkfile(file.name, file.size, file.type, file.webkitRelativePath);
 		ev.on('success', function(mkfile_data) {
 			upload.inode_id = mkfile_data.id;
 			upload.status = 'Uploading...';

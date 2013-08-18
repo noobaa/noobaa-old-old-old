@@ -234,7 +234,7 @@
 					</thead>
 					<tr ng-repeat="(idx,upload) in uploads" ng-class="upload.row_class">
 						<td>
-							{{upload.file.relativePath + upload.file.name}}
+							{{upload.file.webkitRelativePath || upload.file.name}}
 						</td>
 						<td>
 							{{upload.dir_inode.name}}
@@ -312,7 +312,6 @@
 				<input id="dir_upload_input" 
 					type="file"
 					name="file"
-					multiple="multiple"
 					webkitdirectory=""
 					mozdirectory=""
 					directory="">

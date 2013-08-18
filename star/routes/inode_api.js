@@ -333,6 +333,9 @@ exports.inode_create = function(req, res) {
 			// make an array out of the relative path names
 			// and compact it to remove any empty strings
 			var paths = _.compact(args.relative_path.split('/'));
+			if (paths.length && paths[paths.length-1] === args.name) {
+				paths = paths.slice(0, paths.length-1);
+			}
 			console.log('RELATIVE PATH:', args.relative_path, paths);
 			// do reduce on the paths array and for each name in the path
 			// try to find existing dir, or otherwise create it,
