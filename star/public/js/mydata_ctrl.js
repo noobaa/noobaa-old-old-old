@@ -887,6 +887,7 @@ function UploadCtrl($scope, $http, $timeout) {
 	$scope.hide_root_dir = false;
 	// TODO: commenting the planet stuff for now, but should probably cleanup
 	// setup_inodes_root_ctrl($scope, $timeout);
+	$scope.curr_dir_refresh_failed = true;
 
 	var upload_modal = $('#upload_modal');
 	upload_modal.on('show', $scope.safe_callback(function() {
