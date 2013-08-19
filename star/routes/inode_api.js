@@ -333,8 +333,8 @@ exports.inode_create = function(req, res) {
 			// make an array out of the relative path names
 			// and compact it to remove any empty strings
 			var paths = _.compact(args.relative_path.split('/'));
-			if (paths.length && paths[paths.length-1] === args.name) {
-				paths = paths.slice(0, paths.length-1);
+			if (paths.length && paths[paths.length - 1] === args.name) {
+				paths = paths.slice(0, paths.length - 1);
 			}
 			console.log('RELATIVE PATH:', args.relative_path, paths);
 			// do reduce on the paths array and for each name in the path
@@ -533,6 +533,20 @@ exports.inode_delete = function(req, res) {
 		// check inode ownership
 		common_api.check_ownership.bind(req),
 
+		// fail if dir is one of the root dirs of the user
+		function(inode, next) {
+			if (inode.parent === null) {
+				return next({
+					status: 400,
+					info: {
+						text: 'Directory Is Root',
+						id: id
+					}
+				});
+			}
+			return next(null, inode);
+		},
+
 		// for dirs count sons
 		Inode.countDirSons.bind(Inode),
 
@@ -677,8 +691,8 @@ function validate_inode_creation_conditions(inode, fobj, user, callback) {
 
 	var rejection = null;
 	//we currently have nothing special to test about a folder.
-	if (inode.isdir){
-		return callback(null,null);
+	if (inode.isdir) {
+		return callback(null, null);
 	}
 
 

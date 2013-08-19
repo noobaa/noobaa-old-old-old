@@ -102,6 +102,18 @@ function Inode($scope, id, name, isdir, parent) {
 	}
 }
 
+// return true for "My Data" and "Shared With Me"
+// which are user root dirs and shouldn't be modified.
+Inode.prototype.is_immutable_root = function() {
+	return this.level < 2;
+};
+
+Inode.prototype.is_dir_non_empty = function() {
+	return (this.isdir &&
+		(!_.isEmpty(this.dir_state.subdirs) || !_.isEmpty(this.dir_state.subfiles))
+	);
+};
+
 // construct a list of the path of dirs from the root down to this inode.
 Inode.prototype.get_path = function() {
 	var path = [];
@@ -257,10 +269,6 @@ Inode.prototype.mkdir = function(name) {
 Inode.prototype.delete_inode = function() {
 	var me = this;
 	var parent = this.parent;
-	if (!parent) {
-		console.error("You shouldn't delete root dir");
-		return;
-	}
 	return this.$scope.http({
 		method: 'DELETE',
 		url: this.$scope.inode_api_url + this.id
@@ -273,10 +281,6 @@ Inode.prototype.delete_inode = function() {
 Inode.prototype.rename = function(to_parent, to_name) {
 	var me = this;
 	var parent = this.parent;
-	if (!parent) {
-		console.error("You shouldn't rename root dir");
-		return;
-	}
 	return this.$scope.http({
 		method: 'PUT',
 		url: this.$scope.inode_api_url + this.id,
@@ -501,6 +505,10 @@ function setup_inodes_root_ctrl($scope, $timeout) {
 		if (event.type === 'drop' && drag_inode) {
 			// when drag is an inode, then move it under the drop dir
 			console.log('drag ' + drag_inode.name + ' drop ' + drop_inode.name);
+			if (drag_inode.is_immutable_root()) {
+				window.alert('Cannot move root folder');
+				return;
+			}
 			drag_inode.rename(drop_inode, drag_inode.name).on('all', function() {
 				// select the drop dir
 				$scope.select(drop_inode, {
@@ -720,6 +728,14 @@ function InodesMenuCtrl($scope) {
 			console.error('no selected dir, bailing');
 			return;
 		}
+		if (inode.is_immutable_root()) {
+			window.alert('Cannot delete root folder');
+			return;
+		}
+		if (inode.is_dir_non_empty()) {
+			window.alert('Cannot delete non-empty folder');
+			return;
+		}
 		inode.delete_inode().on('all', function() {
 			if (inode.id == $scope.inode_selection.inode.id) {
 				$scope.select(inode.parent, {
@@ -795,6 +811,10 @@ function RenameModalCtrl($scope) {
 		var inode = $scope.inode_selection.inode;
 		if (!inode) {
 			console.error('no selected inode, bailing');
+			return;
+		}
+		if (inode.is_immutable_root()) {
+			window.alert('Cannot rename root folder');
 			return;
 		}
 		if ($scope.new_name !== inode.name) {
