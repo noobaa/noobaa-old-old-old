@@ -18,6 +18,7 @@
 		}
 		#logobar {
 			-webkit-app-region: drag;
+			cursor: move;
 			background-color: #222222;
 			padding: 3px 20px 3px 20px;
 			margin-bottom: 30px;
@@ -27,33 +28,20 @@
 			height: 40px;
 		}
 		#logobar > a {
-			-webkit-app-region: no-drag;
+			/*-webkit-app-region: no-drag;*/
 		}
 		#logobar > button {
 			-webkit-app-region: no-drag;
 			margin-top: 8px;
 		}
-		#headline {
-			margin-bottom: 30px;
-			font-size: 30pt;
-			line-height: 30pt;
-		}
 		#info {
-			margin: 0 40px 0 40px;
+			margin: 0 30px 0 30px;
+			font-size: 16px;
+			line-height: 50px;
+			/*font-weight: 400;*/
 		}
-		#info, #info .badge {
-			font-size: 12pt;
-			font-weight: 400;
-		}
-		#info .badge {
-			padding: 4px;
-		}
-		#info .head_col {
-			padding-left: 30px;
-		}
-		#info .icon_col {
-			width: 40px;
-			text-align: right;
+		#info small {
+			font-size: 9pt;
 		}
 		#sketch {
 			background-image: url('/public/images/sketch_skate.png');
@@ -68,8 +56,9 @@
 
 <body ng-cloak ng-controller="PlanetCtrl">
 
-	<div id="logobar" ng-dblclick="toggle_beer()">
+	<div id="logobar">
 		<a data-title="You can double click"
+			ng-dblclick="toggle_fullscreen()"
 			data-placement="right" rel="tooltip">
 			<img src="/public/images/noobaa_logo.png"></img>
 		</a>
@@ -81,12 +70,14 @@
 		</button>
 	</div>
 
-	<div id="headline" class="fntpaint text-center">
-		Device Dashboard
-	</div>
-
 	<div id="info" class="fntread">
-		<div ng-show="!planet_user && !planet_loading" class="text-center ">
+		<div ng-show="!planet_user && !planet_loading" class="text-center">
+			<p class="lead">
+				<b>
+					Hi, Co-sharing on this device is simply done 
+					by using your facebook account:
+				</b>
+			</p>
 			<a ng-show="!planet_user"
 				ng-click="do_connect()" href="#"
 				style="margin-left: 10px">
@@ -100,73 +91,63 @@
 				Connecting...
 			</h3>
 		</div>
-		<table ng-show="planet_user && !planet_loading" class="table">
-			<tr>
-				<td class="head_col">User</td>
-				<!-- <td class="icon_col"></td> -->
-				<td>
-					<div class="dropdown">
-						<span class="dropdown-toggle"
-							data-toggle="dropdown"
-							id="userLabel"
-							style="cursor: pointer">
+		<div ng-show="planet_user && !planet_loading">
+			<table class="table">
+				<tr class="success">
+					<td><b>Status</b></td>
+					<td class="text-success">
+						<i class="icon-check icon-white 
+							icon-large icon-fixed-width"></i>
+						<b>Connected</b>
+					</td>
+					<td>
+						<a href="#" ng-click="open_help()">
+							<small>Help</small>
+						</a>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<div><b>User</b></div>
+					</td>
+					<td>
+						<div>
 							<i class="icon-user icon-white 
 								icon-large icon-fixed-width"></i>
 							<b>{{planet_user.name}}</b>
-						</span>
-						<ul class="dropdown-menu"
-							role="menu"
-							aria-labelledby="userLabel">
-							<li>
-								<a ng-click="do_disconnect()" href="#">
-									<i class="icon-signout icon-fixed-width"></i>
-									Disconnect...
-								</a>
-							</li>
-						</ul>
-					</div>
-				</td>
-			</tr>
-			<tr>
-				<td class="head_col">Device</td>
-				<!-- <td class="icon_col"></td> -->
-				<td>
-					<div ng-show="!planet_device"
-						class="badge">
-						Connecting...
-					</div>
-					<div ng-show="planet_device" class="dropdown">
-						<span class="dropdown-toggle"
-							data-toggle="dropdown"
-							id="devLabel"
-							style="cursor: pointer">
-							<i class="icon-desktop icon-white 
+						</div>
+					</td>
+					<td>
+						<a href="#" ng-click="do_logout()">
+							<small>Not {{planet_user.first_name}}? Logout...</small>
+						</a>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<div><b>Co-Shared Space</b></div>
+					</td>
+					<td>
+						<div>
+							<i class="icon-hdd icon-white 
 								icon-large icon-fixed-width"></i>
-							<b>{{planet_device.name}}</b>
-						</span>
-						<ul class="dropdown-menu" role="menu"
-							aria-labelledby="userLabel">
-							<li>
-								<a ng-click="reconnect_device()" href="#">
-									<i class="icon-repeat icon-fixed-width"></i>
-									Reconnect...
-								</a>
-							</li>
-						</ul>
-					</div>
-				</td>
-			</tr>
-			<tr>
-				<td class="head_col">Co-Shared Space</td>
-				<!-- <td class="icon_col"></td> -->
-				<td>
-					<i class="icon-hdd icon-white 
-						icon-large icon-fixed-width"></i>
-					<b>{{ human_size(planetfs.total_size()) }}</b>
-					<a href="#" class="btn btn-link">Increase...</a>
-				</td>
-			</tr>
-		</table>
+							<b>{{ human_size(planetfs.total_size()) }}</b>
+						</div>
+					</td>
+					<td>
+						<a href="#" ng-click="open_settings()">
+							<small>Change Settings...</small>
+						</a>
+					</td>
+				</tr>
+			</table>
+			<div class="text-center">
+				<button class="btn btn-large btn-primary"
+					ng-click="open_noobaa()">
+					Go to My Data
+				</button>
+			</div>
+		</div>
 	</div>
 
 	<div id="sketch_place">

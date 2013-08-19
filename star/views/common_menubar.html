@@ -7,7 +7,7 @@
 	MenuBarCtrl.$inject = ['$scope', '$location'];
 </script>
 
-<div class="nb_navbar navbar navbar-inverse navbar-fixed-top"
+<div class="nb_navbar navbar navbar-inverse"
 	ng-controller="MenuBarCtrl">
 	<div class="nb_page_pad navbar-inner fntread fntwht">
 		<a id="logo_link" class="brandy pull-left scroller" href="/">
@@ -47,14 +47,14 @@
 					</li>
 					<li class="divider"></li>
 					<li>
-						<a class="btn btn-link disabled" href="#">
-							<i class='icon-cog pull-left'></i>
-							Account
+						<a class="btn btn-link" href="/settings">
+							<i class='icon-cog icon-fixed-width pull-left'></i>
+							Account Settings
 						</a>
 					</li>
-					<li>
+					<li >
 						<a class="btn btn-link" href="/auth/logout/">
-							<i class='icon-signout pull-left'></i>
+							<i class='icon-signout icon-fixed-width pull-left'></i>
 							Logout
 						</a>
 					</li>

@@ -11,12 +11,10 @@ html, body {
 .nb_navbar {
 	width: 100% !important;
 	margin: 0 !important;
-	z-index: 100;
 }
 
 .navbar-inner {
-	opacity: 0.85;
-	background-color: #222222 !important;
+	background-color: rgba(34,34,34,0.9) !important;
 	background-image: none !important;
 }
 
@@ -49,14 +47,7 @@ html, body {
 }
 
 .nb_nav_top_pad {
-	padding-top: 70px;
-}
-@media all and (max-width: 980px) {
-	/* at width 980 bootstrap changes the nav from fixed to static
-		so we need to adjust the padding */
-	.nb_nav_top_pad {
-		padding-top: 30px;
-	}
+	padding-top: 30px;
 }
 
 /*.active > a {

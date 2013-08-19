@@ -164,15 +164,22 @@ app.use(function(err, req, res, next) {
 
 function error_404(req, res, next) {
 	next({
-		status: 404,
-		message: 'We dug the earth, but we can\'t find ' + req.originalUrl
+		status: 404, // not found
+		message: 'We dug the earth, but couldn\'t find ' + req.originalUrl
 	});
 }
 
 function error_403(req, res, next) {
 	next({
-		status: 403,
+		status: 403, // forbidden
 		message: 'Forgot to login?'
+	});
+}
+
+function error_501(req, res, next) {
+	next({
+		status: 501, // not implemented
+		message: 'Working on it... ' + req.originalUrl
 	});
 }
 
@@ -236,8 +243,8 @@ app.get('/planet', function(req, res) {
 		frame: false,
 		resizable: false,
 		position: "mouse",
-		width: 600,
-		height: 320
+		width: 550,
+		height: 300
 	}));
 	res.write(');');
 	res.write('</script></body></html>');
@@ -281,6 +288,14 @@ app.get('/thankyou', function(req, res) {
 	// return res.redirect('/mydata');
 	// }
 	return res.render('thankyou.html', common_api.page_context(req));
+});
+
+app.get('/help', redirect_no_user, function(req, res, next) {
+	return error_501(req, res, next);
+});
+
+app.get('/settings', redirect_no_user, function(req, res, next) {
+	return error_501(req, res, next);
 });
 
 app.get('/mydevices', redirect_no_user, function(req, res) {

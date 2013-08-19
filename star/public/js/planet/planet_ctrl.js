@@ -34,15 +34,15 @@ function PlanetCtrl($scope, $http, $timeout) {
 		}
 	};
 
-	$scope.is_beer = false;
-	$scope.toggle_beer = function() {
-		$scope.is_beer = gui.Window.get().isFullscreen = !$scope.is_beer;
-		$('#sketch').css('height', ($scope.is_beer ? '400px':'0'));
+	$scope.is_fullscreen = false;
+	$scope.toggle_fullscreen = function() {
+		$scope.is_fullscreen = gui.Window.get().isFullscreen = !$scope.is_fullscreen;
+		$('#sketch').css('height', ($scope.is_fullscreen ? '400px' : '0'));
 	};
 
 	$scope.hide_win = function() {
-		if ($scope.is_beer) {
-			$scope.toggle_beer();
+		if ($scope.is_fullscreen) {
+			$scope.toggle_fullscreen();
 		}
 		gui.Window.get().hide();
 	};
@@ -56,9 +56,27 @@ function PlanetCtrl($scope, $http, $timeout) {
 		w.requestAttention(true);
 	};
 
+	$scope.open_noobaa = function(path) {
+		// using the same host and protocol as the local window
+		// to support also testing env.
+		var url = window.location.protocol + '//' +
+			window.location.host + (path || '/');
+		gui.Shell.openExternal(url);
+	};
+
+	$scope.open_settings = function() {
+		$scope.open_noobaa('/settings');
+	}
+
+	$scope.open_help = function() {
+		$scope.open_noobaa('/help');
+	}
+
 	// terminate the entire application
 	$scope.quit = function() {
-		var q = 'Closing the application will stop the co-sharing. Are you sure?';
+		var q = 'Closing the application will stop co-sharing, ' +
+			'which will affect your account quota and performance.\n\n' +
+			'Click "Cancel" to keep co-sharing:';
 		if (window.confirm(q)) {
 			gui.App.quit();
 		}
@@ -72,37 +90,21 @@ function PlanetCtrl($scope, $http, $timeout) {
 	if (!global.tray) {
 		global.tray = new gui.Tray({
 			title: 'NooBaa',
-			tooltip: 'Click to open NooBaa\'s Dashboard...',
+			tooltip: 'Click to Go to NooBaa...',
 			icon: 'noobaa_icon.ico',
 			menu: new gui.Menu()
 		});
-		global.tray.on('click', $scope.open);
+		global.tray.on('click', $scope.open_noobaa);
 
 		// create tray menu
 		var m = global.tray.menu;
 		m.append(new gui.MenuItem({
-			label: 'NooBaa\'s Dashboard',
+			label: 'Go to NooBaa',
+			click: $scope.open_noobaa
+		}));
+		m.append(new gui.MenuItem({
+			label: 'Manage Device',
 			click: $scope.open
-		}));
-		m.append(new gui.MenuItem({
-			label: 'Launch NooBaa Website',
-			click: function() {
-				gui.Shell.openExternal('http://www.noobaa.com');
-			}
-		}));
-		m.append(new gui.MenuItem({
-			type: 'separator'
-		}));
-		// TODO: show only for development
-		m.append(new gui.MenuItem({
-			label: '(Reload)',
-			click: $scope.reload_home
-		}));
-		m.append(new gui.MenuItem({
-			label: '(Show Dev Tools)',
-			click: function() {
-				gui.Window.get().showDevTools();
-			}
 		}));
 		m.append(new gui.MenuItem({
 			type: 'separator'
@@ -118,6 +120,11 @@ function PlanetCtrl($scope, $http, $timeout) {
 	// after all is inited, open the window
 	$scope.open();
 
+	// pass "secret" argument to open dev tools
+	if (gui.App.argv.length && gui.App.argv[0] === '--noobaadev') {
+		gui.Window.get().showDevTools();
+	}
+
 
 
 	////////////////////////////////////////////////////////////
@@ -125,7 +132,7 @@ function PlanetCtrl($scope, $http, $timeout) {
 
 	// init the planet authentication.
 	// user login state
-	$scope.planet_loading = true;
+	$scope.planet_loading = false;
 	$scope.planet_user = null;
 
 	// update the connect frame src to load a new url
@@ -158,8 +165,10 @@ function PlanetCtrl($scope, $http, $timeout) {
 	};
 
 	// logout - mostly for testing
-	$scope.do_disconnect = function() {
-		var q = 'Disconnecting will stop the co-sharing. Are you sure?';
+	$scope.do_logout = function() {
+		var q = 'Logging out will stop co-sharing, ' +
+			'which will affect your account quota and performance.\n\n' +
+			'Click "Cancel" to keep co-sharing:';
 		if (window.confirm(q)) {
 			$scope.auth_frame_path('/auth/logout/?state=/planet/auth');
 		}
