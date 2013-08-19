@@ -347,6 +347,9 @@ function inode_create_action(inode, fobj, user, relative_path, callback) {
 			// make an array out of the relative path names
 			// and compact it to remove any empty strings
 			var paths = _.compact(relative_path.split('/'));
+			if (paths.length && paths[paths.length - 1] === inode.name) {
+				paths = paths.slice(0, paths.length - 1);
+			}
 			console.log('RELATIVE PATH:', relative_path, paths);
 			// do reduce on the paths array and for each name in the path
 			// try to find existing dir, or otherwise create it,
@@ -549,6 +552,17 @@ function inode_delete_action(inode_id, user_id, callback) {
 
 		// check inode ownership
 		common_api.check_ownership2.bind(null, user_id),
+
+		// fail if dir is one of the root dirs of the user
+		function(inode, next) {
+			if (inode.parent === null) {
+				return next({
+					status: 400,
+					info: 'Cannot Delete Root'
+				});
+			}
+			return next(null, inode);
+		},
 
 		// for dirs count sons
 		Inode.countDirSons.bind(Inode),
