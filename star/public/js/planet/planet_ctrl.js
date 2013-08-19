@@ -66,11 +66,11 @@ function PlanetCtrl($scope, $http, $timeout) {
 
 	$scope.open_settings = function() {
 		$scope.open_noobaa('/settings');
-	}
+	};
 
 	$scope.open_help = function() {
 		$scope.open_noobaa('/help');
-	}
+	};
 
 	// terminate the entire application
 	$scope.quit = function() {
