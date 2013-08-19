@@ -57,6 +57,34 @@ function check_ownership(obj, next) {
 	return next(null, obj);
 }
 
+function check_ownership2(user_id, obj, next) {
+	/* jshint validthis:true */
+	if (!obj) {
+		return next({
+			status: 404, // HTTP Not Found
+			info: 'Not Found'
+		});
+	}
+	var luser_id;
+	if (user_id instanceof mongoose.Types.ObjectId) {
+		console.log('user_id is ObjectId');
+		luser_id = user_id;
+	} else {
+		luser_id = mongoose.Types.ObjectId(user_id);
+	}
+
+	console.log('in here2	?!');
+	if (!luser_id.equals(obj.owner)) {
+		console.log('MF....');
+		return next({
+			status: 403, // HTTP Forbidden
+			info: 'User Not Owner'
+		});
+	}
+	console.log("will return to next");
+	return next(null, obj);
+}
+
 function page_context(req) {
 	return {
 		user: req.user,
@@ -69,4 +97,5 @@ function page_context(req) {
 
 exports.reply_callback = reply_callback;
 exports.check_ownership = check_ownership;
+exports.check_ownership2 = check_ownership2;
 exports.page_context = page_context;

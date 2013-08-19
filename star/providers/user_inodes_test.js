@@ -25,7 +25,7 @@ exports.test_user_inodes = {
 			});
 
 			db = mongoose.connect(process.env.MONGOHQ_URL);
-			console.log('Started connection, waiting for it to open');
+			console.log('\nStarted connection, waiting for it to open');
 		} catch (err) {
 			console.log('Setting up failed:', err.message);
 		}
@@ -40,9 +40,9 @@ exports.test_user_inodes = {
 				test.ifError(err);
 				return test.done();
 			}
-			console.log(user.id);
+			// console.log(user.id);
 			user_inodes.get_user_usage_bytes(user.id, function(err, result) {
-				console.log(result);
+				// console.log(result);
 				test.notEqual(result, 0, 'Quota for user was zero');
 				test.ifError(err);
 				test.done();
