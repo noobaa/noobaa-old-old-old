@@ -114,7 +114,7 @@ function inode_to_entry(inode, opt) {
 		if (opt.s3_post) {
 			// add S3 post info only if requested specifically
 			// this requires signing which might be heavy if done all the time.
-			ent.s3_post_info = s3_post_info(opt.fobj._id, inode.name, opt.content_type);
+			ent.s3_post_info = s3_post_info(opt.fobj._id, inode.name, opt.fobj.content_type);
 		}
 		if (opt.s3_get) {
 			// add S3 get info only if requested specifically
@@ -293,21 +293,35 @@ exports.inode_create = function(req, res) {
 
 	// prepare fobj if needed (auto generate id).
 	// then also set the link in the new inode.
+	var fobj;
 	if (!inode.isdir && args.uploading) {
-		var fobj = new Fobj({
+		fobj = new Fobj({
 			size: args.size,
 			uploading: args.uploading,
-			upsize: args.upsize
+			upsize: args.upsize,
+			content_type: args.content_type
 		});
 		// link the inode to the fobj
 		inode.fobj = fobj._id;
 	}
 
+	return inode_create_action(inode,
+		fobj,
+		req.user,
+		args.relative_path,
+		common_api.reply_callback.bind(res, 'INODE CREATE ' + inode._id));
+
+};
+
+exports.inode_create_action = inode_create_action;
+
+function inode_create_action(inode, fobj, user, relative_path, callback) {
+
 	// start the create waterfall
 	async.waterfall([
 
 		function(next) {
-			return validate_inode_creation_conditions(inode, fobj, req.user, function(err, rejection) {
+			return validate_inode_creation_conditions(inode, fobj, user, function(err, rejection) {
 				if (err) {
 					return next(err);
 				}
@@ -327,22 +341,19 @@ exports.inode_create = function(req, res) {
 		// create relative path if needed
 		// and update the created dir as the new inode parent
 		function(next) {
-			if (!args.relative_path) {
+			if (!relative_path) {
 				return next();
 			}
 			// make an array out of the relative path names
 			// and compact it to remove any empty strings
-			var paths = _.compact(args.relative_path.split('/'));
-			if (paths.length && paths[paths.length - 1] === args.name) {
-				paths = paths.slice(0, paths.length - 1);
-			}
-			console.log('RELATIVE PATH:', args.relative_path, paths);
+			var paths = _.compact(relative_path.split('/'));
+			console.log('RELATIVE PATH:', relative_path, paths);
 			// do reduce on the paths array and for each name in the path
 			// try to find existing dir, or otherwise create it,
 			// and pass the parent to the next step.
-			return async.reduce(paths, args.id, function(parent_id, name, next) {
+			return async.reduce(paths, inode.parent, function(parent_id, name, next) {
 				return Inode.findOneAndUpdate({
-					owner: req.user.id,
+					owner: user.id,
 					parent: parent_id,
 					name: name,
 					isdir: true
@@ -387,15 +398,13 @@ exports.inode_create = function(req, res) {
 		function(next) {
 			return next(null, inode_to_entry(inode, {
 				fobj: fobj,
-				s3_post: true,
-				content_type: args.content_type
+				s3_post: true
 			}));
 		}
 
 		// waterfall end
-	], common_api.reply_callback.bind(res, 'INODE CREATE ' + inode._id));
-};
-
+	], callback);
+}
 
 // INODE CRUD - READ
 
@@ -517,35 +526,29 @@ exports.inode_update = function(req, res) {
 exports.inode_delete = function(req, res) {
 
 	// the inode_id param is parsed as url param (/path/to/api/:inode_id/...)
-	var id = req.params.inode_id;
+	return inode_delete_action(req.params.inode_id,
+		req.user.id,
+		common_api.reply_callback.bind(res, 'INODE DELETE ' + req.params.inode_id));
+};
+
+exports.inode_delete_action = inode_delete_action;
+
+function inode_delete_action(inode_id, user_id, callback) {
+	// return callback(null,'just cant get ebough');
 
 	// start the delete waterfall
 	async.waterfall([
 
 		// pass the id
 		function(next) {
-			return next(null, id);
+			return next(null, inode_id);
 		},
 
 		// find the inode
 		Inode.findById.bind(Inode),
 
 		// check inode ownership
-		common_api.check_ownership.bind(req),
-
-		// fail if dir is one of the root dirs of the user
-		function(inode, next) {
-			if (inode.parent === null) {
-				return next({
-					status: 400,
-					info: {
-						text: 'Directory Is Root',
-						id: id
-					}
-				});
-			}
-			return next(null, inode);
-		},
+		common_api.check_ownership2.bind(null, user_id),
 
 		// for dirs count sons
 		Inode.countDirSons.bind(Inode),
@@ -558,7 +561,7 @@ exports.inode_delete = function(req, res) {
 					status: 400,
 					info: {
 						text: 'Directory Not Empty',
-						id: id
+						id: inode_id
 					}
 				});
 			}
@@ -574,7 +577,7 @@ exports.inode_delete = function(req, res) {
 				Bucket: process.env.S3_BUCKET,
 				Key: fobj_s3_key(inode.fobj)
 			};
-			console.log('S3 OBJECT DELETE:', id);
+			console.log('S3 OBJECT DELETE:', inode_id);
 			return S3.deleteObject(params, function(err) {
 				return next(err, inode);
 			});
@@ -585,7 +588,7 @@ exports.inode_delete = function(req, res) {
 			if (!inode.fobj) {
 				return next(null, inode);
 			}
-			console.log('FOBJ DELETE:', id);
+			console.log('FOBJ DELETE:', inode_id);
 			return Fobj.findByIdAndRemove(inode.fobj, function(err) {
 				return next(err, inode);
 			});
@@ -593,15 +596,21 @@ exports.inode_delete = function(req, res) {
 
 		// delete the inode itself
 		function(inode, next) {
-			console.log('INODE DELETE:', id);
+			console.log('INODE DELETE:', inode_id);
 			return inode.remove(function(err) {
 				return next(err, 'OK');
 			});
 		}
 
 		// waterfall end
-	], common_api.reply_callback.bind(res, 'INODE DELETE ' + id));
-};
+		// ], callback);
+	], function(err, result) {
+		console.log(err);
+		console.log(result);
+		callback(err, result);
+	});
+}
+
 
 exports.inode_get_share_list = function(req, res) {
 	console.log("star_api::inode_get_share_list");

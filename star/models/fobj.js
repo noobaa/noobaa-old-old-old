@@ -6,6 +6,7 @@ var mongoose = require('mongoose');
 var fobj_schema = new mongoose.Schema({
 	size: Number,
 	uploading: Boolean,
+	content_type: String,
 	upsize: Number
 });
 
