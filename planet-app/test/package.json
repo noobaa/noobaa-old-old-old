@@ -1,6 +1,6 @@
 {
 	"name": "NooBaaApp",
-	"description": "NooBaa App",
+	"description": "NooBaaApp",
 	"version": "0.1",
 	"main": "http://127.0.0.1:5000/planet",
 	"node-remote": "127.0.0.1:5000",
