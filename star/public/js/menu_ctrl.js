@@ -97,7 +97,7 @@ function MenuBarCtrl($scope, $location) {
 		} else {
 			this.tour.start();
 		}
-	}
+	};
 
 	global_menu_bar_rewind_guide = function() {
 		console.log($scope.running_guide);
@@ -149,7 +149,7 @@ function MenuBarCtrl($scope, $location) {
 			'<p>The first button you should meet is this upload button on the left.</p>',
 			'<p>Use it and upload files to your account.</p>'
 		].join('\n')
-	}
+	};
 	$scope.guides.welcome.steps[2] = {
 		element: "#my_guides",
 		placement: 'bottom',
@@ -257,7 +257,7 @@ function MenuBarCtrl($scope, $location) {
 		content: [
 			'<p>This is where you manage your devices.</p>'
 		].join('\n')
-	}
+	};
 	$scope.guides.cosharing.steps[3] = {
 		element: "#dl",
 		placement: 'top',
