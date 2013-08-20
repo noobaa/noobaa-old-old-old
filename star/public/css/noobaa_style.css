@@ -106,10 +106,25 @@ html, body {
 }
 
 .fnttour {
-	font-family: 'Comfortaa', cursive;
-	font-size: 14pt;
-	line-height: 14pt;
+	font-family: 'Finger Paint', cursive;
+	font-size: 18pt;
+	line-height: 30pt;
 	font-weight: 300;
+}
+.tour .popover-content {
+	background-color: rgba(180,80,170,0.3);
+}
+.tour .popover-title, .tour .popover-navigation {
+	background-color: rgba(180,80,80,0.7);
+}
+.tour *[data-role].disabled {
+	opacity: 0.15;
+}
+.tour *[data-role=end] {
+	color: #303030;
+}
+.tour *[data-role=end]:hover {
+	color: #101010;
 }
 
 /* GOOGLE FONTS */
