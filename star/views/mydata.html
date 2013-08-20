@@ -198,7 +198,8 @@
 			<div ng-controller="InodesListCtrl"
 				ng-include="'list_view_template.html'"
 				class="roundbord bglight"
-				style="min-height: 300px">
+				style="min-height: 300px"
+				id="inodes_list">
 			</div>
 		</div>
 	</div>
@@ -299,6 +300,7 @@
 			</button>
 			<!-- The fileinput-button span is used to style the file input field as button -->
 			<span ng-show="curr_dir_refresh_failed"
+				id="choose_file_button"
 				class="btn btn-primary fileinput-button">
 				Choose Files
 				<input id="file_upload_input"

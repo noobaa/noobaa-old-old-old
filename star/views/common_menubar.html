@@ -38,6 +38,40 @@
 					</li>
 				</ul>
 			</li>
+			<li>
+				<a id="my_feedback"
+					href="#"
+					role="button"
+					data-target="#feedback_modal" 
+					data-toggle="modal"
+					data-title="Give feedback..."
+					data-placement="left" rel="tooltip">
+					<i class="icon-comments icon-large text-info"></i>
+				</a>
+				<div id="feedback_modal"
+					class="modal hide fade fntblk" 
+					tabindex="-1" 
+					role="dialog" 
+					aria-labelledby="feedback_modal_label" 
+					aria-hidden="true">
+					<div class="modal-header text-center">
+						<a type="button" class="close" data-dismiss="modal">×</a>
+						<h1 id="feedback_modal_label">
+							<i class="icon-comments icon-large text-info"></i>
+							Talk To Us
+						</h1>
+					</div>
+					<div class="modal-body text-center">
+						<textarea ng-model="feedback_text"
+							style="width: 90%" rows="3"></textarea>
+					</div>
+					<div class="modal-footer">
+						<button class="btn pull-left" data-dismiss="modal">Close</button>
+						<button class="btn btn-primary"	data-dismiss="modal" 
+							ng-click="submit_feedback()">Submit</button>
+					</div>
+				</div>
+			</li>
 			<li class="dropdown">
 				<a class="dropdown-toggle"
 					id="user_label" role="button"

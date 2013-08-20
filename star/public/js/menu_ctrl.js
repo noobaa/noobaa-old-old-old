@@ -38,11 +38,16 @@ function MenuBarCtrl($scope, $location) {
 		this.title = title;
 		this.steps = [];
 		this.completed_steps = parseInt(localStorage[name + '_completed_steps'], 10) || 0;
+		this.was_started = localStorage[name + '_was_started'] === 'true';
 		this.tour = new Tour({
 			name: name,
 			debug: true,
 			template: guide_template,
 			onStart: function() {
+				if (!me.was_started) {
+					me.was_started = true;
+					localStorage[name + '_was_started'] = 'true';
+				}
 				if ($scope.running_guide) {
 					$scope.running_guide.tour.end();
 				}
@@ -63,7 +68,7 @@ function MenuBarCtrl($scope, $location) {
 
 	// called after the steps array is full and ready.
 	// it should remain unchanged once it is called.
-	Guide.prototype.steps_ready = function() {
+	Guide.prototype.steps_ready = function(auto_start) {
 		var me = this;
 		_.each(this.steps, function(step) {
 			// link backwards. helpfull in the template function
@@ -72,11 +77,13 @@ function MenuBarCtrl($scope, $location) {
 		// add the steps array to the tour.
 		this.tour.addSteps(this.steps);
 		// handle redirections here - need to start the tour which did redirect
-		// so we identify simply by the first that's not ended and not on first step.
-		if (!this.tour.ended() && this.tour._current && !$scope.running_guide) {
-			this.tour.start();
+		// so we identify simply by the first that's not ended.
+		console.log(this);
+		if (!this.tour.ended() && !$scope.running_guide) {
+			if (this.was_started || (!this.was_started && auto_start)) {
+				this.tour.start();
+			}
 		}
-		// console.log(this);
 	};
 
 	Guide.prototype.is_completed = function() {
@@ -113,7 +120,7 @@ function MenuBarCtrl($scope, $location) {
 		new Guide('open_file', 'Accessing'),
 		new Guide('share_file', 'Sharing'),
 		new Guide('shared_with_me', 'Shared with me'),
-		new Guide('cosharing', 'Co-Sharing the cloud')
+		new Guide('cosharing', 'Co-Sharing into the cloud')
 	];
 
 	// also create map by name for easier access
@@ -126,10 +133,10 @@ function MenuBarCtrl($scope, $location) {
 	//// WELCOME ////
 
 	$scope.guides.welcome.steps[0] = {
-		element: "#logo_link",
+		element: '#logo_link',
 		placement: 'bottom',
 		backdrop: true,
-		title: "WELCOME",
+		title: 'WELCOME',
 		content: [
 			'<p>Hi,</p>',
 			'<p>NooBaa was created for you to finally be able to',
@@ -139,43 +146,103 @@ function MenuBarCtrl($scope, $location) {
 		].join('\n')
 	};
 	$scope.guides.welcome.steps[1] = {
-		element: "#upload_button",
+		element: '#upload_button',
 		placement: 'right',
-		path: "/mydata",
+		path: '/mydata',
 		backdrop: false,
-		title: "UPLOAD",
+		title: 'UPLOAD',
 		content: [
 			'<p>The first button you should meet is this upload button on the left.</p>',
 			'<p>Use it and upload files to your account.</p>'
 		].join('\n')
 	};
 	$scope.guides.welcome.steps[2] = {
-		element: "#my_guides",
+		element: '#my_guides',
 		placement: 'bottom',
-		path: "/mydata",
+		path: '/mydata',
 		backdrop: true,
-		title: "WHAT'S NEXT",
+		title: 'WHAT\'S NEXT',
 		content: [
-			'<p>OK, You are ready to explore on your own.</p>',
-			'<p>When you want to learn more,</p>',
-			'<p>check out the next guides using this button (<i class="icon-info-sign text-info"></i>)</p>',
-			'<p>Feel free to tell us what you think. We want to know.</p>',
+			'<p>OK,</p><p>You are ready to explore on your own.</p>',
+			'<p>When you want to learn more, ',
+			'check out the next guides using this button ',
+			'(<i class="icon-info-sign text-info"></i>)</p>',
+			'<p>Feel free to tell us what you think ',
+			'using the feedback button (<i class="icon-comments text-info"></i>), ',
+			'we want to know. </p>',
 			'<p>Have a good one!</p>',
 			'<p>- The NooBaa Team -</p>'
 		].join('\n')
 	};
-	$scope.guides.welcome.steps_ready();
+	$scope.guides.welcome.steps_ready(true);
 
 
 	//// UPLOAD FILE ////
 
+	$scope.unique_handler_num = 1;
+
+	function make_modal_handler(modal_element, is_show) {
+		return function() {
+			var op = is_show ? 'show' : 'hide';
+			var m = $(modal_element);
+			console.log('MODAL', m);
+			m.modal(op);
+			return {
+				then: function(callback) {
+					var visible = m.is(':visible');
+					var ev = (is_show ? 'shown' : 'hidden') +
+						'.tour_promise_' + $scope.unique_handler_num;
+					console.log('THEN', op, visible, ev);
+					if (is_show === visible) {
+						console.log('ALREADY VISIBLE', op);
+						callback();
+						return;
+					}
+					$scope.unique_handler_num++;
+					m.on(ev, function() {
+						console.log('PROMISE', op, ev);
+						m.off(ev);
+						callback();
+					});
+				}
+			};
+		};
+	}
+
 	$scope.guides.upload_file.steps[0] = {
-		element: "#my_guides",
-		placement: 'bottom',
-		backdrop: true,
-		title: "",
+		element: '#upload_button',
+		placement: 'right',
+		path: '/mydata',
+		backdrop: false,
+		reflex: true,
+		title: 'UPLOAD',
 		content: [
-			'<p>OK, lets go.</p>'
+			'<p>So you want to know how to upload.</p>',
+			'<p>Great, let\'s go.</p>',
+			'<p>Push the upload button to open the upload dialog...</p>',
+		].join('\n'),
+		onNext: make_modal_handler('#upload_modal', true)
+	};
+	$scope.guides.upload_file.steps[1] = {
+		container: '#upload_modal',
+		element: '#choose_file_button',
+		placement: 'bottom',
+		path: '/mydata',
+		title: 'CHOOSE FILES',
+		content: [
+			'<p>Here you can open the file chooser.</p>',
+		].join('\n'),
+		onShow: make_modal_handler('#upload_modal', true),
+		onHide: make_modal_handler('#upload_modal', false)
+	};
+	$scope.guides.upload_file.steps[2] = {
+		element: '#inodes_list',
+		placement: 'top',
+		path: '/mydata',
+		// backdrop: true,
+		title: 'DONE',
+		content: [
+			'<p>You can see your uploads in the current folder</p>',
 		].join('\n')
 	};
 	$scope.guides.upload_file.steps_ready();
