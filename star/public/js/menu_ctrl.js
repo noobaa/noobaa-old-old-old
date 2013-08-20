@@ -1,4 +1,5 @@
-var global_menu_bar_rewind_guide;
+var global_menu_bar_first_guide;
+var global_menu_bar_last_guide;
 
 MenuBarCtrl.$inject = ['$scope', '$location'];
 
@@ -12,18 +13,20 @@ function MenuBarCtrl($scope, $location) {
 		return [
 			'<div class="popover tour" style="max-width: 500px">',
 			'  <div class="arrow"></div>',
-			'  <h1 class="popover-title fntread"></h1>',
+			'  <div class="popover-title fnttour"></div>',
 			'  <div class="popover-content fnttour"></div>',
-			'  <div class="popover-navigation text-center">',
-			'    <span class="pull-left fnttour">', (i + 1), '/', step.guide.steps.length, '</span>',
-			'    <a href="#" data-role="rewind" onclick="global_menu_bar_rewind_guide()">',
-			'      <i class="icon-fast-backward icon-3x icon-fixed-width"></i></a>',
-			'    <a href="#" data-role="prev">',
-			'      <i class="icon-step-backward icon-3x icon-fixed-width"></i></a>',
-			'    <a href="#" data-role="end">',
-			'      <i class="icon-stop icon-3x icon-fixed-width"></i></a>',
-			'    <a href="#" data-role="next">',
-			'      <i class="icon-play icon-3x icon-fixed-width"></i></a>',
+			'  <div class="popover-navigation fnttour text-center">',
+			'    <span class="pull-left">', (i + 1), '/', step.guide.steps.length, '</span>',
+			'    <a href="#" data-role="first" onclick="global_menu_bar_first_guide()">',
+			'      <i class="icon-fast-backward icon icon-fixed-width"></i></a>',
+			'    <a href="#" data-role="prev" class="btn btn-inverse">',
+			'      <i class="icon-step-backward icon-2x icon-fixed-width text-info"></i></a>',
+			'    <a href="#" data-role="next" class="btn btn-inverse">',
+			'      <i class="icon-step-forward icon-2x icon-fixed-width text-info"></i></a>',
+			'    <a href="#" data-role="last" onclick="global_menu_bar_last_guide()">',
+			'      <i class="icon-fast-forward icon icon-fixed-width"></i></a>',
+			'    <a href="#" data-role="end" class="pull-right">',
+			'      <i class="icon-remove icon-large icon-fixed-width fntblk"></i></a>',
 			'  </div>',
 			'</div>'
 		].join('\n');
@@ -105,10 +108,17 @@ function MenuBarCtrl($scope, $location) {
 		}
 	};
 
-	global_menu_bar_rewind_guide = function() {
+	global_menu_bar_first_guide = function() {
 		console.log($scope.running_guide);
 		if ($scope.running_guide) {
 			$scope.running_guide.tour.goto(0);
+		}
+		$scope.safe_apply();
+	};
+	global_menu_bar_last_guide = function() {
+		console.log($scope.running_guide);
+		if ($scope.running_guide) {
+			$scope.running_guide.tour.goto($scope.running_guide.steps.length-1);
 		}
 		$scope.safe_apply();
 	};
@@ -120,7 +130,7 @@ function MenuBarCtrl($scope, $location) {
 		new Guide('open_file', 'Accessing'),
 		new Guide('share_file', 'Sharing'),
 		new Guide('shared_with_me', 'Shared with me'),
-		new Guide('cosharing', 'Co-Sharing into the cloud')
+		new Guide('cosharing', 'Co-Sharing')
 	];
 
 	// also create map by name for easier access
@@ -136,24 +146,24 @@ function MenuBarCtrl($scope, $location) {
 		element: '#logo_link',
 		placement: 'bottom',
 		backdrop: true,
-		title: 'WELCOME',
+		title: 'WELCOME TO NOOBAA',
 		content: [
-			'<p>Hi,</p>',
-			'<p>NooBaa was created for you to finally be able to',
-			'Access, Share and Protect</p>',
-			'<p><b>EVERY</b> file you have from anywhere,</p>',
-			'<p>including your extreme media files!</p>'
+			'<p>Use NooBaa for <b>extreme media files!</b></p>',
+			'<p>Unlike Dropbox it is <b>FREE</b> for any capacity!',
+			'The Crowd makes it so . . .</p>'
 		].join('\n')
 	};
 	$scope.guides.welcome.steps[1] = {
-		element: '#upload_button',
-		placement: 'right',
+		element: '#main-btn-group',
+		placement: 'bottom',
 		path: '/mydata',
-		backdrop: false,
+		backdrop: true,
 		title: 'UPLOAD',
 		content: [
-			'<p>The first button you should meet is this upload button on the left.</p>',
-			'<p>Use it and upload files to your account.</p>'
+			'<p>Use the upload button',
+			'<a class="btn btn-success" href="#"><i class="icon-cloud-upload"></i></a>',
+			'to upload files to your account.</p>',
+			'<p>They will remain private until you share them.</p>',
 		].join('\n')
 	};
 	$scope.guides.welcome.steps[2] = {
@@ -163,15 +173,14 @@ function MenuBarCtrl($scope, $location) {
 		backdrop: true,
 		title: 'WHAT\'S NEXT',
 		content: [
-			'<p>OK,</p><p>You are ready to explore on your own.</p>',
-			'<p>When you want to learn more, ',
-			'check out the next guides using this button ',
-			'(<i class="icon-info-sign text-info"></i>)</p>',
-			'<p>Feel free to tell us what you think ',
-			'using the feedback button (<i class="icon-comments text-info"></i>), ',
-			'we want to know. </p>',
-			'<p>Have a good one!</p>',
-			'<p>- The NooBaa Team -</p>'
+			// '<p>You have taken the first step in the way of the NooBaa!</p>',
+			'<p>When you are ready to master <b>Sharing</b> and <b>Co-Sharing</b>, ',
+			'check out the guide button ',
+			'<i class="icon-info-sign text-info"></i></p>',
+			'<p>Use the feedback button <i class="icon-comments text-info"></i>',
+			'frequently, it is very rewarding.</p>',
+			// '<p>Have a good one!</p>',
+			'<p class="text-right">- The NooBaa Team -</p>'
 		].join('\n')
 	};
 	$scope.guides.welcome.steps_ready(true);
