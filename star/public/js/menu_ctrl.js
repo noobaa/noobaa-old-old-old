@@ -15,8 +15,7 @@ function MenuBarCtrl($scope, $location) {
 			'  <h1 class="popover-title fntread"></h1>',
 			'  <div class="popover-content fnttour"></div>',
 			'  <div class="popover-navigation text-center">',
-			'    <span class="pull-left fnttour">',
-					(i+1),'/',step.guide.steps.length,'</span>',
+			'    <span class="pull-left fnttour">', (i + 1), '/', step.guide.steps.length, '</span>',
 			'    <a href="#" data-role="rewind" onclick="global_menu_bar_rewind_guide()">',
 			'      <i class="icon-fast-backward icon-3x icon-fixed-width"></i></a>',
 			'    <a href="#" data-role="prev">',
@@ -38,7 +37,7 @@ function MenuBarCtrl($scope, $location) {
 		// the title property is used by us when presenting the list of guides
 		this.title = title;
 		this.steps = [];
-		this.completed = localStorage[name + '_completed'] === 'true';
+		this.completed_steps = parseInt(localStorage[name + '_completed_steps'], 10) || 0;
 		this.tour = new Tour({
 			name: name,
 			debug: true,
@@ -51,10 +50,10 @@ function MenuBarCtrl($scope, $location) {
 				$scope.safe_apply();
 			},
 			onEnd: function() {
-				if (me.tour._current + 1 === me.steps.length) {
-					// mark persistent completion when last step is reached
-					localStorage[name + '_completed'] = 'true';
-					me.completed = true;
+				if (me.tour._current >= me.completed_steps) {
+					// mark persistent completion when new step is reached
+					me.completed_steps = me.tour._current + 1;
+					localStorage[name + '_completed_steps'] = me.completed_steps;
 				}
 				$scope.running_guide = null;
 				$scope.safe_apply();
@@ -83,7 +82,7 @@ function MenuBarCtrl($scope, $location) {
 	Guide.prototype.is_completed = function() {
 		// TODO: for now just check for tour end, but this is where we want 
 		// to check for more complex conditions - such as did the user really share, etc
-		return this.completed;
+		return this.completed_steps === this.steps.length;
 	};
 
 	Guide.prototype.run = function() {
