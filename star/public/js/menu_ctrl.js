@@ -11,20 +11,20 @@ function MenuBarCtrl($scope, $location) {
 
 	function guide_template(i, step) {
 		return [
-			'<div class="popover tour" style="max-width: 500px">',
+			'<div class="popover tour" style="min-width: ' + (step.width || 400) + 'px">',
 			'  <div class="arrow"></div>',
 			'  <div class="popover-title fnttour"></div>',
 			'  <div class="popover-content fnttour"></div>',
 			'  <div class="popover-navigation fnttour text-center">',
-			'    <span class="pull-left">', (i + 1), '/', step.guide.steps.length, '</span>',
+			'    <span class="fnttour pull-left">', (i + 1), '/', step.guide.steps.length, '</span>',
 			'    <a href="#" data-role="first" onclick="global_menu_bar_first_guide()">',
-			'      <i class="icon-fast-backward icon icon-fixed-width"></i></a>',
+			'      <i class="icon-fast-backward icon-fixed-width"></i></a>',
 			'    <a href="#" data-role="prev" class="btn btn-inverse">',
 			'      <i class="icon-step-backward icon-2x icon-fixed-width text-info"></i></a>',
 			'    <a href="#" data-role="next" class="btn btn-inverse">',
 			'      <i class="icon-step-forward icon-2x icon-fixed-width text-info"></i></a>',
 			'    <a href="#" data-role="last" onclick="global_menu_bar_last_guide()">',
-			'      <i class="icon-fast-forward icon icon-fixed-width"></i></a>',
+			'      <i class="icon-fast-forward icon-fixed-width"></i></a>',
 			'    <a href="#" data-role="end" class="pull-right">',
 			'      <i class="icon-remove icon-large icon-fixed-width fntblk"></i></a>',
 			'  </div>',
@@ -118,7 +118,7 @@ function MenuBarCtrl($scope, $location) {
 	global_menu_bar_last_guide = function() {
 		console.log($scope.running_guide);
 		if ($scope.running_guide) {
-			$scope.running_guide.tour.goto($scope.running_guide.steps.length-1);
+			$scope.running_guide.tour.goto($scope.running_guide.steps.length - 1);
 		}
 		$scope.safe_apply();
 	};
@@ -145,12 +145,13 @@ function MenuBarCtrl($scope, $location) {
 	$scope.guides.welcome.steps[0] = {
 		element: '#logo_link',
 		placement: 'bottom',
+		path: '/mydata',
 		backdrop: true,
 		title: 'WELCOME TO NOOBAA',
 		content: [
 			'<p>Use NooBaa for <b>extreme media files!</b></p>',
 			'<p>Unlike Dropbox it is <b>FREE</b> for any capacity!',
-			'The Crowd makes it so . . .</p>'
+			'  The Crowd makes it so...</p>'
 		].join('\n')
 	};
 	$scope.guides.welcome.steps[1] = {
@@ -161,13 +162,13 @@ function MenuBarCtrl($scope, $location) {
 		title: 'UPLOAD',
 		content: [
 			'<p>Use the upload button',
-			'<a class="btn btn-success" href="#"><i class="icon-cloud-upload"></i></a>',
-			'to upload files to your account.</p>',
+			'<a class="btn btn-success" href="#"><i class="icon-cloud-upload icon-large"></i></a>',
+			'  to upload files to your account.</p>',
 			'<p>They will remain private until you share them.</p>',
 		].join('\n')
 	};
 	$scope.guides.welcome.steps[2] = {
-		element: '#my_guides',
+		element: '#menu_right',
 		placement: 'bottom',
 		path: '/mydata',
 		backdrop: true,
@@ -175,10 +176,10 @@ function MenuBarCtrl($scope, $location) {
 		content: [
 			// '<p>You have taken the first step in the way of the NooBaa!</p>',
 			'<p>When you are ready to master <b>Sharing</b> and <b>Co-Sharing</b>, ',
-			'check out the guide button ',
-			'<i class="icon-info-sign text-info"></i></p>',
+			'  check out the guide button ',
+			'  <i class="icon-info-sign text-info"></i></p>',
 			'<p>Use the feedback button <i class="icon-comments text-info"></i>',
-			'frequently, it is very rewarding.</p>',
+			'  frequently, it is very rewarding.</p>',
 			// '<p>Have a good one!</p>',
 			'<p class="text-right">- The NooBaa Team -</p>'
 		].join('\n')
@@ -188,30 +189,50 @@ function MenuBarCtrl($scope, $location) {
 
 	//// UPLOAD FILE ////
 
-	$scope.unique_handler_num = 1;
+	function advance_on_upload_modal_show(tour) {
+		// advance to next step once the upload modal is shown
+		$('#upload_modal').on('show.upload_guide', function() {
+			tour.next();
+		});
+		$('#upload_modal').on('hide.upload_guide', function() {
+			tour.next();
+		});
+	}
 
-	function make_modal_handler(modal_element, is_show) {
-		return function() {
-			var op = is_show ? 'show' : 'hide';
-			var m = $(modal_element);
-			console.log('MODAL', m);
-			m.modal(op);
+	function done_advance_on_upload_modal_show(tour) {
+		// remove the event we registered in onShow
+		$('#upload_modal').off('show.upload_guide');
+		$('#upload_modal').off('hide.upload_guide');
+	}
+
+	function prepare_upload_modal(tour) {
+		// must make visible immediately for the step element visibility
+		$('#upload_modal').show();
+	}
+
+	$scope.upload_guide_uuid = 1;
+
+	function modal_show_handler(modal, is_show) {
+		return function(tour) {
+			var m = $(modal);
+			m.modal(is_show ? 'show' : 'hide');
 			return {
 				then: function(callback) {
-					var visible = m.is(':visible');
-					var ev = (is_show ? 'shown' : 'hidden') +
-						'.tour_promise_' + $scope.unique_handler_num;
-					console.log('THEN', op, visible, ev);
-					if (is_show === visible) {
-						console.log('ALREADY VISIBLE', op);
-						callback();
-						return;
-					}
-					$scope.unique_handler_num++;
-					m.on(ev, function() {
-						console.log('PROMISE', op, ev);
-						m.off(ev);
-						callback();
+					m.promise().done(function() {
+						if (is_show === m.is(':visible')) {
+							console.log('SHOWN MATCH');
+							callback();
+							return;
+						}
+						var ev = (is_show ? 'shown' : 'hidden') +
+							'.upload_guide' + $scope.upload_guide_uuid;
+						$scope.upload_guide_uuid++;
+						console.log('PROMISE', ev);
+						m.on(ev, function() {
+							console.log('PROMISE DONE', ev);
+							m.off(ev);
+							callback();
+						});
 					});
 				}
 			};
@@ -219,40 +240,101 @@ function MenuBarCtrl($scope, $location) {
 	}
 
 	$scope.guides.upload_file.steps[0] = {
-		element: '#upload_button',
-		placement: 'right',
+		element: '#main-btn-group',
+		placement: 'bottom',
 		path: '/mydata',
-		backdrop: false,
-		reflex: true,
+		backdrop: true,
 		title: 'UPLOAD',
 		content: [
-			'<p>So you want to know how to upload.</p>',
-			'<p>Great, let\'s go.</p>',
-			'<p>Push the upload button to open the upload dialog...</p>',
+			'<p>This guide will show you how to upload using:</p>',
+			'<ul class="nav">',
+			'  <li><p><i class="icon-bolt icon-li icon-fixed-width"></i>Drag & Drop</p></li>',
+			'  <li><p><i class="icon-bolt icon-li icon-fixed-width"></i>File Chooser</p></li></ul>'
 		].join('\n'),
-		onNext: make_modal_handler('#upload_modal', true)
 	};
 	$scope.guides.upload_file.steps[1] = {
+		element: '#main-btn-group',
+		placement: 'bottom',
+		path: '/mydata',
+		backdrop: true,
+		title: 'DRAG & DROP',
+		content: [
+			'<p>Drag a file and drop it <b>anywhere</b> in the NooBaa window.</p>',
+			'<p>This will immediately start uploading.</p>',
+			'<p>Try it now...</p>',
+		].join('\n'),
+		onShow: advance_on_upload_modal_show,
+		onHide: done_advance_on_upload_modal_show,
+		onNext: prepare_upload_modal
+	};
+	$scope.guides.upload_file.steps[2] = {
+		container: '#upload_modal',
+		element: '#upload_table',
+		placement: 'bottom',
+		path: '/mydata',
+		title: 'UPLOADING',
+		width: 500,
+		content: [
+			'<p>Good job!</p>',
+			'<p>This is the upload dialog which shows your upload\'s progress.',
+			'<p>It will show whenever you drop files to upload, or press the upload button',
+			'  <a class="btn btn-success" href="#"><i class="icon-cloud-upload icon-large"></i></a></p>',
+			'<p>Upload are added to your account',
+			'  into the folder that is chosen when the upload starts.',
+		].join('\n'),
+		onShow: modal_show_handler('#upload_modal', true),
+		onPrev: modal_show_handler('#upload_modal', false),
+	};
+	$scope.guides.upload_file.steps[3] = {
 		container: '#upload_modal',
 		element: '#choose_file_button',
 		placement: 'bottom',
 		path: '/mydata',
 		title: 'CHOOSE FILES',
 		content: [
-			'<p>Here you can open the file chooser.</p>',
+			'<p>Now let\'s use the file chooser.</p>',
+			'<p>Pressing the "Choose Files" button will',
+			'  open the chooser and will start uploading once you select a file.</p>',
+			'<p>Try it now...</p>'
 		].join('\n'),
-		onShow: make_modal_handler('#upload_modal', true),
-		onHide: make_modal_handler('#upload_modal', false)
+		onShow: modal_show_handler('#upload_modal', true),
 	};
-	$scope.guides.upload_file.steps[2] = {
+	$scope.guides.upload_file.steps[4] = {
+		container: '#upload_modal',
+		element: '#choose_folder_button',
+		placement: 'bottom',
+		path: '/mydata',
+		title: 'CHOOSE FILES',
+		content: [
+			'<p>Folder upload is supported in some browsers (e.g. Chrome, Safari).</p>',
+			'<p>Pressing the "Choose Folders" button will',
+			'  open the folder chooser and will upload the folder content.</p>',
+			'<p>Try it now (or skip)...</p>'
+		].join('\n'),
+		onShow: modal_show_handler('#upload_modal', true),
+		onNext: modal_show_handler('#upload_modal', false),
+	};
+	$scope.guides.upload_file.steps[5] = {
 		element: '#inodes_list',
 		placement: 'top',
 		path: '/mydata',
-		// backdrop: true,
+		title: 'WHERE IS IT?',
+		content: [
+			'<p>Uploaded files will be found in the current folder.</p>',
+		].join('\n'),
+		onPrev: prepare_upload_modal
+	};
+	$scope.guides.upload_file.steps[6] = {
+		element: '#menu_right',
+		placement: 'bottom',
+		path: '/mydata',
+		backdrop: true,
 		title: 'DONE',
 		content: [
-			'<p>You can see your uploads in the current folder</p>',
-		].join('\n')
+			'<p>You are a now a master of uploads!</p>',
+			'<p>Check out more guides using <i class="icon-info-sign text-info"></i>.</p>',
+		].join('\n'),
+		onPrev: prepare_upload_modal
 	};
 	$scope.guides.upload_file.steps_ready();
 
