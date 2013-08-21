@@ -117,9 +117,6 @@ html, body {
 	background-color: rgba(0,0,0,0.85);
 	color: white;
 }
-.tour .popover-title, .tour .popover-navigation {
-	background-color: rgba(160,250,40,0.7);
-}
 
 /* GOOGLE FONTS */
 	/*font-family: 'Finger Paint', cursive;*/

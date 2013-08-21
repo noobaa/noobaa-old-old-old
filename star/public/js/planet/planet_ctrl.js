@@ -268,11 +268,13 @@ function PlanetCtrl($scope, $http, $timeout) {
 			schedule_device(60000);
 		}).error(function(data, status, headers, config) {
 			console.error('[ERR] update device', data, status);
+			delete $scope.planet_device;
+			delete localStorage.planet_device;
 			if (data.reload) {
 				console.log('RELOAD REQUESTED');
 				return $scope.reload_home();
 			}
-			schedule_device(60000);
+			schedule_device(1000);
 		});
 	}
 

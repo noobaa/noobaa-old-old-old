@@ -4,15 +4,13 @@
 		<a id="logo_link" class="brandy pull-left scroller" href="/">
 			<img src="/public/images/noobaa_logo.png"></img>
 		</a>
-		<ul class="nav pull-left">
+		<ul id="menu_right" class="nav pull-right">
 			<li ng-class="active_link('/mydata')">
 				<a href="/mydata" id="my_data_link">MY DATA</a>
 			</li>
 			<li ng-class="active_link('/mydevices')">
 				<a href="/mydevices" id="my_dev_link">MY DEVICES</a>
 			</li>
-		</ul>
-		<ul id="menu_right" class="nav pull-right">
 			<li class="dropdown">
 				<a id="my_guides"
 					href="#"
@@ -67,7 +65,8 @@
 					</div>
 					<div class="modal-footer">
 						<button class="btn pull-left" data-dismiss="modal">Close</button>
-						<button class="btn btn-primary"	data-dismiss="modal" 
+						<button class="btn btn-primary disabled"
+							data-dismiss="modal" 
 							ng-click="submit_feedback()">Submit</button>
 					</div>
 				</div>

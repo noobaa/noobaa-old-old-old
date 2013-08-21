@@ -13,9 +13,9 @@ function MenuBarCtrl($scope, $location) {
 		return [
 			'<div class="popover tour" style="min-width: ' + (step.width || 400) + 'px">',
 			'  <div class="arrow"></div>',
-			'  <div class="popover-title fnttour"></div>',
+			'  <div class="popover-title fnttour btn-success"></div>',
 			'  <div class="popover-content fnttour"></div>',
-			'  <div class="popover-navigation fnttour text-center">',
+			'  <div class="popover-navigation fnttour btn-success text-center">',
 			'    <span class="fnttour pull-left">', (i + 1), '/', step.guide.steps.length, '</span>',
 			'    <a href="#" data-role="first" onclick="global_menu_bar_first_guide()">',
 			'      <i class="icon-fast-backward icon-fixed-width"></i></a>',
@@ -127,7 +127,7 @@ function MenuBarCtrl($scope, $location) {
 	$scope.guides_list = [
 		new Guide('welcome', 'Welcome'),
 		new Guide('upload_file', 'Uploading'),
-		new Guide('open_file', 'Accessing'),
+		new Guide('access_file', 'Accessing'),
 		new Guide('share_file', 'Sharing'),
 		new Guide('shared_with_me', 'Shared with me'),
 		new Guide('cosharing', 'Co-Sharing')
@@ -143,9 +143,9 @@ function MenuBarCtrl($scope, $location) {
 	//// WELCOME ////
 
 	$scope.guides.welcome.steps[0] = {
+		path: '/mydata',
 		element: '#logo_link',
 		placement: 'bottom',
-		path: '/mydata',
 		backdrop: true,
 		title: 'WELCOME TO NOOBAA',
 		content: [
@@ -155,9 +155,9 @@ function MenuBarCtrl($scope, $location) {
 		].join('\n')
 	};
 	$scope.guides.welcome.steps[1] = {
-		element: '#main-btn-group',
-		placement: 'bottom',
 		path: '/mydata',
+		element: '#upload_button',
+		placement: 'bottom',
 		backdrop: true,
 		title: 'UPLOAD',
 		content: [
@@ -168,9 +168,9 @@ function MenuBarCtrl($scope, $location) {
 		].join('\n')
 	};
 	$scope.guides.welcome.steps[2] = {
+		path: '/mydata',
 		element: '#menu_right',
 		placement: 'bottom',
-		path: '/mydata',
 		backdrop: true,
 		title: 'WHAT\'S NEXT',
 		content: [
@@ -240,9 +240,9 @@ function MenuBarCtrl($scope, $location) {
 	}
 
 	$scope.guides.upload_file.steps[0] = {
-		element: '#main-btn-group',
-		placement: 'bottom',
 		path: '/mydata',
+		element: '#upload_button',
+		placement: 'bottom',
 		backdrop: true,
 		title: 'UPLOAD',
 		content: [
@@ -253,9 +253,9 @@ function MenuBarCtrl($scope, $location) {
 		].join('\n'),
 	};
 	$scope.guides.upload_file.steps[1] = {
-		element: '#main-btn-group',
-		placement: 'bottom',
 		path: '/mydata',
+		element: '#upload_button',
+		placement: 'bottom',
 		backdrop: true,
 		title: 'DRAG & DROP',
 		content: [
@@ -268,100 +268,115 @@ function MenuBarCtrl($scope, $location) {
 		onNext: prepare_upload_modal
 	};
 	$scope.guides.upload_file.steps[2] = {
-		container: '#upload_modal',
-		element: '#upload_table',
-		placement: 'bottom',
 		path: '/mydata',
+		container: '#upload_modal',
+		element: '#upload_modal',
+		placement: 'bottom',
 		title: 'UPLOADING',
 		width: 500,
 		content: [
 			'<p>Good job!</p>',
 			'<p>This is the upload dialog which shows your upload\'s progress.',
-			'<p>It will show whenever you drop files to upload, or press the upload button',
-			'  <a class="btn btn-success" href="#"><i class="icon-cloud-upload icon-large"></i></a></p>',
-			'<p>Upload are added to your account',
-			'  into the folder that is chosen when the upload starts.',
+			'<p>You can always get back to it using the upload button',
+			'  <a class="btn btn-success" href="#"><i class="icon-cloud-upload icon-large"></i></a>.',
+			'  It will also open whenever you drop files to upload.'
 		].join('\n'),
 		onShow: modal_show_handler('#upload_modal', true),
 		onPrev: modal_show_handler('#upload_modal', false),
 	};
 	$scope.guides.upload_file.steps[3] = {
+		path: '/mydata',
 		container: '#upload_modal',
 		element: '#choose_file_button',
-		placement: 'bottom',
-		path: '/mydata',
-		title: 'CHOOSE FILES',
+		placement: 'left',
+		title: 'USING FILE CHOOSER',
 		content: [
-			'<p>Now let\'s use the file chooser.</p>',
-			'<p>Pressing the "Choose Files" button will',
-			'  open the chooser and will start uploading once you select a file.</p>',
-			'<p>Try it now...</p>'
+			'<p>Press the "Choose Files" button and select files to upload.</p>',
+			'<p>You can try it now...</p>'
 		].join('\n'),
 		onShow: modal_show_handler('#upload_modal', true),
 	};
 	$scope.guides.upload_file.steps[4] = {
+		path: '/mydata',
 		container: '#upload_modal',
 		element: '#choose_folder_button',
-		placement: 'bottom',
-		path: '/mydata',
-		title: 'CHOOSE FILES',
+		placement: 'left',
+		title: 'USING FODLER CHOOSER',
 		content: [
-			'<p>Folder upload is supported in some browsers (e.g. Chrome, Safari).</p>',
-			'<p>Pressing the "Choose Folders" button will',
-			'  open the folder chooser and will upload the folder content.</p>',
-			'<p>Try it now (or skip)...</p>'
+			'<p>Folder upload is supported on some browsers (e.g. Chrome, Safari).</p>',
+			'<p>Press the "Choose Folders" button and select a folder to upload</p>',
+			'<p>The entire folder content will be uploaded.</p>',
+			'<p>You can try it now...</p>'
 		].join('\n'),
 		onShow: modal_show_handler('#upload_modal', true),
 		onNext: modal_show_handler('#upload_modal', false),
 	};
 	$scope.guides.upload_file.steps[5] = {
+		path: '/mydata',
 		element: '#inodes_list',
 		placement: 'top',
-		path: '/mydata',
 		title: 'WHERE IS IT?',
 		content: [
-			'<p>Uploaded files will be found in the current folder.</p>',
+			'<p>Upload are added to your account',
+			'  into the folder that is selected when the upload starts.',
+			'<p>You should see your uploads listed in the current folder.</p>',
 		].join('\n'),
 		onPrev: prepare_upload_modal
 	};
 	$scope.guides.upload_file.steps[6] = {
+		path: '/mydata',
 		element: '#menu_right',
 		placement: 'bottom',
-		path: '/mydata',
 		backdrop: true,
 		title: 'DONE',
 		content: [
-			'<p>You are a now a master of uploads!</p>',
-			'<p>Check out more guides using <i class="icon-info-sign text-info"></i>.</p>',
+			'<p>Well Done! You are a now a master of uploads!</p>',
+			'<p>Check out more guides using',
+			'  <i class="icon-info-sign text-info"></i>.</p>',
 		].join('\n'),
 		onPrev: prepare_upload_modal
 	};
 	$scope.guides.upload_file.steps_ready();
 
 
-	//// OPEN FILE ////
+	//// ACCESS FILE ////
 
-	$scope.guides.open_file.steps[0] = {
-		element: "#my_guides",
+	$scope.guides.access_file.steps[0] = {
+		path: "/mydata",
+		element: '#menu_right',
 		placement: 'bottom',
 		backdrop: true,
-		title: "",
+		title: 'ACCESSING',
 		content: [
-			'<p>OK, lets go.</p>'
+			'<p>This guide will show you how to access your files:</p>',
+			'<ul class="nav">',
+			'  <li><p><i class="icon-bolt icon-li icon-fixed-width"></i>Navigate folders</p></li>',
+			'  <li><p><i class="icon-bolt icon-li icon-fixed-width"></i>Open with Double Click</p></li>',
+			'  <li><p><i class="icon-bolt icon-li icon-fixed-width"></i>Open with Toolbar</p></li></ul>'
 		].join('\n')
 	};
-	$scope.guides.open_file.steps_ready();
+	$scope.guides.access_file.steps[1] = {
+		path: "/mydata",
+		element: '#menu_right',
+		placement: 'bottom',
+		backdrop: true,
+		title: 'ACCESSING',
+		content: [
+			'<p>More info is comming soon...</p><p>Stay tuned!</p>'
+		].join('\n')
+	};
+	$scope.guides.access_file.steps_ready();
 
 
 	//// SHARE FILE ////
 
 	$scope.guides.share_file.steps[0] = {
-		element: "#my_guides",
+		element: "#menu_right",
 		placement: 'bottom',
 		backdrop: true,
 		title: "",
 		content: [
-			'<p>OK, lets go.</p>'
+			'<p>Comming soon...</p><p>Stay tuned!</p>'
 		].join('\n')
 	};
 	$scope.guides.share_file.steps_ready();
@@ -370,12 +385,12 @@ function MenuBarCtrl($scope, $location) {
 	//// SHARED WITH ME ////
 
 	$scope.guides.shared_with_me.steps[0] = {
-		element: "#my_guides",
+		element: "#menu_right",
 		placement: 'bottom',
 		backdrop: true,
 		title: "",
 		content: [
-			'<p>OK, lets go.</p>'
+			'<p>Comming soon...</p><p>Stay tuned!</p>'
 		].join('\n')
 	};
 	$scope.guides.shared_with_me.steps_ready();
@@ -384,116 +399,52 @@ function MenuBarCtrl($scope, $location) {
 	//// CO SHARING ////
 
 	$scope.guides.cosharing.steps[0] = {
-		element: "#my_guides", // jQuery selector
-		placement: 'bottom',
-		backdrop: true,
-		title: "WELCOME TO NOOBAA !",
-		content: [
-			'<p>Hi. I am your tour guide.<br></p>',
-			'<p>To re-take the tour just press',
-			' the <i class="icon-info-sign text-info"></i> button</p><p> on the top bar</p>',
-			// '<p>* You can also navigate this tour using the left & right arrow keys</p>',
-			// '<p>* This tour is always available using the',
-			// '<i class="icon-info-sign text-info"></i> button at the top</p>'
-		].join('\n')
-	};
-	$scope.guides.cosharing.steps[1] = {
-		element: "#my_data_link",
-		placement: 'bottom',
-		backdrop: true,
-		title: "MY DATA",
-		content: [
-			'<p>This is where you manage your files.</p>'
-		].join('\n')
-	};
-	$scope.guides.cosharing.steps[2] = {
+		path: "/mydevices",
 		element: "#my_dev_link",
 		placement: 'bottom',
 		backdrop: true,
-		title: "MY DEVICES",
+		title: "CO-SHARE",
 		content: [
-			'<p>This is where you manage your devices.</p>'
+			'<p>This guide will show you how to co-share',
+			'  in order to get as much capacity as you poassibly want.</p>',
 		].join('\n')
 	};
-	$scope.guides.cosharing.steps[3] = {
+	$scope.guides.cosharing.steps[1] = {
+		path: "/mydevices",
 		element: "#dl",
 		placement: 'top',
 		backdrop: true,
-		path: "/mydevices",
-		title: "Install Device",
+		title: "INSTALL DEVICE",
 		content: [
 			'<p>Start co-sharing by installing your first device.</p>',
 			'<p>Download the software, unzip and run.</p>'
 		].join('\n')
 	};
-	$scope.guides.cosharing.steps[4] = {
+	$scope.guides.cosharing.steps[2] = {
+		path: "/mydevices",
 		element: "#devs",
 		placement: 'bottom',
 		backdrop: true,
-		path: "/mydevices",
-		title: "Connecting the Device",
+		width: 500,
+		title: "CONNECTING",
 		content: [
 			'<p>When the application starts you will see the dashboard screen.</p>',
 			'<p>Connect it with your facebook account.</p>',
-			'<p>Once the connection is made, you should see your device listed here.</p>'
+			'<p>Once the connection is made, use refresh button',
+			'  <a class="btn btn-primary"><i class="icon-refresh icon-large"></i></a>',
+			'  and you should see your device listed here.</p>'
 		].join('\n')
 	};
-	$scope.guides.cosharing.steps[5] = {
-		element: "#my_data_link",
+	$scope.guides.cosharing.steps[3] = {
+		path: "/mydevices",
+		element: "#menu_right",
 		placement: 'bottom',
 		backdrop: true,
 		reflex: true,
-		path: "/mydevices",
 		title: "First device added",
 		content: [
 			'<p>Once your device is up and running,',
 			'you are co-sharing and enjoying the power of NooBaa\'s crowd-cloud!</p>',
-			'<p>Lets go to MY DATA and meet your data...</p>'
-		].join('\n')
-	};
-	$scope.guides.cosharing.steps[6] = {
-		element: "#my_data_link",
-		placement: 'bottom',
-		path: "/mydata",
-		title: "MY DATA",
-		content: [
-			'<p>Let\'s see how to manage your data...</p>'
-		].join('\n')
-	};
-	$scope.guides.cosharing.steps[7] = {
-		element: "#inodes_tree",
-		placement: 'right',
-		path: "/mydata",
-		title: "Accessing Data",
-		content: [
-			'<p>The two basic folder are "My Data" and "Shared with me".</p>',
-			'<ui><li><strong>"My Data" </strong>holds all files that were uploaded by you.</li>',
-			'<li><strong>"Shared with me"</strong> shows friends files that were shared with you.</li></ul>'
-		].join('\n')
-	};
-	$scope.guides.cosharing.steps[8] = {
-		element: "#main-btn-group",
-		placement: 'bottom',
-		path: "/mydata",
-		title: "Uploading, Consuming, Sharing",
-		content: [
-			'<p>This is an area that is very useful when you access your data via tablet.</p>',
-			'<p>Just mark the line in the files list, and activate the required action on it.</p>'
-		].join('\n')
-	};
-	$scope.guides.cosharing.steps[9] = {
-		element: "#my_guides", // jQuery selector
-		placement: 'bottom',
-		backdrop: true,
-		title: "WELCOME TO NOOBAA !",
-		content: [
-			'<p>This is where the tour ends.</p>',
-			'<p>Remember you can re-take the tour by pressing',
-			' the <i class="icon-info-sign text-info"></i> button</p><p> on the top bar.</p>',
-			'<p>Press the <strong>Close</strong> button or go back to any step by pressing the <strong>Prev</strong> button.</p>',
-			// '<p>* You can also navigate this tour using the left & right arrow keys</p>',
-			// '<p>* This tour is always available using the',
-			// '<i class="icon-info-sign text-info"></i> button at the top</p>'
 		].join('\n')
 	};
 	$scope.guides.cosharing.steps_ready();

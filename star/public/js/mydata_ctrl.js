@@ -736,6 +736,10 @@ function InodesMenuCtrl($scope) {
 			window.alert('Cannot delete non-empty folder');
 			return;
 		}
+		var q = 'Really delete this item?\n' + inode.name;
+		if (!window.confirm(q)) {
+			return;
+		}
 		inode.delete_inode().on('all', function() {
 			if (inode.id == $scope.inode_selection.inode.id) {
 				$scope.select(inode.parent, {

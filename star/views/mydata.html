@@ -10,7 +10,7 @@
 			background-size: cover;
 		}
 		#gridFiles {
-			height: 300px;
+			height: 400px;
 			width: 100%;
 		}
 	</style>
@@ -34,45 +34,50 @@
 <!-- TOOLBAR -->
 
 
-	<div ng-controller="InodesMenuCtrl">
+	<div ng-controller="InodesMenuCtrl" class="row-fluid">
 
-		<div style="margin-bottom: 30px;">
-			<div class="btn-group" id="main-btn-group">
-				<button id="upload_button" class="btn btn-success"
-					data-target="#upload_modal" 
-					data-toggle="modal"
-					title="Upload" data-placement="bottom" rel="tooltip"
-					ng-disabled="!dir_selection.inode">
-					<i class="icon-cloud-upload icon-large"></i>
-				</button>
-				<button class="btn"
-					ng-click="click_open()"
-					title="Open" data-placement="bottom" rel="tooltip"
-					ng-disabled="!inode_selection.inode">
-					<i class="icon-play icon-large"></i>
-				</button>
-				<button class="btn"  
-					data-target="#share_modal" 
-					data-toggle="modal"
-					title="Share" data-placement="bottom" rel="tooltip"
-					ng-disabled="!inode_selection.inode">
-					<i class="icon-share icon-large"></i>
-				</button>
-				<button class="btn"
-					ng-click="click_refresh()"
-					title="Refresh" data-placement="bottom" rel="tooltip"
-					ng-disabled="!dir_selection.inode">
-					<i class="icon-refresh icon-large"></i>
-				</button>
-			</div>
-			<div class="dropdown btn-group" align="left">
+		<div class="offset3" style="margin-bottom: 30px;">
+			<button id="upload_button" class="btn btn-success"
+				data-target="#upload_modal" 
+				data-toggle="modal"
+				title="Upload" data-placement="bottom" rel="tooltip"
+				ng-disabled="!dir_selection.inode"
+				style="width: 70px; margin-right: 10px">
+				<i class="icon-cloud-upload icon-large"></i>
+			</button>
+			<button class="btn"
+				ng-click="click_open()"
+				title="Open" data-placement="bottom" rel="tooltip"
+				ng-disabled="!inode_selection.inode"
+				style="width: 70px; margin-right: 10px">
+				<i class="icon-play icon-large"></i>
+			</button>
+			<button class="btn"  
+				data-target="#share_modal" 
+				data-toggle="modal"
+				title="Share" data-placement="bottom" rel="tooltip"
+				ng-disabled="!inode_selection.inode"
+				style="width: 70px; margin-right: 10px">
+				<i class="icon-share icon-large"></i>
+			</button>
+			<button class="btn"
+				ng-click="click_refresh()"
+				title="Refresh" data-placement="bottom" rel="tooltip"
+				ng-disabled="!dir_selection.inode"
+				style="width: 70px; margin-right: 10px">
+				<i class="icon-refresh icon-large"></i>
+			</button>
+			<div class="dropdown btn-group" align="left"
+				style="margin-right: 10px">
 				<button class="btn dropdown-toggle" 
-					id="more_actions_label" role="button" data-toggle="dropdown" data-target="#"
+					id="more_actions_label"
+					role="button" data-toggle="dropdown" data-target="#"
 					ng-disabled="!inode_selection.inode">
 					More
 					<i class="caret"></i>
 				</button>
-				<ul class="dropdown-menu" role="menu" aria-labelledby="more_actions_label">
+				<ul class="dropdown-menu" role="menu"
+					aria-labelledby="more_actions_label">
 					<li>
  						<a data-target="#new_folder_modal"
 							data-toggle="modal">
@@ -185,12 +190,12 @@
 <!-- VIEWS -->
 
 	<div class="notextselect row-fluid"
-		style="min-height: 300px; margin-bottom: 20px;">
+		style="min-height: 400px; margin-bottom: 20px;">
 		<div class="span3">
 			<div ng-controller="InodesTreeCtrl"
 				ng-include="'tree_view_template.html'"
 				class="roundbord bglight"
-				style="min-height: 300px"
+				style="min-height: 200px"
 				id="inodes_tree">
 			</div>
 		</div>
@@ -198,7 +203,7 @@
 			<div ng-controller="InodesListCtrl"
 				ng-include="'list_view_template.html'"
 				class="roundbord bglight"
-				style="min-height: 300px"
+				style="min-height: 400px"
 				id="inodes_list">
 			</div>
 		</div>
