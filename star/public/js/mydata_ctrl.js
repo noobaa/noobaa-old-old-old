@@ -274,6 +274,10 @@ Inode.prototype.handle_drop_over = function() {
 	}
 };
 
+Inode.prototype.get_drag_helper = function() {
+	return $('<div class="label label-important"><b class="lead">' +
+		this.name + '</b></div>');
+};
 
 // open a download window on this file
 Inode.prototype.download_file = function() {

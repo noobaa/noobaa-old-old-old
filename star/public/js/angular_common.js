@@ -122,15 +122,6 @@
 			restrict: 'A',
 			link: function(scope, element, attr) {
 				var obj = scope.$eval(attr.nbDrag);
-				var helper;
-				if (obj.get_drag_helper) {
-					helper = obj.get_drag_helper;
-				} else {
-					helper = function(event) {
-						var html = obj.name || obj.toString();
-						return $('<div class="well">' + html + '</div>');
-					};
-				}
 				element.draggable({
 					refreshPositions: true, // bad for perf but needed for expanding dirs
 					revert: "invalid",
@@ -140,7 +131,7 @@
 						left: 0
 					},
 					distance: 10,
-					helper: helper,
+					helper: obj.get_drag_helper.bind(obj) || 'clone',
 					start: function(event) {
 						$(this).data('nbobj', obj);
 						$(this).data('escape_count', escape_count);
