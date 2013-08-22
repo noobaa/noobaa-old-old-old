@@ -58,19 +58,19 @@
 
 		.t-icon-column {
 			display: table-column;
-			text-align: center;
+			width: 30px;
 		}
 		.t-name-column {
 			display: table-column;
-			width: 60%;
+			width: 50%;
 		}
 		.t-size-column {
 			display: table-column;
-			width: 20%;
+			width: 25%;
 		}
 		.t-user-column {
 			display: table-column;
-			width: 20%;
+			width: 25%;
 		}
 	</style>
 </head>
@@ -478,7 +478,7 @@
 
 <!-- recursive html template to be loaded and compiled by angular per item -->
 <script type="text/ng-template" id="tree_item_template.html">
-	<div ng-repeat="(__id,dir_inode) in dir_inode.dir_state.subdirs">
+	<div ng-repeat="dir_inode in dir_inode.dir_state.subdirs_list">
 		<div class="d-row a-row text-ellipses nbdrag ng-class: dir_inode.dir_active;"
 			data-title="{{dir_inode.name}}"
 			ng-click="inode_click(dir_inode)"
@@ -527,50 +527,50 @@
 
 		<div class="t-row d-row d-head btn-info">
 			<div class="t-cell"></div>
-			<div class="t-cell">Name</div>
-			<div class="t-cell">Size</div>
-			<div class="t-cell">Shared by</div>
+			<div class="t-cell" 
+				ng-click="toggle_sort_by_name()"
+				style="cursor: pointer">
+				Name
+				<i ng-class="get_sort_by_name_class()"></i>
+			</div>
+			<div class="t-cell" 
+				ng-click="toggle_sort_by_size()"
+				style="cursor: pointer">
+				Size
+				<i ng-class="get_sort_by_size_class()"></i>
+			</div>
+			<div class="t-cell text-center"
+				ng-click="toggle_sort_by_user()"
+				style="cursor: pointer">
+				Shared by
+			</div>
 		</div>
 
-		<div ng-repeat="dir_inode in dir_selection.inode.dir_state.subdirs_sort"
-			class="t-row d-row a-row nbdrag ng-class: dir_inode.inode_active;"
-			ng-click="inode_click(dir_inode)"
-			ng-dblclick="inode_dclick(dir_inode)"
-			nb-right-click="inode_rclick(dir_inode, $event)"
-			nb-drag="dir_inode"
-			nb-drop="dir_inode">
+		<div ng-repeat="inode in dir_selection.inode.dir_state.sons_list"
+			class="t-row d-row a-row nbdrag ng-class: inode.inode_active;"
+			ng-click="inode_click(inode)"
+			ng-dblclick="inode_dclick(inode)"
+			nb-right-click="inode_rclick(inode, $event)"
+			nb-drop="{true:inode}[inode.isdir]"
+			nb-drag="inode">
 			<div class="t-cell text-center">
-				<i class="icon-folder-close icon-large d-icon"></i>
+				<i ng-show="inode.isdir" class="icon-folder-close icon-large d-icon"></i>
+				<i ng-hide="inode.isdir" class="icon-file icon-large" 
+					style="color: grey"></i>
 			</div>
 			<div class="t-cell">
-				{{dir_inode.name}}
-			</div>
-			<div class="t-cell"></div>
-			<div class="t-cell"></div>
-		</div>
-
-		<div ng-repeat="file_inode in dir_selection.inode.dir_state.subfiles_sort"
-			class="t-row d-row a-row nbdrag ng-class: file_inode.inode_active;"
-			ng-click="inode_click(file_inode)"
-			ng-dblclick="inode_dclick(file_inode)"
-			nb-right-click="inode_rclick(file_inode, $event)"
-			nb-drag="file_inode">
-			<div class="t-cell text-center">
-				<i class="icon-file icon-large" style="color: grey"></i>
+				{{inode.name}}
 			</div>
 			<div class="t-cell">
-				{{file_inode.name}}
-			</div>
-			<div class="t-cell text-right">
-				{{human_size(file_inode.size)}}
+				{{human_size(inode.size)}}
 			</div>
 			<div class="t-cell">
-				<img ng-show="file_inode.shared_fb_id"
-					ng-src="{{fb_pic_url(file_inode.shared_fb_id)}}"
+				<img ng-show="inode.shared_fb_id"
+					ng-src="{{fb_pic_url(inode.shared_fb_id)}}"
 					style="width: 30px; height: 30px;">
-				{{file_inode.shared_name}}
+				{{inode.shared_name}}
 			</div>
-			<div ng-show="file_inode.uploading"
+			<div ng-show="inode.uploading"
 				role="progressbar" 
 				aria-valuemin="0" 
 				aria-valuemax="100">
@@ -581,7 +581,7 @@
 							top: 0;
 							left: 0;
 							z-index: 1;
-							width: {{file_inode.progress}}%;">
+							width: {{inode.progress}}%;">
 					</div>
 					<div class="fntsans fntblk"
 						style="position: absolute;
@@ -589,7 +589,7 @@
 							left: 40%;
 							z-index: 2;
 							color: black;">
-						uploading... {{file_inode.progress}} %
+						uploading... {{inode.progress}} %
 					</div>
 				</div>
 			</div>

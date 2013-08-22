@@ -75,10 +75,9 @@ function Inode($scope, id, name, isdir, parent) {
 	// directory state
 	if (isdir) {
 		this.dir_state = {
-			subdirs: {},
-			subfiles: {},
-			subdirs_sort: [],
-			subfiles_sort: [],
+			sons_map: {}, // by id
+			sons_list: [],
+			subdirs_list: [],
 			populated: false,
 			expanded: false
 		};
@@ -92,9 +91,7 @@ Inode.prototype.is_immutable_root = function() {
 };
 
 Inode.prototype.is_dir_non_empty = function() {
-	return (this.isdir &&
-		(!_.isEmpty(this.dir_state.subdirs) || !_.isEmpty(this.dir_state.subfiles))
-	);
+	return (this.isdir && son_list.length);
 };
 
 // construct a list of the path of dirs from the root down to this inode.
@@ -164,18 +161,13 @@ Inode.prototype.read_dir = function() {
 
 // insert given entries as sub items under the this directory item
 Inode.prototype.populate_dir = function(entries) {
-	var subdirs = {};
-	var subfiles = {};
-	var ent;
-	var son;
+	var sons_map = {};
+	var sons_list = [];
+	var subdirs_list = [];
 
 	for (var i = 0; i < entries.length; ++i) {
-		ent = entries[i];
-		if (ent.isdir) {
-			son = this.dir_state.subdirs[ent.id];
-		} else {
-			son = this.dir_state.subfiles[ent.id];
-		}
+		var ent = entries[i];
+		var son = this.dir_state.sons_map[ent.id];
 		if (!son) {
 			son = new Inode(
 				this.$scope,
@@ -197,26 +189,32 @@ Inode.prototype.populate_dir = function(entries) {
 		// sync fields which are mutable
 		sync_property(son, this, "$scope");
 		sync_property(son, ent, "name");
+		sync_property(son, ent, "isdir");
 		sync_property(son, ent, "size");
 		sync_property(son, ent, "uploading");
 		sync_property(son, ent, "shared_name");
 		sync_property(son, ent, "shared_fb_id");
 		sync_property(son, ent, "progress");
 
+		sons_map[son.id] = son;
+		sons_list.push(son);
 		if (son.isdir) {
-			subdirs[son.id] = son;
-		} else {
-			subfiles[son.id] = son;
+			subdirs_list.push(son);
 		}
 	}
 
-	this.dir_state.subdirs = subdirs;
-	this.dir_state.subfiles = subfiles;
+	this.dir_state.sons_map = sons_map;
+	this.dir_state.sons_list = sons_list;
+	this.dir_state.subdirs_list = subdirs_list;
 	this.dir_state.populated = true;
+	this.resort_entries();
 	this.$scope.read_dir_callback(this);
+};
 
-	this.dir_state.subdirs_sort = _.sortBy(_.values(subdirs), function(i) { return i.name.toLowerCase(); });
-	this.dir_state.subfiles_sort = _.sortBy(_.values(subfiles), function(i) { return i.name.toLowerCase(); });
+Inode.prototype.resort_entries = function() {
+	var sort_by = this.dir_state.sort_by || this.$scope.default_sort_by;
+	this.dir_state.sons_list.sort(sort_by);
+	this.dir_state.subdirs_list.sort(sort_by);
 };
 
 // create new dir under this dir
@@ -432,10 +430,9 @@ function setup_inodes_root_ctrl($scope, $timeout, $window) {
 	// when no selection, select the first thing we can.
 	$scope.read_dir_callback = function(dir_inode) {
 		if ($scope.dir_selection.inode && !$scope.dir_selection.inode.id) {
-			for (var id in dir_inode.dir_state.subdirs) {
-				break;
-			}
-			$scope.select(dir_inode.dir_state.subdirs[id], {
+			var any_subdir = dir_inode.dir_state.subdirs_list.length ?
+				dir_inode.dir_state.subdirs_list[0] : undefined;
+			$scope.select(any_subdir, {
 				dir: true
 			});
 		}
@@ -497,6 +494,102 @@ function setup_inodes_root_ctrl($scope, $timeout, $window) {
 			});
 		}
 	};
+
+	$scope.default_sort_by = sort_by_name_down;
+
+	$scope.toggle_sort_by_name = function() {
+		var i = $scope.dir_selection.inode;
+		var s = i.dir_state;
+		if (s.sort_by === sort_by_name_up) {
+			s.sort_by = sort_by_name_down;
+		} else {
+			s.sort_by = sort_by_name_up;
+		}
+		i.resort_entries();
+	};
+	$scope.toggle_sort_by_size = function() {
+		var i = $scope.dir_selection.inode;
+		var s = i.dir_state;
+		if (s.sort_by === sort_by_size_up) {
+			s.sort_by = sort_by_size_down;
+		} else {
+			s.sort_by = sort_by_size_up;
+		}
+		i.resort_entries();
+	};
+	$scope.get_sort_by_name_class = function() {
+		var i = $scope.dir_selection.inode;
+		var s = i.dir_state;
+		if (s.sort_by === sort_by_name_up) {
+			return 'icon-caret-up';
+		} else if (!s.sort_by || s.sort_by === sort_by_name_down) {
+			return 'icon-caret-down';
+		}
+	}
+	$scope.get_sort_by_size_class = function() {
+		var i = $scope.dir_selection.inode;
+		var s = i.dir_state;
+		if (s.sort_by === sort_by_size_up) {
+			return 'icon-caret-up';
+		} else if (s.sort_by === sort_by_size_down) {
+			return 'icon-caret-down';
+		}
+	}
+
+	// TODO write this sorting logic shorted...
+	// TODO add sort by user
+
+	function sort_by_name_down(a, b) {
+		if (a.isdir !== b.isdir) {
+			return a.isdir ? -1 : 1;
+		}
+		if (a.name.toLowerCase() > b.name.toLowerCase()) {
+			return 1;
+		}
+		if (a.name.toLowerCase() < b.name.toLowerCase()) {
+			return -1;
+		}
+		return 0;
+	}
+
+	function sort_by_name_up(a, b) {
+		if (a.isdir !== b.isdir) {
+			return a.isdir ? -1 : 1;
+		}
+		if (a.name.toLowerCase() < b.name.toLowerCase()) {
+			return 1;
+		}
+		if (a.name.toLowerCase() > b.name.toLowerCase()) {
+			return -1;
+		}
+		return 0;
+	}
+
+	function sort_by_size_down(a, b) {
+		if (a.isdir !== b.isdir) {
+			return a.isdir ? -1 : 1;
+		}
+		if (a.size > b.size) {
+			return 1;
+		}
+		if (a.size < b.size) {
+			return -1;
+		}
+		return 0;
+	}
+
+	function sort_by_size_up(a, b) {
+		if (a.isdir !== b.isdir) {
+			return a.isdir ? -1 : 1;
+		}
+		if (a.size < b.size) {
+			return 1;
+		}
+		if (a.size > b.size) {
+			return -1;
+		}
+		return 0;
+	}
 }
 
 
