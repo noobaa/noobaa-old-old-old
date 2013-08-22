@@ -91,7 +91,7 @@ Inode.prototype.is_immutable_root = function() {
 };
 
 Inode.prototype.is_dir_non_empty = function() {
-	return (this.isdir && son_list.length);
+	return (this.isdir && this.dir_state.sons_list.length);
 };
 
 // construct a list of the path of dirs from the root down to this inode.
@@ -525,7 +525,7 @@ function setup_inodes_root_ctrl($scope, $timeout, $window) {
 		} else if (!s.sort_by || s.sort_by === sort_by_name_down) {
 			return 'icon-caret-down';
 		}
-	}
+	};
 	$scope.get_sort_by_size_class = function() {
 		var i = $scope.dir_selection.inode;
 		var s = i.dir_state;
@@ -534,7 +534,7 @@ function setup_inodes_root_ctrl($scope, $timeout, $window) {
 		} else if (s.sort_by === sort_by_size_down) {
 			return 'icon-caret-down';
 		}
-	}
+	};
 
 	// TODO write this sorting logic shorted...
 	// TODO add sort by user
