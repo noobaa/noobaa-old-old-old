@@ -12,19 +12,11 @@ var num_running_uploads = 0;
 
 // init jquery stuff
 $(function() {
-
 	window.onbeforeunload = function() {
 		if (num_running_uploads) {
 			return "Leaving this page will interrupt your running Uploads !!!";
 		}
 	};
-
-	// enable dragging of class draggable
-	$(".draggable").draggable({
-		helper: "clone"
-	});
-
-	$(".selectable").selectable();
 });
 
 
@@ -85,17 +77,8 @@ function Inode($scope, id, name, isdir, parent) {
 		this.dir_state = {
 			subdirs: {},
 			subfiles: {},
-			grid_data: [{
-				$scope: " ",
-				isdir: false,
-				name: " ",
-				uploading: '',
-				shared_name: ' ',
-				shared_fb_id: ' ',
-				progress: ' ',
-				size: 0
-			}],
-			grid_selected: [],
+			subdirs_sort: [],
+			subfiles_sort: [],
 			populated: false,
 			expanded: false
 		};
@@ -183,12 +166,8 @@ Inode.prototype.read_dir = function() {
 Inode.prototype.populate_dir = function(entries) {
 	var subdirs = {};
 	var subfiles = {};
-	var gridEntries = [];
-	var during_upload = false;
 	var ent;
 	var son;
-
-	gridEntries = [];
 
 	for (var i = 0; i < entries.length; ++i) {
 		ent = entries[i];
@@ -213,7 +192,6 @@ Inode.prototype.populate_dir = function(entries) {
 			} else {
 				ent.progress = 0;
 			}
-			during_upload = true;
 		}
 
 		// sync fields which are mutable
@@ -225,28 +203,20 @@ Inode.prototype.populate_dir = function(entries) {
 		sync_property(son, ent, "shared_fb_id");
 		sync_property(son, ent, "progress");
 
-		if (son.uploading) {
-			son.state = 'Uploading...';
-		} else {
-			son.state = ' ';
-		}
-
 		if (son.isdir) {
-			son.icon = 'icon-folder-close-alt';
 			subdirs[son.id] = son;
 		} else {
-			son.icon = 'icon-file';
 			subfiles[son.id] = son;
 		}
-		gridEntries.unshift(son);
 	}
 
 	this.dir_state.subdirs = subdirs;
 	this.dir_state.subfiles = subfiles;
 	this.dir_state.populated = true;
-	this.dir_state.grid_data = gridEntries;
-	this.dir_state.during_upload = during_upload;
 	this.$scope.read_dir_callback(this);
+
+	this.dir_state.subdirs_sort = _.sortBy(_.values(subdirs), function(i) { return i.name.toLowerCase(); });
+	this.dir_state.subfiles_sort = _.sortBy(_.values(subfiles), function(i) { return i.name.toLowerCase(); });
 };
 
 // create new dir under this dir
@@ -294,19 +264,18 @@ Inode.prototype.rename = function(to_parent, to_name) {
 	});
 };
 
-// send device upload request
-Inode.prototype.dev_upload = function(dir_inode) {
-	return this.$scope.http({
-		method: 'POST',
-		url: this.$scope.api_url + 'upload',
-		data: {
-			id: this.id,
-			dir_id: dir_inode.id
-		}
-	}).on('all', function() {
-		dir_inode.read_dir();
-	});
+Inode.prototype.handle_drop = function(inode) {
+	// propagate to scope to handle
+	this.$scope.handle_drop(this, inode);
 };
+
+Inode.prototype.handle_drop_over = function() {
+	if (this.isdir) {
+		this.expand_path();
+		this.load_dir();
+	}
+};
+
 
 // open a download window on this file
 Inode.prototype.download_file = function() {
@@ -413,7 +382,7 @@ InodesSelection.prototype.select = function(inode) {
 
 // initializer for the inodes root model/controller
 
-function setup_inodes_root_ctrl($scope, $timeout) {
+function setup_inodes_root_ctrl($scope, $timeout, $window) {
 	$scope.root_dir = new Inode($scope, null, '', true, null);
 
 	// dir_inode is needed to bootstrap the recursive rendering templates
@@ -460,8 +429,9 @@ function setup_inodes_root_ctrl($scope, $timeout) {
 		}
 	};
 
+	// when no selection, select the first thing we can.
 	$scope.read_dir_callback = function(dir_inode) {
-		if ($scope.hide_root_dir && $scope.dir_selection.inode && !$scope.dir_selection.inode.id) {
+		if ($scope.dir_selection.inode && !$scope.dir_selection.inode.id) {
 			for (var id in dir_inode.dir_state.subdirs) {
 				break;
 			}
@@ -471,44 +441,53 @@ function setup_inodes_root_ctrl($scope, $timeout) {
 		}
 	};
 
-	$scope.curr_dir_refresh = function() {
+	function cancel_curr_dir_refresh() {
+		$timeout.cancel($scope.curr_dir_refresh_timeout);
+		delete $scope.curr_dir_refresh_timeout;
+	}
+
+	function curr_dir_refresh() {
+		cancel_curr_dir_refresh();
 		var dir_inode = $scope.dir_selection.inode;
 		if (!dir_inode) {
 			return;
 		}
 		dir_inode.read_dir().on({
 			'all': function() {
-				if ($scope.do_refresh_selection) {
-					$timeout($scope.curr_dir_refresh, 30000);
-				}
-			},
-			'error': function() {
-				$scope.curr_dir_refresh_failed = true;
-			},
-			'success': function() {
-				$scope.curr_dir_refresh_failed = false;
+				cancel_curr_dir_refresh();
+				$scope.curr_dir_refresh_timeout =
+					$timeout(curr_dir_refresh, 30000);
 			}
 		});
-	};
-	$scope.curr_dir_refresh();
+	}
+	curr_dir_refresh();
 
 	// this drop handler is a generic implementation of drop over a directory.
-	// it will either rename if drag is an inode, or upload if a dataTransfer.
-	// child scopes will choose if to use it by connecting the inode_drop to it.
-	$scope.inode_drop_handler = function(drop_inode, drag_inode, event) {
-		if (!drop_inode || !drop_inode.isdir) {
-			return false;
+	// it will either rename if drag is an inode.
+	$scope.handle_drop = function(drop_inode, drag_inode) {
+		if (!drop_inode.isdir || !drag_inode) {
+			return;
 		}
-		if (event.type === 'dragover' || event.type === 'dragenter') {
-			return true;
+		// when drag is an inode, then move it under the drop dir
+		console.log('drag ' + drag_inode.name + ' drop ' + drop_inode.name);
+		if (drag_inode.is_immutable_root()) {
+			window.alert('Cannot move root folder.');
+			return;
 		}
-		if (event.type === 'drop' && drag_inode) {
-			// when drag is an inode, then move it under the drop dir
-			console.log('drag ' + drag_inode.name + ' drop ' + drop_inode.name);
-			if (drag_inode.is_immutable_root()) {
-				window.alert('Cannot move root folder');
+		var p = drop_inode;
+		while (p) {
+			if (p.id === drag_inode.id) {
+				window.alert('Cannot create circular folders. It\'s just wrong.');
 				return;
 			}
+			p = p.parent;
+		}
+		if (drag_inode.parent.id === drop_inode.id) {
+			console.log('dropped into same parent. nothing to do.');
+			return;
+		}
+		var q = 'Really move "' + drag_inode.name + '"" into "' + drop_inode.name + '" ?';
+		if ($window.confirm(q)) {
 			drag_inode.rename(drop_inode, drag_inode.name).on('all', function() {
 				// select the drop dir
 				$scope.select(drop_inode, {
@@ -516,9 +495,7 @@ function setup_inodes_root_ctrl($scope, $timeout) {
 					open: true
 				});
 			});
-			return true;
 		}
-		return false;
 	};
 }
 
@@ -530,6 +507,7 @@ function setup_inodes_root_ctrl($scope, $timeout) {
 ////////////////////////////////
 ////////////////////////////////
 
+InodesTreeCtrl.$inject = ['$scope'];
 
 function InodesTreeCtrl($scope) {
 	$scope.inode_click = function(inode) {
@@ -564,66 +542,14 @@ function InodesTreeCtrl($scope) {
 ////////////////////////////////
 ////////////////////////////////
 
+InodesListCtrl.$inject = ['$scope'];
 
 function InodesListCtrl($scope) {
 
-	$scope.gridOptions = {
-		data: 'dir_selection.inode.dir_state.grid_data',
-		selectedItems: [],
-		multiSelect: false,
-		enableColumnResize: true,
-		rowTemplate: 'list_view_grid_template.html', //this template can be found in mydata.html
-		columnDefs: [{
-			field: 'icon',
-			displayName: '',
-			width: 20,
-			cellTemplate: '<i class="icon-large {{row.entity[col.field] }}"> </i>'
-		}, {
-			field: 'name',
-			displayName: '',
-			//			headerCellTemplate: 'list_view_grid_template_names_header.html',
-		}, {
-			field: 'state',
-			displayName: '',
-			width: 90,
-		}, {
-			field: 'progress',
-			displayName: '',
-			width: 200,
-			cellTemplate: '<div ng-include="\'upload_progress_template.html\'"> </div>',
-			// cellTemplate: '<div>  {{ row.entity[col.field] }}  </div>'
-		}, {
-			field: 'shared_name',
-			displayName: '',
-			width: 90
-		}, {
-			field: 'shared_fb_id',
-			displayName: '',
-			width: 30,
-			cellTemplate: '<div ><img ng-show="row.entity[col.field]" ng-src="{{fb_pic_url(row.entity[col.field])}}"></div>'
-		}, {
-			field: 'size',
-			displayName: '',
-			width: 90,
-			cellTemplate: '<div>  {{ human_size(row.entity[col.field]) }}  </div>'
-		}, ]
-	};
-
-	$scope.$on('ngGridEventSorted', function(SortedColumn) {
-		console.log("==========================================");
-		console.log(SortedColumn);
-		console.log($scope.dir_selection.inode.dir_state.grid_data);
-		console.log("==========================================");
-	});
-
 	$scope.fb_pic_url = function(fbid) {
-		if (!fbid || fbid == ' ') {
-			return '';
-		}
-		return 'https://graph.facebook.com/' +
-			fbid + '/picture?width=30&height=30';
+		return (!fbid || fbid == ' ') ? '' :
+			'https://graph.facebook.com/' + fbid + '/picture';
 	};
-
 
 	$scope.inode_click = function(inode) {
 		$scope.select(inode);
@@ -639,11 +565,16 @@ function InodesListCtrl($scope) {
 			context: event
 		});
 	};
+	$scope.inode_drop = function(dir_inode) {
+		return {
+			fn: $scope.inode_drop_handler,
+			hover: 'drophover'
+		};
+	};
 	$scope.inode_drag = function(inode, event) {
 		console.log(event.type + ' ' + inode.name);
 		return inode;
 	};
-	$scope.inode_drop = $scope.inode_drop_handler;
 }
 
 
@@ -654,6 +585,7 @@ function InodesListCtrl($scope) {
 ////////////////////////////////
 ////////////////////////////////
 
+InodesBreadcrumbCtrl.$inject = ['$scope'];
 
 function InodesBreadcrumbCtrl($scope) {
 	$scope.inode_click = function(inode) {
@@ -668,43 +600,11 @@ function InodesBreadcrumbCtrl($scope) {
 
 ////////////////////////////////
 ////////////////////////////////
-// InodesUploadListCtrl
-////////////////////////////////
-////////////////////////////////
-
-// This controller handles the clicks on the device inodes list to allow navigation.
-
-function InodesDeviceListCtrl($scope) {
-
-	// single click - change selection
-	$scope.inode_click = function(inode) {
-		$scope.select(inode);
-	};
-
-	// double click - select and also dive into dir
-	$scope.inode_dclick = function(inode) {
-		$scope.select(inode, {
-			dir: true,
-			open_dir: true
-		});
-		// our parent scope is the device modal, so we can submit
-		// $scope.$parent.submit();
-	};
-
-	// right click - like double click for less clicks
-	$scope.inode_rclick = function(inode, event) {
-		$scope.inode_dclick(inode);
-	};
-}
-
-
-
-////////////////////////////////
-////////////////////////////////
 // InodesMenuCtrl
 ////////////////////////////////
 ////////////////////////////////
 
+InodesMenuCtrl.$inject = ['$scope'];
 
 function InodesMenuCtrl($scope) {
 	$scope.click_open = function() {
@@ -729,11 +629,11 @@ function InodesMenuCtrl($scope) {
 			return;
 		}
 		if (inode.is_immutable_root()) {
-			window.alert('Cannot delete root folder');
+			window.alert('Cannot delete root folder.');
 			return;
 		}
 		if (inode.is_dir_non_empty()) {
-			window.alert('Cannot delete non-empty folder');
+			window.alert('Cannot delete non-empty folder.');
 			return;
 		}
 		var q = 'Really delete this item?\n' + inode.name;
@@ -759,6 +659,7 @@ function InodesMenuCtrl($scope) {
 ////////////////////////////////
 ////////////////////////////////
 
+NewFolderModalCtrl.$inject = ['$scope'];
 
 function NewFolderModalCtrl($scope) {
 	// since the callback is not in angular context,
@@ -795,6 +696,7 @@ function NewFolderModalCtrl($scope) {
 ////////////////////////////////
 ////////////////////////////////
 
+RenameModalCtrl.$inject = ['$scope'];
 
 function RenameModalCtrl($scope) {
 	// since the callback is not in angular context,
@@ -835,6 +737,7 @@ function RenameModalCtrl($scope) {
 ////////////////////////////////
 ////////////////////////////////
 
+ShareModalCtrl.$inject = ['$scope'];
 
 function ShareModalCtrl($scope) {
 	$scope.share_inode = null;
@@ -876,62 +779,11 @@ function ShareModalCtrl($scope) {
 ////////////////////////////////
 ////////////////////////////////
 
+UploadCtrl.$inject = ['$scope'];
 
-function UploadCtrl($scope, $http, $timeout) {
-
-	$scope.timeout = $timeout;
-
-	// set the api url to the planet
-	$scope.api_url = planet_api;
-	$scope.inode_api_url = planet_api + "inode/";
-
-	// returns an event object with 'success' and 'error' events,
-	// which allows multiple events can be registered on the ajax result.
-	$scope.http = function(req) {
-		console.log('[http]', req);
-		var ev = _.clone(Backbone.Events);
-		ev.on('success', function(data, status) {
-			console.log('[http ok]', [status, req]);
-		});
-		ev.on('error', function(data, status) {
-			console.error(data || 'http request failed', [status, req]);
-		});
-		var ajax = $http(req);
-		ajax.success(function(data, status, headers, config) {
-			ev.trigger('success', data, status, headers, config);
-		});
-		ajax.error(function(data, status, headers, config) {
-			ev.trigger('error', data, status, headers, config);
-		});
-		return ev;
-	};
-
-	// calling directly since we just want to include the inodes root scope here
-	$scope.do_refresh_selection = false;
-	$scope.hide_root_dir = false;
-	// TODO: commenting the planet stuff for now, but should probably cleanup
-	// setup_inodes_root_ctrl($scope, $timeout);
-	$scope.curr_dir_refresh_failed = true;
+function UploadCtrl($scope) {
 
 	var upload_modal = $('#upload_modal');
-	upload_modal.on('show', $scope.safe_callback(function() {
-		$scope.curr_dir_refresh();
-	}));
-
-	$scope.submit = function() {
-		upload_modal.modal('hide');
-		var dir_inode = $scope.$parent.dir_selection.inode;
-		if (!dir_inode) {
-			console.error('no selected dir, bailing');
-			return;
-		}
-		var inode = $scope.inode_selection.inode;
-		if (!inode) {
-			console.error('no selected inode, bailing');
-			return;
-		}
-		inode.dev_upload(dir_inode);
-	};
 
 	$scope.upload_id_idx = 0;
 	$scope.uploads = {};
@@ -944,7 +796,7 @@ function UploadCtrl($scope, $http, $timeout) {
 			return false;
 		}
 
-		var dir_inode = $scope.$parent.dir_selection.inode;
+		var dir_inode = $scope.dir_selection.inode;
 		if (!dir_inode) {
 			console.error('no selected dir, bailing');
 			return;
@@ -995,7 +847,7 @@ function UploadCtrl($scope, $http, $timeout) {
 				// update the file state to uploading=false
 				return $scope.http({
 					method: 'PUT',
-					url: $scope.$parent.inode_api_url + mkfile_data.id,
+					url: $scope.inode_api_url + mkfile_data.id,
 					data: {
 						uploading: false
 					}
@@ -1061,7 +913,7 @@ function UploadCtrl($scope, $http, $timeout) {
 			upload.last_star_update = curr_time;
 			return $scope.http({
 				method: 'PUT',
-				url: $scope.$parent.inode_api_url + upload.inode_id,
+				url: $scope.inode_api_url + upload.inode_id,
 				data: {
 					upsize: upload.data._progress.loaded,
 					uploading: true
@@ -1112,8 +964,9 @@ function UploadCtrl($scope, $http, $timeout) {
 ////////////////////////////////
 ////////////////////////////////
 
+MyDataCtrl.$inject = ['$scope', '$http', '$timeout', '$window'];
 
-function MyDataCtrl($scope, $http, $timeout) {
+function MyDataCtrl($scope, $http, $timeout, $window) {
 
 	$scope.timeout = $timeout;
 	$scope.api_url = "/star_api/";
@@ -1142,20 +995,5 @@ function MyDataCtrl($scope, $http, $timeout) {
 	};
 
 	// calling directly since we just want to include the inodes root scope here
-	$scope.do_refresh_selection = true;
-	$scope.hide_root_dir = true;
-	setup_inodes_root_ctrl($scope, $timeout);
+	setup_inodes_root_ctrl($scope, $timeout, $window);
 }
-
-
-// avoid minification effects by injecting the required angularjs dependencies
-InodesTreeCtrl.$inject = ['$scope'];
-InodesListCtrl.$inject = ['$scope'];
-InodesBreadcrumbCtrl.$inject = ['$scope'];
-InodesDeviceListCtrl.$inject = ['$scope'];
-InodesMenuCtrl.$inject = ['$scope'];
-NewFolderModalCtrl.$inject = ['$scope'];
-RenameModalCtrl.$inject = ['$scope'];
-ShareModalCtrl.$inject = ['$scope'];
-UploadCtrl.$inject = ['$scope', '$http', '$timeout'];
-MyDataCtrl.$inject = ['$scope', '$http', '$timeout'];

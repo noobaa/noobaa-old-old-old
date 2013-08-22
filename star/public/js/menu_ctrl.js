@@ -406,7 +406,7 @@ function MenuBarCtrl($scope, $location) {
 		title: "CO-SHARE",
 		content: [
 			'<p>This guide will show you how to co-share',
-			'  in order to get as much capacity as you poassibly want.</p>',
+			'  in order to get as much capacity as you possibly want.</p>',
 		].join('\n')
 	};
 	$scope.guides.cosharing.steps[1] = {

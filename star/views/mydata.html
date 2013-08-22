@@ -9,9 +9,68 @@
 			background-attachment: fixed;
 			background-size: cover;
 		}
-		#gridFiles {
-			height: 400px;
+		.fntdata {
+			font-family: sans-serif;
+			font-size: 12pt;
+			color: black;
+		}
+
+		.a-row {
+			cursor: pointer;
+		}
+		.a-row.active:not(.drop_hover_class) {
+			background-color: rgba(20,0,20,0.2) !important;
+			font-weight: bold;
+		}
+		.a-row:hover:not(.active):not(.drop_hover_class) {
+			background-color: rgba(0,0,0,0.1);
+		}
+		.drop_hover_class {
+			background-color: rgba(250,150,0,0.4) !important;
+		}
+
+		.d-head {
+		}
+		.d-icon {
+			color: rgba(58,135,173,1);
+		}
+		.d-row {
+			height: 40px;
+			line-height: 30px;
+		}
+		.d-cell {
+			padding: 3px;
+			vertical-align: middle;
+		}
+
+		.t-table {
+			display: table;
 			width: 100%;
+		}
+		.t-row {
+			display: table-row;
+		}
+		.t-cell {
+			display: table-cell;
+			padding: 3px;
+			vertical-align: middle;
+		}
+
+		.t-icon-column {
+			display: table-column;
+			text-align: center;
+		}
+		.t-name-column {
+			display: table-column;
+			width: 60%;
+		}
+		.t-size-column {
+			display: table-column;
+			width: 20%;
+		}
+		.t-user-column {
+			display: table-column;
+			width: 20%;
 		}
 	</style>
 </head>
@@ -23,12 +82,11 @@
 	<?# def.include('common_menubar.html') ?>
 
 	<div class="nb_page_pad nb_nav_top_pad">
-
-<!-- ======== CONTENT ======== -->
-
+	<!-- ======== CONTENT ======== -->
 
 
-<div ng-controller="MyDataCtrl">
+	<div ng-controller="MyDataCtrl">
+	<!-- ======== MyDataCtrl ======== -->
 
 
 <!-- TOOLBAR -->
@@ -277,35 +335,11 @@
 					</tr>
 				</table>
 			</div>
-				<!-- UNUSED FOR NOW
-			<div ng-show="!curr_dir_refresh_failed"
-				class="row-fluid notextselect roundbord bglight">
-				<div ng-controller="InodesBreadcrumbCtrl" 
-					ng-include="'path_view_template.html'"
-					class="roundbord"
-					style="font-size: 11px;
-						background-color: #e2e2e2;
-						padding: 0;
-						margin: 0 0 8px 0;">
-				</div>
-				<div ng-controller="InodesDeviceListCtrl"
-					ng-include="'list_view_template.html'"
-					style="height: 250px; overflow: auto;">
-				</div>
-			</div>
-				-->
 		</div>
 		<div class="modal-footer">
 			<button class="btn pull-left" data-dismiss="modal">Hide</button>
-			<button ng-show="!curr_dir_refresh_failed"
-				class="btn btn-primary"	
-				data-dismiss="modal" 
-				ng-click="submit()">
-				Upload
-			</button>
 			<!-- The fileinput-button span is used to style the file input field as button -->
-			<span ng-show="curr_dir_refresh_failed"
-				id="choose_file_button"
+			<span id="choose_file_button"
 				class="btn btn-primary fileinput-button">
 				Choose Files
 				<input id="file_upload_input"
@@ -313,8 +347,7 @@
 					name="file"
 					multiple="multiple"></input>
 			</span>
-			<span ng-show="curr_dir_refresh_failed"
-				id="choose_folder_button"
+			<span id="choose_folder_button"
 				class="btn btn-primary fileinput-button">
 				Choose Folder
 				<input id="dir_upload_input" 
@@ -423,150 +456,146 @@
 		</div>
 	</div>
 
-</div>
+
+	<!-- ======== END MyDataCtrl ======== -->
+	</div>
+
+
 
 
 <!-- TREE TEMPLATE -->
 
+<script type="text/ng-template" id="tree_view_template.html">
+	<div class="fntdata">
+		<div class="d-row d-head btn-info">
+			<div class="d-cell" style="margin-left: 35px">Folders Tree</div>
+		</div>
+		<div nb-right-click="inode_rclick(dir_inode, $event)"
+			ng-include="'tree_item_template.html'">
+		</div>
+	</div>
+</script>
+
 <!-- recursive html template to be loaded and compiled by angular per item -->
 <script type="text/ng-template" id="tree_item_template.html">
-	<li ng-repeat="(__id,dir_inode) in dir_inode.dir_state.subdirs" 
-		class="draggable ui-widget-content ng-class: dir_inode.dir_active;"
-		style="padding: 0px;">
-		<a class="text-ellipses"
-			style="cursor: pointer; margin: 0; height: 30px"
+	<div ng-repeat="(__id,dir_inode) in dir_inode.dir_state.subdirs">
+		<div class="d-row a-row text-ellipses nbdrag ng-class: dir_inode.dir_active;"
 			data-title="{{dir_inode.name}}"
 			ng-click="inode_click(dir_inode)"
 			nb-right-click="inode_rclick(dir_inode, $event)"
 			ng-dblclick="inode_dclick(dir_inode)"
-			nb-drop="inode_drop(dir_inode, $drag, $event)">
-			<span style="margin-left: {{20*dir_inode.level - 30}}px; vertical-align: middle"
-				class="fntsans fntblk">
-				<span ng-click="inode_dclick(dir_inode)"
-		 			style="vertical-align: middle;" 
-					ng-switch on="!!dir_inode.dir_state.refreshing">
-					<span ng-switch-when="false">
-						<span ng-switch on="dir_inode.dir_state.expanded">
-							<i ng-switch-when="false" class="icon-folder-close-alt icon-large icon-fixed-width"></i>
-							<i ng-switch-when="true" class="icon-folder-open-alt icon-large icon-fixed-width"></i>
-						</span>
-					</span>
-					<i ng-switch-when="true" class="icon-refresh icon-large icon-fixed-width"></i>
+			nb-drag="dir_inode"
+			nb-drop="dir_inode">
+			<div style="display: inline-block; width: {{20*(dir_inode.level-1)}}px"></div>
+			<span class="d-cell icon-fixed-width"
+				ng-click="inode_dclick(dir_inode)">
+				<i class="icon-refresh icon-large d-icon"
+					ng-show="!!dir_inode.dir_state.refreshing"></i>
+				<span class="icon-stack" style="font-size: 11px"
+					ng-show="!dir_inode.dir_state.refreshing
+						&& !dir_inode.dir_state.expanded">
+					<i class="icon-folder-close icon-stack-base d-icon"></i>
+					<i class="icon-plus icon-light" style="font-size: 8px"></i>
 				</span>
-				<span nb-drag="drag_item(dir_inode, $event, is_start)">
-					{{dir_inode.name}}
-				</span>
+				<i class="icon-folder-open icon-large d-icon"
+					ng-show="!dir_inode.dir_state.refreshing
+						&& dir_inode.dir_state.expanded"></i>
 			</span>
-		</a>
-		<ul ng-include="'tree_item_template.html'"
-			class="nav nav-list" 
-			style="padding: 0px;"
+			<span class="d-cell">
+				{{dir_inode.name}}
+			</span>
+		</div>
+		<div ng-include="'tree_item_template.html'"
 			nb-effect-toggle="dir_inode.dir_state.expanded && dir_inode.dir_state.populated"
-		 	nb-effect-options="{effect:'fade', duration:10}">
-		</ul>
-	</li>
-</script>
-
-<script type="text/ng-template" id="tree_view_template.html">
-	<div nb-right-click="inode_rclick(dir_inode, $event)">
-		<ul ng-include="'tree_item_template.html'"
-			class="nav nav-list" 
-			style="padding: 3px;">
-		</ul>
+		 	nb-effect-options="{effect:'fade', duration:250}">
+		</div>
 	</div>
 </script>
 
-
-<!-- PATH TEMPLATE -->
-
-<script type="text/ng-template" id="path_view_template.html">
-	<ul class="inline" style="margin: 4px">
-		<li ng-repeat="inode in dir_selection.inode.get_path()"
-			ng-class="inode.dir_active">
-			<span ng-show="inode.dir_active">
-				<b>{{inode.name || "@"}}</b>
-			</span>
-			<a ng-hide="inode.dir_active" ng-click="inode_click(inode)" href="#">
-				<b>{{inode.name || "@"}}</b>
-			</a>
-			<span ng-hide="inode.dir_active" class="divider">/</span>
-		</li>
-	</ul>
-</script>
 
 
 <!-- LIST TEMPLATE -->
 
 <script type="text/ng-template" id="list_view_template.html">
-	<div hidden="hidden" nb-right-click="inode_rclick(dir_selection.inode, $event)"
-		nb-drop="inode_drop(dir_selection.inode, $drag, $event)">
-		<ul class="nav nav-list" style="padding: 0px;" ng-cloak>
-			<li ng-repeat="(__id,dir_inode) in dir_selection.inode.dir_state.subdirs"
-				class="draggable ui-widget-content ng-class: dir_inode.inode_active;">
-				<a class="span12"
-					style="cursor: pointer; text-align: left; padding: 0px;"
-					ng-click="inode_click(dir_inode)"
-					ng-dblclick="inode_dclick(dir_inode)"
-					nb-right-click="inode_rclick(dir_inode, $event)"
-					nb-drop="inode_drop(dir_inode, $drag, $event)">
-					<span class="span12 fntsans fntblk">
-						<i style="vertical-align: middle;" class="icon-folder-open"></i>
-						<span nb-drag="inode_drag(dir_inode, $event, is_start)">
-							{{dir_inode.name}}
-						</span>
-					</span>
-				</a>
-			</li>
-			<li ng-repeat="(__id,file_inode) in dir_selection.inode.dir_state.subfiles"
-				class="draggable ui-widget-content ng-class: file_inode.inode_active;">
-				<a class="span12"
-					style="cursor: pointer; text-align: left; padding: 0px;"
-					ng-click="inode_click(file_inode)"
-					ng-dblclick="inode_dclick(file_inode)"
-					nb-right-click="inode_rclick(file_inode, $event)"
-					nb-drop="inode_drop(file_inode, $drag, $event)">
-					<span class="span10 fntsans fntblk">
-						<i class="icon-file" style="vertical-align: middle;" ></i>
-						<span nb-drag="inode_drag(file_inode, $event, is_start)">
-							{{file_inode.name}}
-							<img ng-show="file_inode.shared_fb_id"
-								ng-src="{{fb_pic_url(file_inode.shared_fb_id)}}">
-							{{file_inode.shared_name}}
-						</span>
-					</span>
-					<span class="span2 fntsans fntblk" 
-						style="text-align: right;">
-						{{human_size(file_inode.size)}}
-					</span>
-					<div ng-show="file_inode.uploading"
-						class="span11"
-						role="progressbar" 
-						aria-valuemin="0" 
-						aria-valuemax="100">
-						<div class="progress progress-success"
-							style="margin: 0; position: relative">
-							<div class="bar"
-								style="position: absolute;
-									top: 0;
-									left: 0;
-									z-index: 1;
-									width: {{file_inode.progress}}%;">
-							</div>
-							<div class="fntsans fntblk"
-								style="position: absolute;
-									top: 0;
-									left: 40%;
-									z-index: 2;
-									color: black;">
-								uploading... {{file_inode.progress}} %
-							</div>
-						</div>
+	<div class="t-table fntdata"
+		 nb-right-click="inode_rclick(dir_selection.inode, $event)">
+
+		<div class="t-icon-column"></div>
+		<div class="t-name-column"></div>
+		<div class="t-size-column"></div>
+		<div class="t-user-column"></div>
+
+		<div class="t-row d-row d-head btn-info">
+			<div class="t-cell"></div>
+			<div class="t-cell">Name</div>
+			<div class="t-cell">Size</div>
+			<div class="t-cell">Shared by</div>
+		</div>
+
+		<div ng-repeat="dir_inode in dir_selection.inode.dir_state.subdirs_sort"
+			class="t-row d-row a-row nbdrag ng-class: dir_inode.inode_active;"
+			ng-click="inode_click(dir_inode)"
+			ng-dblclick="inode_dclick(dir_inode)"
+			nb-right-click="inode_rclick(dir_inode, $event)"
+			nb-drag="dir_inode"
+			nb-drop="dir_inode">
+			<div class="t-cell text-center">
+				<i class="icon-folder-close icon-large d-icon"></i>
+			</div>
+			<div class="t-cell">
+				{{dir_inode.name}}
+			</div>
+			<div class="t-cell"></div>
+			<div class="t-cell"></div>
+		</div>
+
+		<div ng-repeat="file_inode in dir_selection.inode.dir_state.subfiles_sort"
+			class="t-row d-row a-row nbdrag ng-class: file_inode.inode_active;"
+			ng-click="inode_click(file_inode)"
+			ng-dblclick="inode_dclick(file_inode)"
+			nb-right-click="inode_rclick(file_inode, $event)"
+			nb-drag="file_inode">
+			<div class="t-cell text-center">
+				<i class="icon-file icon-large" style="color: grey"></i>
+			</div>
+			<div class="t-cell">
+				{{file_inode.name}}
+			</div>
+			<div class="t-cell text-right">
+				{{human_size(file_inode.size)}}
+			</div>
+			<div class="t-cell">
+				<img ng-show="file_inode.shared_fb_id"
+					ng-src="{{fb_pic_url(file_inode.shared_fb_id)}}"
+					style="width: 30px; height: 30px;">
+				{{file_inode.shared_name}}
+			</div>
+			<div ng-show="file_inode.uploading"
+				role="progressbar" 
+				aria-valuemin="0" 
+				aria-valuemax="100">
+				<div class="progress progress-success"
+					style="margin: 0; position: relative">
+					<div class="bar"
+						style="position: absolute;
+							top: 0;
+							left: 0;
+							z-index: 1;
+							width: {{file_inode.progress}}%;">
 					</div>
-				</a>
-			</li>
-		</ul>
+					<div class="fntsans fntblk"
+						style="position: absolute;
+							top: 0;
+							left: 40%;
+							z-index: 2;
+							color: black;">
+						uploading... {{file_inode.progress}} %
+					</div>
+				</div>
+			</div>
+		</div>
+
 	</div>
-	<div id="gridFiles" ng-grid="gridOptions"></div>
 </script>
 
 
@@ -589,43 +618,8 @@
 </script>
 
 
-<!-- GRID TEMPLATE -->
 
-<script type="text/ng-template" id="list_view_grid_template.html">
-	<div ng-style="{ cursor: row.cursor }"
-		ng-repeat="col in renderedColumns"
-		ng-click="inode_click(row.entity)"
-		nb-right-click="inode_rclick(row.entity, $event)"
-		ng-dblclick="inode_dclick(row.entity)"
-		class="ngCell {{col.cellClass}} {{col.colIndex()}}" ng-cell>
-	</div>
-</script>
-
-<!-- Uploading bar template -->
-
-<script type="text/ng-template" id="upload_progress_template.html">
-<div ng-show="row.entity[col.field]" class="progress progress-success" 
-	 style="margin: 0; position: relative;top: 5px;">
-		<div class="bar"
-			style="position: absolute;
-				top: 0;
-				left: 0;
-				z-index: 10;
-				width: {{row.entity[col.field]}}%;">
-		</div>
-		<div class="fntsans fntblk"
-			style="position: absolute;
-				top: 0;
-				left: 40%;
-				z-index: 20;
-				color: black;">
-			{{row.entity[col.field]}}%
-		</div>
-</div>
-</script>
-<!-- ======== CONTENT END ======== -->
-
-
+	<!-- ======== CONTENT END ======== -->
 	</div>
 
 

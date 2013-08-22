@@ -4,9 +4,8 @@
 (function(global) {
 	'use strict';
 
-
 	// declare our module with dependancy on the angular-ui module
-	var noobaa_app = angular.module('noobaa_app', ['ui','ngGrid']);
+	var noobaa_app = angular.module('noobaa_app', ['ui']);
 
 	// set the symbol to avoid collision with server side templates (jinja)
 	noobaa_app.config(function($interpolateProvider) {
@@ -84,48 +83,69 @@
 		return {
 			restrict: 'A',
 			link: function(scope, element, attr) {
-				var fn = $parse(attr.nbDrop);
-				var handler = function(event) {
-					event.preventDefault();
-					return scope.$apply(function() {
-						fn(scope, {
-							$event: event,
-							$drag: $rootScope.nbdrag
+				var obj = scope.$eval(attr.nbDrop);
+				if (!obj) {
+					return;
+				}
+				element.droppable({
+					accept: '.nbdrag',
+					hoverClass: 'drop_hover_class',
+					tolerance: 'pointer',
+					drop: function(event, ui) {
+						var nbobj = $(ui.draggable).data('nbobj');
+						console.log(nbobj);
+						scope.$apply(function() {
+							obj.handle_drop(nbobj);
 						});
-					});
-				};
-				element[0].ondragenter = handler;
-				element[0].ondragover = handler;
-				element[0].ondragleave = handler;
-				element[0].ondrop = handler;
+					},
+					over: function(event, ui) {
+						scope.$apply(function() {
+							obj.handle_drop_over();
+						});
+					}
+				});
 			}
 		};
+	});
+
+	// TODO: how to cancel drag on escape ??
+	var escape_count = 0;
+	$(window).keyup(function(e) {
+		if (e.keyCode == 27) {
+			escape_count++;
+			console.log('ESCAPE', escape_count);
+		}
 	});
 
 	noobaa_app.directive('nbDrag', function($parse, $rootScope) {
 		return {
 			restrict: 'A',
 			link: function(scope, element, attr) {
-				var fn = $parse(attr.nbDrag);
-				element[0].draggable = true;
-				element[0].ondragstart = function(event) {
-					var dragee = scope.$apply(function() {
-						return fn(scope, {
-							$event: event
-						});
-					});
-					$rootScope.nbdrag = dragee;
-					event.dataTransfer.setData('text/html', null);
-					event.dataTransfer.dropEffect = 'copy';
-				};
-				element[0].ondragend = function(event) {
-					var dragee = scope.$apply(function() {
-						return fn(scope, {
-							$event: event
-						});
-					});
-					delete $rootScope.nbdrag;
-				};
+				var obj = scope.$eval(attr.nbDrag);
+				var helper;
+				if (obj.get_drag_helper) {
+					helper = obj.get_drag_helper;
+				} else {
+					helper = function(event) {
+						var html = obj.name || obj.toString();
+						return $('<div class="well">' + html + '</div>');
+					};
+				}
+				element.draggable({
+					refreshPositions: true, // bad for perf but needed for expanding dirs
+					revert: "invalid",
+					cursor: "move",
+					cursorAt: {
+						top: 0,
+						left: 0
+					},
+					distance: 10,
+					helper: helper,
+					start: function(event) {
+						$(this).data('nbobj', obj);
+						$(this).data('escape_count', escape_count);
+					}
+				});
 			}
 		};
 	});
