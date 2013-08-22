@@ -441,6 +441,12 @@ exports.inode_read = function(req, res) {
 
 		// dispatch to read dir/file
 		function(inode, next) {
+			if (!inode) {
+				return next({
+					status: 404, // HTTP Not Found
+					info: 'Not Found'
+				});				
+			}
 			if (inode.isdir) {
 				return do_read_dir(inode, next);
 			} else {
