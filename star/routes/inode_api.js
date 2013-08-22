@@ -170,7 +170,7 @@ function do_read_dir(inode, next) {
 					live_inode_map[v._id] = v;
 				});
 				_.each(inodes_list, function(i) {
-					if (i.ghost_ref) {
+					if (i.ghost_ref && live_inode_map[i.ghost_ref]) {
 						i.fobj = live_inode_map[i.ghost_ref].fobj;
 						i.live_owner_id = live_inode_map[i.ghost_ref].owner;
 						live_owners_ids.push(i.live_owner_id);
