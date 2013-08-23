@@ -81,6 +81,11 @@ function Inode($scope, id, name, isdir, parent) {
 			populated: false,
 			expanded: false
 		};
+		if (parent && !parent.id) {
+			// for root folders set specific icon classes
+			this.icon_class = 'd-root-icon';
+			this.caption_class = 'd-root-caption';
+		}
 	}
 }
 
@@ -275,7 +280,7 @@ Inode.prototype.handle_drop_over = function() {
 };
 
 Inode.prototype.get_drag_helper = function() {
-	return $('<div class="label label-inverse roundbord fntread">'+
+	return $('<div class="label roundbord fntsans">'+
 		'<span class="lead">Moving: <b>' +
 		this.name + '</b></span></div>');
 };
