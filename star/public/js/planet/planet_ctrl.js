@@ -94,7 +94,7 @@ function PlanetCtrl($scope, $http, $timeout) {
 			icon: 'noobaa_icon16.ico',
 			menu: new gui.Menu()
 		});
-		global.tray.on('click', $scope.open_noobaa);
+		global.tray.on('click', $scope.open);
 
 		// create tray menu
 		var m = global.tray.menu;

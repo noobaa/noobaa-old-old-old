@@ -275,8 +275,9 @@ Inode.prototype.handle_drop_over = function() {
 };
 
 Inode.prototype.get_drag_helper = function() {
-	return $('<div class="label label-important"><b class="lead">' +
-		this.name + '</b></div>');
+	return $('<div class="label label-inverse roundbord fntread">'+
+		'<span class="lead">Moving: <b>' +
+		this.name + '</b></span></div>');
 };
 
 // open a download window on this file

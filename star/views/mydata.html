@@ -100,14 +100,14 @@
 			<button id="upload_button" class="btn btn-success"
 				data-target="#upload_modal" 
 				data-toggle="modal"
-				title="Upload" data-placement="bottom" rel="tooltip"
+				title="Upload"
 				ng-disabled="!dir_selection.inode"
 				style="width: 70px; margin-right: 10px">
 				<i class="icon-cloud-upload icon-large"></i>
 			</button>
 			<button class="btn"
 				ng-click="click_open()"
-				title="Open" data-placement="bottom" rel="tooltip"
+				title="Open"
 				ng-disabled="!inode_selection.inode"
 				style="width: 70px; margin-right: 10px">
 				<i class="icon-play icon-large"></i>
@@ -115,14 +115,14 @@
 			<button class="btn"  
 				data-target="#share_modal" 
 				data-toggle="modal"
-				title="Share" data-placement="bottom" rel="tooltip"
+				title="Share"
 				ng-disabled="!inode_selection.inode"
 				style="width: 70px; margin-right: 10px">
 				<i class="icon-share icon-large"></i>
 			</button>
 			<button class="btn"
 				ng-click="click_refresh()"
-				title="Refresh" data-placement="bottom" rel="tooltip"
+				title="Refresh"
 				ng-disabled="!dir_selection.inode"
 				style="width: 70px; margin-right: 10px">
 				<i class="icon-refresh icon-large"></i>
@@ -482,7 +482,7 @@
 <script type="text/ng-template" id="tree_item_template.html">
 	<div ng-repeat="dir_inode in dir_inode.dir_state.subdirs_list">
 		<div class="d-row a-row text-ellipses nbdrag ng-class: dir_inode.dir_active;"
-			data-title="{{dir_inode.name}}"
+			title-on-ellipsis="{{dir_inode.name}}"
 			ng-click="inode_click(dir_inode)"
 			nb-right-click="inode_rclick(dir_inode, $event)"
 			ng-dblclick="inode_dclick(dir_inode)"
@@ -529,22 +529,23 @@
 
 		<div class="t-row d-row d-head btn-info">
 			<div class="t-cell"></div>
-			<div class="t-cell" 
-				ng-click="toggle_sort_by_name()"
-				style="cursor: pointer">
-				Name
-				<i ng-class="get_sort_by_name_class()"></i>
+			<div class="t-cell">
+				<a style="color: white" ng-click="toggle_sort_by_name()" href="#">
+					Name
+					<i ng-class="get_sort_by_name_class()"></i>
+				</a>
 			</div>
-			<div class="t-cell" 
-				ng-click="toggle_sort_by_size()"
-				style="cursor: pointer">
-				Size
-				<i ng-class="get_sort_by_size_class()"></i>
+			<div class="t-cell">
+				<a style="color: white" ng-click="toggle_sort_by_size()" href="#">
+					Size
+					<i ng-class="get_sort_by_size_class()"></i>
+				</a>
 			</div>
-			<div class="t-cell text-center"
-				ng-click="toggle_sort_by_user()"
-				style="cursor: pointer">
-				Shared by
+			<div class="t-cell text-center">
+				<a style="color: white" ng-click="toggle_sort_by_user()" href="#">
+					Shared by
+					<i ng-class="get_sort_by_size_class()"></i>
+				</a>
 			</div>
 		</div>
 
