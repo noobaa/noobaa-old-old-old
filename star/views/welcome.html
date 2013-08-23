@@ -20,6 +20,21 @@
 		.nb_nav_link {
 			padding-top: 50px;
 		}
+		.navbtn {
+			border-radius: 10px/10px;
+			margin: 6px;
+			padding: 5px !important;
+		}
+		.navbtn-shadow {
+			-moz-box-shadow: 	0 0 3px 3px rgba(0, 0, 0, 0.3);
+			-webkit-box-shadow: 0 0 3px 3px rgba(0, 0, 0, 0.3);
+			box-shadow: 		0 0 3px 3px rgba(0, 0, 0, 0.3);
+		}
+		.navbtn-shadow:hover {
+			-moz-box-shadow: 	0 0 3px 3px rgba(255,255,255, 0.5);
+			-webkit-box-shadow: 0 0 3px 3px rgba(255,255,255, 0.5);
+			box-shadow: 		0 0 3px 3px rgba(255,255,255, 0.5);
+		}
 
 		.bg_item1 {
 			background-image: url('/public/images/bg_skate.jpg');
@@ -131,19 +146,19 @@
 			</a>
 			<ul class="nav pull-right">
 				<li>
-					<a class="scroller" href="#whatis"
+					<a class="scroller navbtn navbtn-shadow" href="#whatis"
 						style="background-color: #000000; color: white">
 						<b>ABOUT</b>
 					</a>
 				</li>
 				<li>
-					<a class="scroller" href="#vision"
+					<a class="scroller navbtn navbtn-shadow" href="#vision"
 						style="background-color: #666666; color: black">
 						<b>THE VISION</b>
 					</a>
 				</li>
 				<li>
-					<a class="scroller" href="#join"
+					<a class="scroller navbtn navbtn-shadow" href="#join"
 						style="background-color: #ffffff; color: black">
 						<b>JOIN US</b>
 					</a>

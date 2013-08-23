@@ -162,9 +162,9 @@ html, body {
 	border-style: solid;
 	border-width: 2px;
 	border-color: rgba(0, 0, 0, 0.3);
-	-moz-box-shadow: 0 0 6px 6px rgba(0, 0, 0, 0.3);
+	-moz-box-shadow: 	0 0 6px 6px rgba(0, 0, 0, 0.3);
 	-webkit-box-shadow: 0 0 6px 6px rgba(0, 0, 0, 0.3);
-	box-shadow: 0 0 6px 6px rgba(0, 0, 0, 0.3);
+	box-shadow: 		0 0 6px 6px rgba(0, 0, 0, 0.3);
 }
 
 .bgpattern {
