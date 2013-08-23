@@ -99,9 +99,10 @@
 						});
 					},
 					over: function(event, ui) {
-						scope.$apply(function() {
-							obj.handle_drop_over();
-						});
+						scope.handle_drop_over(event, ui, obj);
+					},
+					out: function(event, ui) {
+						scope.handle_drop_out(event, ui, obj);
 					}
 				});
 			}
@@ -109,13 +110,13 @@
 	});
 
 	// TODO: how to cancel drag on escape ??
-	var escape_count = 0;
-	$(window).keyup(function(e) {
-		if (e.keyCode == 27) {
-			escape_count++;
-			console.log('ESCAPE', escape_count);
-		}
-	});
+	// var escape_count = 0;
+	// $(window).keyup(function(e) {
+	// if (e.keyCode == 27) {
+	// escape_count++;
+	// console.log('ESCAPE', escape_count);
+	// }
+	// });
 
 	noobaa_app.directive('nbDrag', function($parse, $rootScope) {
 		return {
@@ -134,7 +135,7 @@
 					helper: obj.get_drag_helper.bind(obj) || 'clone',
 					start: function(event) {
 						$(this).data('nbobj', obj);
-						$(this).data('escape_count', escape_count);
+						// $(this).data('escape_count', escape_count);
 					}
 				});
 			}

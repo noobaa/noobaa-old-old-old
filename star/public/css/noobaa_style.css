@@ -167,6 +167,12 @@ html, body {
 	box-shadow: 		0 0 6px 6px rgba(0, 0, 0, 0.3);
 }
 
+.ui-widget-header {
+	background: none !important;
+	background-color: #222222 !important;
+	color: #fafafa !important;
+}
+
 .bgpattern {
 	background-image: url('/public/images/pattern.png'); 
 	position: absolute;

@@ -25,12 +25,20 @@ $(function() {
 function open_context_menu(event) {
 	var context_menu = $('#context_menu');
 	var context_menu_toggle = $('#context_menu_toggle');
-	context_menu.css('position', 'fixed');
-	context_menu.css('left', event.clientX);
-	context_menu.css('top', event.clientY);
+	var x = 0;
+	var y = 0;
+	if (event.pageX || event.pageY) {
+		x = event.pageX;
+		y = event.pageY;
+	} else if (event.clientX || event.clientY) {
+		x = event.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+		y = event.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+	}
+	context_menu.css('position', 'absolute');
+	context_menu.css('left', x);
+	context_menu.css('top', y);
 	context_menu_toggle.dropdown('toggle');
 }
-
 
 function sync_property(to, from, key) {
 	if (!from[key]) {
@@ -267,24 +275,6 @@ Inode.prototype.rename = function(to_parent, to_name) {
 	});
 };
 
-Inode.prototype.handle_drop = function(inode) {
-	// propagate to scope to handle
-	this.$scope.handle_drop(this, inode);
-};
-
-Inode.prototype.handle_drop_over = function() {
-	if (this.isdir) {
-		this.expand_path();
-		this.load_dir();
-	}
-};
-
-Inode.prototype.get_drag_helper = function() {
-	return $('<div class="label roundbord fntsans">'+
-		'<span class="lead">Moving: <b>' +
-		this.name + '</b></span></div>');
-};
-
 // open a download window on this file
 Inode.prototype.download_file = function() {
 	if (this.uploading) {
@@ -347,6 +337,27 @@ Inode.prototype.share = function(share_list) {
 	});
 };
 
+Inode.prototype.handle_drop = function(inode) {
+	// propagate to scope to handle
+	this.$scope.handle_drop(this, inode);
+};
+
+Inode.prototype.get_drag_helper = function() {
+	return $('<div class="label roundbord fntsans">' +
+		'<span class="lead">Moving: <b>' +
+		this.name + '</b></span></div>');
+};
+
+Inode.prototype.make_inode_with_icon = function() {
+	var e = $('#inode_with_icon').clone();
+	e.find('#inode_with_icon_name').text(this.name);
+	if (this.isdir) {
+		e.find('#inode_with_icon_dir').show();
+	} else {
+		e.find('#inode_with_icon_file').show();
+	}
+	return e;
+};
 
 
 ////////////////////////////////
@@ -469,6 +480,26 @@ function setup_inodes_root_ctrl($scope, $timeout, $window) {
 	}
 	curr_dir_refresh();
 
+	$scope.handle_drop_over = function(event, ui, drop_inode) {
+		$scope.handle_drop_out();
+		if (drop_inode.isdir) {
+			$scope.drop_over_timeout = $timeout(function() {
+				console.log('DROP OVER TIMEOUT', drop_inode);
+				$scope.safe_apply(function() {
+					drop_inode.expand_path();
+					drop_inode.load_dir();
+				});
+			}, 500);
+		}
+	};
+
+	$scope.handle_drop_out = function(event, ui, drop_inode) {
+		if ($scope.drop_over_timeout) {
+			$timeout.cancel($scope.drop_over_timeout);
+			delete $scope.drop_over_timeout;
+		}
+	};
+
 	// this drop handler is a generic implementation of drop over a directory.
 	// it will either rename if drag is an inode.
 	$scope.handle_drop = function(drop_inode, drag_inode) {
@@ -493,16 +524,39 @@ function setup_inodes_root_ctrl($scope, $timeout, $window) {
 			console.log('dropped into same parent. nothing to do.');
 			return;
 		}
-		var q = 'Really move "' + drag_inode.name + '"" into "' + drop_inode.name + '" ?';
-		if ($window.confirm(q)) {
-			drag_inode.rename(drop_inode, drag_inode.name).on('all', function() {
-				// select the drop dir
-				$scope.select(drop_inode, {
-					dir: true,
-					open: true
-				});
-			});
-		}
+
+		$('#move_dialog #move_dialog_item').html(drag_inode.make_inode_with_icon());
+		$('#move_dialog #move_dialog_to').html(drop_inode.make_inode_with_icon());
+		$('#move_dialog').dialog({
+			modal: true,
+			resizable: true,
+			closeOnEscape: true,
+			show: {
+				effect: 'drop',
+				direction: 'up',
+				duration: 200,
+			},
+			closeText: 'Cancel',
+			title: 'Confirm move?',
+			buttons: {
+				'Cancel': function() {
+					$(this).dialog('close');
+				},
+				'Move': function() {
+					drag_inode.rename(drop_inode, drag_inode.name).on('all', function() {
+						// select the drop dir
+						$scope.select(drop_inode, {
+							dir: true,
+							open: true
+						});
+					});
+					$(this).dialog('close');
+				}
+			},
+			close: function(event, ui) {
+				$(this).dialog('destroy');
+			}
+		});
 	};
 
 	$scope.default_sort_by = sort_by_name_down;
@@ -710,6 +764,9 @@ function InodesBreadcrumbCtrl($scope) {
 InodesMenuCtrl.$inject = ['$scope'];
 
 function InodesMenuCtrl($scope) {
+	$scope.click_upload = function() {
+		$('#upload_modal').dialog('open');
+	};
 	$scope.click_open = function() {
 		var inode = $scope.inode_selection.inode;
 		$scope.select(inode, {
@@ -739,16 +796,36 @@ function InodesMenuCtrl($scope) {
 			window.alert('Cannot delete non-empty folder.');
 			return;
 		}
-		var q = 'Really delete this item?\n' + inode.name;
-		if (!window.confirm(q)) {
-			return;
-		}
-		inode.delete_inode().on('all', function() {
-			if (inode.id == $scope.inode_selection.inode.id) {
-				$scope.select(inode.parent, {
-					dir: true,
-					open_dir: true
-				});
+		$('#delete_dialog #delete_dialog_item').html(inode.make_inode_with_icon());
+		$('#delete_dialog').dialog({
+			modal: true,
+			resizable: true,
+			closeOnEscape: true,
+			show: {
+				effect: 'drop',
+				direction: 'up',
+				duration: 200,
+			},
+			closeText: 'Cancel',
+			title: 'Confirm delete?',
+			buttons: {
+				'Cancel': function() {
+					$(this).dialog('close');
+				},
+				'Delete': function() {
+					inode.delete_inode().on('all', function() {
+						if (inode.id == $scope.inode_selection.inode.id) {
+							$scope.select(inode.parent, {
+								dir: true,
+								open_dir: true
+							});
+						}
+					});
+					$(this).dialog('close');
+				}
+			},
+			close: function(event, ui) {
+				$(this).dialog('destroy');
 			}
 		});
 	};
@@ -887,6 +964,21 @@ UploadCtrl.$inject = ['$scope'];
 function UploadCtrl($scope) {
 
 	var upload_modal = $('#upload_modal');
+	/*
+	upload_modal.dialog({
+		autoOpen: false,
+		modal: false,
+		resizable: true,
+		closeOnEscape: true,
+		closeText: 'Hide',
+		minWidth: 500,
+		show: {
+			effect: 'drop',
+			direction: 'up',
+			duration: 200,
+		}
+	});
+	*/
 
 	$scope.upload_id_idx = 0;
 	$scope.uploads = {};
