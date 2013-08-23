@@ -60,7 +60,6 @@ html, body {
 	/*background-color: #f4f4f4;*/
 	background-color: white;
 }
-
 .bgdark {
 	background-color: #222222;
 	color: #fafafa;
@@ -186,12 +185,12 @@ html, body {
 }
 
 /* setting the bootstrap tooltips to be more solid and larger font */
-.tooltip {
+/*.tooltip {
 	filter: alpha(opacity=100);
 	font-weight: bold;
 	font-size: 10pt;
 }
-
+*/
 .selectable .ui-selecting { background: #FECA40; }
 .selectable .ui-selected { background: #F39814; color: white; }
 .selectable { list-style-type: none; }
