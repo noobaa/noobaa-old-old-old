@@ -1,7 +1,6 @@
 /* jshint browser:true, jquery:true, devel:true */
 /* global _:false */
 /* global Backbone:false */
-/* global planet_api:false */
 
 // TODO: how do we fix this warning? - "Use the function form of "use strict". (W097)"
 /* jshint -W097 */
@@ -343,7 +342,7 @@ Inode.prototype.handle_drop = function(inode) {
 };
 
 Inode.prototype.get_drag_helper = function() {
-	return $('<div class="label roundbord fntsans">' +
+	return $('<div class="label roundbord">' +
 		'<span class="lead">Moving: <b>' +
 		this.name + '</b></span></div>');
 };

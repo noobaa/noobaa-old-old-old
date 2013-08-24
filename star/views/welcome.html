@@ -65,7 +65,7 @@
 		.bg_logo {
 			background-color: #222222;
 			border-top-style: groove;
-			height: 200px;			
+			height: 400px;			
 		}
 	</style>
 </head>
@@ -82,9 +82,10 @@
 			<div class="active item filling bg_item1">
 				<div class="nb_page_pad text-left">
 					<br/><br/><br/><br/>
-					<div class="H2 fntpaint fntblk" >Cloud storage made</div>
-					<div class="H1 fntpaint fntblk" >SIMPLE</div>
-					<h3 class="fntread fntblk">
+					<div class="H2 fntpaint fntblk">Cloud storage made</div>
+					<div class="H1 fntpaint fntblk">SIMPLE</div>
+					<br/><br/>
+					<h3 class="fntpaint fntblk">
 						All your Data.<br/>
 						One location.<br/>
 						No complex plans.<br/>
@@ -99,12 +100,11 @@
 					<br/><br/><br/><br/>
 					<div class="H2 fntpaint fntwht">Cloud storage made</div>
 					<div class="H1 fntpaint fntwht">FAST</div>
-					<br/><br/><br/>
-					<h3 class="fntread fntwht">
+					<br/><br/>
+					<h3 class="fntpaint fntwht">
 						Join the power of the crowd.<br/>
-						Together we are the most<br/>
-						&nbsp;&nbsp;&nbsp;&nbsp;
-						powerful data-center<br/>
+						Together we are the most -<br/>
+						powerful data-center.<br/>
 					</h3>
 				</div>
 			</div>
@@ -114,8 +114,8 @@
 					<br/><br/><br/><br/>
 					<div class="H2 fntpaint fntwht">Cloud storage made</div>
 					<div class="H1 fntpaint fntwht">FREE</div>
-					<br/><br/><br/>
-					<h3 class="fntread fntwht">
+					<br/><br/>
+					<h3 class="fntpaint fntwht">
 						Unlimited capacity.<br/>
 						Absolutely free.<br/>
 					</h3>
@@ -140,7 +140,7 @@
 
 	<div id="nb_nav" class="nb_navbar navbar navbar-inverse"
 		onresize="nb_nav_affix = undefined;">
-		<div class="nb_page_pad navbar-inner fntread fntwht">
+		<div class="nb_page_pad navbar-inner fntwht">
 			<a class="brandy pull-left scroller" href="#_">
 				<img src="/public/images/noobaa_logo.png"></img>
 			</a>
@@ -172,13 +172,13 @@
 		</div>
 	</div>
 
-	<div id="whatis" class="nb_nav_link nb_page_pad fntread fntblk">
+	<div id="whatis" class="nb_nav_link nb_page_pad fntblk">
 		<div class="H2">WHAT IS NOOBAA?</div>
 		<br/><br/>
 		<h2>NooBaa is a Crowd-Cloud!</h2>
 		<h5 class="lead">
 			<br/>
-			NooBaa enables you to join to a network of people like you and me, and get access to the absolute best computer resource in the world in a simple way.
+			NooBaa enables you to join a network of people like you and me, and get access to the absolute best computer resource in the world in a simple way.
 			<br/><br/>
 			With NooBaa you Co-Share your existing local storage and enjoy the best possible cloud service.
 			<br/><br/>
@@ -187,7 +187,7 @@
 
 	<div class="wfill bg_clouds"></div>
 
-	<div id="vision" class="nb_nav_link nb_page_pad fntread fntblk">
+	<div id="vision" class="nb_nav_link nb_page_pad fntblk">
 		<div class="H2">NOOBAA'S VISION</div>
 		<br/><br/>
 		<h2>In a world of connected devices, the crowd is the strongest force!</h2>
@@ -197,66 +197,59 @@
 			We believe that such a world should be controlled by the people.
 			<br/><br/>
 			Noobaa aims to democratize the cloud. <br/>
-			What might seem improbale, will soon become inevitable.
+			What might seem improbable, will soon become inevitable.
 			<br/><br/>
 		</h5>
 	</div>
 
-	<div class="wfill bg_clouds"></div>
+	<div class="wfill bg_clouds" style="background-position: 0 400px"></div>
 
-	<div id="join" class="nb_nav_link nb_page_pad fntread fntblk "
+	<div id="join" class="nb_nav_link nb_page_pad fntblk"
 		style="margin-bottom: 40px">
-		<div class="H2 text-center">JOIN US</div>
+		<div class="H2 text-center">JOIN US !</div>
 		<br/><br/><br/>
 		<div class="text-center">
 			<a href="/auth/facebook/login/">
-				<img src="/public/images/facebook_login_button_big.png"
+				<img src="/public/images/facebook_signup_button_big.png"
 					style="max-width: 300px"></img>
 			</a>
 		</div>
-		<div ng-repeat="(subject, questions) in login_faq" class="accordion-group"
-			style="border-style: none">
-			<div class="accordion-heading text-center">
-				<a class="accordion-toggle collapsed"
-					data-toggle="collapse"
-					data-parent="#accordion"
-					href="#{{subject.split(' ').join('')}}">
-					<h4>{{subject}}</h4>
+		<br/><br/>
+		<div class="text-center">
+			<a class="btn"
+				data-toggle="collapse"
+				href="#login_faq_content">
+				<b>{{login_faq.title}}</b>
+				<i class="caret"></i>
+			</a>
+		</div>
+		<br/><br/>
+		<div id="login_faq_content" class="collapse text-left">
+			<div ng-repeat="(idx, question) in login_faq.questions"
+				style="border-radius: 10px/10px; 
+					border: 1px solid #eeeeee; 
+					margin: 10px;
+					padding: 3px 20px 3px 20px">
+				<a data-toggle="collapse"
+					href="#login_faq_question{{idx}}">
+					<h4>
+						<i class="icon-plus icon-fixed-width"></i>
+						{{question.q}}
+					</h4>
 				</a>
-			</div>
-			<div class="accordion-body collapse"
-				id="{{subject.split(' ').join('')}}"
-				style="height: 0px;">
-				<div class="accordion-inner">
-					<div class="accordion-group"
-						ng-repeat="(idx, question) in questions">
-						<div class="accordion-heading">
-							<a class="accordion-toggle collapsed"
-								data-toggle="collapse"
-								data-parent="#accordion"
-								href="#{{subject.split(' ').join('')}}{{idx}}">
-								<h5>
-									<i class="icon-plus icon-fixed-width"></i>
-									{{question.q}}
-								</h5>
-							</a>
-						</div>
-						<div class="accordion-body collapse"
-							id="{{subject.split(' ').join('')}}{{idx}}"
-							style="height: 0px;">
-							<div class="accordion-inner">
-								<p>{{question.a}}</p>
-							</div>
-						</div>
-					</div>
+				<div class="collapse"
+					id="login_faq_question{{idx}}">
+					<p class="fntdata">{{question.a}}</p>
 				</div>
 			</div>
 		</div>
+		<br/><br/>
 	</div>
 
 	<div class="wfill bg_logo text-center">
 		<img src="/public/images/noobaa_logo.png"
-			style="height: 80px; position: relative; top: 60px;"></img>
+			style="height: 80px; margin: 160px 0 0 10px; opacity: 0.2">
+		</img>
 	</div>
 
 
@@ -324,8 +317,13 @@
 		});
 
 		function WelcomeCtrl($scope, $http) {
+			$scope.str2id = function(str) {
+				return str.split(' ').join('');
+			};
+
 			$scope.client_faq = {
-				'NooBaa client FAQ': [{
+				title: 'NooBaa client FAQ',
+				questions: [{
 					q: 'Must I download and install the client to use NooBaa?',
 					a: 'No. You can take NooBaa for a test drive without downloading the client. Keep in mind that this is a co-sharing community. If you don\'t intend to share you won\'t be able to fully enjoy the power of the crowd cloud'
 				}, {
@@ -335,7 +333,8 @@
 			};
 
 			$scope.login_faq = {
-				'Facebook Login FAQ': [{
+				title: 'Facebook Login FAQ',
+				questions: [{
 					q: 'Why do you require a Facebook login?',
 					a: 'All you data on NooBaa is kept private, so we had to provide you with way to authenticate your identity. As we can never remember our own passwords, and reusing passwords is a bad habit, why would we force another nuisance on you?!'
 				}, {

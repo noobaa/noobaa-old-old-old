@@ -570,13 +570,13 @@ function inode_delete_action(inode_id, user_id, callback) {
 			return next(null, inode);
 		},
 
-		// for dirs count sons
-		Inode.countDirSons.bind(Inode),
+		// for dirs check sons
+		Inode.isDirHasSons.bind(Inode),
 
 		// fail if dir and has sons
-		function(inode, dir_son_count, next) {
+		function(inode, has_sons, next) {
 			// TODO support recursive dir deletion
-			if (inode.isdir && dir_son_count !== 0) {
+			if (inode.isdir && has_sons) {
 				return next({
 					status: 400,
 					info: {
