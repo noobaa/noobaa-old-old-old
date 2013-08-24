@@ -1,25 +1,25 @@
 /*jslint node: true */
 'use strict';
 
-
 process.on('uncaughtException', function(err) {
 	console.log('Caught exception: ' + err + err.stack);
 });
+var db_connect = require('../db_connect');
 
 process.env.FACEBOOK_APP_ID = '123';
 process.env.FACEBOOK_SECRET = 'sec';
 process.env.FACEBOOK_AUTHORIZED_URL = 'callback';
-process.env.MONGOHQ_URL = 'mongodb://admin:admin@localhost/test';
+// process.env.MONGOHQ_URL = 'mongodb://admin:admin@localhost/test';
 
 
-var mongoose = require('mongoose');
+// var mongoose = require('mongoose');
 var User = require('../models/user').User;
 var Inode = require('../models/inode').Inode;
 var inode_api = require('./inode_api');
 //var user_inodes = require('./user_inodes');
 var async = require('async');
 
-var db;
+// var db;
 
 var rand_fb_id = Math.floor((Math.random() * 100000) + 1);
 
@@ -48,37 +48,10 @@ function get_rand_entry(model, selection, callback) {
 }
 
 exports.test_inodes_api = {
-	setUp: function(callback) {
-		try {
-			//db.connection.on('open', function() {
-			mongoose.connection.on('open', function() {
-				console.log('Opened connection');
-				callback();
-			});
-
-			db = mongoose.connect(process.env.MONGOHQ_URL);
-			console.log('\nStarted connection, waiting for it to open');
-		} catch (err) {
-			console.log('Setting up failed:', err.message);
-		}
-	},
-
-	tearDown: function(callback) {
-		console.log('In tearDown');
-		try {
-			console.log('Closing connection');
-			db.disconnect();
-			callback();
-		} catch (err) {
-			console.log('Tearing down failed:', err.message);
-		}
-	},
+	setUp: db_connect.setup,
+	tearDown: db_connect.teardown,
 
 	'testing folder creation ': function(test) {
-		console.log('111111111111111');
-		test.done();
-		/*
-
 		var inode_id;
 		var luser;
 		async.waterfall([
@@ -120,11 +93,11 @@ exports.test_inodes_api = {
 			],
 
 			function(err, result) {
-				console.log(result);
+				// console.log(result);
 				test.ifError(err);
 				test.done();
 			});
-*/
+
 	},
 
 };
