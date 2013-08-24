@@ -167,10 +167,28 @@ html, body {
 	box-shadow: 		0 0 6px 6px rgba(0, 0, 0, 0.3);
 }
 
-.ui-widget-header {
+.ui-dialog {
+	/*border: solid 2px rgba(0, 0, 0, 0.9) !important;*/
+	-moz-box-shadow: 	0 0 6px 6px rgba(0, 0, 0, 0.3);
+	-webkit-box-shadow: 0 0 6px 6px rgba(0, 0, 0, 0.3);
+	box-shadow: 		0 0 6px 6px rgba(0, 0, 0, 0.3);
+}
+.ui-dialog,
+.ui-dialog-content,
+.ui-dialog-buttonpane {
 	background: none !important;
-	background-color: #222222 !important;
-	color: #fafafa !important;
+	background-color: white !important;
+	/*color: #fafafa !important;*/
+}
+.ui-dialog-titlebar {
+	background: none !important;
+	background-color: #e0e8e8 !important;
+	/*color: black !important;*/
+}
+.ui-widget-overlay {
+	background: none !important;
+	background-color: rgba(0,0,0,0.8) !important;
+	opacity: 1 !important;
 }
 
 .bgpattern {

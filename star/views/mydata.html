@@ -33,7 +33,7 @@
 			background-color: rgba(0,0,0,0.1);
 		}
 		.drop_hover_class {
-			background-color: rgba(250,250,0,0.6) !important;
+			background-color: rgba(255,255,0,0.4) !important;
 		}
 
 		.d-head {
@@ -60,6 +60,9 @@
 		.t-table {
 			display: table;
 			width: 100%;
+		}
+		.t-row-group {
+			display: table-row-group;
 		}
 		.t-row {
 			display: table-row;
@@ -482,16 +485,16 @@
 
 	<div id="move_dialog" style="display: none" class="fntsans fntdata">
 		<p>Are you sure you want to move:</p>
-		<div id="move_dialog_item" style="margin: 20px"></div>
+		<div id="move_dialog_item" style="margin: 20px; word-wrap: break-word"></div>
 		<p>into</p>
-		<div id="move_dialog_to" style="margin: 20px"></div>
+		<div id="move_dialog_to" style="margin: 20px; word-wrap: break-word"></div>
 	</div>
 
 <!-- DELETE DIALOG -->
 
 	<div id="delete_dialog" style="display: none" class="fntsans fntdata">
 		<p>Are you sure you want to delete this item:</p>
-		<div id="delete_dialog_item" style="margin: 20px"></div>
+		<div id="delete_dialog_item" style="margin: 20px; word-wrap: break-word"></div>
 	</div>
 
 
@@ -590,52 +593,59 @@
 		</div>
 
 		<div ng-repeat="inode in dir_selection.inode.dir_state.sons_list"
-			class="t-row d-row a-row nbdrag ng-class: inode.inode_active;"
+			class="t-row-group a-row nbdrag ng-class: inode.inode_active;"
 			ng-click="inode_click(inode)"
 			ng-dblclick="inode_dclick(inode)"
 			nb-right-click="inode_rclick(inode, $event)"
 			nb-drop="{true:inode}[inode.isdir]"
 			nb-drag="inode">
-			<div class="t-cell text-center">
-				<i ng-show="inode.isdir" class="icon-folder-close icon-large d-icon"></i>
-				<i ng-hide="inode.isdir" class="icon-file icon-large d-icon" 
-					style="color: grey"></i>
-			</div>
-			<div class="t-cell">
-				{{inode.name}}
-			</div>
-			<div class="t-cell">
-				{{human_size(inode.size)}}
-			</div>
-			<div class="t-cell">
-				<img ng-show="inode.shared_fb_id"
-					ng-src="{{fb_pic_url(inode.shared_fb_id)}}"
-					style="width: 30px; height: 30px;">
-				{{inode.shared_name}}
-			</div>
-			<div ng-show="inode.uploading"
-				role="progressbar" 
-				aria-valuemin="0" 
-				aria-valuemax="100">
-				<div class="progress progress-success"
-					style="margin: 0; position: relative">
-					<div class="bar"
-						style="position: absolute;
-							top: 0;
-							left: 0;
-							z-index: 1;
-							width: {{inode.progress}}%;">
+			<div class="t-row d-row">
+				<div class="t-cell text-center">
+					<i ng-show="inode.isdir" class="icon-folder-close icon-large d-icon"></i>
+					<i ng-hide="inode.isdir" class="icon-file icon-large d-icon" 
+						style="color: grey"></i>
+				</div>
+				<div class="t-cell">
+					{{inode.name}}
+				</div>
+				<div class="t-cell">
+					<div ng-show="inode.size && !inode.uploading">
+						{{human_size(inode.size)}}
 					</div>
-					<div class="fntsans fntblk"
-						style="position: absolute;
-							top: 0;
-							left: 40%;
-							z-index: 2;
-							color: black;">
-						uploading... {{inode.progress}} %
+					<div ng-show="inode.uploading"
+						role="progressbar"
+						aria-valuemin="0" 
+						aria-valuemax="100">
+						<div class="progress progress-success"
+							style="margin: 0; position: relative">
+							<div class="bar"
+								style="position: absolute; z-index: 1;
+									width: {{inode.progress}}%;">
+							</div>
+							<div class="fntblk"
+								style="position: absolute; z-index: 2;
+									width: 100%; text-align: center;
+									font-size: 12px; line-height: 12px">
+								during upload... {{inode.progress}} %
+							</div>
+						</div>
 					</div>
 				</div>
+				<div class="t-cell">
+					<img ng-show="inode.shared_fb_id"
+						ng-src="{{fb_pic_url(inode.shared_fb_id)}}"
+						style="width: 30px; height: 30px;">
+					{{inode.shared_name}}
+				</div>
 			</div>
+			<!-- div class="t-row"
+				ng-show="inode.inode_active"
+				style="height: 100px">
+				<div class="t-cell text-center"></div>
+				<div class="t-cell">TODO: More details...</div>
+				<div class="t-cell"></div>
+				<div class="t-cell"></div>
+			</div -->
 		</div>
 
 	</div>
