@@ -4,13 +4,36 @@ html, body {
 	width: 100%;
 	height: 100%;
 	min-height: 100%;
+	font-family: 'Ubuntu', 'Open Sans', sans-serif !important;
 }
 
-/**** CLASSES ****/
+.fntblk {
+	color: black;
+}
+.fntwht {
+	color: white;
+}
+.fntpaint {
+	font-family: 'Finger Paint', cursive;
+}
+.fntdata {
+	font-size: 16px;
+	line-height: 26px;
+}
+.fnttour {
+	font-size: 22px;
+	line-height: 34px;
+}
+.tour .popover-content {
+	background-color: rgba(0,0,0,0.85);
+	color: white;
+}
+
 
 .nb_navbar {
 	width: 100% !important;
 	margin: 0 !important;
+	z-index: 10;
 }
 
 .navbar-inner {
@@ -52,12 +75,7 @@ html, body {
 	padding-top: 30px;
 }
 
-/*.active > a {
-	background-color: #f26262 !important;
-}*/
-
 .bglight {
-	/*background-color: #f4f4f4;*/
 	background-color: white;
 }
 .bgdark {
@@ -90,48 +108,6 @@ html, body {
 	}
 }
 
-.fntblk {
-	color: black;
-}
-.fntwht {
-	color: white;
-}
-.fntsans {
-	font-family: 'Open Sans',sans-serif;
-}
-.fntread {
-	font-family: 'Comfortaa', cursive;
-}
-.fntpaint {
-	font-family: 'Finger Paint', cursive;
-}
-
-.fnttour {
-	font-family: 'Comfortaa', cursive;
-	font-size: 16pt;
-	line-height: 26pt;
-	font-weight: 400;
-}
-.tour .popover-content {
-	background-color: rgba(0,0,0,0.85);
-	color: white;
-}
-
-/* GOOGLE FONTS */
-	/*font-family: 'Finger Paint', cursive;*/
-	/*font-family: 'Special Elite', cursive;*/
-	/*font-family: 'Oswald', sans-serif;*/
-	/*font-family: 'Armata', sans-serif;*/
-
-/* OTHER FONTS */
-	/*font-family: "Brush Script MT", cursive;*/
-	/*font-family: "Century Gothic", CenturyGothic, AppleGothic, sans-serif;*/
-	/*font-family: Century Gothic, sans-serif;*/
-	/*font-family: Georgia, "Times New Roman", Times, serif;*/
-	/*font-family: Copperplate, "Copperplate Gothic Light", fantasy;*/
-	/*font-stretch: condensed;*/
-	/*font-weight: normal;*/
-	/*font-size: 14px;*/
 
 .text-ellipses {
 	overflow: hidden;
@@ -208,13 +184,6 @@ html, body {
 	user-select: none;
 }
 
-/* setting the bootstrap tooltips to be more solid and larger font */
-/*.tooltip {
-	filter: alpha(opacity=100);
-	font-weight: bold;
-	font-size: 10pt;
-}
-*/
 .selectable .ui-selecting { background: #FECA40; }
 .selectable .ui-selected { background: #F39814; color: white; }
 .selectable { list-style-type: none; }
@@ -226,4 +195,20 @@ html, body {
 */
 [ng\:cloak], [ng-cloak], .ng-cloak {
 	display: none !important;
+}
+
+
+.t-table {
+	display: table;
+	width: 100%;
+}
+.t-row-group {
+	display: table-row-group;
+}
+.t-row {
+	display: table-row;
+}
+.t-cell {
+	display: table-cell;
+	padding: 3px;
 }
