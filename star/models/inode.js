@@ -52,16 +52,16 @@ inode_schema.statics.get_refering_ghosts = function(real_id, next) {
 	});
 };
 
-// counts number of dir sons, and call back next(err, inode, dir_son_count)
-inode_schema.statics.countDirSons = function(inode, next) {
+// check if dir has any sons, and call back next(err, inode, true/false)
+inode_schema.statics.isDirHasSons = function(inode, next) {
 	if (!inode.isdir) {
-		return next(null, inode, 0);
+		return next(null, inode, false);
 	}
-	return this.model('Inode').count({
+	return this.model('Inode').findOne({
 		owner: inode.owner,
 		parent: inode._id
-	}, function(err, dir_son_count) {
-		next(err, inode, dir_son_count);
+	}, function(err, result) {
+		next(err, inode, !!result);
 	});
 };
 
