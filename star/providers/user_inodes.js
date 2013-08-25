@@ -4,6 +4,7 @@ var Inode = require('../models/inode').Inode;
 var User = require('../models/user').User;
 var Fobj = require('../models/fobj').Fobj;
 var wnst = require('winston');
+var email = require('../routes/email');
 
 var CONST_BASE_FOLDERS = {
 	'MYDATA': 'My Data',
@@ -150,17 +151,66 @@ function add_inode_ghost_refs(live_inode_id, user_ids, cb) {
 	console.log("add_inode_ghost_refs", arguments);
 	async.waterfall([
 		function(next) {
-			next(null, live_inode_id);
+			return Inode.findById(live_inode_id, next);			
 		},
-		Inode.findById.bind(Inode),
+
 		function(live_inode, next) {
-			async.forEach(user_ids, function(user_id, next) {
+			return async.forEach(user_ids, function(user_id, next) {
 				create_ref_ghost_per_user(live_inode, user_id, next);
 			}, function(err) {
-				next(err);
+				return next(err, live_inode);
 			});
 		},
+
+		function(live_inode, next) {
+			return User.findById(live_inode.owner, function(err, sharing_user) {
+				return next(err, sharing_user, live_inode);
+			});
+		},
+
+		function(sharing_user, live_inode, next) {
+			return async.forEach(user_ids, function(user_id, next) {
+				send_notification_on_new_swm(user_id, sharing_user, live_inode, next);
+			}, function(err) {
+				return next(err);
+			});
+
+		},
+
 	], cb);
+}
+
+exports.send_notification_on_new_swm = send_notification_on_new_swm;
+
+function send_notification_on_new_swm(notified_user_id, sharing_user, live_inode, callback) {
+	async.waterfall([
+
+		//get the notified user
+		function(next) {
+			return User.findById(notified_user_id, next);
+		},
+
+		//create custome sharing message. The intention is to make it personalize, differetn etc. 
+		function(notified_user, next) {
+			return create_custom_sharing_message(notified_user, sharing_user, live_inode, function(err, custom_message) {
+				return next(null, notified_user, custom_message);
+			});
+		},
+
+		//send the email notification via the email module. currently not ignoring failurs.  
+		function(notified_user, custom_message, next) {
+			return email.send_swm_notification(notified_user, sharing_user, live_inode.name, custom_message, next);
+		}
+
+	], callback);
+
+}
+
+//this function gets all the parameters to help it decided on a groovy custome message.
+
+function create_custom_sharing_message(notified_user, sharing_user, live_inode, callback) {
+	var custom_message = 'Check it out now!';
+	return callback(null, custom_message);
 }
 
 //add a ghost for this specific user
@@ -247,7 +297,7 @@ function get_user_usage_bytes(user_id, cb) {
 			return cb(err);
 		}
 		var usage = 0;
-		if (result && result.length){
+		if (result && result.length) {
 			usage = result[0].size;
 		}
 		//the aggregate returns an array with an embeded object. This is not a very clear return.
