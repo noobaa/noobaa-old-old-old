@@ -104,6 +104,19 @@ exports.emails = {
         });
     },
 
+    'send swm notification mail': function(test) {
+        email.send_swm_notification(user, function(err, res) {
+            // console.log(res);
+            if (err) {
+                console.log(JSON.stringify(err));
+            }
+            test.ifError(err);
+            test.done();
+        });
+    },
+
+
+
     // 'get templates': function(test) {
     //   test.ifError(email.get_templates(function(err, res) {}));
     //   test.done();
