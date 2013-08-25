@@ -975,12 +975,20 @@ function UploadCtrl($scope) {
 			progress: 0,
 			status: 'Creating...',
 			row_class: '',
-			progress_class: 'progress progress-success',
+			progress_class: 'progress-bar progress-bar-success',
 		};
 		// link the upload object on the data to propagate progress
 		data.upload_idx = idx;
 		$scope.upload_id_idx++;
 		$scope.uploads[idx] = upload;
+
+		function fail_upload() {
+			upload.status = 'Failed!';
+			upload.row_class = 'error';
+			upload.progress_class = 'progress-bar progress-bar-danger';
+			upload.progress = 100;
+			$scope.safe_apply();
+		}
 
 		// create the file and receive upload location info
 		console.log('creating file:', file);
@@ -1013,21 +1021,11 @@ function UploadCtrl($scope) {
 					upload.status = 'Completed';
 					upload.row_class = 'success';
 					$scope.safe_apply();
-				}).on('error', function() {
-					upload.status = 'Failed!';
-					upload.row_class = 'error';
-					upload.progress_class = 'progress progress-danger';
-					upload.progress = 100;
-					$scope.safe_apply();
-				});
+				}).on('error', fail_upload);
 			});
 			upload.xhr.error(function(jqXHR, textStatus, errorThrown) {
 				console.error('upload error: ' + textStatus + ' ' + errorThrown, jqXHR.responseText);
-				upload.status = 'Failed!';
-				upload.row_class = 'error';
-				upload.progress_class = 'progress progress-danger';
-				upload.progress = 100;
-				$scope.safe_apply();
+				fail_upload();
 			});
 			upload.xhr.always(function(e, data) {
 				// data.result, data.textStatus, data.jqXHR
@@ -1040,17 +1038,7 @@ function UploadCtrl($scope) {
 		});
 		ev.on('error', function(data) {
 			console.log('Failed in creation: ', data);
-
-			upload.status = 'Failed!';
-			if (data.text) {
-				upload.status += " " + data.text;
-			}
-			if (data.rejection.reason) {
-				upload.status += " " + data.rejection.reason;
-			}
-			upload.row_class = 'error';
-			upload.progress_class = 'progress progress-danger';
-			upload.progress = 100;
+			fail_upload();
 			$scope.safe_apply();
 		});
 		$scope.safe_apply();

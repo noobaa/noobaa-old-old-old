@@ -303,20 +303,15 @@
 							{{upload.status}}
 						</td>
 						<td width="100px">
-							<div ng-class="upload.progress_class"
-								style="margin: 0; position: relative">
-								<div class="bar"
-									style="position: absolute;
-										top: 0;
-										left: 0;
-										z-index: 1;
+							<div class="progress" style="position: relative">
+								<div ng-class="upload.progress_class"
+									role="progressbar"
+									aria-valuemin="0" aria-valuemax="100"
+									style="position: absolute; top:0; left:0;
 										width: {{upload.progress}}%;">
 								</div>
-								<div style="position: absolute;
-										top: 0;
-										left: 40%;
-										z-index: 2;
-										color: black;">
+								<div style="position: absolute; top:0; left:0;
+										width:100%; text-align:center; color:black">
 									{{upload.progress}}%
 								</div>
 							</div>
@@ -501,19 +496,20 @@
 			nb-drag="dir_inode"
 			nb-drop="dir_inode">
 			<div style="display: inline-block; width: {{20*(dir_inode.level-1)}}px"></div>
-			<span class="d-cell icon-fixed-width"
+			<span class="d-cell"
 				ng-click="inode_dclick(dir_inode)">
-				<i class="icon-refresh icon-large 
+				<i class="icon-refresh icon-large icon-fixed-width
 						ng-class: dir_inode.icon_class||'d-icon'"
 					ng-show="!!dir_inode.dir_state.refreshing"></i>
 				<span class="icon-stack" style="font-size: 11px"
 					ng-show="!dir_inode.dir_state.refreshing
 						&& !dir_inode.dir_state.expanded">
-					<i class="icon-folder-close icon-stack-base
+					<i class="icon-folder-close icon-stack-base icon-fixed-width
 						ng-class: dir_inode.icon_class||'d-icon'"></i>
-					<i class="icon-plus icon-light" style="font-size: 8px"></i>
+					<i class="icon-plus icon-light icon-fixed-width"
+						style="font-size: 8px"></i>
 				</span>
-				<i class="icon-folder-open icon-large
+				<i class="icon-folder-open icon-large icon-fixed-width
 						ng-class: dir_inode.icon_class||'d-icon'"
 					ng-show="!dir_inode.dir_state.refreshing
 						&& dir_inode.dir_state.expanded"></i>
@@ -585,20 +581,17 @@
 						{{human_size(inode.size)}}
 					</div>
 					<div ng-show="inode.uploading"
-						role="progressbar"
-						aria-valuemin="0" 
-						aria-valuemax="100">
-						<div class="progress progress-success"
-							style="margin: 0; position: relative">
-							<div class="bar"
-								style="position: absolute; z-index: 1;
-									width: {{inode.progress}}%;">
-							</div>
-							<div style="position: absolute; z-index: 2;
-									width: 100%; text-align: center;
-									font-size: 12px; line-height: 12px">
-								during upload... {{inode.progress}} %
-							</div>
+						class="progress"
+						style="position: relative">
+						<div class="progress-bar progress-bar-success"
+							role="progressbar" aria-valuemin="0" aria-valuemax="100"
+							style="position: absolute; top:0; left:0;
+								width: {{inode.progress}}%;">
+						</div>
+						<div style="position: absolute; top: 0; left: 0;
+								width: 100%; text-align: center; color: black
+								font-size: 12px; line-height: 12px">
+							during upload... {{inode.progress}}%
 						</div>
 					</div>
 				</div>
