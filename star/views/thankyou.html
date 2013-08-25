@@ -12,47 +12,60 @@
 	</style>
 </head>
 
-<body ng-controller="ThankYouCtrl">
+<body ng-cloak ng-controller="ThankYouCtrl">
 	
-	<div class="nb_navbar navbar navbar-inverse navbar-fixed-top">
-		<div class="nb_page_pad navbar-inner fntwht">
-			<a class="brandy pull-left" href="/welcome">
-				<img src="/public/images/noobaa_logo.png"></img>
-			</a>
-			<ul class="nav pull-right">
+	<nav class="navbar navbar-inverse navbar-static-top"
+		role="navigation">
+		<div class="nb_page_pad">
+			<div class="navbar-header">
+				<a class="navbar-brand" href="/welcome">
+					<img src="/public/images/noobaa_logo.png"></img>
+				</a>
+			</div>
+			<ul class="nav navbar-nav navbar-right">
 				<li>
-					<a href="/auth/facebook/login/">
+					<a href="/auth/facebook/login/"
+						class="navbar-link">
 						<img src="/public/images/facebook_login_button.png"></img>
 					</a>
 				</li>
 			</ul>	
 		</div>
-	</div>
+	</nav>
 
-	<div class="nb_page_pad">
-	<div style="width: 70%">
-		<br/><br/><br/><br/>
-		<div class="H2 fntpaint fntblk"><?! it.user.first_name ?>, Thank you for joining!</div>
-		<h3 class="fntblk">
+	<div class="nb_page_pad fntblk">
+		<div class="col-md-8">
 			<br/>
-			NooBaa is still in Alpha.
+			<p class="H2 fntpaint">
+				<?! it.user.first_name ?>,
+			</p>
 			<br/>
-			As soon as we can accomodate more users, we'll contact you via:
+			<p class="H2 fntpaint">
+				thank you for joining!
+			</p>
 			<br/>
-			<span class="text-center" >
-				<div class="input-prepend" >
-					<button class="btn btn-success"
-						type="button"
-						ng-show="!submitted"
-						ng-disabled="submitting"
-						ng-click="submit()">
-						<img ng-show="submitting"
-							src="/public/images/ajax-loader.gif"></img>
-						<b>Change</b>
-					</button>
+			<p class="lead">
+				NooBaa is still in <b>Alpha</b>.
+			</p>
+			<p class="lead">
+				As soon as we can accomodate more users, we will contact you via:
+			</p>
+			<div class="text-center" >
+				<div class="input-group">
+					<span class="input-group-btn">
+						<button class="btn btn-success"
+							type="button"
+							ng-disabled="submitting || submitted"
+							ng-click="submit()">
+							<i style="display: none"
+								class="icon-spinner icon-spin
+								icon-large "></i>
+							<b>Change</b>
+						</button>
+					</span>
 					<input ng-model="new_email"
 						id="email_input"
-						class="input"
+						class="form-control"
 						type="email"
 						ng-disabled="submitting || submitted"
 						placeholder="<?! it.user.email ?>">
@@ -60,16 +73,15 @@
 				</div>
 				<div class="alert alert-error" hidden="hidden"></div>
 				<div class="alert alert-success" hidden="hidden"></div>
-			</span>
+			</div>
 			<br/>
-			Feel free to drop us a note:  
-			<a href="mailto:info@noobaa.com" style="color:black">info@noobaa.com</a>
-			<br/> 
-			Thank you.
-			<br/>
-			The NooBaa team.
-		</h3>
-	</div>
+			<p class="lead">
+				Feel free to drop us a note:
+				<a href="mailto:info@noobaa.com" style="color:black">info@noobaa.com</a>
+			</p>
+			<p class="lead">Thank you.</p>
+			<p class="lead">The NooBaa Team.</p>
+		</div>
 	</div>
 
 

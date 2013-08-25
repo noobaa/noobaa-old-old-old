@@ -1,10 +1,13 @@
-<div class="nb_navbar navbar navbar-inverse"
+<nav class="navbar navbar-inverse navbar-static-top"
+	role="navigation"
 	ng-controller="MenuBarCtrl">
-	<div class="nb_page_pad navbar-inner fntwht">
-		<a id="logo_link" class="brandy pull-left scroller" href="/">
-			<img src="/public/images/noobaa_logo.png"></img>
-		</a>
-		<ul id="menu_right" class="nav pull-right">
+	<div class="nb_page_pad fntwht">
+		<div class="navbar-header">
+			<a id="logo_link" class="navbar-brand" href="/">
+				<img src="/public/images/noobaa_logo.png"></img>
+			</a>
+		</div>
+		<ul id="menu_right" class="nav navbar-nav navbar-right">
 			<li ng-class="active_link('/mydata')">
 				<a href="/mydata" id="my_data_link">MY DATA</a>
 			</li>
@@ -38,38 +41,13 @@
 			</li>
 			<li>
 				<a id="my_feedback"
-					href="#"
 					role="button"
-					data-target="#feedback_modal" 
+					href="#feedback_modal" 
 					data-toggle="modal"
 					title="Give feedback..."
 					data-placement="left" rel="tooltip">
 					<i class="icon-comments icon-large text-info"></i>
 				</a>
-				<div id="feedback_modal"
-					class="modal hide fade fntblk" 
-					tabindex="-1" 
-					role="dialog" 
-					aria-labelledby="feedback_modal_label" 
-					aria-hidden="true">
-					<div class="modal-header text-center">
-						<a type="button" class="close" data-dismiss="modal">×</a>
-						<h1 id="feedback_modal_label">
-							<i class="icon-comments icon-large text-info"></i>
-							Talk To Me Goose
-						</h1>
-					</div>
-					<div class="modal-body text-center">
-						<textarea ng-model="feedback_text"
-							style="width: 90%" rows="3"></textarea>
-					</div>
-					<div class="modal-footer">
-						<button class="btn pull-left" data-dismiss="modal">Close</button>
-						<button class="btn btn-primary disabled"
-							data-dismiss="modal" 
-							ng-click="submit_feedback()">Submit</button>
-					</div>
-				</div>
 			</li>
 			<li class="dropdown">
 				<a class="dropdown-toggle"
@@ -102,5 +80,33 @@
 				</ul>
 			</li>
 		</ul>
+	</div>
+</nav>
+<div id="feedback_modal"
+	class="modal fade fntblk" 
+	tabindex="-1" 
+	role="dialog" 
+	aria-labelledby="feedback_modal_label" 
+	aria-hidden="true">
+	<div class="modal-dialog">
+	<div class="modal-content">
+	<div class="modal-header text-center">
+		<a type="button" class="close" data-dismiss="modal">×</a>
+		<h1 id="feedback_modal_label">
+			<i class="icon-comments icon-large text-info"></i>
+			Talk To Me Goose
+		</h1>
+	</div>
+	<div class="modal-body text-center">
+		<textarea ng-model="feedback_text"
+			style="width: 90%" rows="3"></textarea>
+	</div>
+	<div class="modal-footer">
+		<button class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+		<button class="btn btn-primary disabled"
+			data-dismiss="modal" 
+			ng-click="submit_feedback()">Submit</button>
+	</div>
+	</div>
 	</div>
 </div>

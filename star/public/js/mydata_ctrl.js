@@ -342,7 +342,7 @@ Inode.prototype.handle_drop = function(inode) {
 };
 
 Inode.prototype.get_drag_helper = function() {
-	return $('<div class="label roundbord">' +
+	return $('<div class="label label-default roundbord">' +
 		'<span class="lead">Moving: <b>' +
 		this.name + '</b></span></div>');
 };
@@ -524,9 +524,23 @@ function setup_inodes_root_ctrl($scope, $timeout, $window) {
 			return;
 		}
 
-		$('#move_dialog #move_dialog_item').html(drag_inode.make_inode_with_icon());
-		$('#move_dialog #move_dialog_to').html(drop_inode.make_inode_with_icon());
-		$('#move_dialog').dialog({
+		var dlg = $('#move_dialog');
+		dlg.find('#dialog_item').html(drag_inode.make_inode_with_icon());
+		dlg.find('#dialog_item2').html(drop_inode.make_inode_with_icon());
+		dlg.find('#dialog_no').off('click').on('click', function() {
+			dlg.dialog('close');
+		});
+		dlg.find('#dialog_yes').off('click').on('click', function() {
+			dlg.dialog('close');
+			drag_inode.rename(drop_inode, drag_inode.name).on('all', function() {
+				// select the drop dir
+				$scope.select(drop_inode, {
+					dir: true,
+					open: true
+				});
+			});
+		});
+		dlg.dialog({
 			modal: true,
 			resizable: true,
 			closeOnEscape: true,
@@ -537,21 +551,6 @@ function setup_inodes_root_ctrl($scope, $timeout, $window) {
 			},
 			closeText: 'Cancel',
 			title: 'Confirm move?',
-			buttons: {
-				'Cancel': function() {
-					$(this).dialog('close');
-				},
-				'Move': function() {
-					drag_inode.rename(drop_inode, drag_inode.name).on('all', function() {
-						// select the drop dir
-						$scope.select(drop_inode, {
-							dir: true,
-							open: true
-						});
-					});
-					$(this).dialog('close');
-				}
-			},
 			close: function(event, ui) {
 				$(this).dialog('destroy');
 			}
@@ -763,9 +762,88 @@ function InodesBreadcrumbCtrl($scope) {
 InodesMenuCtrl.$inject = ['$scope'];
 
 function InodesMenuCtrl($scope) {
+
+	$scope.click_mkdir = function() {
+		var dir_inode = $scope.dir_selection.inode;
+		if (!dir_inode) {
+			console.error('no selected dir, bailing');
+			return;
+		}
+		var dlg = $('#mkdir_dialog');
+		var input = dlg.find('#dialog_input');
+		input.val('');
+		dlg.find('#dialog_item').html(dir_inode.make_inode_with_icon());
+		dlg.find('#dialog_no').off('click').on('click', function() {
+			dlg.dialog('close');
+		});
+		dlg.find('#dialog_yes').off('click').on('click', function() {
+			dlg.dialog('close');
+			if (input.val()) {
+				dir_inode.mkdir(input.val());
+			}
+		});
+		dlg.dialog({
+			modal: true,
+			resizable: true,
+			closeOnEscape: true,
+			show: {
+				effect: 'drop',
+				direction: 'up',
+				duration: 200,
+			},
+			closeText: 'Cancel',
+			title: 'New Folder...',
+			close: function(event, ui) {
+				$(this).dialog('destroy');
+			}
+		});
+	};
+
+	$scope.click_rename = function() {
+		var inode = $scope.inode_selection.inode;
+		if (!inode) {
+			console.error('no selected inode, bailing');
+			return;
+		}
+		if (inode.is_immutable_root()) {
+			window.alert('Cannot rename root folder.');
+			return;
+		}
+		var dlg = $('#rename_dialog');
+		var input = dlg.find('#dialog_input');
+		input.val(inode.name);
+		dlg.find('#dialog_item').html(inode.make_inode_with_icon());
+		dlg.find('#dialog_no').off('click').on('click', function() {
+			dlg.dialog('close');
+		});
+		dlg.find('#dialog_yes').off('click').on('click', function() {
+			dlg.dialog('close');
+			if (input.val() && input.val() !== inode.name) {
+				inode.rename(inode.parent, input.val());
+			}
+		});
+		dlg.dialog({
+			modal: true,
+			resizable: true,
+			closeOnEscape: true,
+			show: {
+				effect: 'drop',
+				direction: 'up',
+				duration: 200,
+			},
+			closeText: 'Cancel',
+			title: 'Rename...',
+			close: function(event, ui) {
+				$(this).dialog('destroy');
+			}
+		});
+	};
+
 	$scope.click_upload = function() {
 		$('#upload_modal').dialog('open');
+		// TODO
 	};
+
 	$scope.click_open = function() {
 		var inode = $scope.inode_selection.inode;
 		$scope.select(inode, {
@@ -784,7 +862,7 @@ function InodesMenuCtrl($scope) {
 	$scope.click_delete = function() {
 		var inode = $scope.inode_selection.inode;
 		if (!inode) {
-			console.error('no selected dir, bailing');
+			console.error('no selected inode, bailing');
 			return;
 		}
 		if (inode.is_immutable_root()) {
@@ -795,8 +873,23 @@ function InodesMenuCtrl($scope) {
 			window.alert('Cannot delete non-empty folder.');
 			return;
 		}
-		$('#delete_dialog #delete_dialog_item').html(inode.make_inode_with_icon());
-		$('#delete_dialog').dialog({
+		var dlg = $('#delete_dialog');
+		dlg.find('#dialog_item').html(inode.make_inode_with_icon());
+		dlg.find('#dialog_no').off('click').on('click', function() {
+			dlg.dialog('close');
+		});
+		dlg.find('#dialog_yes').off('click').on('click', function() {
+			dlg.dialog('close');
+			inode.delete_inode().on('all', function() {
+				if (inode.id == $scope.inode_selection.inode.id) {
+					$scope.select(inode.parent, {
+						dir: true,
+						open_dir: true
+					});
+				}
+			});
+		});
+		dlg.dialog({
 			modal: true,
 			resizable: true,
 			closeOnEscape: true,
@@ -807,22 +900,6 @@ function InodesMenuCtrl($scope) {
 			},
 			closeText: 'Cancel',
 			title: 'Confirm delete?',
-			buttons: {
-				'Cancel': function() {
-					$(this).dialog('close');
-				},
-				'Delete': function() {
-					inode.delete_inode().on('all', function() {
-						if (inode.id == $scope.inode_selection.inode.id) {
-							$scope.select(inode.parent, {
-								dir: true,
-								open_dir: true
-							});
-						}
-					});
-					$(this).dialog('close');
-				}
-			},
 			close: function(event, ui) {
 				$(this).dialog('destroy');
 			}
@@ -844,11 +921,11 @@ function NewFolderModalCtrl($scope) {
 	// since the callback is not in angular context,
 	// we use apply to fire the watches.
 	var new_folder_modal = $('#new_folder_modal');
-	new_folder_modal.on('show', $scope.safe_callback(function() {
+	new_folder_modal.on('show.bs.modal', $scope.safe_callback(function() {
 		// reset text on show
 		$scope.new_name = '';
 	}));
-	new_folder_modal.on('shown', function() {
+	new_folder_modal.on('shown.bs.modal', function() {
 		// focus and select the text
 		$('#new_folder_input')[0].focus();
 		$('#new_folder_input')[0].select();
@@ -881,11 +958,11 @@ function RenameModalCtrl($scope) {
 	// since the callback is not in angular context,
 	// we use apply to fire the watches.
 	var rename_modal = $('#rename_modal');
-	rename_modal.on('show', $scope.safe_callback(function() {
+	rename_modal.on('show.bs.modal', $scope.safe_callback(function() {
 		// reset text on show
 		$scope.new_name = $scope.inode_selection.inode.name;
 	}));
-	rename_modal.on('shown', function() {
+	rename_modal.on('shown.bs.modal', function() {
 		// focus and select the text
 		$('#rename_input')[0].focus();
 		$('#rename_input')[0].select();
@@ -925,13 +1002,13 @@ function ShareModalCtrl($scope) {
 	// since the callback is not in angular context,
 	// we use apply to fire the watches.
 	var share_modal = $('#share_modal');
-	share_modal.on('show', $scope.safe_callback(function() {
+	share_modal.on('show.bs.modal', $scope.safe_callback(function() {
 		$scope.share_inode = $scope.inode_selection.inode;
 		$scope.share_inode.get_share_list().on('success', function(data) {
 			$scope.share_list = data.list;
 		});
 	}));
-	share_modal.on('hiden', $scope.safe_callback(function() {
+	share_modal.on('hidden.bs.modal', $scope.safe_callback(function() {
 		$scope.share_inode = null;
 		$scope.share_list = [];
 	}));

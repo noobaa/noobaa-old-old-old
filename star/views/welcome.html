@@ -22,7 +22,7 @@
 		}
 		.navbtn {
 			border-radius: 10px/10px;
-			margin: 6px;
+			margin: 8px;
 			padding: 5px !important;
 		}
 		.navbtn-shadow {
@@ -58,14 +58,13 @@
 
 		.bg_clouds {
 			background-image: url('/public/images/bg_clouds.jpg');
-			/*background-position: 0 -200px;*/
 			background-size: cover;
 			height: 400px;
 		}
 		.bg_logo {
 			background-color: #222222;
 			border-top-style: groove;
-			height: 400px;			
+			height: 200px;			
 		}
 	</style>
 </head>
@@ -80,45 +79,39 @@
 		<div class="carousel-inner filling">
 			
 			<div class="active item filling bg_item1">
-				<div class="nb_page_pad text-left">
-					<br/><br/><br/><br/>
-					<div class="H2 fntpaint fntblk">Cloud storage made</div>
-					<div class="H1 fntpaint fntblk">SIMPLE</div>
-					<br/><br/>
-					<h3 class="fntpaint fntblk">
-						All your Data.<br/>
-						One location.<br/>
-						No complex plans.<br/>
-						No complex decisions.<br/>
-						No additional hardware.<br/>
-					</h3>
+				<div class="nb_page_pad text-left fntpaint fntblk">
+					<br/><br/><br/>
+					<p class="H2">Cloud storage made</p>
+					<p class="H1">SIMPLE</p>
+					<br/>
+					<p class="lead">All your Data.</p>
+					<p class="lead">One location.</p>
+					<p class="lead">No complex plans.</p>
+					<p class="lead">No complex decisions.</p>
+					<p class="lead">No additional hardware.</p>
 				</div>
 			</div>
 
 			<div class="item filling bg_item2">
-				<div class="nb_page_pad text-left">
-					<br/><br/><br/><br/>
-					<div class="H2 fntpaint fntwht">Cloud storage made</div>
-					<div class="H1 fntpaint fntwht">FAST</div>
-					<br/><br/>
-					<h3 class="fntpaint fntwht">
-						Join the power of the crowd.<br/>
-						Together we are the most -<br/>
-						powerful data-center.<br/>
-					</h3>
+				<div class="nb_page_pad text-left fntpaint fntwht">
+					<br/><br/><br/>
+					<p class="H2">Cloud storage made</p>
+					<p class="H1">FAST</p>
+					<br/>
+					<p class="lead">Join the power of the crowd.</p>
+					<p class="lead">Together we are the most -</p>
+					<p class="lead">powerful data-center.</p>
 				</div>
 			</div>
 
 			<div class="item filling bg_item3">
-				<div class="nb_page_pad text-left">
-					<br/><br/><br/><br/>
-					<div class="H2 fntpaint fntwht">Cloud storage made</div>
-					<div class="H1 fntpaint fntwht">FREE</div>
-					<br/><br/>
-					<h3 class="fntpaint fntwht">
-						Unlimited capacity.<br/>
-						Absolutely free.<br/>
-					</h3>
+				<div class="nb_page_pad text-left fntpaint fntwht">
+					<br/><br/><br/>
+					<p class="H2">Cloud storage made</p>
+					<p class="H1">FREE</p>
+					<br/>
+					<p class="lead">Unlimited capacity.</p>
+					<p class="lead">Absolutely free.</p>
 				</div>
 			</div>
 
@@ -138,39 +131,40 @@
 
 	<div id="nb_nav_marker"></div>
 
-	<div id="nb_nav" class="nb_navbar navbar navbar-inverse"
+	<nav id="nb_nav"
+		class="navbar navbar-inverse navbar-fixed-bottom"
+		role="navigation"
 		onresize="nb_nav_affix = undefined;">
-		<div class="nb_page_pad navbar-inner fntwht">
-			<a class="brandy pull-left scroller" href="#_">
-				<img src="/public/images/noobaa_logo.png"></img>
-			</a>
-			<ul class="nav pull-right">
-				<li>
-					<a class="scroller navbtn navbtn-shadow" href="#whatis"
-						style="background-color: #000000; color: white">
-						<b>ABOUT</b>
-					</a>
-				</li>
-				<li>
-					<a class="scroller navbtn navbtn-shadow" href="#vision"
-						style="background-color: #666666; color: black">
-						<b>THE VISION</b>
-					</a>
-				</li>
-				<li>
-					<a class="scroller navbtn navbtn-shadow" href="#join"
-						style="background-color: #ffffff; color: black">
-						<b>JOIN US</b>
-					</a>
-				</li>
-				<li>
-					<a href="/auth/facebook/login/" style="margin-left: 60px">
-						<img src="/public/images/facebook_login_button.png"></img>
-					</a>
-				</li>
-			</ul>
+		<div class="nb_page_pad">
+			<div class="navbar-header">
+				<a class="navbar-brand scroller" href="#_">
+					<img src="/public/images/noobaa_logo.png"></img>
+				</a>
+			</div>
+			<div class="navbar-right">
+				<button href="#whatis"
+					class="navbar-btn navbtn navbtn-shadow scroller"
+					style="background-color: #000000; color: white">
+					<b>ABOUT</b>
+				</button>
+				<button href="#vision"
+					class="navbar-btn navbtn navbtn-shadow scroller"
+					style="background-color: #666666; color: black">
+					<b>THE VISION</b>
+				</button>
+				<button href="#join"
+					class="navbar-btn navbtn navbtn-shadow scroller"
+					style="background-color: #ffffff; color: black">
+					<b>JOIN US</b>
+				</button>
+				<a href="/auth/facebook/login/"
+					class="navbar-link"
+					style="margin-left: 60px">
+					<img src="/public/images/facebook_login_button.png"></img>
+				</a>
+			</div>
 		</div>
-	</div>
+	</nav>
 
 	<div id="whatis" class="nb_nav_link nb_page_pad fntblk">
 		<div class="H2">WHAT IS NOOBAA?</div>
@@ -216,7 +210,7 @@
 		</div>
 		<br/><br/>
 		<div class="text-center">
-			<a class="btn"
+			<a class="btn btn-default"
 				data-toggle="collapse"
 				href="#login_faq_content">
 				<b>{{login_faq.title}}</b>
@@ -232,10 +226,10 @@
 					padding: 3px 20px 3px 20px">
 				<a data-toggle="collapse"
 					href="#login_faq_question{{idx}}">
-					<h4>
+					<p class="fntdata">
 						<i class="icon-plus icon-fixed-width"></i>
 						{{question.q}}
-					</h4>
+					</p>
 				</a>
 				<div class="collapse"
 					id="login_faq_question{{idx}}">
@@ -243,12 +237,11 @@
 				</div>
 			</div>
 		</div>
-		<br/><br/>
 	</div>
 
 	<div class="wfill bg_logo text-center">
 		<img src="/public/images/noobaa_logo.png"
-			style="height: 80px; margin: 160px 0 0 10px; opacity: 0.2">
+			style="height: 80px; margin: 60px 0 0 10px; opacity: 0.2">
 		</img>
 	</div>
 

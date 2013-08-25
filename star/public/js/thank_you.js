@@ -9,17 +9,16 @@ function ThankYouCtrl($scope, $http) {
 	var success_msg = "Your request was sent. Thanks!";//this hits the server and should triger an email to the user
 
 	$scope.submit = function() {
-		has_running_requests = true;
 		$scope.submitting = true;
+		$('.icon-spinner').show();
 		$('.alert').html('').hide();
 
 		if (!$scope.new_email) {
 			return $scope.finished_with_error(err_msg_invalid_email);
 		}
 		if ($scope.new_email == noobaa_user.email) {
-			$scope.finished_with_success(err_msg_known_email);
+			return $scope.finished_with_success(err_msg_known_email);
 		}
-
 
 		var ajax = $http.put('/star_api/user/' + noobaa_user.id, {
 			new_email: $scope.new_email
@@ -34,16 +33,16 @@ function ThankYouCtrl($scope, $http) {
 	};
 
 	$scope.finished_with_error = function(text) {
-		has_running_requests = false;
 		$scope.submitting = false;
+		$('.icon-spinner').hide();
 		$('.alert-success').html('').hide();
 		$('.alert-error').html(text).show().effect('bounce', 'slow');
 	};
 
 	$scope.finished_with_success = function(text) {
-		has_running_requests = false;
 		$scope.submitting = false;
 		$scope.submitted = true;
+		$('.icon-spinner').hide();
 		$('.alert-error').html('').hide();
 		$('.alert-success').html(text).show('fade', 'slow');
 	};

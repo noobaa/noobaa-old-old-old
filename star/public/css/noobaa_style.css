@@ -4,7 +4,7 @@ html, body {
 	width: 100%;
 	height: 100%;
 	min-height: 100%;
-	font-family: 'Ubuntu', 'Open Sans', sans-serif !important;
+	font-family: 'Nunito', 'Ubuntu', sans-serif !important;
 }
 
 .fntblk {
@@ -14,9 +14,10 @@ html, body {
 	color: white;
 }
 .fntpaint {
-	font-family: 'Finger Paint', cursive;
+	font-family: 'Finger Paint', cursive !important;
 }
 .fntdata {
+	font-family: 'Ubuntu', sans-serif !important;
 	font-size: 16px;
 	line-height: 26px;
 }
@@ -30,26 +31,18 @@ html, body {
 }
 
 
-.nb_navbar {
+.navbar {
 	width: 100% !important;
 	margin: 0 !important;
-	z-index: 10;
-}
-
-.navbar-inner {
+	z-index: 1020 !important;
 	background-color: rgba(34,34,34,0.9) !important;
 	background-image: none !important;
 }
-
-.nb_navbar a.brandy {
+.navbar .navbar-brand {
 	padding: 0;
-	text-align: left;
-	margin-right: 20px;
 }
-
-.nb_navbar a.brandy img {
-	text-align: left;
-	height: 40px;
+.navbar .navbar-brand img {
+	height: 48px;
 	margin-left: 5px;
 	margin-right: 5px;
 }
@@ -143,6 +136,10 @@ html, body {
 	box-shadow: 		0 0 6px 6px rgba(0, 0, 0, 0.3);
 }
 
+.modal-backdrop {
+	background-color: rgba(0,0,0,0.1) !important;
+}
+
 .ui-dialog {
 	/*border: solid 2px rgba(0, 0, 0, 0.9) !important;*/
 	-moz-box-shadow: 	0 0 6px 6px rgba(0, 0, 0, 0.3);
@@ -158,13 +155,17 @@ html, body {
 }
 .ui-dialog-titlebar {
 	background: none !important;
-	background-color: #e0e8e8 !important;
+	background-color: #5bc0de !important;
 	/*color: black !important;*/
 }
 .ui-widget-overlay {
 	background: none !important;
-	background-color: rgba(0,0,0,0.8) !important;
+	background-color: rgba(0,0,0,0.1) !important;
 	opacity: 1 !important;
+}
+
+.tour .popover-title, .tour .popover-navigation {
+	background-color: #5cb85c;
 }
 
 .bgpattern {

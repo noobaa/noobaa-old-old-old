@@ -1,27 +1,27 @@
 var global_menu_bar_first_guide;
 var global_menu_bar_last_guide;
 
-MenuBarCtrl.$inject = ['$scope', '$location'];
+MenuBarCtrl.$inject = ['$scope', '$window'];
 
-function MenuBarCtrl($scope, $location) {
+function MenuBarCtrl($scope, $window) {
 
 	$scope.active_link = function(link) {
-		return link === $location.path() ? 'active' : '';
+		return link === $window.location.pathname ? 'active' : '';
 	};
 
 	function guide_template(i, step) {
 		return [
 			'<div class="popover tour" style="min-width: ' + (step.width || 400) + 'px">',
 			'  <div class="arrow"></div>',
-			'  <div class="popover-title fnttour btn-success"></div>',
+			'  <div class="popover-title fnttour"></div>',
 			'  <div class="popover-content fnttour"></div>',
-			'  <div class="popover-navigation fnttour btn-success text-center">',
+			'  <div class="popover-navigation fnttour text-center">',
 			'    <span class="fnttour pull-left">', (i + 1), '/', step.guide.steps.length, '</span>',
 			'    <a href="#" data-role="first" onclick="global_menu_bar_first_guide()">',
 			'      <i class="icon-fast-backward icon-fixed-width"></i></a>',
-			'    <a href="#" data-role="prev" class="btn btn-inverse">',
+			'    <a href="#" data-role="prev" class="btn btn-primary">',
 			'      <i class="icon-step-backward icon-2x icon-fixed-width text-info"></i></a>',
-			'    <a href="#" data-role="next" class="btn btn-inverse">',
+			'    <a href="#" data-role="next" class="btn btn-primary">',
 			'      <i class="icon-step-forward icon-2x icon-fixed-width text-info"></i></a>',
 			'    <a href="#" data-role="last" onclick="global_menu_bar_last_guide()">',
 			'      <i class="icon-fast-forward icon-fixed-width"></i></a>',
@@ -169,7 +169,7 @@ function MenuBarCtrl($scope, $location) {
 	};
 	$scope.guides.welcome.steps[2] = {
 		path: '/mydata',
-		element: '#menu_right',
+		element: '#my_guides',
 		placement: 'bottom',
 		backdrop: true,
 		title: 'WHAT\'S NEXT',
@@ -325,7 +325,7 @@ function MenuBarCtrl($scope, $location) {
 	};
 	$scope.guides.upload_file.steps[6] = {
 		path: '/mydata',
-		element: '#menu_right',
+		element: '#my_guides',
 		placement: 'bottom',
 		backdrop: true,
 		title: 'DONE',
@@ -343,7 +343,7 @@ function MenuBarCtrl($scope, $location) {
 
 	$scope.guides.access_file.steps[0] = {
 		path: "/mydata",
-		element: '#menu_right',
+		element: '#my_guides',
 		placement: 'bottom',
 		backdrop: true,
 		title: 'ACCESSING',
@@ -357,7 +357,7 @@ function MenuBarCtrl($scope, $location) {
 	};
 	$scope.guides.access_file.steps[1] = {
 		path: "/mydata",
-		element: '#menu_right',
+		element: '#my_guides',
 		placement: 'bottom',
 		backdrop: true,
 		title: 'ACCESSING',
@@ -371,7 +371,7 @@ function MenuBarCtrl($scope, $location) {
 	//// SHARE FILE ////
 
 	$scope.guides.share_file.steps[0] = {
-		element: "#menu_right",
+		element: "#my_guides",
 		placement: 'bottom',
 		backdrop: true,
 		title: "",
@@ -385,7 +385,7 @@ function MenuBarCtrl($scope, $location) {
 	//// SHARED WITH ME ////
 
 	$scope.guides.shared_with_me.steps[0] = {
-		element: "#menu_right",
+		element: "#my_guides",
 		placement: 'bottom',
 		backdrop: true,
 		title: "",
@@ -437,7 +437,7 @@ function MenuBarCtrl($scope, $location) {
 	};
 	$scope.guides.cosharing.steps[3] = {
 		path: "/mydevices",
-		element: "#menu_right",
+		element: "#my_guides",
 		placement: 'bottom',
 		backdrop: true,
 		reflex: true,

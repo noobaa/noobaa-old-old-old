@@ -89,9 +89,9 @@
 <!-- TOOLBAR -->
 
 
-	<div ng-controller="InodesMenuCtrl" class="row-fluid">
+	<div ng-controller="InodesMenuCtrl" class="row">
 
-		<div class="offset3" style="margin-bottom: 30px;">
+		<div class="col-md-offset-3 col-md-9" style="margin-bottom: 30px;">
 			<button id="upload_button" class="btn btn-success toolbtn"
 				TODO-ng-click="click_upload()"
 				data-target="#upload_modal" 
@@ -100,27 +100,27 @@
 				ng-disabled="!dir_selection.inode">
 				<i class="icon-cloud-upload icon-large"></i>
 			</button>
-			<button class="btn toolbtn"
+			<button class="btn btn-default toolbtn"
 				ng-click="click_open()"
 				title="Open"
 				ng-disabled="!inode_selection.inode">
 				<i class="icon-play icon-large"></i>
 			</button>
-			<button class="btn toolbtn"
+			<button class="btn btn-default toolbtn"
 				data-target="#share_modal" 
 				data-toggle="modal"
 				title="Share"
 				ng-disabled="!inode_selection.inode">
 				<i class="icon-share icon-large"></i>
 			</button>
-			<button class="btn toolbtn"
+			<button class="btn btn-default toolbtn"
 				ng-click="click_refresh()"
 				title="Refresh"
 				ng-disabled="!dir_selection.inode">
 				<i class="icon-refresh icon-large"></i>
 			</button>
 			<div class="dropdown btn-group" align="left">
-				<button class="dropdown-toggle btn toolbtn" 
+				<button class="dropdown-toggle btn btn-default toolbtn" 
 					id="more_actions_label"
 					role="button" data-toggle="dropdown" data-target="#"
 					ng-disabled="!inode_selection.inode">
@@ -130,15 +130,17 @@
 				<ul class="dropdown-menu" role="menu"
 					aria-labelledby="more_actions_label">
 					<li>
- 						<a data-target="#new_folder_modal"
-							data-toggle="modal">
+ 						<a ng-click="click_mkdir()"
+ 							TODO-data-target="#new_folder_modal"
+							TODO-data-toggle="modal">
 							<i class="icon-plus icon-large icon-fixed-width"></i>
 							New Folder
 						</a>
 					</li>
 					<li>
-						<a data-target="#rename_modal" 
-							data-toggle="modal">
+						<a ng-click="click_rename()"
+							TODO-data-target="#rename_modal" 
+							TODO-data-toggle="modal">
 							<i class="icon-edit icon-large icon-fixed-width"></i>
 							Rename
 						</a>
@@ -175,7 +177,12 @@
 	<div ng-controller="InodesMenuCtrl"
 		id="context_menu" 
 		class="dropdown" style="z-index: 100;">
-		<a id="context_menu_toggle" class="dropdown-toggle" href="#" hidden="true"></a>
+		<a id="context_menu_toggle" 
+			class="dropdown-toggle"
+			data-toggle="dropdown"
+			href="#"
+			hidden="true">
+		</a>
 		<ul class="dropdown-menu" 
 			role="menu" 
 			aria-labelledby="dLabel">
@@ -200,15 +207,17 @@
 			</li>
 			<li class="divider"></li>
 			<li>
-				<a data-target="#new_folder_modal" 
-					data-toggle="modal">
+				<a ng-click="click_mkdir()"
+					TODO-data-target="#new_folder_modal" 
+					TODO-data-toggle="modal">
 					<i class="icon-plus icon-fixed-width"></i>
 					New folder
 				</a>
 			</li>
 			<li>
-				<a data-target="#rename_modal" 
-					data-toggle="modal">
+				<a ng-click="click_rename()"
+					TODO-data-target="#rename_modal" 
+					TODO-data-toggle="modal">
 					<i class="icon-edit icon-fixed-width"></i>
 					Rename
 				</a>
@@ -240,9 +249,9 @@
 
 <!-- VIEWS -->
 
-	<div class="notextselect row-fluid"
-		style="min-height: 400px; margin-bottom: 20px;">
-		<div class="span3">
+	<div class="notextselect row"
+		style="min-height: 400px">
+		<div class="col-md-3" style="margin-bottom: 20px">
 			<div ng-controller="InodesTreeCtrl"
 				ng-include="'tree_view_template.html'"
 				class="roundbord bglight"
@@ -250,7 +259,7 @@
 				id="inodes_tree">
 			</div>
 		</div>
-		<div class="span9">
+		<div class="col-md-9" style="margin-bottom: 20px">
 			<div ng-controller="InodesListCtrl"
 				ng-include="'list_view_template.html'"
 				class="roundbord bglight"
@@ -266,12 +275,14 @@
 
 	<div ng-controller="UploadCtrl"
 		id="upload_modal"
-		class="modal hide fade"
+		class="modal fade"
 		TODO-style="display: none"
 		tabindex="-1" 
 		role="dialog" 
 		aria-labelledby="upload_modal_label" 
 		aria-hidden="true">
+		<div class="modal-dialog">
+		<div class="modal-content">
 		<div class="modal-header">
 			<a type="button" class="close" data-dismiss="modal">×</a>
 			<h3 id="upload_modal_label">Uploads</h3>
@@ -324,14 +335,15 @@
 							</div>
 						</td>
 						<td>
-							<button class="btn btn-mini" ng-click="dismiss_upload(upload)">x</button>
+							<button class="btn btn-default btn-xs" 
+								ng-click="dismiss_upload(upload)">x</button>
 						</td>
 					</tr>
 				</table>
 			</div>
 		</div>
 		<div class="modal-footer">
-			<button class="btn pull-left" data-dismiss="modal">Hide</button>
+			<button class="btn btn-default pull-left" data-dismiss="modal">Hide</button>
 			<!-- The fileinput-button span is used to style the file input field as button -->
 			<span id="choose_file_button"
 				class="btn btn-primary fileinput-button">
@@ -353,6 +365,8 @@
 				</input>
 			</span>
 		</div>
+		</div>
+		</div>
 	</div>
 
 
@@ -360,11 +374,13 @@
 
 	<div ng-controller="NewFolderModalCtrl"
 		id="new_folder_modal"
-		class="modal hide fade" 
+		class="modal fade" 
 		tabindex="-1" 
 		role="dialog" 
 		aria-labelledby="new_folder_modal_label" 
 		aria-hidden="true">
+		<div class="modal-dialog">
+		<div class="modal-content">
 		<div class="modal-header">
 			<a type="button" class="close" data-dismiss="modal">×</a>
 			<h3 id="new_folder_modal_label">New Folder</h3>
@@ -374,9 +390,12 @@
 			<input ng-model="new_name" id="new_folder_input" class="input" type="text" style="width: 95%;"></input>
 		</div>
 		<div class="modal-footer">
-			<button class="btn pull-left" data-dismiss="modal">Close</button>
+			<button class="btn btn-default pull-left"
+				data-dismiss="modal">Close</button>
 			<button class="btn btn-primary"	data-dismiss="modal" 
 				ng-click="submit()">Create</button>
+		</div>
+		</div>
 		</div>
 	</div>
 
@@ -385,11 +404,13 @@
 
 	<div ng-controller="RenameModalCtrl"
 		id="rename_modal" 
-		class="modal hide fade" 
+		class="modal fade" 
 		tabindex="-1" 
 		role="dialog" 
 		aria-labelledby="rename_modal_label" 
 		aria-hidden="true">
+		<div class="modal-dialog">
+		<div class="modal-content">
 		<div class="modal-header">
 			<a type="button" class="close" data-dismiss="modal">×</a>
 			<h3 id="rename_modal_label">Rename...</h3>
@@ -399,9 +420,12 @@
 			<input ng-model="new_name" id="rename_input" class="input" type="text" style="width: 95%;"></input>
 		</div>
 		<div class="modal-footer">
-			<button class="btn pull-left" data-dismiss="modal">Close</button>
+			<button class="btn btn-default pull-left"
+				data-dismiss="modal">Close</button>
 			<button class="btn btn-primary" data-dismiss="modal" 
 				ng-click="submit()">Rename</button>
+		</div>
+		</div>
 		</div>
 	</div>
 
@@ -410,11 +434,13 @@
 
 	<div ng-controller="ShareModalCtrl"
 		id="share_modal" 
-		class="modal hide fade" 
+		class="modal fade" 
 		tabindex="-1" 
 		role="dialog" 
 		aria-labelledby="share_modal_label" 
 		aria-hidden="true">
+		<div class="modal-dialog">
+		<div class="modal-content">
 		<div class="modal-header">
 			<a type="button" class="close" data-dismiss="modal">×</a>
 			<h3 id="share_modal_label">Share...</h3>
@@ -444,9 +470,12 @@
 			</div>
 		</div>
 		<div class="modal-footer">
-			<button class="btn pull-left" data-dismiss="modal">Close</button>
+			<button class="btn btn-default pull-left"
+				data-dismiss="modal">Close</button>
 			<button class="btn btn-primary"	data-dismiss="modal" 
 				ng-click="submit()">Save</button>
+		</div>
+		</div>
 		</div>
 	</div>
 
@@ -465,16 +494,50 @@
 
 	<div id="move_dialog" style="display: none" class="fntdata">
 		<p><b>Are you sure you want to move:</b></p>
-		<div id="move_dialog_item" style="margin: 20px; word-wrap: break-word"></div>
+		<div id="dialog_item" style="margin: 20px; word-wrap: break-word"></div>
 		<p><b>into</b></p>
-		<div id="move_dialog_to" style="margin: 20px; word-wrap: break-word"></div>
+		<div id="dialog_item2" style="margin: 20px; word-wrap: break-word"></div>
+		<hr/>
+		<button id="dialog_no" class="btn btn-default">Cancel</button>
+		<button id="dialog_yes" class="btn btn-primary pull-right">Move</button>
 	</div>
 
 <!-- DELETE DIALOG -->
 
 	<div id="delete_dialog" style="display: none" class="fntdata">
 		<p><b>Are you sure you want to delete this item:</b></p>
-		<div id="delete_dialog_item" style="margin: 20px; word-wrap: break-word"></div>
+		<div id="dialog_item" style="margin: 20px; word-wrap: break-word"></div>
+		<hr/>
+		<button id="dialog_no" class="btn btn-default">Cancel</button>
+		<button id="dialog_yes" class="btn btn-danger pull-right">Delete</button>
+	</div>
+
+<!-- MKDIR DIALOG -->
+
+	<div id="mkdir_dialog" style="display: none" class="fntdata">
+		<p>
+			<b>Create folder in:</b>
+			<div id="dialog_item"
+				style="margin: 20px; word-wrap: break-word"></div>
+		</p>
+		<input id="dialog_input" class="form-control" type="text"/>
+		<hr/>
+		<button id="dialog_no" class="btn btn-default">Cancel</button>
+		<button id="dialog_yes" class="btn btn-primary pull-right">Create</button>
+	</div>
+
+<!-- RENAME DIALOG -->
+
+	<div id="rename_dialog" style="display: none" class="fntdata">
+		<p>
+			<b>New name for:</b>
+			<div id="dialog_item"
+				style="margin: 20px; word-wrap: break-word"></div>
+		</p>
+		<input id="dialog_input" class="form-control" type="text"/>
+		<hr/>
+		<button id="dialog_no" class="btn btn-default">Cancel</button>
+		<button id="dialog_yes" class="btn btn-primary pull-right">Rename</button>
 	</div>
 
 
@@ -489,7 +552,7 @@
 
 <script type="text/ng-template" id="tree_view_template.html">
 	<div class="fntdata">
-		<div class="d-row d-head btn-info">
+		<div class="d-row d-head btn-info fntwht">
 			<div class="d-cell" style="margin-left: 35px">Folders Tree</div>
 		</div>
 		<div nb-right-click="inode_rclick(dir_inode, $event)"
