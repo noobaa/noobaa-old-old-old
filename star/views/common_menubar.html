@@ -1,7 +1,7 @@
 <nav class="navbar navbar-inverse navbar-static-top"
 	role="navigation"
 	ng-controller="MenuBarCtrl">
-	<div class="nb_page_pad fntwht">
+	<div class="nb_page_pad">
 		<div class="navbar-header">
 			<a id="logo_link" class="navbar-brand" href="/">
 				<img src="/public/images/noobaa_logo.png"></img>
@@ -24,7 +24,7 @@
 					data-placement="left" rel="tooltip">
 					<i class="icon-info-sign icon-large text-info"></i>
 				</a>
-				<ul class="dropdown-menu fntblk"
+				<ul class="dropdown-menu"
 					role="menu"
 					aria-labelledby="my_guides">
 					<li ng-repeat="guide in guides_list">
@@ -58,7 +58,7 @@
 						<?! it.user.name ?>
 					</div>
 				</a>
-				<ul class="dropdown-menu fntblk"
+				<ul class="dropdown-menu"
 					role="menu"
 					aria-labelledby="user_label">
 					<li align="center">
@@ -83,7 +83,7 @@
 	</div>
 </nav>
 <div id="feedback_modal"
-	class="modal fade fntblk" 
+	class="modal fade" 
 	tabindex="-1" 
 	role="dialog" 
 	aria-labelledby="feedback_modal_label" 

@@ -4,32 +4,30 @@ html, body {
 	width: 100%;
 	height: 100%;
 	min-height: 100%;
+}
+.fnt, body, h1, h2, h3, h4, h5, h6, .ui-widget, button {
 	font-family: 'Nunito', 'Ubuntu', sans-serif !important;
 }
-
+.fntpaint {
+	font-family: 'Finger Paint', cursive !important;
+}
+.fntthin {
+	font-family: 'Ubuntu', sans-serif !important;
+}
+.fntmd {
+	font-size: 16px;
+	line-height: 26px;
+}
+.fntlg {
+	font-size: 22px;
+	line-height: 34px;
+}
 .fntblk {
 	color: black;
 }
 .fntwht {
 	color: white;
 }
-.fntpaint {
-	font-family: 'Finger Paint', cursive !important;
-}
-.fntdata {
-	font-family: 'Ubuntu', sans-serif !important;
-	font-size: 16px;
-	line-height: 26px;
-}
-.fnttour {
-	font-size: 22px;
-	line-height: 34px;
-}
-.tour .popover-content {
-	background-color: rgba(0,0,0,0.85);
-	color: white;
-}
-
 
 .navbar {
 	width: 100% !important;
@@ -134,6 +132,12 @@ html, body {
 	-moz-box-shadow: 	0 0 6px 6px rgba(0, 0, 0, 0.3);
 	-webkit-box-shadow: 0 0 6px 6px rgba(0, 0, 0, 0.3);
 	box-shadow: 		0 0 6px 6px rgba(0, 0, 0, 0.3);
+}
+
+
+.tour .popover-content {
+	background-color: rgba(50,50,50,1);
+	color: white;
 }
 
 .modal-backdrop {

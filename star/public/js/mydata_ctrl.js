@@ -343,7 +343,7 @@ Inode.prototype.handle_drop = function(inode) {
 
 Inode.prototype.get_drag_helper = function() {
 	return $('<div class="label label-default roundbord">' +
-		'<span class="lead">Moving: <b>' +
+		'<span class="fntthin fntmd">Moving: <b>' +
 		this.name + '</b></span></div>');
 };
 
@@ -390,17 +390,42 @@ InodesSelection.prototype.select = function(inode) {
 };
 
 
-
 ////////////////////////////////
 ////////////////////////////////
-// setup_inodes_root_ctrl
+// MyDataCtrl
 ////////////////////////////////
 ////////////////////////////////
 
+MyDataCtrl.$inject = ['$scope', '$http', '$timeout', '$window'];
 
-// initializer for the inodes root model/controller
+function MyDataCtrl($scope, $http, $timeout, $window) {
 
-function setup_inodes_root_ctrl($scope, $timeout, $window) {
+	$scope.timeout = $timeout;
+	$scope.api_url = "/star_api/";
+	$scope.inode_api_url = $scope.api_url + "inode/";
+	$scope.inode_share_sufix = "/share_list";
+
+	// returns an event object with 'success' and 'error' events,
+	// which allows multiple events can be registered on the ajax result.
+	$scope.http = function(req) {
+		console.log('[http]', req);
+		var ev = _.clone(Backbone.Events);
+		ev.on('success', function(data, status) {
+			console.log('[http ok]', [status, req]);
+		});
+		ev.on('error', function(data, status) {
+			console.error(data || 'http request failed', [status, req]);
+		});
+		var ajax = $http(req);
+		ajax.success(function(data, status, headers, config) {
+			ev.trigger('success', data, status, headers, config);
+		});
+		ajax.error(function(data, status, headers, config) {
+			ev.trigger('error', data, status, headers, config);
+		});
+		return ev;
+	};
+
 	$scope.root_dir = new Inode($scope, null, '', true, null);
 
 	// dir_inode is needed to bootstrap the recursive rendering templates
@@ -508,13 +533,13 @@ function setup_inodes_root_ctrl($scope, $timeout, $window) {
 		// when drag is an inode, then move it under the drop dir
 		console.log('drag ' + drag_inode.name + ' drop ' + drop_inode.name);
 		if (drag_inode.is_immutable_root()) {
-			window.alert('Cannot move root folder.');
+			$scope.alert_dialog('Cannot move root folder.');
 			return;
 		}
 		var p = drop_inode;
 		while (p) {
 			if (p.id === drag_inode.id) {
-				window.alert('Cannot create circular folders. It\'s just wrong.');
+				$scope.alert_dialog('Cannot create circular folders. It\'s just wrong.');
 				return;
 			}
 			p = p.parent;
@@ -527,10 +552,7 @@ function setup_inodes_root_ctrl($scope, $timeout, $window) {
 		var dlg = $('#move_dialog');
 		dlg.find('#dialog_item').html(drag_inode.make_inode_with_icon());
 		dlg.find('#dialog_item2').html(drop_inode.make_inode_with_icon());
-		dlg.find('#dialog_no').off('click').on('click', function() {
-			dlg.dialog('close');
-		});
-		dlg.find('#dialog_yes').off('click').on('click', function() {
+		dlg.find('#dialog_ok').off('click').on('click', function() {
 			dlg.dialog('close');
 			drag_inode.rename(drop_inode, drag_inode.name).on('all', function() {
 				// select the drop dir
@@ -540,20 +562,8 @@ function setup_inodes_root_ctrl($scope, $timeout, $window) {
 				});
 			});
 		});
-		dlg.dialog({
-			modal: true,
-			resizable: true,
-			closeOnEscape: true,
-			show: {
-				effect: 'drop',
-				direction: 'up',
-				duration: 200,
-			},
-			closeText: 'Cancel',
-			title: 'Confirm move?',
-			close: function(event, ui) {
-				$(this).dialog('destroy');
-			}
+		$scope.do_dialog(dlg, {
+			title: 'Confirm move'
 		});
 	};
 
@@ -773,29 +783,14 @@ function InodesMenuCtrl($scope) {
 		var input = dlg.find('#dialog_input');
 		input.val('');
 		dlg.find('#dialog_item').html(dir_inode.make_inode_with_icon());
-		dlg.find('#dialog_no').off('click').on('click', function() {
-			dlg.dialog('close');
-		});
-		dlg.find('#dialog_yes').off('click').on('click', function() {
+		dlg.find('#dialog_ok').off('click').on('click', function() {
 			dlg.dialog('close');
 			if (input.val()) {
 				dir_inode.mkdir(input.val());
 			}
 		});
-		dlg.dialog({
-			modal: true,
-			resizable: true,
-			closeOnEscape: true,
-			show: {
-				effect: 'drop',
-				direction: 'up',
-				duration: 200,
-			},
-			closeText: 'Cancel',
-			title: 'New Folder...',
-			close: function(event, ui) {
-				$(this).dialog('destroy');
-			}
+		$scope.do_dialog(dlg, {
+			title: 'New Folder...'
 		});
 	};
 
@@ -806,36 +801,21 @@ function InodesMenuCtrl($scope) {
 			return;
 		}
 		if (inode.is_immutable_root()) {
-			window.alert('Cannot rename root folder.');
+			$scope.alert_dialog('Cannot rename root folder.');
 			return;
 		}
 		var dlg = $('#rename_dialog');
 		var input = dlg.find('#dialog_input');
 		input.val(inode.name);
 		dlg.find('#dialog_item').html(inode.make_inode_with_icon());
-		dlg.find('#dialog_no').off('click').on('click', function() {
-			dlg.dialog('close');
-		});
-		dlg.find('#dialog_yes').off('click').on('click', function() {
+		dlg.find('#dialog_ok').off('click').on('click', function() {
 			dlg.dialog('close');
 			if (input.val() && input.val() !== inode.name) {
 				inode.rename(inode.parent, input.val());
 			}
 		});
-		dlg.dialog({
-			modal: true,
-			resizable: true,
-			closeOnEscape: true,
-			show: {
-				effect: 'drop',
-				direction: 'up',
-				duration: 200,
-			},
-			closeText: 'Cancel',
-			title: 'Rename...',
-			close: function(event, ui) {
-				$(this).dialog('destroy');
-			}
+		$scope.do_dialog(dlg, {
+			title: 'Rename...'
 		});
 	};
 
@@ -866,19 +846,16 @@ function InodesMenuCtrl($scope) {
 			return;
 		}
 		if (inode.is_immutable_root()) {
-			window.alert('Cannot delete root folder.');
+			$scope.alert_dialog('Cannot delete root folder.');
 			return;
 		}
 		if (inode.is_dir_non_empty()) {
-			window.alert('Cannot delete non-empty folder.');
+			$scope.alert_dialog('Cannot delete non-empty folder.');
 			return;
 		}
 		var dlg = $('#delete_dialog');
 		dlg.find('#dialog_item').html(inode.make_inode_with_icon());
-		dlg.find('#dialog_no').off('click').on('click', function() {
-			dlg.dialog('close');
-		});
-		dlg.find('#dialog_yes').off('click').on('click', function() {
+		dlg.find('#dialog_ok').off('click').on('click', function() {
 			dlg.dialog('close');
 			inode.delete_inode().on('all', function() {
 				if (inode.id == $scope.inode_selection.inode.id) {
@@ -889,99 +866,9 @@ function InodesMenuCtrl($scope) {
 				}
 			});
 		});
-		dlg.dialog({
-			modal: true,
-			resizable: true,
-			closeOnEscape: true,
-			show: {
-				effect: 'drop',
-				direction: 'up',
-				duration: 200,
-			},
-			closeText: 'Cancel',
-			title: 'Confirm delete?',
-			close: function(event, ui) {
-				$(this).dialog('destroy');
-			}
+		$scope.do_dialog(dlg, {
+			title: 'Confirm delete'
 		});
-	};
-}
-
-
-
-////////////////////////////////
-////////////////////////////////
-// NewFolderModalCtrl
-////////////////////////////////
-////////////////////////////////
-
-NewFolderModalCtrl.$inject = ['$scope'];
-
-function NewFolderModalCtrl($scope) {
-	// since the callback is not in angular context,
-	// we use apply to fire the watches.
-	var new_folder_modal = $('#new_folder_modal');
-	new_folder_modal.on('show.bs.modal', $scope.safe_callback(function() {
-		// reset text on show
-		$scope.new_name = '';
-	}));
-	new_folder_modal.on('shown.bs.modal', function() {
-		// focus and select the text
-		$('#new_folder_input')[0].focus();
-		$('#new_folder_input')[0].select();
-	});
-
-	$scope.submit = function() {
-		new_folder_modal.modal('hide');
-		var dir_inode = $scope.dir_selection.inode;
-		if (!dir_inode) {
-			console.error('no selected inode, bailing');
-			return;
-		}
-		if ($scope.new_name) {
-			dir_inode.mkdir($scope.new_name);
-		}
-	};
-}
-
-
-
-////////////////////////////////
-////////////////////////////////
-// RenameModalCtrl
-////////////////////////////////
-////////////////////////////////
-
-RenameModalCtrl.$inject = ['$scope'];
-
-function RenameModalCtrl($scope) {
-	// since the callback is not in angular context,
-	// we use apply to fire the watches.
-	var rename_modal = $('#rename_modal');
-	rename_modal.on('show.bs.modal', $scope.safe_callback(function() {
-		// reset text on show
-		$scope.new_name = $scope.inode_selection.inode.name;
-	}));
-	rename_modal.on('shown.bs.modal', function() {
-		// focus and select the text
-		$('#rename_input')[0].focus();
-		$('#rename_input')[0].select();
-	});
-
-	$scope.submit = function() {
-		rename_modal.modal('hide');
-		var inode = $scope.inode_selection.inode;
-		if (!inode) {
-			console.error('no selected inode, bailing');
-			return;
-		}
-		if (inode.is_immutable_root()) {
-			window.alert('Cannot rename root folder');
-			return;
-		}
-		if ($scope.new_name !== inode.name) {
-			inode.rename(inode.parent, $scope.new_name);
-		}
 	};
 }
 
@@ -1225,46 +1112,4 @@ function UploadCtrl($scope) {
 		dropZone: null,
 		pasteZone: null
 	});
-}
-
-
-
-////////////////////////////////
-////////////////////////////////
-// MyDataCtrl
-////////////////////////////////
-////////////////////////////////
-
-MyDataCtrl.$inject = ['$scope', '$http', '$timeout', '$window'];
-
-function MyDataCtrl($scope, $http, $timeout, $window) {
-
-	$scope.timeout = $timeout;
-	$scope.api_url = "/star_api/";
-	$scope.inode_api_url = $scope.api_url + "inode/";
-	$scope.inode_share_sufix = "/share_list";
-
-	// returns an event object with 'success' and 'error' events,
-	// which allows multiple events can be registered on the ajax result.
-	$scope.http = function(req) {
-		console.log('[http]', req);
-		var ev = _.clone(Backbone.Events);
-		ev.on('success', function(data, status) {
-			console.log('[http ok]', [status, req]);
-		});
-		ev.on('error', function(data, status) {
-			console.error(data || 'http request failed', [status, req]);
-		});
-		var ajax = $http(req);
-		ajax.success(function(data, status, headers, config) {
-			ev.trigger('success', data, status, headers, config);
-		});
-		ajax.error(function(data, status, headers, config) {
-			ev.trigger('error', data, status, headers, config);
-		});
-		return ev;
-	};
-
-	// calling directly since we just want to include the inodes root scope here
-	setup_inodes_root_ctrl($scope, $timeout, $window);
 }

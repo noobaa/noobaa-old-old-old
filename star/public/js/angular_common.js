@@ -53,12 +53,59 @@
 		return String(bytes) + units[u];
 	}
 
+	function do_dialog(dlg, opt) {
+		dlg.find('#dialog_close').off('click').on('click', function() {
+			dlg.dialog('close');
+		});
+		var options = _.extend({
+			modal: true,
+			resizable: true,
+			closeOnEscape: true,
+			show: {
+				effect: 'drop',
+				direction: 'up',
+				duration: 200,
+			},
+			closeText: 'Cancel',
+			close: function(event, ui) {
+				$(this).dialog('destroy');
+			}
+		}, opt);
+		dlg.dialog(options);
+	}
+
+	function alert_dialog(str) {
+		var dlg = $('<div class="fnt">' + str + '<hr/></div>');
+		var close = $('<button id="dialog_close" class="btn btn-default">Close</button>');
+		close.appendTo(dlg);
+		close.on('click', function() {
+			dlg.dialog('close');
+		});
+		dlg.dialog({
+			modal: true,
+			resizable: true,
+			closeOnEscape: true,
+			show: {
+				effect: 'drop',
+				direction: 'up',
+				duration: 200,
+			},
+			closeText: 'Close',
+			title: 'Oops...',
+			close: function(event, ui) {
+				dlg.remove();
+			}
+		});
+	}
+
 	// initializations - setup functions on globalScope
 	// which will be propagated to any other scope, and easily visible
 	noobaa_app.run(function($rootScope) {
 		$rootScope.safe_apply = safe_apply;
 		$rootScope.safe_callback = safe_callback;
 		$rootScope.human_size = human_size;
+		$rootScope.do_dialog = do_dialog;
+		$rootScope.alert_dialog = alert_dialog;
 	});
 
 	noobaa_app.directive('nbRightClick', function($parse) {
