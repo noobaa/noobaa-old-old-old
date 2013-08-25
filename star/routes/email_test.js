@@ -1,4 +1,5 @@
 /*jslint node: true */
+
 'use strict';
 
 process.on('uncaughtException', function(err) {
@@ -51,6 +52,14 @@ var user = {
     fb: profile._json,
 };
 
+var user = {
+    id: '456',
+    fb: profile._json,
+};
+
+var notified_user = user;
+var sharing_user = user;
+var file_name = 'BestOfPorn668.avi';
 
 /*
   ======== A Handy Little Nodeunit Reference ========
@@ -77,10 +86,10 @@ exports.emails = {
     setUp: db_connect.setup,
     tearDown: db_connect.teardown,
 
-    // 'testing mandril': function(test) {
-    //   test.ifError(email.test_mandril());
-    //   test.done();
-    // },
+    'testing mandril': function(test) {
+      test.ifError(email.test_mandril());
+      test.done();
+    },
 
     'send update email': function(test) {
         email.send_mail_changed(user, function(err, res) {
@@ -105,7 +114,8 @@ exports.emails = {
     },
 
     'send swm notification mail': function(test) {
-        email.send_swm_notification(user, function(err, res) {
+        var custom_message = 'Fuck Yeah!';
+        email.send_swm_notification(notified_user, sharing_user, file_name, custom_message, function(err, res) {
             // console.log(res);
             if (err) {
                 console.log(JSON.stringify(err));
@@ -115,19 +125,8 @@ exports.emails = {
         });
     },
 
-
-
-    // 'get templates': function(test) {
-    //   test.ifError(email.get_templates(function(err, res) {}));
-    //   test.done();
-    // },
-    // 'should send a welcome mail to Yuval': function(test) {
-    //   test.ifError(email.send_welcome({
-    //     name: 'Yuval The Shrk',
-    //     email: 'yuval.dimnik@gmail.com'
-    //   }, function(err, res, bod, more, done) {
-    //     console.log(arguments);
-    //   }));
-    //   test.done();
-    // },
+    'get templates': function(test) {
+      test.ifError(email.get_templates(function(err, res) {}));
+      test.done();
+    },
 };
