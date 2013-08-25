@@ -81,7 +81,7 @@ function MenuBarCtrl($scope, $window) {
 		this.tour.addSteps(this.steps);
 		// handle redirections here - need to start the tour which did redirect
 		// so we identify simply by the first that's not ended.
-		console.log(this);
+		// console.log(this);
 		if (!this.tour.ended() && !$scope.running_guide) {
 			if (this.was_started || (!this.was_started && auto_start)) {
 				this.tour.start();
@@ -191,51 +191,25 @@ function MenuBarCtrl($scope, $window) {
 
 	function advance_on_upload_modal_show(tour) {
 		// advance to next step once the upload modal is shown
-		$('#upload_modal').on('show.upload_guide', function() {
+		$('#upload_modal').on('dialogopen.upload_guide', function() {
 			tour.next();
 		});
-		$('#upload_modal').on('hide.upload_guide', function() {
+		$('#upload_modal').on('dialogclose.upload_guide', function() {
 			tour.next();
 		});
 	}
 
 	function done_advance_on_upload_modal_show(tour) {
 		// remove the event we registered in onShow
-		$('#upload_modal').off('show.upload_guide');
-		$('#upload_modal').off('hide.upload_guide');
+		$('#upload_modal').off('dialogopen.upload_guide');
+		$('#upload_modal').off('dialogclose.upload_guide');
 	}
 
-	function prepare_upload_modal(tour) {
-		// must make visible immediately for the step element visibility
-		$('#upload_modal').show();
-	}
-
-	$scope.upload_guide_uuid = 1;
-
-	function modal_show_handler(modal, is_show) {
+	function dialog_handler(dialog_elemeng, is_show) {
 		return function(tour) {
-			var m = $(modal);
-			m.modal(is_show ? 'show' : 'hide');
-			return {
-				then: function(callback) {
-					m.promise().done(function() {
-						if (is_show === m.is(':visible')) {
-							console.log('SHOWN MATCH');
-							callback();
-							return;
-						}
-						var ev = (is_show ? 'shown' : 'hidden') +
-							'.upload_guide' + $scope.upload_guide_uuid;
-						$scope.upload_guide_uuid++;
-						console.log('PROMISE', ev);
-						m.on(ev, function() {
-							console.log('PROMISE DONE', ev);
-							m.off(ev);
-							callback();
-						});
-					});
-				}
-			};
+			var dlg = $(dialog_elemeng);
+			dlg.dialog();
+			dlg.dialog(is_show ? 'open' : 'close');
 		};
 	}
 
@@ -265,12 +239,12 @@ function MenuBarCtrl($scope, $window) {
 		].join('\n'),
 		onShow: advance_on_upload_modal_show,
 		onHide: done_advance_on_upload_modal_show,
-		onNext: prepare_upload_modal
+		onNext: dialog_handler('#upload_modal', true)
 	};
 	$scope.guides.upload_file.steps[2] = {
 		path: '/mydata',
-		container: '#upload_modal',
-		element: '#upload_modal .modal-content',
+		// container: '#upload_modal',
+		element: '#upload_modal',
 		placement: 'bottom',
 		title: 'UPLOADING',
 		width: 500,
@@ -281,12 +255,12 @@ function MenuBarCtrl($scope, $window) {
 			'  <a class="btn btn-success" href="#"><i class="icon-cloud-upload icon-large"></i></a>.',
 			'  It will also open whenever you drop files to upload.'
 		].join('\n'),
-		onShow: modal_show_handler('#upload_modal', true),
-		onPrev: modal_show_handler('#upload_modal', false),
+		onShow: dialog_handler('#upload_modal', true),
+		onPrev: dialog_handler('#upload_modal', false),
 	};
 	$scope.guides.upload_file.steps[3] = {
 		path: '/mydata',
-		container: '#upload_modal',
+		// container: '#upload_modal',
 		element: '#choose_file_button',
 		placement: 'bottom',
 		title: 'USING FILE CHOOSER',
@@ -294,11 +268,11 @@ function MenuBarCtrl($scope, $window) {
 			'<p>Press the "Choose Files" button and select files to upload.</p>',
 			'<p>You can try it now...</p>'
 		].join('\n'),
-		onShow: modal_show_handler('#upload_modal', true),
+		onShow: dialog_handler('#upload_modal', true),
 	};
 	$scope.guides.upload_file.steps[4] = {
 		path: '/mydata',
-		container: '#upload_modal',
+		// container: '#upload_modal',
 		element: '#choose_folder_button',
 		placement: 'bottom',
 		title: 'USING FODLER CHOOSER',
@@ -308,8 +282,8 @@ function MenuBarCtrl($scope, $window) {
 			'<p>The entire folder content will be uploaded.</p>',
 			'<p>You can try it now...</p>'
 		].join('\n'),
-		onShow: modal_show_handler('#upload_modal', true),
-		onNext: modal_show_handler('#upload_modal', false),
+		onShow: dialog_handler('#upload_modal', true),
+		onNext: dialog_handler('#upload_modal', false),
 	};
 	$scope.guides.upload_file.steps[5] = {
 		path: '/mydata',
@@ -321,7 +295,7 @@ function MenuBarCtrl($scope, $window) {
 			'  into the folder that is selected when the upload starts.',
 			'<p>You should see your uploads listed in the current folder.</p>',
 		].join('\n'),
-		onPrev: prepare_upload_modal
+		onPrev: dialog_handler('#upload_modal', true)
 	};
 	$scope.guides.upload_file.steps[6] = {
 		path: '/mydata',
@@ -334,7 +308,6 @@ function MenuBarCtrl($scope, $window) {
 			'<p>Check out more guides using',
 			'  <i class="icon-info-sign text-info"></i>.</p>',
 		].join('\n'),
-		onPrev: prepare_upload_modal
 	};
 	$scope.guides.upload_file.steps_ready();
 

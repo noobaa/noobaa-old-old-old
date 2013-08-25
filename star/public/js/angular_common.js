@@ -53,11 +53,11 @@
 		return String(bytes) + units[u];
 	}
 
-	function do_dialog(dlg, opt) {
+	function do_dialog(dlg, options) {
 		dlg.find('#dialog_close').off('click').on('click', function() {
 			dlg.dialog('close');
 		});
-		var options = _.extend({
+		var opt = _.extend({
 			modal: true,
 			resizable: true,
 			closeOnEscape: true,
@@ -70,18 +70,18 @@
 			close: function(event, ui) {
 				$(this).dialog('destroy');
 			}
-		}, opt);
-		dlg.dialog(options);
+		}, options);
+		dlg.dialog(opt);
 	}
 
-	function alert_dialog(str) {
+	function alert_dialog(str, options) {
 		var dlg = $('<div class="fnt">' + str + '<hr/></div>');
 		var close = $('<button id="dialog_close" class="btn btn-default">Close</button>');
 		close.appendTo(dlg);
 		close.on('click', function() {
 			dlg.dialog('close');
 		});
-		dlg.dialog({
+		var opt = _.extend({
 			modal: true,
 			resizable: true,
 			closeOnEscape: true,
@@ -95,7 +95,8 @@
 			close: function(event, ui) {
 				dlg.remove();
 			}
-		});
+		}, options);
+		dlg.dialog(opt);
 	}
 
 	// initializations - setup functions on globalScope

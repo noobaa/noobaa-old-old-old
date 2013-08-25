@@ -821,7 +821,6 @@ function InodesMenuCtrl($scope) {
 
 	$scope.click_upload = function() {
 		$('#upload_modal').dialog('open');
-		// TODO
 	};
 
 	$scope.click_open = function() {
@@ -926,22 +925,25 @@ UploadCtrl.$inject = ['$scope'];
 
 function UploadCtrl($scope) {
 
+	console.log('INIT UPLOAD');
 	var upload_modal = $('#upload_modal');
-	/*
+	upload_modal.find('#dialog_close').on('click', function() {
+		upload_modal.dialog('close');
+	});
 	upload_modal.dialog({
 		autoOpen: false,
 		modal: false,
 		resizable: true,
+		minWidth: 500,
 		closeOnEscape: true,
 		closeText: 'Hide',
-		minWidth: 500,
+		title: "Uploads",
 		show: {
 			effect: 'drop',
 			direction: 'up',
 			duration: 200,
 		}
 	});
-	*/
 
 	$scope.upload_id_idx = 0;
 	$scope.uploads = {};
@@ -962,7 +964,7 @@ function UploadCtrl($scope) {
 
 		// make sure the modal shows - this is needed when drop/paste
 		// and the modal is hidden.
-		upload_modal.modal('show');
+		upload_modal.dialog('open');
 
 		// create the upload object and connect to uploads list,
 		var file = data.files[0];

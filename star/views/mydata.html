@@ -93,9 +93,7 @@
 
 		<div class="col-md-offset-3 col-md-9" style="margin-bottom: 30px;">
 			<button id="upload_button" class="btn btn-success toolbtn"
-				TODO-ng-click="click_upload()"
-				data-target="#upload_modal" 
-				data-toggle="modal"
+				ng-click="click_upload()"
 				title="Upload"
 				ng-disabled="!dir_selection.inode">
 				<i class="icon-cloud-upload icon-large"></i>
@@ -263,78 +261,58 @@
 
 	<div ng-controller="UploadCtrl"
 		id="upload_modal"
-		class="modal fade"
-		TODO-style="display: none"
-		tabindex="-1" 
-		role="dialog" 
-		aria-labelledby="upload_modal_label" 
+		style="display: none"
 		aria-hidden="true">
-		<div class="modal-dialog">
-		<div class="modal-content">
-		<div class="modal-header">
-			<a type="button" class="close" data-dismiss="modal">×</a>
-			<h3 id="upload_modal_label">Uploads</h3>
-		</div>
-		<div class="modal-body">
-			<div class="roundbord">
-				<table id="upload_table" 
-					class="table table-striped ng-cloak"
-					style="margin: 0">
-					<thead>
-						<tr>
-							<th>Name</th>
-							<th>Folder</th>
-							<th>Size</th>
-							<th>Status</th>
-							<th>Progress</th>
-						</tr>
-					</thead>
-					<tr ng-repeat="(idx,upload) in uploads" ng-class="upload.row_class">
-						<td>
-							{{upload.file.webkitRelativePath || upload.file.name}}
-						</td>
-						<td>
-							{{upload.dir_inode.name}}
-						</td>
-						<td>
-							{{human_size(upload.file.size)}}
-						</td>
-						<td>
-							{{upload.status}}
-						</td>
-						<td width="100px">
-							<div class="progress" style="position: relative">
-								<div ng-class="upload.progress_class"
-									role="progressbar"
-									aria-valuemin="0" aria-valuemax="100"
-									style="position: absolute; top:0; left:0;
-										width: {{upload.progress}}%;">
-								</div>
-								<div style="position: absolute; top:0; left:0;
-										width:100%; text-align:center; color:black">
-									{{upload.progress}}%
-								</div>
-							</div>
-						</td>
-						<td>
-							<button class="btn btn-default btn-xs" 
-								ng-click="dismiss_upload(upload)">x</button>
-						</td>
-					</tr>
-				</table>
-			</div>
-		</div>
-		<div class="modal-footer">
-			<button class="btn btn-default pull-left" data-dismiss="modal">Hide</button>
-			<!-- The fileinput-button span is used to style the file input field as button -->
-			<span id="choose_file_button"
-				class="btn btn-primary fileinput-button">
-				Choose Files
-				<input id="file_upload_input"
-					type="file"
-					name="file"
-					multiple="multiple"></input>
-			</span>
+		<table id="upload_table" 
+			class="table table-striped ng-cloak"
+			style="margin: 0">
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Folder</th>
+					<th>Size</th>
+					<th>Status</th>
+					<th>Progress</th>
+				</tr>
+			</thead>
+			<tr ng-repeat="(idx,upload) in uploads" ng-class="upload.row_class">
+				<td>
+					{{upload.file.webkitRelativePath || upload.file.name}}
+				</td>
+				<td>
+					{{upload.dir_inode.name}}
+				</td>
+				<td>
+					{{human_size(upload.file.size)}}
+				</td>
+				<td>
+					{{upload.status}}
+				</td>
+				<td width="100px">
+					<div class="progress" style="position: relative">
+						<div ng-class="upload.progress_class"
+							role="progressbar"
+							aria-valuemin="0" aria-valuemax="100"
+							style="position: absolute; top:0; left:0;
+								width: {{upload.progress}}%;">
+						</div>
+						<div style="position: absolute; top:0; left:0;
+								width:100%; text-align:center; color:black">
+							{{upload.progress}}%
+						</div>
+					</div>
+				</td>
+				<td>
+					<button class="btn btn-default btn-xs" 
+						ng-click="dismiss_upload(upload)">x</button>
+				</td>
+			</tr>
+		</table>
+		<hr/>
+		<button id="dialog_close" class="btn btn-default">Hide</button>
+		<div class="pull-right">
+			<!-- fileinput-button span is used 
+				to style the file input field as button -->
 			<span id="choose_folder_button"
 				class="btn btn-primary fileinput-button">
 				Choose Folder
@@ -346,8 +324,14 @@
 					directory="">
 				</input>
 			</span>
-		</div>
-		</div>
+			<span id="choose_file_button"
+				class="btn btn-primary fileinput-button">
+				Choose Files
+				<input id="file_upload_input"
+					type="file"
+					name="file"
+					multiple="multiple"></input>
+			</span>
 		</div>
 	</div>
 
