@@ -121,8 +121,10 @@ exports.get_inode_refering_user_ids = get_inode_refering_user_ids;
 
 //add and remove ghosts as needed
 exports.update_inode_ghost_refs = function(live_inode_id, old_user_ids, new_user_ids, cb) {
-	user_ids_to_add = _.difference(new_user_ids, old_user_ids);
-	user_ids_to_remove = _.difference(old_user_ids, new_user_ids);
+	old_user_ids_strings = _.invoke(old_user_ids, 'toHexString');
+	user_ids_to_add = _.difference(new_user_ids, old_user_ids_strings);
+	user_ids_to_remove = _.difference(old_user_ids_strings, new_user_ids);
+
 	async.parallel([
 		function(next) {
 			remove_inode_ghost_refs(live_inode_id, user_ids_to_remove, next);
