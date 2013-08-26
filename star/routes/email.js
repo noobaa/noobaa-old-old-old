@@ -205,8 +205,7 @@ function send_swm_notification(notified_user, sharing_user, file_name, custom_me
 	var mailJson = {
 		"message": {
 			// "html": "<p>Example HTML content</p>",
-			"text": "Hi" + notified_user_first_name + ",\n\n" + sharing_user_first_name + " has shared a file with you:" + "\n" + file_name + "\n\n" + "Just checkout the \'Shared With ME\' folder on your main dashboard." + "\n" + custom_message + "\n\t\t\t\t\t\t\t\t The NooBaa Team" + "\n" + "p.s." + "\n" + "As long as the file is shared with you, you can access it and it doesn\'t take any of your capacity. " + "\n",
-			// "test": "test123",
+			"text": "Hi " + notified_user_first_name + ",\n\n" + sharing_user_first_name + " has shared a file with you:" + "\n" + file_name + "\n\n" + "Just checkout the \'Shared With ME\' folder on your main dashboard." + "\n" + custom_message + "\n\t\t\t\t\t\t\t\t The NooBaa Team" + "\n" + "p.s." + "\n" + "As long as the file is shared with you, you can access it and it doesn\'t take any of your capacity. " + "\n",
 			"subject": sharing_user_first_name + " has shared a file with you on NooBaa.",
 			"from_email": "info@noobaa.com",
 			"from_name": "NooBaa Team",
