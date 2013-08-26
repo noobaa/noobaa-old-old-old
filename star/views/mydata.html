@@ -105,8 +105,7 @@
 				<i class="icon-play icon-large"></i>
 			</button>
 			<button class="btn btn-default toolbtn"
-				data-target="#share_modal" 
-				data-toggle="modal"
+				ng-click="click_share()"
 				title="Share"
 				ng-disabled="!inode_selection.inode">
 				<i class="icon-share icon-large"></i>
@@ -185,8 +184,7 @@
 				</a>
 			</li>
 			<li>
-				<a data-target="#share_modal" 
-					data-toggle="modal">
+				<a ng-click="click_share()">
 					<i class="icon-share icon-fixed-width"></i>
 					Share
 				</a>
@@ -261,77 +259,106 @@
 
 	<div ng-controller="UploadCtrl"
 		id="upload_modal"
-		style="display: none"
+		class="nbdialog fntmd"
 		aria-hidden="true">
-		<table id="upload_table" 
-			class="table table-striped ng-cloak"
-			style="margin: 0">
-			<thead>
-				<tr>
-					<th>Name</th>
-					<th>Folder</th>
-					<th>Size</th>
-					<th>Status</th>
-					<th>Progress</th>
+		<div class="nbdialog_header nbdialog_drag">
+			Uploads
+			<a class="pull-right nbdialog_close btn btn-default btn-xs"
+				title="Hide">
+				<span class="close">x</span>
+			</a>
+		</div>
+		<div class="nbdialog_content">
+			<div ng-hide="has_uploads()">
+				<div class="roundbord" 
+					style="margin: 20px; background-color: rgba(100,150,200,0.8)">
+				<div class="roundbord" 
+					style="margin: 20px; background-color: rgba(100,200,150,0.8)">
+				<div class="roundbord text-center" 
+					style="margin: 20px; background-color: rgba(200,100,150,0.8)">
+					<h4>Start Uploading using:</h4>
+					<dl>
+						<dt>Drag &amp; Drop</dt>
+						<dd>(just drop files into the window)</dd>
+						<dt>Choose Files/Folders</dt>
+						<dd>(use the buttons below)</dd>
+					</dl>
+				</div>
+				</div>
+				</div>
+			</div>
+			<table ng-show="has_uploads()"
+				id="upload_table" 
+				class="table table-striped ng-cloak"
+				style="margin: 0">
+				<thead>
+					<tr>
+						<th>Name</th>
+						<th>Folder</th>
+						<th>Size</th>
+						<th>Status</th>
+						<th>Progress</th>
+					</tr>
+				</thead>
+				<tr ng-repeat="(idx,upload) in uploads" ng-class="upload.row_class">
+					<td>
+						{{upload.file.webkitRelativePath || upload.file.name}}
+					</td>
+					<td>
+						{{upload.dir_inode.name}}
+					</td>
+					<td>
+						{{human_size(upload.file.size)}}
+					</td>
+					<td>
+						{{upload.status}}
+					</td>
+					<td width="100px">
+						<div class="progress" style="position: relative">
+							<div ng-class="upload.progress_class"
+								role="progressbar"
+								aria-valuemin="0" aria-valuemax="100"
+								style="position: absolute; top:0; left:0;
+									width: {{upload.progress}}%;">
+							</div>
+							<div style="position: absolute; top:0; left:0;
+									width:100%; text-align:center; color:black">
+								{{upload.progress}}%
+							</div>
+						</div>
+					</td>
+					<td>
+						<button class="btn btn-default btn-xs" 
+							ng-click="dismiss_upload(upload)">x</button>
+					</td>
 				</tr>
-			</thead>
-			<tr ng-repeat="(idx,upload) in uploads" ng-class="upload.row_class">
-				<td>
-					{{upload.file.webkitRelativePath || upload.file.name}}
-				</td>
-				<td>
-					{{upload.dir_inode.name}}
-				</td>
-				<td>
-					{{human_size(upload.file.size)}}
-				</td>
-				<td>
-					{{upload.status}}
-				</td>
-				<td width="100px">
-					<div class="progress" style="position: relative">
-						<div ng-class="upload.progress_class"
-							role="progressbar"
-							aria-valuemin="0" aria-valuemax="100"
-							style="position: absolute; top:0; left:0;
-								width: {{upload.progress}}%;">
-						</div>
-						<div style="position: absolute; top:0; left:0;
-								width:100%; text-align:center; color:black">
-							{{upload.progress}}%
-						</div>
-					</div>
-				</td>
-				<td>
-					<button class="btn btn-default btn-xs" 
-						ng-click="dismiss_upload(upload)">x</button>
-				</td>
-			</tr>
-		</table>
-		<hr/>
-		<button id="dialog_close" class="btn btn-default">Hide</button>
-		<div class="pull-right">
-			<!-- fileinput-button span is used 
-				to style the file input field as button -->
-			<span id="choose_folder_button"
-				class="btn btn-primary fileinput-button">
-				Choose Folder
-				<input id="dir_upload_input" 
-					type="file"
-					name="file"
-					webkitdirectory=""
-					mozdirectory=""
-					directory="">
-				</input>
-			</span>
-			<span id="choose_file_button"
-				class="btn btn-primary fileinput-button">
-				Choose Files
-				<input id="file_upload_input"
-					type="file"
-					name="file"
-					multiple="multiple"></input>
-			</span>
+			</table>
+		</div>
+		<div class="nbdialog_footer">
+			<button class="nbdialog_close btn btn-default">Hide</button>
+			<div class="pull-right">
+				<!-- fileinput-button span is used 
+					to style the file input field as button -->
+				<span id="choose_folder_button"
+					class="btn btn-primary fileinput-button">
+					Choose Folder
+					<input id="dir_upload_input" 
+						type="file"
+						name="file"
+						webkitdirectory=""
+						mozdirectory=""
+						directory="">
+					</input>
+				</span>
+				<span id="choose_file_button"
+					class="btn btn-primary fileinput-button">
+					Choose Files
+					<input id="file_upload_input"
+						type="file"
+						name="file"
+						multiple="multiple"></input>
+				</span>
+			</div>
 		</div>
 	</div>
 
@@ -341,25 +368,30 @@
 
 	<div ng-controller="ShareModalCtrl"
 		id="share_modal" 
-		class="modal fade" 
+		class="nbdialog fntmd"
 		tabindex="-1" 
 		role="dialog" 
 		aria-labelledby="share_modal_label" 
 		aria-hidden="true">
-		<div class="modal-dialog">
-		<div class="modal-content">
-		<div class="modal-header">
-			<a type="button" class="close" data-dismiss="modal">×</a>
-			<h3 id="share_modal_label">Share...</h3>
+		<div class="nbdialog_header nbdialog_drag">
+			Share
+			<a class="pull-right nbdialog_close btn btn-default btn-xs"
+				title="Cancel">
+				<span class="close">x</span>
+			</a>
 		</div>
-		<div class="modal-body">
+		<div class="nbdialog_content">
 			<div ng-show="!share_list.length">
 				<p>No friends availalbe for sharing.</p>
 				<p>Currenlty sharing is only availalbe for NooBaa users who are your Facebook friends.</p>
 				<p>Invite your Facebook friends to NooBaa today.</p>
 			</div>
 			<div ng-show="share_list.length">
-				<p>Share <span class="label">{{share_inode.name}}</span> with friends:</p>
+				<p>
+					Share 
+					<div id="dialog_item" style="margin: 20px; word-wrap: break-word"></div>
+					with friends:
+				</p>
 <!-- 				<ul class="unstyled">
 					<li ng-repeat="friend in share_list">
 						<input type="checkbox" class="checkbox" ng-model="friend.shared"></input>
@@ -376,13 +408,10 @@
 				</table>
 			</div>
 		</div>
-		<div class="modal-footer">
-			<button class="btn btn-default pull-left"
-				data-dismiss="modal">Close</button>
-			<button class="btn btn-primary"	data-dismiss="modal" 
+		<div class="nbdialog_footer">
+			<button class="nbdialog_close btn btn-default">Cancel</button>
+			<button class="nbdialog_close pull-right btn btn-primary"
 				ng-click="submit()">Save</button>
-		</div>
-		</div>
 		</div>
 	</div>
 
@@ -399,52 +428,92 @@
 
 <!-- MOVE DIALOG -->
 
-	<div id="move_dialog" style="display: none" class="fntmd">
-		<p><b>Are you sure you want to move?</b></p>
-		<div id="dialog_item" style="margin: 20px; word-wrap: break-word"></div>
-		<p><b>into</b></p>
-		<div id="dialog_item2" style="margin: 20px; word-wrap: break-word"></div>
-		<hr/>
-		<button id="dialog_close" class="btn btn-default">Cancel</button>
-		<button id="dialog_ok" class="btn btn-primary pull-right">Move</button>
+	<div id="move_dialog" class="nbdialog fntmd">
+		<div class="nbdialog_header nbdialog_drag">
+			Confirm Move
+			<a class="pull-right nbdialog_close btn btn-default btn-xs"
+				title="Cancel">
+				<span class="close">x</span>
+			</a>
+		</div>
+		<div class="nbdialog_content">
+			<p><b>Are you sure you want to move?</b></p>
+			<div id="dialog_item" style="margin: 20px; word-wrap: break-word"></div>
+			<p><b>into</b></p>
+			<div id="dialog_item2" style="margin: 20px; word-wrap: break-word"></div>
+		</div>
+		<div class="nbdialog_footer">
+			<button class="nbdialog_close btn btn-default">Cancel</button>
+			<button id="dialog_ok" class="btn btn-primary pull-right">Move</button>
+		</div>
 	</div>
 
 <!-- DELETE DIALOG -->
 
-	<div id="delete_dialog" style="display: none" class="fntmd">
-		<p><b>Are you sure you want to delete this item?</b></p>
-		<div id="dialog_item" style="margin: 20px; word-wrap: break-word"></div>
-		<hr/>
-		<button id="dialog_close" class="btn btn-default">Cancel</button>
-		<button id="dialog_ok" class="btn btn-danger pull-right">Delete</button>
+	<div id="delete_dialog" class="nbdialog fntmd">
+		<div class="nbdialog_header nbdialog_drag">
+			Confirm Delete
+			<a class="pull-right nbdialog_close btn btn-default btn-xs"
+				title="Cancel">
+				<span class="close">x</span>
+			</a>
+		</div>
+		<div class="nbdialog_content">
+			<p><b>Are you sure you want to delete this item?</b></p>
+			<div id="dialog_item" style="margin: 20px; word-wrap: break-word"></div>
+		</div>
+		<div class="nbdialog_footer">
+			<button class="nbdialog_close btn btn-default">Cancel</button>
+			<button id="dialog_ok" class="btn btn-danger pull-right">Delete</button>
+		</div>
 	</div>
 
 <!-- MKDIR DIALOG -->
 
-	<div id="mkdir_dialog" style="display: none" class="fntmd">
-		<p>
-			<b>Create folder in:</b>
-			<div id="dialog_item"
-				style="margin: 20px; word-wrap: break-word"></div>
-		</p>
-		<input id="dialog_input" class="form-control" type="text"/>
-		<hr/>
-		<button id="dialog_close" class="btn btn-default">Cancel</button>
-		<button id="dialog_ok" class="btn btn-primary pull-right">Create</button>
+	<div id="mkdir_dialog" class="nbdialog fntmd">
+		<div class="nbdialog_header nbdialog_drag">
+			New Folder...
+			<a class="pull-right nbdialog_close btn btn-default btn-xs"
+				title="Cancel">
+				<span class="close">x</span>
+			</a>
+		</div>
+		<div class="nbdialog_content">
+			<p>
+				<b>Create folder in:</b>
+				<div id="dialog_item"
+					style="margin: 20px; word-wrap: break-word"></div>
+			</p>
+			<input id="dialog_input" class="form-control" type="text"/>
+		</div>
+		<div class="nbdialog_footer">
+			<button class="nbdialog_close btn btn-default">Cancel</button>
+			<button id="dialog_ok" class="btn btn-primary pull-right">Create</button>
+		</div>
 	</div>
 
 <!-- RENAME DIALOG -->
 
-	<div id="rename_dialog" style="display: none" class="fntmd">
-		<p>
-			<b>New name for:</b>
-			<div id="dialog_item"
-				style="margin: 20px; word-wrap: break-word"></div>
-		</p>
-		<input id="dialog_input" class="form-control" type="text"/>
-		<hr/>
-		<button id="dialog_close" class="btn btn-default">Cancel</button>
-		<button id="dialog_ok" class="btn btn-primary pull-right">Rename</button>
+	<div id="rename_dialog" class="nbdialog fntmd">
+		<div class="nbdialog_header nbdialog_drag">
+			Rename...
+			<a class="pull-right nbdialog_close btn btn-default btn-xs"
+				title="Cancel">
+				<span class="close">x</span>
+			</a>
+		</div>
+		<div class="nbdialog_content">
+			<p>
+				<b>New name for:</b>
+				<div id="dialog_item"
+					style="margin: 20px; word-wrap: break-word"></div>
+			</p>
+			<input id="dialog_input" class="form-control" type="text"/>
+		</div>
+		<div class="nbdialog_footer">
+			<button class="nbdialog_close btn btn-default">Cancel</button>
+			<button id="dialog_ok" class="btn btn-primary pull-right">Rename</button>
+		</div>
 	</div>
 
 

@@ -344,7 +344,7 @@ Inode.prototype.handle_drop = function(inode) {
 Inode.prototype.get_drag_helper = function() {
 	return $('<div class="label label-default roundbord">' +
 		'<span class="fntthin fntmd">Moving: <b>' +
-		this.name + '</b></span></div>');
+		this.name + '</b></span></div>').css('z-index',1);
 };
 
 Inode.prototype.make_inode_with_icon = function() {
@@ -533,13 +533,13 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 		// when drag is an inode, then move it under the drop dir
 		console.log('drag ' + drag_inode.name + ' drop ' + drop_inode.name);
 		if (drag_inode.is_immutable_root()) {
-			$scope.alert_dialog('Cannot move root folder.');
+			$.nbalert('Cannot move root folder.');
 			return;
 		}
 		var p = drop_inode;
 		while (p) {
 			if (p.id === drag_inode.id) {
-				$scope.alert_dialog('Cannot create circular folders. It\'s just wrong.');
+				$.nbalert('Cannot create circular folders. It\'s just wrong.');
 				return;
 			}
 			p = p.parent;
@@ -549,11 +549,11 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 			return;
 		}
 
-		var dlg = $('#move_dialog');
+		var dlg = $('#move_dialog').clone();
 		dlg.find('#dialog_item').html(drag_inode.make_inode_with_icon());
 		dlg.find('#dialog_item2').html(drop_inode.make_inode_with_icon());
 		dlg.find('#dialog_ok').off('click').on('click', function() {
-			dlg.dialog('close');
+			dlg.nbdialog('close');
 			drag_inode.rename(drop_inode, drag_inode.name).on('all', function() {
 				// select the drop dir
 				$scope.select(drop_inode, {
@@ -562,8 +562,9 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 				});
 			});
 		});
-		$scope.do_dialog(dlg, {
-			title: 'Confirm move'
+		dlg.nbdialog('open', {
+			remove_on_close: true,
+			modal: true
 		});
 	};
 
@@ -779,18 +780,19 @@ function InodesMenuCtrl($scope) {
 			console.error('no selected dir, bailing');
 			return;
 		}
-		var dlg = $('#mkdir_dialog');
+		var dlg = $('#mkdir_dialog').clone();
 		var input = dlg.find('#dialog_input');
 		input.val('');
 		dlg.find('#dialog_item').html(dir_inode.make_inode_with_icon());
 		dlg.find('#dialog_ok').off('click').on('click', function() {
-			dlg.dialog('close');
+			dlg.nbdialog('close');
 			if (input.val()) {
 				dir_inode.mkdir(input.val());
 			}
 		});
-		$scope.do_dialog(dlg, {
-			title: 'New Folder...'
+		dlg.nbdialog('open', {
+			remove_on_close: true,
+			modal: true
 		});
 	};
 
@@ -801,26 +803,27 @@ function InodesMenuCtrl($scope) {
 			return;
 		}
 		if (inode.is_immutable_root()) {
-			$scope.alert_dialog('Cannot rename root folder.');
+			$.nbalert('Cannot rename root folder.');
 			return;
 		}
-		var dlg = $('#rename_dialog');
+		var dlg = $('#rename_dialog').clone();
 		var input = dlg.find('#dialog_input');
 		input.val(inode.name);
 		dlg.find('#dialog_item').html(inode.make_inode_with_icon());
 		dlg.find('#dialog_ok').off('click').on('click', function() {
-			dlg.dialog('close');
+			dlg.nbdialog('close');
 			if (input.val() && input.val() !== inode.name) {
 				inode.rename(inode.parent, input.val());
 			}
 		});
-		$scope.do_dialog(dlg, {
-			title: 'Rename...'
+		dlg.nbdialog('open', {
+			remove_on_close: true,
+			modal: true
 		});
 	};
 
 	$scope.click_upload = function() {
-		$('#upload_modal').dialog('open');
+		$('#upload_modal').nbdialog('open');
 	};
 
 	$scope.click_open = function() {
@@ -845,17 +848,17 @@ function InodesMenuCtrl($scope) {
 			return;
 		}
 		if (inode.is_immutable_root()) {
-			$scope.alert_dialog('Cannot delete root folder.');
+			$.nbalert('Cannot delete root folder.');
 			return;
 		}
 		if (inode.is_dir_non_empty()) {
-			$scope.alert_dialog('Cannot delete non-empty folder.');
+			$.nbalert('Cannot delete non-empty folder.');
 			return;
 		}
-		var dlg = $('#delete_dialog');
+		var dlg = $('#delete_dialog').clone();
 		dlg.find('#dialog_item').html(inode.make_inode_with_icon());
 		dlg.find('#dialog_ok').off('click').on('click', function() {
-			dlg.dialog('close');
+			dlg.nbdialog('close');
 			inode.delete_inode().on('all', function() {
 				if (inode.id == $scope.inode_selection.inode.id) {
 					$scope.select(inode.parent, {
@@ -865,8 +868,30 @@ function InodesMenuCtrl($scope) {
 				}
 			});
 		});
-		$scope.do_dialog(dlg, {
-			title: 'Confirm delete'
+		dlg.nbdialog('open', {
+			remove_on_close: true,
+			modal: true
+		});
+	};
+	$scope.click_share = function() {
+		var inode = $scope.inode_selection.inode;
+		if (!inode) {
+			console.error('no selected inode, bailing');
+			return;
+		}
+		if (inode.is_immutable_root()) {
+			$.nbalert('Cannot share root folder.');
+			return;
+		}
+		var dlg = $('#share_modal');
+		dlg.find('#dialog_item').html(inode.make_inode_with_icon());
+		// TODO this is hacky accessing dlg.scope() ...
+		dlg.scope().share_inode = inode;
+		inode.get_share_list().on('success', function(data) {
+			dlg.scope().share_list = data.list;
+		});
+		dlg.nbdialog('open', {
+			modal: true
 		});
 	};
 }
@@ -882,23 +907,6 @@ function InodesMenuCtrl($scope) {
 ShareModalCtrl.$inject = ['$scope'];
 
 function ShareModalCtrl($scope) {
-	$scope.share_inode = null;
-	$scope.share_list = [];
-
-	// since the callback is not in angular context,
-	// we use apply to fire the watches.
-	var share_modal = $('#share_modal');
-	share_modal.on('show.bs.modal', $scope.safe_callback(function() {
-		$scope.share_inode = $scope.inode_selection.inode;
-		$scope.share_inode.get_share_list().on('success', function(data) {
-			$scope.share_list = data.list;
-		});
-	}));
-	share_modal.on('hidden.bs.modal', $scope.safe_callback(function() {
-		$scope.share_inode = null;
-		$scope.share_list = [];
-	}));
-
 	$scope.submit = function() {
 		var inode = $scope.share_inode;
 		var share_list = $scope.share_list;
@@ -925,29 +933,18 @@ UploadCtrl.$inject = ['$scope'];
 
 function UploadCtrl($scope) {
 
-	console.log('INIT UPLOAD');
 	var upload_modal = $('#upload_modal');
-	upload_modal.find('#dialog_close').on('click', function() {
-		upload_modal.dialog('close');
-	});
-	upload_modal.dialog({
-		autoOpen: false,
-		modal: false,
-		resizable: true,
-		minWidth: 500,
-		closeOnEscape: true,
-		closeText: 'Hide',
-		title: "Uploads",
-		show: {
-			effect: 'drop',
-			direction: 'up',
-			duration: 200,
-		}
+	upload_modal.nbdialog({
+		width: 600
 	});
 
 	$scope.upload_id_idx = 0;
 	$scope.uploads = {};
 	$scope.max_uploads_at_once = 10;
+
+	$scope.has_uploads = function() {
+		return !_.isEmpty($scope.uploads);
+	};
 
 	$scope.add_upload = function(event, data) {
 		if (num_running_uploads > $scope.max_uploads_at_once) {
@@ -964,7 +961,7 @@ function UploadCtrl($scope) {
 
 		// make sure the modal shows - this is needed when drop/paste
 		// and the modal is hidden.
-		upload_modal.dialog('open');
+		upload_modal.nbdialog('open');
 
 		// create the upload object and connect to uploads list,
 		var file = data.files[0];

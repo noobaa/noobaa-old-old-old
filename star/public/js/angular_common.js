@@ -53,50 +53,172 @@
 		return String(bytes) + units[u];
 	}
 
-	function do_dialog(dlg, options) {
-		dlg.find('#dialog_close').off('click').on('click', function() {
-			dlg.dialog('close');
-		});
-		var opt = _.extend({
-			modal: true,
-			resizable: true,
-			closeOnEscape: true,
-			show: {
+	function nbdialog(opt, opt_for_open) {
+		var e = $(this[0]);
+		var data = e.data('nbdialog');
+
+		if (opt === 'open') {
+			if (!data) {
+				e.nbdialog(opt_for_open);
+				data = e.data('nbdialog');
+			}
+			if (data.state === 'open') {
+				return;
+			}
+			data.state = 'open';
+			var visible = e.is(':visible');
+			var show = _.clone(data.opt.show);
+			if (!visible) {
+				show.complete = function() {
+					console.log('TRIGGER nbdialog_open')
+					e.trigger('nbdialog_open');
+				};
+			}
+			e.show(show);
+
+		} else if (opt === 'close') {
+			if (data) {
+				if (data.state === 'close') {
+					return;
+				}
+				data.state = 'close';
+				var visible = e.is(':visible');
+				var hide = _.clone(data.opt.hide);
+				hide.complete = function() {
+					if (visible) {
+						console.log('TRIGGER nbdialog_close')
+						e.trigger('nbdialog_close');
+					}
+					if (data.opt.remove_on_close) {
+						// when hide completes we can remove the element
+						console.log('removing nbdialog...');
+						e.remove();
+					}
+				};
+				e.hide(hide);
+			} else {
+				e.hide();
+			}
+
+		} else if (opt === 'destroy') {
+			if (data) {
+				console.log('TODO: nbdialog destroy is imcomplete (element state not reverted)');
+				e.nbdialog('close');
+				e.resizable('destroy');
+				e.draggable('destroy');
+				e.data('nbdialog', null);
+			}
+
+		} else {
+			opt = opt || {};
+			opt.show = opt.show || {
 				effect: 'drop',
 				direction: 'up',
 				duration: 200,
-			},
-			closeText: 'Cancel',
-			close: function(event, ui) {
-				$(this).dialog('destroy');
-			}
-		}, options);
-		dlg.dialog(opt);
+			};
+			opt.hide = opt.hide || {
+				effect: 'drop',
+				direction: 'up',
+				duration: 200,
+			};
+			// take the element from current parent to top level
+			// to prevent css issues by inheritance
+			e.detach().appendTo($('body'));
+			e.css({
+				position: 'absolute',
+				height: 'auto',
+				width: 'auto',
+				// must change from display=none for css to compute,
+				// so setting hidden in this short meanwhile
+				visibility: 'hidden',
+				display: 'block'
+			});
+			// move the element to center of viewport
+			var top = (($(window).innerHeight() - e.height()) / 2);
+			top = top > 100 ? top : 100;
+			top += $(document).scrollTop();
+			var left = (($(window).innerWidth() - e.width()) / 2);
+			left = left > 100 ? left : 100;
+			left += $(document).scrollLeft();
+			var css = {
+				top: top,
+				left: left,
+				width: opt.width || e.width(),
+				height: opt.height || e.height(),
+				overflow: 'hidden'
+			};
+			e.css(css);
+			// compute inner elements dimentions
+			// to make constant size header and footer,
+			// but dynamic content with scroll (if needed).
+			var head = e.find('.nbdialog_header');
+			var foot = e.find('.nbdialog_footer');
+			var content = e.find('.nbdialog_content');
+			var head_height = head.outerHeight(true);
+			var foot_height = foot.outerHeight(true);
+			head.css({
+				position: 'absolute',
+				left: 0,
+				right: 0,
+				top: 0,
+				height: head_height
+			});
+			foot.css({
+				position: 'absolute',
+				left: 0,
+				right: 0,
+				bottom: 0,
+				height: foot_height
+			});
+			content.css({
+				position: 'absolute',
+				left: 0,
+				right: 0,
+				top: head_height,
+				bottom: foot_height,
+				height: 'auto',
+				overflow: 'auto'
+			});
+			e.css({
+				visibility: 'visible',
+				display: 'none'
+			});
+			// initialize resizable and draggable
+			e.resizable({
+				minHeight: 100,
+				minWidth: 200,
+				handles: 'all',
+				autoHide: true
+			});
+			e.draggable({
+				cursor: 'move',
+				handle: '.nbdialog_drag',
+				cancel: '.nbdialog_nodrag'
+			});
+			// set cursor to move on drag area
+			e.find('.nbdialog_drag:not(a):not(button)').css('cursor', 'move');
+			// handle close buttons
+			e.find('.nbdialog_close').off('click').on('click', function() {
+				e.nbdialog('close');
+			});
+			// save the data in the element
+			e.data('nbdialog', {
+				state: 'close',
+				opt: opt
+			});
+		}
 	}
 
-	function alert_dialog(str, options) {
-		var dlg = $('<div class="fnt">' + str + '<hr/></div>');
-		var close = $('<button id="dialog_close" class="btn btn-default">Close</button>');
-		close.appendTo(dlg);
-		close.on('click', function() {
-			dlg.dialog('close');
+	function nbalert(str, options) {
+		var dlg = $('<div class="nbdialog alert_dialog fnt"></div>');
+		var head = $('<div class="nbdialog_header nbdialog_drag">Oops...</div>').appendTo(dlg);
+		var content = $('<div class="nbdialog_content"></div>').appendTo(dlg).html(str);
+		var foot = $('<div class="nbdialog_footer text-center"></div>').appendTo(dlg);
+		$('<button class="nbdialog_close btn btn-default">Close</button>').appendTo(foot);
+		dlg.nbdialog('open', {
+			remove_on_close: true,
+			modal: true
 		});
-		var opt = _.extend({
-			modal: true,
-			resizable: true,
-			closeOnEscape: true,
-			show: {
-				effect: 'drop',
-				direction: 'up',
-				duration: 200,
-			},
-			closeText: 'Close',
-			title: 'Oops...',
-			close: function(event, ui) {
-				dlg.remove();
-			}
-		}, options);
-		dlg.dialog(opt);
 	}
 
 	// initializations - setup functions on globalScope
@@ -105,8 +227,10 @@
 		$rootScope.safe_apply = safe_apply;
 		$rootScope.safe_callback = safe_callback;
 		$rootScope.human_size = human_size;
-		$rootScope.do_dialog = do_dialog;
-		$rootScope.alert_dialog = alert_dialog;
+		// add nbdialog func per element as in - $('#dlg').nbdialog(...)
+		jQuery.fn.nbdialog = nbdialog;
+		// add nbalert as global jquery function - $.nbalert
+		jQuery.nbalert = nbalert;
 	});
 
 	noobaa_app.directive('nbRightClick', function($parse) {

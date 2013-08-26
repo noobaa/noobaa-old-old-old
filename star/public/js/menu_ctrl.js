@@ -191,25 +191,19 @@ function MenuBarCtrl($scope, $window) {
 
 	function advance_on_upload_modal_show(tour) {
 		// advance to next step once the upload modal is shown
-		$('#upload_modal').on('dialogopen.upload_guide', function() {
-			tour.next();
-		});
-		$('#upload_modal').on('dialogclose.upload_guide', function() {
+		$('#upload_modal').on('nbdialog_open.upload_guide', function() {
 			tour.next();
 		});
 	}
 
 	function done_advance_on_upload_modal_show(tour) {
 		// remove the event we registered in onShow
-		$('#upload_modal').off('dialogopen.upload_guide');
-		$('#upload_modal').off('dialogclose.upload_guide');
+		$('#upload_modal').off('nbdialog_open.upload_guide');
 	}
 
-	function dialog_handler(dialog_elemeng, is_show) {
+	function dialog_handler(dialog_selector, is_show) {
 		return function(tour) {
-			var dlg = $(dialog_elemeng);
-			dlg.dialog();
-			dlg.dialog(is_show ? 'open' : 'close');
+			$(dialog_selector).nbdialog(is_show ? 'open' : 'close');
 		};
 	}
 
