@@ -445,7 +445,7 @@ exports.inode_read = function(req, res) {
 				return next({
 					status: 404, // HTTP Not Found
 					info: 'Not Found'
-				});				
+				});
 			}
 			if (inode.isdir) {
 				return do_read_dir(inode, next);
@@ -751,4 +751,29 @@ function validate_inode_creation_conditions(inode, fobj, user, callback) {
 			});
 		},
 	], callback);
+}
+
+exports.create_inode_copy = create_inode_copy;
+
+//all inode copies are shallow
+//Deep inode copies should be initiated by the above levels. 
+
+var ERR_CANT_COPY_SWM = new Error('SWM files can\'t be copied');
+exports.ERR_CANT_COPY_SWM = ERR_CANT_COPY_SWM;
+
+function create_inode_copy(inode, new_parent, new_name, callback) {
+	if (inode.ghost_ref) {
+		return callback(ERR_CANT_COPY_SWM);
+	}
+	var new_local_name = new_name || inode.name;
+
+	var new_inode = new Inode();
+
+	new_inode.owner = inode.owner;
+	new_inode.parent = new_parent._id;
+	new_inode.name = new_local_name;
+	new_inode.isdir = inode.isdir;
+	new_inode.fobj = inode.fobj;
+
+	return new_inode.save(callback);
 }
