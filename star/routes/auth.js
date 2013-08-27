@@ -31,7 +31,7 @@ var user_details_update = function(profile, user, callback) {
 	});
 };
 
-
+exports.create_user = create_user;
 function create_user(profile, callback) {
 	console.log("CREATE USER", profile);
 	async.waterfall([

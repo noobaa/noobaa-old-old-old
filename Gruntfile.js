@@ -75,12 +75,26 @@ module.exports = function(grunt) {
 			}
 		},
 		nodeunit: {
-			// files: ['test/**/*_test.js'],
-			files: ['star/**/*_test.js'],
+			//1. To run all tests:
+			//		grunt nodeunit:all
+			//2. To run specific test:
+			//		grunt nodeunit:<test name>
+			// For some reason which is still unclear to me running with 
+			// 'grunt nodeunit' fails with test not closed with test.done
+			all: ['star/**/*_test.js'],
+/*			all: [
+				'star/routes/email_test.js',
+				'star/routes/auth_test.js',
+				'star/providers/user_inodes_test.js',
+				'star/routes/inode_api_test.js',
+			],
+*/			auth: 'star/routes/auth_test.js',
+			email: 'star/routes/email_test.js',
+			inode_api_test: 'star/routes/inode_api_test.js',
+			user_inodes: 'star/providers/user_inodes_test.js',
 		},
 
 	});
-
 
 	// Load the plugins
 	grunt.loadNpmTasks('grunt-contrib-jshint');

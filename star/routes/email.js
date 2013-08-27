@@ -1,4 +1,5 @@
-/* jshint node:true */
+/*jslint node: true */
+
 'use strict';
 
 
@@ -13,7 +14,7 @@ function choose_mail(user) {
 }
 
 // to see how to add dynamic info:
-//help.mandrill.com/entries/21678522-how-do-i-use-merge-tags-to-add-dynamic-content
+// help.mandrill.com/entries/21678522-how-do-i-use-merge-tags-to-add-dynamic-content
 exports.send_alpha_welcome = function(user, callback) {
 
 	var localemail = choose_mail(user);
@@ -167,6 +168,112 @@ exports.get_templates = function() {
 	});
 
 };
+
+exports.send_swm_notification = send_swm_notification;
+// I looked at this to get some insipration: 
+// http://blog.mandrill.com/an-awesome-plain-text-email.html
+// I didn't think the notification should be HTML since it's prefered it will 
+// be as slim as possible. 
+// The custom message is a text that can be transfered to add some spice to 
+// the message. some examples are: 
+// "Fresh from the oven" for files recently uploaded
+// "Of all people, X wanted YOU to check it out" if shared with a small number of users. 
+// It is not part of the email module logic 
+// to losen the coupling with the inodes and FS structure. 
+
+function send_swm_notification(notified_user, sharing_user, file_name, custom_message, callback) {
+	var localemail = choose_mail(notified_user);
+	var notified_user_full_name = notified_user.fb.name;
+	var notified_user_first_name = notified_user.fb.first_name;
+	var sharing_user_full_name = sharing_user.fb.name;
+	var sharing_user_first_name = sharing_user.fb.first_name;
+
+	if (!localemail) {
+		console.log(notified_user_full_name + ", has no updated email address.");
+		return callback(null, {
+			"message": notified_user_full_name + ", has no updated email address"
+		});
+	}
+
+	if (custom_message) {
+		custom_message = "\n" + custom_message + "\n";
+	} else {
+		custom_message = '';
+	}
+
+
+	var mailJson = {
+		"message": {
+			// "html": "<p>Example HTML content</p>",
+			"text": "Hi " + notified_user_first_name + ",\n\n" + sharing_user_first_name + " has shared a file with you:" + "\n" + file_name + "\n\n" + "Just checkout the \'Shared With ME\' folder on your main dashboard." + "\n" + custom_message + "\n\t\t\t\t\t\t\t\t The NooBaa Team" + "\n" + "p.s." + "\n" + "As long as the file is shared with you, you can access it and it doesn\'t take any of your capacity. " + "\n",
+			"subject": sharing_user_first_name + " has shared a file with you on NooBaa.",
+			"from_email": "info@noobaa.com",
+			"from_name": "NooBaa Team",
+			"to": [{
+				"email": localemail,
+				"name": notified_user_full_name
+			}],
+			"important": false,
+			"track_opens": null,
+			"track_clicks": null,
+			"auto_text": null,
+			"auto_html": null,
+			"inline_css": null,
+			"url_strip_qs": null,
+			"preserve_recipients": null,
+			"bcc_address": "info@noobaa.com",
+			"tracking_domain": null,
+			"signing_domain": null,
+			"return_path_domain": null,
+			"merge": true,
+			/*			"global_merge_vars": [{
+				"name": "merge1",
+				"content": "merge1 content"
+			}],
+			"merge_vars": [{
+				"rcpt": "recipient.email@example.com",
+				"vars": [{
+					"name": "merge2",
+					"content": "merge2 content"
+				}]
+			}],
+*/
+			"tags": [
+				"shared-file"
+			],
+			// "subaccount": "customer-123",
+			"google_analytics_domains": [
+				"noobaa.com"
+			],
+			// "google_analytics_campaign": "message.from_email@example.com",
+			"metadata": {
+				"website": "www.noobaa.com"
+			},
+			/*			"recipient_metadata": [{
+				"rcpt": "recipient.email@example.com",
+				"values": {
+					"user_id": 123456
+				}
+			}],
+			"attachments": [{
+				"type": "text/plain",
+				"name": "myfile.txt",
+				"content": "ZXhhbXBsZSBmaWxl"
+			}],
+			"images": [{
+				"type": "image/png",
+				"name": "IMAGECID",
+				"content": "ZXhhbXBsZSBmaWxl"
+			}]
+*/
+		},
+		"async": false,
+		"ip_pool": "Main Pool",
+		// "send_at": "example send_at"
+	};
+	mandrill('/messages/send.json', mailJson, callback);
+}
+
 
 /*
 setup mailgun
