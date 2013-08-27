@@ -82,7 +82,7 @@
 					top: 0,
 					bottom: 0,
 					zIndex: e.css('z-index') - 1,
-				}).appendTo($('body'));
+				}).appendTo($('body')).show();
 			}
 			// register event to close dialog on escape
 			var keydown = 'keydown.nbdialog_' + e.uniqueId().attr('id');
@@ -131,6 +131,10 @@
 			}
 
 		} else {
+			if (data) {
+				console.log('nbdialog inited twice... ignoring');
+				return;
+			}
 			opt = opt || {};
 			opt.show = opt.show || {
 				effect: 'drop',
@@ -138,7 +142,7 @@
 				duration: 250,
 			};
 			opt.hide = opt.hide || {
-				effect: 'drop',
+				effect: opt.remove_on_close ? 'puff' : 'fade',
 				direction: 'up',
 				duration: 250,
 			};
@@ -150,31 +154,27 @@
 				tabIndex: -1,
 				role: "dialog"
 			});
+			// in order to compute element optimal size we set height/width = auto
+			// but must also change from display=none for css to compute.
+			// so we set to hidden in this short meanwhile.
 			e.css({
+				display: 'block',
+				visibility: 'hidden',
 				position: 'absolute',
 				height: 'auto',
 				width: 'auto',
-				// must change from display=none for css to compute,
-				// so setting hidden in this short meanwhile
-				visibility: 'hidden',
-				display: 'block'
+				top: -10000,
+				left: -10000
 			});
-			// move the element to center of viewport
-			var top = (($(window).innerHeight() - e.height()) / 2);
+			// compute the element location in center of viewport
+			var width = e.outerWidth();
+			var height = e.outerHeight();
+			var top = (($(window).innerHeight() - height) / 2);
 			top = top > 100 ? top : 100;
 			top += $(document).scrollTop();
-			var left = (($(window).innerWidth() - e.width()) / 2);
+			var left = (($(window).innerWidth() - width) / 2);
 			left = left > 100 ? left : 100;
 			left += $(document).scrollLeft();
-			var css = {
-				top: top,
-				left: left,
-				width: opt.width || e.width(),
-				height: opt.height || e.height(),
-				overflow: 'hidden',
-				zIndex: opt.zIndex || 1040
-			};
-			e.css(css);
 			// compute inner elements dimentions
 			// to make constant size header and footer,
 			// but dynamic content with scroll (if needed).
@@ -207,8 +207,13 @@
 				overflow: 'auto'
 			});
 			e.css({
+				display: 'none',
 				visibility: 'visible',
-				display: 'none'
+				top: top,
+				left: left,
+				width: opt.width || width,
+				height: opt.height || height,
+				zIndex: opt.zIndex || 1040
 			});
 			// initialize resizable and draggable
 			e.resizable({
@@ -255,8 +260,6 @@
 		$('<button class="nbdialog_close btn btn-default">Close</button>').appendTo(foot);
 		dlg.appendTo($('body'));
 		dlg.nbdialog('open', {
-			width: 350,
-			height: 250,
 			remove_on_close: true,
 			modal: true
 		});

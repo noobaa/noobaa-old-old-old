@@ -137,14 +137,18 @@ html, body {
 
 
 .nbdialog {
-	/*z-index: 200;*/
 	display: none;
+	outline: none;
 	overflow: hidden;
 	background-color: white;
 	border-radius: 10px/10px;
 	-moz-box-shadow: 	0 0 3px 3px rgba(0, 0, 0, 0.4);
 	-webkit-box-shadow: 0 0 3px 3px rgba(0, 0, 0, 0.4);
 	box-shadow: 		0 0 3px 3px rgba(0, 0, 0, 0.4);
+	border: 3px solid rgba(0, 0, 0, 0.1);
+	-moz-background-clip: 		padding;
+	-webkit-background-clip: 	padding;
+	background-clip: 			padding-box;
 }
 .alert_dialog .nbdialog_header .alert_icon {
 	font-size: 35px;
@@ -157,7 +161,6 @@ html, body {
 	padding: 15px;
 }
 .nbdialog_content {
-	/*margin: 10px;*/
 	background-color: rgba(160,150,190,0.20);
 	border-top: 	solid 1px rgba(0,0,0,0.2);
 	border-bottom: 	solid 1px rgba(0,0,0,0.2);
@@ -170,30 +173,30 @@ html, body {
 	background-color: black;
 	opacity: 0.5 !important;
 }
-
-.ui-resizable-s,
-.ui-resizable-n,
-.ui-resizable-se,
-.ui-resizable-sw,
-.ui-resizable-ne,
-.ui-resizable-nw {
+/*
+.ui-resizable-s, .ui-resizable-se, .ui-resizable-sw {
+	bottom: -10px !important;
 	height: 15px !important;
 }
-.ui-resizable-e,
-.ui-resizable-w,
-.ui-resizable-se,
-.ui-resizable-sw,
-.ui-resizable-ne,
-.ui-resizable-nw {
+.ui-resizable-n, .ui-resizable-ne, .ui-resizable-nw {
+	top: -10px !important;
+	height: 15px !important;
+}
+.ui-resizable-e, .ui-resizable-se, .ui-resizable-ne {
+	right: -10px !important;
+	width: 15px !important;
+}
+.ui-resizable-w, .ui-resizable-sw, .ui-resizable-nw {
+	left: -10px !important;
 	width: 15px !important;
 }
 .ui-resizable-handle {
 	background-color: transparent;
 }
 .ui-resizable-handle:hover {
-	background-color: rgba(0,0,0,0.05);
+	background-color: rgba(0,0,0,0.1);
 }
-
+*/
 
 .tour .popover-content {
 	/*background-color: rgba(50,50,50,1);*/
