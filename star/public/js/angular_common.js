@@ -54,8 +54,11 @@
 	}
 
 	function nbdialog(opt, opt_for_open) {
-		var e = $(this[0]);
+		/* jshint validthis:true */
+		var e = this.eq(0);
 		var data = e.data('nbdialog');
+		var keydown = 'keydown.nbdialog_' + e.uniqueId().attr('id');
+		var visible;
 
 		if (opt === 'open') {
 			if (!data) {
@@ -66,7 +69,7 @@
 				return;
 			}
 			data.state = 'open';
-			var visible = e.is(':visible');
+			visible = e.is(':visible');
 			var show = _.clone(data.opt.show);
 			if (!visible) {
 				show.complete = function() {
@@ -85,7 +88,6 @@
 				}).appendTo($('body')).show();
 			}
 			// register event to close dialog on escape
-			var keydown = 'keydown.nbdialog_' + e.uniqueId().attr('id');
 			$(window).on(keydown, function(event) {
 				// ESCAPE KEY - close dialog
 				if (event.keyCode === 27 && !event.isDefaultPrevented()) {
@@ -117,7 +119,7 @@
 					return;
 				}
 				data.state = 'close';
-				var visible = e.is(':visible');
+				visible = e.is(':visible');
 				var hide = _.clone(data.opt.hide);
 				hide.complete = function() {
 					if (visible) {
@@ -130,7 +132,6 @@
 				};
 				// unregister event to close dialog on escape
 				$('#nbdialog_modal_backdrop').remove();
-				var keydown = 'keydown.nbdialog_' + e.uniqueId().attr('id');
 				$(window).off(keydown);
 				// ready, hide the dialog
 				e.hide(hide);

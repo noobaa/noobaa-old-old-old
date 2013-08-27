@@ -910,7 +910,7 @@ function ShareModalCtrl($scope) {
 	$scope.submit = function() {
 		var inode = $scope.share_inode;
 		var share_list = $scope.share_list;
-		share_modal.modal('hide');
+		$('#share_modal').nbdialog('close');
 		console.log('------------------------------');
 		console.log("inode", inode);
 		console.log("share_list", share_list);
