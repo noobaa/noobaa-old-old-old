@@ -142,30 +142,56 @@ html, body {
 	overflow: hidden;
 	background-color: white;
 	border-radius: 10px/10px;
-	/*border: solid 10px rgba(255,255,0,0.5);*/
-	-moz-box-shadow: 	0 0 6px 6px rgba(0, 0, 0, 0.4);
-	-webkit-box-shadow: 0 0 6px 6px rgba(0, 0, 0, 0.4);
-	box-shadow: 		0 0 6px 6px rgba(0, 0, 0, 0.4);
+	-moz-box-shadow: 	0 0 3px 3px rgba(0, 0, 0, 0.4);
+	-webkit-box-shadow: 0 0 3px 3px rgba(0, 0, 0, 0.4);
+	box-shadow: 		0 0 3px 3px rgba(0, 0, 0, 0.4);
 }
-.nbdialog.alert_dialog {
-	border: solid 10px rgba(255,205,0,0.5);
-	/*background-color: rgba(255, 255, 0, 0.4);*/
+.alert_dialog .nbdialog_header .alert_icon {
+	font-size: 35px;
+	color: rgba(255,200,100,1);
+	text-shadow: 
+		-1px 0 black, 0 1px black,
+		1px 0 black,  0 -1px black;
 }
 .nbdialog_header, .nbdialog_content, .nbdialog_footer {
 	padding: 15px;
 }
 .nbdialog_content {
-	background-color: rgba(150,138,177,0.25);
+	/*margin: 10px;*/
+	background-color: rgba(160,150,190,0.20);
 	border-top: 	solid 1px rgba(0,0,0,0.2);
 	border-bottom: 	solid 1px rgba(0,0,0,0.2);
 }
-.modal-backdrop {
-	background-color: rgba(0,0,0,0.1) !important;
+.nbdialog .inode_label {
+	margin: 20px;
+	word-wrap: break-word;
 }
-.ui-widget-overlay {
-	background: none !important;
-	background-color: black !important;
-	opacity: 0.1 !important;
+#nbdialog_modal_backdrop, .tour-backdrop {
+	background-color: black;
+	opacity: 0.5 !important;
+}
+
+.ui-resizable-s,
+.ui-resizable-n,
+.ui-resizable-se,
+.ui-resizable-sw,
+.ui-resizable-ne,
+.ui-resizable-nw {
+	height: 15px !important;
+}
+.ui-resizable-e,
+.ui-resizable-w,
+.ui-resizable-se,
+.ui-resizable-sw,
+.ui-resizable-ne,
+.ui-resizable-nw {
+	width: 15px !important;
+}
+.ui-resizable-handle {
+	background-color: transparent;
+}
+.ui-resizable-handle:hover {
+	background-color: rgba(0,0,0,0.05);
 }
 
 

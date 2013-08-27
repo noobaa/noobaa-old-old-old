@@ -70,10 +70,28 @@
 			var show = _.clone(data.opt.show);
 			if (!visible) {
 				show.complete = function() {
-					console.log('TRIGGER nbdialog_open')
 					e.trigger('nbdialog_open');
 				};
 			}
+			if (data.opt.modal) {
+				// create backdrop element
+				$('<div id="nbdialog_modal_backdrop"></div>').css({
+					position: 'fixed',
+					left: 0,
+					right: 0,
+					top: 0,
+					bottom: 0,
+					zIndex: e.css('z-index') - 1,
+				}).appendTo($('body'));
+			}
+			// register event to close dialog on escape
+			var keydown = 'keydown.nbdialog_' + e.uniqueId().attr('id');
+			$(window).on(keydown, function(event) {
+				if (event.which == 27) {
+					e.nbdialog('close');
+				}
+			});
+			// ready, show the dialog
 			e.show(show);
 
 		} else if (opt === 'close') {
@@ -86,15 +104,18 @@
 				var hide = _.clone(data.opt.hide);
 				hide.complete = function() {
 					if (visible) {
-						console.log('TRIGGER nbdialog_close')
 						e.trigger('nbdialog_close');
 					}
 					if (data.opt.remove_on_close) {
 						// when hide completes we can remove the element
-						console.log('removing nbdialog...');
 						e.remove();
 					}
 				};
+				// unregister event to close dialog on escape
+				$('#nbdialog_modal_backdrop').remove();
+				var keydown = 'keydown.nbdialog_' + e.uniqueId().attr('id');
+				$(window).off(keydown);
+				// ready, hide the dialog
 				e.hide(hide);
 			} else {
 				e.hide();
@@ -114,16 +135,21 @@
 			opt.show = opt.show || {
 				effect: 'drop',
 				direction: 'up',
-				duration: 200,
+				duration: 250,
 			};
 			opt.hide = opt.hide || {
 				effect: 'drop',
 				direction: 'up',
-				duration: 200,
+				duration: 250,
 			};
 			// take the element from current parent to top level
 			// to prevent css issues by inheritance
 			e.detach().appendTo($('body'));
+			e.attr({
+				// Setting tabIndex makes the div focusable
+				tabIndex: -1,
+				role: "dialog"
+			});
 			e.css({
 				position: 'absolute',
 				height: 'auto',
@@ -145,7 +171,8 @@
 				left: left,
 				width: opt.width || e.width(),
 				height: opt.height || e.height(),
-				overflow: 'hidden'
+				overflow: 'hidden',
+				zIndex: opt.zIndex || 1040
 			};
 			e.css(css);
 			// compute inner elements dimentions
@@ -191,6 +218,7 @@
 				autoHide: true
 			});
 			e.draggable({
+				containment: 'document',
 				cursor: 'move',
 				handle: '.nbdialog_drag',
 				cancel: '.nbdialog_nodrag'
@@ -210,12 +238,25 @@
 	}
 
 	function nbalert(str, options) {
-		var dlg = $('<div class="nbdialog alert_dialog fnt"></div>');
-		var head = $('<div class="nbdialog_header nbdialog_drag">Oops...</div>').appendTo(dlg);
-		var content = $('<div class="nbdialog_content"></div>').appendTo(dlg).html(str);
+		var dlg = $('<div class="nbdialog alert_dialog fnt fntmd"></div>');
+		var head = $('<div class="nbdialog_header nbdialog_drag"></div>').appendTo(dlg);
+		var content = $('<div class="nbdialog_content"></div>').appendTo(dlg);
 		var foot = $('<div class="nbdialog_footer text-center"></div>').appendTo(dlg);
+		$('<span class="alert_icon"></span>')
+			.append($('<i class="icon-warning-sign"></i>'))
+			.appendTo(head);
+		$('<span>Hmmm...</span>')
+			.css('padding', '20px')
+			.appendTo(head);
+		$('<p></p>')
+			.append($('<b></b>').html(str))
+			.css('padding', '20px 20px 0 20px')
+			.appendTo(content);
 		$('<button class="nbdialog_close btn btn-default">Close</button>').appendTo(foot);
+		dlg.appendTo($('body'));
 		dlg.nbdialog('open', {
+			width: 350,
+			height: 250,
 			remove_on_close: true,
 			modal: true
 		});

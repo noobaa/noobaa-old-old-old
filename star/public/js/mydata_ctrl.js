@@ -533,13 +533,13 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 		// when drag is an inode, then move it under the drop dir
 		console.log('drag ' + drag_inode.name + ' drop ' + drop_inode.name);
 		if (drag_inode.is_immutable_root()) {
-			$.nbalert('Cannot move root folder.');
+			$.nbalert('Cannot move root folder');
 			return;
 		}
 		var p = drop_inode;
 		while (p) {
 			if (p.id === drag_inode.id) {
-				$.nbalert('Cannot create circular folders. It\'s just wrong.');
+				$.nbalert('Cannot create circular folders.<br/>It\'s just wrong...');
 				return;
 			}
 			p = p.parent;
@@ -550,8 +550,8 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 		}
 
 		var dlg = $('#move_dialog').clone();
-		dlg.find('#dialog_item').html(drag_inode.make_inode_with_icon());
-		dlg.find('#dialog_item2').html(drop_inode.make_inode_with_icon());
+		dlg.find('.inode_label').eq(0).html(drag_inode.make_inode_with_icon());
+		dlg.find('.inode_label').eq(1).html(drop_inode.make_inode_with_icon());
 		dlg.find('#dialog_ok').off('click').on('click', function() {
 			dlg.nbdialog('close');
 			drag_inode.rename(drop_inode, drag_inode.name).on('all', function() {
@@ -783,7 +783,7 @@ function InodesMenuCtrl($scope) {
 		var dlg = $('#mkdir_dialog').clone();
 		var input = dlg.find('#dialog_input');
 		input.val('');
-		dlg.find('#dialog_item').html(dir_inode.make_inode_with_icon());
+		dlg.find('.inode_label').html(dir_inode.make_inode_with_icon());
 		dlg.find('#dialog_ok').off('click').on('click', function() {
 			dlg.nbdialog('close');
 			if (input.val()) {
@@ -803,13 +803,13 @@ function InodesMenuCtrl($scope) {
 			return;
 		}
 		if (inode.is_immutable_root()) {
-			$.nbalert('Cannot rename root folder.');
+			$.nbalert('Cannot rename root folder');
 			return;
 		}
 		var dlg = $('#rename_dialog').clone();
 		var input = dlg.find('#dialog_input');
 		input.val(inode.name);
-		dlg.find('#dialog_item').html(inode.make_inode_with_icon());
+		dlg.find('.inode_label').html(inode.make_inode_with_icon());
 		dlg.find('#dialog_ok').off('click').on('click', function() {
 			dlg.nbdialog('close');
 			if (input.val() && input.val() !== inode.name) {
@@ -848,15 +848,15 @@ function InodesMenuCtrl($scope) {
 			return;
 		}
 		if (inode.is_immutable_root()) {
-			$.nbalert('Cannot delete root folder.');
+			$.nbalert('Cannot delete root folder');
 			return;
 		}
 		if (inode.is_dir_non_empty()) {
-			$.nbalert('Cannot delete non-empty folder.');
+			$.nbalert('Cannot delete non-empty folder');
 			return;
 		}
 		var dlg = $('#delete_dialog').clone();
-		dlg.find('#dialog_item').html(inode.make_inode_with_icon());
+		dlg.find('.inode_label').html(inode.make_inode_with_icon());
 		dlg.find('#dialog_ok').off('click').on('click', function() {
 			dlg.nbdialog('close');
 			inode.delete_inode().on('all', function() {
@@ -880,11 +880,11 @@ function InodesMenuCtrl($scope) {
 			return;
 		}
 		if (inode.is_immutable_root()) {
-			$.nbalert('Cannot share root folder.');
+			$.nbalert('Cannot share root folder');
 			return;
 		}
 		var dlg = $('#share_modal');
-		dlg.find('#dialog_item').html(inode.make_inode_with_icon());
+		dlg.find('.inode_label').html(inode.make_inode_with_icon());
 		// TODO this is hacky accessing dlg.scope() ...
 		dlg.scope().share_inode = inode;
 		inode.get_share_list().on('success', function(data) {
