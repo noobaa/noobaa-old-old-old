@@ -87,12 +87,29 @@
 			// register event to close dialog on escape
 			var keydown = 'keydown.nbdialog_' + e.uniqueId().attr('id');
 			$(window).on(keydown, function(event) {
-				if (event.which == 27) {
+				// ESCAPE KEY - close dialog
+				if (event.keyCode === 27 && !event.isDefaultPrevented()) {
+					event.preventDefault();
 					e.nbdialog('close');
+					return;
+				}
+				// TAB KEY - prevent tabbing out of dialogs (taken from jqueryui)
+				if (event.keyCode === 9) {
+					var tabbables = e.find(":tabbable");
+					var first = tabbables.filter(":first");
+					var last = tabbables.filter(":last");
+					if ((event.target === last[0] || event.target === e[0]) && !event.shiftKey) {
+						first.focus(1);
+						event.preventDefault();
+					} else if ((event.target === first[0] || event.target === e[0]) && event.shiftKey) {
+						last.focus(1);
+						event.preventDefault();
+					}
 				}
 			});
 			// ready, show the dialog
 			e.show(show);
+			e.focus(1).find(":tabbable").filter(":first").focus(1);
 
 		} else if (opt === 'close') {
 			if (data) {
@@ -142,7 +159,7 @@
 				duration: 250,
 			};
 			opt.hide = opt.hide || {
-				effect: opt.remove_on_close ? 'puff' : 'fade',
+				effect: 'fade',
 				direction: 'up',
 				duration: 250,
 			};
@@ -242,7 +259,7 @@
 		}
 	}
 
-	function nbalert(str, options) {
+	function nbalert(str) {
 		var dlg = $('<div class="nbdialog alert_dialog fnt fntmd"></div>');
 		var head = $('<div class="nbdialog_header nbdialog_drag"></div>').appendTo(dlg);
 		var content = $('<div class="nbdialog_content"></div>').appendTo(dlg);
@@ -260,6 +277,36 @@
 		$('<button class="nbdialog_close btn btn-default">Close</button>').appendTo(foot);
 		dlg.appendTo($('body'));
 		dlg.nbdialog('open', {
+			zIndex: 1050,
+			remove_on_close: true,
+			modal: true
+		});
+	}
+
+	function nbconfirm(str, yes_callback) {
+		var dlg = $('<div class="nbdialog confirm_dialog fnt fntmd"></div>');
+		var head = $('<div class="nbdialog_header nbdialog_drag"></div>').appendTo(dlg);
+		var content = $('<div class="nbdialog_content"></div>').appendTo(dlg);
+		var foot = $('<div class="nbdialog_footer"></div>').appendTo(dlg);
+		$('<span class="confirm_icon"></span>')
+			.append($('<i class="icon-question-sign"></i>'))
+			.appendTo(head);
+		$('<span>Hmmm?</span>')
+			.css('padding', '20px')
+			.appendTo(head);
+		$('<p></p>')
+			.append($('<b></b>').html(str))
+			.css('padding', '20px 20px 0 20px')
+			.appendTo(content);
+		$('<button class="nbdialog_close btn btn-default">Cancel</button>').appendTo(foot);
+		$('<button class="btn btn-primary pull-right">Yes</button>').appendTo(foot)
+			.on('click', function() {
+				dlg.nbdialog('close');
+				yes_callback();
+			});
+		dlg.appendTo($('body'));
+		dlg.nbdialog('open', {
+			zIndex: 1050,
 			remove_on_close: true,
 			modal: true
 		});
@@ -275,6 +322,7 @@
 		jQuery.fn.nbdialog = nbdialog;
 		// add nbalert as global jquery function - $.nbalert
 		jQuery.nbalert = nbalert;
+		jQuery.nbconfirm = nbconfirm;
 	});
 
 	noobaa_app.directive('nbRightClick', function($parse) {

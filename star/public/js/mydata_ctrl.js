@@ -344,7 +344,7 @@ Inode.prototype.handle_drop = function(inode) {
 Inode.prototype.get_drag_helper = function() {
 	return $('<div class="label label-default roundbord">' +
 		'<span class="fntthin fntmd">Moving: <b>' +
-		this.name + '</b></span></div>').css('z-index',1);
+		this.name + '</b></span></div>').css('z-index', 1);
 };
 
 Inode.prototype.make_inode_with_icon = function() {
@@ -971,6 +971,7 @@ function UploadCtrl($scope) {
 			dir_inode: dir_inode,
 			data: data,
 			file: file,
+			working: true,
 			progress: 0,
 			status: 'Creating...',
 			row_class: '',
@@ -980,14 +981,28 @@ function UploadCtrl($scope) {
 		data.upload_idx = idx;
 		$scope.upload_id_idx++;
 		$scope.uploads[idx] = upload;
+		num_running_uploads++;
 
-		function fail_upload() {
-			upload.status = 'Failed!';
-			upload.row_class = 'error';
-			upload.progress_class = 'progress-bar progress-bar-danger';
-			upload.progress = 100;
+		function upload_success() {
+			num_running_uploads--;
+			upload.status = 'Completed';
+			upload.row_class = 'success';
+			upload.working = false;
+			dir_inode.read_dir();
 			$scope.safe_apply();
 		}
+
+		function upload_failed() {
+			num_running_uploads--;
+			upload.status = 'Failed!';
+			upload.row_class = 'danger';
+			upload.progress_class = 'progress-bar progress-bar-danger';
+			upload.progress = 100;
+			upload.working = false;
+			dir_inode.read_dir();
+			$scope.safe_apply();
+		}
+		upload.upload_failed = upload_failed; // expose for user cancel request
 
 		// create the file and receive upload location info
 		console.log('creating file:', file);
@@ -1000,9 +1015,7 @@ function UploadCtrl($scope) {
 			data.multipart = true;
 			data.url = mkfile_data.s3_post_info.url;
 			data.formData = mkfile_data.s3_post_info.form;
-			console.log('MKFILE:', mkfile_data);
-			console.log('DATA:', data);
-
+			console.log('MKFILE:', mkfile_data, data);
 			upload.xhr = data.submit();
 			upload.xhr.success(function(result, textStatus, jqXHR) {
 				console.log('[ok] upload success');
@@ -1016,28 +1029,18 @@ function UploadCtrl($scope) {
 					data: {
 						uploading: false
 					}
-				}).on('success', function() {
-					upload.status = 'Completed';
-					upload.row_class = 'success';
-					$scope.safe_apply();
-				}).on('error', fail_upload);
+				}).on('success', upload_success)
+					.on('error', upload_failed);
 			});
 			upload.xhr.error(function(jqXHR, textStatus, errorThrown) {
 				console.error('upload error: ' + textStatus + ' ' + errorThrown, jqXHR.responseText);
-				fail_upload();
+				upload_failed();
 			});
-			upload.xhr.always(function(e, data) {
-				// data.result, data.textStatus, data.jqXHR
-				num_running_uploads--;
-				dir_inode.read_dir();
-				$scope.safe_apply();
-			});
-			num_running_uploads++;
 			$scope.safe_apply();
 		});
 		ev.on('error', function(data) {
 			console.log('Failed in creation: ', data);
-			fail_upload();
+			upload_failed();
 			$scope.safe_apply();
 		});
 		$scope.safe_apply();
@@ -1071,10 +1074,21 @@ function UploadCtrl($scope) {
 	};
 
 	$scope.dismiss_upload = function(upload) {
-		if (upload.xhr) {
-			upload.xhr.abort();
+		var do_dismiss = function() {
+			if (upload.working) {
+				if (upload.xhr) {
+					upload.xhr.abort();
+				}
+			} else {
+				delete $scope.uploads[upload.idx];
+			}
+		};
+		if (!upload.working) {
+			do_dismiss();
+		} else {
+			$.nbconfirm('This upload is still working.<br/>' +
+				'Are you sure you want to cancel it?', do_dismiss);
 		}
-		delete $scope.uploads[upload.idx];
 	};
 
 	// setup the global file/dir input and link them to this scope

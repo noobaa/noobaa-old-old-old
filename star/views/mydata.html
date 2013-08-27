@@ -257,7 +257,7 @@
 
 <!-- UPLOAD MODAL -->
 
-	<div ng-controller="UploadCtrl"
+	<div ng-cloak ng-controller="UploadCtrl"
 		id="upload_modal"
 		class="nbdialog fntmd"
 		aria-hidden="true">
@@ -269,27 +269,13 @@
 			</a>
 		</div>
 		<div class="nbdialog_content">
-			<div ng-hide="has_uploads()">
-				<div class="roundbord" 
-					style="margin: 20px; background-color: rgba(100,150,200,0.8)">
-				<div class="roundbord" 
-					style="margin: 20px; background-color: rgba(100,200,150,0.8)">
-				<div class="roundbord text-center" 
-					style="margin: 20px; background-color: rgba(200,100,150,0.8)">
-					<h4>Start Uploading using:</h4>
-					<dl>
-						<dt>Drag &amp; Drop</dt>
-						<dd>(just drop files into the window)</dd>
-						<dt>Choose Files/Folders</dt>
-						<dd>(use the buttons below)</dd>
-					</dl>
-				</div>
-				</div>
-				</div>
+			<div ng-hide="has_uploads()" class="text-center fnt" style="padding: 20px">
+				<div style="font-size: 80px"><i class="icon-cloud-upload"></i></div>
+				<h2>Drag &amp; Drop to start uploading!</h2>
 			</div>
-			<table ng-show="has_uploads()"
-				id="upload_table" 
-				class="table table-striped ng-cloak"
+			<div ng-show="has_uploads()" class="table-responsive">
+			<table id="upload_table" 
+				class="table ng-cloak"
 				style="margin: 0">
 				<thead>
 					<tr>
@@ -333,6 +319,7 @@
 					</td>
 				</tr>
 			</table>
+			</div>
 		</div>
 		<div class="nbdialog_footer">
 			<button class="nbdialog_close btn btn-default">Hide</button>

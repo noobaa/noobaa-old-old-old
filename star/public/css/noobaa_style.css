@@ -127,11 +127,11 @@ html, body {
 	/*border-radius: 7px/7px;*/
 	/*padding: 5px;*/
 	border-style: solid;
-	border-width: 2px;
+	border-width: 1px;
 	border-color: rgba(0, 0, 0, 0.3);
-	-moz-box-shadow: 	0 0 6px 6px rgba(0, 0, 0, 0.3);
-	-webkit-box-shadow: 0 0 6px 6px rgba(0, 0, 0, 0.3);
-	box-shadow: 		0 0 6px 6px rgba(0, 0, 0, 0.3);
+	-moz-box-shadow: 	0 0 5px 5px rgba(0, 0, 0, 0.3);
+	-webkit-box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.3);
+	box-shadow: 		0 0 5px 5px rgba(0, 0, 0, 0.3);
 }
 
 
@@ -150,13 +150,6 @@ html, body {
 	-webkit-background-clip: 	padding;
 	background-clip: 			padding-box;
 }
-.alert_dialog .nbdialog_header .alert_icon {
-	font-size: 35px;
-	color: rgba(255,200,100,1);
-	text-shadow: 
-		-1px 0 black, 0 1px black,
-		1px 0 black,  0 -1px black;
-}
 .nbdialog_header, .nbdialog_content, .nbdialog_footer {
 	padding: 15px;
 }
@@ -173,6 +166,22 @@ html, body {
 	background-color: black;
 	opacity: 0.5 !important;
 }
+
+.alert_dialog .nbdialog_header .alert_icon {
+	font-size: 35px;
+	color: rgba(255,200,100,1);
+	text-shadow: 
+		-1px 0 black, 0 1px black,
+		1px 0 black,  0 -1px black;
+}
+.confirm_dialog .nbdialog_header .confirm_icon {
+	font-size: 35px;
+	color: rgba(255,200,100,1);
+	text-shadow: 
+		-1px 0 black, 0 1px black,
+		1px 0 black,  0 -1px black;
+}
+
 /*
 .ui-resizable-s, .ui-resizable-se, .ui-resizable-sw {
 	bottom: -10px !important;
