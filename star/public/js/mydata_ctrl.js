@@ -428,6 +428,7 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 	$scope.timeout = $timeout;
 	$scope.api_url = "/star_api/";
 	$scope.inode_api_url = $scope.api_url + "inode/";
+	$scope.user_usage_url = $scope.api_url + "user/usage";
 	$scope.inode_share_sufix = "/share_list";
 
 	// returns an event object with 'success' and 'error' events,
@@ -989,6 +990,46 @@ function ShareModalCtrl($scope) {
 			// TODO: better show working sign of the ajax operation and only here hide the modal
 		});
 	};
+}
+
+
+////////////////////////////////
+////////////////////////////////
+// UserCtrl
+////////////////////////////////
+////////////////////////////////
+
+UserCtrl.$inject = ['$scope', '$http', '$timeout'];
+
+function UserCtrl($scope, $http, $timeout) {
+	$scope.user_quota = 0;
+	$scope.user_usage = 0;
+
+	function cancel_usage_refresh() {
+		$timeout.cancel($scope.usage_refresh_timeout);
+		delete $scope.usage_refresh_timeout;
+	}
+
+	function usage_refresh() {
+		cancel_usage_refresh();
+		$http({
+			method: "GET",
+			url: "/star_api/user/usage",
+		}).success(function(data, status, headers, config) {
+			$scope.user_quota = data.user_quota;
+			$scope.user_usage = data.user_usage;
+			cancel_usage_refresh();
+			$scope.usage_refresh_timeout =
+				$timeout(usage_refresh, 30000);
+		}).error(function(data, status, headers, config) {
+			console.log("Error in querying user usage: ", status);
+			cancel_usage_refresh();
+			$scope.usage_refresh_timeout =
+				$timeout(usage_refresh, 30000);
+		});
+	}
+	usage_refresh();
+
 }
 
 
