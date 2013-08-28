@@ -4,12 +4,10 @@
 var mongoose = require('mongoose');
 
 // Convinient callback maker for handling the reply of async control flows.
-//
 // Example usage:
-//	async.waterfall(
-//		[...],
-//		reply_callback(req, res, debug_info)
-//	);
+//		async.waterfall([
+//			...
+//		], reply_callback(req, res, debug_info));
 
 function reply_callback(req, res, debug_info) {
 	return function(err, reply) {
@@ -45,12 +43,10 @@ function check_ownership(user_id, obj, next) {
 }
 
 // Convinient callback maker to check the object owner matching to the req.user
-//
 // Example usage:
-//	async.waterfall([
-//		req_ownership_checker(req),
-//		], reply_callback(req, res, debug_info)
-//	);
+//		async.waterfall([
+//			req_ownership_checker(req),
+//		], reply_callback(req, res, debug_info));
 
 function req_ownership_checker(req) {
 	return function(obj, next) {

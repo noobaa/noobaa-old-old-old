@@ -383,14 +383,7 @@
 					Share this item with friends:
 					<div class="inode_label"></div>
 				</p>
-<!-- 				<ul class="unstyled">
-					<li ng-repeat="friend in share_list">
-						<input type="checkbox" class="checkbox" ng-model="friend.shared"></input>
-						{{friend.name}}
-						<img ng-src="https://graph.facebook.com/{{friend.fb_id}}/picture"></img>
-					</li>
-				</ul> -->
-				<table>
+				<table class="table">
 					<tr ng-repeat="friend in share_list">
 					<td><img ng-src="https://graph.facebook.com/{{friend.fb_id}}/picture"></img></td>
 					<td><input type="checkbox" class="checkbox" ng-model="friend.shared"></input></td>
@@ -638,10 +631,10 @@
 					</div>
 				</div>
 				<div class="t-cell">
-					<img ng-show="inode.shared_fb_id"
-						ng-src="{{fb_pic_url(inode.shared_fb_id)}}"
+					<img ng-show="inode.owner_fbid"
+						ng-src="{{fb_pic_url(inode.owner_fbid)}}"
 						style="width: 30px; height: 30px;">
-					{{inode.shared_name}}
+					{{inode.owner_name}}
 				</div>
 			</div>
 			<!-- div class="t-row"

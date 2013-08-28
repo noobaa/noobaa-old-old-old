@@ -100,12 +100,17 @@ function inode_to_entry(inode, opt) {
 		name: inode.name,
 		isdir: inode.isdir
 	};
-	if (opt && opt.user && !mongoose.Types.ObjectId(opt.user.id).equals(inode.owner)) {
-		ent.owner = inode.owner;
-	}
 	if (inode.ghost_ref && inode.live_owner) {
-		ent.shared_name = inode.live_owner.fb.name;
-		ent.shared_fb_id = inode.live_owner.fb.id;
+		// in this case this is a ghost ref to some other inode,
+		// send the owner of the referenced file
+		ent.owner_fbid = inode.live_owner.fb.id;
+		ent.owner_name = inode.live_owner.fb.name;
+	} else if (opt && opt.user && !mongoose.Types.ObjectId(opt.user.id).equals(inode.owner)) {
+		// in this case we are looking at someone elses inode,
+		// send him as the owner
+		ent.not_mine = true;
+		ent.owner_fbid = opt.user.fbid;
+		ent.owner_name = opt.user.name;
 	}
 	if (opt && opt.fobj) {
 		// when fobj is given add its info to the entry

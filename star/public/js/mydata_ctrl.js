@@ -110,9 +110,8 @@ Inode.prototype.is_shared_with_me = function() {
 	return this.swm;
 };
 
-Inode.prototype.is_mine = function() {
-	// if owner key exist - it means its not mine
-	return !this.owner;
+Inode.prototype.is_not_mine = function() {
+	return this.not_mine;
 };
 
 Inode.prototype.is_dir_non_empty = function(callback) {
@@ -123,10 +122,10 @@ Inode.prototype.is_dir_non_empty = function(callback) {
 	var me = this;
 	var ev = this.load_dir();
 	if (!ev) {
-		callback(!!me.dir_state.sons_list.length);
-	} else {	
+		callback( !! me.dir_state.sons_list.length);
+	} else {
 		ev.on('all', function() {
-			callback(!!me.dir_state.sons_list.length);
+			callback( !! me.dir_state.sons_list.length);
 		});
 	}
 };
@@ -230,9 +229,9 @@ Inode.prototype.populate_dir = function(entries) {
 		sync_property(son, ent, "size");
 		sync_property(son, ent, "uploading");
 		sync_property(son, ent, "progress");
-		sync_property(son, ent, "owner");
-		sync_property(son, ent, "shared_name");
-		sync_property(son, ent, "shared_fb_id");
+		sync_property(son, ent, "not_mine");
+		sync_property(son, ent, "owner_name");
+		sync_property(son, ent, "owner_fbid");
 
 		sons_map[son.id] = son;
 		sons_list.push(son);
@@ -566,11 +565,11 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 			$.nbalert('Cannot move files of the "' + SWM + '" folder');
 			return;
 		}
-		if (!drag_inode.is_mine()) {
+		if (drag_inode.is_not_mine()) {
 			$.nbalert('Cannot move someone else\'s file');
 			return;
 		}
-		if (!drop_inode.is_mine()) {
+		if (drop_inode.is_not_mine()) {
 			$.nbalert('Cannot move to someone else\'s folder');
 			return;
 		}
@@ -606,25 +605,73 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 		});
 	};
 
+
+	// inode sorting //
+
+	function sorter(key_func, up) {
+		return function(a, b) {
+			if (a.isdir !== b.isdir) {
+				return a.isdir ? -1 : 1;
+			}
+			var aval = key_func(a);
+			var bval = key_func(b);
+			if (aval < bval) {
+				return up;
+			}
+			if (aval > bval) {
+				return -up;
+			}
+			return 0;
+		};
+	}
+
+	function sort_key_name_lower(inode) {
+		return inode.name.toLowerCase();
+	}
+
+	function sort_key_size(inode) {
+		return inode.size;
+	}
+
+	function sort_key_user(inode) {
+		return inode.owner_name ? inode.owner_name.toLowerCase() : '';
+	}
+
+	var sort_by_name_up = sorter(sort_key_name_lower, 1);
+	var sort_by_name_down = sorter(sort_key_name_lower, -1);
+	var sort_by_size_up = sorter(sort_key_size, 1);
+	var sort_by_size_down = sorter(sort_key_size, -1);
+	var sort_by_user_up = sorter(sort_key_user, 1);
+	var sort_by_user_down = sorter(sort_key_user, -1);
 	$scope.default_sort_by = sort_by_name_down;
 
 	$scope.toggle_sort_by_name = function() {
 		var i = $scope.dir_selection.inode;
 		var s = i.dir_state;
-		if (s.sort_by === sort_by_name_up) {
-			s.sort_by = sort_by_name_down;
-		} else {
+		if (s.sort_by === sort_by_name_down) {
 			s.sort_by = sort_by_name_up;
+		} else {
+			s.sort_by = sort_by_name_down;
 		}
 		i.resort_entries();
 	};
 	$scope.toggle_sort_by_size = function() {
 		var i = $scope.dir_selection.inode;
 		var s = i.dir_state;
-		if (s.sort_by === sort_by_size_up) {
-			s.sort_by = sort_by_size_down;
-		} else {
+		if (s.sort_by === sort_by_size_down) {
 			s.sort_by = sort_by_size_up;
+		} else {
+			s.sort_by = sort_by_size_down;
+		}
+		i.resort_entries();
+	};
+	$scope.toggle_sort_by_user = function() {
+		var i = $scope.dir_selection.inode;
+		var s = i.dir_state;
+		if (s.sort_by === sort_by_user_down) {
+			s.sort_by = sort_by_user_up;
+		} else {
+			s.sort_by = sort_by_user_down;
 		}
 		i.resort_entries();
 	};
@@ -646,61 +693,15 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 			return 'icon-caret-down';
 		}
 	};
-
-	// TODO write this sorting logic shorted...
-	// TODO add sort by user
-
-	function sort_by_name_down(a, b) {
-		if (a.isdir !== b.isdir) {
-			return a.isdir ? -1 : 1;
+	$scope.get_sort_by_user_class = function() {
+		var i = $scope.dir_selection.inode;
+		var s = i.dir_state;
+		if (s.sort_by === sort_by_user_up) {
+			return 'icon-caret-up';
+		} else if (s.sort_by === sort_by_user_down) {
+			return 'icon-caret-down';
 		}
-		if (a.name.toLowerCase() > b.name.toLowerCase()) {
-			return 1;
-		}
-		if (a.name.toLowerCase() < b.name.toLowerCase()) {
-			return -1;
-		}
-		return 0;
-	}
-
-	function sort_by_name_up(a, b) {
-		if (a.isdir !== b.isdir) {
-			return a.isdir ? -1 : 1;
-		}
-		if (a.name.toLowerCase() < b.name.toLowerCase()) {
-			return 1;
-		}
-		if (a.name.toLowerCase() > b.name.toLowerCase()) {
-			return -1;
-		}
-		return 0;
-	}
-
-	function sort_by_size_down(a, b) {
-		if (a.isdir !== b.isdir) {
-			return a.isdir ? -1 : 1;
-		}
-		if (a.size > b.size) {
-			return 1;
-		}
-		if (a.size < b.size) {
-			return -1;
-		}
-		return 0;
-	}
-
-	function sort_by_size_up(a, b) {
-		if (a.isdir !== b.isdir) {
-			return a.isdir ? -1 : 1;
-		}
-		if (a.size < b.size) {
-			return 1;
-		}
-		if (a.size > b.size) {
-			return -1;
-		}
-		return 0;
-	}
+	};
 }
 
 
@@ -822,7 +823,7 @@ function InodesMenuCtrl($scope) {
 			$.nbalert('Cannot create folder under the "' + SWM + '" folder');
 			return;
 		}
-		if (!dir_inode.is_mine()) {
+		if (dir_inode.is_not_mine()) {
 			$.nbalert('Cannot create folder in someone else\'s folder');
 			return;
 		}
@@ -852,7 +853,7 @@ function InodesMenuCtrl($scope) {
 			$.nbalert('Cannot rename root folder');
 			return;
 		}
-		if (!inode.is_mine()) {
+		if (inode.is_not_mine()) {
 			$.nbalert('Cannot rename someone else\'s file');
 			return;
 		}
@@ -901,7 +902,7 @@ function InodesMenuCtrl($scope) {
 			$.nbalert('Cannot delete root folder');
 			return;
 		}
-		if (!inode.is_mine()) {
+		if (inode.is_not_mine()) {
 			$.nbalert('Cannot delete someone else\'s file');
 			return;
 		}
@@ -943,7 +944,7 @@ function InodesMenuCtrl($scope) {
 			$.nbalert('Cannot share files in the "' + SWM + '" folder - use copy...');
 			return;
 		}
-		if (!inode.is_mine()) {
+		if (inode.is_not_mine()) {
 			$.nbalert('Cannot share someone else\'s file');
 			return;
 		}
@@ -1025,7 +1026,7 @@ function UploadCtrl($scope) {
 			$.nbalert('Cannot upload to a shared folder');
 			return;
 		}
-		if (!dir_inode.is_mine()) {
+		if (dir_inode.is_not_mine()) {
 			$.nbalert('Cannot upload to someone else\'s folder');
 			return;
 		}
