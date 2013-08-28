@@ -40,16 +40,10 @@ function open_context_menu(event) {
 }
 
 function sync_property(to, from, key) {
-	if (!from[key]) {
-		to[key] = "";
-		return;
-	}
-	if (to[key] === from[key]) {
-		return;
-	}
-	if (from[key]) {
+	if (key in from) {
 		to[key] = from[key];
-		return;
+	} else {
+		delete to[key];
 	}
 }
 
@@ -61,6 +55,7 @@ function sync_property(to, from, key) {
 ////////////////////////////////
 ////////////////////////////////
 
+var SWM = 'Shared With Me';
 
 // Inode model for dir/file
 
@@ -92,7 +87,16 @@ function Inode($scope, id, name, isdir, parent) {
 			// for root folders set specific icon classes
 			this.icon_class = 'd-root-icon';
 			this.caption_class = 'd-root-caption';
+			// set a marker on the shared with me folder
+			// this will also propagate to all sub inodes
+			if (name === SWM) {
+				this.swm = true;
+			}
 		}
+	}
+	// propagate swm from parent
+	if (parent && parent.swm) {
+		this.swm = true;
 	}
 }
 
@@ -100,6 +104,15 @@ function Inode($scope, id, name, isdir, parent) {
 // which are user root dirs and shouldn't be modified.
 Inode.prototype.is_immutable_root = function() {
 	return this.level < 2;
+};
+
+Inode.prototype.is_shared_with_me = function() {
+	return this.swm;
+};
+
+Inode.prototype.is_mine = function() {
+	// if owner key exist - it means its not mine
+	return !this.owner;
 };
 
 Inode.prototype.is_dir_non_empty = function(callback) {
@@ -216,9 +229,10 @@ Inode.prototype.populate_dir = function(entries) {
 		sync_property(son, ent, "isdir");
 		sync_property(son, ent, "size");
 		sync_property(son, ent, "uploading");
+		sync_property(son, ent, "progress");
+		sync_property(son, ent, "owner");
 		sync_property(son, ent, "shared_name");
 		sync_property(son, ent, "shared_fb_id");
-		sync_property(son, ent, "progress");
 
 		sons_map[son.id] = son;
 		sons_list.push(son);
@@ -548,6 +562,18 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 			$.nbalert('Cannot move root folder');
 			return;
 		}
+		if (drag_inode.is_shared_with_me() || drop_inode.is_shared_with_me()) {
+			$.nbalert('Cannot move files of the "' + SWM + '" folder');
+			return;
+		}
+		if (!drag_inode.is_mine()) {
+			$.nbalert('Cannot move someone else\'s file');
+			return;
+		}
+		if (!drop_inode.is_mine()) {
+			$.nbalert('Cannot move to someone else\'s folder');
+			return;
+		}
 		var p = drop_inode;
 		while (p) {
 			if (p.id === drag_inode.id) {
@@ -792,6 +818,14 @@ function InodesMenuCtrl($scope) {
 			console.error('no selected dir, bailing');
 			return;
 		}
+		if (dir_inode.is_shared_with_me()) {
+			$.nbalert('Cannot create folder under the "' + SWM + '" folder');
+			return;
+		}
+		if (!dir_inode.is_mine()) {
+			$.nbalert('Cannot create folder in someone else\'s folder');
+			return;
+		}
 		var dlg = $('#mkdir_dialog').clone();
 		var input = dlg.find('#dialog_input');
 		input.val('');
@@ -816,6 +850,10 @@ function InodesMenuCtrl($scope) {
 		}
 		if (inode.is_immutable_root()) {
 			$.nbalert('Cannot rename root folder');
+			return;
+		}
+		if (!inode.is_mine()) {
+			$.nbalert('Cannot rename someone else\'s file');
 			return;
 		}
 		var dlg = $('#rename_dialog').clone();
@@ -863,6 +901,10 @@ function InodesMenuCtrl($scope) {
 			$.nbalert('Cannot delete root folder');
 			return;
 		}
+		if (!inode.is_mine()) {
+			$.nbalert('Cannot delete someone else\'s file');
+			return;
+		}
 		inode.is_dir_non_empty(function(is_it) {
 			if (is_it) {
 				$.nbalert('Cannot delete non-empty folder');
@@ -897,12 +939,23 @@ function InodesMenuCtrl($scope) {
 			$.nbalert('Cannot share root folder');
 			return;
 		}
+		if (inode.is_shared_with_me()) {
+			$.nbalert('Cannot share files in the "' + SWM + '" folder - use copy...');
+			return;
+		}
+		if (!inode.is_mine()) {
+			$.nbalert('Cannot share someone else\'s file');
+			return;
+		}
 		var dlg = $('#share_modal');
 		dlg.find('.inode_label').html(inode.make_inode_with_icon());
 		// TODO this is hacky accessing dlg.scope() ...
+		dlg.scope().loading_share_list = true;
 		dlg.scope().share_inode = inode;
 		inode.get_share_list().on('success', function(data) {
 			dlg.scope().share_list = data.list;
+		}).on('all', function() {
+			dlg.scope().loading_share_list = false;
 		});
 		dlg.nbdialog('open', {
 			height: 350,
@@ -956,22 +1009,29 @@ function UploadCtrl($scope) {
 
 	$scope.upload_id_idx = 0;
 	$scope.uploads = {};
-	$scope.max_uploads_at_once = 10;
+	$scope.max_uploads_at_once = 20;
 
 	$scope.has_uploads = function() {
 		return !_.isEmpty($scope.uploads);
 	};
 
 	$scope.add_upload = function(event, data) {
-		if (num_running_uploads > $scope.max_uploads_at_once) {
-			alert('Don\'t you think that ' + num_running_uploads +
-				' is too many files to upload at once?');
-			return false;
-		}
-
 		var dir_inode = $scope.dir_selection.inode;
 		if (!dir_inode) {
 			console.error('no selected dir, bailing');
+			return;
+		}
+		if (dir_inode.is_shared_with_me()) {
+			$.nbalert('Cannot upload to a shared folder');
+			return;
+		}
+		if (!dir_inode.is_mine()) {
+			$.nbalert('Cannot upload to someone else\'s folder');
+			return;
+		}
+		if (num_running_uploads > $scope.max_uploads_at_once) {
+			$.nbalert('Don\'t you think that ' + num_running_uploads +
+				' is too many files to upload at once?');
 			return;
 		}
 

@@ -57,5 +57,5 @@ exports.admin_update = function(req, res) {
 		var args = _.pick(data.args, 'alpha_tester');
 		console.log('ADMIN UPDATE', user_id, args);
 		return User.findByIdAndUpdate(user_id, args, next);
-	}, common_api.reply_callback.bind(res, 'ADMIN UPDATE'));
+	}, common_api.reply_callback(req, res, 'ADMIN UPDATE'));
 };

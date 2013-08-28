@@ -46,5 +46,5 @@ exports.user_update = function(req, res) {
 
 		email.send_mail_changed,
 
-	], common_api.reply_callback.bind(res, 'USER UPDATE ' + id));
+	], common_api.reply_callback(req, res, 'USER UPDATE ' + id));
 };

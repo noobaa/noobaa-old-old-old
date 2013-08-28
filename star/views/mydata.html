@@ -368,12 +368,17 @@
 			</a>
 		</div>
 		<div class="nbdialog_content">
-			<div ng-show="!share_list.length">
+			<div ng-show="loading_share_list"
+				class="text-center"
+				style="padding: 30px">
+				<i class="icon-spinner icon-spin icon-2x"></i>
+			</div>
+			<div ng-show="!loading_share_list && !share_list.length">
 				<p>No friends availalbe for sharing.</p>
 				<p>Currenlty sharing is only availalbe for NooBaa users who are your Facebook friends.</p>
 				<p>Invite your Facebook friends to NooBaa today.</p>
 			</div>
-			<div ng-show="share_list.length">
+			<div ng-show="!loading_share_list && share_list.length">
 				<p>
 					Share this item with friends:
 					<div class="inode_label"></div>

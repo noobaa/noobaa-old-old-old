@@ -98,7 +98,7 @@ exports.device_create = function(req, res) {
 				device: dev
 			});
 		}
-	], common_api.reply_callback.bind(res, 'DEVICE CREATE ' + new_dev.name));
+	], common_api.reply_callback(req, res, 'DEVICE CREATE ' + new_dev.name));
 };
 
 // DEVICE CRUD - UPDATE
@@ -118,7 +118,7 @@ exports.device_update = function(req, res) {
 		Device.findById.bind(Device),
 
 		// check device ownership
-		common_api.check_ownership.bind(req),
+		common_api.req_ownership_checker(req),
 
 		// update the device
 		push_update.bind(null, new Date()),
@@ -129,7 +129,7 @@ exports.device_update = function(req, res) {
 				reload: false
 			});
 		}
-	], common_api.reply_callback.bind(res, 'DEVICE UPDATE ' + id));
+	], common_api.reply_callback(req, res, 'DEVICE UPDATE ' + id));
 };
 
 exports.device_list = function(req, res) {
@@ -144,7 +144,7 @@ exports.device_list = function(req, res) {
 				updates_stats: 0
 			}, next);
 		}
-	], common_api.reply_callback.bind(res, 'DEVICE LIST ' + req.user.id));
+	], common_api.reply_callback(req, res, 'DEVICE LIST ' + req.user.id));
 };
 
 exports.device_read = function(req, res) {

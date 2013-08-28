@@ -100,6 +100,9 @@ function inode_to_entry(inode, opt) {
 		name: inode.name,
 		isdir: inode.isdir
 	};
+	if (opt && opt.user && !mongoose.Types.ObjectId(opt.user.id).equals(inode.owner)) {
+		ent.owner = inode.owner;
+	}
 	if (inode.ghost_ref && inode.live_owner) {
 		ent.shared_name = inode.live_owner.fb.name;
 		ent.shared_fb_id = inode.live_owner.fb.id;
@@ -128,7 +131,7 @@ function inode_to_entry(inode, opt) {
 // read_dir finds all the sons of the directory.
 // for inodes with fobj also add the fobj info to the response.
 
-function do_read_dir(inode, next) {
+function do_read_dir(req, inode, next) {
 	async.waterfall([
 		// query all the dir sons
 		function(next) {
@@ -232,6 +235,7 @@ function do_read_dir(inode, next) {
 			// for each inode return an entry with both inode and fobj info
 			var entries = _.map(list, function(inode) {
 				return inode_to_entry(inode, {
+					user: req.user,
 					fobj: fobj_map[inode.fobj]
 				});
 			});
@@ -309,7 +313,7 @@ exports.inode_create = function(req, res) {
 		fobj,
 		req.user,
 		args.relative_path,
-		common_api.reply_callback.bind(res, 'INODE CREATE ' + inode._id));
+		common_api.reply_callback(req, res, 'INODE CREATE ' + inode._id));
 
 };
 
@@ -433,7 +437,7 @@ exports.inode_read = function(req, res) {
 		},
 
 		// check inode ownership
-		common_api.check_ownership.bind(req),
+		common_api.req_ownership_checker(req),
 
 		function(inode, next) {
 			inode.follow_ref(next);
@@ -448,7 +452,7 @@ exports.inode_read = function(req, res) {
 				});
 			}
 			if (inode.isdir) {
-				return do_read_dir(inode, next);
+				return do_read_dir(req, inode, next);
 			} else {
 				// redirect to the fobj location in S3
 				if (inode.fobj) {
@@ -463,7 +467,7 @@ exports.inode_read = function(req, res) {
 		},
 
 		// waterfall end
-	], common_api.reply_callback.bind(res, 'INODE READ ' + id));
+	], common_api.reply_callback(req, res, 'INODE READ ' + id));
 };
 
 
@@ -490,7 +494,7 @@ exports.inode_update = function(req, res) {
 		Inode.findById.bind(Inode),
 
 		// check inode ownership
-		common_api.check_ownership.bind(req),
+		common_api.req_ownership_checker(req),
 
 		// update the inode
 		function(inode, next) {
@@ -526,7 +530,7 @@ exports.inode_update = function(req, res) {
 		}
 
 		// waterfall end
-	], common_api.reply_callback.bind(res, 'INODE UPDATE ' + id));
+	], common_api.reply_callback(req, res, 'INODE UPDATE ' + id));
 };
 
 
@@ -537,7 +541,7 @@ exports.inode_delete = function(req, res) {
 	// the inode_id param is parsed as url param (/path/to/api/:inode_id/...)
 	return inode_delete_action(req.params.inode_id,
 		req.user.id,
-		common_api.reply_callback.bind(res, 'INODE DELETE ' + req.params.inode_id));
+		common_api.reply_callback(req, res, 'INODE DELETE ' + req.params.inode_id));
 };
 
 exports.inode_delete_action = inode_delete_action;
@@ -557,7 +561,7 @@ function inode_delete_action(inode_id, user_id, callback) {
 		Inode.findById.bind(Inode),
 
 		// check inode ownership
-		common_api.check_ownership2.bind(null, user_id),
+		common_api.check_ownership.bind(null, user_id),
 
 		// fail if dir is one of the root dirs of the user
 		function(inode, next) {
@@ -713,7 +717,7 @@ exports.inode_set_share_list = function(req, res) {
 			next(null, inode_id, old_nb_ids, new_nb_ids);
 		},
 		user_inodes.update_inode_ghost_refs,
-	], common_api.reply_callback.bind(res, 'SHARE' + inode_id));
+	], common_api.reply_callback(req, res, 'SHARE' + inode_id));
 };
 
 function validate_inode_creation_conditions(inode, fobj, user, callback) {

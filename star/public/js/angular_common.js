@@ -190,13 +190,13 @@
 			var top = opt.top;
 			if (top === undefined) {
 				top = (($(window).innerHeight() - height) / 2);
-				top = top > min_top ? top : min_top;
+				top = top > 100 ? top : 100;
 				top += $(document).scrollTop();
 			}
 			var left = opt.left;
 			if (left === undefined) {
 				left = (($(window).innerWidth() - width) / 2);
-				left = left > min_left ? left : min_left;
+				left = left > 100 ? left : 100;
 				left += $(document).scrollLeft();
 			}
 			// compute inner elements dimentions
