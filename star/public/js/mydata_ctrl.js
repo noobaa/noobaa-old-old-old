@@ -905,6 +905,8 @@ function InodesMenuCtrl($scope) {
 			dlg.scope().share_list = data.list;
 		});
 		dlg.nbdialog('open', {
+			height: 350,
+			width: 350,
 			modal: true
 		});
 	};

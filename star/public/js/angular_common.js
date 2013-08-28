@@ -162,7 +162,7 @@
 			opt.hide = opt.hide || {
 				effect: 'fade',
 				direction: 'up',
-				duration: 250,
+				duration: 200,
 			};
 			// take the element from current parent to top level
 			// to prevent css issues by inheritance
@@ -206,14 +206,16 @@
 				left: 0,
 				right: 0,
 				top: 0,
-				height: head_height
+				height: head_height,
+				width: 'auto'
 			});
 			foot.css({
 				position: 'absolute',
 				left: 0,
 				right: 0,
 				bottom: 0,
-				height: foot_height
+				height: foot_height,
+				width: 'auto'
 			});
 			content.css({
 				position: 'absolute',
@@ -222,6 +224,7 @@
 				top: head_height,
 				bottom: foot_height,
 				height: 'auto',
+				width: 'auto',
 				overflow: 'auto'
 			});
 			e.css({
