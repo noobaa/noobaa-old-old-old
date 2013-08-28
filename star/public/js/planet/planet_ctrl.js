@@ -54,6 +54,7 @@ function PlanetCtrl($scope, $http, $timeout) {
 		w.restore();
 		w.focus();
 		w.requestAttention(true);
+		return w;
 	};
 
 	$scope.open_noobaa = function(path) {
@@ -72,14 +73,24 @@ function PlanetCtrl($scope, $http, $timeout) {
 		$scope.open_noobaa('/help');
 	};
 
+	$scope.confirm = function(q, callback) {
+		var w = $scope.open();
+		$.nbconfirm(q, {
+			width: w.width,
+			height: w.height,
+			top: 0,
+			left: 0
+		}, callback);
+	};
+
 	// terminate the entire application
 	$scope.quit = function() {
 		var q = 'Closing the application will stop co-sharing, ' +
 			'which will affect your account quota and performance.\n\n' +
 			'Click "Cancel" to keep co-sharing:';
-		if (window.confirm(q)) {
+		$scope.confirm(q, function() {
 			gui.App.quit();
-		}
+		});
 	};
 
 	// create global tray icon.
@@ -169,9 +180,9 @@ function PlanetCtrl($scope, $http, $timeout) {
 		var q = 'Logging out will stop co-sharing, ' +
 			'which will affect your account quota and performance.\n\n' +
 			'Click "Cancel" to keep co-sharing:';
-		if (window.confirm(q)) {
+		$scope.confirm(q, function() {
 			$scope.auth_frame_path('/auth/logout/?state=/planet/auth');
-		}
+		});
 	};
 
 	// on init load the auth login page into the frame.

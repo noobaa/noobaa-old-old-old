@@ -187,12 +187,18 @@
 			// compute the element location in center of viewport
 			var width = e.outerWidth();
 			var height = e.outerHeight();
-			var top = (($(window).innerHeight() - height) / 2);
-			top = top > 100 ? top : 100;
-			top += $(document).scrollTop();
-			var left = (($(window).innerWidth() - width) / 2);
-			left = left > 100 ? left : 100;
-			left += $(document).scrollLeft();
+			var top = opt.top;
+			if (top === undefined) {
+				top = (($(window).innerHeight() - height) / 2);
+				top = top > min_top ? top : min_top;
+				top += $(document).scrollTop();
+			}
+			var left = opt.left;
+			if (left === undefined) {
+				left = (($(window).innerWidth() - width) / 2);
+				left = left > min_left ? left : min_left;
+				left += $(document).scrollLeft();
+			}
 			// compute inner elements dimentions
 			// to make constant size header and footer,
 			// but dynamic content with scroll (if needed).
@@ -263,7 +269,7 @@
 		}
 	}
 
-	function nbalert(str) {
+	function nbalert(str, options) {
 		var dlg = $('<div class="nbdialog alert_dialog fnt fntmd"></div>');
 		var head = $('<div class="nbdialog_header nbdialog_drag"></div>').appendTo(dlg);
 		var content = $('<div class="nbdialog_content"></div>').appendTo(dlg);
@@ -280,14 +286,19 @@
 			.appendTo(content);
 		$('<button class="nbdialog_close btn btn-default">Close</button>').appendTo(foot);
 		dlg.appendTo($('body'));
-		dlg.nbdialog('open', {
+		dlg.nbdialog('open', _.extend({
 			zIndex: 1050,
 			remove_on_close: true,
 			modal: true
-		});
+		}, options));
 	}
 
-	function nbconfirm(str, yes_callback) {
+	function nbconfirm(str, options, yes_callback) {
+		if (typeof options === 'function') {
+			// no options, shift args
+			yes_callback = options;
+			options = {};
+		}
 		var dlg = $('<div class="nbdialog confirm_dialog fnt fntmd"></div>');
 		var head = $('<div class="nbdialog_header nbdialog_drag"></div>').appendTo(dlg);
 		var content = $('<div class="nbdialog_content"></div>').appendTo(dlg);
@@ -309,11 +320,11 @@
 				yes_callback();
 			});
 		dlg.appendTo($('body'));
-		dlg.nbdialog('open', {
+		dlg.nbdialog('open', _.extend({
 			zIndex: 1050,
 			remove_on_close: true,
 			modal: true
-		});
+		}, options));
 	}
 
 	// initializations - setup functions on globalScope
