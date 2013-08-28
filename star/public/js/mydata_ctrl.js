@@ -102,8 +102,20 @@ Inode.prototype.is_immutable_root = function() {
 	return this.level < 2;
 };
 
-Inode.prototype.is_dir_non_empty = function() {
-	return (this.isdir && this.dir_state.sons_list.length);
+Inode.prototype.is_dir_non_empty = function(callback) {
+	if (!this.isdir) {
+		callback(false);
+		return;
+	}
+	var me = this;
+	var ev = this.load_dir();
+	if (!ev) {
+		callback(!!me.dir_state.sons_list.length);
+	} else {	
+		ev.on('all', function() {
+			callback(!!me.dir_state.sons_list.length);
+		});
+	}
 };
 
 // construct a list of the path of dirs from the root down to this inode.
@@ -122,7 +134,7 @@ Inode.prototype.get_path = function() {
 // load_dir will read the dir only if it was not yet populated
 Inode.prototype.load_dir = function() {
 	if (!this.dir_state.populated) {
-		this.read_dir();
+		return this.read_dir();
 	}
 };
 
@@ -851,26 +863,28 @@ function InodesMenuCtrl($scope) {
 			$.nbalert('Cannot delete root folder');
 			return;
 		}
-		if (inode.is_dir_non_empty()) {
-			$.nbalert('Cannot delete non-empty folder');
-			return;
-		}
-		var dlg = $('#delete_dialog').clone();
-		dlg.find('.inode_label').html(inode.make_inode_with_icon());
-		dlg.find('#dialog_ok').off('click').on('click', function() {
-			dlg.nbdialog('close');
-			inode.delete_inode().on('all', function() {
-				if (inode.id == $scope.inode_selection.inode.id) {
-					$scope.select(inode.parent, {
-						dir: true,
-						open_dir: true
-					});
-				}
+		inode.is_dir_non_empty(function(is_it) {
+			if (is_it) {
+				$.nbalert('Cannot delete non-empty folder');
+				return;
+			}
+			var dlg = $('#delete_dialog').clone();
+			dlg.find('.inode_label').html(inode.make_inode_with_icon());
+			dlg.find('#dialog_ok').off('click').on('click', function() {
+				dlg.nbdialog('close');
+				inode.delete_inode().on('all', function() {
+					if (inode.id == $scope.inode_selection.inode.id) {
+						$scope.select(inode.parent, {
+							dir: true,
+							open_dir: true
+						});
+					}
+				});
 			});
-		});
-		dlg.nbdialog('open', {
-			remove_on_close: true,
-			modal: true
+			dlg.nbdialog('open', {
+				remove_on_close: true,
+				modal: true
+			});
 		});
 	};
 	$scope.click_share = function() {
