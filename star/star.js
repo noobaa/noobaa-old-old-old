@@ -217,7 +217,9 @@ app.get('/star_api/inode/:inode_id/share_list', inode_api.inode_get_share_list);
 app.put('/star_api/inode/:inode_id/share_list', inode_api.inode_set_share_list);
 
 var user_api = require('./routes/user_api');
+var user_inodes = require('./providers/user_inodes');
 app.put('/star_api/user/:user_id', user_api.user_update);
+app.get('/star_api/user/usage', user_inodes.user_usage);
 
 var device_api = require('./routes/device_api');
 app.post('/star_api/device/', device_api.device_create);

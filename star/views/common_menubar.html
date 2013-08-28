@@ -58,11 +58,18 @@
 						<?! it.user.name ?>
 					</div>
 				</a>
-				<ul class="dropdown-menu"
+				<ul ng-controller="UserCtrl"
+					class="dropdown-menu"
 					role="menu"
 					aria-labelledby="user_label">
 					<li align="center">
 						<img src="https://graph.facebook.com/<?! it.user.fbid ?>/picture\" style="height: 40px"></img>
+					</li>
+					<li class="divider"></li>
+					<li>
+					Quota: {{user_quota}}
+					</li>
+					<li>Used: {{user_usage}}
 					</li>
 					<li class="divider"></li>
 					<li>

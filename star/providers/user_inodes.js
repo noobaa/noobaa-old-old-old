@@ -153,7 +153,7 @@ function add_inode_ghost_refs(live_inode_id, user_ids, cb) {
 	console.log("add_inode_ghost_refs", arguments);
 	async.waterfall([
 		function(next) {
-			return Inode.findById(live_inode_id, next);			
+			return Inode.findById(live_inode_id, next);
 		},
 
 		function(live_inode, next) {
@@ -305,5 +305,44 @@ function get_user_usage_bytes(user_id, cb) {
 		//the aggregate returns an array with an embeded object. This is not a very clear return.
 		//so cleaning it to reduce coupling. 
 		return cb(null, usage);
+	});
+}
+
+exports.user_usage = user_usage;
+
+function user_usage(req, res) {
+	console.log("star_api::user_usage");
+
+	var user_id = req.user.id;
+	console.log("user id", user_id);
+
+	async.waterfall([
+
+		//get the user. The quota is currently stored in the quota
+		function(next) {
+			return User.findById(user_id, next);
+		},
+
+		//get the current user quota
+		function(user, next) {
+			console.log(user);
+			return get_user_usage_bytes(user._id, function(err, usage) {
+				return next(err, user, usage);
+			});
+		}
+
+	], function(err, user, usage) {
+		if (!err) {
+			return res.json(200, {
+				"user_quota": user.quota,
+				"user_usage": usage
+			});
+		} else {
+			console.log(err);
+			return res.json(500, {
+				text: err,
+				user_id: user_id
+			});
+		}
 	});
 }
