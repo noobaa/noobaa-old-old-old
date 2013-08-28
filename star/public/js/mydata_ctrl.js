@@ -947,7 +947,7 @@ function ShareModalCtrl($scope) {
 
 UserCtrl.$inject = ['$scope', '$http', '$timeout'];
 
-function UserCtrl($scope, $http,  $timeout) {
+function UserCtrl($scope, $http, $timeout) {
 	$scope.user_quota = 0;
 	$scope.user_usage = 0;
 
@@ -956,18 +956,22 @@ function UserCtrl($scope, $http,  $timeout) {
 		delete $scope.usage_refresh_timeout;
 	}
 
-	var me = this;
 	function usage_refresh() {
 		cancel_usage_refresh();
 		$http({
 			method: "GET",
-			// url: me.$scope.user_usage_url,
 			url: "/star_api/user/usage",
 		}).success(function(data, status, headers, config) {
 			$scope.user_quota = data.user_quota;
 			$scope.user_usage = data.user_usage;
+			cancel_usage_refresh();
+			$scope.usage_refresh_timeout =
+				$timeout(usage_refresh, 30000);
 		}).error(function(data, status, headers, config) {
-			console.log("Error in querying user usage: ",status);
+			console.log("Error in querying user usage: ", status);
+			cancel_usage_refresh();
+			$scope.usage_refresh_timeout =
+				$timeout(usage_refresh, 30000);
 		});
 	}
 	usage_refresh();

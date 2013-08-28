@@ -311,10 +311,7 @@ function get_user_usage_bytes(user_id, cb) {
 exports.user_usage = user_usage;
 
 function user_usage(req, res) {
-	console.log("star_api::user_usage");
-
 	var user_id = req.user.id;
-	console.log("user id", user_id);
 
 	async.waterfall([
 
@@ -323,9 +320,8 @@ function user_usage(req, res) {
 			return User.findById(user_id, next);
 		},
 
-		//get the current user quota
+		//get the user's current usage
 		function(user, next) {
-			console.log(user);
 			return get_user_usage_bytes(user._id, function(err, usage) {
 				return next(err, user, usage);
 			});
