@@ -1,6 +1,13 @@
 /* jshint node:true */
 'use strict';
 
+if (process.env.NODETIME_ACCOUNT_KEY) {
+	require('nodetime').profile({
+		accountKey: process.env.NODETIME_ACCOUNT_KEY,
+		appName: process.env.NODETIME_APP_DESC
+	});
+}
+
 var path = require('path');
 var http = require('http');
 var dot = require('dot');
