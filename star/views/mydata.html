@@ -648,21 +648,17 @@
 						</div>
 					</div>
 				</div>
-				<div class="t-cell">
-					<div ng-show="inode.owner_fbid"
-						class="text-center">
-						<span class="pull-left">{{inode.owner_name}}</span>
-						<img ng-show="inode.owner_fbid"
-							class="pull-right"
-							ng-src="{{fb_pic_url(inode.owner_fbid)}}"
-							style="width: 30px; height: 30px;">
-					</div>
-					<div ng-show="!!inode.num_refs"
-						class="text-center">
-						<i class="icon-share icon-large d-icon"
-							title="Shared with {{inode.num_refs}} friends"
-							ng-click="click_share(inode)"></i>
-					</div>
+				<div class="t-cell text-center">
+					<span ng-show="inode.owner_name">
+						{{inode.owner_name}}</span>
+					<i ng-show="!!inode.num_refs"
+						class="icon-share icon-large d-icon"
+						title="Shared with {{inode.num_refs}} friends"
+						ng-click="click_share(inode)"></i>
+					<img ng-show="!!inode.owner_fbid"
+						class="pull-right"
+						ng-src="{{fb_pic_url(inode.owner_fbid)}}"
+						style="width: 30px; height: 30px;"></img>
 				</div>
 			</div>
 			<!-- div class="t-row"
