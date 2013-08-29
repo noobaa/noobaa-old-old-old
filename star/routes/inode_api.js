@@ -3,9 +3,9 @@
 
 var _ = require('underscore');
 var AWS = require('aws-sdk');
+var URL = require('url');
 var path = require('path');
 var moment = require('moment');
-var crypto = require('crypto');
 var auth = require('./auth');
 var async = require('async');
 var mongoose = require('mongoose');
@@ -18,6 +18,9 @@ var user_inodes = require('../providers/user_inodes');
 var email = require('./email');
 var common_api = require('./common_api');
 var filesize = require('filesize');
+
+
+var NBLINK_SECRET = 'try-da-link'; // TODO: do something with the secret
 
 /* load s3 config from env*/
 AWS.config.update({
@@ -71,10 +74,7 @@ function s3_post_info(fobj_id, name, content_type) {
 		}]
 	};
 	// sign the policy object according to S3 requirements (HMAC, SHA1, BASE64).
-	var policy = new Buffer(JSON.stringify(policy_options)).toString('base64').replace(/\n|\r/, '');
-	var hmac = crypto.createHmac('sha1', process.env.AWS_SECRET_ACCESS_KEY);
-	var hash2 = hmac.update(policy);
-	var signature = hmac.digest('base64');
+	var enc = common_api.json_encode_sign(policy_options, process.env.AWS_SECRET_ACCESS_KEY);
 	// return both the post url, and the post form
 	return {
 		url: 'https://' + process.env.S3_BUCKET + '.s3.amazonaws.com',
@@ -82,8 +82,8 @@ function s3_post_info(fobj_id, name, content_type) {
 			'key': key,
 			'AWSAccessKeyId': process.env.AWS_ACCESS_KEY_ID,
 			'acl': 'private',
-			'policy': policy,
-			'signature': signature,
+			'policy': enc.data,
+			'signature': enc.sign,
 			'success_action_status': '201',
 			'Content-Disposition': name_to_content_dispos(name),
 			'Content-Type': content_type
@@ -423,14 +423,14 @@ function inode_create_action(inode, fobj, user, relative_path, callback) {
 exports.inode_read = function(req, res) {
 
 	// the inode_id param is parsed as url param (/path/to/api/:inode_id/...)
-	var id = req.params.inode_id;
+	var inode_id = req.params.inode_id;
 
 	// start the read waterfall
 	async.waterfall([
 
 		// find the inode
 		function(next) {
-			if (id === 'null') {
+			if (inode_id === 'null') {
 				// pass fictive inode to represent user root
 				var inode = new Inode();
 				inode._id = null;
@@ -438,11 +438,40 @@ exports.inode_read = function(req, res) {
 				inode.isdir = true;
 				return next(null, inode);
 			}
-			return Inode.findById(id, next);
+			return Inode.findById(inode_id, next);
 		},
 
-		// check inode ownership
-		common_api.req_ownership_checker(req),
+		function(inode, next) {
+			if (req.query.nblink) {
+				// when nblink is sent in url query, parse it
+				// and decode the link options inside.
+				// these options were encoded by the owner which 
+				// allowed access a file for read, to certain users.
+				var nblink = JSON.parse(req.query.nblink);
+				var link = common_api.json_decode_sign(
+					nblink.data, nblink.sign, NBLINK_SECRET);
+				var err;
+				if (!link) {
+					err = 'bad link (sign)';
+				} else if (link.inode_id !== inode_id) {
+					err = 'bad link (inode_id)';
+				} else if (!(req.user.id in link.nb_ids)) {
+					err = 'bad link (nb_ids)';
+				}
+				if (err) {
+					return next({
+						status: 403, // forbidden
+						info: err
+					});
+				} else {
+					return next(null, inode);
+				}
+			} else {
+				// check inode ownership
+				return common_api.check_ownership(req.user.id, inode, next);
+			}
+		},
+
 
 		function(inode, next) {
 			inode.follow_ref(next);
@@ -472,7 +501,7 @@ exports.inode_read = function(req, res) {
 		},
 
 		// waterfall end
-	], common_api.reply_callback(req, res, 'INODE READ ' + id));
+	], common_api.reply_callback(req, res, 'INODE READ ' + inode_id));
 };
 
 
@@ -481,7 +510,7 @@ exports.inode_read = function(req, res) {
 exports.inode_update = function(req, res) {
 
 	// the inode_id param is parsed as url param (/path/to/api/:inode_id/...)
-	var id = req.params.inode_id;
+	var inode_id = req.params.inode_id;
 
 	// we pick only the keys we allow to update from the request body
 	// TODO: check the validity of the input
@@ -490,13 +519,10 @@ exports.inode_update = function(req, res) {
 
 	async.waterfall([
 
-		// pass the id
-		function(next) {
-			return next(null, id);
-		},
-
 		// find the inode
-		Inode.findById.bind(Inode),
+		function(next) {
+			return Inode.findById(inode_id, next);
+		},
 
 		// check inode ownership
 		common_api.req_ownership_checker(req),
@@ -506,7 +532,7 @@ exports.inode_update = function(req, res) {
 			if (_.isEmpty(inode_args)) {
 				return next(null, inode);
 			}
-			console.log('INODE UPDATE:', id, inode_args);
+			console.log('INODE UPDATE:', inode_id, inode_args);
 			return inode.update(inode_args, function(err) {
 				return next(err, inode);
 			});
@@ -523,7 +549,7 @@ exports.inode_update = function(req, res) {
 					info: 'File Object Not Found'
 				});
 			}
-			console.log('FOBJ UPDATE:', id, inode.fobj, fobj_args);
+			console.log('FOBJ UPDATE:', inode_id, inode.fobj, fobj_args);
 			return Fobj.findByIdAndUpdate(inode.fobj, fobj_args, function(err) {
 				return next(err, inode);
 			});
@@ -535,7 +561,7 @@ exports.inode_update = function(req, res) {
 		}
 
 		// waterfall end
-	], common_api.reply_callback(req, res, 'INODE UPDATE ' + id));
+	], common_api.reply_callback(req, res, 'INODE UPDATE ' + inode_id));
 };
 
 
@@ -557,13 +583,10 @@ function inode_delete_action(inode_id, user_id, callback) {
 	// start the delete waterfall
 	async.waterfall([
 
-		// pass the id
-		function(next) {
-			return next(null, inode_id);
-		},
-
 		// find the inode
-		Inode.findById.bind(Inode),
+		function(next) {
+			return Inode.findById(inode_id, next);
+		},
 
 		// check inode ownership
 		common_api.check_ownership.bind(null, user_id),
@@ -642,36 +665,32 @@ function inode_delete_action(inode_id, user_id, callback) {
 
 
 exports.inode_get_share_list = function(req, res) {
-	console.log("star_api::inode_get_share_list");
 
-	var user = req.user.id;
 	var inode_id = req.params.inode_id;
-	console.log("user ", user);
-	console.log("inode_id ", inode_id);
+	console.log('inode_get_share_list', inode_id);
 
 	async.waterfall([
+
+		// find the inode
 		function(next) {
-			next(null, inode_id, req.session.fbAccessToken);
+			return Inode.findById(inode_id, next);
 		},
-		function(inode_id, token, next) {
-			user_inodes.get_refering_users(inode_id, function(err, ref_users) {
-				if (err) {
-					return next(err);
-				}
-				next(null, ref_users, token);
+
+		// check inode ownership
+		common_api.req_ownership_checker(req),
+
+		function(inode, next) {
+			return user_inodes.get_refering_users(inode_id, next);
+		},
+
+		function(ref_users, next) {
+			return auth.get_noobaa_friends_list(req.session.fbAccessToken, function(err, friends_list) {
+				return next(err, ref_users, friends_list);
 			});
 		},
-		function(ref_users, token, next) {
-			auth.get_noobaa_friends_list(token, function(err, friends_list) {
-				if (err) {
-					return next(err);
-				}
-				next(null, ref_users, friends_list);
-			});
-		},
-	], function(err, ref_users, friends_list, next) {
-		var friends_not_sharing_with = _.difference(friends_list, ref_users);
-		if (!err) {
+
+		function(ref_users, friends_list, next) {
+			var friends_not_sharing_with = _.difference(friends_list, ref_users);
 			var share_users_map = {};
 			friends_list.forEach(function(v) {
 				share_users_map[v._id] = {
@@ -690,40 +709,82 @@ exports.inode_get_share_list = function(req, res) {
 					"nb_id": v._id,
 				};
 			});
-
-			var return_list = _.values(share_users_map);
-			return res.json(200, {
-				"list": return_list
-			});
-		} else {
-			return res.json(500, {
-				text: err,
-				id: inode_id
+			return next(null, {
+				"list": _.values(share_users_map)
 			});
 		}
-
-	});
+	], common_api.reply_callback(req, res, 'GET_SHARE ' + inode_id));
 };
 
 exports.inode_set_share_list = function(req, res) {
-	console.log("inode_set_share_list");
 	var inode_id = req.params.inode_id;
-	console.log("inode_id ", inode_id);
+	console.log('inode_set_share_list', inode_id);
+
 	var new_nb_ids = _.pluck(_.where(req.body.share_list, {
 		shared: true
 	}), 'nb_id');
 	console.log("new_nb_ids", new_nb_ids);
+
 	async.waterfall([
+
+		// find the inode
 		function(next) {
-			next(null, inode_id);
+			return Inode.findById(inode_id, next);
 		},
-		user_inodes.get_inode_refering_user_ids,
+
+		// check inode ownership
+		common_api.req_ownership_checker(req),
+
+		function(inode, next) {
+			return user_inodes.get_inode_refering_user_ids(inode_id, next);
+		},
+
 		function(old_nb_ids, next) {
-			next(null, inode_id, old_nb_ids, new_nb_ids);
+			return user_inodes.update_inode_ghost_refs(inode_id, old_nb_ids, new_nb_ids, next);
 		},
-		user_inodes.update_inode_ghost_refs,
-	], common_api.reply_callback(req, res, 'SHARE' + inode_id));
+
+	], common_api.reply_callback(req, res, 'SET_SHARE ' + inode_id));
 };
+
+exports.inode_mklink = function(req, res) {
+	var inode_id = req.params.inode_id;
+	var nb_ids = _.pluck(_.where(req.body.share_list, {
+		shared: true
+	}), 'nb_id');
+
+	async.waterfall([
+
+		// find the inode
+		function(next) {
+			return Inode.findById(inode_id, next);
+		},
+
+		// check inode ownership
+		common_api.req_ownership_checker(req),
+
+		function(inode, next) {
+			// setting the link_options which will be verified upon access using this link
+			var link_options = {
+				inode_id: inode_id,
+				nb_ids: nb_ids
+			};
+			// signing the link_options with a secret to prevent tampering
+			var link = common_api.json_encode_sign(link_options, NBLINK_SECRET);
+			var url = URL.format({
+				pathname: '/star_api/inode/' + inode_id,
+				query: {
+					nblink: JSON.stringify(link) // link object fields: data, sign.
+				}
+			});
+			console.log('MKLINK', url);
+			return next(null, {
+				url: url
+			});
+		}
+
+	], common_api.reply_callback(req, res, 'MKLINK ' + inode_id));
+};
+
 
 function validate_inode_creation_conditions(inode, fobj, user, callback) {
 

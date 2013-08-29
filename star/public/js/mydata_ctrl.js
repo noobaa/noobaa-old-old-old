@@ -341,8 +341,7 @@ Inode.prototype.mkfile = function(name, size, content_type, relative_path) {
 };
 
 Inode.prototype.get_share_list = function() {
-	console.log("In get share list!!!!");
-	console.log(this);
+	console.log('get_share_list', this);
 	return this.$scope.http({
 		method: 'GET',
 		url: this.$scope.inode_api_url + this.id + this.$scope.inode_share_sufix
@@ -350,10 +349,20 @@ Inode.prototype.get_share_list = function() {
 };
 
 Inode.prototype.share = function(share_list) {
-	console.log("Going to share with :", share_list, "for inode:");
-	console.log(this);
+	console.log('share', this, 'with', share_list);
 	return this.$scope.http({
 		method: 'PUT',
+		url: this.$scope.inode_api_url + this.id + this.$scope.inode_share_sufix,
+		data: {
+			share_list: share_list
+		}
+	});
+};
+
+Inode.prototype.mklink = function(share_list) {
+	console.log('mklink', this, 'with', share_list);
+	return this.$scope.http({
+		method: 'POST',
 		url: this.$scope.inode_api_url + this.id + this.$scope.inode_share_sufix,
 		data: {
 			share_list: share_list
@@ -981,13 +990,25 @@ function ShareModalCtrl($scope) {
 	$scope.submit = function() {
 		var inode = $scope.share_inode;
 		var share_list = $scope.share_list;
-		$('#share_modal').nbdialog('close');
-		console.log('------------------------------');
-		console.log("inode", inode);
-		console.log("share_list", share_list);
-		console.log('------------------------------');
 		inode.share(share_list).on('success', function(data) {
 			// TODO: better show working sign of the ajax operation and only here hide the modal
+			$('#share_modal').nbdialog('close');
+		});
+	};
+	$scope.mklink = function() {
+		var inode = $scope.share_inode;
+		var share_list = $scope.share_list;
+		inode.mklink(share_list).on('success', function(data) {
+			// TODO: better show working sign of the ajax operation and only here hide the modal
+			$('#share_modal').nbdialog('close');
+			console.log('mklink', data);
+			$.nbalert(
+				'<div' +
+				' style="height: 100%; word-wrap: break-word; word-break: break-all">' +
+				window.location.host + data.url + '</textarea>', {
+					width: '50%',
+					height: 300
+				});
 		});
 	};
 }

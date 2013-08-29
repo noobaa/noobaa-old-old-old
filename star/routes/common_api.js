@@ -2,6 +2,7 @@
 'use strict';
 
 var mongoose = require('mongoose');
+var crypto = require('crypto');
 
 // Convinient callback maker for handling the reply of async control flows.
 // Example usage:
@@ -25,6 +26,32 @@ function reply_callback(req, res, debug_info) {
 		}
 	};
 }
+
+// sign the given object according to S3 requirements (HMAC, SHA1, BASE64).
+
+function json_encode_sign(json_obj, secret) {
+	var data = new Buffer(JSON.stringify(json_obj)).toString('base64').replace(/\n|\r/, '');
+	var hmac = crypto.createHmac('sha1', secret);
+	var hash2 = hmac.update(data);
+	var sign = hmac.digest('base64');
+	return {
+		data: data,
+		sign: sign
+	};
+}
+
+function json_decode_sign(data, sign, secret) {
+	var hmac = crypto.createHmac('sha1', secret);
+	var hash2 = hmac.update(data);
+	var result = hmac.digest('base64');
+	if (result !== sign) {
+		return null;
+	}
+	var str = new Buffer(data, 'base64').toString();
+	var obj = JSON.parse(str);
+	return obj;
+}
+
 
 function check_ownership(user_id, obj, next) {
 	if (!obj) {
@@ -65,6 +92,8 @@ function page_context(req) {
 
 
 exports.reply_callback = reply_callback;
+exports.json_encode_sign = json_encode_sign;
+exports.json_decode_sign = json_decode_sign;
 exports.check_ownership = check_ownership;
 exports.req_ownership_checker = req_ownership_checker;
 exports.page_context = page_context;

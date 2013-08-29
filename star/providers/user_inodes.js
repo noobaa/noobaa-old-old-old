@@ -98,7 +98,7 @@ function get_user_basic_folder_id(folder_name, user_id, next) {
 			return next(err, null);
 		}
 		if (!inode) {
-			err = " Basic folder missing. User id " + user.id + " Folder name: " + folder_name;
+			err = " Basic folder missing. User id " + user_id + " Folder name: " + folder_name;
 			return next(err, null);
 		}
 		return next(null, inode);

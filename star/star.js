@@ -222,6 +222,7 @@ app.put('/star_api/inode/:inode_id', inode_api.inode_update);
 app.del('/star_api/inode/:inode_id', inode_api.inode_delete);
 app.get('/star_api/inode/:inode_id/share_list', inode_api.inode_get_share_list);
 app.put('/star_api/inode/:inode_id/share_list', inode_api.inode_set_share_list);
+app.post('/star_api/inode/:inode_id/share_list', inode_api.inode_mklink);
 
 var user_api = require('./routes/user_api');
 var user_inodes = require('./providers/user_inodes');
