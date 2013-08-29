@@ -234,6 +234,7 @@ function create_ref_ghost_per_user(live_inode, user_id, cb) {
 				owner: user_id,
 				parent: SWM_inode._id,
 				name: live_inode.name,
+				isdir: live_inode.isdir,
 				ghost_ref: live_inode._id
 			});
 			inode.save(function(err, inode) {
@@ -338,4 +339,54 @@ function user_usage(req, res) {
 			});
 		},
 	], common_api.reply_callback(req, res, 'GET_USER_USAGE ' + user_id));
+}
+
+exports.shared_ancestor = shared_ancestor;
+//get user id and an Inode.
+//searches for ancestor directory which is sharing with this user
+//this is a recursive function 
+
+function shared_ancestor(user_id, inode, callback) {
+	console.log('shared_ancestor. Inode: ', inode);
+
+	//stopping the recursion
+	if (!inode) {
+		return callback(null, false);
+	}
+
+	async.waterfall([
+
+		function(next) {
+			return Inode.findOne({
+				ghost_ref: inode._id,
+				owner: user_id
+			}, next);
+		},
+
+		function(relevant_ghost, next) {
+			if (relevant_ghost) {
+				return next(null, true);
+			}
+			return next(null, false);
+		},
+
+		function(found_relevant_refs_in_curr_inode, next) {
+			if (found_relevant_refs_in_curr_inode) {
+				return next(null, true);
+			}
+			if (!inode.parent) {
+				callback(null, false);
+			}
+			return Inode.findById(inode.parent, function(err, parent_inode) {
+				if (err) {
+					return next(err);
+				}
+				if (!parent_inode) { //for some reason even though we're searching by specific id...
+					return next(null, false);
+				}
+				//Z recursive call. my concern is that the callbacks will bloat.
+				return shared_ancestor(user_id, parent_inode, next);
+			});
+		}
+	], callback);
 }
