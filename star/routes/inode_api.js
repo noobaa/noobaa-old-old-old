@@ -97,9 +97,14 @@ function s3_post_info(fobj_id, name, content_type) {
 function inode_to_entry(inode, opt) {
 	var ent = {
 		id: inode._id,
-		name: inode.name,
-		isdir: inode.isdir
+		name: inode.name
 	};
+	if (inode.isdir) {
+		ent.isdir = inode.isdir;
+	}
+	if (inode.num_refs) {
+		ent.num_refs = inode.num_refs;
+	}
 	if (inode.ghost_ref && inode.live_owner) {
 		// in this case this is a ghost ref to some other inode,
 		// send the owner of the referenced file
@@ -454,9 +459,11 @@ exports.inode_read = function(req, res) {
 				if (!link) {
 					err = 'bad link (sign)';
 				} else if (link.inode_id !== inode_id) {
-					err = 'bad link (inode_id)';
-				} else if (!(req.user.id in link.nb_ids)) {
-					err = 'bad link (nb_ids)';
+					err = 'bad link (id)';
+				} else if (link.link_vers !== inode.link_vers) {
+					err = 'bad link (vers)';
+				} else if (link.acl !== 'public' && !(req.user.id in link.acl)) {
+					err = 'bad link (acl)';
 				}
 				if (err) {
 					return next({
@@ -725,6 +732,8 @@ exports.inode_set_share_list = function(req, res) {
 	}), 'nb_id');
 	console.log("new_nb_ids", new_nb_ids);
 
+	var inode;
+
 	async.waterfall([
 
 		// find the inode
@@ -735,22 +744,36 @@ exports.inode_set_share_list = function(req, res) {
 		// check inode ownership
 		common_api.req_ownership_checker(req),
 
-		function(inode, next) {
-			return user_inodes.get_inode_refering_user_ids(inode_id, next);
+		// save inode in context
+		function(inode_arg, next) {
+			inode = inode_arg;
+			next(null, inode_id);
 		},
+
+		user_inodes.get_inode_refering_user_ids,
 
 		function(old_nb_ids, next) {
 			return user_inodes.update_inode_ghost_refs(inode_id, old_nb_ids, new_nb_ids, next);
 		},
+
+		function(next) {
+			var new_num_refs = new_nb_ids.length;
+			if (inode.num_refs === new_num_refs) {
+				return next();
+			}
+			console.log('INODE UPDATE NUM_REFS:', inode_id, new_num_refs);
+			return inode.update({
+				num_refs: new_num_refs
+			}, function(err) {
+				return next(err);
+			});
+		}
 
 	], common_api.reply_callback(req, res, 'SET_SHARE ' + inode_id));
 };
 
 exports.inode_mklink = function(req, res) {
 	var inode_id = req.params.inode_id;
-	var nb_ids = _.pluck(_.where(req.body.share_list, {
-		shared: true
-	}), 'nb_id');
 
 	async.waterfall([
 
@@ -766,8 +789,14 @@ exports.inode_mklink = function(req, res) {
 			// setting the link_options which will be verified upon access using this link
 			var link_options = {
 				inode_id: inode_id,
-				nb_ids: nb_ids
+				link_vers: inode.link_vers,
+				acl: 'public'
 			};
+			if (req.body.link_options) {
+				link_options.acl = _.pluck(_.where(req.body.link_options.share_list, {
+					shared: true
+				}), 'nb_id');
+			}
 			// signing the link_options with a secret to prevent tampering
 			var link = common_api.json_encode_sign(link_options, NBLINK_SECRET);
 			var url = URL.format({
@@ -783,6 +812,30 @@ exports.inode_mklink = function(req, res) {
 		}
 
 	], common_api.reply_callback(req, res, 'MKLINK ' + inode_id));
+};
+
+exports.inode_rmlinks = function(req, res) {
+	var inode_id = req.params.inode_id;
+
+	async.waterfall([
+
+		// find the inode
+		function(next) {
+			return Inode.findById(inode_id, next);
+		},
+
+		// check inode ownership
+		common_api.req_ownership_checker(req),
+
+		function(inode, next) {
+			return inode.update({
+				link_vers: (inode.link_vers + 1)
+			}, function(err) {
+				return next(err);
+			});
+		}
+
+	], common_api.reply_callback(req, res, 'RMLINKS ' + inode_id));
 };
 
 

@@ -121,9 +121,9 @@ exports.get_inode_refering_user_ids = get_inode_refering_user_ids;
 
 //add and remove ghosts as needed
 exports.update_inode_ghost_refs = function(live_inode_id, old_user_ids, new_user_ids, cb) {
-	old_user_ids_strings = _.invoke(old_user_ids, 'toHexString');
-	user_ids_to_add = _.difference(new_user_ids, old_user_ids_strings);
-	user_ids_to_remove = _.difference(old_user_ids_strings, new_user_ids);
+	var old_user_ids_strings = _.invoke(old_user_ids, 'toHexString');
+	var user_ids_to_add = _.difference(new_user_ids, old_user_ids_strings);
+	var user_ids_to_remove = _.difference(old_user_ids_strings, new_user_ids);
 
 	async.parallel([
 		function(next) {
@@ -132,7 +132,10 @@ exports.update_inode_ghost_refs = function(live_inode_id, old_user_ids, new_user
 		function(next) {
 			add_inode_ghost_refs(live_inode_id, user_ids_to_add, next);
 		},
-	], cb);
+	], function(err, results) {
+		// no need to pass on the parallel results array
+		cb(err);
+	});
 };
 
 //remove ghosts which refer to the live inode and belong to the users in the list

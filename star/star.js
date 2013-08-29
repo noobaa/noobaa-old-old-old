@@ -9,6 +9,7 @@ if (process.env.NODETIME_ACCOUNT_KEY) {
 }
 
 var path = require('path');
+var URL = require('url');
 var http = require('http');
 var dot = require('dot');
 var dot_emc = require('dot-emc');
@@ -178,6 +179,14 @@ function error_404(req, res, next) {
 }
 
 function error_403(req, res, next) {
+	if (req.accepts('html')) {
+		return res.redirect(URL.format({
+			pathname: '/auth/facebook/login/',
+			query: {
+				state: req.originalUrl
+			}
+		}));
+	}
 	next({
 		status: 403, // forbidden
 		message: 'Forgot to login?'
@@ -222,7 +231,8 @@ app.put('/star_api/inode/:inode_id', inode_api.inode_update);
 app.del('/star_api/inode/:inode_id', inode_api.inode_delete);
 app.get('/star_api/inode/:inode_id/share_list', inode_api.inode_get_share_list);
 app.put('/star_api/inode/:inode_id/share_list', inode_api.inode_set_share_list);
-app.post('/star_api/inode/:inode_id/share_list', inode_api.inode_mklink);
+app.post('/star_api/inode/:inode_id/link', inode_api.inode_mklink);
+app.del('/star_api/inode/:inode_id/link', inode_api.inode_rmlinks);
 
 var user_api = require('./routes/user_api');
 var user_inodes = require('./providers/user_inodes');

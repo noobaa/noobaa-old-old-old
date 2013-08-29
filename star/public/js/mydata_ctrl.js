@@ -229,6 +229,7 @@ Inode.prototype.populate_dir = function(entries) {
 		sync_property(son, ent, "size");
 		sync_property(son, ent, "uploading");
 		sync_property(son, ent, "progress");
+		sync_property(son, ent, "num_refs");
 		sync_property(son, ent, "not_mine");
 		sync_property(son, ent, "owner_name");
 		sync_property(son, ent, "owner_fbid");
@@ -359,14 +360,22 @@ Inode.prototype.share = function(share_list) {
 	});
 };
 
-Inode.prototype.mklink = function(share_list) {
-	console.log('mklink', this, 'with', share_list);
+Inode.prototype.mklink = function(link_options) {
+	console.log('mklink', this, link_options);
 	return this.$scope.http({
 		method: 'POST',
-		url: this.$scope.inode_api_url + this.id + this.$scope.inode_share_sufix,
+		url: this.$scope.inode_api_url + this.id + this.$scope.inode_link_sufix,
 		data: {
-			share_list: share_list
+			link_options: link_options
 		}
+	});
+};
+
+Inode.prototype.rmlinks = function() {
+	console.log('revoke_links', this);
+	return this.$scope.http({
+		method: 'DELETE',
+		url: this.$scope.inode_api_url + this.id + this.$scope.inode_link_sufix
 	});
 };
 
@@ -439,6 +448,7 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 	$scope.inode_api_url = $scope.api_url + "inode/";
 	$scope.user_usage_url = $scope.api_url + "user/usage";
 	$scope.inode_share_sufix = "/share_list";
+	$scope.inode_link_sufix = "/link";
 
 	// returns an event object with 'success' and 'error' events,
 	// which allows multiple events can be registered on the ajax result.
@@ -571,8 +581,9 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 			$.nbalert('Cannot move root folder');
 			return;
 		}
-		if (drag_inode.is_shared_with_me() || drop_inode.is_shared_with_me()) {
-			$.nbalert('Cannot move files of the "' + SWM + '" folder');
+		if (drag_inode.is_shared_with_me() !== drop_inode.is_shared_with_me()) {
+			$.nbalert('Cannot move in or out of the "' + SWM + '" folder.<br/>' +
+				'Use "Copy To My Data" instead...');
 			return;
 		}
 		if (drag_inode.is_not_mine()) {
@@ -615,222 +626,10 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 		});
 	};
 
-
-	// inode sorting //
-
-	function sorter(key_func, up) {
-		return function(a, b) {
-			if (a.isdir !== b.isdir) {
-				return a.isdir ? -1 : 1;
-			}
-			var aval = key_func(a);
-			var bval = key_func(b);
-			if (aval < bval) {
-				return up;
-			}
-			if (aval > bval) {
-				return -up;
-			}
-			return 0;
-		};
-	}
-
-	function sort_key_name_lower(inode) {
-		return inode.name.toLowerCase();
-	}
-
-	function sort_key_size(inode) {
-		return inode.size;
-	}
-
-	function sort_key_user(inode) {
-		return inode.owner_name ? inode.owner_name.toLowerCase() : '';
-	}
-
-	var sort_by_name_up = sorter(sort_key_name_lower, 1);
-	var sort_by_name_down = sorter(sort_key_name_lower, -1);
-	var sort_by_size_up = sorter(sort_key_size, 1);
-	var sort_by_size_down = sorter(sort_key_size, -1);
-	var sort_by_user_up = sorter(sort_key_user, 1);
-	var sort_by_user_down = sorter(sort_key_user, -1);
-	$scope.default_sort_by = sort_by_name_down;
-
-	$scope.toggle_sort_by_name = function() {
-		var i = $scope.dir_selection.inode;
-		var s = i.dir_state;
-		if (s.sort_by === sort_by_name_down) {
-			s.sort_by = sort_by_name_up;
-		} else {
-			s.sort_by = sort_by_name_down;
-		}
-		i.resort_entries();
-	};
-	$scope.toggle_sort_by_size = function() {
-		var i = $scope.dir_selection.inode;
-		var s = i.dir_state;
-		if (s.sort_by === sort_by_size_down) {
-			s.sort_by = sort_by_size_up;
-		} else {
-			s.sort_by = sort_by_size_down;
-		}
-		i.resort_entries();
-	};
-	$scope.toggle_sort_by_user = function() {
-		var i = $scope.dir_selection.inode;
-		var s = i.dir_state;
-		if (s.sort_by === sort_by_user_down) {
-			s.sort_by = sort_by_user_up;
-		} else {
-			s.sort_by = sort_by_user_down;
-		}
-		i.resort_entries();
-	};
-	$scope.get_sort_by_name_class = function() {
-		var i = $scope.dir_selection.inode;
-		var s = i.dir_state;
-		if (s.sort_by === sort_by_name_up) {
-			return 'icon-caret-up';
-		} else if (!s.sort_by || s.sort_by === sort_by_name_down) {
-			return 'icon-caret-down';
-		}
-	};
-	$scope.get_sort_by_size_class = function() {
-		var i = $scope.dir_selection.inode;
-		var s = i.dir_state;
-		if (s.sort_by === sort_by_size_up) {
-			return 'icon-caret-up';
-		} else if (s.sort_by === sort_by_size_down) {
-			return 'icon-caret-down';
-		}
-	};
-	$scope.get_sort_by_user_class = function() {
-		var i = $scope.dir_selection.inode;
-		var s = i.dir_state;
-		if (s.sort_by === sort_by_user_up) {
-			return 'icon-caret-up';
-		} else if (s.sort_by === sort_by_user_down) {
-			return 'icon-caret-down';
-		}
-	};
-}
-
-
-
-////////////////////////////////
-////////////////////////////////
-// InodesTreeCtrl
-////////////////////////////////
-////////////////////////////////
-
-InodesTreeCtrl.$inject = ['$scope'];
-
-function InodesTreeCtrl($scope) {
-	$scope.inode_click = function(inode) {
-		$scope.select(inode, {
-			dir: true
-		});
-	};
-	$scope.inode_dclick = function(inode) {
-		$scope.select(inode, {
-			dir: true,
-			toggle: true
-		});
-	};
-	$scope.inode_rclick = function(inode, event) {
-		$scope.select(inode, {
-			dir: true,
-			context: event
-		});
-	};
-	$scope.inode_drag = function(inode, event) {
-		console.log(event.type + ' ' + inode.name);
-		return inode;
-	};
-	$scope.inode_drop = $scope.inode_drop_handler;
-}
-
-
-
-////////////////////////////////
-////////////////////////////////
-// InodesListCtrl
-////////////////////////////////
-////////////////////////////////
-
-InodesListCtrl.$inject = ['$scope'];
-
-function InodesListCtrl($scope) {
-
-	$scope.fb_pic_url = function(fbid) {
-		return (!fbid || fbid == ' ') ? '' :
-			'https://graph.facebook.com/' + fbid + '/picture';
-	};
-
-	$scope.inode_click = function(inode) {
-		$scope.select(inode);
-	};
-	$scope.inode_dclick = function(inode) {
-		$scope.select(inode, {
-			dir: true,
-			open: true
-		});
-	};
-	$scope.inode_rclick = function(inode, event) {
-		$scope.select(inode, {
-			context: event
-		});
-	};
-	$scope.inode_drop = function(dir_inode) {
-		return {
-			fn: $scope.inode_drop_handler,
-			hover: 'drophover'
-		};
-	};
-	$scope.inode_drag = function(inode, event) {
-		console.log(event.type + ' ' + inode.name);
-		return inode;
-	};
-}
-
-
-
-////////////////////////////////
-////////////////////////////////
-// InodesBreadcrumbCtrl
-////////////////////////////////
-////////////////////////////////
-
-InodesBreadcrumbCtrl.$inject = ['$scope'];
-
-function InodesBreadcrumbCtrl($scope) {
-	$scope.inode_click = function(inode) {
-		$scope.select(inode, {
-			dir: true,
-			open: true
-		});
-	};
-}
-
-
-
-////////////////////////////////
-////////////////////////////////
-// InodesMenuCtrl
-////////////////////////////////
-////////////////////////////////
-
-InodesMenuCtrl.$inject = ['$scope'];
-
-function InodesMenuCtrl($scope) {
-
 	$scope.click_mkdir = function() {
 		var dir_inode = $scope.dir_selection.inode;
 		if (!dir_inode) {
 			console.error('no selected dir, bailing');
-			return;
-		}
-		if (dir_inode.is_shared_with_me()) {
-			$.nbalert('Cannot create folder under the "' + SWM + '" folder');
 			return;
 		}
 		if (dir_inode.is_not_mine()) {
@@ -940,8 +739,11 @@ function InodesMenuCtrl($scope) {
 			});
 		});
 	};
-	$scope.click_share = function() {
-		var inode = $scope.inode_selection.inode;
+	$scope.click_share = function(inode_arg) {
+		if (inode_arg) {
+			$scope.select(inode_arg);
+		}
+		var inode = inode_arg || $scope.inode_selection.inode;
 		if (!inode) {
 			console.error('no selected inode, bailing');
 			return;
@@ -951,7 +753,8 @@ function InodesMenuCtrl($scope) {
 			return;
 		}
 		if (inode.is_shared_with_me()) {
-			$.nbalert('Cannot share files in the "' + SWM + '" folder - use copy...');
+			$.nbalert('Cannot share files in the "' + SWM + '" folder.<br/>' +
+				'Use "Copy To My Data" instead...');
 			return;
 		}
 		if (inode.is_not_mine()) {
@@ -961,17 +764,219 @@ function InodesMenuCtrl($scope) {
 		var dlg = $('#share_modal');
 		dlg.find('.inode_label').html(inode.make_inode_with_icon());
 		// TODO this is hacky accessing dlg.scope() ...
-		dlg.scope().loading_share_list = true;
+		dlg.scope().share_is_loading = true;
 		dlg.scope().share_inode = inode;
 		inode.get_share_list().on('success', function(data) {
 			dlg.scope().share_list = data.list;
 		}).on('all', function() {
-			dlg.scope().loading_share_list = false;
+			dlg.scope().share_is_loading = false;
 		});
 		dlg.nbdialog('open', {
 			height: 350,
 			width: 350,
 			modal: true
+		});
+	};
+
+	// inode sorting //
+
+	function sorter(key_func, up, tie_sorter) {
+		return function(a, b) {
+			if (a.isdir !== b.isdir) {
+				return a.isdir ? -1 : 1;
+			}
+			var aval = key_func(a);
+			var bval = key_func(b);
+			if (aval < bval) {
+				return up;
+			}
+			if (aval > bval) {
+				return -up;
+			}
+			if (tie_sorter) {
+				return tie_sorter(a,b);
+			} else {
+				return 0;
+			}
+		};
+	}
+
+	function sort_key_name_lower(inode) {
+		return inode.name.toLowerCase();
+	}
+
+	function sort_key_size(inode) {
+		return inode.size;
+	}
+
+	function sort_key_shared(inode) {
+		if (inode.swm) {
+			return inode.owner_name ? inode.owner_name.toLowerCase() : '';
+		} else {
+			return inode.num_refs ? inode.num_refs : 0;
+		}
+	}
+
+	var sort_by_name_up = sorter(sort_key_name_lower, 1);
+	var sort_by_name_down = sorter(sort_key_name_lower, -1);
+	var sort_by_size_up = sorter(sort_key_size, 1);
+	var sort_by_size_down = sorter(sort_key_size, -1);
+	var sort_by_shared_up = sorter(sort_key_shared, 1, sort_by_name_down);
+	var sort_by_shared_down = sorter(sort_key_shared, -1, sort_by_name_down);
+	$scope.default_sort_by = sort_by_name_down;
+
+	$scope.toggle_sort_by_name = function() {
+		var i = $scope.dir_selection.inode;
+		var s = i.dir_state;
+		if (s.sort_by === sort_by_name_down) {
+			s.sort_by = sort_by_name_up;
+		} else {
+			s.sort_by = sort_by_name_down;
+		}
+		i.resort_entries();
+	};
+	$scope.toggle_sort_by_size = function() {
+		var i = $scope.dir_selection.inode;
+		var s = i.dir_state;
+		if (s.sort_by === sort_by_size_down) {
+			s.sort_by = sort_by_size_up;
+		} else {
+			s.sort_by = sort_by_size_down;
+		}
+		i.resort_entries();
+	};
+	$scope.toggle_sort_by_shared = function() {
+		var i = $scope.dir_selection.inode;
+		var s = i.dir_state;
+		if (s.sort_by === sort_by_shared_down) {
+			s.sort_by = sort_by_shared_up;
+		} else {
+			s.sort_by = sort_by_shared_down;
+		}
+		i.resort_entries();
+	};
+	$scope.get_sort_by_name_class = function() {
+		var i = $scope.dir_selection.inode;
+		var s = i.dir_state;
+		if (s.sort_by === sort_by_name_up) {
+			return 'icon-caret-up';
+		} else if (!s.sort_by || s.sort_by === sort_by_name_down) {
+			return 'icon-caret-down';
+		}
+	};
+	$scope.get_sort_by_size_class = function() {
+		var i = $scope.dir_selection.inode;
+		var s = i.dir_state;
+		if (s.sort_by === sort_by_size_up) {
+			return 'icon-caret-up';
+		} else if (s.sort_by === sort_by_size_down) {
+			return 'icon-caret-down';
+		}
+	};
+	$scope.get_sort_by_shared_class = function() {
+		var i = $scope.dir_selection.inode;
+		var s = i.dir_state;
+		if (s.sort_by === sort_by_shared_up) {
+			return 'icon-caret-up';
+		} else if (s.sort_by === sort_by_shared_down) {
+			return 'icon-caret-down';
+		}
+	};
+}
+
+
+
+////////////////////////////////
+////////////////////////////////
+// InodesTreeCtrl
+////////////////////////////////
+////////////////////////////////
+
+InodesTreeCtrl.$inject = ['$scope'];
+
+function InodesTreeCtrl($scope) {
+	$scope.inode_click = function(inode) {
+		$scope.select(inode, {
+			dir: true
+		});
+	};
+	$scope.inode_dclick = function(inode) {
+		$scope.select(inode, {
+			dir: true,
+			toggle: true
+		});
+	};
+	$scope.inode_rclick = function(inode, event) {
+		$scope.select(inode, {
+			dir: true,
+			context: event
+		});
+	};
+	$scope.inode_drag = function(inode, event) {
+		console.log(event.type + ' ' + inode.name);
+		return inode;
+	};
+	$scope.inode_drop = $scope.inode_drop_handler;
+}
+
+
+
+////////////////////////////////
+////////////////////////////////
+// InodesListCtrl
+////////////////////////////////
+////////////////////////////////
+
+InodesListCtrl.$inject = ['$scope'];
+
+function InodesListCtrl($scope) {
+
+	$scope.fb_pic_url = function(fbid) {
+		return (!fbid || fbid == ' ') ? '' :
+			'https://graph.facebook.com/' + fbid + '/picture';
+	};
+
+	$scope.inode_click = function(inode) {
+		$scope.select(inode);
+	};
+	$scope.inode_dclick = function(inode) {
+		$scope.select(inode, {
+			dir: true,
+			open: true
+		});
+	};
+	$scope.inode_rclick = function(inode, event) {
+		$scope.select(inode, {
+			context: event
+		});
+	};
+	$scope.inode_drop = function(dir_inode) {
+		return {
+			fn: $scope.inode_drop_handler,
+			hover: 'drophover'
+		};
+	};
+	$scope.inode_drag = function(inode, event) {
+		console.log(event.type + ' ' + inode.name);
+		return inode;
+	};
+}
+
+
+
+////////////////////////////////
+////////////////////////////////
+// InodesBreadcrumbCtrl
+////////////////////////////////
+////////////////////////////////
+
+InodesBreadcrumbCtrl.$inject = ['$scope'];
+
+function InodesBreadcrumbCtrl($scope) {
+	$scope.inode_click = function(inode) {
+		$scope.select(inode, {
+			dir: true,
+			open: true
 		});
 	};
 }
@@ -990,16 +995,20 @@ function ShareModalCtrl($scope) {
 	$scope.submit = function() {
 		var inode = $scope.share_inode;
 		var share_list = $scope.share_list;
+		$scope.share_is_loading = true;
 		inode.share(share_list).on('success', function(data) {
-			// TODO: better show working sign of the ajax operation and only here hide the modal
 			$('#share_modal').nbdialog('close');
+			if (inode.parent) {
+				inode.parent.read_dir();
+			}
+		}).on('all', function() {
+			$scope.share_is_loading = false;
 		});
 	};
 	$scope.mklink = function() {
 		var inode = $scope.share_inode;
-		var share_list = $scope.share_list;
-		inode.mklink(share_list).on('success', function(data) {
-			// TODO: better show working sign of the ajax operation and only here hide the modal
+		$scope.share_is_loading = true;
+		inode.mklink().on('success', function(data) {
 			$('#share_modal').nbdialog('close');
 			console.log('mklink', data);
 			$.nbalert(
@@ -1009,6 +1018,19 @@ function ShareModalCtrl($scope) {
 					width: '50%',
 					height: 300
 				});
+		}).on('all', function() {
+			$scope.share_is_loading = false;
+		});
+	};
+	$scope.rmlinks = function() {
+		var inode = $scope.share_inode;
+		$scope.share_is_loading = true;
+		inode.rmlinks().on('success', function(data) {
+			$('#share_modal').nbdialog('close');
+			console.log('rmlinks', data);
+			$.nbalert('Revoked!');
+		}).on('all', function() {
+			$scope.share_is_loading = false;
 		});
 	};
 }

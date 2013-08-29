@@ -14,6 +14,12 @@ var inode_schema = new mongoose.Schema({
 	isdir: Boolean,
 	fobj: types.ObjectId,
 	ghost_ref: types.ObjectId,
+	num_refs: Number,
+	// version number used to revoke public links
+	link_vers: {
+		type: Number,
+		default: 1
+	},
 	// timestamps
 	create_time: {
 		type: Date,
@@ -61,7 +67,7 @@ inode_schema.statics.isDirHasSons = function(inode, next) {
 		owner: inode.owner,
 		parent: inode._id
 	}, function(err, result) {
-		next(err, inode, !!result);
+		next(err, inode, !! result);
 	});
 };
 
