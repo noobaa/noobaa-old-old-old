@@ -475,7 +475,21 @@ exports.inode_read = function(req, res) {
 				}
 			} else {
 				// check inode ownership
-				return common_api.check_ownership(req.user.id, inode, next);
+				// return common_api.check_ownership(req.user.id, inode, next);
+
+				return common_api.check_ownership(req.user.id, inode, function(err, obj) {
+					//if not error or nothing we can do about it - return as is
+					if (!err || err.status == 404) {
+						return next(err, obj);
+					}
+					return user_inodes.shared_ancestor(req.user.id, inode, function(err_ancestor, shared) {
+						if (err_ancestor || !shared) {
+							return next(err, null);
+						}
+						return next(null, inode);
+					});
+
+				});
 			}
 		},
 
@@ -485,6 +499,7 @@ exports.inode_read = function(req, res) {
 		},
 
 		// dispatch to read dir/file
+
 		function(inode, next) {
 			if (!inode) {
 				return next({
