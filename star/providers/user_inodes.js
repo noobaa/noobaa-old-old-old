@@ -5,6 +5,7 @@ var User = require('../models/user').User;
 var Fobj = require('../models/fobj').Fobj;
 var wnst = require('winston');
 var email = require('../routes/email');
+var common_api = require('../routes/common_api');
 
 var CONST_BASE_FOLDERS = {
 	'MYDATA': 'My Data',
@@ -326,22 +327,15 @@ function user_usage(req, res) {
 		//get the user's current usage
 		function(user, next) {
 			return get_user_usage_bytes(user._id, function(err, usage) {
-				return next(err, user, usage);
+				var return_data = null;
+				if (!err) {
+					return_data = {
+						"user_quota": user.quota,
+						"user_usage": usage
+					};
+				}
+				return next(err, return_data);
 			});
-		}
-
-	], function(err, user, usage) {
-		if (!err) {
-			return res.json(200, {
-				"user_quota": user.quota,
-				"user_usage": usage
-			});
-		} else {
-			console.log(err);
-			return res.json(500, {
-				text: err,
-				user_id: user_id
-			});
-		}
-	});
+		},
+	], common_api.reply_callback(req, res, 'GET_USER_USAGE ' + user_id));
 }
