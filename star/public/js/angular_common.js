@@ -46,11 +46,27 @@
 	}
 
 	function human_size(bytes) {
-		var units = ['', ' KB', ' MB', ' GB', ' TB'];
-		for (var u = 0; u < units.length && bytes >> 10 > 0; u++) {
-			bytes = bytes >> 10;
+		var x = Number(bytes);
+		if (x < 1024) {
+			return x + ' B';
 		}
-		return String(bytes) + units[u];
+		x = x / 1024;
+		if (x < 1024) {
+			return x.toFixed(1) + ' KB';
+		}
+		x = x / 1024;
+		if (x < 1024) {
+			return x.toFixed(1) + ' MB';
+		}
+		x = x / 1024;
+		if (x < 1024) {
+			return x.toFixed(1) + ' GB';
+		}
+		x = x / 1024;
+		if (x < 1024) {
+			return x.toFixed(1) + ' TB';
+		}
+		return x.toFixed(0) + ' TB';
 	}
 
 	function nbdialog(opt, opt_for_open) {
