@@ -383,10 +383,19 @@
 					<div class="inode_label"></div>
 				</p>
 				<table class="table">
-					<tr ng-repeat="friend in share_list">
-					<td><img ng-src="https://graph.facebook.com/{{friend.fb_id}}/picture"></img></td>
-					<td><input type="checkbox" class="checkbox" ng-model="friend.shared"></input></td>
-					<td>{{friend.name}}</td>
+					<tr ng-repeat="friend in share_list | orderBy:'name'"
+						ng-class="{true: 'danger'}[friend.shared]"
+						ng-click="friend.shared = !friend.shared">
+						<td>
+							<img ng-src="https://graph.facebook.com/{{friend.fb_id}}/picture"></img>
+						</td>
+						<td>{{friend.name}}</td>
+						<td>
+							<i ng-show="friend.shared" 
+								class="icon-check icon-large icon-fixed-width"></i>
+							<i ng-hide="friend.shared" 
+								class="icon-check-empty icon-large icon-fixed-width"></i>
+						</td>
 					</tr>
 				</table>
 			</div>
