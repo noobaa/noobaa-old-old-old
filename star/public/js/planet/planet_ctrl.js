@@ -86,8 +86,8 @@ function PlanetCtrl($scope, $http, $timeout) {
 	// terminate the entire application
 	$scope.quit = function() {
 		var q = 'Closing the application will stop co-sharing, ' +
-			'which will affect your account quota and performance.\n\n' +
-			'Click "Cancel" to keep co-sharing:';
+			'which will affect your account quota and performance.<br/>' +
+			'Click "No" to keep co-sharing:';
 		$scope.confirm(q, function() {
 			gui.App.quit();
 		});
@@ -178,8 +178,8 @@ function PlanetCtrl($scope, $http, $timeout) {
 	// logout - mostly for testing
 	$scope.do_logout = function() {
 		var q = 'Logging out will stop co-sharing, ' +
-			'which will affect your account quota and performance.\n\n' +
-			'Click "Cancel" to keep co-sharing:';
+			'which will affect your account quota and performance.<br/>' +
+			'Click "No" to keep co-sharing:';
 		$scope.confirm(q, function() {
 			$scope.auth_frame_path('/auth/logout/?state=/planet/auth');
 		});

@@ -329,8 +329,14 @@
 			.append($('<b></b>').html(str))
 			.css('padding', '20px 20px 0 20px')
 			.appendTo(content);
-		$('<button class="nbdialog_close btn btn-default">Cancel</button>').appendTo(foot);
-		$('<button class="btn btn-primary pull-right">Yes</button>').appendTo(foot)
+		$('<button class="nbdialog_close"></button>')
+			.text(options.noButtonCaption || 'No')
+			.addClass(options.noButtonClass || 'btn btn-default')
+			.appendTo(foot);
+		$('<button></button>')
+			.text(options.yesButtonCaption || 'Yes')
+			.addClass(options.yesButtonClass || 'btn btn-primary pull-right')
+			.appendTo(foot)
 			.on('click', function() {
 				dlg.nbdialog('close');
 				yes_callback();
