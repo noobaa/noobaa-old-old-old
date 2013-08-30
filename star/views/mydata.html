@@ -11,7 +11,7 @@
 		}
 
 		.toolbtn {
-			width: 80px !important;
+			width: 75px !important;
 			margin-right: 5px;
 			border: solid 1px rgba(0,0,0,0.4);
 		}
@@ -82,16 +82,17 @@
 	<!-- ======== CONTENT ======== -->
 
 
-	<div ng-controller="MyDataCtrl">
+	<div ng-controller="MyDataCtrl"
+		ng-init="filter_file_name=''">
 	<!-- ======== MyDataCtrl ======== -->
 
 
 <!-- TOOLBAR -->
 
 
-	<div class="row">
+	<div class="row" style="margin-bottom: 30px;">
 
-		<div class="col-md-offset-3 col-md-9" style="margin-bottom: 30px;">
+		<div class="col-md-offset-3 col-md-6">
 			<button id="upload_button" class="btn btn-success toolbtn"
 				ng-click="click_upload()"
 				title="Upload"
@@ -160,6 +161,23 @@
 				</ul>
 			</div>
 		</div>
+
+		<div class="col-md-3 input-group">
+			<input type="text" autofocus
+				class="form-control input-sm" 
+				maxlength="100"
+				placeholder="filter files by name"
+				ng-model="filter_file_name"
+				ng-style="{backgroundColor: filter_file_name && 'pink' || 'none'}"/>
+			<span class="input-group-btn">
+				<button class="btn btn-default btn-sm"
+					type="button"
+					ng-click="filter_file_name=''">
+					<i class="icon-remove-sign icon-large"></i>
+				</button>
+			</span>
+		</div>
+
 	</div>
 
 
@@ -237,6 +255,7 @@
 		<div class="col-md-3" style="margin-bottom: 20px">
 			<div ng-controller="InodesTreeCtrl"
 				ng-include="'tree_view_template.html'"
+		 		nb-right-click="inode_rclick(dir_selection.inode, $event)"
 				class="roundbord bglight"
 				style="min-height: 200px"
 				id="inodes_tree">
@@ -245,6 +264,8 @@
 		<div class="col-md-9" style="margin-bottom: 20px">
 			<div ng-controller="InodesListCtrl"
 				ng-include="'list_view_template.html'"
+				nb-key="key_handler($event)" tabindex="1"
+		 		nb-right-click="inode_rclick(dir_selection.inode, $event)"
 				class="roundbord bglight"
 				style="min-height: 400px"
 				id="inodes_list">
@@ -377,13 +398,29 @@
 				<p>Currenlty sharing is only availalbe for NooBaa users who are your Facebook friends.</p>
 				<p>Invite your Facebook friends to NooBaa today.</p>
 			</div>
-			<div ng-show="!share_is_loading && share_list.length">
+			<div ng-show="!share_is_loading && share_list.length"
+				ng-init="filter_friend_name=''">
 				<p>
 					Share this item with friends:
 					<div class="inode_label"></div>
 				</p>
+				<form role="form">
+					<div class="input-group">
+						<input type="text" autofocus
+							class="form-control input-sm" 
+							placeholder="filter friends by name"
+							ng-model="filter_friend_name"/>
+						<span class="input-group-btn">
+							<button class="btn btn-default btn-sm"
+								type="button"
+								ng-click="filter_friend_name=''">
+								<i class="icon-remove-sign icon-large"></i>
+							</button>
+						</span>
+					</div>
+				</form>
 				<table class="table">
-					<tr ng-repeat="friend in share_list | orderBy:'name'"
+					<tr ng-repeat="friend in share_list | filter:{name: filter_friend_name} | orderBy:'name'"
 						ng-class="{true: 'danger'}[friend.shared]"
 						ng-click="friend.shared = !friend.shared">
 						<td>
@@ -562,7 +599,6 @@
 			<div class="d-cell" style="margin-left: 35px">Folders Tree</div>
 		</div>
 		<div class="fntthin fntmd"
-			nb-right-click="inode_rclick(dir_inode, $event)"
 			ng-include="'tree_item_template.html'">
 		</div>
 	</div>
@@ -613,9 +649,7 @@
 <!-- LIST TEMPLATE -->
 
 <script type="text/ng-template" id="list_view_template.html">
-	<div class="t-table"
-		 nb-right-click="inode_rclick(dir_selection.inode, $event)">
-
+	<div class="t-table">
 		<div class="t-icon-column"></div>
 		<div class="t-name-column"></div>
 		<div class="t-size-column"></div>
@@ -644,7 +678,7 @@
 			</div>
 		</div>
 
-		<div ng-repeat="inode in dir_selection.inode.dir_state.sons_list"
+		<div ng-repeat="inode in dir_selection.inode.dir_state.sons_list | filter:{name: filter_file_name}"
 			class="t-row-group a-row nbdrag fntthin fntmd ng-class: inode.inode_active;"
 			ng-click="inode_click(inode)"
 			ng-dblclick="inode_dclick(inode)"

@@ -106,13 +106,13 @@
 			// register event to close dialog on escape
 			$(window).on(keydown, function(event) {
 				// ESCAPE KEY - close dialog
-				if (event.keyCode === 27 && !event.isDefaultPrevented()) {
+				if (event.which === 27 && !event.isDefaultPrevented()) {
 					event.preventDefault();
 					e.nbdialog('close');
 					return;
 				}
 				// TAB KEY - prevent tabbing out of dialogs (taken from jqueryui)
-				if (event.keyCode === 9) {
+				if (event.which === 9) {
 					var tabbables = e.find(":tabbable");
 					var first = tabbables.filter(":first");
 					var last = tabbables.filter(":last");
@@ -191,30 +191,26 @@
 			// in order to compute element optimal size we set height/width = auto
 			// but must also change from display=none for css to compute.
 			// so we set to hidden in this short meanwhile.
-			e.css({
-				display: 'block',
-				visibility: 'hidden',
-				position: 'absolute',
+			e.css(_.extend({
 				height: 'auto',
 				width: 'auto',
 				top: -10000,
 				left: -10000
-			});
+			}, opt.css, {
+				// we force these css on top of given css for the dialog to work
+				display: 'block',
+				visibility: 'hidden',
+				position: 'absolute'
+			}));
 			// compute the element location in center of viewport
 			var width = e.outerWidth();
 			var height = e.outerHeight();
-			var top = opt.top;
-			if (top === undefined) {
-				top = (($(window).innerHeight() - height) / 2);
-				top = top > 100 ? top : 100;
-				top += $(document).scrollTop();
-			}
-			var left = opt.left;
-			if (left === undefined) {
-				left = (($(window).innerWidth() - width) / 2);
-				left = left > 100 ? left : 100;
-				left += $(document).scrollLeft();
-			}
+			var top = (($(window).innerHeight() - height) / 2);
+			top = top > 100 ? top : 100;
+			top += $(document).scrollTop();
+			var left = (($(window).innerWidth() - width) / 2);
+			left = left > 100 ? left : 100;
+			left += $(document).scrollLeft();
 			// compute inner elements dimentions
 			// to make constant size header and footer,
 			// but dynamic content with scroll (if needed).
@@ -249,15 +245,17 @@
 				width: 'auto',
 				overflow: 'auto'
 			});
-			e.css({
-				display: 'none',
-				visibility: 'visible',
+			e.css(_.extend({
 				top: top,
 				left: left,
-				width: opt.width || width,
-				height: opt.height || height,
-				zIndex: opt.zIndex || 1040
-			});
+				width: width,
+				height: height,
+				zIndex: 1040
+			}, opt.css, {
+				// we force these css on top of given css for the dialog to work
+				display: 'none',
+				visibility: 'visible'
+			}));
 			// initialize resizable and draggable
 			e.resizable({
 				minHeight: 100,
@@ -303,9 +301,11 @@
 		$('<button class="nbdialog_close btn btn-default">Close</button>').appendTo(foot);
 		dlg.appendTo($('body'));
 		dlg.nbdialog('open', _.extend({
-			zIndex: 1050,
 			remove_on_close: true,
-			modal: true
+			modal: true,
+			css: {
+				zIndex: 1050
+			}
 		}, options));
 	}
 
@@ -343,9 +343,11 @@
 			});
 		dlg.appendTo($('body'));
 		dlg.nbdialog('open', _.extend({
-			zIndex: 1050,
 			remove_on_close: true,
-			modal: true
+			modal: true,
+			css: {
+				zIndex: 1050
+			}
 		}, options));
 	}
 
@@ -360,11 +362,18 @@
 		// add nbalert as global jquery function - $.nbalert
 		jQuery.nbalert = nbalert;
 		jQuery.nbconfirm = nbconfirm;
+
+		jQuery.fn.focusWithoutScrolling = function() {
+			var x = window.scrollX;
+			var y = window.scrollY;
+			this.focus();
+			window.scrollTo(x, y);
+		};
 	});
 
 	noobaa_app.directive('nbRightClick', function($parse) {
 		return {
-			restrict: 'A',
+			restrict: 'A', // use as attribute
 			link: function(scope, element, attr) {
 				var fn = $parse(attr.nbRightClick);
 				element.bind('contextmenu', function(event) {
@@ -380,9 +389,26 @@
 		};
 	});
 
+	noobaa_app.directive('nbKey', function($parse) {
+		return {
+			restrict: 'A', // use as attribute
+			link: function(scope, element, attr) {
+				var fn = $parse(attr.nbKey);
+				// element.bind('keydown', handler);
+				$(document).on('keydown', function(event) {
+					return scope.$apply(function() {
+						return fn(scope, {
+							$event: event
+						});
+					});
+				});
+			}
+		};
+	});
+
 	noobaa_app.directive('nbDrop', function($parse, $rootScope) {
 		return {
-			restrict: 'A',
+			restrict: 'A', // use as attribute
 			link: function(scope, element, attr) {
 				var obj = scope.$eval(attr.nbDrop);
 				if (!obj) {
@@ -413,7 +439,7 @@
 	// TODO: how to cancel drag on escape ??
 	// var escape_count = 0;
 	// $(window).keyup(function(e) {
-	// if (e.keyCode == 27) {
+	// if (e.which == 27) {
 	// escape_count++;
 	// console.log('ESCAPE', escape_count);
 	// }
@@ -421,7 +447,7 @@
 
 	noobaa_app.directive('nbDrag', function($parse, $rootScope) {
 		return {
-			restrict: 'A',
+			restrict: 'A', // use as attribute
 			link: function(scope, element, attr) {
 				var obj = scope.$eval(attr.nbDrag);
 				element.draggable({
@@ -446,7 +472,7 @@
 	noobaa_app.directive('nbEffectToggle', ['$timeout',
 		function($timeout) {
 			return {
-				restrict: 'A',
+				restrict: 'A', // use as attribute
 				link: function(scope, element, attrs) {
 					var opt = scope.$eval(attrs.nbEffectOptions);
 					if (opt.complete) {
@@ -476,7 +502,7 @@
 
 	noobaa_app.directive('nbEffectSwitchClass', function($parse) {
 		return {
-			restrict: 'A',
+			restrict: 'A', // use as attribute
 			link: function(scope, element, attrs) {
 				var opt = scope.$eval(attrs.nbEffectOptions);
 				var jqelement = angular.element(element);

@@ -76,10 +76,12 @@ function PlanetCtrl($scope, $http, $timeout) {
 	$scope.confirm = function(q, callback) {
 		var w = $scope.open();
 		$.nbconfirm(q, {
-			width: w.width,
-			height: w.height,
-			top: 0,
-			left: 0
+			css: {
+				width: w.width,
+				height: w.height,
+				top: 0,
+				left: 0
+			}
 		}, callback);
 	};
 

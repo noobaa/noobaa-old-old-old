@@ -1,3 +1,51 @@
+////////////////////////////////
+////////////////////////////////
+// UserCtrl
+////////////////////////////////
+////////////////////////////////
+
+UserCtrl.$inject = ['$scope', '$http', '$timeout'];
+
+function UserCtrl($scope, $http, $timeout) {
+	$scope.user_quota = 0;
+	$scope.user_usage = 0;
+
+	function cancel_usage_refresh() {
+		$timeout.cancel($scope.usage_refresh_timeout);
+		delete $scope.usage_refresh_timeout;
+	}
+
+	function usage_refresh() {
+		cancel_usage_refresh();
+		$http({
+			method: "GET",
+			url: "/star_api/user/usage",
+		}).success(function(data, status, headers, config) {
+			$scope.user_quota = data.user_quota;
+			$scope.user_usage = data.user_usage;
+			cancel_usage_refresh();
+			$scope.usage_refresh_timeout =
+				$timeout(usage_refresh, 30000);
+		}).error(function(data, status, headers, config) {
+			console.log("Error in querying user usage: ", status);
+			cancel_usage_refresh();
+			$scope.usage_refresh_timeout =
+				$timeout(usage_refresh, 30000);
+		});
+	}
+	usage_refresh();
+
+}
+
+
+
+////////////////////////////////
+////////////////////////////////
+// MenuBarCtrl
+////////////////////////////////
+////////////////////////////////
+
+
 var global_menu_bar_first_guide;
 var global_menu_bar_last_guide;
 

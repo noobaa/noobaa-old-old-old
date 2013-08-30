@@ -772,9 +772,11 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 			dlg.scope().share_is_loading = false;
 		});
 		dlg.nbdialog('open', {
-			height: 350,
-			width: 350,
-			modal: true
+			modal: true,
+			css: {
+				height: "80%",
+				width: 350
+			}
 		});
 	};
 
@@ -794,7 +796,7 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 				return -up;
 			}
 			if (tie_sorter) {
-				return tie_sorter(a,b);
+				return tie_sorter(a, b);
 			} else {
 				return 0;
 			}
@@ -931,6 +933,8 @@ InodesListCtrl.$inject = ['$scope'];
 
 function InodesListCtrl($scope) {
 
+	var inodes_list = $('#inodes_list');
+
 	$scope.fb_pic_url = function(fbid) {
 		return (!fbid || fbid == ' ') ? '' :
 			'https://graph.facebook.com/' + fbid + '/picture';
@@ -938,6 +942,7 @@ function InodesListCtrl($scope) {
 
 	$scope.inode_click = function(inode) {
 		$scope.select(inode);
+		inodes_list.focusWithoutScrolling();
 	};
 	$scope.inode_dclick = function(inode) {
 		$scope.select(inode, {
@@ -959,6 +964,33 @@ function InodesListCtrl($scope) {
 	$scope.inode_drag = function(inode, event) {
 		console.log(event.type + ' ' + inode.name);
 		return inode;
+	};
+	$scope.key_handler = function(event) {
+		if (!inodes_list.is(':focus')) {
+			return;
+		}
+		switch (event.which) {
+			case 37: // left
+				event.preventDefault();
+				return false;
+			case 38: // up
+				event.preventDefault();
+				return false;
+			case 39: // right
+				event.preventDefault();
+				return false;
+			case 40: // down
+				event.preventDefault();
+				return false;
+			case 46: // delete
+				event.preventDefault();
+				return false;
+			case 13: // enter
+				event.preventDefault();
+				return false;
+			default:
+				console.log(event.which);
+		}
 	};
 }
 
@@ -1019,8 +1051,10 @@ function ShareModalCtrl($scope) {
 			dlg.nbdialog('open', {
 				remove_on_close: true,
 				modal: false,
-				width: 300,
-				height: 400
+				css: {		
+					width: 300,
+					height: 400
+				}
 			});
 		}).on('all', function() {
 			$scope.share_is_loading = false;
@@ -1040,46 +1074,6 @@ function ShareModalCtrl($scope) {
 }
 
 
-////////////////////////////////
-////////////////////////////////
-// UserCtrl
-////////////////////////////////
-////////////////////////////////
-
-UserCtrl.$inject = ['$scope', '$http', '$timeout'];
-
-function UserCtrl($scope, $http, $timeout) {
-	$scope.user_quota = 0;
-	$scope.user_usage = 0;
-
-	function cancel_usage_refresh() {
-		$timeout.cancel($scope.usage_refresh_timeout);
-		delete $scope.usage_refresh_timeout;
-	}
-
-	function usage_refresh() {
-		cancel_usage_refresh();
-		$http({
-			method: "GET",
-			url: "/star_api/user/usage",
-		}).success(function(data, status, headers, config) {
-			$scope.user_quota = data.user_quota;
-			$scope.user_usage = data.user_usage;
-			cancel_usage_refresh();
-			$scope.usage_refresh_timeout =
-				$timeout(usage_refresh, 30000);
-		}).error(function(data, status, headers, config) {
-			console.log("Error in querying user usage: ", status);
-			cancel_usage_refresh();
-			$scope.usage_refresh_timeout =
-				$timeout(usage_refresh, 30000);
-		});
-	}
-	usage_refresh();
-
-}
-
-
 
 ////////////////////////////////
 ////////////////////////////////
@@ -1093,7 +1087,9 @@ function UploadCtrl($scope) {
 
 	var upload_modal = $('#upload_modal');
 	upload_modal.nbdialog({
-		width: 600
+		css: {
+			width: "80%"
+		}
 	});
 
 	$scope.upload_id_idx = 0;
