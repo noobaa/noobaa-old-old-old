@@ -1087,6 +1087,7 @@ function UploadCtrl($scope) {
 
 	var upload_modal = $('#upload_modal');
 	upload_modal.nbdialog({
+		containment: '#my_data_content',
 		css: {
 			width: "80%"
 		}

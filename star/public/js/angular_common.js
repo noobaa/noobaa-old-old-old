@@ -258,13 +258,14 @@
 			}));
 			// initialize resizable and draggable
 			e.resizable({
+				containment: opt.containment || 'document',
 				minHeight: 100,
 				minWidth: 200,
 				handles: 'all',
 				autoHide: true
 			});
 			e.draggable({
-				containment: 'document',
+				containment: opt.containment || 'document',
 				cursor: 'move',
 				handle: '.nbdialog_drag',
 				cancel: '.nbdialog_nodrag'
