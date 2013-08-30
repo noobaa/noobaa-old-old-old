@@ -583,7 +583,7 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 		}
 		if (drag_inode.is_shared_with_me() !== drop_inode.is_shared_with_me()) {
 			$.nbalert('Cannot move in or out of the "' + SWM + '" folder.<br/>' +
-				'Use "Copy To My Data" instead...');
+				'Maybe you meant to use "Copy To My Data"...');
 			return;
 		}
 		if (drag_inode.is_not_mine()) {
@@ -754,7 +754,7 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 		}
 		if (inode.is_shared_with_me()) {
 			$.nbalert('Cannot share files in the "' + SWM + '" folder.<br/>' +
-				'Use "Copy To My Data" instead...');
+				'Maybe you meant to use "Copy To My Data"...');
 			return;
 		}
 		if (inode.is_not_mine()) {
@@ -1011,13 +1011,17 @@ function ShareModalCtrl($scope) {
 		inode.mklink().on('success', function(data) {
 			$('#share_modal').nbdialog('close');
 			console.log('mklink', data);
-			$.nbalert(
-				'<div' +
-				' style="height: 100%; word-wrap: break-word; word-break: break-all">' +
-				window.location.host + data.url + '</textarea>', {
-					width: '50%',
-					height: 300
-				});
+			var dlg = $('#getlink_dialog').clone();
+			dlg.find('.inode_label').html(inode.make_inode_with_icon());
+			dlg.find('.link_label').html(
+				'<div style="height: 100%; word-wrap: break-word; word-break: break-all">' +
+				window.location.host + data.url + '</div>');
+			dlg.nbdialog('open', {
+				remove_on_close: true,
+				modal: false,
+				width: 300,
+				height: 400
+			});
 		}).on('all', function() {
 			$scope.share_is_loading = false;
 		});

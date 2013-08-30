@@ -406,7 +406,7 @@
 				<div class="btn-group dropup">
 					<button type="button" class="btn btn-default"
 						ng-click="mklink()">
-						Public Link
+						Get Link
 					</button>
 					<button type="button" class="btn btn-default dropdown-toggle"
 						data-toggle="dropdown">
@@ -415,7 +415,7 @@
 					<ul class="dropdown-menu pull-right" role="menu">
 						<li>
 							<a href="#" ng-click="rmlinks()">
-								Revoke Previous Public Links !
+								Revoke Previous Links !
 							</a>
 						</li>
 					</ul>
@@ -423,6 +423,27 @@
 				<button class="btn btn-primary"
 					ng-click="submit()">Save</button>
 			</div>
+		</div>
+	</div>
+
+<!-- GET LINK DIALOG -->
+
+	<div id="getlink_dialog" class="nbdialog fntmd">
+		<div class="nbdialog_header nbdialog_drag">
+			File Link
+			<a class="pull-right nbdialog_close btn btn-default btn-xs"
+				title="Cancel">
+				<span class="close">x</span>
+			</a>
+		</div>
+		<div class="nbdialog_content">
+			<p>Copy &amp; Paste this file link to send or post 
+				anywhere you want:</p>
+			<div class="inode_label"></div>
+			<div class="link_label"></div>
+		</div>
+		<div class="nbdialog_footer text-center">
+			<button class="nbdialog_close btn btn-default">Close</button>
 		</div>
 	</div>
 
@@ -616,7 +637,8 @@
 			</div>
 			<div class="t-cell text-center">
 				<a style="color: white" ng-click="toggle_sort_by_shared()" href="#">
-					Shared
+					<span ng-show="dir_selection.inode.swm">Shared By</span>
+					<span ng-hide="dir_selection.inode.swm">Sharing</span>
 					<i ng-class="get_sort_by_shared_class()"></i>
 				</a>
 			</div>
