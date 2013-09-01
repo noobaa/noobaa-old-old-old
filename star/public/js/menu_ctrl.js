@@ -263,8 +263,10 @@ function GuideCtrl($scope) {
 
 
 	//// WELCOME ////
+	tour_step = -1;
 
-	$scope.guides.welcome.steps[0] = {
+	tour_step++;
+	$scope.guides.welcome.steps[tour_step] = {
 		path: '/mydata',
 		element: '#logo_link',
 		placement: 'bottom',
@@ -276,7 +278,9 @@ function GuideCtrl($scope) {
 			'  The Crowd makes it so...</p>'
 		].join('\n')
 	};
-	$scope.guides.welcome.steps[1] = {
+
+	tour_step++;
+	$scope.guides.welcome.steps[tour_step] = {
 		path: '/mydata',
 		element: '#upload_button',
 		placement: 'bottom',
@@ -289,7 +293,9 @@ function GuideCtrl($scope) {
 			'<p>They will remain private until you share them.</p>',
 		].join('\n')
 	};
-	$scope.guides.welcome.steps[2] = {
+
+	tour_step++;
+	$scope.guides.welcome.steps[tour_step] = {
 		path: '/mydata',
 		element: '#my_guides',
 		placement: 'bottom',
@@ -329,7 +335,10 @@ function GuideCtrl($scope) {
 		};
 	}
 
-	$scope.guides.upload_file.steps[0] = {
+	tour_step = -1;
+
+	tour_step++;
+	$scope.guides.upload_file.steps[tour_step] = {
 		path: '/mydata',
 		element: '#upload_button',
 		placement: 'bottom',
@@ -339,10 +348,13 @@ function GuideCtrl($scope) {
 			'<p>This guide will show you how to upload using:</p>',
 			'<ul class="nav">',
 			'  <li><p><i class="icon-compass icon-li icon-fixed-width"></i>Drag & Drop</p></li>',
-			'  <li><p><i class="icon-compass icon-li icon-fixed-width"></i>File Chooser</p></li></ul>'
+			'  <li><p><i class="icon-compass icon-li icon-fixed-width"></i>File Chooser</p></li>',
+			'</ul>'
 		].join('\n'),
 	};
-	$scope.guides.upload_file.steps[1] = {
+
+	tour_step++;
+	$scope.guides.upload_file.steps[tour_step] = {
 		path: '/mydata',
 		element: '#upload_button',
 		placement: 'bottom',
@@ -357,7 +369,9 @@ function GuideCtrl($scope) {
 		onHide: done_advance_on_upload_modal_show,
 		onNext: dialog_handler('#upload_modal', true)
 	};
-	$scope.guides.upload_file.steps[2] = {
+
+	tour_step++;
+	$scope.guides.upload_file.steps[tour_step] = {
 		path: '/mydata',
 		// container: '#upload_modal',
 		element: '#upload_modal',
@@ -374,7 +388,9 @@ function GuideCtrl($scope) {
 		onShow: dialog_handler('#upload_modal', true),
 		onPrev: dialog_handler('#upload_modal', false),
 	};
-	$scope.guides.upload_file.steps[3] = {
+
+	tour_step++;
+	$scope.guides.upload_file.steps[tour_step] = {
 		path: '/mydata',
 		// container: '#upload_modal',
 		element: '#choose_file_button',
@@ -386,7 +402,9 @@ function GuideCtrl($scope) {
 		].join('\n'),
 		onShow: dialog_handler('#upload_modal', true),
 	};
-	$scope.guides.upload_file.steps[4] = {
+
+	tour_step++;
+	$scope.guides.upload_file.steps[tour_step] = {
 		path: '/mydata',
 		// container: '#upload_modal',
 		element: '#choose_folder_button',
@@ -401,7 +419,9 @@ function GuideCtrl($scope) {
 		onShow: dialog_handler('#upload_modal', true),
 		onNext: dialog_handler('#upload_modal', false),
 	};
-	$scope.guides.upload_file.steps[5] = {
+
+	tour_step++;
+	$scope.guides.upload_file.steps[tour_step] = {
 		path: '/mydata',
 		element: '#inodes_list',
 		placement: 'top',
@@ -413,7 +433,9 @@ function GuideCtrl($scope) {
 		].join('\n'),
 		onPrev: dialog_handler('#upload_modal', true)
 	};
-	$scope.guides.upload_file.steps[6] = {
+
+	tour_step++;
+	$scope.guides.upload_file.steps[tour_step] = {
 		path: '/mydata',
 		element: '#my_guides',
 		placement: 'bottom',
@@ -426,8 +448,6 @@ function GuideCtrl($scope) {
 		].join('\n'),
 	};
 	$scope.guides.upload_file.steps_ready();
-
-
 
 	// ACCESS FILE ////
 	tour_step = -1;
@@ -562,17 +582,73 @@ function GuideCtrl($scope) {
 
 	$scope.guides.share_file.steps_ready();
 
-	/ / // SHARED WITH ME ////
+	// SHARED WITH ME //
+	tour_step = -1;
 
-	$scope.guides.shared_with_me.steps[0] = {
-		element: "#my_guides",
-		placement: 'bottom',
+	tour_step++;
+	$scope.guides.shared_with_me.steps[tour_step] = {
+		element: "#inodes_tree",
+		placement: 'right',
 		backdrop: true,
-		title: "",
+		title: "THE 'SHARED WITH ME' FOLDER",
 		content: [
-			'<p>Comming soon...</p><p>Stay tuned!</p>'
+			'<p> In Noobaa there are two basic folders:</p>',
+			'<ul class="nav">',
+			'  <li><p><i class="icon-compass icon-li icon-fixed-width"></i>My data</p></li>',
+			'  <li><p><i class="icon-compass icon-li icon-fixed-width"></i>Shared with me</p></li>',
+			'</ul>'
 		].join('\n')
 	};
+
+	tour_step++;
+	$scope.guides.shared_with_me.steps[tour_step] = {
+		element: "#inodes_tree",
+		placement: 'right',
+		backdrop: true,
+		title: "THE 'SHARED WITH ME' FOLDER",
+		content: [
+			'<p> The \'Shared With Me\' folder points all to files your friends shared with you.</p>',
+			'<p> Each of the files in this folder will show who shared it with you.</p>',
+		].join('\n')
+	};
+
+	tour_step++;
+	$scope.guides.shared_with_me.steps[tour_step] = {
+		element: "#inodes_tree",
+		placement: 'right',
+		backdrop: true,
+		title: "THE 'SHARED WITH ME' FOLDER",
+		content: [
+			'<p> As one can share only with his Facebook friends spamming is not an option.</p>',
+			'<p> Well... except for that friends you\'re not sure why you have on you friends list...</p>',
+		].join('\n')
+	};
+
+	tour_step++;
+	$scope.guides.shared_with_me.steps[tour_step] = {
+		element: "#inodes_tree",
+		placement: 'right',
+		backdrop: true,
+		title: "THE 'SHARED WITH ME' FOLDER",
+		content: [
+			'<p> Files will appear in the \'Shared With Me\' folder as long as they are shared with you.</p>',
+			'<p> They don\'t take any of your capacity so don\'t worry about having a lot of huge files there</p>',
+		].join('\n')
+	};
+
+	tour_step++;
+	$scope.guides.shared_with_me.steps[tour_step] = {
+		element: "#inodes_tree",
+		placement: 'right',
+		backdrop: true,
+		title: "THE 'SHARED WITH ME' FOLDER",
+		content: [
+			'<p> As you are not the owner of the file, it can be removed by the owner at any point.</p>',
+			'<p> If you think you might be interested in viewing this file later, just copy it to your account.</p>',
+		].join('\n')
+	};
+
+
 	$scope.guides.shared_with_me.steps_ready();
 
 
