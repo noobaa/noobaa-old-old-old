@@ -338,8 +338,8 @@ function GuideCtrl($scope) {
 		content: [
 			'<p>This guide will show you how to upload using:</p>',
 			'<ul class="nav">',
-			'  <li><p><i class="icon-bolt icon-li icon-fixed-width"></i>Drag & Drop</p></li>',
-			'  <li><p><i class="icon-bolt icon-li icon-fixed-width"></i>File Chooser</p></li></ul>'
+			'  <li><p><i class="icon-compass icon-li icon-fixed-width"></i>Drag & Drop</p></li>',
+			'  <li><p><i class="icon-compass icon-li icon-fixed-width"></i>File Chooser</p></li></ul>'
 		].join('\n'),
 	};
 	$scope.guides.upload_file.steps[1] = {
@@ -430,8 +430,10 @@ function GuideCtrl($scope) {
 
 
 	// ACCESS FILE ////
-	access_file_step = 0;
-	$scope.guides.access_file.steps[access_file_step] = {
+	tour_step = -1;
+
+	tour_step++;
+	$scope.guides.access_file.steps[tour_step] = {
 		path: "/mydata",
 		element: '#my_guides',
 		placement: 'bottom',
@@ -447,8 +449,8 @@ function GuideCtrl($scope) {
 		].join('\n')
 	};
 
-	access_file_step++;
-	$scope.guides.access_file.steps[access_file_step] = {
+	tour_step++;
+	$scope.guides.access_file.steps[tour_step] = {
 		path: "/mydata",
 		element: '#open_button',
 		placement: 'bottom',
@@ -465,8 +467,8 @@ function GuideCtrl($scope) {
 		].join('\n')
 	};
 
-	access_file_step++;
-	$scope.guides.access_file.steps[access_file_step] = {
+	tour_step++;
+	$scope.guides.access_file.steps[tour_step] = {
 		path: "/mydata",
 		element: '#inodes_list',
 		placement: 'left',
@@ -480,8 +482,8 @@ function GuideCtrl($scope) {
 		].join('\n')
 	};
 
-	access_file_step++;
-	$scope.guides.access_file.steps[access_file_step] = {
+	tour_step++;
+	$scope.guides.access_file.steps[tour_step] = {
 		path: "/mydata",
 		element: '#inodes_tree',
 		placement: 'right',
@@ -497,20 +499,70 @@ function GuideCtrl($scope) {
 
 
 	//// SHARE FILE ////
+	tour_step = -1;
 
-	$scope.guides.share_file.steps[0] = {
-		element: "#my_guides",
+	tour_step++;
+	$scope.guides.share_file.steps[tour_step] = {
+		element: "#share_button",
 		placement: 'bottom',
 		backdrop: true,
-		title: "",
+		title: "THE SHARING BUTTON",
 		content: [
-			'<p>Coming soon...</p><p>Stay tuned!</p>'
+			'<p><a class="btn btn-default toolbtn" href="#"><i class="icon-share icon-large"></i></a> Allows you to share a file or folder. </p>',
+			'<p> You can select whom you\'d like to share with from your Facebook friends.</p>',
+		].join('\n ')
+	};
+
+	tour_step++;
+	$scope.guides.share_file.steps[tour_step] = {
+		element: "#share_button",
+		placement: 'bottom',
+		backdrop: true,
+		title: "THE SHARING BUTTON",
+		content: [
+			'<p> In addition you can create a link. The link allows everybody who has it, to access the file. </p>',
+			'<p> You can revoke the link, making the file inaccessible with that link.</p> ',
+		].join('\n ')
+	};
+
+	tour_step++;
+	$scope.guides.share_file.steps[tour_step] = {
+		element: "#share_button",
+		placement: 'bottom',
+		backdrop: true,
+		title: "THE SHARING BUTTON",
+		content: [
+			'<p> The <i class="icon-share icon-large"></i> indication is provided for any shared file in the folder content view, so you can always tell who can read your files.</p>',
+		].join('\n ')
+	};
+
+	tour_step++;
+	$scope.guides.share_file.steps[tour_step] = {
+		element: "#share_button",
+		placement: 'bottom',
+		backdrop: true,
+		title: "PRIVACY",
+		content: [
+			'<p> In NooBaa every file is private until you share it. </p>',
+			'<p> Notice that sharing a folder shares all files under it, including files you\'ll add to that folder after the sharing. </p>',
 		].join('\n')
 	};
+
+	tour_step++;
+	$scope.guides.share_file.steps[tour_step] = {
+		element: "#share_button",
+		placement: 'bottom',
+		backdrop: true,
+		title: "SHARING IS FREE",
+		content: [
+			'<p> Sharing is free in every aspect. </p>',
+			'<p> It doesn\'t cost you anything and it doesn\'t add any sort of charge or quota usage to your friends. </p>',
+		].join('\n')
+	};
+
 	$scope.guides.share_file.steps_ready();
 
-
-	//// SHARED WITH ME ////
+	/ / // SHARED WITH ME ////
 
 	$scope.guides.shared_with_me.steps[0] = {
 		element: "#my_guides",
