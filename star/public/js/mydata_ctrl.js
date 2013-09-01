@@ -135,9 +135,7 @@ Inode.prototype.get_path = function() {
 	var path = [];
 	var i = this;
 	while (i) {
-		if (i.parent || !this.$scope.hide_root_dir) {
-			path.unshift(i);
-		}
+		path.unshift(i);
 		i = i.parent;
 	}
 	return path;
@@ -450,6 +448,7 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 	$scope.inode_share_sufix = "/share_list";
 	$scope.inode_link_sufix = "/link";
 
+	// TODO: remove this http() and use $http().then().then() chaining instead
 	// returns an event object with 'success' and 'error' events,
 	// which allows multiple events can be registered on the ajax result.
 	$scope.http = function(req) {
@@ -761,23 +760,7 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 			$.nbalert('Cannot share someone else\'s file');
 			return;
 		}
-		var dlg = $('#share_modal');
-		dlg.find('.inode_label').html(inode.make_inode_with_icon());
-		// TODO this is hacky accessing dlg.scope() ...
-		dlg.scope().share_is_loading = true;
-		dlg.scope().share_inode = inode;
-		inode.get_share_list().on('success', function(data) {
-			dlg.scope().share_list = data.list;
-		}).on('all', function() {
-			dlg.scope().share_is_loading = false;
-		});
-		dlg.nbdialog('open', {
-			modal: true,
-			css: {
-				height: "80%",
-				width: 350
-			}
-		});
+		$('#share_modal').scope().open(inode);
 	};
 
 	// inode sorting //
@@ -1024,6 +1007,28 @@ function InodesBreadcrumbCtrl($scope) {
 ShareModalCtrl.$inject = ['$scope'];
 
 function ShareModalCtrl($scope) {
+
+	var dlg = $('#share_modal');
+	
+	$scope.open = function(inode) {
+		dlg.find('.inode_label').html(inode.make_inode_with_icon());
+		// TODO this is hacky accessing dlg.scope() ...
+		$scope.share_is_loading = true;
+		$scope.share_inode = inode;
+		inode.get_share_list().on('success', function(data) {
+			$scope.share_list = data.list;
+		}).on('all', function() {
+			$scope.share_is_loading = false;
+		});
+		dlg.nbdialog('open', {
+			modal: true,
+			css: {
+				height: "80%",
+				width: 350
+			}
+		});
+	};
+
 	$scope.submit = function() {
 		var inode = $scope.share_inode;
 		var share_list = $scope.share_list;
@@ -1037,6 +1042,7 @@ function ShareModalCtrl($scope) {
 			$scope.share_is_loading = false;
 		});
 	};
+
 	$scope.mklink = function() {
 		var inode = $scope.share_inode;
 		$scope.share_is_loading = true;
@@ -1051,7 +1057,7 @@ function ShareModalCtrl($scope) {
 			dlg.nbdialog('open', {
 				remove_on_close: true,
 				modal: false,
-				css: {		
+				css: {
 					width: 300,
 					height: 400
 				}
@@ -1060,6 +1066,7 @@ function ShareModalCtrl($scope) {
 			$scope.share_is_loading = false;
 		});
 	};
+
 	$scope.rmlinks = function() {
 		var inode = $scope.share_inode;
 		$scope.share_is_loading = true;

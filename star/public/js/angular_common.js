@@ -7,11 +7,12 @@
 	// declare our module with dependancy on the angular-ui module
 	var noobaa_app = angular.module('noobaa_app', ['ui']);
 
-	// set the symbol to avoid collision with server side templates (jinja)
-	noobaa_app.config(function($interpolateProvider) {
-		$interpolateProvider.startSymbol('{{');
-		$interpolateProvider.endSymbol('}}');
-	});
+	// set the symbol to avoid collision with server side templates
+	// this is unneeded for now, but keeping the code in comment just for reference.
+	// noobaa_app.config(function($interpolateProvider) {
+	//	$interpolateProvider.startSymbol('{{');
+	//	$interpolateProvider.endSymbol('}}');
+	// });
 
 	// safe apply handles cases when apply may fail with:
 	// "$apply already in progress" error

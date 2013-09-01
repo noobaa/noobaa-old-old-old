@@ -1,6 +1,10 @@
 /* jshint node:true */
 'use strict';
 
+process.on('uncaughtException', function(err) {
+	console.log(err.stack);
+});
+
 if (process.env.NODETIME_ACCOUNT_KEY) {
 	require('nodetime').profile({
 		accountKey: process.env.NODETIME_ACCOUNT_KEY,
@@ -219,7 +223,7 @@ app.get('/auth/logout/', auth.logout);
 // setup email routes
 
 var email = require('./routes/email');
-app.post('/email/request_invite/', email.request_invite);
+app.post('/email/user_feedback/', email.user_feedback);
 
 
 // setup star API routes

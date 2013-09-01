@@ -1,5 +1,83 @@
 ////////////////////////////////
 ////////////////////////////////
+// MenuBarCtrl
+////////////////////////////////
+////////////////////////////////
+
+MenuBarCtrl.$inject = ['$scope', '$http', '$timeout', '$window'];
+
+function MenuBarCtrl($scope, $http, $timeout, $window) {
+	$scope.active_link = function(link) {
+		return link === $window.location.pathname ? 'active' : '';
+	};
+	$scope.click_feedback = function() {
+		$('#feedback_dialog').scope().open();
+	};
+}
+
+////////////////////////////////
+////////////////////////////////
+// FeedbackCtrl
+////////////////////////////////
+////////////////////////////////
+
+FeedbackCtrl.$inject = ['$scope', '$http', '$timeout'];
+
+function FeedbackCtrl($scope, $http, $timeout) {
+
+	var dlg = $('#feedback_dialog');
+
+	$scope.open = function() {
+		$scope.send_done = false;
+		dlg.nbdialog('open', {
+			modal: true
+		});
+	};
+
+	$scope.send = function() {
+		// add to persistent local storage, and return immediately
+		// the worker will send in background
+		$scope.feedbacks.push($scope.feedback);
+		localStorage.feedbacks = JSON.stringify($scope.feedbacks);
+		$scope.send_done = true;
+		$scope.feedback = '';
+		$scope.worker();
+	};
+
+	$scope.worker = function() {
+		if ($scope.sending) {
+			return;
+		}
+		if (!$scope.feedbacks.length) {
+			return;
+		}
+		console.log('sending feedback.', 'queue:', $scope.feedbacks.length);
+		$scope.sending = $http({
+			method: 'POST',
+			url: '/email/user_feedback/',
+			data: {
+				feedback: $scope.feedbacks[0]
+			}
+		}).success(function() {
+			console.log('send feedback success.', 'queue:', $scope.feedbacks.length);
+			$scope.feedbacks.shift(); // remove sent element
+			localStorage.feedbacks = JSON.stringify($scope.feedbacks);
+			$scope.sending = null;
+			$timeout($scope.worker, 1000);
+		}).error(function(data, status) {
+			console.error('failed feedback.', 'status:', status, 'data:', data);
+			$scope.sending = null;
+			$timeout($scope.worker, 5000);
+		});
+	};
+
+	$scope.feedbacks = localStorage.feedbacks ?
+		JSON.parse(localStorage.feedbacks) : [];
+	$scope.worker();
+}
+
+////////////////////////////////
+////////////////////////////////
 // UserCtrl
 ////////////////////////////////
 ////////////////////////////////
@@ -41,7 +119,7 @@ function UserCtrl($scope, $http, $timeout) {
 
 ////////////////////////////////
 ////////////////////////////////
-// MenuBarCtrl
+// GuideCtrl
 ////////////////////////////////
 ////////////////////////////////
 
@@ -49,13 +127,9 @@ function UserCtrl($scope, $http, $timeout) {
 var global_menu_bar_first_guide;
 var global_menu_bar_last_guide;
 
-MenuBarCtrl.$inject = ['$scope', '$window'];
+GuideCtrl.$inject = ['$scope'];
 
-function MenuBarCtrl($scope, $window) {
-
-	$scope.active_link = function(link) {
-		return link === $window.location.pathname ? 'active' : '';
-	};
+function GuideCtrl($scope) {
 
 	function guide_template(i, step) {
 		return [

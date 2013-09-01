@@ -24,14 +24,14 @@
 				<li ng-class="active_link('/mydevices')">
 					<a href="/mydevices" id="my_dev_link">MY DEVICES</a>
 				</li>
-				<li class="dropdown">
+				<li ng-controller="GuideCtrl" class="dropdown">
 					<a id="my_guides"
 						href="#"
 						class="dropdown-toggle"
 						role="button"
 						data-toggle="dropdown"
 						title="My Guides..."
-						data-placement="left" rel="tooltip">
+						rel="tooltip">
 						<i class="icon-info-sign icon-large text-info"></i>
 					</a>
 					<ul class="dropdown-menu"
@@ -50,16 +50,15 @@
 					</ul>
 				</li>
 				<li>
-					<a id="my_feedback"
+					<a id="feedback_button"
 						role="button"
-						href="#TODO-feedback_modal"
-						data-toggle="modal"
+						ng-click="click_feedback()"
 						title="Give feedback..."
-						data-placement="left" rel="tooltip">
+						rel="tooltip">
 						<i class="icon-comments icon-large text-info"></i>
 					</a>
 				</li>
-				<li class="dropdown">
+				<li ng-controller="UserCtrl"  class="dropdown">
 					<a class="dropdown-toggle"
 						id="user_label" role="button"
 						data-toggle="dropdown" href="#">
@@ -68,18 +67,18 @@
 							<?! it.user.name ?>
 						</div>
 					</a>
-					<ul ng-controller="UserCtrl"
-						class="dropdown-menu"
+					<ul class="dropdown-menu"
 						role="menu"
 						aria-labelledby="user_label">
 						<li align="center">
 							<img src="https://graph.facebook.com/<?! it.user.fbid ?>/picture\" style="height: 40px"></img>
 						</li>
 						<li class="divider"></li>
-						<li>
-						Quota: {{human_size(user_quota)}}
+						<li align="center">
+							Quota: {{human_size(user_quota)}}
 						</li>
-						<li>Used: {{human_size(user_usage)}}
+						<li align="center">
+							Used: {{human_size(user_usage)}}
 						</li>
 						<li class="divider"></li>
 						<li>
@@ -100,31 +99,34 @@
 		</div>
 	</div>
 </nav>
-<div id="feedback_modal"
-	class="modal fade" 
-	tabindex="-1" 
-	role="dialog" 
-	aria-labelledby="feedback_modal_label" 
-	aria-hidden="true">
-	<div class="modal-dialog">
-	<div class="modal-content">
-	<div class="modal-header text-center">
-		<a type="button" class="close" data-dismiss="modal">×</a>
-		<h1 id="feedback_modal_label">
-			<i class="icon-comments icon-large text-info"></i>
-			Talk To Me Goose
-		</h1>
+
+<div ng-controller="FeedbackCtrl"
+	id="feedback_dialog"
+	class="nbdialog fntmd">
+	<div class="nbdialog_header nbdialog_drag">
+		<i class="icon-comments icon-large text-info"></i>
+		Talk To Me Goose
+		<a class="pull-right nbdialog_close btn btn-default btn-xs"
+			title="Cancel">
+			<span class="close">x</span>
+		</a>
 	</div>
-	<div class="modal-body text-center">
-		<textarea ng-model="feedback_text"
-			style="width: 90%" rows="3"></textarea>
+	<div class="nbdialog_content">
+		<textarea ng-hide="send_done" 
+			ng-model="feedback"
+			class="form-control" autofocus
+			style="resize: none; height: 100%"></textarea>
+		<p ng-show="send_done" class="fntlg text-center">
+			Precious...<br/>
+			Thanks you!
+		</p>
 	</div>
-	<div class="modal-footer">
-		<button class="btn btn-default pull-left" data-dismiss="modal">Close</button>
-		<button class="btn btn-primary disabled"
-			data-dismiss="modal" 
-			ng-click="submit_feedback()">Submit</button>
-	</div>
-	</div>
+	<div class="nbdialog_footer">
+		<button ng-hide="send_done"
+			class="nbdialog_close btn btn-default">Cancel</button>
+		<button class="btn btn-primary pull-right"
+			ng-hide="send_done" ng-click="send()">Send</button>
+		<button class="nbdialog_close btn btn-success pull-right"
+			ng-show="send_done">Close</button>
 	</div>
 </div>

@@ -14,7 +14,10 @@ function reply_callback(req, res, debug_info) {
 	return function(err, reply) {
 		if (err) {
 			console.log('FAILED', debug_info, ':', err);
-			if (err.status) {
+			if (typeof err.status === 'number' &&
+				err.status >= 100 &&
+				err.status < 600
+			) {
 				return res.json(err.status, err.info);
 			} else {
 				return res.json(500, err);

@@ -8,6 +8,7 @@ var path = require('path');
 var templatesDir = path.resolve(__dirname, '..', 'email_templates');
 var emailTemplates = require('email-templates');
 var nodemailer = require('nodemailer');
+var common_api = require('./common_api');
 
 function choose_mail(user) {
 	return user.email || user.fb.email || null;
@@ -105,6 +106,25 @@ exports.send_mail_changed = function(user, callback) {
 
 };
 
+exports.user_feedback = function(req, res) {
+	mandrill('/messages/send', {
+		message: {
+			to: [{
+				email: 'info@noobaa.com',
+				name: 'info@noobaa.com'
+			}],
+			from_email: 'info@noobaa.com',
+			from_name: 'NooBaa Team',
+			subject: "User Feedback - " + req.user.name,
+			text: [
+				'USER DETAILS (just in case):\n',
+				JSON.stringify(req.user),
+				'\n\nFEEDBACK:\n',
+				req.body.feedback
+			].join('\n')
+		}
+	}, common_api.reply_callback(req, res, 'USER FEEDBACK ' + req.user.id));
+};
 
 var smtp = nodemailer.createTransport("SMTP", {
 	service: "Mailgun",
