@@ -428,32 +428,71 @@ function GuideCtrl($scope) {
 	$scope.guides.upload_file.steps_ready();
 
 
-	//// ACCESS FILE ////
 
-	$scope.guides.access_file.steps[0] = {
+	// ACCESS FILE ////
+	access_file_step = 0;
+	$scope.guides.access_file.steps[access_file_step] = {
 		path: "/mydata",
 		element: '#my_guides',
 		placement: 'bottom',
 		backdrop: true,
 		title: 'ACCESSING',
 		content: [
-			'<p>This guide will show you how to access your files:</p>',
+			'<p>This guide will show you how to open your files and browse your directories:</p>',
 			'<ul class="nav">',
-			'  <li><p><i class="icon-bolt icon-li icon-fixed-width"></i>Navigate folders</p></li>',
-			'  <li><p><i class="icon-bolt icon-li icon-fixed-width"></i>Open with Double Click</p></li>',
-			'  <li><p><i class="icon-bolt icon-li icon-fixed-width"></i>Open with Toolbar</p></li></ul>'
+			'  <li><p><i class="icon-compass icon-li icon-fixed-width"></i>Opening a file and directory</p></li>',
+			'  <li><p><i class="icon-compass icon-li icon-fixed-width"></i>The folder content area</p></li>',
+			'  <li><p><i class="icon-compass icon-li icon-fixed-width"></i>The folders tree</p></li>',
+			'</ul>'
 		].join('\n')
 	};
-	$scope.guides.access_file.steps[1] = {
+
+	access_file_step++;
+	$scope.guides.access_file.steps[access_file_step] = {
 		path: "/mydata",
-		element: '#my_guides',
+		element: '#open_button',
 		placement: 'bottom',
 		backdrop: true,
-		title: 'ACCESSING',
+		title: 'THE PLAY BUTTON',
 		content: [
-			'<p>More info is comming soon...</p><p>Stay tuned!</p>'
+			'<p><a class="btn btn-default toolbtn" href="#"><i class="icon-play icon-large"></i></a>',
+			' is used to open files and directories.</p>',
+			'<ul >',
+			'   <li><p>Select the file or folder and press the play button to open it.</p></li>',
+			'   <li><p>When using a mouse, double-click a file or folder to open it.</p></li>',
+			'</ul>',
+
 		].join('\n')
 	};
+
+	access_file_step++;
+	$scope.guides.access_file.steps[access_file_step] = {
+		path: "/mydata",
+		element: '#inodes_list',
+		placement: 'left',
+		backdrop: true,
+		title: 'THE FOLDER CONTENT AREA',
+		content: [
+			'<p>Shows the files and folders within the currently selected folder.</p>',
+			'<p>Open a file using the play button, or double click on the file\'s line. </p>',
+			'<p>Drag and drop files here to upload.</p>',
+			'<p>Drag and drop files from here to other folders to move them.</p>',
+		].join('\n')
+	};
+
+	access_file_step++;
+	$scope.guides.access_file.steps[access_file_step] = {
+		path: "/mydata",
+		element: '#inodes_tree',
+		placement: 'right',
+		backdrop: true,
+		title: 'THE FOLDERS TREE',
+		content: [
+			'<p>	The currently selected folder is marked in the folder tree, and it\'s content is displayed in the content area.</p>',
+			'<p>	Open a folder using the play button or double-click on it. </p>',
+		].join('\n')
+	};
+
 	$scope.guides.access_file.steps_ready();
 
 
@@ -465,7 +504,7 @@ function GuideCtrl($scope) {
 		backdrop: true,
 		title: "",
 		content: [
-			'<p>Comming soon...</p><p>Stay tuned!</p>'
+			'<p>Coming soon...</p><p>Stay tuned!</p>'
 		].join('\n')
 	};
 	$scope.guides.share_file.steps_ready();
