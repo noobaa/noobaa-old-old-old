@@ -95,6 +95,7 @@ function s3_post_info(fobj_id, name, content_type) {
 // that is the interface for the client.
 
 function inode_to_entry(inode, opt) {
+
 	var ent = {
 		id: inode._id,
 		name: inode.name
@@ -105,18 +106,16 @@ function inode_to_entry(inode, opt) {
 	if (inode.num_refs) {
 		ent.num_refs = inode.num_refs;
 	}
-	if (inode.ghost_ref && inode.live_owner) {
-		// in this case this is a ghost ref to some other inode,
-		// send the owner of the referenced file
+
+	//handle inode ownership
+	if (inode.live_owner) {
 		ent.owner_fbid = inode.live_owner.fb.id;
 		ent.owner_name = inode.live_owner.fb.name;
-	} else if (opt && opt.user && !mongoose.Types.ObjectId(opt.user.id).equals(inode.owner)) {
-		// in this case we are looking at someone elses inode,
-		// send him as the owner
-		ent.not_mine = true;
-		ent.owner_fbid = opt.user.fbid;
-		ent.owner_name = opt.user.name;
 	}
+	if (opt && opt.user && !mongoose.Types.ObjectId(opt.user.id).equals(inode.owner)){
+		ent.not_mine = true;
+	}
+
 	if (opt && opt.fobj) {
 		// when fobj is given add its info to the entry
 		ent = _.extend(ent, {
@@ -141,20 +140,20 @@ function inode_to_entry(inode, opt) {
 // read_dir finds all the sons of the directory.
 // for inodes with fobj also add the fobj info to the response.
 
-function do_read_dir(req, inode, next) {
+function do_read_dir(req, dir_inode, next) {
 	async.waterfall([
 		// query all the dir sons
 		function(next) {
-			if (inode._id) {
+			if (dir_inode._id) {
 				return Inode.find({
-					owner: inode.owner,
-					parent: inode._id
+					owner: dir_inode.owner,
+					parent: dir_inode._id
 				}, next);
 			} else {
 				//the only case where the parent is EXPECTED to be null, is one of the basic folders
 				return Inode.find({
-					owner: inode.owner,
-					parent: inode._id,
+					owner: dir_inode.owner,
+					parent: dir_inode._id,
 					name: {
 						'$in': _.values(user_inodes.CONST_BASE_FOLDERS)
 					}
@@ -165,10 +164,13 @@ function do_read_dir(req, inode, next) {
 		//for each inode which is a ghost, "inject" the fobj id of the original file. This is used to
 		//access object properties such as size and state. 
 		function(inodes_list, next) {
+			//get all inode id's that are referenced by ghosts. 
 			var ghost_inode = _.filter(inodes_list, function(i) {
 				return i.ghost_ref;
 			});
 			var referenced_list = _.pluck(ghost_inode, 'ghost_ref');
+
+			//get all referenced inodes from the DB
 			Inode.find({
 				_id: {
 					'$in': referenced_list
@@ -178,21 +180,30 @@ function do_read_dir(req, inode, next) {
 					return next(err);
 				}
 				var live_owners_ids = [];
-				var live_inode_map = {};
+				var live_inode_map = {}; // a map with key:inode_id -> inode
 				_.each(live_inodes, function(v) {
 					live_inode_map[v._id] = v;
 				});
 				_.each(inodes_list, function(i) {
+					//for each inode that has a ghost ref - get it's original inodes fobs and owner info 
 					if (i.ghost_ref && live_inode_map[i.ghost_ref]) {
 						i.fobj = live_inode_map[i.ghost_ref].fobj;
 						i.live_owner_id = live_inode_map[i.ghost_ref].owner;
 						live_owners_ids.push(i.live_owner_id);
+					}
+
+					//get all inodes that are not owned by the current user. This can happen when browsing 
+					//a folder that has a shared/ghost parent
+					if (!mongoose.Types.ObjectId(req.user.id).equals(i.owner)) {
+						live_owners_ids.push(i.owner);
 					}
 				});
 				next(null, inodes_list, live_owners_ids);
 			});
 		},
 
+		//this function gets information about the users that are not the current user
+		//these can be owners of ghost refs or owners of subfolders of ghostrefs.
 		function(inodes_list, live_owners_ids, next) {
 			if (!live_owners_ids.length) {
 				return next(null, inodes_list);
@@ -205,14 +216,22 @@ function do_read_dir(req, inode, next) {
 				if (err) {
 					return next(err);
 				}
-				var live_owner_map = {};
+				var live_owner_map = {}; //map of user_id->user
 				_.each(users, function(v) {
 					live_owner_map[v._id] = v;
 				});
+
 				_.each(inodes_list, function(i) {
+					// this is true for ghost refs as we injected the info above
 					if (i.live_owner_id) {
 						i.live_owner = live_owner_map[i.live_owner_id];
 					}
+
+					//this is true for unowned inodes
+					if (!mongoose.Types.ObjectId(req.user.id).equals(i.owner)) {
+						i.live_owner = live_owner_map[i.owner];
+					}
+
 				});
 				return next(null, inodes_list);
 			});
@@ -234,7 +253,7 @@ function do_read_dir(req, inode, next) {
 
 		// merge the list of entries with the fobjs
 		function(list, fobjs, next) {
-			console.log('INODE READDIR:', inode._id,
+			console.log('INODE READDIR:', dir_inode._id,
 				'entries', list.length, 'fobjs', fobjs.length);
 			// create a map from fobj._id to fobj
 			var fobj_map = {};
