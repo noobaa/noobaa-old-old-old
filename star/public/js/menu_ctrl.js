@@ -329,9 +329,15 @@ function GuideCtrl($scope) {
 		$('#upload_modal').off('nbdialog_open.upload_guide');
 	}
 
-	function dialog_handler(dialog_selector, is_show) {
+	function upload_dialog_handler(is_show) {
 		return function(tour) {
-			$(dialog_selector).nbdialog(is_show ? 'open' : 'close');
+			$('#upload_modal').nbdialog(is_show ? 'open' : 'close'); 
+			// , {
+			// 	css:{
+			// 		// width:'30%',
+			// 		// height: '80%'
+			// 	}
+			// });
 		};
 	}
 
@@ -367,7 +373,7 @@ function GuideCtrl($scope) {
 		].join('\n'),
 		onShow: advance_on_upload_modal_show,
 		onHide: done_advance_on_upload_modal_show,
-		onNext: dialog_handler('#upload_modal', true)
+		onNext: upload_dialog_handler(true)
 	};
 
 	tour_step++;
@@ -375,7 +381,7 @@ function GuideCtrl($scope) {
 		path: '/mydata',
 		// container: '#upload_modal',
 		element: '#upload_modal',
-		placement: 'bottom',
+		placement: 'right',
 		title: 'UPLOADING',
 		width: 500,
 		content: [
@@ -385,8 +391,8 @@ function GuideCtrl($scope) {
 			'  <a class="btn btn-success" href="#"><i class="icon-cloud-upload icon-large"></i></a>.',
 			'  It will also open whenever you drop files to upload.'
 		].join('\n'),
-		onShow: dialog_handler('#upload_modal', true),
-		onPrev: dialog_handler('#upload_modal', false),
+		onShow: upload_dialog_handler(true),
+		onPrev: upload_dialog_handler(false),
 	};
 
 	tour_step++;
@@ -400,7 +406,7 @@ function GuideCtrl($scope) {
 			'<p>Press the "Choose Files" button and select files to upload.</p>',
 			'<p>You can try it now...</p>'
 		].join('\n'),
-		onShow: dialog_handler('#upload_modal', true),
+		onShow: upload_dialog_handler(true),
 	};
 
 	tour_step++;
@@ -416,8 +422,8 @@ function GuideCtrl($scope) {
 			'<p>The entire folder content will be uploaded.</p>',
 			'<p>You can try it now...</p>'
 		].join('\n'),
-		onShow: dialog_handler('#upload_modal', true),
-		onNext: dialog_handler('#upload_modal', false),
+		onShow: upload_dialog_handler(true),
+		onNext: upload_dialog_handler(false),
 	};
 
 	tour_step++;
@@ -431,7 +437,7 @@ function GuideCtrl($scope) {
 			'  into the folder that is selected when the upload starts.',
 			'<p>You should see your uploads listed in the current folder.</p>',
 		].join('\n'),
-		onPrev: dialog_handler('#upload_modal', true)
+		onPrev: upload_dialog_handler(true)
 	};
 
 	tour_step++;
@@ -651,57 +657,141 @@ function GuideCtrl($scope) {
 
 	$scope.guides.shared_with_me.steps_ready();
 
-
 	//// CO SHARING ////
+	tour_step = -1;
 
-	$scope.guides.cosharing.steps[0] = {
+	tour_step++;
+	$scope.guides.cosharing.steps[tour_step] = {
 		path: "/mydevices",
-		element: "#my_dev_link",
+		element: "#my_data_link",
 		placement: 'bottom',
 		backdrop: true,
-		title: "CO-SHARE",
+		title: "DON'T PANIC",
 		content: [
-			'<p>This guide will show you how to co-share',
-			'  in order to get as much capacity as you possibly want.</p>',
+			'<p>You\'re still at NooBaa</p>',
+			'<p>To get back to your files choose:</p>',
+			'<p">MY DATA from the main toolbar</p>',
 		].join('\n')
 	};
-	$scope.guides.cosharing.steps[1] = {
+
+	tour_step++;
+	$scope.guides.cosharing.steps[tour_step] = {
 		path: "/mydevices",
 		element: "#dl",
 		placement: 'top',
 		backdrop: true,
-		title: "INSTALL DEVICE",
+		title: "CO-SHARING",
 		content: [
-			'<p>Start co-sharing by installing your first device.</p>',
-			'<p>Download the software, unzip and run.</p>'
+			'<p>Co-sharing is the key to gain access to unlimited fast cloud storage.</p>',
+			'<p>By co-sharing, you allow NooBaa to convert local underutilized hard drive resources into cloud resources.</p>',
 		].join('\n')
 	};
-	$scope.guides.cosharing.steps[2] = {
+
+	tour_step++;
+	$scope.guides.cosharing.steps[tour_step] = {
+		path: "/mydevices",
+		element: "#dl",
+		placement: 'top',
+		backdrop: true,
+		// width: 500,
+		title: "REQUIREMENTS",
+		content: [
+			'<p>a PC connected to the Internet with some underutilized storage.</p>',
+		].join('\n')
+	};
+
+	tour_step++;
+	$scope.guides.cosharing.steps[tour_step] = {
+		path: "/mydevices",
+		element: "#dl",
+		placement: 'top',
+		backdrop: true,
+		// width: 500,
+		title: "PLAN COSTS",
+		content: [
+			'<p>FREE.</p>',
+			'<p>Free for any capacity.</p>',
+		].join('\n')
+	};
+
+	tour_step++;
+	$scope.guides.cosharing.steps[tour_step] = {
+		path: "/mydevices",
+		element: "#dl",
+		placement: 'top',
+		backdrop: true,
+		// width: 500,
+		title: "STEP 1/3",
+		content: [
+			'<ul>',
+			'<li>Download the NooBaa client that is relevant to your OS.</li>',
+			'<ul><li>we are working with the Chrome team to resolve the warning.</li></ul>',
+			'</ul>',
+		].join('\n')
+	};
+
+	tour_step++;
+	$scope.guides.cosharing.steps[tour_step] = {
+		path: "/mydevices",
+		element: "#dl",
+		placement: 'top',
+		backdrop: true,
+		// width: 500,
+		title: "STEP 2/3",
+		content: [
+			'<ul>',
+			'<li>Run the installer.</li>',
+			'<li>Login to your Facebook account.</li>',
+			'</ul>',
+		].join('\n')
+	};
+
+
+	tour_step++;
+	$scope.guides.cosharing.steps[tour_step] = {
+		path: "/mydevices",
+		element: "#dl",
+		placement: 'top',
+		backdrop: true,
+		// width: 500,
+		title: "STEP 2/3",
+		content: [
+			'<ul>',
+			'<li>Chose how much quota you\'d like to get on the cloud - NooBaa will preallocate the same amount of storage on your hard drive. </li>',
+			'</ul>',
+		].join('\n')
+	};
+
+	tour_step++;
+	$scope.guides.cosharing.steps[tour_step] = {
 		path: "/mydevices",
 		element: "#devs",
-		placement: 'bottom',
-		backdrop: true,
-		width: 500,
-		title: "CONNECTING",
-		content: [
-			'<p>When the application starts you will see the dashboard screen.</p>',
-			'<p>Connect it with your facebook account.</p>',
-			'<p>Once the connection is made, use refresh button',
-			'  <a class="btn btn-primary"><i class="icon-refresh icon-large"></i></a>',
-			'  and you should see your device listed here.</p>'
-		].join('\n')
-	};
-	$scope.guides.cosharing.steps[3] = {
-		path: "/mydevices",
-		element: "#my_guides",
 		placement: 'bottom',
 		backdrop: true,
 		reflex: true,
 		title: "First device added",
 		content: [
-			'<p>Once your device is up and running,',
-			'you are co-sharing and enjoying the power of NooBaa\'s crowd-cloud!</p>',
+			'<p>Once your device is up and running, your quota will be updated with your allocation,</p>',
+			'<p>Enjoy the power of NooBaa\'s crowd-cloud!</p>',
 		].join('\n')
 	};
+
+
+	tour_step++;
+	$scope.guides.cosharing.steps[tour_step] = {
+		path: "/mydevices",
+		element: "#my_guides",
+		placement: 'bottom',
+		backdrop: true,
+		reflex: true,
+		title: "HOW DOES IT WORK",
+		content: [
+			'<p>NooBaa is a crowd cloud.</p>',
+			'<p>Every file stored on it is cut, encrypted and sent to numerous NooBaa clients.</p>',
+			'<p>When the file is being read, all the pieces are recalled back.</p>',
+			'<p>For more information see NooBaa\'s <a href="../FAQ">  FAQ.<a/> section</p>',
+		].join('\n')
+	};
+
 	$scope.guides.cosharing.steps_ready();
 }

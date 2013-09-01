@@ -78,7 +78,7 @@
 		var visible;
 
 		if (opt === 'open') {
-			if (!data) {
+			if (!data || opt_for_open) {
 				e.nbdialog(opt_for_open);
 				data = e.data('nbdialog');
 			}
@@ -168,9 +168,11 @@
 		} else {
 			if (data) {
 				console.log('nbdialog inited twice... ignoring');
-				return;
+				// return;
 			}
-			opt = opt || {};
+			console.log('opt1: ',opt);
+			opt = $.extend(true,{}, data ? data.opt : null, opt);
+			console.log('opt2: ',opt);
 			opt.show = opt.show || {
 				effect: 'drop',
 				direction: 'up',
@@ -195,8 +197,8 @@
 			e.css(_.extend({
 				height: 'auto',
 				width: 'auto',
-				top: -10000,
-				left: -10000
+				// top: -10000,
+				// left: -10000
 			}, opt.css, {
 				// we force these css on top of given css for the dialog to work
 				display: 'block',
@@ -246,15 +248,17 @@
 				width: 'auto',
 				overflow: 'auto'
 			});
+			console.log('height: ',height);
+			console.log('width: ',width);
 			e.css(_.extend({
 				top: top,
 				left: left,
 				width: width,
 				height: height,
-				zIndex: 1040
+				zIndex: 1000
 			}, opt.css, {
 				// we force these css on top of given css for the dialog to work
-				display: 'none',
+				display: data && data.state === 'open' ? 'block' : 'none',
 				visibility: 'visible'
 			}));
 			// initialize resizable and draggable
@@ -279,7 +283,7 @@
 			});
 			// save the data in the element
 			e.data('nbdialog', {
-				state: 'close',
+				state: data ? data.state : 'close',
 				opt: opt
 			});
 		}

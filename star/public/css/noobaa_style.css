@@ -167,6 +167,16 @@ html, body {
 	opacity: 0.5 !important;
 }
 
+.tour-backdrop {
+	position: fixed !important;
+	top:0 !important;
+	left:0 !important;
+	/*right: 100% !important;*/
+	/*bottom: 100% !important;*/
+	height: 100% !important;
+	widows: 100% !important;
+}
+
 .alert_dialog .nbdialog_header .alert_icon {
 	font-size: 35px;
 	color: rgba(255,200,100,1);
@@ -212,11 +222,19 @@ html, body {
 	/*color: white;*/
 	background-color: rgba(100,200,70,0.6);
 }
+
+.tour-step-backdrop {
+	z-index: 1010 !important;
+}
+
+.tour-step-background {
+	display: none !important;
+}
+
 .tour .popover-title, .tour .popover-navigation {
 	/*background-color: #5cb85c;*/
 	background-color: white;
 }
-
 
 .bgpattern {
 	background-image: url('/public/images/pattern.png'); 
