@@ -5,6 +5,14 @@
 	"main": "http://www.noobaa.com/planet",
 	"node-remote": "*.noobaa.com",
 	"window": {
-		"show": false
+		"icon": "noobaa_icon.ico",
+		"title": "NooBaa",
+		"toolbar": false,
+		"frame": false,
+		"resizable": false,
+		"show": false,
+		"position": "center",
+		"width": 550,
+		"height": 300
 	}
 }

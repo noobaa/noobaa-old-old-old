@@ -444,7 +444,6 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 	$scope.timeout = $timeout;
 	$scope.api_url = "/star_api/";
 	$scope.inode_api_url = $scope.api_url + "inode/";
-	$scope.user_usage_url = $scope.api_url + "user/usage";
 	$scope.inode_share_sufix = "/share_list";
 	$scope.inode_link_sufix = "/link";
 

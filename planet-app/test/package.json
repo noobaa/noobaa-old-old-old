@@ -5,6 +5,14 @@
 	"main": "http://127.0.0.1:5000/planet",
 	"node-remote": "127.0.0.1:5000",
 	"window": {
-		"show": false
+		"icon": "noobaa_icon.ico",
+		"title": "NooBaa",
+		"toolbar": false,
+		"frame": false,
+		"resizable": false,
+		"show": false,
+		"position": "center",
+		"width": 550,
+		"height": 300
 	}
 }

@@ -1,6 +1,7 @@
 /* jshint node:true */
 'use strict';
 
+var _ = require('underscore');
 var async = require('async');
 var Device = require('../models/device.js').Device;
 var common_api = require('./common_api');
@@ -105,13 +106,25 @@ exports.device_create = function(req, res) {
 
 exports.device_update = function(req, res) {
 	// the device_id param is parsed as url param (/path/to/api/:device_id/...)
-	var id = req.params.device_id;
+	var dev_id = req.params.device_id;
+
+	// pick valid updates
+	var updates = _.pick(req.body, 'coshare_space');
+
+	if (updates.coshare_space) {
+		var GB = 1024 * 1024 * 1024;
+		var valid_values = [GB, 10 * GB, 100 * GB];
+		if (typeof updates.coshare_space !== 'number' || !(updates.coshare_space in valid_values)) {
+			console.error('invalid coshare_space', updates.coshare_space);
+			delete updates.coshare_space;
+		}
+	}
 
 	async.waterfall([
 
 		// pass the id
 		function(next) {
-			return next(null, id);
+			return next(null, dev_id);
 		},
 
 		// find the device in the db
@@ -119,6 +132,13 @@ exports.device_update = function(req, res) {
 
 		// check device ownership
 		common_api.req_ownership_checker(req),
+
+		function(dev, next) {
+			if (_.isEmpty(updates)) {
+				return next(null, dev);
+			}
+			return dev.update(updates, next);
+		},
 
 		// update the device
 		push_update.bind(null, new Date()),
@@ -129,7 +149,7 @@ exports.device_update = function(req, res) {
 				reload: false
 			});
 		}
-	], common_api.reply_callback(req, res, 'DEVICE UPDATE ' + id));
+	], common_api.reply_callback(req, res, 'DEVICE UPDATE ' + dev_id));
 };
 
 exports.device_list = function(req, res) {

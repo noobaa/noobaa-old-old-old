@@ -313,34 +313,6 @@ function get_user_usage_bytes(user_id, cb) {
 	});
 }
 
-exports.user_usage = user_usage;
-
-function user_usage(req, res) {
-	var user_id = req.user.id;
-
-	async.waterfall([
-
-		//get the user. The quota is currently stored in the quota
-		function(next) {
-			return User.findById(user_id, next);
-		},
-
-		//get the user's current usage
-		function(user, next) {
-			return get_user_usage_bytes(user._id, function(err, usage) {
-				var return_data = null;
-				if (!err) {
-					return_data = {
-						"user_quota": user.quota,
-						"user_usage": usage
-					};
-				}
-				return next(err, return_data);
-			});
-		},
-	], common_api.reply_callback(req, res, 'GET_USER_USAGE ' + user_id));
-}
-
 exports.shared_ancestor = shared_ancestor;
 //get user id and an Inode.
 //searches for ancestor directory which is sharing with this user

@@ -26,12 +26,16 @@ FeedbackCtrl.$inject = ['$scope', '$http', '$timeout'];
 function FeedbackCtrl($scope, $http, $timeout) {
 
 	var dlg = $('#feedback_dialog');
+	dlg.nbdialog({
+		modal: true,
+		css: {
+			width: 500
+		}
+	});
 
 	$scope.open = function() {
 		$scope.send_done = false;
-		dlg.nbdialog('open', {
-			modal: true
-		});
+		dlg.nbdialog('open');
 	};
 
 	$scope.send = function() {
@@ -54,7 +58,7 @@ function FeedbackCtrl($scope, $http, $timeout) {
 		console.log('sending feedback.', 'queue:', $scope.feedbacks.length);
 		$scope.sending = $http({
 			method: 'POST',
-			url: '/email/user_feedback/',
+			url: '/star_api/user/feedback/',
 			data: {
 				feedback: $scope.feedbacks[0]
 			}
@@ -97,10 +101,10 @@ function UserCtrl($scope, $http, $timeout) {
 		cancel_usage_refresh();
 		$http({
 			method: "GET",
-			url: "/star_api/user/usage",
+			url: "/star_api/user/",
 		}).success(function(data, status, headers, config) {
-			$scope.user_quota = data.user_quota;
-			$scope.user_usage = data.user_usage;
+			$scope.user_quota = data.quota;
+			$scope.user_usage = data.usage;
 			cancel_usage_refresh();
 			$scope.usage_refresh_timeout =
 				$timeout(usage_refresh, 30000);
@@ -112,7 +116,6 @@ function UserCtrl($scope, $http, $timeout) {
 		});
 	}
 	usage_refresh();
-
 }
 
 

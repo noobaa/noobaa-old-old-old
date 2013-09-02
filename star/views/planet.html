@@ -63,7 +63,7 @@
 		<button class="btn btn-default btn-xs pull-right"
 			ng-click="hide_win()"
 			title="Minimize to tray">
-			<i class="close">x</i>
+			<span class="close">x</span>
 		</button>
 	</div>
 
@@ -72,7 +72,7 @@
 			<p class="lead">
 				<b>
 					Hi, Co-sharing on this device is simply done 
-					by using your facebook account:
+					by logging in to your account:
 				</b>
 			</p>
 			<a ng-show="!planet_user"
@@ -125,10 +125,16 @@
 						<div><b>Co-Shared Space</b></div>
 					</td>
 					<td>
-						<div>
+						<div ng-switch="!!planet_device && !!planet_device.coshare_space">
 							<i class="icon-hdd icon-white 
 								icon-large icon-fixed-width"></i>
-							<b>{{ human_size(planetfs.total_size()) }}</b>
+							<b ng-switch-when="true">
+								{{ human_size(planet_device.coshare_space) }}
+							</b>
+							<button ng-switch-when="false"
+								class="btn btn-danger">
+								Start Co-Sharing
+							</button>
 						</div>
 					</td>
 					<td>

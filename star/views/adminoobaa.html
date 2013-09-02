@@ -13,6 +13,7 @@
 			<thead>
 				<th>Name</th>
 				<th>Alpha</th>
+				<th>Quota</th>
 				<th>Custom Email</th>
 				<th>Devices</th>
 			</thead>
@@ -26,6 +27,7 @@
 							{{user.alpha_tester || 'false'}}
 						</button>
 					</td>
+					<td>{{human_size(user.quota)}}</td>
 					<td>{{user.email}}</td>
 					<td>
 						<table

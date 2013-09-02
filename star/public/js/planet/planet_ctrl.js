@@ -22,16 +22,12 @@ function PlanetCtrl($scope, $http, $timeout) {
 	var os = require('os');
 
 	// load native node-webkit library
-	var gui = $scope.gui = window.require('nw.gui');
+	var gui = window.require('nw.gui');
+	var win = gui.Window.get();
+	win.$scope = $scope;
 
-	$scope.reload_home = function() {
-		if (window.location.href !== $scope.home_location &&
-			window.location.href !== $scope.home_location + '#') {
-			window.console.log(window.location, $scope.home_location);
-			window.location.href = $scope.home_location;
-		} else {
-			gui.Window.get().reload();
-		}
+	$scope.close_win = function() {
+		win.close(true);
 	};
 
 	$scope.is_fullscreen = false;
@@ -44,17 +40,15 @@ function PlanetCtrl($scope, $http, $timeout) {
 		if ($scope.is_fullscreen) {
 			$scope.toggle_fullscreen();
 		}
-		gui.Window.get().hide();
+		win.hide();
 	};
 
-	// open this window
-	$scope.open = function() {
-		var w = gui.Window.get();
-		w.show();
-		w.restore();
-		w.focus();
-		w.requestAttention(true);
-		return w;
+	// show this window
+	$scope.show = function() {
+		win.show();
+		win.restore();
+		win.focus();
+		// win.requestAttention(true);
 	};
 
 	$scope.open_noobaa = function(path) {
@@ -73,12 +67,12 @@ function PlanetCtrl($scope, $http, $timeout) {
 		$scope.open_noobaa('/help');
 	};
 
-	$scope.confirm = function(q, callback) {
-		var w = $scope.open();
+	$scope.nbconfirm = function(q, callback) {
+		$scope.show();
 		$.nbconfirm(q, {
 			css: {
-				width: w.width,
-				height: w.height,
+				width: win.width,
+				height: win.height,
 				top: 0,
 				left: 0
 			}
@@ -86,56 +80,25 @@ function PlanetCtrl($scope, $http, $timeout) {
 	};
 
 	// terminate the entire application
-	$scope.quit = function() {
+	$scope.quit_app = function() {
 		var q = 'Closing the application will stop co-sharing, ' +
 			'which will affect your account quota and performance.<br/>' +
 			'Click "No" to keep co-sharing:';
-		$scope.confirm(q, function() {
+		$scope.nbconfirm(q, function() {
 			gui.App.quit();
 		});
 	};
 
-	// create global tray icon.
-	// we create oncefor the entire application,
-	// and store it in the main module (js/main.js)
-	// so that even if more windows are created,
-	// it will only have single tray.
-	if (!global.tray) {
-		global.tray = new gui.Tray({
-			title: 'NooBaa',
-			tooltip: 'Click to Go to NooBaa...',
-			icon: 'noobaa_icon16.ico',
-			menu: new gui.Menu()
-		});
-		global.tray.on('click', $scope.open);
-
-		// create tray menu
-		var m = global.tray.menu;
-		m.append(new gui.MenuItem({
-			label: 'Go to NooBaa',
-			click: $scope.open_noobaa
-		}));
-		m.append(new gui.MenuItem({
-			label: 'Manage Device',
-			click: $scope.open
-		}));
-		m.append(new gui.MenuItem({
-			type: 'separator'
-		}));
-		m.append(new gui.MenuItem({
-			label: 'Quit NooBaa',
-			click: $scope.quit
-		}));
-	}
-
 	// make window hide on close
-	gui.Window.get().on('close', $scope.hide_win);
-	// after all is inited, open the window
-	$scope.open();
+	win.on('close', $scope.hide_win);
+
+	// on load show the window.
+	// TODO: this might be too annoying, maybe only when the user requested...
+	$scope.show();
 
 	// pass "secret" argument to open dev tools
 	if (gui.App.argv.length && gui.App.argv[0] === '--noobaadev') {
-		gui.Window.get().showDevTools();
+		win.showDevTools();
 	}
 
 
@@ -170,6 +133,10 @@ function PlanetCtrl($scope, $http, $timeout) {
 
 	// submit connect request - will open facebool login dialog window.
 	$scope.do_connect = function() {
+		if (!window.frames.auth_frame.FB) {
+			$scope.auth_frame_path('/auth/logout/?state=/planet/auth');
+			return;
+		}
 		window.frames.auth_frame.FB.login(function(res) {
 			if (res.authResponse) {
 				$scope.auth_frame_path('/auth/facebook/login/?state=/planet/auth');
@@ -182,7 +149,7 @@ function PlanetCtrl($scope, $http, $timeout) {
 		var q = 'Logging out will stop co-sharing, ' +
 			'which will affect your account quota and performance.<br/>' +
 			'Click "No" to keep co-sharing:';
-		$scope.confirm(q, function() {
+		$scope.nbconfirm(q, function() {
 			$scope.auth_frame_path('/auth/logout/?state=/planet/auth');
 		});
 	};
@@ -250,7 +217,7 @@ function PlanetCtrl($scope, $http, $timeout) {
 			console.log('[ok] create device', status);
 			if (data.reload) {
 				console.log('RELOAD REQUESTED');
-				return $scope.reload_home();
+				return $scope.close_win();
 			}
 			if (data.device) {
 				$scope.planet_device = data.device;
@@ -261,7 +228,7 @@ function PlanetCtrl($scope, $http, $timeout) {
 			console.error('[ERR] create device', data, status);
 			if (data.reload) {
 				console.log('RELOAD REQUESTED');
-				return $scope.reload_home();
+				return $scope.close_win();
 			}
 			schedule_device(5000);
 		});
@@ -276,7 +243,7 @@ function PlanetCtrl($scope, $http, $timeout) {
 			console.log('[ok] update device', status);
 			if (data.reload) {
 				console.log('RELOAD REQUESTED');
-				return $scope.reload_home();
+				return $scope.close_win();
 			}
 			schedule_device(60000);
 		}).error(function(data, status, headers, config) {
@@ -285,7 +252,7 @@ function PlanetCtrl($scope, $http, $timeout) {
 			delete localStorage.planet_device;
 			if (data.reload) {
 				console.log('RELOAD REQUESTED');
-				return $scope.reload_home();
+				return $scope.close_win();
 			}
 			schedule_device(1000);
 		});
