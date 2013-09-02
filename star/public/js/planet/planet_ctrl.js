@@ -298,7 +298,8 @@ function PlanetCtrl($scope, $http, $timeout) {
 		$scope.chosen_coshare_option = index;
 		var opt = $scope.coshare_options[index];
 		update_device(opt.space);
-	}
+	};
+
 	$scope.coshare_options_class = function(index) {
 		return index === $scope.chosen_coshare_option ? 'active' : '';
 	};

@@ -34,7 +34,7 @@ exports.user_read = function(req, res) {
 			});
 		},
 	], common_api.reply_callback(req, res, 'USER READ ' + user_id));
-}
+};
 
 
 // USER CRUD - UPDATE
