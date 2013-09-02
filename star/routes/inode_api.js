@@ -103,7 +103,11 @@ function inode_to_entry(inode, opt) {
 	if (inode.isdir) {
 		ent.isdir = inode.isdir;
 	}
-	if (inode.num_refs) {
+
+	//the number of references shoudl only be displyed to the owner.
+	//in case of sharing a folder which has subitems that are shared - this shoudl not be displayed
+	//when the non-owner/shared with users brows this directory. 
+	if (opt && opt.user && mongoose.Types.ObjectId(opt.user.id).equals(inode.owner) && inode.num_refs){
 		ent.num_refs = inode.num_refs;
 	}
 
