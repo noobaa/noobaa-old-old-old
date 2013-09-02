@@ -683,7 +683,7 @@ function GuideCtrl($scope) {
 		title: "CO-SHARING",
 		content: [
 			'<p>Co-sharing is the key to gain access to unlimited fast cloud storage.</p>',
-			'<p>By co-sharing, you allow NooBaa to convert local underutilized hard drive resources into cloud resources.</p>',
+			'<p>Co-sharing enables NooBaa to convert local hard drive resources into cloud resources.</p>',
 		].join('\n')
 	};
 
@@ -707,10 +707,11 @@ function GuideCtrl($scope) {
 		placement: 'top',
 		backdrop: true,
 		// width: 500,
-		title: "PLAN COSTS",
+		title: "COSTS",
 		content: [
-			'<p>FREE.</p>',
-			'<p>Free for any capacity.</p>',
+			'<p>FREE for any capacity.</p>',
+			'<p>FREE for any number of files.</p>',
+			'<p>FREE for unlimited sharing.</p>',
 		].join('\n')
 	};
 
@@ -724,7 +725,7 @@ function GuideCtrl($scope) {
 		title: "STEP 1/3",
 		content: [
 			'<ul>',
-			'<li>Download the NooBaa client that is relevant to your OS.</li>',
+			'<li>Download the NooBaa client for your OS.</li>',
 			'<ul><li>we are working with the Chrome team to resolve the warning.</li></ul>',
 			'</ul>',
 		].join('\n')
@@ -757,7 +758,7 @@ function GuideCtrl($scope) {
 		title: "STEP 2/3",
 		content: [
 			'<ul>',
-			'<li>Chose how much quota you\'d like to get on the cloud - NooBaa will preallocate the same amount of storage on your hard drive. </li>',
+			'<li>Choose how much quota you\'d like to get on the cloud - NooBaa will preallocate the same amount of storage on your hard drive. </li>',
 			'</ul>',
 		].join('\n')
 	};
@@ -771,7 +772,7 @@ function GuideCtrl($scope) {
 		reflex: true,
 		title: "First device added",
 		content: [
-			'<p>Once your device is up and running, your quota will be updated with your allocation,</p>',
+			'<p>Once your device is up and running, you can view your device in the device list.</p>',
 			'<p>Enjoy the power of NooBaa\'s crowd-cloud!</p>',
 		].join('\n')
 	};
