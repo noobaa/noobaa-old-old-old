@@ -294,6 +294,100 @@ function send_swm_notification(notified_user, sharing_user, file_name, custom_me
 	mandrill('/messages/send.json', mailJson, callback);
 }
 
+exports.send_alpha_approved_notification = send_alpha_approved_notification;
+function send_alpha_approved_notification(notified_user, callback) {
+	var localemail = choose_mail(notified_user);
+	var notified_user_full_name = notified_user.fb.name;
+	var notified_user_first_name = notified_user.fb.first_name;
+
+	if (!localemail) {
+		console.log(notified_user_full_name + ", has no updated email address.");
+		return callback(null, {
+			"message": notified_user_full_name + ", has no updated email address"
+		});
+	}
+
+	var mailJson = {
+		"message": {
+			// "html": "<p>Example HTML content</p>",
+			"text": [
+				'Hi ' + notified_user_first_name + ' and welcome to NooBaa.\n\n',
+				'We\'re very fortunate to have you and are happy to notify you that you\'ve been approved',
+				'as one of the very few alpha users.\n',
+				'\n',
+				'As an approved user you can use your facebook login again at http://www.noobaa.com. ',
+				'This time you\'ll get to the NooBaa dashboard, where you can upload, share and see files',
+				'shared with you by your friends.', 
+				'\n\t\t\t\t\t\t The NooBaa Team'
+			].join('\n'),
+			"subject": notified_user_full_name + ". You are the chosen one.",
+			"from_email": "info@noobaa.com",
+			"from_name": "NooBaa Team",
+			"to": [{
+				"email": localemail,
+				"name": notified_user_full_name
+			}],
+			"important": false,
+			"track_opens": null,
+			"track_clicks": null,
+			"auto_text": null,
+			"auto_html": null,
+			"inline_css": null,
+			"url_strip_qs": null,
+			"preserve_recipients": null,
+			"bcc_address": "info@noobaa.com",
+			"tracking_domain": null,
+			"signing_domain": null,
+			"return_path_domain": null,
+			"merge": true,
+			/*			"global_merge_vars": [{
+				"name": "merge1",
+				"content": "merge1 content"
+			}],
+			"merge_vars": [{
+				"rcpt": "recipient.email@example.com",
+				"vars": [{
+					"name": "merge2",
+					"content": "merge2 content"
+				}]
+			}],
+*/
+			"tags": [
+				"shared-file"
+			],
+			// "subaccount": "customer-123",
+			"google_analytics_domains": [
+				"noobaa.com"
+			],
+			// "google_analytics_campaign": "message.from_email@example.com",
+			"metadata": {
+				"website": "www.noobaa.com"
+			},
+			/*			"recipient_metadata": [{
+				"rcpt": "recipient.email@example.com",
+				"values": {
+					"user_id": 123456
+				}
+			}],
+			"attachments": [{
+				"type": "text/plain",
+				"name": "myfile.txt",
+				"content": "ZXhhbXBsZSBmaWxl"
+			}],
+			"images": [{
+				"type": "image/png",
+				"name": "IMAGECID",
+				"content": "ZXhhbXBsZSBmaWxl"
+			}]
+*/
+		},
+		"async": false,
+		"ip_pool": "Main Pool",
+		// "send_at": "example send_at"
+	};
+	mandrill('/messages/send.json', mailJson, callback);
+}
+
 
 /*
 setup mailgun
