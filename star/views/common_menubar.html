@@ -21,9 +21,6 @@
 				<li ng-class="active_link('/mydata')">
 					<a href="/mydata" id="my_data_link">MY DATA</a>
 				</li>
-				<li ng-class="active_link('/mydevices')">
-					<a href="/mydevices" id="my_dev_link">MY DEVICES</a>
-				</li>
 				<li ng-controller="GuideCtrl" class="dropdown">
 					<a id="my_guides"
 						href="#"
@@ -74,11 +71,15 @@
 							<img src="https://graph.facebook.com/<?! it.user.fbid ?>/picture\" style="height: 40px"></img>
 						</li>
 						<li class="divider"></li>
-						<li align="center">
-							Quota: {{human_size(user_quota)}}
+						<li>
+							<a>
+								Quota: {{human_size(user_quota)}}
+							</a>
 						</li>
-						<li align="center">
-							Used: {{human_size(user_usage)}}
+						<li>
+							<a>
+								Used: {{human_size(user_usage)}}
+							</a>
 						</li>
 						<li class="divider"></li>
 						<li>

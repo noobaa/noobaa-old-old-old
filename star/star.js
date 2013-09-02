@@ -304,11 +304,7 @@ app.get('/help', redirect_no_user, function(req, res, next) {
 });
 
 app.get('/settings', redirect_no_user, function(req, res, next) {
-	return error_501(req, res, next);
-});
-
-app.get('/mydevices', redirect_no_user, function(req, res) {
-	return res.render('mydevices.html', common_api.page_context(req));
+	return res.render('settings.html', common_api.page_context(req));
 });
 
 app.get('/mydata', redirect_no_user, function(req, res) {

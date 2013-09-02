@@ -20,6 +20,7 @@ function PlanetCtrl($scope, $http, $timeout) {
 	$scope.home_location = window.location.href;
 
 	var os = require('os');
+	var path = require('path');
 
 	// load native node-webkit library
 	var gui = window.require('nw.gui');
@@ -212,7 +213,9 @@ function PlanetCtrl($scope, $http, $timeout) {
 		return $http({
 			method: 'POST',
 			url: '/star_api/device/',
-			data: get_host_info()
+			data: {
+				host_info: get_host_info()
+			}
 		}).success(function(data, status, headers, config) {
 			console.log('[ok] create device', status);
 			if (data.reload) {
@@ -234,16 +237,23 @@ function PlanetCtrl($scope, $http, $timeout) {
 		});
 	}
 
-	function update_device() {
+	function update_device(coshare_space) {
 		return $http({
 			method: 'PUT',
 			url: '/star_api/device/' + $scope.planet_device._id,
-			data: get_host_info()
+			data: {
+				host_info: get_host_info(),
+				coshare_space: coshare_space
+			}
 		}).success(function(data, status, headers, config) {
 			console.log('[ok] update device', status);
 			if (data.reload) {
 				console.log('RELOAD REQUESTED');
 				return $scope.close_win();
+			}
+			if (coshare_space && data.device) {
+				$scope.planet_device = data.device;
+				localStorage.planet_device = JSON.stringify(data.device);
 			}
 			schedule_device(60000);
 		}).error(function(data, status, headers, config) {
@@ -260,12 +270,54 @@ function PlanetCtrl($scope, $http, $timeout) {
 
 	function get_host_info() {
 		return {
-			host_info: {
-				hostname: os.hostname(),
-				platform: os.platform()
-			}
+			hostname: os.hostname(),
+			platform: os.platform()
 		};
 	}
 
 	periodic_device();
+
+	var GB = 1024 * 1024 * 1024;
+	$scope.coshare_options = [{
+		space: GB,
+		title: 'Free 1 GB',
+		// details: ''
+	}, {
+		space: 10 * GB,
+		title: 'Free 10 GB',
+		// details: '+ Performance Boost'
+	}, {
+		space: 100 * GB,
+		title: 'Free 100 GB',
+		// details: '+ Ultimate Performance'
+	}];
+
+	$scope.chosen_coshare_option = -1;
+
+	$scope.coshare_options_select = function(index) {
+		$scope.chosen_coshare_option = index;
+		var opt = $scope.coshare_options[index];
+		update_device(opt.space);
+	}
+	$scope.coshare_options_class = function(index) {
+		return index === $scope.chosen_coshare_option ? 'active' : '';
+	};
+
+	$scope.coshare_view = function(val) {
+		$scope.coshare_view_on = val;
+	};
+
+	$scope.current_view = function() {
+		if ($scope.planet_loading) {
+			return 'loading_view';
+		}
+		if (!$scope.planet_user) {
+			return 'login_view';
+		}
+		if ($scope.coshare_view_on) {
+			return 'coshare_view';
+		}
+		return 'info_view';
+	};
+
 }

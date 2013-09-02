@@ -658,8 +658,8 @@ function GuideCtrl($scope) {
 	//// CO SHARING ////
 
 	$scope.guides.cosharing.steps[0] = {
-		path: "/mydevices",
-		element: "#my_dev_link",
+		path: "/settings",
+		element: "#user_label",
 		placement: 'bottom',
 		backdrop: true,
 		title: "CO-SHARE",
@@ -669,7 +669,7 @@ function GuideCtrl($scope) {
 		].join('\n')
 	};
 	$scope.guides.cosharing.steps[1] = {
-		path: "/mydevices",
+		path: "/settings",
 		element: "#dl",
 		placement: 'top',
 		backdrop: true,
@@ -680,7 +680,7 @@ function GuideCtrl($scope) {
 		].join('\n')
 	};
 	$scope.guides.cosharing.steps[2] = {
-		path: "/mydevices",
+		path: "/settings",
 		element: "#devs",
 		placement: 'bottom',
 		backdrop: true,
@@ -695,7 +695,7 @@ function GuideCtrl($scope) {
 		].join('\n')
 	};
 	$scope.guides.cosharing.steps[3] = {
-		path: "/mydevices",
+		path: "/settings",
 		element: "#my_guides",
 		placement: 'bottom',
 		backdrop: true,

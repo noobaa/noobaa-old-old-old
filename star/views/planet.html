@@ -34,12 +34,12 @@
 			-webkit-app-region: no-drag;
 			margin-top: 8px;
 		}
-		#info {
+		#view {
 			margin: 0 30px 0 30px;
 			font-size: 16px;
-			line-height: 50px;
+			line-height: 24px;
 		}
-		#info small {
+		#view small {
 			font-size: 9pt;
 		}
 		#sketch {
@@ -55,6 +55,8 @@
 
 <body ng-cloak ng-controller="PlanetCtrl">
 
+	<iframe id="auth_frame" hidden nwdisable nwfaketop></iframe>
+
 	<div id="logobar">
 		<a title="You can double click"
 			ng-dblclick="toggle_fullscreen()">
@@ -67,8 +69,14 @@
 		</button>
 	</div>
 
-	<div id="info">
-		<div ng-show="!planet_user && !planet_loading" class="text-center">
+	<div id="view" ng-include="current_view()"></div>
+
+	<div id="sketch_place">
+		<div id="sketch"></div>
+	</div>
+
+	<script type="text/ng-template" id="login_view">
+		<div class="text-center">
 			<p class="lead">
 				<b>
 					Hi, Co-sharing on this device is simply done 
@@ -82,82 +90,106 @@
 					width="300px"></img>
 			</a>
 		</div>
-		<div ng-show="planet_loading" class="text-center">
+	</script>
+
+	<script type="text/ng-template" id="loading_view">
+		<div class="text-center">
 			<h3>
 				<i class="icon-spinner icon-spin icon-large icon-fixed-width"></i>
 				Connecting...
 			</h3>
 		</div>
-		<div ng-show="planet_user && !planet_loading">
-			<table class="table">
-				<tr class="success">
-					<td><b>Status</b></td>
-					<td class="text-success">
+	</script>
+
+	<script type="text/ng-template" id="info_view">
+		<div>
+			<div class="list-group">
+				<a class="list-group-item active">
+					<h4>
 						<i class="icon-check icon-white 
 							icon-large icon-fixed-width"></i>
 						<b>Connected</b>
-					</td>
-					<td>
-						<a href="#" ng-click="open_help()">
-							<small>Help</small>
-						</a>
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<div><b>User</b></div>
-					</td>
-					<td>
-						<div>
-							<i class="icon-user icon-white 
-								icon-large icon-fixed-width"></i>
-							<b>{{planet_user.name}}</b>
-						</div>
-					</td>
-					<td>
-						<a href="#" ng-click="do_logout()">
-							<small>Not {{planet_user.first_name}}? Logout...</small>
-						</a>
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<div><b>Co-Shared Space</b></div>
-					</td>
-					<td>
+					</h4>
+				</a>
+				<a class="list-group-item">
+					<h4>
+						<i class="icon-user icon-white 
+							icon-large icon-fixed-width"></i>
+						<b>{{planet_user.name}}</b>
+					</h4>
+				</a>
+				<a href="#" class="list-group-item"
+					ng-click="coshare_view(true)">
+					<h4>
 						<div ng-switch="!!planet_device && !!planet_device.coshare_space">
 							<i class="icon-hdd icon-white 
 								icon-large icon-fixed-width"></i>
 							<b ng-switch-when="true">
 								{{ human_size(planet_device.coshare_space) }}
 							</b>
-							<button ng-switch-when="false"
-								class="btn btn-danger">
+							<b ng-switch-when="false" class="text-danger">
 								Start Co-Sharing
-							</button>
+							</b>
 						</div>
-					</td>
-					<td>
+					</h4>
+				</a>
+			</div>
+			<div class="text-center" >
+				<ul class="list-unstyled">
+					<li>
 						<a href="#" ng-click="open_settings()">
-							<small>Change Settings...</small>
+							<small>Account Settings</small>
 						</a>
-					</td>
-				</tr>
-			</table>
-			<div class="text-center">
+					</li>
+					<li>
+						<a href="#" ng-click="do_logout()">
+							<small>Not {{planet_user.first_name}}? Logout...</small>
+						</a>
+					</li>
+					<li>
+						<a href="#" ng-click="open_help()">
+							<small>Help</small>
+						</a>
+					</li>
+				</ul>
 				<button class="btn btn-lg btn-primary"
 					ng-click="open_noobaa()">
 					Go to My Data
 				</button>
 			</div>
 		</div>
-	</div>
+	</script>
 
-	<div id="sketch_place">
-		<div id="sketch"></div>
-	</div>
+	<script type="text/ng-template" id="coshare_view">
+		<div>
+			<div class="text-center" style="padding-bottom: 20px">
+				<button	ng-click="coshare_view(false)"
+					class="btn btn-primary">
+					Back
+				</button>
+			</div>
+			<div class="list-group text-center">
+				<a ng-repeat="plan in coshare_options" href="#"
+					class="list-group-item"
+					ng-click="coshare_options_select($index)"
+					ng-class="coshare_options_class($index)">
+					<h4 class="list-group-item-heading">{{plan.title}}</h4>
+					<p class="list-group-item-text"><small>{{plan.details}}</small></p>
+				</a>
+			</div>
+			<p>NooBaa makes storage capacity simple - 
+				Give <b>1</b> Get <b>1</b> ! 
+				This is co-sharing...</p>
+			<p>Choose how much space to co-share from the options above.</p>
+			<p>
+				<small>
+				Note: The allocation is made from the OS disk for now.
+				Choosing the location will soon be supported.
+				</small>
+			</p>
+		</div>
+	</script>
 
-	<iframe id="auth_frame" hidden nwdisable nwfaketop></iframe>
 
 	<?# def.include('common_scripts.html') ?>
 

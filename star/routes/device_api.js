@@ -78,6 +78,8 @@ exports.device_create = function(req, res) {
 			return Device.findOne({
 				owner: new_dev.owner,
 				name: new_dev.name
+			}, {
+				updates_stats: 0 // dont fetch all the stats
 			}, next);
 		},
 
@@ -114,7 +116,7 @@ exports.device_update = function(req, res) {
 	if (updates.coshare_space) {
 		var GB = 1024 * 1024 * 1024;
 		var valid_values = [GB, 10 * GB, 100 * GB];
-		if (typeof updates.coshare_space !== 'number' || !(updates.coshare_space in valid_values)) {
+		if (typeof updates.coshare_space !== 'number' || !_.contains(valid_values, updates.coshare_space)) {
 			console.error('invalid coshare_space', updates.coshare_space);
 			delete updates.coshare_space;
 		}
@@ -137,7 +139,10 @@ exports.device_update = function(req, res) {
 			if (_.isEmpty(updates)) {
 				return next(null, dev);
 			}
-			return dev.update(updates, next);
+			console.log(updates);
+			return dev.update(updates, function(err) {
+				return next(err, dev);
+			});
 		},
 
 		// update the device
@@ -145,8 +150,11 @@ exports.device_update = function(req, res) {
 
 		// make the reply
 		function(dev, next) {
+			_.extend(dev, updates); // TODO: not deep!
+			dev.updates_stats = null; // dont return all the stats
 			return next(null, {
-				reload: false
+				reload: false,
+				device: dev
 			});
 		}
 	], common_api.reply_callback(req, res, 'DEVICE UPDATE ' + dev_id));
@@ -161,7 +169,7 @@ exports.device_list = function(req, res) {
 				owner: req.user.id
 			}, {
 				owner: 0,
-				updates_stats: 0
+				updates_stats: 0 // dont fetch all the stats
 			}, next);
 		}
 	], common_api.reply_callback(req, res, 'DEVICE LIST ' + req.user.id));
