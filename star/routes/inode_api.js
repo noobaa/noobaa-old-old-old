@@ -107,7 +107,7 @@ function inode_to_entry(inode, opt) {
 	//the number of references shoudl only be displyed to the owner.
 	//in case of sharing a folder which has subitems that are shared - this shoudl not be displayed
 	//when the non-owner/shared with users brows this directory. 
-	if (opt && opt.user && mongoose.Types.ObjectId(opt.user.id).equals(inode.owner) && inode.num_refs){
+	if (opt && opt.user && mongoose.Types.ObjectId(opt.user.id).equals(inode.owner) && inode.num_refs) {
 		ent.num_refs = inode.num_refs;
 	}
 
@@ -116,7 +116,7 @@ function inode_to_entry(inode, opt) {
 		ent.owner_fbid = inode.live_owner.fb.id;
 		ent.owner_name = inode.live_owner.fb.name;
 	}
-	if (opt && opt.user && !mongoose.Types.ObjectId(opt.user.id).equals(inode.owner)){
+	if (opt && opt.user && !mongoose.Types.ObjectId(opt.user.id).equals(inode.owner)) {
 		ent.not_mine = true;
 	}
 
@@ -572,6 +572,16 @@ exports.inode_update = function(req, res) {
 		// check inode ownership
 		common_api.req_ownership_checker(req),
 
+		// verify that the parent is owned by the user and that it is not a ghost 
+		function(inode, next) {
+			if (inode_args && inode_args.parent) {
+				return validate_assignment_to_parent(inode_args.parent, req.user.id, function(err, parent) {
+					return next(err, inode);
+				});
+			}
+			return next(null,inode);
+		},
+
 		// update the inode
 		function(inode, next) {
 			if (_.isEmpty(inode_args)) {
@@ -876,24 +886,57 @@ exports.inode_rmlinks = function(req, res) {
 	], common_api.reply_callback(req, res, 'RMLINKS ' + inode_id));
 };
 
+//This function checks the "containing"/refered parent is valid i.e. owned and not a ghost
+//this function is called when creating an inode or moving an inode .
+//in the process we're putting it in a directroy by assigning it a dir inode as a parent
+
+function validate_assignment_to_parent(parent_inode_id, user_id, callback) {
+	if (!parent_inode_id || !user_id) {
+		callback(new Error('invalid input. '+ arguments));
+	}
+
+	return Inode.findById(parent_inode_id, function(err, parent_inode) {
+		//if error - well - we failed. 
+		if (err) {
+			return callback(err);
+		}
+		//parent can't be a ghost
+		if (parent_inode.ghost_ref) {
+			return callback(new Error("Can't assign to a ghost inode as parent"));
+		}
+		//parent must by owned
+		if (!mongoose.Types.ObjectId(user_id).equals(parent_inode.owner)) {
+			return callback(new Error("Can't assign to a parent which is not owned by the user."));
+		}
+		return callback(null, parent_inode);
+	});
+}
 
 function validate_inode_creation_conditions(inode, fobj, user, callback) {
 
 	var rejection = null;
-	//we currently have nothing special to test about a folder.
-	if (inode.isdir) {
-		return callback(null, null);
-	}
-
 
 	async.waterfall([
+
+		function(next) {
+			return validate_assignment_to_parent(inode.parent, user.id, function(err, parent) {
+				return next(err);
+			});
+		},
+
 		//get the user to read specific quota
 		function(next) {
+			if (inode.isdir) {
+				return next(null, null);
+			}
 			return User.findById(user.id, next);
 		},
 
 		//compare user quota to usage and reject if new file and usage exceeds quota
 		function(user, next) {
+			if (inode.isdir) {
+				return next();
+			}
 			return user_inodes.get_user_usage_bytes(user.id, function(err, usage) {
 				if (err) {
 					next(err);
@@ -911,6 +954,7 @@ function validate_inode_creation_conditions(inode, fobj, user, callback) {
 				return next();
 			});
 		},
+
 	], callback);
 }
 
