@@ -588,7 +588,7 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 			$.nbalert('Cannot move someone else\'s file');
 			return;
 		}
-		if (drop_inode.is_not_mine()) {
+		if (drop_inode.is_not_mine()|| drop_inode.owner_name) {
 			$.nbalert('Cannot move to someone else\'s folder');
 			return;
 		}
@@ -630,10 +630,15 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 			console.error('no selected dir, bailing');
 			return;
 		}
-		if (dir_inode.is_not_mine()) {
+
+		//check dir creation conditions
+		//the first condition is true when looking at a directory which is not owned by the user 
+		//the second  is true for ghosts or when not owned by the user
+		if (dir_inode.is_not_mine() || dir_inode.owner_name) {
 			$.nbalert('Cannot create folder in someone else\'s folder');
 			return;
-		}
+		}		
+
 		var dlg = $('#mkdir_dialog').clone();
 		var input = dlg.find('#dialog_input');
 		input.val('');
@@ -737,6 +742,7 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 			});
 		});
 	};
+
 	$scope.click_share = function(inode_arg) {
 		if (inode_arg) {
 			$scope.select(inode_arg);
@@ -1117,10 +1123,11 @@ function UploadCtrl($scope) {
 			$.nbalert('Cannot upload to a shared folder');
 			return;
 		}
-		if (dir_inode.is_not_mine()) {
+		if (dir_inode.is_not_mine() || dir_inode.owner_name) {
 			$.nbalert('Cannot upload to someone else\'s folder');
 			return;
 		}
+
 		if (num_running_uploads > $scope.max_uploads_at_once) {
 			$.nbalert('Don\'t you think that ' + num_running_uploads +
 				' is too many files to upload at once?');
