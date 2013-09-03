@@ -391,7 +391,7 @@ function inode_create_action(inode, fobj, user, relative_path, callback) {
 			// do reduce on the paths array and for each name in the path
 			// try to find existing dir, or otherwise create it,
 			// and pass the parent to the next step.
-			return async.REDUCE(paths, inode.parent, function(parent_id, name, next) {
+			return async.reduce(paths, inode.parent, function(parent_id, name, next) {
 				return Inode.findOneAndUpdate({
 					owner: user.id,
 					parent: parent_id,
