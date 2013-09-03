@@ -574,10 +574,12 @@ exports.inode_update = function(req, res) {
 
 		// verify that the parent is owned by the user and that it is not a ghost 
 		function(inode, next) {
-			//todo yd 
-			return validate_assignment_to_parent(inode_args.parent, req.user.id, function(err, parent) {
-				return next(err, inode);
-			});
+			if (inode_args && inode_args.parent) {
+				return validate_assignment_to_parent(inode_args.parent, req.user.id, function(err, parent) {
+					return next(err, inode);
+				});
+			}
+			return next(null,inode);
 		},
 
 		// update the inode
@@ -884,7 +886,14 @@ exports.inode_rmlinks = function(req, res) {
 	], common_api.reply_callback(req, res, 'RMLINKS ' + inode_id));
 };
 
+//This function checks the "containing"/refered parent is valid i.e. owned and not a ghost
+//this function is called when creating an inode or moving an inode .
+//in the process we're putting it in a directroy by assigning it a dir inode as a parent
+
 function validate_assignment_to_parent(parent_inode_id, user_id, callback) {
+	if (!parent_inode_id || !user_id) {
+		callback(new Error('invalid input. '+ arguments));
+	}
 
 	return Inode.findById(parent_inode_id, function(err, parent_inode) {
 		//if error - well - we failed. 
@@ -895,6 +904,7 @@ function validate_assignment_to_parent(parent_inode_id, user_id, callback) {
 		if (parent_inode.ghost_ref) {
 			return callback(new Error("Can't assign to a ghost inode as parent"));
 		}
+		//parent must by owned
 		if (!mongoose.Types.ObjectId(user_id).equals(parent_inode.owner)) {
 			return callback(new Error("Can't assign to a parent which is not owned by the user."));
 		}
@@ -917,7 +927,7 @@ function validate_inode_creation_conditions(inode, fobj, user, callback) {
 		//get the user to read specific quota
 		function(next) {
 			if (inode.isdir) {
-				return next(null,null);
+				return next(null, null);
 			}
 			return User.findById(user.id, next);
 		},
