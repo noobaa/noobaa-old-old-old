@@ -54,7 +54,7 @@
 	</style>
 </head>
 
-<body ng-cloak ng-controller="WelcomeCtrl">
+<body ng-cloak>
 
 	<?# def.facebook_init_body ?>
 
@@ -185,7 +185,7 @@
 	<div class="wfill bg_clouds" style="background-position: 0 400px"></div>
 
 	<div id="join" class="nb_nav_link nb_page_pad fnt"
-		style="margin-bottom: 40px">
+		style="margin-bottom: 40px" ng-controller="HelpCtrl">
 		<div class="H2 text-center">JOIN US !</div>
 		<br/><br/><br/>
 		<div class="text-center">
@@ -300,51 +300,6 @@
 			}); 	
 		});
 
-		function WelcomeCtrl($scope, $http) {
-			$scope.str2id = function(str) {
-				return str.split(' ').join('');
-			};
-
-			$scope.client_faq = {
-				title: 'NooBaa client FAQ',
-				questions: [{
-					q: 'Must I download and install the client to use NooBaa?',
-					a: 'No. You can take NooBaa for a test drive without downloading the client. Keep in mind that this is a co-sharing community. If you don\'t intend to share you won\'t be able to fully enjoy the power of the crowd cloud'
-				}, {
-					q: 'Which operating systems do you support?',
-					a: 'Access to the dashboard is done using a web browser so you can access your data from anywhere. The NooBaa client is currently available for MacOS, Windows and Linux. '
-				}]
-			};
-
-			$scope.login_faq = {
-				title: 'Facebook Login FAQ',
-				questions: [
-				{
-					q: 'Why do you require a Facebook login?',
-					a: 'All you data on NooBaa is kept private, so we had to provide you with way to authenticate your identity. As we can never remember our own passwords, and reusing passwords is a bad habit, why would we force another nuisance on you?!'
-				}, {
-					q: 'Why don\'t you allow me to login with my email?',
-					a: 'NooBaa is a social aware netowrk, i.e. it allows you to quickly share with your Facebook friends who are also NooBaa users. With Facebook you don\'t need to create yet another contacts/friends list'
-				}, {
-					q: 'I don\'t have a Facebook user and would like to use NooBaa anyway.',
-					a: 'We currently only support Facebook login so the easiest path would be to sign up to Facebook. We plan to allow a variety of other login accounts such as Google and Twitter but not very soon.'
-				}, {
-					q: 'Why only Facebook and why Facebook first?',
-					a: 'The chances you already have a Facebook account are higher compared to all the rest.'
-				}, {
-					q: 'Must I Like your page on Facebook?',
-					a: 'No. It would be beneficial to everybody as we\'re building a community and not a passive service. Communicating with our customers would help us do the right thing.'
-				}, {
-					q: 'Why does Facebook ask me to approve your access?',
-					a: 'This is done in order to keep your privacy. We would like to access your friends list to strengthen the crowd cloud and we need your email to be able to communicate with you outside of NooBaa. We won\'t post on your wall or add you to any newsletter without getting your explicit permission first.'
-				}, {
-					q: 'Do you have access to my Facebook password or data?',
-					a: 'No. NooBaa can\'t read your password nor can it post to your wall.'
-				}
-				],
-			};
-		}
-		WelcomeCtrl.$inject = ['$scope', '$http'];
 	</script>
 
 </body>
