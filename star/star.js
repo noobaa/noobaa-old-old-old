@@ -300,7 +300,7 @@ app.get('/thankyou', function(req, res) {
 });
 
 app.get('/help', redirect_no_user, function(req, res, next) {
-	return error_501(req, res, next);
+	return res.render('help.html', common_api.page_context(req));
 });
 
 app.get('/settings', redirect_no_user, function(req, res, next) {
