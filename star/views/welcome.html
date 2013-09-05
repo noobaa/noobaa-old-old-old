@@ -194,40 +194,47 @@
 					onmouseover="$('body').chardinJs('start')"
 					onmouseout="$('body').chardinJs('stop')"
 					src="/public/images/facebook_signup_button_big.png"
-					data-intro="We won't post anything on your wall. <br/> Checkout our FAQ section below." data-position="right" 
+					data-intro="We won't post anything on your wall." data-position="right" 
 					style="max-width: 300px"></img>
 			</a>
 		</div>
-		<br/><br/>
-		<div class="text-center">
-			<a class="btn btn-default"
-				data-toggle="collapse"
-				href="#login_faq_content">
-				<b>{{login_faq.title}}</b>
-				<i class="caret"></i>
-			</a>
-		</div>
-		<br/><br/>
-		<div id="login_faq_content" class="collapse text-left">
-			<div ng-repeat="(idx, question) in login_faq.questions"
-				style="border-radius: 10px/10px; 
-					border: 1px solid #eeeeee; 
-					margin: 10px;
-					padding: 0 20px 0 20px">
-				<a data-toggle="collapse"
-					href="#login_faq_question{{idx}}">
-					<p><!-- for border alignment --></p>
-					<p class="fnt fntmd">
-						<i class="icon-plus icon-fixed-width"></i>
-						{{question.q}}
-					</p>
+		<br/>
+
+<!-- FAQ section -->
+		<div ng-repeat="(sec_idx, curr_faq_section) in faq">
+			<div class="text-center" >
+				<a class="btn btn-default"
+					data-toggle="collapse"
+					href="#curr_faq_section_content{{sec_idx}}" style="width:300px">
+					<b>{{curr_faq_section.title}}</b>
+					<i class="caret"></i>
 				</a>
-				<div class="collapse"
-					id="login_faq_question{{idx}}">
-					<p class="fnt fntmd">{{question.a}}</p>
+			</div>
+			<br/>
+			<div id="curr_faq_section_content{{sec_idx}}" class="collapse text-left">
+				<div ng-repeat="(idx, question) in curr_faq_section.questions"
+					style="border-radius: 10px/10px; 
+						border: 1px solid #eeeeee; 
+						margin: 10px;
+						padding: 0 20px 0 20px">
+					<a data-toggle="collapse"
+						href="#curr_faq_section_question{{idx}}{{sec_idx}}">
+						<p><!-- for border alignment --></p>
+						<p class="fnt fntmd">
+							<i class="icon-plus icon-fixed-width"></i>
+							{{question.q}}
+						</p>
+					</a>
+					<div class="collapse"
+						id="curr_faq_section_question{{idx}}{{sec_idx}}">
+						<p class="fnt fntmd">{{question.a}}</p>
+					</div>
 				</div>
 			</div>
+		
 		</div>
+
+<!-- End of FAQ section -->
 	</div>
 
 	<div class="wfill bg_logo text-center">
