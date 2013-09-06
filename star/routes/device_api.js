@@ -145,6 +145,13 @@ exports.device_update = function(req, res) {
 			});
 		},
 
+		function(dev, next) {
+			if (updates.coshare_space) {
+				// TODO update user quota
+			}
+			return next(null, dev);
+		},
+
 		// update the device
 		push_update.bind(null, new Date()),
 
