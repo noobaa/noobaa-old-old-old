@@ -1,50 +1,66 @@
 /* jshint node:true */
 'use strict';
 
+var _ = require('underscore');
 var async = require('async');
 var common_api = require('./common_api');
+var user_inodes = require('../providers/user_inodes');
 var User = require('../models/user').User;
 var email = require('./email');
+
+// USER CRUD - READ
+
+exports.user_read = function(req, res) {
+
+	var user_id = req.user.id;
+
+	return async.waterfall([
+
+		// find the user - the quota is stored in the user
+		function(next) {
+			return User.findById(user_id, next);
+		},
+
+		//get the user's current usage
+		function(user, next) {
+			return user_inodes.get_user_usage_bytes(user_id, function(err, usage) {
+				if (err) {
+					return next(err);
+				}
+				return next(null, {
+					quota: user.quota,
+					usage: usage
+				});
+			});
+		},
+	], common_api.reply_callback(req, res, 'USER READ ' + user_id));
+};
+
 
 // USER CRUD - UPDATE
 
 exports.user_update = function(req, res) {
-	// the user_id param is parsed as url param (/path/to/api/:user_id/...)
-	var id = req.params.user_id;
 
-	//currently we only allow to add email to a user
-	//var user_args = _.pick(req.body, 'new_email');
-	var new_email = req.body.new_email;
-	async.waterfall([
+	var user_id = req.user.id;
+
+	// pick valid updates
+	var user_args = _.pick(req.body, 'email');
+
+	return async.waterfall([
 
 		function(next) {
-			User.findOne({
-				'_id': id
-			}, function(err, user) {
-				if (err || !user) {
-					console.error('ERROR - FIND USER FAILED:', err);
-					return next(err, null);
-				}
-				return next(null, user);
-			});
+			User.findByIdAndUpdate(user_id, user_args, next);
 		},
 
 		function(user, next) {
-			if (user.email == new_email) {
-				return next(null, user);
+			// need to update the session info as well for email
+			if (user_args.email) {
+				req.user.email = user_args.email;
 			}
-			user.email = new_email;
-			user.save(function(err, user, num) {
-				if (err) {
-					console.error('ERROR - UPDATE USER FAILED:', err);
-					return next(err, null);
-				}
-				console.log('USER updated: ', user);
-				return next(null, user);
-			});
+			return next(null, user);
 		},
 
 		email.send_mail_changed,
 
-	], common_api.reply_callback(req, res, 'USER UPDATE ' + id));
+	], common_api.reply_callback(req, res, 'USER UPDATE ' + user_id));
 };

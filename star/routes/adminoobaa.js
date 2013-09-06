@@ -6,7 +6,7 @@ var async = require('async');
 var common_api = require('./common_api');
 var User = require('../models/user').User;
 var Device = require('../models/device.js').Device;
-
+var email = require('./email');
 
 function fetch_users_and_devices(callback) {
 	return async.parallel({
@@ -54,8 +54,20 @@ exports.admin_update = function(req, res) {
 	async.each(req.body.updates, function(data, next) {
 		// for now only supported updates are user alpha_tester change
 		var user_id = data.user_id;
-		var args = _.pick(data.args, 'alpha_tester');
+		var args = _.pick(data.args, 'alpha_tester', 'quota');
 		console.log('ADMIN UPDATE', user_id, args);
-		return User.findByIdAndUpdate(user_id, args, next);
+		return User.findByIdAndUpdate(user_id, args, function(err, user) {
+			if (args.alpha_tester) {
+				return email.send_alpha_approved_notification(user, function(err, rejection) {
+					if (err) {
+						console.log(err);
+					}
+					return next(null);
+				});
+			} else {
+				return next(null);
+			}
+
+		});
 	}, common_api.reply_callback(req, res, 'ADMIN UPDATE'));
 };

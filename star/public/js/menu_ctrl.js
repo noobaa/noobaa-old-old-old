@@ -26,12 +26,16 @@ FeedbackCtrl.$inject = ['$scope', '$http', '$timeout'];
 function FeedbackCtrl($scope, $http, $timeout) {
 
 	var dlg = $('#feedback_dialog');
+	dlg.nbdialog({
+		modal: true,
+		css: {
+			width: 500
+		}
+	});
 
 	$scope.open = function() {
 		$scope.send_done = false;
-		dlg.nbdialog('open', {
-			modal: true
-		});
+		dlg.nbdialog('open');
 	};
 
 	$scope.send = function() {
@@ -54,7 +58,7 @@ function FeedbackCtrl($scope, $http, $timeout) {
 		console.log('sending feedback.', 'queue:', $scope.feedbacks.length);
 		$scope.sending = $http({
 			method: 'POST',
-			url: '/email/user_feedback/',
+			url: '/star_api/user/feedback/',
 			data: {
 				feedback: $scope.feedbacks[0]
 			}
@@ -97,10 +101,10 @@ function UserCtrl($scope, $http, $timeout) {
 		cancel_usage_refresh();
 		$http({
 			method: "GET",
-			url: "/star_api/user/usage",
+			url: "/star_api/user/",
 		}).success(function(data, status, headers, config) {
-			$scope.user_quota = data.user_quota;
-			$scope.user_usage = data.user_usage;
+			$scope.user_quota = data.quota;
+			$scope.user_usage = data.usage;
 			cancel_usage_refresh();
 			$scope.usage_refresh_timeout =
 				$timeout(usage_refresh, 30000);
@@ -112,7 +116,6 @@ function UserCtrl($scope, $http, $timeout) {
 		});
 	}
 	usage_refresh();
-
 }
 
 
@@ -263,7 +266,7 @@ function GuideCtrl($scope) {
 
 
 	//// WELCOME ////
-	tour_step = -1;
+	var tour_step = -1;
 
 	tour_step++;
 	$scope.guides.welcome.steps[tour_step] = {
@@ -662,13 +665,13 @@ function GuideCtrl($scope) {
 
 	tour_step++;
 	$scope.guides.cosharing.steps[tour_step] = {
-		path: "/mydevices",
-		element: "#my_data_link",
+		path: "/settings",
+		element: "#user_label",
 		placement: 'bottom',
 		backdrop: true,
 		title: "DON'T PANIC",
 		content: [
-			'<p>You\'re still at NooBaa</p>',
+			'<p>This is your account settings page.</p>',
 			'<p>To get back to your files choose:</p>',
 			'<p">MY DATA from the main toolbar</p>',
 		].join('\n')
@@ -676,7 +679,7 @@ function GuideCtrl($scope) {
 
 	tour_step++;
 	$scope.guides.cosharing.steps[tour_step] = {
-		path: "/mydevices",
+		path: "/settings",
 		element: "#dl",
 		placement: 'top',
 		backdrop: true,
@@ -689,20 +692,20 @@ function GuideCtrl($scope) {
 
 	tour_step++;
 	$scope.guides.cosharing.steps[tour_step] = {
-		path: "/mydevices",
+		path: "/settings",
 		element: "#dl",
 		placement: 'top',
 		backdrop: true,
 		// width: 500,
 		title: "REQUIREMENTS",
 		content: [
-			'<p>a PC connected to the Internet with some underutilized storage.</p>',
+			'<p>A Computer connected to the Internet with some underutilized storage.</p>',
 		].join('\n')
 	};
 
 	tour_step++;
 	$scope.guides.cosharing.steps[tour_step] = {
-		path: "/mydevices",
+		path: "/settings",
 		element: "#dl",
 		placement: 'top',
 		backdrop: true,
@@ -717,23 +720,21 @@ function GuideCtrl($scope) {
 
 	tour_step++;
 	$scope.guides.cosharing.steps[tour_step] = {
-		path: "/mydevices",
+		path: "/settings",
 		element: "#dl",
 		placement: 'top',
 		backdrop: true,
 		// width: 500,
 		title: "STEP 1/3",
 		content: [
-			'<ul>',
-			'<li>Download the NooBaa client for your OS.</li>',
-			'<ul><li>we are working with the Chrome team to resolve the warning.</li></ul>',
-			'</ul>',
+			'<p>Download the NooBaa client for your OS.</p>',
+			'<p>(we are working with the Chrome team to resolve the warning)</p>'
 		].join('\n')
 	};
 
 	tour_step++;
 	$scope.guides.cosharing.steps[tour_step] = {
-		path: "/mydevices",
+		path: "/settings",
 		element: "#dl",
 		placement: 'top',
 		backdrop: true,
@@ -747,10 +748,9 @@ function GuideCtrl($scope) {
 		].join('\n')
 	};
 
-
 	tour_step++;
 	$scope.guides.cosharing.steps[tour_step] = {
-		path: "/mydevices",
+		path: "/settings",
 		element: "#dl",
 		placement: 'top',
 		backdrop: true,
@@ -765,7 +765,7 @@ function GuideCtrl($scope) {
 
 	tour_step++;
 	$scope.guides.cosharing.steps[tour_step] = {
-		path: "/mydevices",
+		path: "/settings",
 		element: "#devs",
 		placement: 'bottom',
 		backdrop: true,
@@ -777,10 +777,9 @@ function GuideCtrl($scope) {
 		].join('\n')
 	};
 
-
 	tour_step++;
 	$scope.guides.cosharing.steps[tour_step] = {
-		path: "/mydevices",
+		path: "/settings",
 		element: "#my_guides",
 		placement: 'bottom',
 		backdrop: true,

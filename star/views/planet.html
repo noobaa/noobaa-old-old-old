@@ -10,69 +10,70 @@
 			background: #d02020;
 		}
 		body {
-			background-color: white;
+			overflow: hidden;
+/*			background-color: white;
 			color: black;
 			box-shadow: 0 0 1px 1px black inset;
 			-moz-box-shadow: 0 0 1px 1px black inset;
-			-webkit-box-shadow: 0 0 1px 1px black inset;
+			-webkit-box-shadow: 0 0 1px 1px black inset; */
 		}
 		#logobar {
-			-webkit-app-region: drag;
-			cursor: move;
+			/*-webkit-app-region: drag;*/
+			/*cursor: move;*/
+			position: absolute;
+			left: 0;
+			right: 0;
+			top: 0;
 			background-color: #222222;
 			padding: 3px 20px 3px 20px;
-			margin-bottom: 30px;
 			vertical-align: middle;
 		}
-		#logobar > a > img {
-			height: 40px;
-		}
-		#logobar > a {
-			/*-webkit-app-region: no-drag;*/
+		#logobar > img {
+			height: 30px;
 		}
 		#logobar > button {
-			-webkit-app-region: no-drag;
-			margin-top: 8px;
+			/*-webkit-app-region: no-drag;*/
+			margin-top: 2px;
 		}
-		#info {
-			margin: 0 30px 0 30px;
-			font-size: 16px;
-			line-height: 50px;
+		#view_container{
+			position: absolute;
+			left: 0;
+			right: 0;
+			top: 0;
+			bottom: 0;
+			overflow: auto;
+			margin: 40px 0 0 0;
 		}
-		#info small {
-			font-size: 9pt;
-		}
-		#sketch {
-			background-image: url('/public/images/sketch_skate.png');
-			background-repeat: no-repeat;
-			background-attachment: scroll;
-			background-size: cover;
-			background-position: 0 0;
-			height: 0;
+		#view {
+			overflow: hidden;
+			margin: 20px;
 		}
 	</style>
 </head>
 
 <body ng-cloak ng-controller="PlanetCtrl">
 
+	<iframe id="auth_frame" hidden nwdisable nwfaketop></iframe>
+
 	<div id="logobar">
-		<a title="You can double click"
-			ng-dblclick="toggle_fullscreen()">
-			<img src="/public/images/noobaa_logo.png"></img>
-		</a>
-		<button class="btn btn-default btn-xs pull-right"
+		<img src="/public/images/noobaa_logo.png"></img>
+<!-- 		<button class="btn btn-default btn-xs pull-right"
 			ng-click="hide_win()"
 			title="Minimize to tray">
-			<i class="close">x</i>
-		</button>
+			<span class="close">x</span>
+		</button> -->
 	</div>
 
-	<div id="info">
-		<div ng-show="!planet_user && !planet_loading" class="text-center">
+	<div id="view_container">
+		<div id="view" ng-include="current_view()"></div>
+	</div>
+
+	<script type="text/ng-template" id="login_view">
+		<div class="text-center">
 			<p class="lead">
 				<b>
 					Hi, Co-sharing on this device is simply done 
-					by using your facebook account:
+					by logging in to your account:
 				</b>
 			</p>
 			<a ng-show="!planet_user"
@@ -82,76 +83,127 @@
 					width="300px"></img>
 			</a>
 		</div>
-		<div ng-show="planet_loading" class="text-center">
+	</script>
+
+	<script type="text/ng-template" id="loading_view">
+		<div class="text-center">
 			<h3>
 				<i class="icon-spinner icon-spin icon-large icon-fixed-width"></i>
 				Connecting...
 			</h3>
 		</div>
-		<div ng-show="planet_user && !planet_loading">
-			<table class="table">
-				<tr class="success">
-					<td><b>Status</b></td>
-					<td class="text-success">
-						<i class="icon-check icon-white 
-							icon-large icon-fixed-width"></i>
-						<b>Connected</b>
-					</td>
-					<td>
+	</script>
+
+	<script type="text/ng-template" id="info_view">
+		<div id="info_view">
+			<div class="list-group">
+				<a class="list-group-item ">
+					<i class="icon-check icon-large icon-fixed-width"></i>
+					<b>Connected</b>
+				</a>
+				<a class="list-group-item">
+					<div class="row">
+						<div class="col-xs-6 text-ellipses">
+							<i class="icon-user icon-large icon-fixed-width"></i>
+							<b>{{planet_user.name}}</b>
+						</div>
+						<div class="col-xs-6 text-right">
+							<button class="btn btn-xs btn-link"
+								ng-click="open_noobaa()">
+								GO TO MY DATA
+							</button>
+						</div>
+					</div>
+				</a>
+				<a class="list-group-item">
+					<div class="row">
+						<div class="col-xs-6">
+							<i class="icon-cloud-upload icon-large icon-fixed-width"></i>
+							<b>
+								{{ planet_device && 
+									human_size(planet_device.coshare_space || 0) ||
+									'Updating...' }}
+							</b>
+						</div>
+						<div class="col-xs-6 text-right">
+							<button class="btn btn-xs btn-danger"
+								ng-disabled="!planet_device"
+								ng-click="coshare_view(true)">
+								<i class="icon-trophy icon-large icon-fixed-width"></i>
+								GET FREE SPACE
+							</button>
+						</div>
+					</div>
+				</a>
+			</div>
+			<div class="text-center">
+				<ul class="list-inline">
+					<li class="divider">|</li>
+					<li>
+						<a href="#" ng-click="open_settings()">
+							<small>Account Settings</small>
+						</a>
+					</li>
+					<li class="divider">|</li>
+					<li>
 						<a href="#" ng-click="open_help()">
 							<small>Help</small>
 						</a>
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<div><b>User</b></div>
-					</td>
-					<td>
-						<div>
-							<i class="icon-user icon-white 
-								icon-large icon-fixed-width"></i>
-							<b>{{planet_user.name}}</b>
-						</div>
-					</td>
-					<td>
+					</li>
+					<li class="divider">|</li>
+				</ul>
+				<ul class="list-inline">		
+					<li class="divider">|</li>
+					<li>
 						<a href="#" ng-click="do_logout()">
-							<small>Not {{planet_user.first_name}}? Logout...</small>
+							<small>Not {{planet_user.first_name}}? Log Out</small>
 						</a>
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<div><b>Co-Shared Space</b></div>
-					</td>
-					<td>
-						<div>
-							<i class="icon-hdd icon-white 
-								icon-large icon-fixed-width"></i>
-							<b>{{ human_size(planetfs.total_size()) }}</b>
-						</div>
-					</td>
-					<td>
-						<a href="#" ng-click="open_settings()">
-							<small>Change Settings...</small>
+					</li>
+					<li class="divider">|</li>
+					<li>
+						<a href="#" ng-click="quit_app()">
+							<small>Quit</small>
 						</a>
-					</td>
-				</tr>
-			</table>
-			<div class="text-center">
-				<button class="btn btn-lg btn-primary"
-					ng-click="open_noobaa()">
-					Go to My Data
-				</button>
+					</li>
+					<li class="divider">|</li>
+				</ul>
 			</div>
 		</div>
-	</div>
+	</script>
 
-	<div id="sketch_place">
-		<div id="sketch"></div>
-	</div>
+	<script type="text/ng-template" id="coshare_view">
+		<div>
+			<div class="list-group text-center">
+				<a ng-repeat="plan in coshare_options" href="#"
+					class="list-group-item"
+					ng-click="coshare_options_select($index)"
+					ng-class="coshare_options_class($index)">
+					<h4 class="list-group-item-heading">{{plan.title}}</h4>
+					<p class="list-group-item-text"><small>{{plan.details}}</small></p>
+				</a>
+			</div>
+			<div class="text-center" style="padding-bottom: 20px">
+				<button	ng-click="coshare_view(false)"
+					class="btn btn-default">
+					Back
+				</button>
+				<button	ng-click="apply_coshare()"
+					ng-disabled="coshare_selection < 0"
+					class="btn btn-primary">
+					Apply
+				</button>
+			</div>
+			<p>Choose how much free capacity you&apos;d like to get in the cloud.</p>
+			<p>NooBaa will allocate the same amount on your local hard disk (for storing internal encrypted data), and then your account quota will be updated accordingly.</p>
+			<p>
+				<small>
+				Note: The allocation is made from the OS disk for now.
+				Choosing different location will soon be supported.
+				</small>
+			</p>
+		</div>
+	</script>
 
-	<iframe id="auth_frame" hidden nwdisable nwfaketop></iframe>
 
 	<?# def.include('common_scripts.html') ?>
 

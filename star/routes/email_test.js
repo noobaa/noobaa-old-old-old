@@ -125,6 +125,17 @@ exports.emails = {
         });
     },
 
+    'send alpha approved notification mail': function(test) {
+        email.send_alpha_approved_notification(notified_user, function(err, res) {
+            // console.log(res);
+            if (err) {
+                console.log(JSON.stringify(err));
+            }
+            test.ifError(err);
+            test.done();
+        });
+    },
+
     'get templates': function(test) {
       test.ifError(email.get_templates(function(err, res) {}));
       test.done();

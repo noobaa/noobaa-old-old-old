@@ -6,9 +6,9 @@ $(function() {
 });
 
 
-MyDevicesCtrl.$inject = ['$scope', '$http', '$window', '$timeout'];
+SettingsCtrl.$inject = ['$scope', '$http', '$window', '$timeout'];
 
-function MyDevicesCtrl($scope, $http, $window, $timeout) {
+function SettingsCtrl($scope, $http, $window, $timeout) {
 
 	$scope.devices = null;
 

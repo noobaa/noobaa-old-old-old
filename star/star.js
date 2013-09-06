@@ -220,10 +220,6 @@ app.get('/auth/facebook/channel.html', auth.facebook_channel);
 app.get('/auth/logout/', auth.logout);
 
 
-// setup email routes
-
-var email = require('./routes/email');
-app.post('/email/user_feedback/', email.user_feedback);
 
 
 // setup star API routes
@@ -239,9 +235,11 @@ app.post('/star_api/inode/:inode_id/link', inode_api.inode_mklink);
 app.del('/star_api/inode/:inode_id/link', inode_api.inode_rmlinks);
 
 var user_api = require('./routes/user_api');
-var user_inodes = require('./providers/user_inodes');
-app.put('/star_api/user/:user_id', user_api.user_update);
-app.get('/star_api/user/usage', user_inodes.user_usage);
+app.get('/star_api/user/', user_api.user_read);
+app.put('/star_api/user/', user_api.user_update);
+
+var email = require('./routes/email');
+app.post('/star_api/user/feedback/', email.user_feedback);
 
 var device_api = require('./routes/device_api');
 app.post('/star_api/device/', device_api.device_create);
@@ -259,21 +257,7 @@ app.put('/adminoobaa/', adminoobaa.admin_update);
 // setup planet pages
 
 app.get('/planet', function(req, res) {
-	res.write('<html><body><script>');
-	res.write(' var gui = require("nw.gui");');
-	res.write(' gui.Window.open("planet/window",');
-	res.write(JSON.stringify({
-		icon: "noobaa_icon.ico",
-		toolbar: false,
-		frame: false,
-		resizable: false,
-		position: "mouse",
-		width: 550,
-		height: 300
-	}));
-	res.write(');');
-	res.write('</script></body></html>');
-	res.end();
+	return res.render('planet_boot.html', common_api.page_context(req));
 });
 app.get('/planet/window', function(req, res) {
 	return res.render('planet.html', common_api.page_context(req));
@@ -320,11 +304,7 @@ app.get('/help', redirect_no_user, function(req, res, next) {
 });
 
 app.get('/settings', redirect_no_user, function(req, res, next) {
-	return error_501(req, res, next);
-});
-
-app.get('/mydevices', redirect_no_user, function(req, res) {
-	return res.render('mydevices.html', common_api.page_context(req));
+	return res.render('settings.html', common_api.page_context(req));
 });
 
 app.get('/mydata', redirect_no_user, function(req, res) {

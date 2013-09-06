@@ -20,41 +20,34 @@ function PlanetCtrl($scope, $http, $timeout) {
 	$scope.home_location = window.location.href;
 
 	var os = require('os');
+	var path = require('path');
 
 	// load native node-webkit library
-	var gui = $scope.gui = window.require('nw.gui');
+	var gui = window.require('nw.gui');
 
-	$scope.reload_home = function() {
-		if (window.location.href !== $scope.home_location &&
-			window.location.href !== $scope.home_location + '#') {
-			window.console.log(window.location, $scope.home_location);
-			window.location.href = $scope.home_location;
-		} else {
-			gui.Window.get().reload();
-		}
-	};
+	// get the node-webkit native window of the planet
+	var win = gui.Window.get();
 
-	$scope.is_fullscreen = false;
-	$scope.toggle_fullscreen = function() {
-		$scope.is_fullscreen = gui.Window.get().isFullscreen = !$scope.is_fullscreen;
-		$('#sketch').css('height', ($scope.is_fullscreen ? '400px' : '0'));
-	};
+	// set the scope in the window to signal to the planet_boot code
+	// that we are loaded and it can communicate with our scope.
+	win.$scope = $scope;
 
 	$scope.hide_win = function() {
-		if ($scope.is_fullscreen) {
-			$scope.toggle_fullscreen();
-		}
-		gui.Window.get().hide();
+		win.hide();
 	};
 
-	// open this window
-	$scope.open = function() {
-		var w = gui.Window.get();
-		w.show();
-		w.restore();
-		w.focus();
-		w.requestAttention(true);
-		return w;
+	$scope.show = function() {
+		win.show();
+		win.restore();
+		win.focus();
+		// win.requestAttention(true);
+	};
+
+	// make window hide on close
+	win.on('close', $scope.hide_win);
+
+	$scope.close_win = function() {
+		win.close(true); // force close, since close only hides
 	};
 
 	$scope.open_noobaa = function(path) {
@@ -73,12 +66,12 @@ function PlanetCtrl($scope, $http, $timeout) {
 		$scope.open_noobaa('/help');
 	};
 
-	$scope.confirm = function(q, callback) {
-		var w = $scope.open();
+	$scope.nbconfirm = function(q, callback) {
+		$scope.show();
 		$.nbconfirm(q, {
 			css: {
-				width: w.width,
-				height: w.height,
+				width: win.width - win_frame_width,
+				height: win.height - win_frame_height,
 				top: 0,
 				left: 0
 			}
@@ -86,57 +79,32 @@ function PlanetCtrl($scope, $http, $timeout) {
 	};
 
 	// terminate the entire application
-	$scope.quit = function() {
-		var q = 'Closing the application will stop co-sharing, ' +
+	$scope.quit_app = function() {
+		var q = 'Quitting will stop co-sharing, ' +
 			'which will affect your account quota and performance.<br/>' +
 			'Click "No" to keep co-sharing:';
-		$scope.confirm(q, function() {
+		$scope.nbconfirm(q, function() {
 			gui.App.quit();
 		});
 	};
 
-	// create global tray icon.
-	// we create oncefor the entire application,
-	// and store it in the main module (js/main.js)
-	// so that even if more windows are created,
-	// it will only have single tray.
-	if (!global.tray) {
-		global.tray = new gui.Tray({
-			title: 'NooBaa',
-			tooltip: 'Click to Go to NooBaa...',
-			icon: 'noobaa_icon16.ico',
-			menu: new gui.Menu()
-		});
-		global.tray.on('click', $scope.open);
-
-		// create tray menu
-		var m = global.tray.menu;
-		m.append(new gui.MenuItem({
-			label: 'Go to NooBaa',
-			click: $scope.open_noobaa
-		}));
-		m.append(new gui.MenuItem({
-			label: 'Manage Device',
-			click: $scope.open
-		}));
-		m.append(new gui.MenuItem({
-			type: 'separator'
-		}));
-		m.append(new gui.MenuItem({
-			label: 'Quit NooBaa',
-			click: $scope.quit
-		}));
-	}
-
-	// make window hide on close
-	gui.Window.get().on('close', $scope.hide_win);
-	// after all is inited, open the window
-	$scope.open();
+	// on load show the window.
+	// TODO: this might be too annoying if triggered by auto update
+	// or even some crashing bug, so maybe only when the user requested...
+	$scope.show();
 
 	// pass "secret" argument to open dev tools
 	if (gui.App.argv.length && gui.App.argv[0] === '--noobaadev') {
-		gui.Window.get().showDevTools();
+		win.showDevTools();
 	}
+
+	// since our window has a frame and win.width/height include it
+	// then we need to consider it
+	var win_inner_width = 400;
+	var win_inner_height = 300;
+	var win_inner_height_long = 500;
+	var win_frame_width = win.width - win_inner_width;
+	var win_frame_height = win.height - win_inner_height;
 
 
 
@@ -165,11 +133,16 @@ function PlanetCtrl($scope, $http, $timeout) {
 		console.log('USER:', f.noobaa_user);
 		$scope.planet_loading = false;
 		$scope.planet_user = f.noobaa_user;
+		schedule_device(1);
 		$scope.safe_apply();
 	};
 
 	// submit connect request - will open facebool login dialog window.
 	$scope.do_connect = function() {
+		if (!window.frames.auth_frame.FB) {
+			$scope.auth_frame_path('/auth/logout/?state=/planet/auth');
+			return;
+		}
 		window.frames.auth_frame.FB.login(function(res) {
 			if (res.authResponse) {
 				$scope.auth_frame_path('/auth/facebook/login/?state=/planet/auth');
@@ -182,7 +155,7 @@ function PlanetCtrl($scope, $http, $timeout) {
 		var q = 'Logging out will stop co-sharing, ' +
 			'which will affect your account quota and performance.<br/>' +
 			'Click "No" to keep co-sharing:';
-		$scope.confirm(q, function() {
+		$scope.nbconfirm(q, function() {
 			$scope.auth_frame_path('/auth/logout/?state=/planet/auth');
 		});
 	};
@@ -214,15 +187,29 @@ function PlanetCtrl($scope, $http, $timeout) {
 	////////////////////////////////////////////////////////////
 
 
-	if (localStorage.planet_device) {
-		$scope.planet_device = JSON.parse(localStorage.planet_device);
+	// if (localStorage.planet_device) {
+	//	$scope.planet_device = JSON.parse(localStorage.planet_device);
+	// }
+
+	function close_if_reload_requested(data) {
+		if (data && data.reload) {
+			console.log('RELOAD REQUESTED');
+			return $scope.close_win();
+		}
 	}
 
-	$scope.reconnect_device = function() {
+	function reconnect_device() {
 		delete $scope.planet_device;
 		delete localStorage.planet_device;
 		schedule_device(1000);
-	};
+	}
+
+	function save_device_info(data) {
+		if (data && data.device) {
+			$scope.planet_device = data.device;
+			localStorage.planet_device = JSON.stringify(data.device);
+		}
+	}
 
 	function schedule_device(time) {
 		$timeout.cancel($scope.device_promise);
@@ -232,7 +219,7 @@ function PlanetCtrl($scope, $http, $timeout) {
 	function periodic_device() {
 		if (!$scope.planet_user) {
 			// no user connected, reschedule to check later
-			schedule_device(5000);
+			schedule_device(10000);
 		} else if (!$scope.planet_device) {
 			// no device id - ask to create
 			create_device();
@@ -245,60 +232,112 @@ function PlanetCtrl($scope, $http, $timeout) {
 		return $http({
 			method: 'POST',
 			url: '/star_api/device/',
-			data: get_host_info()
+			data: {
+				host_info: get_host_info()
+			}
 		}).success(function(data, status, headers, config) {
 			console.log('[ok] create device', status);
-			if (data.reload) {
-				console.log('RELOAD REQUESTED');
-				return $scope.reload_home();
-			}
-			if (data.device) {
-				$scope.planet_device = data.device;
-				localStorage.planet_device = JSON.stringify(data.device);
-			}
+			close_if_reload_requested(data);
+			save_device_info(data);
 			schedule_device(5000);
 		}).error(function(data, status, headers, config) {
 			console.error('[ERR] create device', data, status);
-			if (data.reload) {
-				console.log('RELOAD REQUESTED');
-				return $scope.reload_home();
-			}
+			close_if_reload_requested(data);
 			schedule_device(5000);
 		});
 	}
 
-	function update_device() {
+	function update_device(coshare_space) {
 		return $http({
 			method: 'PUT',
 			url: '/star_api/device/' + $scope.planet_device._id,
-			data: get_host_info()
+			data: {
+				host_info: get_host_info(),
+				coshare_space: coshare_space
+			}
 		}).success(function(data, status, headers, config) {
 			console.log('[ok] update device', status);
-			if (data.reload) {
-				console.log('RELOAD REQUESTED');
-				return $scope.reload_home();
+			close_if_reload_requested(data);
+			if (coshare_space) {
+				save_device_info(data);
 			}
 			schedule_device(60000);
 		}).error(function(data, status, headers, config) {
 			console.error('[ERR] update device', data, status);
-			delete $scope.planet_device;
-			delete localStorage.planet_device;
-			if (data.reload) {
-				console.log('RELOAD REQUESTED');
-				return $scope.reload_home();
-			}
-			schedule_device(1000);
+			reconnect_device();
+			close_if_reload_requested(data);
 		});
 	}
 
 	function get_host_info() {
 		return {
-			host_info: {
-				hostname: os.hostname(),
-				platform: os.platform()
-			}
+			hostname: os.hostname(),
+			platform: os.platform()
 		};
 	}
 
 	periodic_device();
+
+	var GB = 1024 * 1024 * 1024;
+	$scope.coshare_options = [{
+		space: GB,
+		title: 'Free 1 GB',
+		// details: ''
+	}, {
+		space: 10 * GB,
+		title: 'Free 10 GB',
+		// details: '+ Performance Boost'
+	}, {
+		space: 100 * GB,
+		title: 'Free 100 GB',
+		// details: '+ Ultimate Performance'
+	}];
+
+	$scope.coshare_selection = -1;
+
+	$scope.coshare_options_select = function(index) {
+		$scope.coshare_selection = index;
+	};
+
+	$scope.apply_coshare = function() {
+		var index = $scope.coshare_selection;
+		var opt = $scope.coshare_options[index];
+		update_device(opt.space);
+		$scope.coshare_view(false);
+	};
+
+	$scope.coshare_options_class = function(index) {
+		return index === $scope.coshare_selection ? 'active' : '';
+	};
+
+	$scope.coshare_view = function(val) {
+		if ($scope.planet_loading || !$scope.planet_user) {
+			return;
+		}
+		$scope.coshare_selection = -1;
+		$scope.coshare_view_on = val;
+		if (val) {
+			if (win.height < win_inner_height_long + win_frame_height) {
+				win.resizeBy(0, win_inner_height_long + win_frame_height - win.height);
+			}
+		} else {
+			if (win.height > win_inner_height + win_frame_height) {
+				win.resizeBy(0, win_inner_height + win_frame_height - win.height);
+			}
+		}
+	};
+
+	$scope.current_view = function() {
+		if ($scope.planet_loading) {
+			return 'loading_view';
+		}
+		if (!$scope.planet_user) {
+			return 'login_view';
+		}
+		if ($scope.coshare_view_on) {
+			return 'coshare_view';
+		}
+		return 'info_view';
+	};
+
 }
