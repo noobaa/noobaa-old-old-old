@@ -3,7 +3,8 @@
 
 var _ = require('underscore');
 var async = require('async');
-var Device = require('../models/device.js').Device;
+var Device = require('../models/device').Device;
+var User = require('../models/user').User;
 var common_api = require('./common_api');
 
 
@@ -146,10 +147,15 @@ exports.device_update = function(req, res) {
 		},
 
 		function(dev, next) {
-			if (updates.coshare_space) {
-				// TODO update user quota
+			if (!updates.coshare_space) {
+				return next(null, dev);
 			}
-			return next(null, dev);
+			// TODO we assume here that there is single device per user for now
+			return User.findByIdAndUpdate(req.user.id, {
+				quota: updates.coshare_space
+			}, function(err) {
+				return next(err, dev);
+			});
 		},
 
 		// update the device

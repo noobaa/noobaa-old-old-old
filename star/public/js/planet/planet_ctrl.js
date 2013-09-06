@@ -314,6 +314,7 @@ function PlanetCtrl($scope, $http, $timeout) {
 		if ($scope.planet_loading || !$scope.planet_user) {
 			return;
 		}
+		$scope.coshare_selection = -1;
 		$scope.coshare_view_on = val;
 		if (val) {
 			if (win.height < win_inner_height_long + win_frame_height) {
