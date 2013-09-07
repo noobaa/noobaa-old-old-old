@@ -136,22 +136,31 @@ function GuideCtrl($scope) {
 
 	function guide_template(i, step) {
 		return [
-			'<div class="popover tour" style="min-width: ' + (step.width || 400) + 'px">',
+			'<div class="popover tour">',
 			'  <div class="arrow"></div>',
-			'  <div class="popover-title fntlg"></div>',
-			'  <div class="popover-content fntlg"></div>',
-			'  <div class="popover-navigation fntlg text-center">',
-			'    <span class="fntlg pull-left">', (i + 1), '/', step.guide.steps.length, '</span>',
-			'    <a href="#" data-role="first" onclick="global_menu_bar_first_guide()">',
-			'      <i class="icon-fast-backward icon-fixed-width text-info"></i></a>',
-			'    <a href="#" data-role="prev" class="btn btn-default">',
-			'      <i class="icon-step-backward icon-2x icon-fixed-width"></i></a>',
-			'    <a href="#" data-role="next" class="btn btn-default">',
-			'      <i class="icon-step-forward icon-2x icon-fixed-width"></i></a>',
-			'    <a href="#" data-role="last" onclick="global_menu_bar_last_guide()">',
-			'      <i class="icon-fast-forward icon-fixed-width text-info"></i></a>',
-			'    <a href="#" data-role="end" class="pull-right">',
-			'      <i class="icon-remove icon-large icon-fixed-width fntblk"></i></a>',
+			'  <div class="popover-title fntmd"></div>',
+			'  <div class="popover-content fntmd"></div>',
+			'  <div class="popover-navigation text-center">',
+			'    <span class="pull-left">',
+			'      <span>', (i + 1), '/', step.guide.steps.length, '</span>',
+			'      <a href="#" data-role="first" onclick="global_menu_bar_first_guide()">',
+			'        <i class="icon-fast-backward icon-fixed-width text-info"></i></a>',
+			'      <a href="#" data-role="last" onclick="global_menu_bar_last_guide()">',
+			'        <i class="icon-fast-forward icon-fixed-width text-info"></i></a>',
+			'    </span>',
+			'    <a href="#" data-role="prev" class="btn btn-link btn-sm">Prev</a>',
+			'    <a href="#" data-role="end" class="btn btn-default btn-sm">Close</a>',
+			'    <a href="#" data-role="next" class="btn btn-primary btn-sm">Next</a>',
+			// '    <a href="#" data-role="first" onclick="global_menu_bar_first_guide()">',
+			// '      <i class="icon-fast-backward icon-fixed-width text-info"></i></a>',
+			// '    <a href="#" data-role="prev" class="btn btn-default">',
+			// '      <i class="icon-step-backward icon-2x icon-fixed-width"></i></a>',
+			// '    <a href="#" data-role="next" class="btn btn-default">',
+			// '      <i class="icon-step-forward icon-2x icon-fixed-width"></i></a>',
+			// '    <a href="#" data-role="last" onclick="global_menu_bar_last_guide()">',
+			// '      <i class="icon-fast-forward icon-fixed-width text-info"></i></a>',
+			// '    <a href="#" data-role="end" class="pull-right">',
+			// '      <i class="icon-remove icon-large icon-fixed-width fntblk"></i></a>',
 			'  </div>',
 			'</div>'
 		].join('\n');
@@ -172,6 +181,7 @@ function GuideCtrl($scope) {
 			debug: true,
 			path: '/mydata',
 			backdrop: true,
+			orphan: true,
 			template: guide_template,
 			onStart: function() {
 				if (!me.was_started) {
@@ -185,7 +195,8 @@ function GuideCtrl($scope) {
 				$scope.safe_apply();
 			},
 			onEnd: function() {
-				if (me.tour._current >= me.completed_steps) {
+				if (me.tour._current >= me.completed_steps ||
+					me.tour._current+1 >= me.steps.length) {
 					// mark persistent completion when new step is reached
 					me.completed_steps = me.tour._current + 1;
 					localStorage[name + '_completed_steps'] = me.completed_steps;
@@ -270,8 +281,6 @@ function GuideCtrl($scope) {
 	//// WELCOME ////
 
 	$scope.guides.welcome.steps.push({
-		element: '#logo_link',
-		placement: 'bottom',
 		title: 'WELCOME TO NOOBAA',
 		content: [
 			'<p>Use NooBaa for <b>extreme media files!</b></p>',
@@ -293,8 +302,6 @@ function GuideCtrl($scope) {
 	});
 
 	$scope.guides.welcome.steps.push({
-		element: '#my_guides',
-		placement: 'bottom',
 		title: 'WHAT\'S NEXT',
 		content: [
 			// '<p>You have taken the first step in the way of the NooBaa!</p>',
@@ -325,8 +332,6 @@ function GuideCtrl($scope) {
 	}
 
 	$scope.guides.upload_file.steps.push({
-		element: '#upload_button',
-		placement: 'bottom',
 		title: 'UPLOAD',
 		content: [
 			'<p>This guide will show you how to upload using:</p>',
@@ -338,26 +343,21 @@ function GuideCtrl($scope) {
 	});
 
 	$scope.guides.upload_file.steps.push({
-		element: '#upload_button',
-		placement: 'bottom',
 		title: 'DRAG & DROP',
 		content: [
 			'<p>Drag a file and drop it <b>anywhere</b> in the NooBaa window.</p>',
 			'<p>This will immediately start uploading.</p>',
-			'<p>Try it now...</p>',
+			'<p>Try it now or click next to continue...</p>',
 		].join('\n'),
 		onShow: advance_on_upload_modal_show,
 		onHide: done_advance_on_upload_modal_show
 	});
 
 	$scope.guides.upload_file.steps.push({
-		element: '#upload_button',
-		placement: 'bottom',
 		title: 'UPLOADING',
-		width: 500,
 		content: [
-			'<p>Good job!</p>',
-			'<p>The upload dialog shows your upload\'s progress.',
+			'<p>Alrighty then!</p>',
+			'<p>The upload dialog keeps your upload\'s progress.',
 			'<p>You can always get back to it using the upload button',
 			'  <a class="btn btn-success" href="#"><i class="icon-cloud-upload icon-large"></i></a>.',
 			'  It will also open whenever you drop files to upload.'
@@ -365,17 +365,13 @@ function GuideCtrl($scope) {
 	});
 
 	$scope.guides.upload_file.steps.push({
-		element: '#upload_button',
-		placement: 'bottom',
 		title: 'USING FILE CHOOSER',
 		content: [
-			'<p>Use the "Choose Files" button to select files to upload.</p>'
+			'<p>In the upload dialod use the "Choose Files" button to select files to upload.</p>'
 		].join('\n')
 	});
 
 	$scope.guides.upload_file.steps.push({
-		element: '#upload_button',
-		placement: 'bottom',
 		title: 'USING FODLER CHOOSER',
 		content: [
 			'<p>Folder upload is supported on some browsers (e.g. Chrome, Safari).</p>',
@@ -385,8 +381,6 @@ function GuideCtrl($scope) {
 	});
 
 	$scope.guides.upload_file.steps.push({
-		element: '#inodes_list_marker',
-		placement: 'bottom',
 		title: 'WHERE IS IT?',
 		content: [
 			'<p>Upload are added to your account',
@@ -396,13 +390,11 @@ function GuideCtrl($scope) {
 	});
 
 	$scope.guides.upload_file.steps.push({
-		element: '#my_guides',
-		placement: 'bottom',
 		title: 'DONE',
 		content: [
 			'<p>Well Done! You are a now a master of uploads!</p>',
 			'<p>Check out more guides using',
-			'  <i class="icon-info-sign text-info"></i>.</p>',
+			'  <i class="icon-info-sign text-info"></i></p>',
 		].join('\n')
 	});
 	$scope.guides.upload_file.steps_ready();
@@ -410,8 +402,6 @@ function GuideCtrl($scope) {
 	// ACCESS FILE ////
 
 	$scope.guides.access_file.steps.push({
-		element: '#my_guides',
-		placement: 'bottom',
 		title: 'ACCESSING',
 		content: [
 			'<p>This guide will show you how to open your files and browse your directories:</p>',
@@ -440,7 +430,7 @@ function GuideCtrl($scope) {
 
 	$scope.guides.access_file.steps.push({
 		element: '#inodes_list_marker',
-		placement: 'bottom',
+		placement: 'right',
 		title: 'THE FOLDER CONTENT AREA',
 		content: [
 			'<p>Shows the files and folders within the currently selected folder.</p>',
@@ -578,8 +568,6 @@ function GuideCtrl($scope) {
 
 	$scope.guides.cosharing.steps.push({
 		path: "/settings",
-		element: "#user_label",
-		placement: 'bottom',
 		title: "DON'T PANIC",
 		content: [
 			'<p>This is your account settings page.</p>',
@@ -590,8 +578,6 @@ function GuideCtrl($scope) {
 
 	$scope.guides.cosharing.steps.push({
 		path: "/settings",
-		element: "#dl",
-		placement: 'top',
 		title: "CO-SHARING",
 		content: [
 			'<p>Co-sharing is the key to gain access to unlimited fast cloud storage.</p>',
@@ -601,8 +587,6 @@ function GuideCtrl($scope) {
 
 	$scope.guides.cosharing.steps.push({
 		path: "/settings",
-		element: "#dl",
-		placement: 'top',
 		title: "REQUIREMENTS",
 		content: [
 			'<p>In order to co-share all you will need is a Computer ',
@@ -612,8 +596,6 @@ function GuideCtrl($scope) {
 
 	$scope.guides.cosharing.steps.push({
 		path: "/settings",
-		element: "#dl",
-		placement: 'top',
 		title: "COSTS",
 		content: [
 			'<p>FREE for any capacity.</p>',
@@ -635,8 +617,6 @@ function GuideCtrl($scope) {
 
 	$scope.guides.cosharing.steps.push({
 		path: "/settings",
-		element: "#dl",
-		placement: 'top',
 		title: "STEP 2/3",
 		content: [
 			'<p>Run the installer.</p>',
@@ -646,8 +626,6 @@ function GuideCtrl($scope) {
 
 	$scope.guides.cosharing.steps.push({
 		path: "/settings",
-		element: "#dl",
-		placement: 'top',
 		title: "STEP 3/3",
 		content: [
 			'<p>Choose how much quota you\'d like to get on the cloud - ',

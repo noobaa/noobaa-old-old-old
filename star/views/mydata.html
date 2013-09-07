@@ -264,7 +264,8 @@
 			</div>
 		</div>
 		<div class="col-md-9" style="margin-bottom: 20px">
-			<div id="inodes_list_marker"></div>
+			<div id="inodes_list_marker" 
+				style="position: absolute; top: 100px; left: 100px; width: 1px"></div>
 			<div ng-controller="InodesListCtrl"
 				ng-include="'list_view_template.html'"
 				nb-key="key_handler($event)" tabindex="1"
