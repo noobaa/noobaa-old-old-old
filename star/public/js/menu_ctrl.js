@@ -448,8 +448,8 @@ function GuideCtrl($scope) {
 	});
 
 	$scope.guides.access_file.steps.push({
-		element: '#inodes_list_marker',
-		placement: 'right',
+		element: '#inodes_list',
+		placement: 'right auto',
 		title: 'THE FOLDER CONTENT AREA',
 		content: [
 			'<p>Shows the files and folders within the currently selected folder.</p>',
@@ -461,7 +461,7 @@ function GuideCtrl($scope) {
 
 	$scope.guides.access_file.steps.push({
 		element: '#inodes_tree',
-		placement: 'right',
+		placement: 'right auto',
 		title: 'THE FOLDERS TREE',
 		content: [
 			'<p>	The currently selected folder is marked in the folder tree, and it\'s content is displayed in the content area.</p>',
@@ -529,7 +529,7 @@ function GuideCtrl($scope) {
 
 	$scope.guides.shared_with_me.steps.push({
 		element: "#inodes_tree",
-		placement: 'right',
+		placement: 'right auto',
 		title: "THE 'SHARED WITH ME' FOLDER",
 		content: [
 			'<p> In Noobaa there are two basic folders:</p>',
@@ -542,7 +542,7 @@ function GuideCtrl($scope) {
 
 	$scope.guides.shared_with_me.steps.push({
 		element: "#inodes_tree",
-		placement: 'right',
+		placement: 'right auto',
 		title: "THE 'SHARED WITH ME' FOLDER",
 		content: [
 			'<p> The \'Shared With Me\' folder points all to files your friends shared with you.</p>',
@@ -552,7 +552,7 @@ function GuideCtrl($scope) {
 
 	$scope.guides.shared_with_me.steps.push({
 		element: "#inodes_tree",
-		placement: 'right',
+		placement: 'right auto',
 		title: "THE 'SHARED WITH ME' FOLDER",
 		content: [
 			'<p> As one can share only with his Facebook friends spamming is not an option.</p>',
@@ -562,7 +562,7 @@ function GuideCtrl($scope) {
 
 	$scope.guides.shared_with_me.steps.push({
 		element: "#inodes_tree",
-		placement: 'right',
+		placement: 'right auto',
 		title: "THE 'SHARED WITH ME' FOLDER",
 		content: [
 			'<p> Files will appear in the \'Shared With Me\' folder as long as they are shared with you.</p>',
@@ -572,7 +572,7 @@ function GuideCtrl($scope) {
 
 	$scope.guides.shared_with_me.steps.push({
 		element: "#inodes_tree",
-		placement: 'right',
+		placement: 'right auto',
 		title: "THE 'SHARED WITH ME' FOLDER",
 		content: [
 			'<p> As you are not the owner of the file, it can be removed by the owner at any point.</p>',
