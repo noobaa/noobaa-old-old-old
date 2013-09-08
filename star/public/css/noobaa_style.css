@@ -160,10 +160,6 @@ html, body {
 	margin: 20px;
 	word-wrap: break-word;
 }
-#nbdialog_modal_backdrop, .tour-backdrop {
-	background-color: black;
-	opacity: 0.5 !important;
-}
 
 .alert_dialog .nbdialog_header .alert_icon {
 	font-size: 35px;
@@ -180,30 +176,16 @@ html, body {
 		1px 0 black,  0 -1px black;
 }
 
-/*
-.ui-resizable-s, .ui-resizable-se, .ui-resizable-sw {
-	bottom: -10px !important;
-	height: 15px !important;
+.nbdialog_modal_backdrop,
+.tour-backdrop {
+	background-color: black;
+	opacity: 0.5 !important;
+	position: fixed !important;
+	top: 0 !important;
+	left: 0 !important;
+	height: 100% !important;
+	width: 100% !important;
 }
-.ui-resizable-n, .ui-resizable-ne, .ui-resizable-nw {
-	top: -10px !important;
-	height: 15px !important;
-}
-.ui-resizable-e, .ui-resizable-se, .ui-resizable-ne {
-	right: -10px !important;
-	width: 15px !important;
-}
-.ui-resizable-w, .ui-resizable-sw, .ui-resizable-nw {
-	left: -10px !important;
-	width: 15px !important;
-}
-.ui-resizable-handle {
-	background-color: transparent;
-}
-.ui-resizable-handle:hover {
-	background-color: rgba(0,0,0,0.1);
-}
-*/
 
 .tour .popover-content {
 	/*background-color: rgba(50,50,50,1);*/
@@ -221,13 +203,6 @@ html, body {
 .tour .popover-title, .tour .popover-navigation {
 	/*background-color: #5cb85c;*/
 	background-color: white;
-}
-.tour-backdrop {
-	position: fixed !important;
-	top: 0 !important;
-	left: 0 !important;
-	height: 100% !important;
-	widows: 100% !important;
 }
 .tour-step-backdrop {
 	z-index: 1010 !important; /* forced below tour step */

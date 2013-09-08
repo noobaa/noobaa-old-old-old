@@ -76,16 +76,7 @@
 		var data = e.data('nbdialog');
 		var keydown = 'keydown.nbdialog_' + e.uniqueId().attr('id');
 		var visible;
-		
-		// initialize global body state
 		var body = $('body');
-		var body_data = body.data('nbdialog');
-		if (!body_data) {
-			body_data = {
-				modal_stack: []
-			};
-			body.data('nbdialog', body_data);
-		}
 
 		if (opt === 'open') {
 			if (!data || opt_for_open) {
@@ -105,21 +96,16 @@
 			}
 			if (data.opt.modal) {
 				// modal stacking: modals go high also above previous modals
-				var zIndex = 2001;
-				if (body_data.modal_stack.length) {
-					zIndex = body_data.modal_stack[0].css('z-index') + 2;
+				var zIndex = 2000;
+				var last_backdrop = $('.nbdialog_modal_backdrop:last');
+				if (last_backdrop.length) {
+					zIndex = parseInt(last_backdrop.css('z-index'), 10) + 2;
 				}
-				body_data.modal_stack.unshift(e);
-				e.css('z-index', zIndex);
 				// create backdrop element
-				$('<div id="nbdialog_modal_backdrop"></div>').css({
-					position: 'fixed',
-					left: 0,
-					right: 0,
-					top: 0,
-					bottom: 0,
-					zIndex: zIndex - 1,
-				}).appendTo(body).show();
+				$('<div class="nbdialog_modal_backdrop"></div>')
+					.css('z-index', zIndex).appendTo(body).show();
+				// stack dialog on top of backdrop
+				e.css('z-index', zIndex + 1);
 			}
 			// bring it to front by adding at the end of body
 			e.detach().appendTo(body);
@@ -168,8 +154,7 @@
 				};
 				// remove the modal backdrop
 				if (data.opt.modal) {
-					body_data.modal_stack.shift();
-					$('#nbdialog_modal_backdrop').remove();
+					$('.nbdialog_modal_backdrop:last').remove();
 				}
 				// unregister event to close dialog on escape
 				$(window).off(keydown);
@@ -192,7 +177,7 @@
 			if (data) {
 				console.log('nbdialog init', data, opt);
 			}
-			opt = $.extend(true,{}, data ? data.opt : null, opt);
+			opt = $.extend(true, {}, data ? data.opt : null, opt);
 			opt.show = opt.show || {
 				effect: 'drop',
 				direction: 'up',
@@ -287,7 +272,7 @@
 			e.draggable({
 				containment: opt.containment || 'document',
 				cursor: 'move',
-				// stack: '.nbdialog, #nbdialog_modal_backdrop',
+				// stack: '.nbdialog, .nbdialog_modal_backdrop',
 				handle: '.nbdialog_drag',
 				cancel: '.nbdialog_nodrag'
 			});
