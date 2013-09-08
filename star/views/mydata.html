@@ -78,14 +78,10 @@
 
 	<?# def.include('common_menubar.html') ?>
 
-	<div id="my_data_content">
-	<!-- ======== CONTENT ======== -->
-
-
 	<div ng-controller="MyDataCtrl"
 		ng-init="filter_file_name=''"
+		id="my_data_content"
 		class="nb_page_pad nb_nav_top_pad">
-	<!-- ======== MyDataCtrl ======== -->
 
 
 <!-- TOOLBAR -->
@@ -93,7 +89,10 @@
 
 	<div class="row" style="margin-bottom: 30px;">
 
-		<div class="col-md-offset-3 col-md-6">
+		<div class="col-md-3">
+		</div>
+
+		<div class="col-md-6">
 			<button id="upload_button" class="btn btn-success toolbtn"
 				ng-click="click_upload()"
 				title="Upload"
@@ -265,12 +264,14 @@
 			</div>
 		</div>
 		<div class="col-md-9" style="margin-bottom: 20px">
+			<div id="inodes_list_marker" 
+				style="position: absolute; top: 100px; left: 100px; width: 1px"></div>
 			<div ng-controller="InodesListCtrl"
 				ng-include="'list_view_template.html'"
 				nb-key="key_handler($event)" tabindex="1"
 		 		nb-right-click="inode_rclick(dir_selection.inode, $event)"
 				class="roundbord bglight"
-				style="min-height: 400px"
+				style="min-height: 400px; outline: none"
 				id="inodes_list">
 			</div>
 		</div>
@@ -761,10 +762,6 @@
 	</ul>
 </script>
 
-
-
-	<!-- ======== CONTENT END ======== -->
-	</div>
 
 
 	<?# def.include('common_scripts.html') ?>

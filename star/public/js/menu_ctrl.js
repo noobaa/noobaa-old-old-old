@@ -135,23 +135,29 @@ GuideCtrl.$inject = ['$scope'];
 function GuideCtrl($scope) {
 
 	function guide_template(i, step) {
+		var fin = (i + 1) === step.guide.steps.length;
 		return [
-			'<div class="popover tour" style="min-width: ' + (step.width || 400) + 'px">',
+			'<div class="popover tour">',
 			'  <div class="arrow"></div>',
-			'  <div class="popover-title fntlg"></div>',
-			'  <div class="popover-content fntlg"></div>',
-			'  <div class="popover-navigation fntlg text-center">',
-			'    <span class="fntlg pull-left">', (i + 1), '/', step.guide.steps.length, '</span>',
-			'    <a href="#" data-role="first" onclick="global_menu_bar_first_guide()">',
-			'      <i class="icon-fast-backward icon-fixed-width text-info"></i></a>',
-			'    <a href="#" data-role="prev" class="btn btn-default">',
-			'      <i class="icon-step-backward icon-2x icon-fixed-width"></i></a>',
-			'    <a href="#" data-role="next" class="btn btn-default">',
-			'      <i class="icon-step-forward icon-2x icon-fixed-width"></i></a>',
-			'    <a href="#" data-role="last" onclick="global_menu_bar_last_guide()">',
-			'      <i class="icon-fast-forward icon-fixed-width text-info"></i></a>',
-			'    <a href="#" data-role="end" class="pull-right">',
-			'      <i class="icon-remove icon-large icon-fixed-width fntblk"></i></a>',
+			'  <div class="popover-title fntmd"></div>',
+			'  <div class="popover-content fntmd"></div>',
+			'  <div class="popover-navigation text-center">',
+			'    <span class="pull-left">',
+			'      <span class="fntsm">', (i + 1), '/', step.guide.steps.length, '</span>',
+			'    </span>',
+			'    <span class="pull-right">',
+			'      <button data-role="first" class="btn btn-default btn-xs"',
+			'        onclick="global_menu_bar_first_guide()">',
+			'        <i class="icon-repeat"></i></button>',
+			'      <button data-role="end" class="btn btn-default btn-xs">',
+			'        <i class="icon-remove"></i></button>',
+			'    </span>',
+			'    <span>',
+			'      <button data-role="prev" class="btn btn-default btn-xs">Prev</button>',
+			fin ? 
+			'      <button data-role="end" class="btn btn-info btn-xs">Done</button>' :
+			'      <button data-role="next" class="btn btn-primary btn-xs">Next</button>',
+			'    </span>',
 			'  </div>',
 			'</div>'
 		].join('\n');
@@ -170,6 +176,9 @@ function GuideCtrl($scope) {
 		this.tour = new Tour({
 			name: name,
 			debug: true,
+			path: '/mydata',
+			backdrop: true,
+			orphan: true,
 			template: guide_template,
 			onStart: function() {
 				if (!me.was_started) {
@@ -183,7 +192,8 @@ function GuideCtrl($scope) {
 				$scope.safe_apply();
 			},
 			onEnd: function() {
-				if (me.tour._current >= me.completed_steps) {
+				if (me.tour._current >= me.completed_steps ||
+					me.tour._current+1 >= me.steps.length) {
 					// mark persistent completion when new step is reached
 					me.completed_steps = me.tour._current + 1;
 					localStorage[name + '_completed_steps'] = me.completed_steps;
@@ -208,8 +218,8 @@ function GuideCtrl($scope) {
 		// so we identify simply by the first that's not ended.
 		// console.log(this);
 		if (!this.tour.ended() && !$scope.running_guide) {
-			if (this.was_started || (!this.was_started && auto_start)) {
-				this.tour.start();
+			if (this.was_started || auto_start) {
+				this.run();
 			}
 		}
 	};
@@ -220,29 +230,41 @@ function GuideCtrl($scope) {
 		return this.completed_steps === this.steps.length;
 	};
 
+	// since we update the number of steps in the tour
+	// we need to make sure that current step is valid
+	// otherwise even goto() will fail (onHide on undefined step).
+	Guide.prototype.valid_step = function() {
+		var i = this.tour._current;
+		if (typeof i !== 'number' || i < 0 || i >= this.steps.length) {
+			console.log('resetting invalid tour step', i, this.name);
+			i = this.tour._current = 0;
+		}
+		return i;
+	};
+
 	Guide.prototype.run = function() {
+		// we want to implement "pause" so we keep
+		// and restore the step number, otherwise restart will clear it.
+		var i = this.valid_step();
 		if (this.tour.ended()) {
 			// when the tour ended, only restart can redeem it
-			// but we want to implement "pause" so we keep
-			// and restore the step number.
-			var i = this.tour._current;
 			this.tour.restart();
-			this.tour.goto(i);
 		} else {
 			this.tour.start();
 		}
+		this.tour.goto(i);
 	};
 
 	global_menu_bar_first_guide = function() {
-		console.log($scope.running_guide);
-		if ($scope.running_guide) {
+		if ($scope.running_guide && !$scope.running_guide.tour.ended()) {
+			$scope.running_guide.valid_step();
 			$scope.running_guide.tour.goto(0);
 		}
 		$scope.safe_apply();
 	};
 	global_menu_bar_last_guide = function() {
-		console.log($scope.running_guide);
-		if ($scope.running_guide) {
+		if ($scope.running_guide && !$scope.running_guide.tour.ended()) {
+			$scope.running_guide.valid_step();
 			$scope.running_guide.tour.goto($scope.running_guide.steps.length - 1);
 		}
 		$scope.safe_apply();
@@ -266,28 +288,19 @@ function GuideCtrl($scope) {
 
 
 	//// WELCOME ////
-	tour_step = -1;
 
-	tour_step++;
-	$scope.guides.welcome.steps[tour_step] = {
-		path: '/mydata',
-		element: '#logo_link',
-		placement: 'bottom',
-		backdrop: true,
+	$scope.guides.welcome.steps.push({
 		title: 'WELCOME TO NOOBAA',
 		content: [
 			'<p>Use NooBaa for <b>extreme media files!</b></p>',
 			'<p>Unlike Dropbox it is <b>FREE</b> for any capacity!',
 			'  The Crowd makes it so...</p>'
 		].join('\n')
-	};
+	});
 
-	tour_step++;
-	$scope.guides.welcome.steps[tour_step] = {
-		path: '/mydata',
+	$scope.guides.welcome.steps.push({
 		element: '#upload_button',
 		placement: 'bottom',
-		backdrop: true,
 		title: 'UPLOAD',
 		content: [
 			'<p>Use the upload button',
@@ -295,14 +308,9 @@ function GuideCtrl($scope) {
 			'  to upload files to your account.</p>',
 			'<p>They will remain private until you share them.</p>',
 		].join('\n')
-	};
+	});
 
-	tour_step++;
-	$scope.guides.welcome.steps[tour_step] = {
-		path: '/mydata',
-		element: '#my_guides',
-		placement: 'bottom',
-		backdrop: true,
+	$scope.guides.welcome.steps.push({
 		title: 'WHAT\'S NEXT',
 		content: [
 			// '<p>You have taken the first step in the way of the NooBaa!</p>',
@@ -314,7 +322,7 @@ function GuideCtrl($scope) {
 			// '<p>Have a good one!</p>',
 			'<p class="text-right">- The NooBaa Team -</p>'
 		].join('\n')
-	};
+	});
 	$scope.guides.welcome.steps_ready(true);
 
 
@@ -332,20 +340,7 @@ function GuideCtrl($scope) {
 		$('#upload_modal').off('nbdialog_open.upload_guide');
 	}
 
-	function dialog_handler(dialog_selector, is_show) {
-		return function(tour) {
-			$(dialog_selector).nbdialog(is_show ? 'open' : 'close');
-		};
-	}
-
-	tour_step = -1;
-
-	tour_step++;
-	$scope.guides.upload_file.steps[tour_step] = {
-		path: '/mydata',
-		element: '#upload_button',
-		placement: 'bottom',
-		backdrop: true,
+	$scope.guides.upload_file.steps.push({
 		title: 'UPLOAD',
 		content: [
 			'<p>This guide will show you how to upload using:</p>',
@@ -354,113 +349,78 @@ function GuideCtrl($scope) {
 			'  <li><p><i class="icon-compass icon-li icon-fixed-width"></i>File Chooser</p></li>',
 			'</ul>'
 		].join('\n'),
-	};
+	});
 
-	tour_step++;
-	$scope.guides.upload_file.steps[tour_step] = {
-		path: '/mydata',
+	$scope.guides.upload_file.steps.push({
 		element: '#upload_button',
 		placement: 'bottom',
-		backdrop: true,
 		title: 'DRAG & DROP',
 		content: [
 			'<p>Drag a file and drop it <b>anywhere</b> in the NooBaa window.</p>',
 			'<p>This will immediately start uploading.</p>',
-			'<p>Try it now...</p>',
+			'<p>Try it now or click next to continue...</p>',
 		].join('\n'),
 		onShow: advance_on_upload_modal_show,
-		onHide: done_advance_on_upload_modal_show,
-		onNext: dialog_handler('#upload_modal', true)
-	};
+		onHide: done_advance_on_upload_modal_show
+	});
 
-	tour_step++;
-	$scope.guides.upload_file.steps[tour_step] = {
-		path: '/mydata',
-		// container: '#upload_modal',
-		element: '#upload_modal',
+	$scope.guides.upload_file.steps.push({
+		element: '#upload_button',
 		placement: 'bottom',
 		title: 'UPLOADING',
-		width: 500,
 		content: [
-			'<p>Good job!</p>',
-			'<p>This is the upload dialog which shows your upload\'s progress.',
+			'<p>Alrighty then!</p>',
+			'<p>The upload dialog keeps your upload\'s progress.',
 			'<p>You can always get back to it using the upload button',
 			'  <a class="btn btn-success" href="#"><i class="icon-cloud-upload icon-large"></i></a>.',
 			'  It will also open whenever you drop files to upload.'
-		].join('\n'),
-		onShow: dialog_handler('#upload_modal', true),
-		onPrev: dialog_handler('#upload_modal', false),
-	};
+		].join('\n')
+	});
 
-	tour_step++;
-	$scope.guides.upload_file.steps[tour_step] = {
-		path: '/mydata',
-		// container: '#upload_modal',
-		element: '#choose_file_button',
+	$scope.guides.upload_file.steps.push({
+		element: '#upload_button',
 		placement: 'bottom',
 		title: 'USING FILE CHOOSER',
 		content: [
-			'<p>Press the "Choose Files" button and select files to upload.</p>',
-			'<p>You can try it now...</p>'
-		].join('\n'),
-		onShow: dialog_handler('#upload_modal', true),
-	};
+			'<p>In the upload dialod use the "Choose Files" button to select files to upload.</p>'
+		].join('\n')
+	});
 
-	tour_step++;
-	$scope.guides.upload_file.steps[tour_step] = {
-		path: '/mydata',
-		// container: '#upload_modal',
-		element: '#choose_folder_button',
+	$scope.guides.upload_file.steps.push({
+		element: '#upload_button',
 		placement: 'bottom',
 		title: 'USING FODLER CHOOSER',
 		content: [
 			'<p>Folder upload is supported on some browsers (e.g. Chrome, Safari).</p>',
-			'<p>Press the "Choose Folders" button and select a folder to upload</p>',
+			'<p>Use the "Choose Folders" button to select a folder to upload.</p>',
 			'<p>The entire folder content will be uploaded.</p>',
-			'<p>You can try it now...</p>'
-		].join('\n'),
-		onShow: dialog_handler('#upload_modal', true),
-		onNext: dialog_handler('#upload_modal', false),
-	};
+		].join('\n')
+	});
 
-	tour_step++;
-	$scope.guides.upload_file.steps[tour_step] = {
-		path: '/mydata',
-		element: '#inodes_list',
-		placement: 'top',
+	$scope.guides.upload_file.steps.push({
+		element: '#upload_button',
+		placement: 'bottom',
 		title: 'WHERE IS IT?',
 		content: [
 			'<p>Upload are added to your account',
 			'  into the folder that is selected when the upload starts.',
 			'<p>You should see your uploads listed in the current folder.</p>',
-		].join('\n'),
-		onPrev: dialog_handler('#upload_modal', true)
-	};
+		].join('\n')
+	});
 
-	tour_step++;
-	$scope.guides.upload_file.steps[tour_step] = {
-		path: '/mydata',
-		element: '#my_guides',
-		placement: 'bottom',
-		backdrop: true,
+	$scope.guides.upload_file.steps.push({
 		title: 'DONE',
 		content: [
 			'<p>Well Done! You are a now a master of uploads!</p>',
 			'<p>Check out more guides using',
-			'  <i class="icon-info-sign text-info"></i>.</p>',
-		].join('\n'),
-	};
+			'  <i class="icon-info-sign text-info"></i></p>',
+		].join('\n')
+	});
 	$scope.guides.upload_file.steps_ready();
 
 	// ACCESS FILE ////
-	tour_step = -1;
 
-	tour_step++;
-	$scope.guides.access_file.steps[tour_step] = {
-		path: "/mydata",
-		element: '#my_guides',
-		placement: 'bottom',
-		backdrop: true,
+	$scope.guides.access_file.steps.push({
 		title: 'ACCESSING',
 		content: [
 			'<p>This guide will show you how to open your files and browse your directories:</p>',
@@ -470,14 +430,11 @@ function GuideCtrl($scope) {
 			'  <li><p><i class="icon-compass icon-li icon-fixed-width"></i>The folders tree</p></li>',
 			'</ul>'
 		].join('\n')
-	};
+	});
 
-	tour_step++;
-	$scope.guides.access_file.steps[tour_step] = {
-		path: "/mydata",
+	$scope.guides.access_file.steps.push({
 		element: '#open_button',
 		placement: 'bottom',
-		backdrop: true,
 		title: 'THE PLAY BUTTON',
 		content: [
 			'<p><a class="btn btn-default toolbtn" href="#"><i class="icon-play icon-large"></i></a>',
@@ -488,14 +445,11 @@ function GuideCtrl($scope) {
 			'</ul>',
 
 		].join('\n')
-	};
+	});
 
-	tour_step++;
-	$scope.guides.access_file.steps[tour_step] = {
-		path: "/mydata",
-		element: '#inodes_list',
-		placement: 'left',
-		backdrop: true,
+	$scope.guides.access_file.steps.push({
+		element: '#inodes_list_marker',
+		placement: 'right',
 		title: 'THE FOLDER CONTENT AREA',
 		content: [
 			'<p>Shows the files and folders within the currently selected folder.</p>',
@@ -503,96 +457,79 @@ function GuideCtrl($scope) {
 			'<p>Drag and drop files here to upload.</p>',
 			'<p>Drag and drop files from here to other folders to move them.</p>',
 		].join('\n')
-	};
+	});
 
-	tour_step++;
-	$scope.guides.access_file.steps[tour_step] = {
-		path: "/mydata",
+	$scope.guides.access_file.steps.push({
 		element: '#inodes_tree',
 		placement: 'right',
-		backdrop: true,
 		title: 'THE FOLDERS TREE',
 		content: [
 			'<p>	The currently selected folder is marked in the folder tree, and it\'s content is displayed in the content area.</p>',
 			'<p>	Open a folder using the play button or double-click on it. </p>',
 		].join('\n')
-	};
+	});
 
 	$scope.guides.access_file.steps_ready();
 
 
 	//// SHARE FILE ////
-	tour_step = -1;
 
-	tour_step++;
-	$scope.guides.share_file.steps[tour_step] = {
+	$scope.guides.share_file.steps.push({
 		element: "#share_button",
 		placement: 'bottom',
-		backdrop: true,
 		title: "THE SHARING BUTTON",
 		content: [
 			'<p><a class="btn btn-default toolbtn" href="#"><i class="icon-share icon-large"></i></a> Allows you to share a file or folder. </p>',
 			'<p> You can select whom you\'d like to share with from your Facebook friends.</p>',
 		].join('\n ')
-	};
+	});
 
-	tour_step++;
-	$scope.guides.share_file.steps[tour_step] = {
+	$scope.guides.share_file.steps.push({
 		element: "#share_button",
 		placement: 'bottom',
-		backdrop: true,
 		title: "THE SHARING BUTTON",
 		content: [
 			'<p> In addition you can create a link. The link allows everybody who has it, to access the file. </p>',
 			'<p> You can revoke the link, making the file inaccessible with that link.</p> ',
 		].join('\n ')
-	};
+	});
 
-	tour_step++;
-	$scope.guides.share_file.steps[tour_step] = {
+	$scope.guides.share_file.steps.push({
 		element: "#share_button",
 		placement: 'bottom',
-		backdrop: true,
 		title: "THE SHARING BUTTON",
 		content: [
 			'<p> The <i class="icon-share icon-large"></i> indication is provided for any shared file in the folder content view, so you can always tell who can read your files.</p>',
 		].join('\n ')
-	};
+	});
 
-	tour_step++;
-	$scope.guides.share_file.steps[tour_step] = {
+	$scope.guides.share_file.steps.push({
 		element: "#share_button",
 		placement: 'bottom',
-		backdrop: true,
 		title: "PRIVACY",
 		content: [
 			'<p> In NooBaa every file is private until you share it. </p>',
 			'<p> Notice that sharing a folder shares all files under it, including files you\'ll add to that folder after the sharing. </p>',
 		].join('\n')
-	};
+	});
 
-	tour_step++;
-	$scope.guides.share_file.steps[tour_step] = {
+	$scope.guides.share_file.steps.push({
 		element: "#share_button",
 		placement: 'bottom',
-		backdrop: true,
 		title: "SHARING IS FREE",
 		content: [
 			'<p> Sharing is free in every aspect. </p>',
 			'<p> It doesn\'t cost you anything and it doesn\'t add any sort of charge or quota usage to your friends. </p>',
 		].join('\n')
-	};
+	});
 
 	$scope.guides.share_file.steps_ready();
 
 	// SHARED WITH ME //
-	tour_step = -1;
 
-	tour_step++;
-	$scope.guides.shared_with_me.steps[tour_step] = {
+	$scope.guides.shared_with_me.steps.push({
 		element: "#inodes_tree",
 		placement: 'right',
-		backdrop: true,
 		title: "THE 'SHARED WITH ME' FOLDER",
 		content: [
 			'<p> In Noobaa there are two basic folders:</p>',
@@ -601,110 +538,143 @@ function GuideCtrl($scope) {
 			'  <li><p><i class="icon-compass icon-li icon-fixed-width"></i>Shared with me</p></li>',
 			'</ul>'
 		].join('\n')
-	};
+	});
 
-	tour_step++;
-	$scope.guides.shared_with_me.steps[tour_step] = {
+	$scope.guides.shared_with_me.steps.push({
 		element: "#inodes_tree",
 		placement: 'right',
-		backdrop: true,
 		title: "THE 'SHARED WITH ME' FOLDER",
 		content: [
 			'<p> The \'Shared With Me\' folder points all to files your friends shared with you.</p>',
 			'<p> Each of the files in this folder will show who shared it with you.</p>',
 		].join('\n')
-	};
+	});
 
-	tour_step++;
-	$scope.guides.shared_with_me.steps[tour_step] = {
+	$scope.guides.shared_with_me.steps.push({
 		element: "#inodes_tree",
 		placement: 'right',
-		backdrop: true,
 		title: "THE 'SHARED WITH ME' FOLDER",
 		content: [
 			'<p> As one can share only with his Facebook friends spamming is not an option.</p>',
 			'<p> Well... except for that friends you\'re not sure why you have on you friends list...</p>',
 		].join('\n')
-	};
+	});
 
-	tour_step++;
-	$scope.guides.shared_with_me.steps[tour_step] = {
+	$scope.guides.shared_with_me.steps.push({
 		element: "#inodes_tree",
 		placement: 'right',
-		backdrop: true,
 		title: "THE 'SHARED WITH ME' FOLDER",
 		content: [
 			'<p> Files will appear in the \'Shared With Me\' folder as long as they are shared with you.</p>',
 			'<p> They don\'t take any of your capacity so don\'t worry about having a lot of huge files there</p>',
 		].join('\n')
-	};
+	});
 
-	tour_step++;
-	$scope.guides.shared_with_me.steps[tour_step] = {
+	$scope.guides.shared_with_me.steps.push({
 		element: "#inodes_tree",
 		placement: 'right',
-		backdrop: true,
 		title: "THE 'SHARED WITH ME' FOLDER",
 		content: [
 			'<p> As you are not the owner of the file, it can be removed by the owner at any point.</p>',
 			'<p> If you think you might be interested in viewing this file later, just copy it to your account.</p>',
 		].join('\n')
-	};
+	});
 
 
 	$scope.guides.shared_with_me.steps_ready();
 
-
 	//// CO SHARING ////
 
-	$scope.guides.cosharing.steps[0] = {
+	$scope.guides.cosharing.steps.push({
 		path: "/settings",
-		element: "#user_label",
-		placement: 'bottom',
-		backdrop: true,
-		title: "CO-SHARE",
+		title: "DON'T PANIC",
 		content: [
-			'<p>This guide will show you how to co-share',
-			'  in order to get as much capacity as you possibly want.</p>',
+			'<p>This is your account settings page.</p>',
+			'<p>To get back to your files choose ',
+			'MY DATA from the main toolbar</p>',
 		].join('\n')
-	};
-	$scope.guides.cosharing.steps[1] = {
+	});
+
+	$scope.guides.cosharing.steps.push({
+		path: "/settings",
+		title: "CO-SHARING",
+		content: [
+			'<p>Co-sharing is the key to gain access to unlimited fast cloud storage.</p>',
+			'<p>Co-sharing enables NooBaa to convert local hard drive resources into cloud resources.</p>',
+		].join('\n')
+	});
+
+	$scope.guides.cosharing.steps.push({
+		path: "/settings",
+		title: "REQUIREMENTS",
+		content: [
+			'<p>In order to co-share all you will need is a Computer ',
+			'connected to the Internet with some underutilized storage.</p>',
+		].join('\n')
+	});
+
+	$scope.guides.cosharing.steps.push({
+		path: "/settings",
+		title: "COSTS",
+		content: [
+			'<p>FREE for any capacity.</p>',
+			'<p>FREE for any number of files.</p>',
+			'<p>FREE for unlimited sharing.</p>',
+		].join('\n')
+	});
+
+	$scope.guides.cosharing.steps.push({
 		path: "/settings",
 		element: "#dl",
 		placement: 'top',
-		backdrop: true,
-		title: "INSTALL DEVICE",
+		title: "STEP 1/3",
 		content: [
-			'<p>Start co-sharing by installing your first device.</p>',
-			'<p>Download the software, unzip and run.</p>'
+			'<p>Download the NooBaa client for your OS.</p>',
+			'<p>(we are working with the Chrome team to resolve the warning)</p>'
 		].join('\n')
-	};
-	$scope.guides.cosharing.steps[2] = {
+	});
+
+	$scope.guides.cosharing.steps.push({
+		path: "/settings",
+		title: "STEP 2/3",
+		content: [
+			'<p>Run the installer.</p>',
+			'<p>When the program starts, login to your Facebook account.',
+		].join('\n')
+	});
+
+	$scope.guides.cosharing.steps.push({
+		path: "/settings",
+		title: "STEP 3/3",
+		content: [
+			'<p>Choose how much quota you\'d like to get on the cloud - ',
+			'NooBaa will preallocate the same amount of storage on your hard drive. </p>',
+		].join('\n')
+	});
+
+	$scope.guides.cosharing.steps.push({
 		path: "/settings",
 		element: "#devs",
 		placement: 'bottom',
-		backdrop: true,
-		width: 500,
-		title: "CONNECTING",
+		title: "First device added",
 		content: [
-			'<p>When the application starts you will see the dashboard screen.</p>',
-			'<p>Connect it with your facebook account.</p>',
-			'<p>Once the connection is made, use refresh button',
-			'  <a class="btn btn-primary"><i class="icon-refresh icon-large"></i></a>',
-			'  and you should see your device listed here.</p>'
+			'<p>Once your device is up and running, you can view your device in the device list.</p>',
+			'<p>Enjoy the power of NooBaa\'s crowd-cloud!</p>',
 		].join('\n')
-	};
-	$scope.guides.cosharing.steps[3] = {
+	});
+
+	$scope.guides.cosharing.steps.push({
 		path: "/settings",
 		element: "#my_guides",
 		placement: 'bottom',
-		backdrop: true,
-		reflex: true,
-		title: "First device added",
+		title: "HOW DOES IT WORK",
 		content: [
-			'<p>Once your device is up and running,',
-			'you are co-sharing and enjoying the power of NooBaa\'s crowd-cloud!</p>',
+			'<p>NooBaa is a crowd cloud.</p>',
+			'<p>Every file stored on it is cut, encrypted and sent to numerous NooBaa clients.</p>',
+			'<p>When the file is being read, all the pieces are recalled back.</p>',
+			'<p>For more information see NooBaa\'s <a href="../FAQ">  FAQ.<a/> section</p>',
 		].join('\n')
-	};
+	});
+
 	$scope.guides.cosharing.steps_ready();
 }
