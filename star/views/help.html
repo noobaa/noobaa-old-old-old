@@ -2,7 +2,6 @@
 <html ng-app="noobaa_app" xmlns:fb="http://ogp.me/ns/fb#" lang="en">
 <head>
 	<?# def.include('common_head.html') ?>
-	<link href="/vendor/chardin.js/chardinjs.css" type="text/css" rel="stylesheet"/>
 	<style>
 		#nb_nav_marker {
 			position: absolute;
@@ -23,13 +22,13 @@
 		}
 
 		.bg_item1 {
-			background-image: url('/public/images/bg_skate.jpg');
+			background-image: url('http://comps.canstockphoto.com/can-stock-photo_csp5156216.jpg');
 		}
 		.bg_item2 {
-			background-image: url('/public/images/bg_snow.jpg');
+			background-image: url('http://comps.canstockphoto.com/can-stock-photo_csp5156216.jpg');
 		}
 		.bg_item3 {
-			background-image: url('/public/images/bg_wave.jpg');
+			background-image: url('http://comps.canstockphoto.com/can-stock-photo_csp5156216.jpg');
 		}
 		.bg_item1, .bg_item2, .bg_item3 {
 			background-repeat: no-repeat;
@@ -55,65 +54,11 @@
 	</style>
 </head>
 
-<body ng-cloak>
+<body ng-cloak ng-controller="WelcomeCtrl">
 
 	<?# def.facebook_init_body ?>
 
 	<a id="_"></a>
-
-	<div id="nb_carousel" class="carousel slide filling">
-		<div class="carousel-inner filling">
-			
-			<div class="active item filling bg_item1">
-				<div class="nb_page_pad text-left fntpaint fntblk">
-					<br/><br/><br/>
-					<p class="H2">Cloud storage made</p>
-					<p class="H1">SIMPLE</p>
-					<br/>
-					<p class="lead">All your Data.</p>
-					<p class="lead">One location.</p>
-					<p class="lead">No complex plans.</p>
-					<p class="lead">No complex decisions.</p>
-					<p class="lead">No additional hardware.</p>
-				</div>
-			</div>
-
-			<div class="item filling bg_item2">
-				<div class="nb_page_pad text-left fntpaint fntwht">
-					<br/><br/><br/>
-					<p class="H2">Cloud storage made</p>
-					<p class="H1">FAST</p>
-					<br/>
-					<p class="lead">Join the power of the crowd.</p>
-					<p class="lead">Together we are the most -</p>
-					<p class="lead">powerful data-center.</p>
-				</div>
-			</div>
-
-			<div class="item filling bg_item3">
-				<div class="nb_page_pad text-left fntpaint fntwht">
-					<br/><br/><br/>
-					<p class="H2">Cloud storage made</p>
-					<p class="H1">FREE</p>
-					<br/>
-					<p class="lead">Unlimited capacity.</p>
-					<p class="lead">Absolutely free.</p>
-				</div>
-			</div>
-
-		</div>
-		<ol class="carousel-indicators">
-			<li data-target="#nb_carousel" data-slide-to="0" class="active"></li>
-			<li data-target="#nb_carousel" data-slide-to="1"></li>
-			<li data-target="#nb_carousel" data-slide-to="2"></li>
-		</ol>
-		<a class="carousel-control left" 
-			href="#nb_carousel" 
-			data-slide="prev">&lsaquo;</a>
-		<a class="carousel-control right"
-			href="#nb_carousel"
-			data-slide="next">&rsaquo;</a>
-	</div>
 
 	<div id="nb_nav_marker"></div>
 
@@ -140,8 +85,7 @@
 				</button>
 				<button href="#join"
 					class="navbar-btn btn btn-default scroller"
-					style="background-color: #ffffff; color: black"
-					onclick="$('body').chardinJs('start')">
+					style="background-color: #ffffff; color: black">
 					<b>JOIN US</b>
 				</button>
 				<a href="/auth/facebook/login/"
@@ -186,56 +130,45 @@
 	<div class="wfill bg_clouds" style="background-position: 0 400px"></div>
 
 	<div id="join" class="nb_nav_link nb_page_pad fnt"
-		style="margin-bottom: 40px" ng-controller="HelpCtrl">
+		style="margin-bottom: 40px">
 		<div class="H2 text-center">JOIN US !</div>
 		<br/><br/><br/>
 		<div class="text-center">
 			<a href="/auth/facebook/login/">
-				<img
-					onmouseover="$('body').chardinJs('start')"
-					onmouseout="$('body').chardinJs('stop')"
-					src="/public/images/facebook_signup_button_big.png"
-					data-intro="We won't post anything on your wall." data-position="right" 
+				<img src="/public/images/facebook_signup_button_big.png"
 					style="max-width: 300px"></img>
 			</a>
 		</div>
-		<br/>
-
-<!-- FAQ section -->
-		<div id="faq" ng-repeat="(sec_idx, curr_faq_section) in faq">
-			<div class="text-center" >
-				<a class="btn btn-default"
-					data-toggle="collapse"
-					href="#curr_faq_section_content{{sec_idx}}" style="width:300px">
-					<b>{{curr_faq_section.title}}</b>
-					<i class="caret"></i>
+		<br/><br/>
+		<div class="text-center">
+			<a class="btn btn-default"
+				data-toggle="collapse"
+				href="#login_faq_content">
+				<b>{{login_faq.title}}</b>
+				<i class="caret"></i>
+			</a>
+		</div>
+		<br/><br/>
+		<div id="login_faq_content" class="collapse text-left">
+			<div ng-repeat="(idx, question) in login_faq.questions"
+				style="border-radius: 10px/10px; 
+					border: 1px solid #eeeeee; 
+					margin: 10px;
+					padding: 0 20px 0 20px">
+				<a data-toggle="collapse"
+					href="#login_faq_question{{idx}}">
+					<p><!-- for border alignment --></p>
+					<p class="fnt fntmd">
+						<i class="icon-plus icon-fixed-width"></i>
+						{{question.q}}
+					</p>
 				</a>
-			</div>
-			<br/>
-			<div id="curr_faq_section_content{{sec_idx}}" class="collapse text-left">
-				<div ng-repeat="(idx, question) in curr_faq_section.questions"
-					style="border-radius: 10px/10px; 
-						border: 1px solid #eeeeee; 
-						margin: 10px;
-						padding: 0 20px 0 20px">
-					<a data-toggle="collapse"
-						href="#curr_faq_section_question{{idx}}{{sec_idx}}">
-						<p><!-- for border alignment --></p>
-						<p class="fnt fntmd">
-							<i class="icon-plus icon-fixed-width"></i>
-							{{question.q}}
-						</p>
-					</a>
-					<div class="collapse"
-						id="curr_faq_section_question{{idx}}{{sec_idx}}">
-						<p class="fnt fntmd">{{question.a}}</p>
-					</div>
+				<div class="collapse"
+					id="login_faq_question{{idx}}">
+					<p class="fnt fntmd">{{question.a}}</p>
 				</div>
 			</div>
-		
 		</div>
-
-<!-- End of FAQ section -->
 	</div>
 
 	<div class="wfill bg_logo text-center">
@@ -246,8 +179,6 @@
 
 
 	<?# def.include('common_scripts.html') ?>
-	<script src="/vendor/chardin.js/chardinjs.min.js" type="text/javascript"></script>
-	<script src="/public/js/help.js" type="text/javascript"></script>
 
 	<script type="text/javascript">
 
@@ -309,6 +240,47 @@
 				return false;
 			}); 	
 		});
+
+		function WelcomeCtrl($scope, $http) {
+			$scope.str2id = function(str) {
+				return str.split(' ').join('');
+			};
+
+			$scope.client_faq = {
+				title: 'NooBaa client FAQ',
+				questions: [{
+					q: 'Must I download and install the client to use NooBaa?',
+					a: 'No. You can take NooBaa for a test drive without downloading the client. Keep in mind that this is a co-sharing community. If you don\'t intend to share you won\'t be able to fully enjoy the power of the crowd cloud'
+				}, {
+					q: 'Which operating systems do you support?',
+					a: 'Access to the dashboard is done using a web browser so you can access your data from anywhere. The NooBaa client is currently available for MacOS, Windows and Linux. '
+				}]
+			};
+
+			$scope.login_faq = {
+				title: 'Facebook Login FAQ',
+				questions: [{
+					q: 'Why do you require a Facebook login?',
+					a: 'All you data on NooBaa is kept private, so we had to provide you with way to authenticate your identity. As we can never remember our own passwords, and reusing passwords is a bad habit, why would we force another nuisance on you?!'
+				}, {
+					q: 'I don\'t have a Facebook user and would like to use NooBaa anyway.',
+					a: 'We currently only support Facebook login so the easiest path would be to sign up to Facebook. We do plan to allow a variety of other login accounts such as: Google, Twitter etc but not very soon.'
+				}, {
+					q: 'Why only Facebook and why Facebook first?',
+					a: 'We love Facebook. In addition, chances are you already have a Facebook user.'
+				}, {
+					q: 'Do you have access to my Facebook password or data?',
+					a: 'No. You authenticate with Facebook in a method called OAuth.' 
+				}, {
+					q: 'Must I Like your page on Facebook?',
+					a: 'Not really but it would be beneficial to everybody as we\'re building a community and not a passive service. Communicating with our customers would help us do the right thing.'
+				}, {
+					q: 'Why does Facebook ask me to approve your access?',
+					a: 'This is done in order to keep your privacy. We would like to access your friends list to strengthen the crowd cloud and we need your email to be able to communicate with you outside of NooBaa. We won\'t post on your wall or add you to any newsletter without getting your explicit permission first.'
+				}],
+			};
+		}
+		WelcomeCtrl.$inject = ['$scope', '$http'];
 	</script>
 
 </body>
