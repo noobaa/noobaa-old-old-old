@@ -76,6 +76,16 @@
 		var data = e.data('nbdialog');
 		var keydown = 'keydown.nbdialog_' + e.uniqueId().attr('id');
 		var visible;
+		
+		// initialize global body state
+		var body = $('body');
+		var body_data = body.data('nbdialog');
+		if (!body_data) {
+			body_data = {
+				modal_stack: []
+			};
+			body.data('nbdialog', body_data);
+		}
 
 		if (opt === 'open') {
 			if (!data || opt_for_open) {
@@ -94,6 +104,13 @@
 				};
 			}
 			if (data.opt.modal) {
+				// modal stacking: modals go high also above previous modals
+				var zIndex = 2001;
+				if (body_data.modal_stack.length) {
+					zIndex = body_data.modal_stack[0].css('z-index') + 2;
+				}
+				body_data.modal_stack.unshift(e);
+				e.css('z-index', zIndex);
 				// create backdrop element
 				$('<div id="nbdialog_modal_backdrop"></div>').css({
 					position: 'fixed',
@@ -101,11 +118,11 @@
 					right: 0,
 					top: 0,
 					bottom: 0,
-					zIndex: e.css('z-index') - 1,
-				}).appendTo($('body')).show();
+					zIndex: zIndex - 1,
+				}).appendTo(body).show();
 			}
 			// bring it to front by adding at the end of body
-			e.detach().appendTo($('body'));
+			e.detach().appendTo(body);
 			// register event to close dialog on escape
 			$(window).on(keydown, function(event) {
 				// ESCAPE KEY - close dialog
@@ -151,6 +168,7 @@
 				};
 				// remove the modal backdrop
 				if (data.opt.modal) {
+					body_data.modal_stack.shift();
 					$('#nbdialog_modal_backdrop').remove();
 				}
 				// unregister event to close dialog on escape
@@ -187,7 +205,7 @@
 			};
 			// take the element from current parent to top level
 			// to prevent css issues by inheritance
-			e.detach().appendTo($('body'));
+			e.detach().appendTo(body);
 			e.attr({
 				// Setting tabIndex makes the div focusable
 				tabIndex: -1,
@@ -253,7 +271,6 @@
 				left: left,
 				width: width,
 				height: height,
-				zIndex: 1005 // above navbar, below tour
 			}, opt.css, {
 				// we force these css on top of given css for the dialog to work
 				display: data && data.state === 'open' ? 'block' : 'none',
@@ -307,10 +324,7 @@
 		dlg.appendTo($('body'));
 		dlg.nbdialog('open', _.extend({
 			remove_on_close: true,
-			modal: true,
-			css: {
-				zIndex: 2000
-			}
+			modal: true
 		}, options));
 	}
 
@@ -349,10 +363,7 @@
 		dlg.appendTo($('body'));
 		dlg.nbdialog('open', _.extend({
 			remove_on_close: true,
-			modal: true,
-			css: {
-				zIndex: 2000
-			}
+			modal: true
 		}, options));
 	}
 
