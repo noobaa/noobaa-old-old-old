@@ -385,7 +385,7 @@ Inode.prototype.handle_drop = function(inode) {
 Inode.prototype.get_drag_helper = function() {
 	return $('<div class="label label-default roundbord">' +
 		'<span class="fntthin fntmd">Moving: <b>' +
-		this.name + '</b></span></div>').css('z-index', 1);
+		this.name + '</b></span></div>').css('z-index', 3000);
 };
 
 Inode.prototype.make_inode_with_icon = function() {
@@ -1099,9 +1099,8 @@ function UploadCtrl($scope) {
 
 	var upload_modal = $('#upload_modal');
 	upload_modal.nbdialog({
-		containment: '#my_data_content',
 		css: {
-			width: "80%"
+			width: "70%"
 		}
 	});
 

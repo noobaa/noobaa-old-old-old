@@ -14,14 +14,13 @@ html, body {
 .fntthin {
 	font-family: 'Ubuntu', sans-serif !important;
 }
+
 .fntmd {
+	/* normal font is 14px and line 1.428em by bootstrap */
 	font-size: 16px;
-	line-height: 26px;
+	line-height: 1.5em;
 }
-.fntlg {
-	font-size: 22px;
-	line-height: 34px;
-}
+
 .fntblk {
 	color: black;
 }
@@ -32,7 +31,6 @@ html, body {
 .navbar {
 	width: 100% !important;
 	margin: 0 !important;
-	z-index: 1020 !important;
 	background-color: rgba(34,34,34,0.9) !important;
 	background-image: none !important;
 }
@@ -145,7 +143,7 @@ html, body {
 	-moz-box-shadow: 	0 0 3px 3px rgba(0, 0, 0, 0.4);
 	-webkit-box-shadow: 0 0 3px 3px rgba(0, 0, 0, 0.4);
 	box-shadow: 		0 0 3px 3px rgba(0, 0, 0, 0.4);
-	border: 3px solid rgba(0, 0, 0, 0.1);
+	border: 3px solid rgba(50, 50, 50, 0.5);
 	-moz-background-clip: 		padding;
 	-webkit-background-clip: 	padding;
 	background-clip: 			padding-box;
@@ -161,10 +159,6 @@ html, body {
 .nbdialog .inode_label {
 	margin: 20px;
 	word-wrap: break-word;
-}
-#nbdialog_modal_backdrop, .tour-backdrop {
-	background-color: black;
-	opacity: 0.5 !important;
 }
 
 .alert_dialog .nbdialog_header .alert_icon {
@@ -182,41 +176,40 @@ html, body {
 		1px 0 black,  0 -1px black;
 }
 
-/*
-.ui-resizable-s, .ui-resizable-se, .ui-resizable-sw {
-	bottom: -10px !important;
-	height: 15px !important;
+.nbdialog_modal_backdrop,
+.tour-backdrop {
+	background-color: black;
+	opacity: 0.5 !important;
+	position: fixed !important;
+	top: 0 !important;
+	left: 0 !important;
+	height: 100% !important;
+	width: 100% !important;
 }
-.ui-resizable-n, .ui-resizable-ne, .ui-resizable-nw {
-	top: -10px !important;
-	height: 15px !important;
-}
-.ui-resizable-e, .ui-resizable-se, .ui-resizable-ne {
-	right: -10px !important;
-	width: 15px !important;
-}
-.ui-resizable-w, .ui-resizable-sw, .ui-resizable-nw {
-	left: -10px !important;
-	width: 15px !important;
-}
-.ui-resizable-handle {
-	background-color: transparent;
-}
-.ui-resizable-handle:hover {
-	background-color: rgba(0,0,0,0.1);
-}
-*/
 
 .tour .popover-content {
 	/*background-color: rgba(50,50,50,1);*/
 	/*color: white;*/
-	background-color: rgba(100,200,70,0.6);
+	/*background-color: rgba(255,200,0,0.6);*/
+	background: rgb(210,255,82); /* Old browsers */
+	background: -moz-linear-gradient(-45deg,  rgba(210,255,82,1) 0%, rgba(145,232,66,1) 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, right bottom, color-stop(0%,rgba(210,255,82,1)), color-stop(100%,rgba(145,232,66,1))); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(-45deg,  rgba(210,255,82,1) 0%,rgba(145,232,66,1) 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(-45deg,  rgba(210,255,82,1) 0%,rgba(145,232,66,1) 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(-45deg,  rgba(210,255,82,1) 0%,rgba(145,232,66,1) 100%); /* IE10+ */
+	background: linear-gradient(135deg,  rgba(210,255,82,1) 0%,rgba(145,232,66,1) 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d2ff52', endColorstr='#91e842',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
 }
 .tour .popover-title, .tour .popover-navigation {
 	/*background-color: #5cb85c;*/
 	background-color: white;
 }
-
+.tour-step-backdrop {
+	z-index: 1010 !important; /* forced below tour step */
+}
+.tour-step-background {
+	display: none !important;
+}
 
 .bgpattern {
 	background-image: url('/public/images/pattern.png'); 

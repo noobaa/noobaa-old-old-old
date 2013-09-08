@@ -78,14 +78,10 @@
 
 	<?# def.include('common_menubar.html') ?>
 
-	<div id="my_data_content">
-	<!-- ======== CONTENT ======== -->
-
-
 	<div ng-controller="MyDataCtrl"
 		ng-init="filter_file_name=''"
+		id="my_data_content"
 		class="nb_page_pad nb_nav_top_pad">
-	<!-- ======== MyDataCtrl ======== -->
 
 
 <!-- TOOLBAR -->
@@ -93,7 +89,10 @@
 
 	<div class="row" style="margin-bottom: 30px;">
 
-		<div class="col-md-offset-3 col-md-6">
+		<div class="col-md-3">
+		</div>
+
+		<div class="col-md-6">
 			<button id="upload_button" class="btn btn-success toolbtn"
 				ng-click="click_upload()"
 				title="Upload"
@@ -270,7 +269,7 @@
 				nb-key="key_handler($event)" tabindex="1"
 		 		nb-right-click="inode_rclick(dir_selection.inode, $event)"
 				class="roundbord bglight"
-				style="min-height: 400px"
+				style="min-height: 400px; outline: none"
 				id="inodes_list">
 			</div>
 		</div>
@@ -601,7 +600,7 @@
 		<div class="d-row d-head btn-info fnt fntmd fntwht">
 			<div class="d-cell" style="margin-left: 35px">Folders Tree</div>
 		</div>
-		<div class="fntthin fntmd"
+		<div class="fntthin"
 			ng-include="'tree_item_template.html'">
 		</div>
 	</div>
@@ -682,7 +681,7 @@
 		</div>
 
 		<div ng-repeat="inode in dir_selection.inode.dir_state.sons_list | filter:{name: filter_file_name}"
-			class="t-row-group a-row nbdrag fntthin fntmd ng-class: inode.inode_active;"
+			class="t-row-group a-row nbdrag fntthin ng-class: inode.inode_active;"
 			ng-click="inode_click(inode)"
 			ng-dblclick="inode_dclick(inode)"
 			nb-right-click="inode_rclick(inode, $event)"
@@ -761,10 +760,6 @@
 	</ul>
 </script>
 
-
-
-	<!-- ======== CONTENT END ======== -->
-	</div>
 
 
 	<?# def.include('common_scripts.html') ?>

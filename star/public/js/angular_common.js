@@ -76,9 +76,10 @@
 		var data = e.data('nbdialog');
 		var keydown = 'keydown.nbdialog_' + e.uniqueId().attr('id');
 		var visible;
+		var body = $('body');
 
 		if (opt === 'open') {
-			if (!data) {
+			if (!data || opt_for_open) {
 				e.nbdialog(opt_for_open);
 				data = e.data('nbdialog');
 			}
@@ -94,16 +95,20 @@
 				};
 			}
 			if (data.opt.modal) {
+				// modal stacking: modals go high also above previous modals
+				var zIndex = 2000;
+				var last_backdrop = $('.nbdialog_modal_backdrop:last');
+				if (last_backdrop.length) {
+					zIndex = parseInt(last_backdrop.css('z-index'), 10) + 2;
+				}
 				// create backdrop element
-				$('<div id="nbdialog_modal_backdrop"></div>').css({
-					position: 'fixed',
-					left: 0,
-					right: 0,
-					top: 0,
-					bottom: 0,
-					zIndex: e.css('z-index') - 1,
-				}).appendTo($('body')).show();
+				$('<div class="nbdialog_modal_backdrop"></div>')
+					.css('z-index', zIndex).appendTo(body).show();
+				// stack dialog on top of backdrop
+				e.css('z-index', zIndex + 1);
 			}
+			// bring it to front by adding at the end of body
+			e.detach().appendTo(body);
 			// register event to close dialog on escape
 			$(window).on(keydown, function(event) {
 				// ESCAPE KEY - close dialog
@@ -147,8 +152,11 @@
 						e.remove();
 					}
 				};
+				// remove the modal backdrop
+				if (data.opt.modal) {
+					$('.nbdialog_modal_backdrop:last').remove();
+				}
 				// unregister event to close dialog on escape
-				$('#nbdialog_modal_backdrop').remove();
 				$(window).off(keydown);
 				// ready, hide the dialog
 				e.hide(hide);
@@ -167,10 +175,9 @@
 
 		} else {
 			if (data) {
-				console.log('nbdialog inited twice... ignoring');
-				return;
+				console.log('nbdialog init', data, opt);
 			}
-			opt = opt || {};
+			opt = $.extend(true, {}, data ? data.opt : null, opt);
 			opt.show = opt.show || {
 				effect: 'drop',
 				direction: 'up',
@@ -183,7 +190,7 @@
 			};
 			// take the element from current parent to top level
 			// to prevent css issues by inheritance
-			e.detach().appendTo($('body'));
+			e.detach().appendTo(body);
 			e.attr({
 				// Setting tabIndex makes the div focusable
 				tabIndex: -1,
@@ -194,9 +201,7 @@
 			// so we set to hidden in this short meanwhile.
 			e.css(_.extend({
 				height: 'auto',
-				width: 'auto',
-				top: -10000,
-				left: -10000
+				width: 'auto'
 			}, opt.css, {
 				// we force these css on top of given css for the dialog to work
 				display: 'block',
@@ -251,10 +256,9 @@
 				left: left,
 				width: width,
 				height: height,
-				zIndex: 1040
 			}, opt.css, {
 				// we force these css on top of given css for the dialog to work
-				display: 'none',
+				display: data && data.state === 'open' ? 'block' : 'none',
 				visibility: 'visible'
 			}));
 			// initialize resizable and draggable
@@ -268,6 +272,7 @@
 			e.draggable({
 				containment: opt.containment || 'document',
 				cursor: 'move',
+				// stack: '.nbdialog, .nbdialog_modal_backdrop',
 				handle: '.nbdialog_drag',
 				cancel: '.nbdialog_nodrag'
 			});
@@ -279,7 +284,7 @@
 			});
 			// save the data in the element
 			e.data('nbdialog', {
-				state: 'close',
+				state: data ? data.state : 'close',
 				opt: opt
 			});
 		}
@@ -304,10 +309,7 @@
 		dlg.appendTo($('body'));
 		dlg.nbdialog('open', _.extend({
 			remove_on_close: true,
-			modal: true,
-			css: {
-				zIndex: 1050
-			}
+			modal: true
 		}, options));
 	}
 
@@ -346,10 +348,7 @@
 		dlg.appendTo($('body'));
 		dlg.nbdialog('open', _.extend({
 			remove_on_close: true,
-			modal: true,
-			css: {
-				zIndex: 1050
-			}
+			modal: true
 		}, options));
 	}
 

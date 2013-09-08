@@ -105,13 +105,15 @@ function PlanetBoot($scope) {
 		$scope.win = gui.Window.open("planet/window", {
 			icon: "noobaa_icon.ico",
 			title: "NooBaa",
-			toolbar: false,
-			frame: false,
-			resizable: false,
 			show: false,
+			toolbar: false,
+			frame: true,
+			resizable: true,
 			position: "center",
-			width: 360,
-			height: 500
+			width: 400,
+			height: 300,
+			min_width: 300,
+			min_height: 200
 		});
 		// when the window closed due to some issue, open a new one.
 		$scope.win.on('closed', load_win);

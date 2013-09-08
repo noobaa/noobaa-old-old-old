@@ -38,6 +38,7 @@
 								<th>OS</th>
 								<th>Last Update</th>
 								<th>#Updates</th>
+								<th>CoShare</th>
 							</thead>
 							<tbody>
 								<tr ng-repeat="(dev_id,dev) in user.devices">
@@ -46,6 +47,7 @@
 									<td>{{dev.host_info.platform}}</td>
 									<td>{{locale_date(dev.last_update)}}</td>
 									<td>{{dev.total_updates}}</td>
+									<td>{{human_size(dev.coshare_space)}}</td>
 								</tr>
 							</tbody>
 						</table>
