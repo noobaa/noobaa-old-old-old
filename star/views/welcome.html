@@ -4,6 +4,15 @@
 	<?# def.include('common_head.html') ?>
 	<link href="/vendor/chardin.js/chardinjs.css" type="text/css" rel="stylesheet"/>
 	<style>
+		#chrome_link {
+			margin-left: 150px;
+		}
+
+		#chrome_icon {
+			width:20px;
+			height:20px;
+			/*position: absolute;*/
+		}
 		#nb_nav_marker {
 			position: absolute;
 			bottom: 0;
@@ -121,7 +130,7 @@
 		class="navbar navbar-inverse navbar-fixed-bottom"
 		role="navigation"
 		onresize="nb_nav_affix = undefined;">
-		<div class="nb_page_pad">
+		<div class="nb_page_pad" ng-controller="BowserCtrl">
 			<div class="navbar-header">
 				<a class="navbar-brand scroller" href="#_">
 					<img src="/public/images/noobaa_logo.png"></img>
@@ -149,8 +158,14 @@
 					style="margin-left: 60px">
 					<img src="/public/images/facebook_login_button.png"></img>
 				</a>
+				<a ng-show="need_chrome_ref"
+					id="chrome_link" href="https://www.google.com/intl/en_us/chrome/browser/" target="_blank">
+					<i></i>Best with chrome
+					<img id="chrome_icon" alt="Chrome" src="/public/images/chrome_icon.png">
+				</a>
 			</div>
 		</div>
+
 	</nav>
 
 	<div id="whatis" class="nb_nav_link nb_page_pad fnt">
@@ -309,8 +324,13 @@
 				return false;
 			}); 	
 		});
-	</script>
 
+		function BowserCtrl($scope){
+			$scope.need_chrome_ref = (!bowser.chrome);
+		}
+		BowserCtrl.$inject = ['$scope'];
+	</script>
+	<script src="/vendor/bowser/bowser.min.js" type="text/javascript"></script>
 </body>
 
 </html>
