@@ -143,7 +143,7 @@ function GuideCtrl($scope) {
 			'  <div class="popover-content fntmd"></div>',
 			'  <div class="popover-navigation text-center">',
 			'    <span class="pull-left">',
-			'      <span class="fntsm">', (i + 1), '/', step.guide.steps.length, '</span>',
+			'      <span>', (i + 1), '/', step.guide.steps.length, '</span>',
 			'    </span>',
 			'    <span class="pull-right">',
 			'      <button data-role="first" class="btn btn-default btn-xs"',

@@ -602,7 +602,7 @@
 		<div class="d-row d-head btn-info fnt fntmd fntwht">
 			<div class="d-cell" style="margin-left: 35px">Folders Tree</div>
 		</div>
-		<div class="fntthin fntmd"
+		<div class="fntthin"
 			ng-include="'tree_item_template.html'">
 		</div>
 	</div>
@@ -683,7 +683,7 @@
 		</div>
 
 		<div ng-repeat="inode in dir_selection.inode.dir_state.sons_list | filter:{name: filter_file_name}"
-			class="t-row-group a-row nbdrag fntthin fntmd ng-class: inode.inode_active;"
+			class="t-row-group a-row nbdrag fntthin ng-class: inode.inode_active;"
 			ng-click="inode_click(inode)"
 			ng-dblclick="inode_dclick(inode)"
 			nb-right-click="inode_rclick(inode, $event)"

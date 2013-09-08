@@ -14,18 +14,13 @@ html, body {
 .fntthin {
 	font-family: 'Ubuntu', sans-serif !important;
 }
-.fntsm {
-	font-size: 14px;
-	line-height: 22px;
-}
+
 .fntmd {
+	/* normal font is 14px and line 1.428em by bootstrap */
 	font-size: 16px;
-	line-height: 26px;
+	line-height: 1.5em;
 }
-.fntlg {
-	font-size: 22px;
-	line-height: 34px;
-}
+
 .fntblk {
 	color: black;
 }
