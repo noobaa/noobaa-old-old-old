@@ -663,18 +663,5 @@ function GuideCtrl($scope) {
 		].join('\n')
 	});
 
-	$scope.guides.cosharing.steps.push({
-		path: "/settings",
-		element: "#my_guides",
-		placement: 'bottom',
-		title: "HOW DOES IT WORK",
-		content: [
-			'<p>NooBaa is a crowd cloud.</p>',
-			'<p>Every file stored on it is cut, encrypted and sent to numerous NooBaa clients.</p>',
-			'<p>When the file is being read, all the pieces are recalled back.</p>',
-			'<p>For more information see NooBaa\'s <a href="../FAQ">  FAQ.<a/> section</p>',
-		].join('\n')
-	});
-
 	$scope.guides.cosharing.steps_ready();
 }
