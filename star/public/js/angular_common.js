@@ -78,7 +78,7 @@
 		var visible;
 
 		if (opt === 'open') {
-			if (!data) {
+			if (!data || opt_for_open) {
 				e.nbdialog(opt_for_open);
 				data = e.data('nbdialog');
 			}
@@ -104,6 +104,8 @@
 					zIndex: e.css('z-index') - 1,
 				}).appendTo($('body')).show();
 			}
+			// bring it to front by adding at the end of body
+			e.detach().appendTo($('body'));
 			// register event to close dialog on escape
 			$(window).on(keydown, function(event) {
 				// ESCAPE KEY - close dialog
@@ -147,8 +149,11 @@
 						e.remove();
 					}
 				};
+				// remove the modal backdrop
+				if (data.opt.modal) {
+					$('#nbdialog_modal_backdrop').remove();
+				}
 				// unregister event to close dialog on escape
-				$('#nbdialog_modal_backdrop').remove();
 				$(window).off(keydown);
 				// ready, hide the dialog
 				e.hide(hide);
@@ -167,10 +172,9 @@
 
 		} else {
 			if (data) {
-				console.log('nbdialog inited twice... ignoring');
-				return;
+				console.log('nbdialog init', data, opt);
 			}
-			opt = opt || {};
+			opt = $.extend(true,{}, data ? data.opt : null, opt);
 			opt.show = opt.show || {
 				effect: 'drop',
 				direction: 'up',
@@ -194,9 +198,7 @@
 			// so we set to hidden in this short meanwhile.
 			e.css(_.extend({
 				height: 'auto',
-				width: 'auto',
-				top: -10000,
-				left: -10000
+				width: 'auto'
 			}, opt.css, {
 				// we force these css on top of given css for the dialog to work
 				display: 'block',
@@ -251,10 +253,10 @@
 				left: left,
 				width: width,
 				height: height,
-				zIndex: 1040
+				zIndex: 1005 // above navbar, below tour
 			}, opt.css, {
 				// we force these css on top of given css for the dialog to work
-				display: 'none',
+				display: data && data.state === 'open' ? 'block' : 'none',
 				visibility: 'visible'
 			}));
 			// initialize resizable and draggable
@@ -268,6 +270,7 @@
 			e.draggable({
 				containment: opt.containment || 'document',
 				cursor: 'move',
+				// stack: '.nbdialog, #nbdialog_modal_backdrop',
 				handle: '.nbdialog_drag',
 				cancel: '.nbdialog_nodrag'
 			});
@@ -279,7 +282,7 @@
 			});
 			// save the data in the element
 			e.data('nbdialog', {
-				state: 'close',
+				state: data ? data.state : 'close',
 				opt: opt
 			});
 		}
@@ -306,7 +309,7 @@
 			remove_on_close: true,
 			modal: true,
 			css: {
-				zIndex: 1050
+				zIndex: 2000
 			}
 		}, options));
 	}
@@ -348,7 +351,7 @@
 			remove_on_close: true,
 			modal: true,
 			css: {
-				zIndex: 1050
+				zIndex: 2000
 			}
 		}, options));
 	}
