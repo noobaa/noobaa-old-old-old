@@ -135,6 +135,7 @@ GuideCtrl.$inject = ['$scope'];
 function GuideCtrl($scope) {
 
 	function guide_template(i, step) {
+		var fin = (i + 1) === step.guide.steps.length;
 		return [
 			'<div class="popover tour">',
 			'  <div class="arrow"></div>',
@@ -142,25 +143,21 @@ function GuideCtrl($scope) {
 			'  <div class="popover-content fntmd"></div>',
 			'  <div class="popover-navigation text-center">',
 			'    <span class="pull-left">',
-			'      <span>', (i + 1), '/', step.guide.steps.length, '</span>',
-			'      <a href="#" data-role="first" onclick="global_menu_bar_first_guide()">',
-			'        <i class="icon-fast-backward icon-fixed-width text-info"></i></a>',
-			'      <a href="#" data-role="last" onclick="global_menu_bar_last_guide()">',
-			'        <i class="icon-fast-forward icon-fixed-width text-info"></i></a>',
+			'      <span class="fntsm">', (i + 1), '/', step.guide.steps.length, '</span>',
 			'    </span>',
-			'    <a href="#" data-role="prev" class="btn btn-link btn-sm">Prev</a>',
-			'    <a href="#" data-role="end" class="btn btn-default btn-sm">Close</a>',
-			'    <a href="#" data-role="next" class="btn btn-primary btn-sm">Next</a>',
-			// '    <a href="#" data-role="first" onclick="global_menu_bar_first_guide()">',
-			// '      <i class="icon-fast-backward icon-fixed-width text-info"></i></a>',
-			// '    <a href="#" data-role="prev" class="btn btn-default">',
-			// '      <i class="icon-step-backward icon-2x icon-fixed-width"></i></a>',
-			// '    <a href="#" data-role="next" class="btn btn-default">',
-			// '      <i class="icon-step-forward icon-2x icon-fixed-width"></i></a>',
-			// '    <a href="#" data-role="last" onclick="global_menu_bar_last_guide()">',
-			// '      <i class="icon-fast-forward icon-fixed-width text-info"></i></a>',
-			// '    <a href="#" data-role="end" class="pull-right">',
-			// '      <i class="icon-remove icon-large icon-fixed-width fntblk"></i></a>',
+			'    <span class="pull-right">',
+			'      <button data-role="first" class="btn btn-default btn-xs"',
+			'        onclick="global_menu_bar_first_guide()">',
+			'        <i class="icon-repeat"></i></button>',
+			'      <button data-role="end" class="btn btn-default btn-xs">',
+			'        <i class="icon-remove"></i></button>',
+			'    </span>',
+			'    <span>',
+			'      <button data-role="prev" class="btn btn-default btn-xs">Prev</button>',
+			fin ? 
+			'      <button data-role="end" class="btn btn-info btn-xs">Done</button>' :
+			'      <button data-role="next" class="btn btn-primary btn-xs">Next</button>',
+			'    </span>',
 			'  </div>',
 			'</div>'
 		].join('\n');
@@ -221,8 +218,8 @@ function GuideCtrl($scope) {
 		// so we identify simply by the first that's not ended.
 		// console.log(this);
 		if (!this.tour.ended() && !$scope.running_guide) {
-			if (this.was_started || (!this.was_started && auto_start)) {
-				this.tour.start();
+			if (this.was_started || auto_start) {
+				this.run();
 			}
 		}
 	};
@@ -233,29 +230,41 @@ function GuideCtrl($scope) {
 		return this.completed_steps === this.steps.length;
 	};
 
+	// since we update the number of steps in the tour
+	// we need to make sure that current step is valid
+	// otherwise even goto() will fail (onHide on undefined step).
+	Guide.prototype.valid_step = function() {
+		var i = this.tour._current;
+		if (typeof i !== 'number' || i < 0 || i >= this.steps.length) {
+			console.log('resetting invalid tour step', i, this.name);
+			i = this.tour._current = 0;
+		}
+		return i;
+	};
+
 	Guide.prototype.run = function() {
+		// we want to implement "pause" so we keep
+		// and restore the step number, otherwise restart will clear it.
+		var i = this.valid_step();
 		if (this.tour.ended()) {
 			// when the tour ended, only restart can redeem it
-			// but we want to implement "pause" so we keep
-			// and restore the step number.
-			var i = this.tour._current;
 			this.tour.restart();
-			this.tour.goto(i);
 		} else {
 			this.tour.start();
 		}
+		this.tour.goto(i);
 	};
 
 	global_menu_bar_first_guide = function() {
-		console.log($scope.running_guide);
-		if ($scope.running_guide) {
+		if ($scope.running_guide && !$scope.running_guide.tour.ended()) {
+			$scope.running_guide.valid_step();
 			$scope.running_guide.tour.goto(0);
 		}
 		$scope.safe_apply();
 	};
 	global_menu_bar_last_guide = function() {
-		console.log($scope.running_guide);
-		if ($scope.running_guide) {
+		if ($scope.running_guide && !$scope.running_guide.tour.ended()) {
+			$scope.running_guide.valid_step();
 			$scope.running_guide.tour.goto($scope.running_guide.steps.length - 1);
 		}
 		$scope.safe_apply();
@@ -343,6 +352,8 @@ function GuideCtrl($scope) {
 	});
 
 	$scope.guides.upload_file.steps.push({
+		element: '#upload_button',
+		placement: 'bottom',
 		title: 'DRAG & DROP',
 		content: [
 			'<p>Drag a file and drop it <b>anywhere</b> in the NooBaa window.</p>',
@@ -354,6 +365,8 @@ function GuideCtrl($scope) {
 	});
 
 	$scope.guides.upload_file.steps.push({
+		element: '#upload_button',
+		placement: 'bottom',
 		title: 'UPLOADING',
 		content: [
 			'<p>Alrighty then!</p>',
@@ -365,6 +378,8 @@ function GuideCtrl($scope) {
 	});
 
 	$scope.guides.upload_file.steps.push({
+		element: '#upload_button',
+		placement: 'bottom',
 		title: 'USING FILE CHOOSER',
 		content: [
 			'<p>In the upload dialod use the "Choose Files" button to select files to upload.</p>'
@@ -372,6 +387,8 @@ function GuideCtrl($scope) {
 	});
 
 	$scope.guides.upload_file.steps.push({
+		element: '#upload_button',
+		placement: 'bottom',
 		title: 'USING FODLER CHOOSER',
 		content: [
 			'<p>Folder upload is supported on some browsers (e.g. Chrome, Safari).</p>',
@@ -381,6 +398,8 @@ function GuideCtrl($scope) {
 	});
 
 	$scope.guides.upload_file.steps.push({
+		element: '#upload_button',
+		placement: 'bottom',
 		title: 'WHERE IS IT?',
 		content: [
 			'<p>Upload are added to your account',
@@ -571,8 +590,8 @@ function GuideCtrl($scope) {
 		title: "DON'T PANIC",
 		content: [
 			'<p>This is your account settings page.</p>',
-			'<p>To get back to your files choose:</p>',
-			'<p">MY DATA from the main toolbar</p>',
+			'<p>To get back to your files choose ',
+			'MY DATA from the main toolbar</p>',
 		].join('\n')
 	});
 
