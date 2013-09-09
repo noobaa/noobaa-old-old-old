@@ -89,16 +89,25 @@
 
 	<div class="row" style="margin-bottom: 30px;">
 
-		<div class="col-md-3">
+		<div class="col-md-3 text-center">
+			<div class="btn-group" style="width: 100%">
+				<button id="coshare_button" class="btn btn-warning"
+					style="width: 50%; border: solid 1px rgba(0,0,0,0.4);"
+					ng-click="click_coshare()"
+					title="Co-Share">
+					<i class="icon-anchor icon-large"></i>
+				</button>
+				<button id="upload_button" class="btn btn-success"
+					style="width: 50%; border: solid 1px rgba(0,0,0,0.4);"
+					ng-click="click_upload()"
+					title="Upload"
+					ng-disabled="!dir_selection.inode">
+					<i class="icon-cloud-upload icon-large"></i>
+				</button>
+			</div>
 		</div>
 
 		<div class="col-md-6">
-			<button id="upload_button" class="btn btn-success toolbtn"
-				ng-click="click_upload()"
-				title="Upload"
-				ng-disabled="!dir_selection.inode">
-				<i class="icon-cloud-upload icon-large"></i>
-			</button>
 			<button class="btn btn-default toolbtn"
 				id="open_button"
 				ng-click="click_open()"

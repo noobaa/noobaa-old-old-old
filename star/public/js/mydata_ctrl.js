@@ -689,6 +689,10 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 		$('#upload_modal').nbdialog('open');
 	};
 
+	$scope.click_coshare = function() {
+		$scope.nbguides.cosharing.run();
+	};
+
 	$scope.click_open = function() {
 		var inode = $scope.inode_selection.inode;
 		$scope.select(inode, {

@@ -285,6 +285,8 @@ function GuideCtrl($scope) {
 	_.each($scope.guides_list, function(guide) {
 		$scope.guides[guide.name] = guide;
 	});
+	// make available to all scopes
+	$scope.$root.nbguides = $scope.guides;
 
 
 	//// WELCOME ////
@@ -587,11 +589,10 @@ function GuideCtrl($scope) {
 
 	$scope.guides.cosharing.steps.push({
 		path: "/settings",
-		title: "DON'T PANIC",
+		title: "CO-SHARING",
 		content: [
-			'<p>This is your account settings page.</p>',
-			'<p>To get back to your files choose ',
-			'MY DATA from the main toolbar</p>',
+			'<p>This guide will show you how to get cloud storage space simply by co-sharing.</p>',
+			'<p>To start co-sharing we jumped to the account settings page.</p>'
 		].join('\n')
 	});
 
