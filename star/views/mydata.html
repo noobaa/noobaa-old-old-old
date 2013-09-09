@@ -697,23 +697,12 @@
 					{{inode.name}}
 				</div>
 				<div class="t-cell">
-					<div ng-show="inode.size && !inode.uploading">
+					<span ng-show="inode.uploading" title="During Upload...">
+						<i class="icon-flag"></i>
+					</span>
+					<span ng-show="inode.size">
 						{{human_size(inode.size)}}
-					</div>
-					<div ng-show="inode.uploading"
-						class="progress"
-						style="position: relative">
-						<div class="progress-bar progress-bar-success"
-							role="progressbar" aria-valuemin="0" aria-valuemax="100"
-							style="position: absolute; top:0; left:0;
-								width: {{inode.progress}}%;">
-						</div>
-						<div style="position: absolute; top: 0; left: 0;
-								width: 100%; text-align: center; color: black
-								font-size: 12px; line-height: 12px">
-							during upload... {{inode.progress}}%
-						</div>
-					</div>
+					</span>
 				</div>
 				<div class="t-cell text-center">
 					<span ng-show="inode.owner_name">
