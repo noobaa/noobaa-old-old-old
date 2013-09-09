@@ -533,4 +533,39 @@
 		};
 	});
 
+	noobaa_app.directive('nbShine', function($parse) {
+		return {
+			restrict: 'A', // use as attribute
+			link: function(scope, element, attr) {
+				var opt = scope.$eval(attr.nbShine) || {};
+				angular.extend(opt, {
+					at: 'center',
+					thick: 20,
+					start: 0,
+					end: 100,
+					step: 1.7,
+					step_time: 10,
+					delay: 7000
+				});
+				var R = opt.start;
+				var interval;
+				var renderer = function() {
+					element.css('background-image',
+						'radial-gradient(circle at ' + opt.at + 
+							', transparent ' + R +'px, rgba(255,255,255,0.7) '+opt.thick + 'px' +
+							', transparent ' + (R+opt.thick) + 'px, transparent)');
+					R += opt.step;
+					if ((opt.step > 0 && R > opt.end) || 
+						(opt.step < 0 && R < opt.end)) {
+						R = opt.start;
+						setTimeout(renderer, opt.delay);
+					} else {
+						setTimeout(renderer, opt.step_time);
+					}
+				};
+				setTimeout(renderer, opt.delay);
+			}
+		};
+	});
+
 }(this)); // passing global this to allow exporting

@@ -21,6 +21,14 @@
 		.nb_nav_link {
 			padding-top: 50px;
 		}
+		button.join-btn {
+			width: 130px !important;
+			height: 40px !important;
+			margin: 0 0 20px 40px;
+			-moz-box-shadow: 	0 0 5px 5px rgba(255,255,255,0.9);
+			-webkit-box-shadow: 0 0 5px 5px rgba(255,255,255,0.9);
+			box-shadow: 		0 0 5px 5px rgba(255,255,255,0.9);
+		}
 
 		#chrome_link {
 			position: absolute;
@@ -92,15 +100,14 @@
 					<p class="H2 fntpaint">Cloud storage made</p>
 					<p class="H1 fntpaint">SIMPLE</p>
 					<br/>
-					<p class="lead">All your Data in one location.</p>
+					<button href="#join" nb-shine 
+						class="join-btn btn btn-danger btn-lg scroller">
+						<b>JOIN !</b>
+					</button>
+					<p class="lead">All your data in one location.</p>
 					<p class="lead">No complex plans.</p>
 					<p class="lead">No complex decisions.</p>
 					<p class="lead">No additional hardware.</p>
-					<br/>
-					<button href="#join"
-						class="btn btn-danger btn-lg scroller">
-						<b>SIMPLY JOIN NOW !</b>
-					</button>
 				</div>
 			</div>
 
@@ -110,13 +117,12 @@
 					<p class="H2 fntpaint">Cloud storage made</p>
 					<p class="H1 fntpaint">FAST</p>
 					<br/>
+					<button href="#join" nb-shine
+						class="join-btn btn btn-danger btn-lg scroller">
+						<b>JOIN !</b>
+					</button>
 					<p class="lead">Join the power of the crowd.</p>
 					<p class="lead">Together we are the most powerful data-center.</p>
-					<br/>
-					<button href="#join"
-						class="btn btn-danger btn-lg scroller">
-						<b>JOIN QUICKLY !</b>
-					</button>
 				</div>
 			</div>
 
@@ -126,14 +132,13 @@
 					<p class="H2 fntpaint">Cloud storage made</p>
 					<p class="H1 fntpaint">FREE</p>
 					<br/>
+					<button href="#join" nb-shine
+						class="join-btn btn btn-danger btn-lg scroller">
+						<b>JOIN !</b>
+					</button>
 					<p class="lead">Unlimited capacity.</p>
 					<p class="lead">You control how much you get.</p>
 					<p class="lead">Absolutely free.</p>
-					<br/>
-					<button href="#join"
-						class="btn btn-danger btn-lg scroller">
-						<b>JOIN FOR FREE !</b>
-					</button>
 				</div>
 			</div>
 
@@ -188,8 +193,7 @@
 					</li>
 					<li class="shining">
 						<div class="shiner"></div>
-						<a href="#join" class="scroller"
-							onclick="$('body').chardinJs('start')">
+						<a href="#join" class="join-btn scroller">
 							<b>JOIN</b>
 						</a>
 					</li>
@@ -384,6 +388,10 @@
 			}, function() {
 				// nop
 			});
+
+			$('.join-btn').click(function() {
+				$('body').chardinJs('start');	
+			})
 		});
 
 
