@@ -153,49 +153,53 @@ exports.test_inodes_api = {
 
 	},
 
-	// 'testing folder creation ': function(test) {
-	// 	var inode_id;
-	// 	var luser;
-	// 	async.waterfall([
-	// 		//get random user
-	// 		function(next) {
-	// 			test_common.get_rand_entry(User, {}, next);
-	// 		},
-	// 		//get random dir of that user
-	// 		function(user, next) {
-	// 			luser = user;
+	'testing folder creation ': function(test) {
+		test.expect(1);
+		var inode_id;
+		var luser;
+		async.waterfall([
+			//get random user
+			function(next) {
+				test_common.get_rand_entry(User, {}, next);
+			},
+			//get random dir of that user
+			function(user, next) {
+				console.log('user: ', user);
+				luser = user;
+				// console.log(arguments);
+				test_common.get_rand_entry(Inode, {
+					isdir: true,
+					owner: user._id,
+					ghost_ref: {
+						$exists: false
+					},
+					name :{
+						$ne: 'Shared With Me'
+					}
+				}, next);
+			},
+			function(parent_dir, next) {
+			//no clear why I couldn't set the lenght of the string to be variable
+			// var rand_len = Math.floor(Math.random() * 255) + 1;
+			var inode = new Inode({
+					owner: luser.id,
+					parent: parent_dir.id,
+					//TODO add a random name
+					// name: 'RandomName',	
+					name: Math.random().toString(36).substring(7),
+					isdir: true,
+				});
+				return inode_api.inode_create_action(inode, null, luser, null, next);
 
-	// 			test_common.get_rand_entry(Inode, {
-	// 				isdir: true,
-	// 				owner: user._id,
-	// 				name: {
-	// 					$exists: true
-	// 				},
-	// 			}, next);
-	// 		},
-	// 		function(parent_dir, next) {
-	// 			//no clear why I couldn't set the lenght of the string to be variable
-	// 			// var rand_len = Math.floor(Math.random() * 255) + 1;
-	// 			// console.log(rand_len);
-	// 			var inode = new Inode({
-	// 				owner: luser._id,
-	// 				parent: parent_dir._id,
-	// 				//TODO add a random name
-	// 				// name: 'RandomName',	
-	// 				name: Math.random().toString(36).substring(7),
-	// 				isdir: true,
-	// 			});
-	// 			inode_id = inode._id;
-	// 			return inode_api.inode_create_action(inode, null, luser, null, next);
-	// 		},
-	// 		function(inode, next) {
-	// 			// remove the crated directory
-	// 			return inode_api.inode_delete_action(inode_id, luser._id, next);
-	// 		}
-	// 	], function(err, result) {
-	// 		// console.log(result);
-	// 		test.ifError(err);
-	// 		test.done();
-	// 	});
-	// },
+			},
+			function(inode, next) {
+				// remove the crated directory
+				return inode_api.inode_delete_action(inode.id, luser.id, next);
+			}
+		], function(err, result) {
+			console.log(arguments);
+			test.ifError(err);
+			test.done();
+		});
+	},
 };
