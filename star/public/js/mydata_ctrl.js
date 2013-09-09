@@ -59,7 +59,7 @@ var SWM = 'Shared With Me';
 
 // Inode model for dir/file
 
-function Inode($scope, id, name, isdir, parent) {
+function Inode($scope, id, name, isdir, ctime, parent) {
 
 	// link to the scope that serves the inode - 
 	// it is used mainly for access to api functions to act on the inode in the server
@@ -70,6 +70,7 @@ function Inode($scope, id, name, isdir, parent) {
 	this.name = name;
 	this.isdir = isdir;
 	this.parent = parent;
+	this.ctime = new Date(ctime);
 
 	// computed level - better save the result here than call recursive func
 	this.level = parent ? (parent.level + 1) : 0;
@@ -203,12 +204,15 @@ Inode.prototype.populate_dir = function(entries) {
 		var ent = entries[i];
 		var son = this.dir_state.sons_map[ent.id];
 		if (!son) {
+
 			son = new Inode(
 				this.$scope,
 				ent.id,
 				ent.name,
 				ent.isdir,
+				ent.ctime,
 				this);
+
 		}
 
 		// compute entry progress
@@ -230,7 +234,16 @@ Inode.prototype.populate_dir = function(entries) {
 		sync_property(son, ent, "num_refs");
 		sync_property(son, ent, "not_mine");
 		sync_property(son, ent, "owner_name");
+
+		//get only the first name for display. Cleaner and friendlier.
+		if (son.owner_name){
+			son.owner_name = son.owner_name.split(' ')[0];
+		}
 		sync_property(son, ent, "owner_fbid");
+		sync_property(son, ent, "ctime");
+		if (son.ctime) {
+			son.ctime = new Date(son.ctime).toLocaleDateString();
+		}
 
 		sons_map[son.id] = son;
 		sons_list.push(son);
@@ -588,7 +601,7 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 			$.nbalert('Cannot move someone else\'s file');
 			return;
 		}
-		if (drop_inode.is_not_mine()|| drop_inode.owner_name) {
+		if (drop_inode.is_not_mine() || drop_inode.owner_name) {
 			$.nbalert('Cannot move to someone else\'s folder');
 			return;
 		}
@@ -637,7 +650,7 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 		if (dir_inode.is_not_mine() || dir_inode.owner_name) {
 			$.nbalert('Cannot create folder in someone else\'s folder');
 			return;
-		}		
+		}
 
 		var dlg = $('#mkdir_dialog').clone();
 		var input = dlg.find('#dialog_input');
@@ -803,6 +816,10 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 		return inode.size;
 	}
 
+	function sort_key_ctime(inode) {
+		return inode.ctime;
+	}
+
 	function sort_key_shared(inode) {
 		if (inode.swm) {
 			return inode.owner_name ? inode.owner_name.toLowerCase() : '';
@@ -817,6 +834,8 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 	var sort_by_size_down = sorter(sort_key_size, -1);
 	var sort_by_shared_up = sorter(sort_key_shared, 1, sort_by_name_down);
 	var sort_by_shared_down = sorter(sort_key_shared, -1, sort_by_name_down);
+	var sort_by_ctime_up = sorter(sort_key_ctime, 1);
+	var sort_by_ctime_down = sorter(sort_key_ctime, -1);
 	$scope.default_sort_by = sort_by_name_down;
 
 	$scope.toggle_sort_by_name = function() {
@@ -849,6 +868,17 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 		}
 		i.resort_entries();
 	};
+	$scope.toggle_sort_by_ctime = function() {
+		var i = $scope.dir_selection.inode;
+		var s = i.dir_state;
+		if (s.sort_by === sort_by_ctime_down) {
+			s.sort_by = sort_by_ctime_up;
+		} else {
+			s.sort_by = sort_by_ctime_down;
+		}
+		console.log('s.sort_by: ',s.sort_by);
+		i.resort_entries();
+	};
 	$scope.get_sort_by_name_class = function() {
 		var i = $scope.dir_selection.inode;
 		var s = i.dir_state;
@@ -873,6 +903,15 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 		if (s.sort_by === sort_by_shared_up) {
 			return 'icon-caret-up';
 		} else if (s.sort_by === sort_by_shared_down) {
+			return 'icon-caret-down';
+		}
+	};
+	$scope.get_sort_by_ctime_class = function() {
+		var i = $scope.dir_selection.inode;
+		var s = i.dir_state;
+		if (s.sort_by === sort_by_ctime_up) {
+			return 'icon-caret-up';
+		} else if (s.sort_by === sort_by_ctime_down) {
 			return 'icon-caret-down';
 		}
 	};
@@ -1018,7 +1057,7 @@ ShareModalCtrl.$inject = ['$scope'];
 function ShareModalCtrl($scope) {
 
 	var dlg = $('#share_modal');
-	
+
 	$scope.open = function(inode) {
 		dlg.find('.inode_label').html(inode.make_inode_with_icon());
 		// TODO this is hacky accessing dlg.scope() ...
@@ -1228,7 +1267,7 @@ function UploadCtrl($scope) {
 		var upload = $scope.uploads[data.upload_idx];
 		upload.progress = parseInt(data.loaded / data.total * 100, 10);
 		$scope.safe_apply();
-/* not really needed for now
+		/* not really needed for now
 		//in order to make sure we don't overload the DB, we'll limit update per 10sec
 		var curr_time = new Date();
 		if (!upload.last_star_update) {

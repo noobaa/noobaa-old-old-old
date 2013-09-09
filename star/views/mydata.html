@@ -63,11 +63,15 @@
 		}
 		.t-size-column {
 			display: table-column;
-			width: 25%;
+			width: 20%;
 		}
 		.t-shared-column {
 			display: table-column;
-			width: 25%;
+			width: 15%;
+		}
+		.t-ctime-column {
+			display: table-column;
+			width: 15%;
 		}
 	</style>
 </head>
@@ -665,6 +669,7 @@
 		<div class="t-name-column"></div>
 		<div class="t-size-column"></div>
 		<div class="t-shared-column"></div>
+		<div class="t-ctime-column"></div>
 
 		<div class="t-row d-row d-head btn-info fnt fntmd fntwht">
 			<div class="t-cell"></div>
@@ -685,6 +690,13 @@
 					<span ng-show="dir_selection.inode.swm">Shared By</span>
 					<span ng-hide="dir_selection.inode.swm">Sharing</span>
 					<i ng-class="get_sort_by_shared_class()"></i>
+				</a>
+			</div>
+			<div class="t-cell text-center">
+				<a style="color: white" ng-click="toggle_sort_by_ctime()" href="#">
+					<span ng-show="dir_selection.inode.swm">On</span>
+					<span ng-hide="dir_selection.inode.swm">Created</span>
+					<i ng-class="get_sort_by_ctime_class()"></i>
 				</a>
 			</div>
 		</div>
@@ -722,8 +734,13 @@
 						ng-click="click_share(inode)"></i>
 					<img ng-show="!!inode.owner_fbid"
 						class="pull-right"
-						ng-src="{{fb_pic_url(inode.owner_fbid)}}"
+						ng-src="{{fb_pic_url(inode.owner_fbid)}}" 
 						style="width: 30px; height: 30px;"></img>
+				</div>
+				<div class="t-cell  text-center">
+					<span ng-show="inode.ctime">
+						{{inode.ctime}}
+					</span>
 				</div>
 			</div>
 			<!-- div class="t-row"

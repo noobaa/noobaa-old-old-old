@@ -98,7 +98,8 @@ function inode_to_entry(inode, opt) {
 
 	var ent = {
 		id: inode._id,
-		name: inode.name
+		name: inode.name,
+		ctime: inode._id.getTimestamp()
 	};
 	if (inode.isdir) {
 		ent.isdir = inode.isdir;
@@ -143,8 +144,9 @@ function inode_to_entry(inode, opt) {
 
 // read_dir finds all the sons of the directory.
 // for inodes with fobj also add the fobj info to the response.
+exports.do_read_dir = do_read_dir;
 
-function do_read_dir(req, dir_inode, next) {
+function do_read_dir(user, dir_inode, next) {
 	async.waterfall([
 		// query all the dir sons
 		function(next) {
@@ -198,7 +200,7 @@ function do_read_dir(req, dir_inode, next) {
 
 					//get all inodes that are not owned by the current user. This can happen when browsing 
 					//a folder that has a shared/ghost parent
-					if (!mongoose.Types.ObjectId(req.user.id).equals(i.owner)) {
+					if (!mongoose.Types.ObjectId(user.id).equals(i.owner)) {
 						live_owners_ids.push(i.owner);
 					}
 				});
@@ -232,7 +234,7 @@ function do_read_dir(req, dir_inode, next) {
 					}
 
 					//this is true for unowned inodes
-					if (!mongoose.Types.ObjectId(req.user.id).equals(i.owner)) {
+					if (!mongoose.Types.ObjectId(user.id).equals(i.owner)) {
 						i.live_owner = live_owner_map[i.owner];
 					}
 
@@ -268,7 +270,7 @@ function do_read_dir(req, dir_inode, next) {
 			// for each inode return an entry with both inode and fobj info
 			var entries = _.map(list, function(inode) {
 				return inode_to_entry(inode, {
-					user: req.user,
+					user: user,
 					fobj: fobj_map[inode.fobj]
 				});
 			});
@@ -429,6 +431,7 @@ function inode_create_action(inode, fobj, user, relative_path, callback) {
 		// create the new inode
 		function(next) {
 			console.log('INODE CREATE:', inode);
+			console.log('inode.owner: ',typeof(inode.owner) ,JSON.stringify(inode.owner));
 			return inode.save(function(err) {
 				next(err);
 			});
@@ -531,7 +534,7 @@ exports.inode_read = function(req, res) {
 				});
 			}
 			if (inode.isdir) {
-				return do_read_dir(req, inode, next);
+				return do_read_dir(req.user, inode, next);
 			} else {
 				// redirect to the fobj location in S3
 				if (inode.fobj) {
@@ -579,7 +582,7 @@ exports.inode_update = function(req, res) {
 					return next(err, inode);
 				});
 			}
-			return next(null,inode);
+			return next(null, inode);
 		},
 
 		// update the inode
@@ -892,7 +895,7 @@ exports.inode_rmlinks = function(req, res) {
 
 function validate_assignment_to_parent(parent_inode_id, user_id, callback) {
 	if (!parent_inode_id || !user_id) {
-		callback(new Error('invalid input. '+ arguments));
+		callback(new Error('invalid input. ' + arguments));
 	}
 
 	return Inode.findById(parent_inode_id, function(err, parent_inode) {
