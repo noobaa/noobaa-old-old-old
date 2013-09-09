@@ -143,6 +143,7 @@ app.use('/vendor/', express.static(path.join(__dirname, '..', 'vendor')));
 app.use('/vendor/', express.static(path.join(__dirname, '..', 'bower_components')));
 app.use('/vendor/', express.static(path.join(__dirname, '..', 'node_modules')));
 app.use('/', express.static(path.join(__dirname, 'public', 'google')));
+// app.use('/2FE5F0A5036CF33C937D0E26CE9B0B10.txt', express.static(path.join(__dirname, 'public', 'js')));
 
 
 // error handlers should be last
