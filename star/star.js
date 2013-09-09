@@ -86,10 +86,9 @@ app.use(function(req, res, next) {
 	// var fwd_port = req.get('X-Forwarded-Port');
 	// var fwd_from = req.get('X-Forwarded-For');
 	// var fwd_start = req.get('X-Request-Start');
-	// TODO: redirecting to http till we have ssl certificate
-	if (fwd_proto === 'https' /*&& req.url !== '/' && req.url !== '/welcome'*/ ) {
+	if (fwd_proto === 'http') {
 		var host = req.get('Host');
-		return res.redirect('http://' + host + req.url);
+		return res.redirect('https://' + host + req.url);
 	}
 	return next();
 });
@@ -219,7 +218,6 @@ app.get('/auth/facebook/login/', auth.facebook_login);
 app.get('/auth/facebook/authorized/', auth.facebook_authorized);
 app.get('/auth/facebook/channel.html', auth.facebook_channel);
 app.get('/auth/logout/', auth.logout);
-
 
 
 
