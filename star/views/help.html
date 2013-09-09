@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html ng-app="noobaa_app" xmlns:fb="http://ogp.me/ns/fb#" lang="en">
+<head>
+	<?# def.include('common_head.html') ?>
+	<style>
+		#nb_nav_marker {
+			position: absolute;
+			bottom: 0;
+		}
+		#nb_nav {
+			position: absolute;
+			bottom: 0;
+		}
+		#nb_nav.affix {
+			position: fixed;
+			bottom: auto;
+			top: 0px;
+			width: 100%;
+		}
+		.nb_nav_link {
+			padding-top: 50px;
+		}
+
+		.bg_item1 {
+			background-image: url('http://comps.canstockphoto.com/can-stock-photo_csp5156216.jpg');
+		}
+		.bg_item2 {
+			background-image: url('http://comps.canstockphoto.com/can-stock-photo_csp5156216.jpg');
+		}
+		.bg_item3 {
+			background-image: url('http://comps.canstockphoto.com/can-stock-photo_csp5156216.jpg');
+		}
+		.bg_item1, .bg_item2, .bg_item3 {
+			background-repeat: no-repeat;
+			background-attachment: fixed;
+			background-size: cover;
+		}
+		@media all and (max-width: 600px) {
+			.bg_item1, .bg_item2, .bg_item3 {
+				background-position: 60% 0;
+			}
+		}
+
+		.bg_clouds {
+			background-image: url('/public/images/bg_clouds.jpg');
+			background-size: cover;
+			height: 400px;
+		}
+		.bg_logo {
+			background-color: #222222;
+			border-top-style: groove;
+			height: 200px;			
+		}
+	</style>
+</head>
+
+<body ng-cloak ng-controller="WelcomeCtrl">
+
+	<?# def.facebook_init_body ?>
+
+	<a id="_"></a>
+
+	<div id="nb_nav_marker"></div>
+
+	<nav id="nb_nav"
+		class="navbar navbar-inverse navbar-fixed-bottom"
+		role="navigation"
+		onresize="nb_nav_affix = undefined;">
+		<div class="nb_page_pad">
+			<div class="navbar-header">
+				<a class="navbar-brand scroller" href="#_">
+					<img src="/public/images/noobaa_logo.png"></img>
+				</a>
+			</div>
+			<div class="navbar-right">
+				<button href="#whatis"
+					class="navbar-btn btn btn-default scroller"
+					style="background-color: #000000; color: white">
+					<b>ABOUT</b>
+				</button>
+				<button href="#vision"
+					class="navbar-btn btn btn-default scroller"
+					style="background-color: #666666; color: black">
+					<b>THE VISION</b>
+				</button>
+				<button href="#join"
+					class="navbar-btn btn btn-default scroller"
+					style="background-color: #ffffff; color: black">
+					<b>JOIN US</b>
+				</button>
+				<a href="/auth/facebook/login/"
+					class="navbar-link"
+					style="margin-left: 60px">
+					<img src="/public/images/facebook_login_button.png"></img>
+				</a>
+			</div>
+		</div>
+	</nav>
+
+	<div id="whatis" class="nb_nav_link nb_page_pad fnt">
+		<div class="H2">WHAT IS NOOBAA?</div>
+		<br/><br/>
+		<h2>NooBaa is a Crowd-Cloud!</h2>
+		<h5 class="lead">
+			<br/>
+			NooBaa enables you to join a network of people like you and me, and get access to the absolute best computer resource in the world in a simple way.
+			<br/><br/>
+			With NooBaa you Co-Share your existing local storage and enjoy the best possible cloud service.
+			<br/><br/>
+		</h5>
+	</div>
+
+	<div class="wfill bg_clouds"></div>
+
+	<div id="vision" class="nb_nav_link nb_page_pad fnt">
+		<div class="H2">NOOBAA'S VISION</div>
+		<br/><br/>
+		<h2>In a world of connected devices, the crowd is the strongest force!</h2>
+		<h5 class="lead">
+			<br/>
+			Joining our devices together will create an entity that can make an impact on every aspect of our life - health, science, engineering, etc.
+			We believe that such a world should be controlled by the people.
+			<br/><br/>
+			Noobaa aims to democratize the cloud. <br/>
+			What might seem improbable, will soon become inevitable.
+			<br/><br/>
+		</h5>
+	</div>
+
+	<div class="wfill bg_clouds" style="background-position: 0 400px"></div>
+
+	<div id="join" class="nb_nav_link nb_page_pad fnt"
+		style="margin-bottom: 40px">
+		<div class="H2 text-center">JOIN US !</div>
+		<br/><br/><br/>
+		<div class="text-center">
+			<a href="/auth/facebook/login/">
+				<img src="/public/images/facebook_signup_button_big.png"
+					style="max-width: 300px"></img>
+			</a>
+		</div>
+		<br/><br/>
+		<div class="text-center">
+			<a class="btn btn-default"
+				data-toggle="collapse"
+				href="#login_faq_content">
+				<b>{{login_faq.title}}</b>
+				<i class="caret"></i>
+			</a>
+		</div>
+		<br/><br/>
+		<div id="login_faq_content" class="collapse text-left">
+			<div ng-repeat="(idx, question) in login_faq.questions"
+				style="border-radius: 10px/10px; 
+					border: 1px solid #eeeeee; 
+					margin: 10px;
+					padding: 0 20px 0 20px">
+				<a data-toggle="collapse"
+					href="#login_faq_question{{idx}}">
+					<p><!-- for border alignment --></p>
+					<p class="fnt fntmd">
+						<i class="icon-plus icon-fixed-width"></i>
+						{{question.q}}
+					</p>
+				</a>
+				<div class="collapse"
+					id="login_faq_question{{idx}}">
+					<p class="fnt fntmd">{{question.a}}</p>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="wfill bg_logo text-center">
+		<img src="/public/images/noobaa_logo.png"
+			style="height: 80px; margin: 60px 0 0 10px; opacity: 0.2">
+		</img>
+	</div>
+
+
+	<?# def.include('common_scripts.html') ?>
+
+	<script type="text/javascript">
+
+		var nb_nav_affix = undefined;
+
+		// jquery init
+		$(function() {
+
+			var nb_carousel = $('#nb_carousel');
+			var nb_nav = $('#nb_nav');
+			var nb_nav_marker = $('#nb_nav_marker');
+			var nb_nav_links = $('.nb_nav_link');
+
+			var refresh_nav = function() {
+				// invalidate the cached value of the nav affix
+				nb_nav_affix = undefined;
+				// when the nav resizes we need to make room for it
+				// at the top of each nav link.
+				// so set the top padding according to the nav size.
+				nb_nav_links.css({
+					"padding-top": (nb_nav.height() + 30) + 'px'
+				});
+			};
+
+			// returns the affix top of the nav which indicates 
+			// at which scroll point to fixate the nav to the top.
+			// we cache the value because during scrolling it will ask many times.
+			var get_nav_affix = function() {
+				if (nb_nav_affix === undefined) {
+					nb_nav_affix = nb_nav_marker.offset().top - nb_nav.height();
+				}
+				return nb_nav_affix;
+			};
+
+			// refresh now - onload
+			refresh_nav();
+			// refresh on window resize
+			$(window).resize(refresh_nav);
+			// refresh every second
+			setInterval(refresh_nav, 1000);
+			// setup the bootstrap affix plugin on the nav
+			nb_nav.affix({offset: {top: get_nav_affix} });
+			
+			// start spinning the carousel
+			nb_carousel.carousel({
+				interval: 10000,
+				pause: false
+			});
+
+			// do smooth scrolling to anchors with href
+			var $root = $('html, body');
+			$('.scroller').click(function() {
+				var href = $.attr(this, 'href');
+				$root.animate({
+					scrollTop: $(href).offset().top
+				}, 400, function() {
+					window.location.hash = href;
+				});
+				return false;
+			}); 	
+		});
+
+		function WelcomeCtrl($scope, $http) {
+			$scope.str2id = function(str) {
+				return str.split(' ').join('');
+			};
+
+			$scope.client_faq = {
+				title: 'NooBaa client FAQ',
+				questions: [{
+					q: 'Must I download and install the client to use NooBaa?',
+					a: 'No. You can take NooBaa for a test drive without downloading the client. Keep in mind that this is a co-sharing community. If you don\'t intend to share you won\'t be able to fully enjoy the power of the crowd cloud'
+				}, {
+					q: 'Which operating systems do you support?',
+					a: 'Access to the dashboard is done using a web browser so you can access your data from anywhere. The NooBaa client is currently available for MacOS, Windows and Linux. '
+				}]
+			};
+
+			$scope.login_faq = {
+				title: 'Facebook Login FAQ',
+				questions: [{
+					q: 'Why do you require a Facebook login?',
+					a: 'All you data on NooBaa is kept private, so we had to provide you with way to authenticate your identity. As we can never remember our own passwords, and reusing passwords is a bad habit, why would we force another nuisance on you?!'
+				}, {
+					q: 'I don\'t have a Facebook user and would like to use NooBaa anyway.',
+					a: 'We currently only support Facebook login so the easiest path would be to sign up to Facebook. We do plan to allow a variety of other login accounts such as: Google, Twitter etc but not very soon.'
+				}, {
+					q: 'Why only Facebook and why Facebook first?',
+					a: 'We love Facebook. In addition, chances are you already have a Facebook user.'
+				}, {
+					q: 'Do you have access to my Facebook password or data?',
+					a: 'No. You authenticate with Facebook in a method called OAuth.' 
+				}, {
+					q: 'Must I Like your page on Facebook?',
+					a: 'Not really but it would be beneficial to everybody as we\'re building a community and not a passive service. Communicating with our customers would help us do the right thing.'
+				}, {
+					q: 'Why does Facebook ask me to approve your access?',
+					a: 'This is done in order to keep your privacy. We would like to access your friends list to strengthen the crowd cloud and we need your email to be able to communicate with you outside of NooBaa. We won\'t post on your wall or add you to any newsletter without getting your explicit permission first.'
+				}],
+			};
+		}
+		WelcomeCtrl.$inject = ['$scope', '$http'];
+	</script>
+
+</body>
+
+</html>
