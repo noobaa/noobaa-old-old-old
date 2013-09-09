@@ -31,16 +31,14 @@ html, body {
 .navbar {
 	width: 100% !important;
 	margin: 0 !important;
-	background-color: rgba(34,34,34,0.9) !important;
-	background-image: none !important;
+	opacity: 0.95;
 }
 .navbar .navbar-brand {
 	padding: 0;
 }
 .navbar .navbar-brand img {
-	height: 48px;
-	margin-left: 5px;
-	margin-right: 5px;
+	height: 40px;
+	margin: 5px 0px 5px -5px;
 }
 
 .nb_page_pad {

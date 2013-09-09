@@ -51,6 +51,18 @@
 			border-top-style: groove;
 			height: 200px;			
 		}
+
+		.shiner {
+			position: absolute;
+			top: 10%;
+			bottom: 10%;
+			left: 0;
+			right: 0;
+			background-size: 40px 100%;
+			background-position: -1000px 0;
+			background-image: url('/public/images/bigshine.png');
+			background-repeat: no-repeat;
+		}
 	</style>
 </head>
 
@@ -64,39 +76,53 @@
 		<div class="carousel-inner filling">
 			
 			<div class="active item filling bg_item1">
-				<div class="nb_page_pad text-left fntpaint fntblk">
+				<div class="nb_page_pad text-left fntblk">
 					<br/><br/><br/>
-					<p class="H2">Cloud storage made</p>
-					<p class="H1">SIMPLE</p>
+					<p class="H2 fntpaint">Cloud storage made</p>
+					<p class="H1 fntpaint">SIMPLE</p>
 					<br/>
-					<p class="lead">All your Data.</p>
-					<p class="lead">One location.</p>
+					<p class="lead">All your Data in one location.</p>
 					<p class="lead">No complex plans.</p>
 					<p class="lead">No complex decisions.</p>
 					<p class="lead">No additional hardware.</p>
+					<br/>
+					<button href="#join"
+						class="btn btn-danger btn-lg scroller">
+						<b>SIMPLY JOIN NOW !</b>
+					</button>
 				</div>
 			</div>
 
 			<div class="item filling bg_item2">
-				<div class="nb_page_pad text-left fntpaint fntwht">
+				<div class="nb_page_pad text-left fntwht">
 					<br/><br/><br/>
-					<p class="H2">Cloud storage made</p>
-					<p class="H1">FAST</p>
+					<p class="H2 fntpaint">Cloud storage made</p>
+					<p class="H1 fntpaint">FAST</p>
 					<br/>
 					<p class="lead">Join the power of the crowd.</p>
-					<p class="lead">Together we are the most -</p>
-					<p class="lead">powerful data-center.</p>
+					<p class="lead">Together we are the most powerful data-center.</p>
+					<br/>
+					<button href="#join"
+						class="btn btn-danger btn-lg scroller">
+						<b>JOIN QUICKLY !</b>
+					</button>
 				</div>
 			</div>
 
 			<div class="item filling bg_item3">
-				<div class="nb_page_pad text-left fntpaint fntwht">
+				<div class="nb_page_pad text-left fntwht">
 					<br/><br/><br/>
-					<p class="H2">Cloud storage made</p>
-					<p class="H1">FREE</p>
+					<p class="H2 fntpaint">Cloud storage made</p>
+					<p class="H1 fntpaint">FREE</p>
 					<br/>
 					<p class="lead">Unlimited capacity.</p>
+					<p class="lead">You control how much you get.</p>
 					<p class="lead">Absolutely free.</p>
+					<br/>
+					<button href="#join"
+						class="btn btn-danger btn-lg scroller">
+						<b>JOIN FOR FREE !</b>
+					</button>
 				</div>
 			</div>
 
@@ -122,37 +148,52 @@
 		onresize="nb_nav_affix = undefined;">
 		<div class="nb_page_pad">
 			<div class="navbar-header">
+				<button type="button" 
+					class="navbar-toggle" 
+					data-toggle="collapse" 
+					data-target=".navbar-ex1-collapse">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
 				<a class="navbar-brand scroller" href="#_">
 					<img src="/public/images/noobaa_logo.png"></img>
 				</a>
 			</div>
-			<div class="navbar-right">
-				<button href="#whatis"
-					class="navbar-btn btn btn-default scroller"
-					style="background-color: #000000; color: white">
-					<b>ABOUT</b>
-				</button>
-				<button href="#vision"
-					class="navbar-btn btn btn-default scroller"
-					style="background-color: #666666; color: black">
-					<b>THE VISION</b>
-				</button>
-				<button href="#join"
-					class="navbar-btn btn btn-default scroller"
-					style="background-color: #ffffff; color: black">
-					<b>JOIN US</b>
-				</button>
-				<a href="/auth/facebook/login/"
-					class="navbar-link"
-					style="margin-left: 60px">
-					<img src="/public/images/facebook_login_button.png"></img>
-				</a>
+			<div class="collapse navbar-collapse navbar-ex1-collapse">
+				<ul class="nav navbar-nav navbar-right">
+					<li class="shining">
+						<div class="shiner"></div>
+						<a href="#whatis" class="scroller">
+							<b>ABOUT</b>
+						</a>
+					</li>
+					<li class="shining">
+						<div class="shiner"></div>
+						<a href="#vision" class="scroller">
+							<b>VISION</b>
+						</a>
+					</li>
+					<li class="shining">
+						<div class="shiner"></div>
+						<a href="#join" class="scroller">
+							<b>JOIN</b>
+						</a>
+					</li>
+					<li class="shining">
+						<div class="shiner"></div>
+						<a href="/auth/facebook/login/" class="scroller">
+							<b>LOGIN</b>
+						</a>
+					</li>
+				</ul>
 			</div>
 		</div>
 	</nav>
 
 	<div id="whatis" class="nb_nav_link nb_page_pad fnt">
-		<div class="H2">WHAT IS NOOBAA?</div>
+		<div class="H2 fntpaint"><b>WHAT IS NOOBAA?</b></div>
 		<br/><br/>
 		<h2>NooBaa is a Crowd-Cloud!</h2>
 		<h5 class="lead">
@@ -167,7 +208,7 @@
 	<div class="wfill bg_clouds"></div>
 
 	<div id="vision" class="nb_nav_link nb_page_pad fnt">
-		<div class="H2">NOOBAA'S VISION</div>
+		<div class="H2 fntpaint"><b>NOOBAA'S VISION</b></div>
 		<br/><br/>
 		<h2>In a world of connected devices, the crowd is the strongest force!</h2>
 		<h5 class="lead">
@@ -185,7 +226,7 @@
 
 	<div id="join" class="nb_nav_link nb_page_pad fnt"
 		style="margin-bottom: 40px">
-		<div class="H2 text-center">JOIN US !</div>
+		<div class="H2 fntpaint text-center"><b>JOIN US !</b></div>
 		<br/><br/><br/>
 		<div class="text-center">
 			<a href="/auth/facebook/login/">
@@ -293,6 +334,20 @@
 				});
 				return false;
 			}); 	
+
+			$('.shining').hover(function() {
+				var s = $(this).find('.shiner');
+				var w = $(this).outerWidth();
+				s.stop();
+				s.css({
+					'background-position-x': '-40px'
+				});
+				s.animate({
+					'background-position-x': w+100+'px'
+				}, 800);
+			}, function() {
+				// nop
+			});
 		});
 
 		function WelcomeCtrl($scope, $http) {
