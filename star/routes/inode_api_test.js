@@ -22,7 +22,38 @@ exports.test_inodes_api = {
 	setUp: db_connect.setup,
 	tearDown: db_connect.teardown,
 
-	'testing inode copy with no ghosts': function(test) {
+	'Testing folder read': function(test) {
+		async.waterfall([
+			//get random user
+			function(next) {
+				return test_common.get_rand_entry(User, next);
+			},
+
+			//get random folder of that user
+			function(user, next) {
+				console.log('user: ', user);
+				return test_common.get_rand_entry(Inode, {
+					isdir: true,
+					owner: user.id
+				}, function(err, directory) {
+					next(err, user, directory);
+				});
+			},
+
+			//read the folder
+			function(dir_inode, user, next) {
+				console.log('dir_inode: ', dir_inode);
+				console.log('user: ', user);
+				next(null,'Alles goot');
+			},
+		], function(err, results) {
+			test.ifError(err);
+			console.log('new inode: \n', results);
+			test.done();
+		});
+	},
+
+/*	'testing inode copy with no ghosts': function(test) {
 		test.expect(1);
 		async.waterfall([
 			//get random file to copy.
@@ -168,4 +199,5 @@ exports.test_inodes_api = {
 			test.done();
 		});
 	},
+*/
 };
