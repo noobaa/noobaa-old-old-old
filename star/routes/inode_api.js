@@ -98,7 +98,8 @@ function inode_to_entry(inode, opt) {
 
 	var ent = {
 		id: inode._id,
-		name: inode.name
+		name: inode.name,
+		ctime: inode._id.getTimestamp()
 	};
 	if (inode.isdir) {
 		ent.isdir = inode.isdir;
@@ -143,6 +144,7 @@ function inode_to_entry(inode, opt) {
 
 // read_dir finds all the sons of the directory.
 // for inodes with fobj also add the fobj info to the response.
+exports.do_read_dir = do_read_dir;
 
 function do_read_dir(user, dir_inode, next) {
 	async.waterfall([
@@ -429,6 +431,7 @@ function inode_create_action(inode, fobj, user, relative_path, callback) {
 		// create the new inode
 		function(next) {
 			console.log('INODE CREATE:', inode);
+			console.log('inode.owner: ',typeof(inode.owner) ,JSON.stringify(inode.owner));
 			return inode.save(function(err) {
 				next(err);
 			});
@@ -579,7 +582,7 @@ exports.inode_update = function(req, res) {
 					return next(err, inode);
 				});
 			}
-			return next(null,inode);
+			return next(null, inode);
 		},
 
 		// update the inode
@@ -892,7 +895,7 @@ exports.inode_rmlinks = function(req, res) {
 
 function validate_assignment_to_parent(parent_inode_id, user_id, callback) {
 	if (!parent_inode_id || !user_id) {
-		callback(new Error('invalid input. '+ arguments));
+		callback(new Error('invalid input. ' + arguments));
 	}
 
 	return Inode.findById(parent_inode_id, function(err, parent_inode) {
