@@ -1223,7 +1223,8 @@ function UploadCtrl($scope) {
 	$scope.update_progress = function(event, data) {
 		var upload = $scope.uploads[data.upload_idx];
 		upload.progress = parseInt(data.loaded / data.total * 100, 10);
-
+		$scope.safe_apply();
+/* not really needed for now
 		//in order to make sure we don't overload the DB, we'll limit update per 10sec
 		var curr_time = new Date();
 		if (!upload.last_star_update) {
@@ -1244,7 +1245,7 @@ function UploadCtrl($scope) {
 				$scope.safe_apply();
 			});
 		}
-		$scope.safe_apply();
+*/
 	};
 
 	$scope.dismiss_upload = function(upload) {
