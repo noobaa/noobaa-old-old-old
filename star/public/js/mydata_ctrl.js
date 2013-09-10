@@ -1150,7 +1150,7 @@ function UploadCtrl($scope) {
 
 	$scope.upload_id_idx = 0;
 	$scope.uploads = {};
-	$scope.max_uploads_at_once = 20;
+	$scope.max_uploads_at_once = 100;
 
 	$scope.has_uploads = function() {
 		return !_.isEmpty($scope.uploads);
