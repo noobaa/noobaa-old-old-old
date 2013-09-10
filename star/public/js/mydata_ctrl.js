@@ -878,7 +878,6 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 		} else {
 			s.sort_by = sort_by_ctime_down;
 		}
-		console.log('s.sort_by: ',s.sort_by);
 		i.resort_entries();
 	};
 	$scope.get_sort_by_name_class = function() {
