@@ -1,8 +1,56 @@
 /* jshint node:true */
 'use strict';
 
+var _ = require('underscore');
 var mongoose = require('mongoose');
 var crypto = require('crypto');
+var StarLog = require('../models/starlog.js').StarLog;
+
+
+// add data to the request starlog, which will be attached
+// to the log record that reply callback will write to the DB.
+// TODO: add info in the relevant routes - tests code complicates stuff because req is not available
+function starlog(req, data) {
+	if (!req.starlog) {
+		req.starlog = {};
+	}
+	_.extend(req.starlog, data);
+}
+
+// submit a starlog to the DB but don't wait for it
+
+function submit_starlog(err, req) {
+	// for now we don't want to log and READS, only WRITES
+	// so filtering simply by method type which is usually correct.
+	if (req.method === 'GET') {
+		return;
+	}
+	var record = new StarLog();
+	// pick fields from the request to be added to the log record
+	record.req = _.pick(req,
+		'user',
+		'method',
+		'url',
+		'originalMethod',
+		'originalUrl',
+		'query',
+		'body'
+	);
+	// attach error info
+	if (err) {
+		record.err = err;
+	}
+	// attach info which was put on the request with starlog()
+	if (req.starlog) {
+		record.log = req.starlog;
+	}
+	// submit save but don't wait for it, just continue and reply to the client
+	record.save(function(save_err) {
+		if (save_err) {
+			console.error('FAILED TO SAVE STARLOG', save_err, record);
+		}
+	});
+}
 
 // Convinient callback maker for handling the reply of async control flows.
 // Example usage:
@@ -12,6 +60,7 @@ var crypto = require('crypto');
 
 function reply_callback(req, res, debug_info) {
 	return function(err, reply) {
+		submit_starlog(err, req);
 		if (err) {
 			console.log('FAILED', debug_info, ':', err);
 			if (typeof err.status === 'number' &&
@@ -94,6 +143,7 @@ function page_context(req) {
 }
 
 
+exports.starlog = starlog;
 exports.reply_callback = reply_callback;
 exports.json_encode_sign = json_encode_sign;
 exports.json_decode_sign = json_decode_sign;

@@ -243,7 +243,6 @@ app.post('/star_api/user/feedback/', email.user_feedback);
 var device_api = require('./routes/device_api');
 app.post('/star_api/device/', device_api.device_create);
 app.get('/star_api/device/', device_api.device_list);
-app.get('/star_api/device/:device_id', device_api.device_read);
 app.put('/star_api/device/:device_id', device_api.device_update);
 
 
@@ -291,19 +290,15 @@ app.get('/thankyou', function(req, res) {
 	if (!req.user) {
 		return res.redirect('/welcome');
 	}
-	// TODO: uncomment this redirect
-	// if (req.user.alpha_tester) {
-	// return res.redirect('/mydata');
-	// }
 	return res.render('thankyou.html', common_api.page_context(req));
 });
 
-app.get('/help', redirect_no_user, function(req, res, next) {
+app.get('/help', function(req, res) {
 	return res.redirect('/welcome#faq');
 	// return res.render('help.html', common_api.page_context(req));
 });
 
-app.get('/settings', redirect_no_user, function(req, res, next) {
+app.get('/settings', redirect_no_user, function(req, res) {
 	return res.render('settings.html', common_api.page_context(req));
 });
 

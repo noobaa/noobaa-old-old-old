@@ -187,8 +187,3 @@ exports.device_list = function(req, res) {
 		}
 	], common_api.reply_callback(req, res, 'DEVICE LIST ' + req.user.id));
 };
-
-exports.device_read = function(req, res) {
-	console.log('TODO: DEVICE READ', req.params, req.query);
-	return res.json(200, {});
-};
