@@ -236,7 +236,7 @@ Inode.prototype.populate_dir = function(entries) {
 		sync_property(son, ent, "owner_name");
 
 		//get only the first name for display. Cleaner and friendlier.
-		if (son.owner_name){
+		if (son.owner_name) {
 			son.owner_name = son.owner_name.split(' ')[0];
 		}
 		sync_property(son, ent, "owner_fbid");
