@@ -99,7 +99,7 @@ function HelpCtrl($scope, $http) {
 				'There is not catch. There is only co sharing. ',
 				'The deal is simple: allocate some amount of local HD to be used by NooBaa,',
 				'and get the same amount of cloud storage.',
-				'Werther you need 100GB or 10TB, as long as you are co sharing the same capacity, it IS free.',
+				'Whether you need 100GB or 10TB, as long as you are co sharing the same capacity, it IS free.',
 			].join('\n')
 		}, {
 			q: 'What do you mean by co sharing?',
