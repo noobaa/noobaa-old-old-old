@@ -265,7 +265,7 @@ Inode.prototype.populate_dir = function(entries) {
 Inode.prototype.resort_entries = function() {
 	var sort_by = this.dir_state.sort_by || this.$scope.default_sort_by;
 	this.dir_state.sons_list.sort(sort_by);
-	this.dir_state.subdirs_list.sort(sort_by);
+	this.dir_state.subdirs_list.sort(this.$scope.default_sort_by);
 };
 
 // create new dir under this dir
@@ -620,6 +620,8 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 			return;
 		}
 
+		drag_inode.rename(drop_inode, drag_inode.name);
+/*
 		var dlg = $('#move_dialog').clone();
 		dlg.find('.inode_label').eq(0).html(drag_inode.make_inode_with_icon());
 		dlg.find('.inode_label').eq(1).html(drop_inode.make_inode_with_icon());
@@ -637,6 +639,7 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 			remove_on_close: true,
 			modal: true
 		});
+*/
 	};
 
 	$scope.click_mkdir = function() {
