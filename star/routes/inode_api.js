@@ -431,7 +431,7 @@ function inode_create_action(inode, fobj, user, relative_path, callback) {
 		// create the new inode
 		function(next) {
 			console.log('INODE CREATE:', inode);
-			console.log('inode.owner: ',typeof(inode.owner) ,JSON.stringify(inode.owner));
+			console.log('inode.owner: ', typeof(inode.owner), JSON.stringify(inode.owner));
 			return inode.save(function(err) {
 				next(err);
 			});
@@ -700,6 +700,16 @@ function inode_delete_action(inode_id, user_id, callback) {
 			}
 			console.log('FOBJ DELETE:', inode_id);
 			return Fobj.findByIdAndRemove(inode.fobj, function(err) {
+				return next(err, inode);
+			});
+		},
+
+		//remove any ghost refs
+		function(inode, next) {
+			var params = {
+				ghost_ref: inode._id
+			};
+			Inode.remove(params, function(err) {
 				return next(err, inode);
 			});
 		},
