@@ -1,5 +1,11 @@
-/* jshint browser:true, jquery:true, devel:true */
+/* jshint node:true, browser:true, jquery:true, devel:true */
 /* global angular:false */
+/* global _:false */
+/* global Backbone:false */
+// TODO: how do we fix this warning? - "Use the function form of "use strict". (W097)"
+/* jshint -W097 */
+'use strict';
+
 
 (function(global) {
 	'use strict';
