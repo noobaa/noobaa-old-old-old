@@ -58,9 +58,11 @@ function submit_starlog(err, req) {
 //			...
 //		], reply_callback(req, res, debug_info));
 
-function reply_callback(req, res, debug_info) {
+function reply_callback(req, res, debug_info, skip_starlog) {
 	return function(err, reply) {
-		submit_starlog(err, req);
+		if (skip_starlog !== 'skip_starlog') {
+			submit_starlog(err, req);
+		}
 		if (err) {
 			console.log('FAILED', debug_info, ':', err);
 			if (typeof err.status === 'number' &&

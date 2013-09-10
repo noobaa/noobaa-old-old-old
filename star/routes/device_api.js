@@ -170,7 +170,7 @@ exports.device_update = function(req, res) {
 				device: dev
 			});
 		}
-	], common_api.reply_callback(req, res, 'DEVICE UPDATE ' + dev_id));
+	], common_api.reply_callback(req, res, 'DEVICE UPDATE ' + dev_id, 'skip_starlog'));
 };
 
 exports.device_list = function(req, res) {
