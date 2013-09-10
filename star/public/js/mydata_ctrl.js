@@ -242,7 +242,9 @@ Inode.prototype.populate_dir = function(entries) {
 		sync_property(son, ent, "owner_fbid");
 		sync_property(son, ent, "ctime");
 		if (son.ctime) {
-			son.ctime = new Date(son.ctime).toLocaleDateString();
+			son.ctime_display = new Date(son.ctime).toLocaleDateString();
+		} else {
+			son.ctime_display = null;
 		}
 
 		sons_map[son.id] = son;
