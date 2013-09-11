@@ -14,17 +14,21 @@
 		role="navigation">
 		<div class="container">
 			<div class="navbar-header">
-				<a id="logo_link" class="navbar-brand" href="#" ng-click="open_noobaa()">
+				<a id="logo_link" class="navbar-brand" TODO-href="#" TODO-ng-click="open_noobaa()">
 					<img src="/public/images/noobaa_logo.png"></img>
 				</a>
 			</div>
-			<ul ng-show="planet_user" class="nav navbar-nav navbar-right">
+			<ul ng-show="planet_user && planet_device"
+				class="nav navbar-nav navbar-left"
+				style="margin-left: 30px">
 				<li class="navbar-text" style="color: rgba(250,250,20,0.5)">
-					<small >
+					<small>
 						<i class="icon-check icon-large icon-fixed-width"></i>
 						<b>Connected</b>
 					</small>
 				</li>
+			</ul>
+			<ul ng-show="planet_user" class="nav navbar-nav navbar-right">
 				<li>
 					<a href="#" ng-click="open_noobaa()" id="my_data_link">
 						MY DATA
@@ -142,23 +146,23 @@
 				<div class="col-xs-6 text-center">
 					<div style="border: solid 1px black; min-height: 200px">
 						<br/>
-						<h3 ng-hide="planet_device" class="lead">Updating...</h3>
+						<h4 ng-hide="planet_device" class="lead">Updating...</h4>
 						<div ng-show="planet_device">
-							<h3>
-								<i class="icon-anchor icon-large icon-fixed-width"></i>
+							<h4>
+								<i class="icon-anchor icon-2x icon-fixed-width"></i>
 								{{ human_size(planet_device.coshare_space || 0) }}
-							</h3>
-							<h3>Currently</h3>
-							<h3>Co-Shared</h3>
+							</h4>
+							<h4>Currently</h4>
+							<h4>Co-Shared</h4>
 						</div>
 					</div>
 				</div>
 				<div class="col-xs-6 text-center">
 					<div style="border: solid 1px black; min-height: 200px">
 						<br/>
-						<div style="font-size: 40px"><i class="icon-cloud-upload"></i></div>
-						<h3>Drag &amp; Drop</h3>
-						<h3>to start uploading!</h3>
+						<h4><i class="icon-cloud-upload icon-2x icon-fixed-width"></i><h4>
+						<h4>Drag &amp; Drop</h4>
+						<h4>to start uploading!</h4>
 					</div>
 				</div>
 			</div>
