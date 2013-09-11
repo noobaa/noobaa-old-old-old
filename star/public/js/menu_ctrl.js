@@ -116,12 +116,12 @@ function UserCtrl($scope, $http, $timeout) {
 			$scope.user_usage = data.usage;
 			cancel_usage_refresh();
 			$scope.usage_refresh_timeout =
-				$timeout(usage_refresh, 30000);
+				$timeout(usage_refresh, 60000);
 		}).error(function(data, status, headers, config) {
 			console.log("Error in querying user usage: ", status);
 			cancel_usage_refresh();
 			$scope.usage_refresh_timeout =
-				$timeout(usage_refresh, 30000);
+				$timeout(usage_refresh, 60000);
 		});
 	}
 	usage_refresh();

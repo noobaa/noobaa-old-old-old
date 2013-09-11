@@ -556,7 +556,7 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 			'all': function() {
 				cancel_curr_dir_refresh();
 				$scope.curr_dir_refresh_timeout =
-					$timeout(curr_dir_refresh, 30000);
+					$timeout(curr_dir_refresh, 60000);
 			}
 		});
 	}
