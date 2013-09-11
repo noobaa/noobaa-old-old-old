@@ -543,27 +543,30 @@
 		return {
 			restrict: 'A', // use as attribute
 			link: function(scope, element, attr) {
-				var opt = scope.$eval(attr.nbShine) || {};
-				angular.extend(opt, {
-					at: 'center',
-					thick: 20,
-					start: 0,
-					end: 100,
-					step: 1.7,
-					step_time: 10,
-					delay: 7000
-				});
+				var options = scope.$eval(attr.nbShine) || {};
+				var opt = angular.extend({
+					at: 'center', // position in the element, e.g. at: "25% 40%"
+					thick: 20, // pixels
+					start: 0, // pixel start radius
+					end: 100, // pixel end radius
+					step: 0.01, // step fraction (0-1)
+					step_time: 10, // milis between steps
+					delay: 7000 // milis between shines
+				}, options);
+				var pixel_step = opt.step * (opt.end - opt.start);
+				var pixel_thick = opt.thick / 2;
 				var R = opt.start;
-				var interval;
 				var renderer = function() {
 					element.css('background-image',
 						'radial-gradient(circle at ' + opt.at + 
-							', transparent ' + R +'px, rgba(255,255,255,0.7) '+opt.thick + 'px' +
-							', transparent ' + (R+opt.thick) + 'px, transparent)');
-					R += opt.step;
-					if ((opt.step > 0 && R > opt.end) || 
-						(opt.step < 0 && R < opt.end)) {
+							', transparent ' + (R-2*pixel_thick) + 'px' +
+							', rgba(255,255,255,0.85) ' + (R-pixel_thick) + 'px' +
+							', transparent ' + (R) + 'px)');
+					R += pixel_step;
+					if ((pixel_step > 0 && R > opt.end) || 
+						(pixel_step < 0 && R < opt.end)) {
 						R = opt.start;
+						element.css('background-image', '');
 						setTimeout(renderer, opt.delay);
 					} else {
 						setTimeout(renderer, opt.step_time);

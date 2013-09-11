@@ -346,4 +346,26 @@ function PlanetCtrl($scope, $http, $timeout) {
 		return 'info_view';
 	};
 
+
+	$('#file_upload_input').fileupload({
+		add: $scope.add_upload,
+		progress: $scope.update_progress,
+		// we want single file per xhr
+		singleFileUploads: true,
+		// xml is is how amazon s3 work
+		dataType: 'xml'
+	});
+
+	$('#dir_upload_input').fileupload({
+		add: $scope.add_upload,
+		progress: $scope.update_progress,
+		// we want single file per xhr
+		singleFileUploads: true,
+		// xml is is how amazon s3 work
+		dataType: 'xml',
+		// disabling drop/paste, file_upload_input will handle globally,
+		// if we don't disable it will upload twice.
+		dropZone: null,
+		pasteZone: null
+	});
 }

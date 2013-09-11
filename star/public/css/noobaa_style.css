@@ -21,6 +21,14 @@ html, body {
 	font-size: 16px;
 	line-height: 1.5em;
 }
+.H1 {
+	font-size: 60px;
+}
+@media all and (max-width: 480px) {
+	.H1 {
+		font-size: 50px;
+	}
+}
 
 .fntblk {
 	color: black;
@@ -58,31 +66,6 @@ html, body {
 .bgdark {
 	background-color: #222222;
 	color: #fafafa;
-}
-
-.H1 {
-	font-size: 120pt;
-	line-height: 120pt;
-}
-.H2 {
-	font-size: 50pt;
-	line-height: 50pt;
-}
-@media all and (min-width: 480px) and (max-width: 768px) {
-	.H1 {
-		font-size: 60pt;
-		line-height: 60pt;
-	}
-}
-@media all and (max-width: 480px) {
-	.H1 {
-		font-size: 40pt;
-		line-height: 40pt;
-	}
-	.H2 {
-		font-size: 40pt;
-		line-height: 40pt;
-	}
 }
 
 

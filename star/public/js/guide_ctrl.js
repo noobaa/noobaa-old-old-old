@@ -515,17 +515,10 @@ function GuideCtrl($scope) {
 		path: "/settings",
 		element: "#dl",
 		placement: 'top',
-		title: "STEP 1/3",
+		title: "DOWNLOAD -> INSTALL -> LOGIN",
 		content: [
 			'<p>Download the NooBaa client for your OS.</p>',
-			'<p>(we are working with the Chrome team to resolve the warning)</p>'
-		].join('\n')
-	});
-
-	$scope.guides.cosharing.steps.push({
-		path: "/settings",
-		title: "STEP 2/3",
-		content: [
+			'<p><small>(we are working with the Chrome team to resolve the warning)</small></p>',
 			'<p>Run the installer.</p>',
 			'<p>When the program starts, login to your Facebook account.',
 		].join('\n')
@@ -533,21 +526,31 @@ function GuideCtrl($scope) {
 
 	$scope.guides.cosharing.steps.push({
 		path: "/settings",
-		title: "STEP 3/3",
+		title: "MAKING SPACE",
 		content: [
-			'<p>Choose how much quota you\'d like to get on the cloud - ',
-			'NooBaa will preallocate the same amount of storage on your hard drive. </p>',
+			'<p>In the client window use the button <a class="btn btn-danger"><i class="icon-rocket"></i></a>',
+			'to make more space in your account.</p>',
+			'<p>NooBaa will allocate the same amount of storage on your hard drive.</p>',
+			'<p>You can keep adding more as you go.</p>',
 		].join('\n')
 	});
 
 	$scope.guides.cosharing.steps.push({
 		path: "/settings",
-		element: "#devs",
-		placement: 'bottom',
-		title: "First device added",
+		title: "CLIENT UPLOAD",
 		content: [
-			'<p>Once your device is up and running, you can view your device in the device list.</p>',
-			'<p>Enjoy the power of NooBaa\'s crowd-cloud!</p>',
+			'<p>In the client window use the button <a class="btn btn-success"><i class="icon-cloud-upload"></i></a>',
+			'to upload files or folders to you account.</p>',
+			'<p>Using the client upload is better than the web browser',
+			'because it will resume even if disconnected or rebooted.</p>'
+		].join('\n')
+	});
+
+	$scope.guides.cosharing.steps.push({
+		path: "/settings",
+		title: "AWESOME",
+		content: [
+			'<p>Enjoy the power of NooBaa\'s crowd-cloud and spread the word!</p>',
 		].join('\n')
 	});
 
