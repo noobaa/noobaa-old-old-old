@@ -5,6 +5,7 @@ html, body {
 	height: 100%;
 	min-height: 100%;
 }
+
 .fnt, body, h1, h2, h3, h4, h5, h6, .ui-widget, button {
 	font-family: 'Nunito', 'Ubuntu', sans-serif !important;
 }
@@ -28,39 +29,28 @@ html, body {
 	color: white;
 }
 
+
 .navbar {
-	width: 100% !important;
-	margin: 0 !important;
 	opacity: 0.95;
 }
 .navbar .navbar-brand {
-	padding: 0;
+	padding: 5px 0px 5px 10px;
 }
 .navbar .navbar-brand img {
 	height: 40px;
-	margin: 5px 0px 5px -5px;
 }
 
-.nb_page_pad {
-	padding-left: 150px !important;
-	padding-right: 150px !important;
-}
-@media all and (min-width: 480px) and (max-width: 768px) {
-	.nb_page_pad {
-		padding-left: 50px !important;
-		padding-right: 50px !important;
+@media all and (min-width: 992px) and (max-width: 1099px) {
+	.container {
+		width: 750px !important;
 	}
 }
-@media all and (max-width: 480px) {
-	.nb_page_pad {
-		padding-left: 10px !important;
-		padding-right: 10px !important;
+@media all and (min-width: 1100px) and (max-width: 1400px) {
+	.container {
+		width: 1000px !important;
 	}
 }
 
-.nb_nav_top_pad {
-	padding-top: 30px;
-}
 
 .bglight {
 	background-color: white;
@@ -253,4 +243,78 @@ html, body {
 .t-cell {
 	display: table-cell;
 	padding: 3px;
+}
+
+
+
+/* http://getbootstrap.com/examples/non-responsive/
+ * 
+ * Non-responsive overrides
+ * 
+ * Utilitze the following CSS to disable the responsive-ness of the container,
+ * grid system, and navbar.
+ */
+
+/* Reset the container */
+.nonresp .container {
+	max-width: none !important;
+	/* fixed width seems unneeded */
+}
+/* Always float the navbar header */
+.nonresp .navbar-header {
+	float: left;
+}
+/* Undo the collapsing navbar */
+.nonresp .navbar-collapse {
+	display: block !important;
+	height: auto !important;
+	padding-bottom: 0;
+	overflow: visible !important;
+}
+.nonresp .navbar-toggle {
+	display: none;
+}
+/* Always apply the floated nav */
+.nonresp .navbar-nav {
+	float: left;
+	margin: 0;
+}
+.nonresp .navbar-nav > li {
+	float: left;
+}
+.nonresp .navbar-nav > li > a {
+	padding: 15px;
+}
+/* Redeclare since we override the float above */
+.nonresp .navbar-nav.navbar-right {
+	float: right;
+}
+/* Undo custom dropdowns */
+.nonresp .navbar .open .dropdown-menu {
+	position: absolute;
+	float: left;
+	background-color: #fff;
+	border: 1px solid #cccccc;
+	border: 1px solid rgba(0, 0, 0, 0.15);
+	border-width: 0 1px 1px;
+	border-radius: 0 0 4px 4px;
+	-webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+	box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+}
+.nonresp .navbar .open .dropdown-menu > li > a {
+	color: #333 !important;
+}
+.nonresp .navbar .open .dropdown-menu > li > a:hover,
+.nonresp .navbar .open .dropdown-menu > li > a:focus,
+.nonresp .navbar .open .dropdown-menu > .active > a,
+.nonresp .navbar .open .dropdown-menu > .active > a:hover,
+.nonresp .navbar .open .dropdown-menu > .active > a:focus {
+	color: #fff !important;
+	background-color: #428bca !important;
+}
+.nonresp .navbar .open .dropdown-menu > .disabled > a,
+.nonresp .navbar .open .dropdown-menu > .disabled > a:hover,
+.nonresp .navbar .open .dropdown-menu > .disabled > a:focus {
+	color: #999 !important;
+	background-color: transparent !important;
 }
