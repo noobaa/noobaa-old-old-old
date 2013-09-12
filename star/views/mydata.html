@@ -30,6 +30,7 @@
 		}
 		.drop_hover_class {
 			background-color: rgba(255,255,0,0.4) !important;
+			/*background-color: #fefe98 !important;*/
 		}
 
 		.d-head {
@@ -283,7 +284,8 @@
 		 		nb-right-click="inode_rclick(dir_selection.inode, $event)"
 				class="roundbord bglight"
 				style="min-height: 400px; outline: none"
-				id="inodes_list">
+				id="inodes_list"
+				nb-drop="dir_selection.inode">
 			</div>
 		</div>
 	</div>
@@ -665,6 +667,7 @@
 
 <script type="text/ng-template" id="list_view_template.html">
 	<div class="t-table">
+
 		<div class="t-icon-column"></div>
 		<div class="t-name-column"></div>
 		<div class="t-size-column"></div>
