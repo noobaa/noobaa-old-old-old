@@ -133,6 +133,31 @@ function HelpCtrl($scope, $http) {
 				'A and scans on cloud B. You seldom have an efficient backup process, if any, and you\'re ',
 				'managing it all manually. Now think of the following: One protected always accessible fast location. '
 			].join('\n')
+		}, {
+			q: 'How do I avoid from being exposed to pirated/illegal content?',
+			a: [
+				'As a user, you\'re not exposed to any files. Your files are totally owned and controlled by you ',
+				'and there is an option of a client side encryption on top of the server side one. ',
+				'People can only share with people on their social network, which grantees file source knowledge ',
+				'when accessing a shared file.',
+				'Your co-shared area doesn\'t contain  any content in it\'s original form so you can\'t ',
+				'access it even if you wanted to.'
+			].join('\n')
+		}, {
+			q: 'If there is content on my co shared device, what limits me from reading it?',
+			a: [
+				'Nothing except for encryption, chunking and distribution. Picture a book library.',
+				'Now imagine that all the books were marked with a black marker (encryption), went through a shredding machine (chunking) and ended in a huge pile that is',
+				'constantly stirred around. A small waste basket is filled with the shredded paper from stirred pile and placed in your office (distribution).',
+				'Can you look at the content of the waste basket? Yes!',
+				'Does it enable you to read a library book? No. '
+			].join('\n')
+		}, {
+			q: 'Must my co shred device be connected to the Internet 24/7? Can\'t I use my laptop?',
+			a: [
+				'No. NooBaa will monitor your connectivity and will learn your sharing pattern.',
+				'As long as you co share most of the time, you can enjoy the service for free.'
+			].join('\n')
 		}],
 	};
 	$scope.faq = [$scope.general_faq, $scope.login_faq, $scope.client_faq];
