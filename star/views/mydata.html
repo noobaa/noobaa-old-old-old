@@ -30,6 +30,7 @@
 		}
 		.drop_hover_class {
 			background-color: rgba(255,255,0,0.4) !important;
+			/*background-color: #fefe98 !important;*/
 		}
 
 		.d-head {
@@ -277,7 +278,7 @@
 			</div>
 		</div>
 		<div class="col-md-9" style="margin-bottom: 20px">
-			<div ng-controller="InodesListCtrl	"
+			<div ng-controller="InodesListCtrl"
 				ng-include="'list_view_template.html'"
 				nb-key="key_handler($event)" tabindex="1"
 		 		nb-right-click="inode_rclick(dir_selection.inode, $event)"
@@ -708,7 +709,7 @@
 			ng-click="inode_click(inode)"
 			ng-dblclick="inode_dclick(inode)"
 			nb-right-click="inode_rclick(inode, $event)"
-			nb-drop="{true:inode, undefined:dir_selection.inode, false:dir_selection.inode}[inode.isdir]"
+			nb-drop="{true:inode}[inode.isdir]"
 			nb-drag="inode">
 			<div class="t-row d-row">
 				<div class="t-cell text-center">

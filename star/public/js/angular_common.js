@@ -408,55 +408,36 @@
 	});
 
 	noobaa_app.directive('nbDrop', function($parse, $rootScope) {
-		// console.log(Date());
-		var rval = {
+		return {
 			restrict: 'A', // use as attribute
 			link: function(scope, element, attr) {
-
-				console.log('element: ', element);
-				console.log('attr: ', attr);
-
-				var obj = scope.$eval(attr.nbDrop);
-				if (!obj) {
-					return;
-				}
-				console.log('yd5 obj.name: ', obj.name);
-				element.droppable({
-					accept: '.nbdrag',
-					hoverClass: 'drop_hover_class',
-					tolerance: 'pointer',
-					drop: function(event, ui) {
-						console.log('yd6 obj.name: ', obj.name);
-						console.log('yd6 event: ', event);
-						console.log('yd6 ui: ', ui);
-						var nbobj = $(ui.draggable).data('nbobj');
-						console.log(nbobj);
-						scope.$apply(function() {
-
-							console.log('yd61 obj.name: ', obj.name);
-							console.log('yd61 nbobj: ', nbobj);
-							obj.handle_drop(nbobj);
-						});
-					},
-					over: function(event, ui) {
-						console.log('yd7 obj.name: ', obj.name);
-						console.log('yd7 event: ', event);
-						console.log('yd7 ui: ', ui);
-						scope.handle_drop_over(event, ui, obj);
-					},
-					out: function(event, ui) {
-						console.log('yd8 obj.name: ', obj.name);
-						console.log('yd8 event: ', event);
-						console.log('yd8 ui: ', ui);
-						scope.handle_drop_out(event, ui, obj);
+				scope.$watch(attr.nbDrop, function(value) {
+					var obj = scope.$eval(attr.nbDrop);
+					if (!obj) {
+						element.droppable("destroy");
+						return;
 					}
+					element.droppable({
+						greedy: true, //greedy and hoverclass combination seems a bit buggy
+						accept: '.nbdrag',
+						tolerance: 'pointer',
+						hoverClass: 'drop_hover_class',
+						drop: function(event, ui) {
+							var nbobj = $(ui.draggable).data('nbobj');
+							scope.$apply(function() {
+								obj.handle_drop(nbobj);
+							});
+						},
+						over: function(event, ui) {
+							scope.handle_drop_over(event, ui, obj);
+						},
+						out: function(event, ui) {
+							scope.handle_drop_out(event, ui, obj);
+						}
+					});
 				});
 			}
 		};
-		console.log('1--------------------------------');
-		console.log(arguments,rval);
-		console.log('2--------------------------------');
-		return rval;
 	});
 
 	// TODO: how to cancel drag on escape ??
