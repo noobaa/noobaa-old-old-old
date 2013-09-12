@@ -411,27 +411,30 @@
 		return {
 			restrict: 'A', // use as attribute
 			link: function(scope, element, attr) {
-				var obj = scope.$eval(attr.nbDrop);
-				if (!obj) {
-					return;
-				}
-				element.droppable({
-					accept: '.nbdrag',
-					hoverClass: 'drop_hover_class',
-					tolerance: 'pointer',
-					drop: function(event, ui) {
-						var nbobj = $(ui.draggable).data('nbobj');
-						console.log(nbobj);
-						scope.$apply(function() {
-							obj.handle_drop(nbobj);
-						});
-					},
-					over: function(event, ui) {
-						scope.handle_drop_over(event, ui, obj);
-					},
-					out: function(event, ui) {
-						scope.handle_drop_out(event, ui, obj);
+				scope.$watch(attr.nbDrop, function(value) {
+					var obj = scope.$eval(attr.nbDrop);
+					if (!obj) {
+						element.droppable("destroy");
+						return;
 					}
+					element.droppable({
+						greedy: true, //greedy and hoverclass combination seems a bit buggy
+						accept: '.nbdrag',
+						tolerance: 'pointer',
+						hoverClass: 'drop_hover_class',
+						drop: function(event, ui) {
+							var nbobj = $(ui.draggable).data('nbobj');
+							scope.$apply(function() {
+								obj.handle_drop(nbobj);
+							});
+						},
+						over: function(event, ui) {
+							scope.handle_drop_over(event, ui, obj);
+						},
+						out: function(event, ui) {
+							scope.handle_drop_out(event, ui, obj);
+						}
+					});
 				});
 			}
 		};
@@ -551,11 +554,11 @@
 				var interval;
 				var renderer = function() {
 					element.css('background-image',
-						'radial-gradient(circle at ' + opt.at + 
-							', transparent ' + R +'px, rgba(255,255,255,0.7) '+opt.thick + 'px' +
-							', transparent ' + (R+opt.thick) + 'px, transparent)');
+						'radial-gradient(circle at ' + opt.at +
+						', transparent ' + R + 'px, rgba(255,255,255,0.7) ' + opt.thick + 'px' +
+						', transparent ' + (R + opt.thick) + 'px, transparent)');
 					R += opt.step;
-					if ((opt.step > 0 && R > opt.end) || 
+					if ((opt.step > 0 && R > opt.end) ||
 						(opt.step < 0 && R < opt.end)) {
 						R = opt.start;
 						setTimeout(renderer, opt.delay);
