@@ -94,6 +94,12 @@ function HelpCtrl($scope, $http) {
 	$scope.general_faq = {
 		title: 'General FAQ',
 		questions: [{
+			q: 'What makes you different from the rest of the cloud storage offerings out there?',
+			a: [
+				'No data centers - the crowd is the only real cloud. Free at any capacity. Fast thanks to the high number ',
+				'of co-sharing users.'
+			].join('\n')
+		}, {
 			q: 'Nothing is ever really free. Where is the catch?',
 			a: [
 				'There is not catch. There is only co sharing. ',
@@ -113,18 +119,26 @@ function HelpCtrl($scope, $http) {
 				'In the same scenario, you can even allocate 500GB for co-sharing, and move all your data to the cloud',
 			].join('\n')
 		}, {
-			q: 'What makes you different from the rest of the cloud storage offerings out there?',
+			q: 'If I give 100GB and get 100GB, what\'s init for me?',
 			a: [
-				'No data centers - the crowd is the only real cloud. Free at any capacity. Fast thanks to the high number ',
-				'of co-sharing users.'
+				'One allocates 100GB on a local, non redundant, inaccessible remotely, hardly sharable location and gets ',
+				'a simple redundant solution to store extreme media files. Device stolen or breaks? Your data is in the cloud. ',
+				'Want to share your wipe-out movie collection from the office? No problem. Share family pictures with family ',
+				'without exposing them to the social networks.'
+			].join('\n')
+		}, {
+			q: 'I\'m sensitive about my privacy as I store my family pictures on the cloud. Is NooBaa right for me?',
+			a: [
+				'As you have full control of your content and whom you share with, NooBaa is very sensitive about your privacy',
+				'As data is encrypted, chunked and distributed, it\'s impossible to scan it at a single location'
 			].join('\n')
 		}, {
 			q: 'I already use another cloud service. Why should I care?',
 			a: [
 				'By all means don\'t port data from one cloud service to another. That\'s a hassle.',
 				'That said, with current offerings we\'re pretty sure you have a) a lot of material which ',
-				'is still on local drives and not in any cloud service and b) that you have some underutilized hard ',
-				' drives. Just allocate some data for co-sharing and stop adding $$$ to your monthly bill. '
+				'is still on local drives and not in any cloud service, and b) that you have some underutilized hard ',
+				' drives. Just allocate some data for co-sharing and stop adding $$$ to your monthly bill.'
 			].join('\n')
 		}, {
 			q: 'What makes NooBaa simple?',
@@ -134,16 +148,17 @@ function HelpCtrl($scope, $http) {
 				'managing it all manually. Now think of the following: One protected always accessible fast location. '
 			].join('\n')
 		}, {
-			q: 'How do I avoid from being exposed to pirated/illegal content?',
+			q: 'How do I avoid from being exposed to pirated and illegal content?',
 			a: [
-				'Your files are totally owned and controlled.',
-				'People can only share with people on their social network, which guarantees knowledge  ',
-				'of a shared file ownership.',
-				'Your co-shared area doesn\'t contain  any content in it\'s original form, so you can\'t ',
-				'access it even if you wanted to.'
+				'You own and control all the files under your account.',
+				'People can only share owned files with people on their social network. This guarantees knowledge  ',
+				'of the shared file source.',
+				'Co-shared area doesn\'t contain  any content in it\'s original form, so you can\'t ',
+				'access it even if you wanted to.',
+				'Therefore, as long a you stick to the right side of the law, you\'re safe'
 			].join('\n')
 		}, {
-			q: 'If there is content on my co shared device, what limits me from reading it?',
+			q: 'What limits me from reading the content on my co shared device?',
 			a: [
 				'Encryption, chunking and distribution. Picture a book library.',
 				'Now imagine that all the books were marked with a black marker (encryption), went through a shredding machine (chunking) and ended in a huge pile that is',
