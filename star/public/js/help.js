@@ -136,19 +136,18 @@ function HelpCtrl($scope, $http) {
 		}, {
 			q: 'How do I avoid from being exposed to pirated/illegal content?',
 			a: [
-				'As a user, you\'re not exposed to any files. Your files are totally owned and controlled by you ',
-				'and there is an option of a client side encryption on top of the server side one. ',
-				'People can only share with people on their social network, which grantees file source knowledge ',
-				'when accessing a shared file.',
-				'Your co-shared area doesn\'t contain  any content in it\'s original form so you can\'t ',
+				'Your files are totally owned and controlled.',
+				'People can only share with people on their social network, which guarantees knowledge  ',
+				'of a shared file ownership.',
+				'Your co-shared area doesn\'t contain  any content in it\'s original form, so you can\'t ',
 				'access it even if you wanted to.'
 			].join('\n')
 		}, {
 			q: 'If there is content on my co shared device, what limits me from reading it?',
 			a: [
-				'Nothing except for encryption, chunking and distribution. Picture a book library.',
+				'Encryption, chunking and distribution. Picture a book library.',
 				'Now imagine that all the books were marked with a black marker (encryption), went through a shredding machine (chunking) and ended in a huge pile that is',
-				'constantly stirred around. A small waste basket is filled with the shredded paper from stirred pile and placed in your office (distribution).',
+				'constantly stirred around. A small waste basket is filled with the shredded paper from the stirred pile and is placed in your office (distribution).',
 				'Can you look at the content of the waste basket? Yes!',
 				'Does it enable you to read a library book? No. '
 			].join('\n')
