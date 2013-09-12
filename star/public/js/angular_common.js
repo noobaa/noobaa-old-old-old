@@ -408,33 +408,55 @@
 	});
 
 	noobaa_app.directive('nbDrop', function($parse, $rootScope) {
-		return {
+		// console.log(Date());
+		var rval = {
 			restrict: 'A', // use as attribute
 			link: function(scope, element, attr) {
+
+				console.log('element: ', element);
+				console.log('attr: ', attr);
+
 				var obj = scope.$eval(attr.nbDrop);
 				if (!obj) {
 					return;
 				}
+				console.log('yd5 obj.name: ', obj.name);
 				element.droppable({
 					accept: '.nbdrag',
 					hoverClass: 'drop_hover_class',
 					tolerance: 'pointer',
 					drop: function(event, ui) {
+						console.log('yd6 obj.name: ', obj.name);
+						console.log('yd6 event: ', event);
+						console.log('yd6 ui: ', ui);
 						var nbobj = $(ui.draggable).data('nbobj');
 						console.log(nbobj);
 						scope.$apply(function() {
+
+							console.log('yd61 obj.name: ', obj.name);
+							console.log('yd61 nbobj: ', nbobj);
 							obj.handle_drop(nbobj);
 						});
 					},
 					over: function(event, ui) {
+						console.log('yd7 obj.name: ', obj.name);
+						console.log('yd7 event: ', event);
+						console.log('yd7 ui: ', ui);
 						scope.handle_drop_over(event, ui, obj);
 					},
 					out: function(event, ui) {
+						console.log('yd8 obj.name: ', obj.name);
+						console.log('yd8 event: ', event);
+						console.log('yd8 ui: ', ui);
 						scope.handle_drop_out(event, ui, obj);
 					}
 				});
 			}
 		};
+		console.log('1--------------------------------');
+		console.log(arguments,rval);
+		console.log('2--------------------------------');
+		return rval;
 	});
 
 	// TODO: how to cancel drag on escape ??
@@ -551,11 +573,11 @@
 				var interval;
 				var renderer = function() {
 					element.css('background-image',
-						'radial-gradient(circle at ' + opt.at + 
-							', transparent ' + R +'px, rgba(255,255,255,0.7) '+opt.thick + 'px' +
-							', transparent ' + (R+opt.thick) + 'px, transparent)');
+						'radial-gradient(circle at ' + opt.at +
+						', transparent ' + R + 'px, rgba(255,255,255,0.7) ' + opt.thick + 'px' +
+						', transparent ' + (R + opt.thick) + 'px, transparent)');
 					R += opt.step;
-					if ((opt.step > 0 && R > opt.end) || 
+					if ((opt.step > 0 && R > opt.end) ||
 						(opt.step < 0 && R < opt.end)) {
 						R = opt.start;
 						setTimeout(renderer, opt.delay);

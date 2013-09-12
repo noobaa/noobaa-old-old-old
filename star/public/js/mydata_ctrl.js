@@ -394,6 +394,7 @@ Inode.prototype.rmlinks = function() {
 
 Inode.prototype.handle_drop = function(inode) {
 	// propagate to scope to handle
+	console.log('yd1 inode: ',inode);
 	this.$scope.handle_drop(this, inode);
 };
 
@@ -585,9 +586,12 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 	// this drop handler is a generic implementation of drop over a directory.
 	// it will either rename if drag is an inode.
 	$scope.handle_drop = function(drop_inode, drag_inode) {
-		if (!drop_inode.isdir || !drag_inode) {
+		console.log('yd2 drop_inode: ',drop_inode);
+		console.log('yd3 drag_inode: ',drag_inode);
+		if (!drop_inode.isdir || !drag_inode || !drag_inode.id || !drop_inode.id) {
 			return;
 		}
+		console.log('yd4');
 		// when drag is an inode, then move it under the drop dir
 		console.log('drag ' + drag_inode.name + ' drop ' + drop_inode.name);
 		if (drag_inode.is_immutable_root()) {
