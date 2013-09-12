@@ -2,127 +2,140 @@
 /* global angular:false */
 /* global _:false */
 /* global Backbone:false */
-// TODO: how do we fix this warning? - "Use the function form of "use strict". (W097)"
-/* jshint -W097 */
-'use strict';
+(function() {
+	'use strict';
+
+	var noobaa_app = angular.module('noobaa_app');
 
 
-////////////////////////////////
-////////////////////////////////
-// MenuBarCtrl
-////////////////////////////////
-////////////////////////////////
+	////////////////////////////////
+	////////////////////////////////
+	// MenuBarCtrl
+	////////////////////////////////
+	////////////////////////////////
 
-MenuBarCtrl.$inject = ['$scope', '$http', '$timeout', '$window'];
 
-function MenuBarCtrl($scope, $http, $timeout, $window) {
-	$scope.active_link = function(link) {
-		return link === $window.location.pathname ? 'active' : '';
-	};
-	$scope.click_feedback = function() {
-		$('#feedback_dialog').scope().open();
-	};
-}
+	noobaa_app.controller('MenuBarCtrl', [
+		'$scope', '$http', '$timeout', '$window',
+		MenuBarCtrl
+	]);
 
-////////////////////////////////
-////////////////////////////////
-// FeedbackCtrl
-////////////////////////////////
-////////////////////////////////
+	function MenuBarCtrl($scope, $http, $timeout, $window) {
+		$scope.active_link = function(link) {
+			return link === $window.location.pathname ? 'active' : '';
+		};
+		$scope.click_feedback = function() {
+			$('#feedback_dialog').scope().open();
+		};
+	}
 
-FeedbackCtrl.$inject = ['$scope', '$http', '$timeout'];
+	////////////////////////////////
+	////////////////////////////////
+	// FeedbackCtrl
+	////////////////////////////////
+	////////////////////////////////
 
-function FeedbackCtrl($scope, $http, $timeout) {
+	noobaa_app.controller('FeedbackCtrl', [
+		'$scope', '$http', '$timeout',
+		FeedbackCtrl
+	]);
 
-	var dlg = $('#feedback_dialog');
-	dlg.nbdialog({
-		modal: true,
-		css: {
-			width: 500
-		}
-	});
+	function FeedbackCtrl($scope, $http, $timeout) {
 
-	$scope.open = function() {
-		$scope.send_done = false;
-		dlg.nbdialog('open');
-	};
-
-	$scope.send = function() {
-		// add to persistent local storage, and return immediately
-		// the worker will send in background
-		$scope.feedbacks.push($scope.feedback);
-		localStorage.feedbacks = JSON.stringify($scope.feedbacks);
-		$scope.send_done = true;
-		$scope.feedback = '';
-		$scope.worker();
-	};
-
-	$scope.worker = function() {
-		if ($scope.sending) {
-			return;
-		}
-		if (!$scope.feedbacks.length) {
-			return;
-		}
-		console.log('sending feedback.', 'queue:', $scope.feedbacks.length);
-		$scope.sending = $http({
-			method: 'POST',
-			url: '/star_api/user/feedback/',
-			data: {
-				feedback: $scope.feedbacks[0]
+		var dlg = $('#feedback_dialog');
+		dlg.nbdialog({
+			modal: true,
+			css: {
+				width: 500
 			}
-		}).success(function() {
-			console.log('send feedback success.', 'queue:', $scope.feedbacks.length);
-			$scope.feedbacks.shift(); // remove sent element
+		});
+
+		$scope.open = function() {
+			$scope.send_done = false;
+			dlg.nbdialog('open');
+		};
+
+		$scope.send = function() {
+			// add to persistent local storage, and return immediately
+			// the worker will send in background
+			$scope.feedbacks.push($scope.feedback);
 			localStorage.feedbacks = JSON.stringify($scope.feedbacks);
-			$scope.sending = null;
-			$timeout($scope.worker, 1000);
-		}).error(function(data, status) {
-			console.error('failed feedback.', 'status:', status, 'data:', data);
-			$scope.sending = null;
-			$timeout($scope.worker, 5000);
-		});
-	};
+			$scope.send_done = true;
+			$scope.feedback = '';
+			$scope.worker();
+		};
 
-	$scope.feedbacks = localStorage.feedbacks ?
-		JSON.parse(localStorage.feedbacks) : [];
-	$scope.worker();
-}
+		$scope.worker = function() {
+			if ($scope.sending) {
+				return;
+			}
+			if (!$scope.feedbacks.length) {
+				return;
+			}
+			console.log('sending feedback.', 'queue:', $scope.feedbacks.length);
+			$scope.sending = $http({
+				method: 'POST',
+				url: '/star_api/user/feedback/',
+				data: {
+					feedback: $scope.feedbacks[0]
+				}
+			}).success(function() {
+				console.log('send feedback success.', 'queue:', $scope.feedbacks.length);
+				$scope.feedbacks.shift(); // remove sent element
+				localStorage.feedbacks = JSON.stringify($scope.feedbacks);
+				$scope.sending = null;
+				$timeout($scope.worker, 1000);
+			}).error(function(data, status) {
+				console.error('failed feedback.', 'status:', status, 'data:', data);
+				$scope.sending = null;
+				$timeout($scope.worker, 5000);
+			});
+		};
 
-////////////////////////////////
-////////////////////////////////
-// UserCtrl
-////////////////////////////////
-////////////////////////////////
-
-UserCtrl.$inject = ['$scope', '$http', '$timeout'];
-
-function UserCtrl($scope, $http, $timeout) {
-	$scope.user_quota = 0;
-	$scope.user_usage = 0;
-
-	function cancel_usage_refresh() {
-		$timeout.cancel($scope.usage_refresh_timeout);
-		delete $scope.usage_refresh_timeout;
+		$scope.feedbacks = localStorage.feedbacks ?
+			JSON.parse(localStorage.feedbacks) : [];
+		$scope.worker();
 	}
 
-	function usage_refresh() {
-		cancel_usage_refresh();
-		$http({
-			method: "GET",
-			url: "/star_api/user/",
-		}).success(function(data, status, headers, config) {
-			$scope.user_quota = data.quota;
-			$scope.user_usage = data.usage;
+	////////////////////////////////
+	////////////////////////////////
+	// UserCtrl
+	////////////////////////////////
+	////////////////////////////////
+
+	noobaa_app.controller('UserCtrl', [
+		'$scope', '$http', '$timeout',
+		UserCtrl
+	]);
+
+	function UserCtrl($scope, $http, $timeout) {
+		$scope.user_quota = 0;
+		$scope.user_usage = 0;
+
+		function cancel_usage_refresh() {
+			$timeout.cancel($scope.usage_refresh_timeout);
+			delete $scope.usage_refresh_timeout;
+		}
+
+		function usage_refresh() {
 			cancel_usage_refresh();
-			$scope.usage_refresh_timeout =
-				$timeout(usage_refresh, 60000);
-		}).error(function(data, status, headers, config) {
-			console.log("Error in querying user usage: ", status);
-			cancel_usage_refresh();
-			$scope.usage_refresh_timeout =
-				$timeout(usage_refresh, 60000);
-		});
+			$http({
+				method: "GET",
+				url: "/star_api/user/",
+			}).success(function(data, status, headers, config) {
+				$scope.user_quota = data.quota;
+				$scope.user_usage = data.usage;
+				cancel_usage_refresh();
+				$scope.usage_refresh_timeout =
+					$timeout(usage_refresh, 60000);
+			}).error(function(data, status, headers, config) {
+				console.log("Error in querying user usage: ", status);
+				cancel_usage_refresh();
+				$scope.usage_refresh_timeout =
+					$timeout(usage_refresh, 60000);
+			});
+		}
+		usage_refresh();
 	}
-	usage_refresh();
-}
+
+})();

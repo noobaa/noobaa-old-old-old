@@ -41,6 +41,10 @@ function PlanetBoot($scope) {
 	// the previous boot scope.
 	$scope.stop = function() {
 		$scope.is_stopping = true;
+		if ($scope.win && $scope.win.$scope && 
+			typeof $scope.win.$scope.stop === 'function') {
+			$scope.win.$scope.stop();
+		}
 		if ($scope.win) {
 			$scope.win.close(true);
 		}

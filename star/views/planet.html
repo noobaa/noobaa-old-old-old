@@ -9,6 +9,16 @@
 <body ng-cloak ng-controller="PlanetCtrl" class="nonresp">
 
 	<iframe id="auth_frame" hidden nwdisable nwfaketop></iframe>
+	<input id="dir_upload_input"
+		style="display: none"
+		type="file"
+		name="file"
+		nwdirectory></input>
+	<input id="file_upload_input"
+		style="display: none"
+		type="file"
+		name="file"
+		multiple="multiple"></input>
 
 	<nav class="navbar navbar-inverse navbar-static-top"
 		role="navigation">
@@ -168,24 +178,14 @@
 						<br/>
 						<div class="btn-group">
 							<button id="choose_folder_button"
-								class="btn btn-primary btn-sm fileinput-button">
+								class="btn btn-primary btn-sm"
+								onclick="$('#dir_upload_input').trigger('click')">
 								Choose Folder
-								<input id="dir_upload_input" 
-									type="file"
-									name="file"
-									webkitdirectory=""
-									mozdirectory=""
-									directory="">
-								</input>
 							</button>
 							<button id="choose_file_button"
-								class="btn btn-primary btn-sm fileinput-button">
+								class="btn btn-primary btn-sm"
+								onclick="$('#file_upload_input').trigger('click')">
 								Choose Files
-								<input id="file_upload_input"
-									type="file"
-									name="file"
-									multiple="multiple">
-								</input>
 							</button>
 						</div>
 					</div>

@@ -27,6 +27,7 @@ function PlanetCtrl($scope, $http, $timeout) {
 
 	var os = require('os');
 	var path = require('path');
+	var http = require('http');
 
 	// load native node-webkit library
 	var gui = window.require('nw.gui');
@@ -38,20 +39,32 @@ function PlanetCtrl($scope, $http, $timeout) {
 	// that we are loaded and it can communicate with our scope.
 	win.$scope = $scope;
 
+	$scope.stop = function() {
+		srv_stop();
+	};
+
 	$scope.hide_win = function() {
 		win.hide();
 	};
 
 	$scope.show = function() {
+		// using always on top to popup the window
+		win.setAlwaysOnTop(true);
 		win.show();
 		win.restore();
+		win.blur();
 		win.focus();
 		// win.requestAttention(true);
 	};
 
+	// dont really be always on top,
+	// when the focus is dropped, remove it
+	win.on('blur', function() {
+		win.setAlwaysOnTop(false);
+	})
+
 	// make window hide on close
 	win.on('close', $scope.hide_win);
-
 	$scope.close_win = function() {
 		win.close(true); // force close, since close only hides
 	};
@@ -112,6 +125,51 @@ function PlanetCtrl($scope, $http, $timeout) {
 	var win_frame_width = win.width - win_inner_width;
 	var win_frame_height = win.height - win_inner_height;
 
+
+
+	////////////////////////////////////////////////////////////
+	// local http server to open the app window
+
+	$scope.srv_port_preferred = 12121;
+	$scope.srv_port = 0;
+
+	function srv_start() {
+		if (!$scope.srv) {
+			$scope.srv = http.createServer(function(req, res) {
+				res.writeHead(200, {
+					'Content-Type': 'text/plain'
+				});
+				res.end('okay\n');
+				$scope.show();
+				$('#file_upload_input').trigger('click');
+				$scope.safe_apply();
+			});
+			$scope.srv.on('error', function(err) {
+				if (err.code == 'EADDRINUSE') {
+					console.log('Address in use, retrying...');
+					setTimeout(srv_start, 1000);
+				} else {
+					console.log('SRV ERROR', err);
+				}
+			});
+		}
+		srv_stop();
+		$scope.srv.listen($scope.srv_port_preferred, function() {
+			$scope.srv_port = $scope.srv.address().port;
+			console.log('SRV listening on port', $scope.srv_port);
+			$scope.safe_apply();
+		});
+		$scope.safe_apply();
+	}
+
+	function srv_stop() {
+		if ($scope.srv_port) {
+			$scope.srv.close();
+			$scope.srv_port = 0;
+		}
+	}
+	// TODO: for now we don't use the local server, will we ever?
+	srv_start();
 
 
 	////////////////////////////////////////////////////////////
@@ -346,6 +404,10 @@ function PlanetCtrl($scope, $http, $timeout) {
 		return 'info_view';
 	};
 
+
+	$scope.add_upload = function(event, data) {
+		console.log('ADD UPLOAD', data);
+	};
 
 	$('#file_upload_input').fileupload({
 		add: $scope.add_upload,

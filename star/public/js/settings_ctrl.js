@@ -2,40 +2,44 @@
 /* global angular:false */
 /* global _:false */
 /* global Backbone:false */
-// TODO: how do we fix this warning? - "Use the function form of "use strict". (W097)"
-/* jshint -W097 */
-'use strict';
+(function() {
+	'use strict';
 
+	var noobaa_app = angular.module('noobaa_app');
 
-SettingsCtrl.$inject = ['$scope', '$http', '$window', '$timeout'];
+	noobaa_app.controller('SettingsCtrl', [
+		'$scope', '$http', '$window', '$timeout',
+		SettingsCtrl
+	]);
 
-function SettingsCtrl($scope, $http, $window, $timeout) {
+	function SettingsCtrl($scope, $http, $window, $timeout) {
 
-	$scope.devices = null;
+		$scope.devices = null;
 
-	$scope.has_devices = function() {
-		return !!$scope.devices && !!$scope.devices.length;
-	};
+		$scope.has_devices = function() {
+			return !!$scope.devices && !! $scope.devices.length;
+		};
 
-	$scope.load_devices = function() {
-		$http({
-			method: 'GET',
-			url: '/star_api/device/'
-		}).success(function(data, status, headers, config) {
-			console.log('[ok] got devices', data);
-			$scope.devices = data;
-			for (var i=0; i<data.length; i++) {
-				if (data[i].last_update) {
-					var d = new Date(data[i].last_update);
-					data[i].last_update_str = d.toLocaleString();
-				} else {
-					data[i].last_update_str = '';
+		$scope.load_devices = function() {
+			$http({
+				method: 'GET',
+				url: '/star_api/device/'
+			}).success(function(data, status, headers, config) {
+				console.log('[ok] got devices', data);
+				$scope.devices = data;
+				for (var i = 0; i < data.length; i++) {
+					if (data[i].last_update) {
+						var d = new Date(data[i].last_update);
+						data[i].last_update_str = d.toLocaleString();
+					} else {
+						data[i].last_update_str = '';
+					}
 				}
-			}
-		}).error(function(data, status, headers, config) {
-			console.error('[ERR] get devices failed', data, status);
-		});
-	};
+			}).error(function(data, status, headers, config) {
+				console.error('[ERR] get devices failed', data, status);
+			});
+		};
 
-	$scope.load_devices();
-}
+		$scope.load_devices();
+	}
+})();

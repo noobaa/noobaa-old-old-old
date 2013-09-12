@@ -2,16 +2,11 @@
 /* global angular:false */
 /* global _:false */
 /* global Backbone:false */
-// TODO: how do we fix this warning? - "Use the function form of "use strict". (W097)"
-/* jshint -W097 */
-'use strict';
-
-
-(function(global) {
+(function() {
 	'use strict';
 
-	// declare our module with dependancy on the angular-ui module
-	var noobaa_app = angular.module('noobaa_app', ['ui']);
+	// create our module
+	var noobaa_app = angular.module('noobaa_app', []);
 
 	// set the symbol to avoid collision with server side templates
 	// this is unneeded for now, but keeping the code in comment just for reference.
@@ -557,8 +552,8 @@
 				var pixel_step = opt.step * (opt.end - opt.start);
 				var pixel_thick = opt.thick / 2;
 				var R = opt.start;
-				var template = 'radial-gradient(' + 
-					'circle at ' + opt.at + 
+				var template = 'radial-gradient(' +
+					'circle at ' + opt.at +
 					', transparent XXXpx' +
 					', ' + opt.color + ' YYYpx' +
 					', transparent ZZZpx)';
@@ -572,7 +567,7 @@
 					s = s.replace('ZZZ', z);
 					element.css('background-image', s);
 					R += pixel_step;
-					if ((pixel_step > 0 && R > opt.end) || 
+					if ((pixel_step > 0 && R > opt.end) ||
 						(pixel_step < 0 && R < opt.end)) {
 						R = opt.start;
 						element.css('background-image', '');
@@ -586,4 +581,4 @@
 		};
 	});
 
-}(this)); // passing global this to allow exporting
+})();
