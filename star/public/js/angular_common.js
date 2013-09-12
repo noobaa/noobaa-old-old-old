@@ -547,21 +547,30 @@
 				var opt = angular.extend({
 					at: 'center', // position in the element, e.g. at: "25% 40%"
 					thick: 20, // pixels
+					color: 'rgba(255,255,255,0.85)',
 					start: 0, // pixel start radius
 					end: 100, // pixel end radius
 					step: 0.01, // step fraction (0-1)
 					step_time: 10, // milis between steps
-					delay: 7000 // milis between shines
+					delay: 10000 // milis between shines
 				}, options);
 				var pixel_step = opt.step * (opt.end - opt.start);
 				var pixel_thick = opt.thick / 2;
 				var R = opt.start;
+				var template = 'radial-gradient(' + 
+					'circle at ' + opt.at + 
+					', transparent XXXpx' +
+					', ' + opt.color + ' YYYpx' +
+					', transparent ZZZpx)';
 				var renderer = function() {
-					element.css('background-image',
-						'radial-gradient(circle at ' + opt.at + 
-							', transparent ' + (R-2*pixel_thick) + 'px' +
-							', rgba(255,255,255,0.85) ' + (R-pixel_thick) + 'px' +
-							', transparent ' + (R) + 'px)');
+					var z = R;
+					var y = z - pixel_thick;
+					var x = y - pixel_thick;
+					var s = template;
+					s = s.replace('XXX', x);
+					s = s.replace('YYY', y);
+					s = s.replace('ZZZ', z);
+					element.css('background-image', s);
 					R += pixel_step;
 					if ((pixel_step > 0 && R > opt.end) || 
 						(pixel_step < 0 && R < opt.end)) {

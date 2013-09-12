@@ -22,9 +22,8 @@
 			padding-top: 50px;
 		}
 		button.join-btn {
-			width: 100px !important;
-			height: 50px !important;
-			margin-top: 20px;
+			width: 150px !important;
+			margin-top: 30px;
 			-moz-box-shadow: 	0 0 5px 5px rgba(255,255,255,0.9);
 			-webkit-box-shadow: 0 0 5px 5px rgba(255,255,255,0.9);
 			box-shadow: 		0 0 5px 5px rgba(255,255,255,0.9);
@@ -40,6 +39,12 @@
 			height: 30px;
 		}
 
+		.bg_item1, .bg_item2, .bg_item3,
+		.bg_clouds, .bg_bike, .bg_fall {
+			background-repeat: no-repeat;
+			background-attachment: fixed;
+			background-size: cover;
+		}
 		.bg_item1 {
 			background-image: url('/public/images/bg_skate.jpg');
 		}
@@ -48,11 +53,6 @@
 		}
 		.bg_item3 {
 			background-image: url('/public/images/bg_wave.jpg');
-		}
-		.bg_item1, .bg_item2, .bg_item3 {
-			background-repeat: no-repeat;
-			background-attachment: fixed;
-			background-size: cover;
 		}
 		@media all and (max-width: 600px) {
 			.bg_item1 {
@@ -65,16 +65,23 @@
 				background-position: 40% 0;
 			}
 		}
-
 		.bg_clouds {
 			background-image: url('/public/images/bg_clouds.jpg');
-			background-size: cover;
 			height: 400px;
+		}
+		.bg_fall {
+			background-image: url('/public/images/bg_fall.jpg');
+			height: 400px;
+		}
+		.bg_bike {
+			background-image: url('/public/images/bg_bike.jpg');
+			height: 200px;
+			border-top-style: groove;
 		}
 		.bg_logo {
 			background-color: #222222;
 			border-top-style: groove;
-			height: 200px;			
+			height: 200px;
 		}
 
 		.shiner {
@@ -90,7 +97,8 @@
 		}
 
 		.W1 {
-			font-size: 150px;
+			font-size: 160px;
+			line-height: 1em;
 		}
 		.W2 {
 			font-size: 60px;
@@ -122,16 +130,21 @@
 			
 			<div class="active item filling bg_item1">
 				<div class="container text-left fntblk">
-					<br class="hidden-xs"/>
-					<h1 class="fntpaint">Cloud storage made</h1>
+					<!-- <br class="hidden-xs"/> -->
+					<h1 class="fntpaint">
+						Cloud <br class="visible-xs"/>
+						storage <br class="visible-xs"/>
+						made
+					</h1>
 					<p class="W1 fntpaint">SIMPLE</p>
 					<div>
-						<h4>All your data in one location.</h4>
-						<h4>No complex plans.</h4>
-						<h4>No complex decisions.</h4>
-						<h4>No additional hardware.</h4>
+						<h3>All your data <br class="visible-xs"/> one location</h3>
+						<!-- <h5>No complex plans.</h5> -->
+						<!-- <h5>No complex decisions.</h5> -->
+						<!-- <h5>No additional hardware.</h5> -->
 					</div>
-					<button href="#join" nb-shine 
+					<button href="#join"
+						nb-shine="{end: 200, step: 0.01, delay: 11000}"
 						class="join-btn btn btn-danger btn-lg scroller">
 						<b>JOIN !</b>
 					</button>
@@ -140,14 +153,19 @@
 
 			<div class="item filling bg_item2">
 				<div class="container text-left fntwht">
-					<br class="hidden-xs"/>
-					<h1 class="fntpaint">Cloud storage made</h1>
+					<!-- <br class="hidden-xs"/> -->
+					<h1 class="fntpaint">
+						Cloud <br class="visible-xs"/>
+						storage <br class="visible-xs"/>
+						made
+					</h1>
 					<p class="W1 fntpaint">FAST</p>
 					<div>
-						<h4>Join the power of the crowd.</h4>
-						<h4>Together we are the most powerful data-center.</h4>
+						<h3>Powered by the crowd</h3>
+						<!-- <h5>The most powerful data-center.</h5> -->
 					</div>
-					<button href="#join" nb-shine
+					<button href="#join"
+						nb-shine="{end: 200, step: 0.01, delay: 11000}"
 						class="join-btn btn btn-danger btn-lg scroller">
 						<b>JOIN !</b>
 					</button>
@@ -156,15 +174,20 @@
 
 			<div class="item filling bg_item3">
 				<div class="container text-left fntwht">
-					<br class="hidden-xs"/>
-					<h1 class="fntpaint">Cloud storage made</h1>
+					<!-- <br class="hidden-xs"/> -->
+					<h1 class="fntpaint">
+						Cloud <br class="visible-xs"/>
+						storage <br class="visible-xs"/>
+						made
+					</h1>
 					<p class="W1 fntpaint">FREE</p>
 					<div>
-						<h4>Unlimited capacity.</h4>
-						<h4>You control how much you get.</h4>
-						<h4>Absolutely free.</h4>
+						<h3>Make your cloud space</h3>
+						<!-- <h5>You control how much you get.</h5> -->
+						<!-- <h5>Absolutely free.</h5> -->
 					</div>
-					<button href="#join" nb-shine
+					<button href="#join"
+						nb-shine="{end: 200, step: 0.01, delay: 11000}"
 						class="join-btn btn btn-danger btn-lg scroller">
 						<b>JOIN !</b>
 					</button>
@@ -179,10 +202,14 @@
 		</ol>
 		<a class="carousel-control left" 
 			href="#nb_carousel" 
-			data-slide="prev">&lsaquo;</a>
+			data-slide="prev">
+			<span class="icon-prev"></span>
+		</a>
 		<a class="carousel-control right"
 			href="#nb_carousel"
-			data-slide="next">&rsaquo;</a>
+			data-slide="next">
+			<span class="icon-next"></span>
+		</a>
 	</div>
 
 	<div id="nb_nav_marker"></div>
@@ -239,84 +266,12 @@
 	</nav>
 
 	<div id="whatis" class="nb_nav_link container fnt">
-		<div class="W2 fntpaint"><b>WHAT IS NOOBAA?</b></div>
-		<br/><br/>
-		<h3>NooBaa is an awesome service providing cloud storage for any personal use.</h3>
-		<h3>What makes it so awesome is that it's SIMPLE, FAST, and FREE!</h3>
-		<h3>Every activity on NooBaa is designed to be amazing:</h3>
-	</div>
-
-	<div class="label-danger fntwht" style="padding: 30px; margin-top: 30px">
-		<div class="container">
-			<div class="row">
-				<div class="col-sm-3 text-center">
-					<i class="icon-rocket" style="font-size: 150px"></i>
-					<h1>Make-Space</h1>
-				</div>
-				<div class="col-sm-9">
-					<p class='lead'>
-						NooBaa lets you make space in the cloud
-						anytime you want from your existing hard drive.
-					</p>
-					<p class='lead'>
-						Anytime you want more cloud space 
-						NooBaa will make it for you by allocating unused space from your local hard drive, 
-						and will elevate it to give you the same amount of cloud storage!
-					</p>
-				</div>
-			</div>
-		</div>
-	</div>
-	<div class="label-success fntwht" style="padding: 30px; margin-top: 30px">
-		<div class="container">
-			<div class="row">
-				<div class="col-sm-3 text-center">
-					<i class="icon-cloud-upload" style="font-size: 150px"></i>
-				</div>
-				<div class="col-sm-9">
-					<h1>Upload</h1>
-					<p class='lead'>
-					</p>
-					<p class='lead'>
-					</p>
-				</div>
-			</div>
-		</div>
-	</div>
-	<div class="label-primary fntwht" style="padding: 30px; margin-top: 30px">
-		<div class="container">
-			<div class="row">
-				<div class="col-sm-3 text-center">
-					<i class="icon-play" style="font-size: 150px"></i>
-				</div>
-				<div class="col-sm-9">
-					<h1>Access</h1>
-					<p class='lead'>
-					</p>
-					<p class='lead'>
-					</p>
-				</div>
-			</div>
-		</div>
-	</div>
-	<div class="label-warning fntwht" style="padding: 30px; margin-top: 30px">
-		<div class="container">
-			<div class="row">
-				<div class="col-sm-3 text-center">
-					<i class="icon-share" style="font-size: 150px"></i>
-				</div>
-				<div class="col-sm-9">
-					<h1>Share</h1>
-					<p class='lead'>
-					</p>
-					<p class='lead'>
-					</p>
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<div class="container fnt">
+		<div class="W2 fntpaint">WHAT IS NOOBAA?</div>
+		<br/>
+		<p class="lead">NooBaa is an awesome service providing cloud storage for any personal use.</p>
+		<p class="lead">What makes it so awesome is that it's SIMPLE, FAST, and FREE!</p>
+		<p class="lead">NooBaa is designed to be amazing for you to use.</p>
+		<br/>
 		<h2>NooBaa is a Crowd-Cloud!</h2>
 		<h5 class="lead">
 			<br/>
@@ -327,7 +282,71 @@
 		</h5>
 	</div>
 
-	<div class="wfill bg_clouds"></div>
+	<div class="label-danger fntwht" style="padding: 20px">
+		<div class="container">
+			<div class="text-center">
+				<i class="W1 icon-rocket"></i>
+				<h1>Make Space</h1>
+			</div>
+			<br/>
+			<p class="lead">
+				NooBaa lets you make space in the cloud
+				anytime you want using free space on your existing hard drive.
+			</p>
+			<p class="lead">
+				This means that whenever you want more cloud space 
+				NooBaa will make it for you by allocating unused space from your local hard drive, 
+				and will elevate it to give you the same amount of cloud storage!
+			</p>
+		</div>
+	</div>
+	<div class="label-success fntwht" style="padding: 20px">
+		<div class="container">
+			<div class="text-center">
+				<i class="W1 icon-cloud-upload" ></i>
+				<h1>Upload</h1>
+			</div>
+			<br/>
+			<p class='lead'></p>
+			<p class='lead'></p>
+		</div>
+	</div>
+	<div class="label-primary fntwht" style="padding: 20px">
+		<div class="container">
+			<div class="text-center">
+				<i class="W1 icon-play" ></i>
+				<h1>Access</h1>
+			</div>
+			<br/>
+			<p class='lead'></p>
+			<p class='lead'></p>
+		</div>
+	</div>
+	<div class="label-warning fntwht" style="padding: 20px">
+		<div class="container">
+			<div class="text-center">
+				<i class="W1 icon-share" ></i>
+				<h1>Share</h1>
+			</div>
+			<br/>
+			<p class='lead'></p>
+			<p class='lead'></p>
+		</div>
+	</div>
+	<div class="label-info fntwht" style="padding: 20px">
+		<div class="container">
+			<div class="text-center">
+				<i class="W1 icon-google-plus-sign icon-fixed-width"></i>
+				<i class="W1 icon-facebook-sign icon-fixed-width"></i>
+				<i class="W1 icon-twitter-sign icon-fixed-width"></i>
+				<h1>Login</h1>
+			</div>
+			<br/>
+			<p class="lead"></p>
+			<p class="lead"></p>
+		</div>
+	</div>
+
 
 	<div id="vision" class="nb_nav_link container fnt">
 		<div class="W2 fntpaint"><b>NOOBAA'S VISION</b></div>
@@ -344,7 +363,8 @@
 		</h5>
 	</div>
 
-	<div class="wfill bg_clouds" style="background-position: 0 400px"></div>
+	<div class="wfill bg_fall"></div>
+	<!-- <div class="wfill bg_bike"></div> -->
 
 	<div id="join" class="nb_nav_link container fnt"
 		style="margin-bottom: 40px" ng-controller="HelpCtrl">
@@ -399,9 +419,9 @@
 <!-- End of FAQ section -->
 	</div>
 
-	<div class="wfill bg_logo text-center">
+	<div class="wfill bg_bike text-center">
 		<img src="/public/images/noobaa_logo.png"
-			style="height: 80px; margin: 60px 0 0 10px; opacity: 0.2">
+			style="height: 80px; margin: 60px 0 0 10px; opacity: 0.4">
 		</img>
 	</div>
 
