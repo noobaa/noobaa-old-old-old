@@ -145,23 +145,27 @@
 		this.$rootScope.safe_apply();
 	};
 
-	UploadSrv.prototype.cancel_upload = function(upload) {
-		var me = this;
-		var do_cancel = function() {
-			if (upload.active) {
-				if (upload.xhr) {
-					upload.xhr.abort();
-				}
-			} else {
-				delete me.uploads[upload.id];
+	UploadSrv.prototype.remove_upload = function(upload) {
+		if (upload.active) {
+			if (upload.xhr) {
+				upload.xhr.abort();
 			}
-			me.$rootScope.safe_apply();
-		};
+		} else {
+			if (upload.id in this.uploads) {
+				delete this.uploads[upload.id];
+				this.num_uploads--;
+			}
+		}
+		this.$rootScope.safe_apply();
+	}
+
+	UploadSrv.prototype.cancel_upload = function(upload) {
+		var do_remove = this.remove_upload.bind(this, upload);
 		if (!upload.active) {
-			do_cancel();
+			do_remove();
 		} else {
 			$.nbconfirm('This upload is still working.<br/>' +
-				'Are you sure you want to cancel it?', do_cancel);
+				'Are you sure you want to cancel it?', do_remove);
 		}
 	};
 
