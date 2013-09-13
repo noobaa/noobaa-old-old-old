@@ -7,63 +7,72 @@
 
 	var noobaa_app = angular.module('noobaa_app');
 
-	noobaa_app.service('nb_upload', Uploader);
+	noobaa_app.factory('nbUploadSrv', [
+		'$http', '$q', '$rootScope',
+		function($http, $q, $rootScope) {
+			var u = new UploadSrv($http, $rootScope);
+			u.$http = $http;
+			u.$q = $q;
+			u.$rootScope = $rootScope;
+			return u;
+		}
+	]);
 
-	function Uploader() {
-		this.upload_id_idx = 0;
+	function UploadSrv() {
+		this.id_gen = 0;
+		this.num_uploads = 0;
+		this.num_active_uploads = 0;
 		this.uploads = {};
+
+		// check for active uploads before page unloads
+		var me = this;
+		$(window).on('beforeunload', function() {
+			if (me.num_active_uploads) {
+				return 'Leaving this page will interrupt your active Uploads !!!';
+			}
+		});
 	}
 
-	Uploader.prototype.has_uploads = function() {
-		return !_.isEmpty(this.uploads);
-	};
-
-	Uploader.prototype.add_upload = function(event, data) {
+	UploadSrv.prototype.add_upload = function(data, parent) {
+		var me = this;
 		// create the upload object and connect to uploads list,
 		var file = data.files[0];
-		var idx = this.upload_id_idx;
 		var upload = {
-			idx: idx,
-			dir_inode: dir_inode,
+			id: me.id_gen++,
+			parent: parent,
 			data: data,
 			file: file,
-			working: true,
+			active: true,
 			progress: 0,
 			status: 'Creating...',
-			row_class: '',
 			progress_class: 'progress-bar progress-bar-success',
 		};
 		// link the upload object on the data to propagate progress
-		data.upload_idx = idx;
-		this.upload_id_idx++;
-		this.uploads[idx] = upload;
-		num_running_uploads++;
-
-		function upload_success() {
-			num_running_uploads--;
-			upload.status = 'Completed';
-			upload.row_class = 'success';
-			upload.working = false;
-			dir_inode.read_dir();
-			$scope.safe_apply();
-		}
-
-		function upload_failed() {
-			num_running_uploads--;
-			upload.status = 'Failed!';
-			upload.row_class = 'danger';
-			upload.progress_class = 'progress-bar progress-bar-danger';
-			upload.progress = 100;
-			upload.working = false;
-			dir_inode.read_dir();
-			$scope.safe_apply();
-		}
-		upload.upload_failed = upload_failed; // expose for user cancel request
+		data.upload_id = upload.id;
+		me.uploads[upload.id] = upload;
+		me.num_uploads++;
+		me.num_active_uploads++;
+		me.$rootScope.safe_apply();
 
 		// create the file and receive upload location info
-		console.log('creating file:', file);
-		var ev = dir_inode.mkfile(file.name, file.size, file.type, file.webkitRelativePath);
-		ev.on('success', function(mkfile_data) {
+		console.log('[ok] upload creating file:', file);
+
+		return me.$http({
+			method: 'POST',
+			url: '/star_api/inode/',
+			data: {
+				id: parent.id,
+				name: file.name,
+				isdir: false,
+				size: file.size,
+				uploading: true,
+				content_type: file.type,
+				relative_path: file.webkitRelativePath
+			}
+
+		}).then(function(res) {
+			console.log('[ok] upload sending...', res);
+			var mkfile_data = res.data;
 			upload.inode_id = mkfile_data.id;
 			upload.status = 'Uploading...';
 			// using s3 upload with signed url
@@ -71,105 +80,149 @@
 			data.multipart = true;
 			data.url = mkfile_data.s3_post_info.url;
 			data.formData = mkfile_data.s3_post_info.form;
-			console.log('MKFILE:', mkfile_data, data);
+			var deferred = me.$q.defer();
 			upload.xhr = data.submit();
 			upload.xhr.success(function(result, textStatus, jqXHR) {
-				console.log('[ok] upload success');
-				upload.status = 'Finishing...';
-				delete upload.last_star_update;
-				$scope.safe_apply();
-				// update the file state to uploading=false
-				return $scope.http({
-					method: 'PUT',
-					url: $scope.inode_api_url + mkfile_data.id,
-					data: {
-						uploading: false
-					}
-				}).on('success', upload_success)
-					.on('error', upload_failed);
+				// must call deferred inside apply for angular to digest it
+				me.$rootScope.safe_apply(function() {
+					deferred.resolve(mkfile_data);
+				});
 			});
 			upload.xhr.error(function(jqXHR, textStatus, errorThrown) {
-				console.error('upload error: ' + textStatus + ' ' + errorThrown, jqXHR.responseText);
-				upload_failed();
+				me.$rootScope.safe_apply(function() {
+					deferred.reject(
+						'XHR upload failed: ' + textStatus + ' ' +
+						errorThrown + ' ' + jqXHR.responseText);
+				});
 			});
-			$scope.safe_apply();
-		});
-		ev.on('error', function(data) {
-			console.log('Failed in creation: ', data);
-			upload_failed();
-			$scope.safe_apply();
-		});
-		$scope.safe_apply();
-	};
+			me.$rootScope.safe_apply();
+			return deferred.promise;
 
-	$scope.update_progress = function(event, data) {
-		var upload = $scope.uploads[data.upload_idx];
-		upload.progress = parseInt(data.loaded / data.total * 100, 10);
-		$scope.safe_apply();
-		/* not really needed for now
-		//in order to make sure we don't overload the DB, we'll limit update per 10sec
-		var curr_time = new Date();
-		if (!upload.last_star_update) {
-			upload.last_star_update = curr_time;
-		}
-		if (curr_time - upload.last_star_update >= 10 * 1000) {
-			//As this is updating the DB on the progress, there is little that can be done
-			//except for logging. 
-			upload.last_star_update = curr_time;
-			return $scope.http({
+		}).then(function() {
+			console.log('[ok] upload finishing...');
+			upload.status = 'Finishing...';
+			// update the file state to uploading=false
+			me.$rootScope.safe_apply();
+			return me.$http({
 				method: 'PUT',
-				url: $scope.inode_api_url + upload.inode_id,
+				url: '/star_api/inode/' + upload.inode_id,
 				data: {
-					upsize: upload.data._progress.loaded,
-					uploading: true
+					uploading: false
 				}
-			}).on('success', function() {
-				$scope.safe_apply();
 			});
-		}
-*/
+
+		}).then(function() {
+			console.log('[ok] upload done');
+			me.num_active_uploads--;
+			upload.active = false;
+			upload.status = 'Completed';
+			upload.row_class = 'success';
+			me.$rootScope.safe_apply();
+		}, function(err) {
+			console.error('[ERR]', err);
+			me.num_active_uploads--;
+			upload.active = false;
+			upload.status = 'Failed!';
+			upload.progress = 100;
+			upload.row_class = 'danger';
+			upload.progress_class = 'progress-bar progress-bar-danger';
+			me.$rootScope.safe_apply();
+			return me.$q.reject(err); // rethrow error
+		});
 	};
 
-	$scope.dismiss_upload = function(upload) {
-		var do_dismiss = function() {
-			if (upload.working) {
+	UploadSrv.prototype.has_uploads = function() {
+		return !!this.num_uploads;
+	};
+
+	UploadSrv.prototype.has_active_uploads = function() {
+		return !!this.num_active_uploads;
+	};
+
+	UploadSrv.prototype.update_progress = function(event, data) {
+		var upload = this.uploads[data.upload_id];
+		upload.progress = parseInt(data.loaded / data.total * 100, 10);
+		this.$rootScope.safe_apply();
+	};
+
+	UploadSrv.prototype.cancel_upload = function(upload) {
+		var me = this;
+		var do_cancel = function() {
+			if (upload.active) {
 				if (upload.xhr) {
 					upload.xhr.abort();
 				}
 			} else {
-				delete $scope.uploads[upload.idx];
+				delete me.uploads[upload.id];
 			}
+			me.$rootScope.safe_apply();
 		};
-		if (!upload.working) {
-			do_dismiss();
+		if (!upload.active) {
+			do_cancel();
 		} else {
 			$.nbconfirm('This upload is still working.<br/>' +
-				'Are you sure you want to cancel it?', do_dismiss);
+				'Are you sure you want to cancel it?', do_cancel);
 		}
 	};
 
-	// setup the global file/dir input and link them to this scope
-	$('#file_upload_input').fileupload({
-		add: $scope.add_upload,
-		progress: $scope.update_progress,
-		// we want single file per xhr
-		singleFileUploads: true,
-		// xml is is how amazon s3 work
-		dataType: 'xml'
-	});
 
-	$('#dir_upload_input').fileupload({
-		add: $scope.add_upload,
-		progress: $scope.update_progress,
-		// we want single file per xhr
-		singleFileUploads: true,
-		// xml is is how amazon s3 work
-		dataType: 'xml',
-		// disabling drop/paste, file_upload_input will handle globally,
-		// if we don't disable it will upload twice.
-		dropZone: null,
-		pasteZone: null
+	noobaa_app.directive('nbUploadTable', function() {
+		return {
+			controller: ['$scope', 'nbUploadSrv',
+				function($scope, nbUploadSrv) {
+					$scope.srv = nbUploadSrv;
+				}
+			],
+			restrict: 'E',
+			replace: true,
+			template: [
+				'<table id="upload_table"',
+				'	class="table ng-cloak"',
+				'	style="margin: 0">',
+				'	<thead>',
+				'		<tr>',
+				'			<th>Name</th>',
+				'			<th>Folder</th>',
+				'			<th>Size</th>',
+				'			<th>Status</th>',
+				'			<th>Progress</th>',
+				'		</tr>',
+				'	</thead>',
+				'	<tr ng-repeat="(idx,upload) in srv.uploads" ng-class="upload.row_class">',
+				'		<td>',
+				'			{{upload.file.webkitRelativePath || upload.file.name}}',
+				'		</td>',
+				'		<td>',
+				'			{{upload.parent.name}}',
+				'		</td>',
+				'		<td>',
+				'			{{human_size(upload.file.size)}}',
+				'		</td>',
+				'		<td>',
+				'			{{upload.status}}',
+				'		</td>',
+				'		<td width="100px">',
+				'			<div class="progress" style="position: relative">',
+				'				<div ng-class="upload.progress_class"',
+				'					role="progressbar"',
+				'					aria-valuemin="0" aria-valuemax="100"',
+				'					style="position: absolute; top:0; left:0;',
+				'						width: {{upload.progress}}%;">',
+				'				</div>',
+				'				<div style="position: absolute; top:0; left:0;',
+				'						width:100%; text-align:center; color:black">',
+				'					{{upload.progress}}%',
+				'				</div>',
+				'			</div>',
+				'		</td>',
+				'		<td>',
+				'			<button class="btn btn-default btn-xs"',
+				'				ng-click="srv.cancel_upload(upload)">x</button>',
+				'		</td>',
+				'	</tr>',
+				'</table>'
+			].join('\n')
+		}
 	});
-
 
 })();

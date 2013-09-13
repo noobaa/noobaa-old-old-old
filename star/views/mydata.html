@@ -309,51 +309,7 @@
 				<h2>Drag &amp; Drop to start uploading!</h2>
 			</div>
 			<div ng-show="has_uploads()" class="table-responsive">
-			<table id="upload_table" 
-				class="table ng-cloak"
-				style="margin: 0">
-				<thead>
-					<tr>
-						<th>Name</th>
-						<th>Folder</th>
-						<th>Size</th>
-						<th>Status</th>
-						<th>Progress</th>
-					</tr>
-				</thead>
-				<tr ng-repeat="(idx,upload) in uploads" ng-class="upload.row_class">
-					<td>
-						{{upload.file.webkitRelativePath || upload.file.name}}
-					</td>
-					<td>
-						{{upload.dir_inode.name}}
-					</td>
-					<td>
-						{{human_size(upload.file.size)}}
-					</td>
-					<td>
-						{{upload.status}}
-					</td>
-					<td width="100px">
-						<div class="progress" style="position: relative">
-							<div ng-class="upload.progress_class"
-								role="progressbar"
-								aria-valuemin="0" aria-valuemax="100"
-								style="position: absolute; top:0; left:0;
-									width: {{upload.progress}}%;">
-							</div>
-							<div style="position: absolute; top:0; left:0;
-									width:100%; text-align:center; color:black">
-								{{upload.progress}}%
-							</div>
-						</div>
-					</td>
-					<td>
-						<button class="btn btn-default btn-xs" 
-							ng-click="dismiss_upload(upload)">x</button>
-					</td>
-				</tr>
-			</table>
+				<nb-upload-table></nb-upload-table>
 			</div>
 		</div>
 		<div class="nbdialog_footer">
@@ -783,11 +739,12 @@
 	<script src="/vendor/blueimp-file-upload/js/jquery.iframe-transport.js" type="text/javascript"></script>
 	<script src="/vendor/blueimp-file-upload/js/jquery.fileupload.js" type="text/javascript"></script>
 
-	<script src="/public/js/mydata_ctrl.js" type="text/javascript"></script>
-	
 	<script src="/vendor/bootstrap-tour/js/bootstrap-tour.js" type="text/javascript"></script>
 	<script src="/public/js/menu_ctrl.js" type="text/javascript"></script>
 	<script src="/public/js/guide_ctrl.js" type="text/javascript"></script>
+	<script src="/public/js/upload_srv.js" type="text/javascript"></script>
+	<script src="/public/js/mydata_ctrl.js" type="text/javascript"></script>
+	
 
 </body>
 </html>

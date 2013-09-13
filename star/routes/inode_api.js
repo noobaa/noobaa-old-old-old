@@ -904,7 +904,7 @@ exports.inode_rmlinks = function(req, res) {
 
 function validate_assignment_to_parent(parent_inode_id, user_id, callback) {
 	if (!parent_inode_id || !user_id) {
-		callback(new Error('invalid input. ' + arguments));
+		return callback(new Error('invalid input. parent: ' + parent_inode_id + ' user: ' + user_id));
 	}
 
 	return Inode.findById(parent_inode_id, function(err, parent_inode) {

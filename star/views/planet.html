@@ -154,8 +154,7 @@
 			</div>
 			<div class="row">
 				<div class="col-xs-6 text-center">
-					<div style="border: solid 1px black; min-height: 200px; opacity: 0.9"
-						class="TODO-label-warning">
+					<div style="border: solid 1px black; min-height: 200px">
 						<br/>
 						<h4 ng-hide="planet_device" class="lead">Updating...</h4>
 						<div ng-show="planet_device">
@@ -169,8 +168,7 @@
 					</div>
 				</div>
 				<div class="col-xs-6 text-center">
-					<div style="border: solid 1px black; min-height: 200px; opacity: 0.9"
-						class="TODO-label-success">
+					<div style="border: solid 1px black; min-height: 200px">
 						<br/>
 						<h4><i class="icon-cloud-upload icon-2x icon-fixed-width"></i><h4>
 						<h4>Drag &amp; Drop</h4>
@@ -190,6 +188,9 @@
 						</div>
 					</div>
 				</div>
+			</div>
+			<div class="row">
+				<nb-upload-table/>
 			</div>
 		</div>
 	</script>
@@ -235,9 +236,10 @@
 	<script src="/vendor/blueimp-file-upload/js/jquery.fileupload.js" type="text/javascript"></script>
 
 	<script src="/vendor/async/lib/async.js" type="text/javascript"></script>
+	<script src="/public/js/menu_ctrl.js" type="text/javascript"></script>
+	<script src="/public/js/upload_srv.js" type="text/javascript"></script>
 	<script src="/public/js/planet/planet_fs.js" type="text/javascript"></script>
 	<script src="/public/js/planet/planet_ctrl.js" type="text/javascript"></script>
-	<script src="/public/js/menu_ctrl.js" type="text/javascript"></script>
 
 </body>
 </html>
