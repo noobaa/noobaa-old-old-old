@@ -8,12 +8,16 @@
 	// create our module
 	var noobaa_app = angular.module('noobaa_app', []);
 
-	// set the symbol to avoid collision with server side templates
-	// this is unneeded for now, but keeping the code in comment just for reference.
-	// noobaa_app.config(function($interpolateProvider) {
-	//	$interpolateProvider.startSymbol('{{');
-	//	$interpolateProvider.endSymbol('}}');
-	// });
+	// noobaa_app.config([
+	//	'$httpProvider', '$interpolateProvider',
+	//	function($httpProvider, $interpolateProvider) {
+	//		delete $httpProvider.defaults.headers.put;
+	//		// set the symbol to avoid collision with server side templates
+	//		// this is unneeded for now, but keeping the code in comment just for reference.
+	//		$interpolateProvider.startSymbol('{{');
+	//		$interpolateProvider.endSymbol('}}');
+	//	}
+	// ]);
 
 	// safe apply handles cases when apply may fail with:
 	// "$apply already in progress" error
@@ -383,7 +387,7 @@
 				}, function(err) {
 					callback(err);
 				});
-			}
+			};
 		}
 	]);
 

@@ -746,7 +746,7 @@ function get_inode_fobj(req, inode_id, callback) {
 			}
 			return Fobj.findById(inode.fobj, function(err, fobj) {
 				return next(err, inode, fobj);
-			})
+			});
 		}
 	], callback);
 }
@@ -815,8 +815,6 @@ exports.inode_multipart_create = function(req, res) {
 exports.inode_multipart_get_part = function(req, res) {
 	var inode_id = req.params.inode_id;
 	var part_num = req.params.part_num;
-	var len = parseInt(req.query.len, 10);
-	console.log("LEN", len);
 
 	async.waterfall([
 		// find inode and the fobj
@@ -830,11 +828,11 @@ exports.inode_multipart_get_part = function(req, res) {
 				Key: fobj_s3_key(fobj.id),
 				UploadId: fobj.s3_multipart.upload_id,
 				PartNumber: part_num,
-				Expires: 24 * 60 * 60, // 24 hours
-				ContentLength: len
+				Expires: 1 * 60 * 60, // 1 hours
 			};
+			var url = S3.getSignedUrl('uploadPart', params);
 			return next(null, {
-				url: S3.getSignedUrl('uploadPart', params)
+				url: url
 			});
 		}
 	], common_api.reply_callback(req, res, 'INODE_GET_MULTIPART ' + inode_id));

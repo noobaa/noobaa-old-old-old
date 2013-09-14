@@ -992,7 +992,7 @@ function InodesListCtrl($scope) {
 				event.preventDefault();
 				return false;
 			default:
-				console.log(event.which);
+				// console.log(event.which);
 		}
 	};
 }

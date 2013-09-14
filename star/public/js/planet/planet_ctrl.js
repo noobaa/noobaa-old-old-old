@@ -61,7 +61,7 @@
 		// when the focus is dropped, remove it
 		win.on('blur', function() {
 			win.setAlwaysOnTop(false);
-		})
+		});
 
 		// make window hide on close
 		win.on('close', $scope.hide_win);
