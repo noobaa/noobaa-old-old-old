@@ -176,82 +176,62 @@
 	UploadSrv.prototype._run_multipart = function(upload) {
 		var me = this;
 		console.log('[ok] upload multipart run', upload.multipart.next_part);
+		if (upload.aborted) {
+			return me.$q.reject('aborted');
+		}
 		if ((upload.multipart.next_part - 1) * upload.multipart.part_size >= upload.file.size) {
 			return; // done
 		}
-		return me._read_part(upload).then(function(data) {
-			console.log('[ok] upload multipart read part', data.byteLength);
-			upload.multipart.next_part_data = data;
-			return me.$http({
-				method: 'GET',
-				url: '/star_api/inode/' + upload.inode_id + '/multipart/' + upload.multipart.next_part
-			});
+		return me.$http({
+			method: 'GET',
+			url: '/star_api/inode/' + upload.inode_id + '/multipart/' + upload.multipart.next_part
 		}).then(function(res) {
-			console.log('[ok] upload multipart send part', res.data.urlobj);
-			upload.multipart.next_url = res.data.url;
-			var deferred = me.$q.defer();
-			var xhr = upload.xhr = new XMLHttpRequest();
-			xhr.onreadystatechange = function() {
-				me.$rootScope.safe_apply(function() {
-					console.log('[ok] upload multipart xhr', xhr);
-					if (xhr.readyState === 4) {
-						if (xhr.status === 200) {
-							deferred.resolve();
-						} else {
-							deferred.reject(xhr.status);
-						}
-					}
-				});
-			}
 			var start = (upload.multipart.next_part - 1) * upload.multipart.part_size;
 			var stop = start + upload.multipart.part_size;
-			console.log('[ok] upload multipart read start', start, stop);
 			var blob = upload.file.slice(start, stop + 1);
-			xhr.open('PUT', upload.multipart.next_url, true);
-			xhr.send(blob);
-			return deferred.promise;
-			// return me.$http({
-			// 	method: 'PUT',
-			// 	url: upload.multipart.next_url,
-			// 	data: upload.multipart.next_part_data,
-			// 	headers: {
-			// 		// must prevent the default content-type or it breaks the signatures
-			// 		'Content-Type': ' '
-			// 	}
-			// });
+			console.log('[ok] upload multipart send start', start, stop);
+			return me._send_part(upload, blob, res.data.url);
 		}).then(function() {
 			console.log('[ok] upload multipart advance...');
 			upload.multipart.next_part++;
-			upload.multipart.next_part_data = null;
-			upload.multipart.next_url = null;
 			upload.xhr = null;
 			return me._run_multipart(upload);
 		});
 	};
 
-	UploadSrv.prototype._read_part = function(upload) {
+	UploadSrv.prototype._send_part = function(upload, data, url) {
+		// return me.$http({
+		// 	method: 'PUT',
+		// 	url: upload.multipart.next_url,
+		// 	data: upload.multipart.next_part_data,
+		// 	headers: {
+		// 		// must prevent the default content-type or it breaks the signatures
+		// 		'Content-Type': ' '
+		// 	}
+		// });
 		var me = this;
 		var deferred = me.$q.defer();
-		var reader = new FileReader();
-		reader.onloadend = function(event) {
+		var xhr = upload.xhr = new XMLHttpRequest();
+		xhr.onreadystatechange = function() {
 			me.$rootScope.safe_apply(function() {
-				console.log('[ok] upload multipart read end', event);
-				// If we use onloadend, we need to check the readyState.
-				if (event.target.readyState !== FileReader.DONE) { // DONE == 2
-					return;
-				}
-				if (event.target.error) {
-					deferred.reject(event.target.error);
-				} else {
-					deferred.resolve(event.target.result);
+				console.log('[ok] upload multipart xhr', xhr);
+				if (xhr.readyState === 4) {
+					if (xhr.status === 200) {
+						deferred.resolve();
+					} else {
+						deferred.reject(xhr.status);
+					}
 				}
 			});
 		};
-		var start = (upload.multipart.next_part - 1) * upload.multipart.part_size;
-		var stop = start + upload.multipart.part_size;
-		console.log('[ok] upload multipart read start', start, stop);
-		var blob = upload.file.slice(start, stop + 1);
-		reader.readAsArrayBuffer(blob);
+		xhr.upload.onprogress = function(event) {
+			var loaded = (upload.multipart.next_part - 1) * upload.multipart.part_size + event.loaded;
+			upload.progress = ((loaded / upload.file.size) * 100).toFixed(1);
+			console.log(upload.progress, event.loaded, event.total);
+			me.$rootScope.safe_apply();
+		};
+		xhr.open('PUT', url, true);
+		xhr.send(data);
 		return deferred.promise;
 	};
 
@@ -265,12 +245,13 @@
 
 	UploadSrv.prototype.update_progress = function(event, data) {
 		var upload = this.uploads[data.upload_id];
-		upload.progress = parseInt(data.loaded / data.total * 100, 10);
+		upload.progress = ((data.loaded / data.total) * 100).toFixed(1);
 		this.$rootScope.safe_apply();
 	};
 
 	UploadSrv.prototype.remove_upload = function(upload) {
 		if (upload.active) {
+			upload.aborted = true;
 			if (upload.xhr) {
 				upload.xhr.abort();
 			}
