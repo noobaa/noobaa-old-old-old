@@ -125,8 +125,7 @@ function inode_to_entry(inode, opt) {
 		// when fobj is given add its info to the entry
 		ent = _.extend(ent, {
 			size: opt.fobj.size,
-			uploading: opt.fobj.uploading,
-			upsize: opt.fobj.upsize
+			uploading: opt.fobj.uploading
 		});
 		if (opt.s3_post) {
 			// add S3 post info only if requested specifically
@@ -336,9 +335,8 @@ exports.inode_create = function(req, res) {
 	if (!inode.isdir && args.uploading) {
 		fobj = new Fobj({
 			size: args.size,
+			content_type: args.content_type,
 			uploading: args.uploading,
-			upsize: args.upsize,
-			content_type: args.content_type
 		});
 		// link the inode to the fobj
 		inode.fobj = fobj._id;
@@ -562,7 +560,7 @@ exports.inode_update = function(req, res) {
 	// we pick only the keys we allow to update from the request body
 	// TODO: check the validity of the input
 	var inode_args = _.pick(req.body, 'parent', 'name');
-	var fobj_args = _.pick(req.body, 'uploading', 'upsize');
+	var fobj_args = _.pick(req.body, 'uploading');
 
 	async.waterfall([
 
@@ -730,6 +728,221 @@ function inode_delete_action(inode_id, user_id, callback) {
 	});
 }
 
+// get inode, check ownership and get fobj
+
+function get_inode_fobj(req, inode_id, callback) {
+	return async.waterfall([
+		// find the inode
+		function(next) {
+			return Inode.findById(inode_id, next);
+		},
+
+		// check inode ownership
+		common_api.check_ownership.bind(null, req.user.id),
+
+		function(inode, next) {
+			if (!inode.fobj) {
+				return next(null, inode, null);
+			}
+			return Fobj.findById(inode.fobj, function(err, fobj) {
+				return next(err, inode, fobj);
+			})
+		}
+	], callback);
+}
+
+
+
+///////////////
+///////////////
+// MULTIPART //
+///////////////
+///////////////
+
+
+exports.inode_multipart_create = function(req, res) {
+	var inode_id = req.params.inode_id;
+	var ctx = {};
+
+	async.waterfall([
+		// find inode and the fobj
+		function(next) {
+			return get_inode_fobj(req, inode_id, next);
+		},
+
+		function(inode, fobj, next) {
+			ctx.inode = inode;
+			ctx.fobj = fobj;
+			// if upload id already exists skip creating
+			if (fobj.s3_multipart.upload_id) {
+				return next(null, null);
+			}
+			// when the upload is new mark it, and ask for upload id from s3
+			return S3.createMultipartUpload({
+				Bucket: process.env.S3_BUCKET,
+				Key: fobj_s3_key(ctx.inode.fobj)
+			}, function(err, data) {
+				return next(err, data);
+			});
+		},
+
+		function(create_data, next) {
+			console.log(ctx.fobj, next, typeof next, create_data, typeof create_data);
+			if (ctx.fobj.s3_multipart.upload_id) {
+				return next();
+			}
+			// for new upload save the upload id into the fobj
+			ctx.fobj.s3_multipart = {
+				upload_id: create_data.UploadId,
+				next_part: 1,
+				part_size: 10 * 1024 * 1024
+			};
+			return ctx.fobj.save(function(err) {
+				return next(err);
+			});
+		},
+
+		function(next) {
+			return next(null, ctx.fobj.s3_multipart);
+		}
+
+	], common_api.reply_callback(req, res, 'INODE_CREATE_MULTIPART ' + inode_id));
+};
+
+exports.inode_multipart_get_part = function(req, res) {
+	var inode_id = req.params.inode_id;
+	var part_num = req.params.part_num;
+
+	async.waterfall([
+		// find inode and the fobj
+		function(next) {
+			return get_inode_fobj(req, inode_id, next);
+		},
+
+		function(inode, fobj, next) {
+			var params = {
+				Bucket: process.env.S3_BUCKET,
+				Key: fobj_s3_key(fobj.id),
+				UploadId: fobj.s3_multipart.upload_id,
+				PartNumber: part_num
+			};
+			return next(null, {
+				url: S3.getSignedUrl('uploadPart', params)
+			});
+		}
+	], common_api.reply_callback(req, res, 'INODE_GET_MULTIPART ' + inode_id));
+};
+
+exports.inode_multipart_done_part = function(req, res) {
+	var inode_id = req.params.inode_id;
+	var part_num = req.params.part_num;
+
+	async.waterfall([
+		// find inode and the fobj
+		function(next) {
+			return get_inode_fobj(req, inode_id, next);
+		},
+
+		function(inode, fobj, next) {
+			if (fobj.s3_multipart.next_part !== parseInt(part_num, 10)) {
+				console.log('PART NUMBER MISTMATCH',
+					'expected', fobj.s3_multipart.next_part,
+					'got', part_num);
+				return next({
+					status: 404,
+					err: 'Part number mismatch'
+				});
+			}
+			fobj.s3_multipart.next_part++;
+			return fobj.save(function(err) {
+				return next(err);
+			});
+		}
+	], common_api.reply_callback(req, res, 'INODE_GET_MULTIPART ' + inode_id));
+};
+
+exports.inode_multipart_complete = function(req, res) {
+	var inode_id = req.params.inode_id;
+	var ctx = {};
+
+	async.waterfall([
+		// find inode and the fobj
+		function(next) {
+			return get_inode_fobj(req, inode_id, next);
+		},
+
+		function(inode, fobj, next) {
+			ctx.inode = inode;
+			ctx.fobj = fobj;
+			if (!fobj.s3_multipart.upload_id) {
+				return next({
+					status: 404,
+					err: 'Not found multipart'
+				});
+			}
+			return S3.completeMultipartUpload({
+				Bucket: process.env.S3_BUCKET,
+				Key: fobj_s3_key(fobj.id),
+				UploadId: fobj.s3_multipart.upload_id
+			}, function(err) {
+				return next(err);
+			});
+		},
+
+		function(next) {
+			delete ctx.fobj.s3_multipart;
+			return ctx.fobj.save(function(err) {
+				return next(err);
+			});
+		}
+	], common_api.reply_callback(req, res, 'INODE_COMPLETE_MULTIPART ' + inode_id));
+};
+
+exports.inode_multipart_abort = function(req, res) {
+	var inode_id = req.params.inode_id;
+	var ctx = {};
+
+	async.waterfall([
+		// find inode and the fobj
+		function(next) {
+			return get_inode_fobj(req, inode_id, next);
+		},
+
+		function(inode, fobj, next) {
+			ctx.inode = inode;
+			ctx.fobj = fobj;
+			if (!fobj.s3_multipart.upload_id) {
+				return next({
+					status: 404,
+					err: 'Not found multipart'
+				});
+			}
+			return S3.abortMultipartUpload({
+				Bucket: process.env.S3_BUCKET,
+				Key: fobj_s3_key(fobj.id),
+				UploadId: fobj.s3_multipart.upload_id
+			}, function(err) {
+				return next(err);
+			});
+		},
+
+		function(next) {
+			delete ctx.fobj.s3_multipart;
+			return ctx.fobj.save(function(err) {
+				return next(err);
+			});
+		}
+	], common_api.reply_callback(req, res, 'INODE_ABORT_MULTIPART ' + inode_id));
+};
+
+
+
+/////////////
+/////////////
+// SHARING //
+/////////////
+/////////////
+
 
 exports.inode_get_share_list = function(req, res) {
 
@@ -831,6 +1044,15 @@ exports.inode_set_share_list = function(req, res) {
 
 	], common_api.reply_callback(req, res, 'SET_SHARE ' + inode_id));
 };
+
+
+
+///////////
+///////////
+// LINKS //
+///////////
+///////////
+
 
 exports.inode_mklink = function(req, res) {
 	var inode_id = req.params.inode_id;

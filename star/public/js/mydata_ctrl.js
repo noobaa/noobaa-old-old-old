@@ -215,22 +215,12 @@ Inode.prototype.populate_dir = function(entries) {
 
 		}
 
-		// compute entry progress
-		if (ent.uploading) {
-			if (ent.upsize && ent.size) {
-				ent.progress = (ent.upsize * 100 / ent.size) >> 0; // >>0 to make int
-			} else {
-				ent.progress = 0;
-			}
-		}
-
 		// sync fields which are mutable
 		sync_property(son, this, "$scope");
 		sync_property(son, ent, "name");
 		sync_property(son, ent, "isdir");
 		sync_property(son, ent, "size");
 		sync_property(son, ent, "uploading");
-		sync_property(son, ent, "progress");
 		sync_property(son, ent, "num_refs");
 		sync_property(son, ent, "not_mine");
 		sync_property(son, ent, "owner_name");
@@ -333,25 +323,6 @@ Inode.prototype.download_file = function() {
 		win.focus();
 	});
 	*/
-};
-
-Inode.prototype.mkfile = function(name, size, content_type, relative_path) {
-	var me = this;
-	return this.$scope.http({
-		method: 'POST',
-		url: this.$scope.inode_api_url,
-		data: {
-			id: this.id,
-			name: name,
-			isdir: false,
-			size: size,
-			uploading: true,
-			content_type: content_type,
-			relative_path: relative_path
-		}
-	}).on('all', function(mkfile_data) {
-		me.read_dir();
-	});
 };
 
 Inode.prototype.get_share_list = function() {

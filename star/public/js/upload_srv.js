@@ -71,32 +71,18 @@
 			}
 
 		}).then(function(res) {
-			console.log('[ok] upload sending...', res);
-			var mkfile_data = res.data;
-			upload.inode_id = mkfile_data.id;
+			console.log('[ok] upload file created', res);
+			upload.mkfile = res.data;
+			upload.inode_id = res.data.id;
 			upload.status = 'Uploading...';
-			// using s3 upload with signed url
-			data.type = 'POST';
-			data.multipart = true;
-			data.url = mkfile_data.s3_post_info.url;
-			data.formData = mkfile_data.s3_post_info.form;
-			var deferred = me.$q.defer();
-			upload.xhr = data.submit();
-			upload.xhr.success(function(result, textStatus, jqXHR) {
-				// must call deferred inside apply for angular to digest it
-				me.$rootScope.safe_apply(function() {
-					deferred.resolve(mkfile_data);
-				});
-			});
-			upload.xhr.error(function(jqXHR, textStatus, errorThrown) {
-				me.$rootScope.safe_apply(function() {
-					deferred.reject(
-						'XHR upload failed: ' + textStatus + ' ' +
-						errorThrown + ' ' + jqXHR.responseText);
-				});
-			});
+			var promise;
+			if (file.size > 0) { // TODO: bigger threshold? or non at all
+				promise = me._upload_multipart(upload);
+			} else {
+				promise = me._upload_simple(upload);
+			}
 			me.$rootScope.safe_apply();
-			return deferred.promise;
+			return promise;
 
 		}).then(function() {
 			console.log('[ok] upload finishing...');
@@ -119,7 +105,7 @@
 			upload.row_class = 'success';
 			me.$rootScope.safe_apply();
 		}, function(err) {
-			console.error('[ERR]', err);
+			console.error('[ERR] upload failed');
 			me.num_active_uploads--;
 			upload.active = false;
 			upload.status = 'Failed!';
@@ -129,6 +115,116 @@
 			me.$rootScope.safe_apply();
 			return me.$q.reject(err); // rethrow error
 		});
+	};
+
+	// using s3 upload with signed post form
+	UploadSrv.prototype._upload_simple = function(upload) {
+		console.log('[ok] upload sending file');
+		var me = this;
+		data.type = 'POST';
+		data.multipart = true;
+		data.url = upload.mkfile.s3_post_info.url;
+		data.formData = upload.mkfile.s3_post_info.form;
+		var deferred = me.$q.defer();
+		upload.xhr = data.submit();
+		upload.xhr.success(function(result, textStatus, jqXHR) {
+			// must call deferred inside apply for angular to digest it
+			me.$rootScope.safe_apply(function() {
+				deferred.resolve();
+			});
+		});
+		upload.xhr.error(function(jqXHR, textStatus, errorThrown) {
+			me.$rootScope.safe_apply(function() {
+				deferred.reject(
+					'XHR upload failed: ' + textStatus + ' ' +
+					errorThrown + ' ' + jqXHR.responseText);
+			});
+		});
+		return deferred.promise;
+	};
+
+	UploadSrv.prototype._upload_multipart = function(upload) {
+		var me = this;
+		console.log('[ok] upload multipart starting');
+		// create multipart upload
+		return me.$http({
+			method: 'POST',
+			url: '/star_api/inode/' + upload.inode_id + '/multipart/'
+		}).then(function(res) {
+			console.log('[ok] upload create multipart...', res);
+			upload.multipart = res.data;
+			return me._run_multipart(upload);
+		}).then(function() {
+			// on success complete multipart
+			console.log('[ok] upload multipart complete');
+			return me.$http({
+				method: 'PUT',
+				url: '/star_api/inode/' + upload.inode_id + '/multipart/'
+			});
+		}, function(err) {
+			// on error abort multipart
+			console.log('[ERR] upload multipart abort');
+			return me.$http({
+				method: 'DELETE',
+				url: '/star_api/inode/' + upload.inode_id + '/multipart/'
+			}).then(function() {
+				return me.$q.reject(err); // rethrow error
+			});
+		});
+	};
+
+	UploadSrv.prototype._run_multipart = function(upload) {
+		var me = this;
+		console.log('[ok] upload multipart run', upload.multipart.next_part);
+		if ((upload.multipart.next_part-1) * upload.multipart.part_size >= upload.file.size) {
+			return; // done
+		}
+		return me.$http({
+			method: 'GET',
+			url: '/star_api/inode/' + upload.inode_id + '/multipart/' + upload.multipart.next_part
+		}).then(function(res) {
+			console.log('[ok] upload multipart got part', res);
+			upload.multipart.next_url = res.data.url;
+			return me._read_part(upload);
+		}).then(function(data) {
+			console.log('[ok] upload multipart send part');
+			return me.$http({
+				method: 'POST',
+				url: upload.multipart.next_url,
+				// data: data
+			});
+		}).then(function() {
+			console.log('[ok] upload multipart advance...');
+			upload.multipart.next_part++;
+			upload.multipart.next_url = null;
+			return me._run_multipart(upload);
+		});
+	};
+
+	UploadSrv.prototype._read_part = function(upload) {
+		var me = this;
+		var deferred = me.$q.defer();
+		var reader = new FileReader();
+		reader.onloadend = function(event) {
+			me.$rootScope.safe_apply(function() {
+				console.log('[ok] upload multipart read end', event);
+				// If we use onloadend, we need to check the readyState.
+				if (event.target.readyState !== FileReader.DONE) { // DONE == 2
+					return;
+				}
+				if (event.target.error) {
+					deferred.reject(event.target.error);
+				} else {
+					deferred.resolve(event.target.result);
+				}
+			});
+		};
+		var start = (upload.multipart.next_part-1) * upload.multipart.part_size;
+		var stop = start + upload.multipart.part_size;
+		console.log('[ok] upload multipart read start', start, stop);
+		var blob = upload.file.slice(start, stop + 1);
+		reader.readAsBinaryString(blob);
+		return deferred.promise;
 	};
 
 	UploadSrv.prototype.has_uploads = function() {

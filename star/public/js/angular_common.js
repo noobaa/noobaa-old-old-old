@@ -373,6 +373,20 @@
 		};
 	});
 
+	// http wrapper to be used with async library
+	noobaa_app.factory('$http_async', [
+		'$http',
+		function($http) {
+			return function(req, callback) {
+				return $http(req).then(function(data) {
+					callback(null, data);
+				}, function(err) {
+					callback(err);
+				});
+			}
+		}
+	]);
+
 	noobaa_app.directive('nbRightClick', function($parse) {
 		return {
 			restrict: 'A', // use as attribute
