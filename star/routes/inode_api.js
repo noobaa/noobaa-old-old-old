@@ -797,7 +797,7 @@ exports.inode_multipart_create = function(req, res) {
 			// for new upload save the upload id into the fobj
 			ctx.fobj.s3_multipart = {
 				upload_id: create_data.UploadId,
-				part_size: 5 * 1024 * 1024,
+				part_size: 10 * 1024 * 1024,
 				parts: [''] // 0 part number is unused
 			};
 			return ctx.fobj.save(function(err) {
@@ -863,13 +863,19 @@ exports.inode_multipart_done_part = function(req, res) {
 					err: 'Part number mismatch'
 				});
 			}
-
+			if (!etag || typeof etag !== 'string') {
+				return next({
+					status: 404,
+					err: 'ETAG MISSING'
+				});
+			}
+			console.log('PART', part_num, etag, 'INODE', inode_id, 'FOBJ', fobj.id);
 			fobj.s3_multipart.parts.set(part_num, etag);
 			return fobj.save(function(err) {
 				return next(err);
 			});
 		}
-	], common_api.reply_callback(req, res, 'INODE_GET_MULTIPART ' + inode_id));
+	], common_api.reply_callback(req, res, 'INODE_PUT_MULTIPART ' + inode_id));
 };
 
 exports.inode_multipart_complete = function(req, res) {
@@ -895,7 +901,7 @@ exports.inode_multipart_complete = function(req, res) {
 			// parts are numbered from 1...
 			for (var i = 1; i < fobj.s3_multipart.parts.length; i++) {
 				var etag = fobj.s3_multipart.parts[i];
-				console.log('PART', i, etag, typeof etag);
+				console.log('PART', i, etag);
 				parts.push({
 					PartNumber: i,
 					ETag: etag

@@ -190,7 +190,7 @@
 			// send the part
 			var start = (upload.multipart.next_part - 1) * upload.multipart.part_size;
 			var stop = start + upload.multipart.part_size;
-			var blob = upload.file.slice(start, stop + 1);
+			var blob = upload.file.slice(start, stop);
 			console.log('[ok] upload multipart send start', start, stop);
 			return me._send_part(upload, blob, res.data.url);
 		}).then(function(etag) {
@@ -218,15 +218,18 @@
 		xhr.onreadystatechange = function() {
 			me.$rootScope.safe_apply(function() {
 				console.log('[ok] upload multipart xhr', xhr);
-				if (xhr.readyState === 4) {
-					console.log(xhr.getAllResponseHeaders());
+				if (xhr.readyState !== 4) {
+					return;
+				}
+				if (xhr.status !== 200) {
+					deferred.reject('xhr failed status ' + xhr.status);
+					return;
+				}
+				try {
 					var etag = xhr.getResponseHeader('ETag');
-					console.log('xhr etag', etag);
-					if (xhr.status === 200) {
-						deferred.resolve(etag);
-					} else {
-						deferred.reject(xhr.status);
-					}
+					deferred.resolve(etag);
+				} catch (err) {
+					deferred.reject(err);
 				}
 			});
 		};
