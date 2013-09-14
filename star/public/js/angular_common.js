@@ -413,7 +413,7 @@
 			link: function(scope, element, attr) {
 				scope.$watch(attr.nbDrop, function(value) {
 					var obj = scope.$eval(attr.nbDrop);
-					if (!obj) {
+					if (!obj && element && element.droppable()) {
 						element.droppable("destroy");
 						return;
 					}
@@ -540,8 +540,7 @@
 		return {
 			restrict: 'A', // use as attribute
 			link: function(scope, element, attr) {
-				var opt = scope.$eval(attr.nbShine) || {};
-				angular.extend(opt, {
+				var opt = {
 					at: 'center',
 					thick: 20,
 					start: 0,
@@ -549,7 +548,16 @@
 					step: 1.7,
 					step_time: 10,
 					delay: 7000
+				};
+				var user_opt = scope.$eval(attr.nbShine) || {};
+				console.log('yd1 opt: ', user_opt);
+
+				$.each(user_opt, function(key, val) {
+					opt[key] = val;
 				});
+
+				console.log('yd2 opt: ', opt);
+
 				var R = opt.start;
 				var interval;
 				var renderer = function() {
