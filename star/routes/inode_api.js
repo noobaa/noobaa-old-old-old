@@ -780,7 +780,10 @@ exports.inode_multipart_create = function(req, res) {
 			// when the upload is new mark it, and ask for upload id from s3
 			return S3.createMultipartUpload({
 				Bucket: process.env.S3_BUCKET,
-				Key: fobj_s3_key(ctx.inode.fobj)
+				Key: fobj_s3_key(ctx.inode.fobj),
+				ACL: 'private',
+				ContentDisposition: name_to_content_dispos(inode.name),
+				ContentType: fobj.content_type
 			}, function(err, data) {
 				return next(err, data);
 			});
@@ -812,6 +815,8 @@ exports.inode_multipart_create = function(req, res) {
 exports.inode_multipart_get_part = function(req, res) {
 	var inode_id = req.params.inode_id;
 	var part_num = req.params.part_num;
+	var len = parseInt(req.query.len, 10);
+	console.log("LEN", len);
 
 	async.waterfall([
 		// find inode and the fobj
@@ -824,7 +829,9 @@ exports.inode_multipart_get_part = function(req, res) {
 				Bucket: process.env.S3_BUCKET,
 				Key: fobj_s3_key(fobj.id),
 				UploadId: fobj.s3_multipart.upload_id,
-				PartNumber: part_num
+				PartNumber: part_num,
+				Expires: 24 * 60 * 60, // 24 hours
+				ContentLength: len
 			};
 			return next(null, {
 				url: S3.getSignedUrl('uploadPart', params)

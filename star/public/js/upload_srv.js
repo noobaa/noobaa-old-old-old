@@ -121,12 +121,12 @@
 	UploadSrv.prototype._upload_simple = function(upload) {
 		console.log('[ok] upload sending file');
 		var me = this;
-		data.type = 'POST';
-		data.multipart = true;
-		data.url = upload.mkfile.s3_post_info.url;
-		data.formData = upload.mkfile.s3_post_info.form;
+		upload.data.type = 'POST';
+		upload.data.multipart = true;
+		upload.data.url = upload.mkfile.s3_post_info.url;
+		upload.data.formData = upload.mkfile.s3_post_info.form;
 		var deferred = me.$q.defer();
-		upload.xhr = data.submit();
+		upload.xhr = upload.data.submit();
 		upload.xhr.success(function(result, textStatus, jqXHR) {
 			// must call deferred inside apply for angular to digest it
 			me.$rootScope.safe_apply(function() {
@@ -176,26 +176,28 @@
 	UploadSrv.prototype._run_multipart = function(upload) {
 		var me = this;
 		console.log('[ok] upload multipart run', upload.multipart.next_part);
-		if ((upload.multipart.next_part-1) * upload.multipart.part_size >= upload.file.size) {
+		if ((upload.multipart.next_part - 1) * upload.multipart.part_size >= upload.file.size) {
 			return; // done
 		}
-		return me.$http({
-			method: 'GET',
-			url: '/star_api/inode/' + upload.inode_id + '/multipart/' + upload.multipart.next_part
-		}).then(function(res) {
-			console.log('[ok] upload multipart got part', res);
-			upload.multipart.next_url = res.data.url;
-			return me._read_part(upload);
-		}).then(function(data) {
-			console.log('[ok] upload multipart send part');
+		return me._read_part(upload).then(function(data) {
+			console.log('[ok] upload multipart read part', data.length);
+			upload.multipart.next_part_data = data;
 			return me.$http({
-				method: 'POST',
+				method: 'GET',
+				url: '/star_api/inode/' + upload.inode_id + '/multipart/' + upload.multipart.next_part + '?len=' + data.length
+			});
+		}).then(function(res) {
+			console.log('[ok] upload multipart send part');
+			upload.multipart.next_url = res.data.url;
+			return me.$http({
+				method: 'PUT',
 				url: upload.multipart.next_url,
-				// data: data
+				data: upload.multipart.next_part_data
 			});
 		}).then(function() {
 			console.log('[ok] upload multipart advance...');
 			upload.multipart.next_part++;
+			upload.multipart.next_part_data = null;
 			upload.multipart.next_url = null;
 			return me._run_multipart(upload);
 		});
@@ -219,7 +221,7 @@
 				}
 			});
 		};
-		var start = (upload.multipart.next_part-1) * upload.multipart.part_size;
+		var start = (upload.multipart.next_part - 1) * upload.multipart.part_size;
 		var stop = start + upload.multipart.part_size;
 		console.log('[ok] upload multipart read start', start, stop);
 		var blob = upload.file.slice(start, stop + 1);
