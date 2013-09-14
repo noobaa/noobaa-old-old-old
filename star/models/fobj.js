@@ -9,8 +9,9 @@ var fobj_schema = new mongoose.Schema({
 	uploading: Boolean,
 	s3_multipart: {
 		upload_id: String,
-		next_part: Number,
-		part_size: Number
+		part_size: Number,
+		// parts for S3.completeMultipartUpload()
+		parts: [String]
 	}
 });
 

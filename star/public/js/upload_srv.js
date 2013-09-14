@@ -182,16 +182,28 @@
 		if ((upload.multipart.next_part - 1) * upload.multipart.part_size >= upload.file.size) {
 			return; // done
 		}
+		// get the part url
 		return me.$http({
 			method: 'GET',
 			url: '/star_api/inode/' + upload.inode_id + '/multipart/' + upload.multipart.next_part
 		}).then(function(res) {
+			// send the part
 			var start = (upload.multipart.next_part - 1) * upload.multipart.part_size;
 			var stop = start + upload.multipart.part_size;
 			var blob = upload.file.slice(start, stop + 1);
 			console.log('[ok] upload multipart send start', start, stop);
 			return me._send_part(upload, blob, res.data.url);
+		}).then(function(etag) {
+			// put the part etag
+			return me.$http({
+				method: 'PUT',
+				url: '/star_api/inode/' + upload.inode_id + '/multipart/' + upload.multipart.next_part,
+				data: {
+					etag: etag
+				}
+			});
 		}).then(function() {
+			// advance to next part
 			console.log('[ok] upload multipart advance...');
 			upload.multipart.next_part++;
 			upload.xhr = null;
@@ -200,15 +212,6 @@
 	};
 
 	UploadSrv.prototype._send_part = function(upload, data, url) {
-		// return me.$http({
-		// 	method: 'PUT',
-		// 	url: upload.multipart.next_url,
-		// 	data: upload.multipart.next_part_data,
-		// 	headers: {
-		// 		// must prevent the default content-type or it breaks the signatures
-		// 		'Content-Type': ' '
-		// 	}
-		// });
 		var me = this;
 		var deferred = me.$q.defer();
 		var xhr = upload.xhr = new XMLHttpRequest();
@@ -216,8 +219,11 @@
 			me.$rootScope.safe_apply(function() {
 				console.log('[ok] upload multipart xhr', xhr);
 				if (xhr.readyState === 4) {
+					console.log(xhr.getAllResponseHeaders());
+					var etag = xhr.getResponseHeader('ETag');
+					console.log('xhr etag', etag);
 					if (xhr.status === 200) {
-						deferred.resolve();
+						deferred.resolve(etag);
 					} else {
 						deferred.reject(xhr.status);
 					}
@@ -227,10 +233,10 @@
 		xhr.upload.onprogress = function(event) {
 			var loaded = (upload.multipart.next_part - 1) * upload.multipart.part_size + event.loaded;
 			upload.progress = ((loaded / upload.file.size) * 100).toFixed(1);
-			console.log(upload.progress, event.loaded, event.total);
 			me.$rootScope.safe_apply();
 		};
 		xhr.open('PUT', url, true);
+		xhr.setRequestHeader('Access-Control-Expose-Headers', 'ETag');
 		xhr.send(data);
 		return deferred.promise;
 	};

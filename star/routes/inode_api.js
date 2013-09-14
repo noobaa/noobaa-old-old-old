@@ -797,8 +797,8 @@ exports.inode_multipart_create = function(req, res) {
 			// for new upload save the upload id into the fobj
 			ctx.fobj.s3_multipart = {
 				upload_id: create_data.UploadId,
-				next_part: 1,
-				part_size: 10 * 1024 * 1024
+				part_size: 5 * 1024 * 1024,
+				parts: [''] // 0 part number is unused
 			};
 			return ctx.fobj.save(function(err) {
 				return next(err);
@@ -806,7 +806,10 @@ exports.inode_multipart_create = function(req, res) {
 		},
 
 		function(next) {
-			return next(null, ctx.fobj.s3_multipart);
+			return next(null, {
+				part_size: ctx.fobj.s3_multipart.part_size,
+				next_part: ctx.fobj.s3_multipart.parts.length || 1 // at least 1
+			});
 		}
 
 	], common_api.reply_callback(req, res, 'INODE_CREATE_MULTIPART ' + inode_id));
@@ -840,7 +843,8 @@ exports.inode_multipart_get_part = function(req, res) {
 
 exports.inode_multipart_done_part = function(req, res) {
 	var inode_id = req.params.inode_id;
-	var part_num = req.params.part_num;
+	var part_num = parseInt(req.params.part_num, 10);
+	var etag = req.body.etag;
 
 	async.waterfall([
 		// find inode and the fobj
@@ -849,16 +853,18 @@ exports.inode_multipart_done_part = function(req, res) {
 		},
 
 		function(inode, fobj, next) {
-			if (fobj.s3_multipart.next_part !== parseInt(part_num, 10)) {
+			var next_part = fobj.s3_multipart.parts.length || 1;
+			if (next_part !== part_num) {
 				console.log('PART NUMBER MISTMATCH',
-					'expected', fobj.s3_multipart.next_part,
+					'expected', next_part,
 					'got', part_num);
 				return next({
 					status: 404,
 					err: 'Part number mismatch'
 				});
 			}
-			fobj.s3_multipart.next_part++;
+
+			fobj.s3_multipart.parts.set(part_num, etag);
 			return fobj.save(function(err) {
 				return next(err);
 			});
@@ -885,10 +891,23 @@ exports.inode_multipart_complete = function(req, res) {
 					err: 'Not found multipart'
 				});
 			}
+			var parts = [];
+			// parts are numbered from 1...
+			for (var i = 1; i < fobj.s3_multipart.parts.length; i++) {
+				var etag = fobj.s3_multipart.parts[i];
+				console.log('PART', i, etag, typeof etag);
+				parts.push({
+					PartNumber: i,
+					ETag: etag
+				});
+			}
 			return S3.completeMultipartUpload({
 				Bucket: process.env.S3_BUCKET,
 				Key: fobj_s3_key(fobj.id),
-				UploadId: fobj.s3_multipart.upload_id
+				UploadId: fobj.s3_multipart.upload_id,
+				MultipartUpload: {
+					Parts: parts
+				}
 			}, function(err) {
 				return next(err);
 			});
