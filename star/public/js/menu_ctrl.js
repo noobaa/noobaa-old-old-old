@@ -91,11 +91,25 @@ UserCtrl.$inject = ['$scope', '$http', '$timeout'];
 function UserCtrl($scope, $http, $timeout) {
 	$scope.user_quota = 0;
 	$scope.user_usage = 0;
+	$scope.user_usage_ratio = null;
 
 	function cancel_usage_refresh() {
 		$timeout.cancel($scope.usage_refresh_timeout);
 		delete $scope.usage_refresh_timeout;
 	}
+
+	//updates $scope.user_quota according to the current usage.
+
+	function update_user_ratio(){
+		//TODO change according to the required steps that is
+		//if user has a quota of 1.5TB, and he already used 1.4 TB, his 
+		//ratio (which currently also dictates how much we nag him) is NOT 0.93 but rather closer to 0
+		//since assuming that 100GB is the smallest step at that stage, and he didn't use much of it, 
+		//no need to nag him. ALL this depends on the steps we'll define and where the users is within them.
+		if ($scope.user_quota) {
+		 	$scope.user_usage_ratio	= $scope.user_usage / $scope.user_quota;
+		}
+	} 
 
 	function usage_refresh() {
 		cancel_usage_refresh();
@@ -105,6 +119,7 @@ function UserCtrl($scope, $http, $timeout) {
 		}).success(function(data, status, headers, config) {
 			$scope.user_quota = data.quota;
 			$scope.user_usage = data.usage;
+			update_user_ratio();
 			cancel_usage_refresh();
 			$scope.usage_refresh_timeout =
 				$timeout(usage_refresh, 30000);
