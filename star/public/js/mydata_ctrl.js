@@ -226,7 +226,7 @@ Inode.prototype.populate_dir = function(entries) {
 		sync_property(son, ent, "owner_name");
 
 		//get only the first name for display. Cleaner and friendlier.
-		if (son.owner_name){
+		if (son.owner_name) {
 			son.owner_name = son.owner_name.split(' ')[0];
 		}
 		sync_property(son, ent, "owner_fbid");
@@ -995,6 +995,11 @@ function InodesListCtrl($scope) {
 				// console.log(event.which);
 		}
 	};
+	$scope.inode_upload = function(inode) {
+		var e = $('#file_upload_input');
+		e.data('inode_upload', inode);
+		e.trigger('click');
+	};
 }
 
 
@@ -1148,7 +1153,15 @@ function UploadCtrl($scope, nbUploadSrv) {
 		// and the modal is hidden.
 		upload_modal.nbdialog('open');
 
-		nbUploadSrv.add_upload(data, dir_inode);
+		// TODO: need to nullify the inode_upload on input file dialog cancel
+		var inode_upload = $(event.target).data('inode_upload');
+		var existing_inode_id = inode_upload ? inode_upload.id : null;
+		var refresh_parent = function() {
+			dir_inode.read_dir();
+		};
+		nbUploadSrv
+			.add_upload(data, dir_inode, existing_inode_id)
+			.then(refresh_parent, refresh_parent);
 	};
 
 	// setup the global file/dir input and link them to this scope

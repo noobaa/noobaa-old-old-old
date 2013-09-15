@@ -33,7 +33,7 @@
 		});
 	}
 
-	UploadSrv.prototype.add_upload = function(data, parent) {
+	UploadSrv.prototype.add_upload = function(data, parent, existing_inode_id) {
 		var me = this;
 		// create the upload object and connect to uploads list,
 		var file = data.files[0];
@@ -54,24 +54,39 @@
 		me.num_active_uploads++;
 		me.$rootScope.safe_apply();
 
-		// create the file and receive upload location info
-		console.log('[ok] upload creating file:', file);
+		var file_request;
+		if (existing_inode_id) {
+			// inode_id supplied - just pass it on
+			console.log('[ok] upload gettattr file:', existing_inode_id, file);
+			file_request = {
+				method: 'GET',
+				url: '/star_api/inode/' + existing_inode_id,
+				params: {
+					// tell the server to return attr 
+					// and not redirect us as in normal read
+					getattr: true
+				}
+			};
+		} else {
+			// create the file and receive upload location info
+			console.log('[ok] upload creating file:', file);
+			file_request = {
+				method: 'POST',
+				url: '/star_api/inode/',
+				data: {
+					id: parent.id,
+					name: file.name,
+					isdir: false,
+					size: file.size,
+					uploading: true,
+					content_type: file.type,
+					relative_path: file.webkitRelativePath
+				}
+			};
+		}
 
-		return me.$http({
-			method: 'POST',
-			url: '/star_api/inode/',
-			data: {
-				id: parent.id,
-				name: file.name,
-				isdir: false,
-				size: file.size,
-				uploading: true,
-				content_type: file.type,
-				relative_path: file.webkitRelativePath
-			}
-
-		}).then(function(res) {
-			console.log('[ok] upload file created', res);
+		return me.$http(file_request).then(function(res) {
+			console.log('[ok] upload file', res);
 			upload.mkfile = res.data;
 			upload.inode_id = res.data.id;
 			upload.status = 'Uploading...';

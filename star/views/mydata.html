@@ -674,7 +674,8 @@
 					{{inode.name}}
 				</div>
 				<div class="t-cell">
-					<span ng-show="inode.uploading" title="During Upload...">
+					<span ng-show="inode.uploading" title="During Upload..."
+						ng-click="inode_upload(inode)">
 						<i class="icon-cloud-upload icon-fixed-width"></i>
 					</span>
 					<span ng-show="inode.size">

@@ -286,7 +286,7 @@ function do_read_dir(user, dir_inode, next) {
 
 // read of file - return attributes of inode and fobj if exists
 
-function do_read_file(inode, next) {
+function do_read_file_attr(inode, next) {
 	return async.waterfall([
 		// find fobj if exists
 		function(next) {
@@ -532,17 +532,15 @@ exports.inode_read = function(req, res) {
 			}
 			if (inode.isdir) {
 				return do_read_dir(req.user, inode, next);
-			} else {
-				// redirect to the fobj location in S3
-				if (inode.fobj) {
-					var url = s3_get_url(inode.fobj, inode.name);
-					res.redirect(url);
-					return next();
-				}
-				// this is actually quite unused code, 
-				// keeping it in case we want a get_attr sort of logic.
-				return do_read_file(inode, next);
+			} 
+			// redirect to the fobj location in S3
+			if (!req.query.getattr && inode.fobj) {
+				var url = s3_get_url(inode.fobj, inode.name);
+				res.redirect(url);
+				return next();
 			}
+			// get_attr
+			return do_read_file_attr(inode, next);
 		},
 
 		// waterfall end
