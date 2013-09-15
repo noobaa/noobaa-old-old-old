@@ -252,6 +252,7 @@ var device_api = require('./routes/device_api');
 app.post('/star_api/device/', device_api.device_create);
 app.get('/star_api/device/', device_api.device_list);
 app.put('/star_api/device/:device_id', device_api.device_update);
+app.get('/star_api/device/current/', device_api.device_current);
 
 
 // setup admin pages

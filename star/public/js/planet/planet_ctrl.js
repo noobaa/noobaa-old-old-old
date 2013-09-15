@@ -138,9 +138,15 @@
 			if (!$scope.srv) {
 				$scope.srv = http.createServer(function(req, res) {
 					res.writeHead(200, {
-						'Content-Type': 'text/plain'
+						'Content-Type': 'text/plain',
+						'Access-Control-Allow-Origin': '*',
+						'Access-Control-Allow-Headers': 'X-Requested-With'
 					});
-					res.end('okay\n');
+					if (req.method === 'OPTIONS') {
+						res.end();
+						return;
+					}
+					res.end('NBOK\n');
 					$scope.show();
 					$('#file_upload_input').trigger('click');
 					$scope.safe_apply();
@@ -297,7 +303,8 @@
 				method: 'POST',
 				url: '/star_api/device/',
 				data: {
-					host_info: get_host_info()
+					host_info: get_host_info(),
+					srv_port: $scope.srv_port
 				}
 			}).success(function(data, status, headers, config) {
 				console.log('[ok] create device', status);
@@ -317,6 +324,7 @@
 				url: '/star_api/device/' + $scope.planet_device._id,
 				data: {
 					host_info: get_host_info(),
+					srv_port: $scope.srv_port,
 					coshare_space: coshare_space
 				}
 			}).success(function(data, status, headers, config) {

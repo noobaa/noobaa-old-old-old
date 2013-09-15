@@ -671,8 +671,29 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 		});
 	};
 
+	$http({
+		method: 'GET',
+		url: '/star_api/device/current/'
+	}).then(function(res) {
+		console.log('LOCAL PLANET', res.data);
+		$scope.local_planet = res.data;
+	});
+
 	$scope.click_upload = function() {
-		$('#upload_modal').nbdialog('open');
+		if ($scope.local_planet) {
+			$http({
+				method: 'GET',
+				url: 'http://127.0.0.1:' + $scope.local_planet.srv_port
+			}).then(function(res) {
+				// ok planet will take over
+				if (res.data.trim() !== 'NBOK') {
+					console.log('UNEXPECTED RESPONSE', res.data);
+					$('#upload_modal').nbdialog('open');
+				}
+			}, function() {
+				$('#upload_modal').nbdialog('open');
+			});
+		}
 	};
 
 	$scope.click_coshare = function() {
