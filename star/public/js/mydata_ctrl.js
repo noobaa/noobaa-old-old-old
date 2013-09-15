@@ -995,10 +995,35 @@ function InodesListCtrl($scope) {
 				// console.log(event.which);
 		}
 	};
+
 	$scope.inode_upload = function(inode) {
-		var e = $('#file_upload_input');
-		e.data('inode_upload', inode);
-		e.trigger('click');
+		var file_upload_input = $('#file_upload_input');
+		var inode_label = $('<div class="inode_label"></div').html(inode.make_inode_with_icon());
+		var msg = $('<div></div>')
+			.append('<p>Resume the upload of the file by choosing</p>')
+			.append(inode_label);
+		$.nbconfirm(msg, {
+			noButtonCaption: 'Close',
+			yesButtonCaption: 'Resume The Upload',
+			on_close: function() {
+				// we kept this dialog open exactly to get here and nullify
+				// the data field so that next upload operations will 
+				// see it blank, and not assume this inode from before is relevant.
+				file_upload_input.data('inode_upload', null);
+			},
+			on_confirm: function() {
+				var dlg = this;
+				console.log('GGG - INODE');
+				file_upload_input.data('inode_upload', inode);
+				file_upload_input.trigger('click');
+				file_upload_input.on('change.inode_upload', function() {
+					dlg.nbdialog('close');
+				});
+				// leave the dialog open so that onchange or on_close 
+				// will nullify the inode_upload in file_upload_input.data!!
+				return true;
+			}
+		});
 	};
 }
 

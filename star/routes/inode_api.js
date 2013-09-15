@@ -771,6 +771,12 @@ exports.inode_multipart_create = function(req, res) {
 		function(inode, fobj, next) {
 			ctx.inode = inode;
 			ctx.fobj = fobj;
+			if (!fobj.uploading) {
+				return next({
+					status: 404,
+					err: 'NOT IN UPLOADING STATE!'
+				});
+			}
 			// if upload id already exists skip creating
 			if (fobj.s3_multipart.upload_id) {
 				return next(null, null);
@@ -795,7 +801,7 @@ exports.inode_multipart_create = function(req, res) {
 			// for new upload save the upload id into the fobj
 			ctx.fobj.s3_multipart = {
 				upload_id: create_data.UploadId,
-				part_size: 10 * 1024 * 1024,
+				part_size: 5 * 1024 * 1024,
 				parts: [''] // 0 part number is unused
 			};
 			return ctx.fobj.save(function(err) {

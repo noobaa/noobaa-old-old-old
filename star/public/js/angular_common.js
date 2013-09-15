@@ -318,12 +318,7 @@
 		}, options));
 	}
 
-	function nbconfirm(str, options, yes_callback) {
-		if (typeof options === 'function') {
-			// no options, shift args
-			yes_callback = options;
-			options = {};
-		}
+	function nbconfirm(msg, options) {
 		var dlg = $('<div class="nbdialog confirm_dialog fnt fntmd"></div>');
 		var head = $('<div class="nbdialog_header nbdialog_drag"></div>').appendTo(dlg);
 		var content = $('<div class="nbdialog_content"></div>').appendTo(dlg);
@@ -334,21 +329,27 @@
 		$('<span>Hmmm?</span>')
 			.css('padding', '20px')
 			.appendTo(head);
-		$('<p></p>')
-			.append($('<b></b>').html(str))
-			.css('padding', '20px 20px 0 20px')
-			.appendTo(content);
+		content.css('padding', '20px').append(msg);
 		$('<button class="nbdialog_close"></button>')
 			.text(options.noButtonCaption || 'No')
 			.addClass(options.noButtonClass || 'btn btn-default')
 			.appendTo(foot);
+		if (options.on_close) {
+			dlg.on('nbdialog_close.nbconfirm', options.on_close.bind(dlg));
+		}
 		$('<button></button>')
 			.text(options.yesButtonCaption || 'Yes')
 			.addClass(options.yesButtonClass || 'btn btn-primary pull-right')
 			.appendTo(foot)
 			.on('click', function() {
-				dlg.nbdialog('close');
-				yes_callback();
+				var prevent_close = false;
+				if (options.on_confirm) {
+					prevent_close = options.on_confirm.bind(dlg)();
+				}
+				if (!prevent_close) {
+					dlg.off('nbdialog_close.nbconfirm');
+					dlg.nbdialog('close');
+				}
 			});
 		dlg.appendTo($('body'));
 		dlg.nbdialog('open', _.extend({

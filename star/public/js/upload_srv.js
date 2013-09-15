@@ -87,6 +87,10 @@
 
 		return me.$http(file_request).then(function(res) {
 			console.log('[ok] upload file', res);
+			if (res.data.name !== file.name || res.data.size !== file.size) {
+				$.nbalert('Choose the same file to resume the upload');
+				me.$q.reject('mismatching file attr'); // rethrow error
+			}
 			upload.mkfile = res.data;
 			upload.inode_id = res.data.id;
 			upload.status = 'Uploading...';
@@ -294,7 +298,9 @@
 			do_remove();
 		} else {
 			$.nbconfirm('This upload is still working.<br/>' +
-				'Are you sure you want to cancel it?', do_remove);
+				'Are you sure you want to cancel it?', {
+					on_confirm: do_remove
+				});
 		}
 	};
 
