@@ -434,7 +434,9 @@
 				scope.$watch(attr.nbDrop, function(value) {
 					var obj = scope.$eval(attr.nbDrop);
 					if (!obj) {
-						element.droppable("destroy");
+						if (element.data('droppable')) {
+							element.droppable("destroy");
+						}
 						return;
 					}
 					element.droppable({
