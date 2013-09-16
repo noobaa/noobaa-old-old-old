@@ -118,13 +118,9 @@ exports.device_update = function(req, res) {
 	// pick valid updates
 	var updates = _.pick(req.body, 'coshare_space', 'srv_port');
 
-	if (updates.coshare_space) {
-		var GB = 1024 * 1024 * 1024;
-		var valid_values = [GB, 10 * GB, 100 * GB];
-		if (typeof updates.coshare_space !== 'number' || !_.contains(valid_values, updates.coshare_space)) {
-			console.error('invalid coshare_space', updates.coshare_space);
-			delete updates.coshare_space;
-		}
+	if (updates.coshare_space && typeof updates.coshare_space !== 'number') {
+		console.error('invalid coshare_space', updates.coshare_space);
+		delete updates.coshare_space;
 	}
 
 	async.waterfall([

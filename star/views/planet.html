@@ -180,15 +180,41 @@
 
 	<script type="text/ng-template" id="coshare_view">
 		<div>
-			<div class="list-group text-center">
-				<a ng-repeat="plan in coshare_options" href="#"
-					class="list-group-item"
-					ng-click="coshare_options_select($index)"
-					ng-class="coshare_options_class($index)">
-					<h4 class="list-group-item-heading">{{plan.title}}</h4>
-					<p class="list-group-item-text"><small>{{plan.details}}</small></p>
-				</a>
+			<h3 class="text-center">Adding More Space</h3>
+			<p class="fntmd">Choose how much free capacity to add:</p>
+			<p><small>NooBaa will allocate the same amount on your local hard disk (for storing internal encrypted data), and then your account quota will be updated accordingly.</small></p>
+			<div class="text-center">
+				<span ng-repeat="plan in coshare_options">
+					<button href="#" class="btn btn-lg"
+						ng-click="coshare_options_select($index)"
+						ng-class="coshare_options_class($index)">
+						{{plan.title}}
+					</button>
+				</span>
 			</div>
+			<br/>
+			<p class="fntmd">
+				You can change the default allocation path on your hard disk:
+			</p>
+			<div class="text-center">
+				<button class="btn btn-default"
+					onclick="$('#coshare_path').trigger('click')">
+					Choose allocation path
+				</button>
+				<!--
+				<a class="btn btn-link">
+					<small>(advanced)</small>
+				</a>
+				-->
+				<br/>
+				<input id="coshare_path"
+					style="display: none"
+					type="file"
+					name="file"
+					nwdirectory>
+				</input>
+			</div>
+			<br/>
 			<div class="text-center" style="padding-bottom: 20px">
 				<button	ng-click="coshare_view(false)"
 					class="btn btn-default">
@@ -200,14 +226,6 @@
 					Apply
 				</button>
 			</div>
-			<p>Choose how much free capacity you&apos;d like to get in the cloud.</p>
-			<p>NooBaa will allocate the same amount on your local hard disk (for storing internal encrypted data), and then your account quota will be updated accordingly.</p>
-			<p>
-				<small>
-				Note: The allocation is made from the OS disk for now.
-				Choosing different location will soon be supported.
-				</small>
-			</p>
 		</div>
 	</script>
 
