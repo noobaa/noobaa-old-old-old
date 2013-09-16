@@ -213,7 +213,9 @@ exports.device_current = function(req, res) {
 		function(devices, next) {
 			console.log('CURRENT DEVICES', devices);
 			var dev = devices.length ? devices[0] : null;
-			return next(null, dev);
+			return next(null, {
+				device: dev
+			});
 		}
 
 	], common_api.reply_callback(req, res, 'DEVICE CURRENT ' + req.user.id));

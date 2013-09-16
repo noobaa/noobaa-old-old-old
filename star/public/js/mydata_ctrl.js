@@ -678,7 +678,7 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 		url: '/star_api/device/current/'
 	}).then(function(res) {
 		console.log('LOCAL PLANET', res.data);
-		$scope.local_planet = res.data;
+		$scope.local_planet = res.data ? res.data.device : null;
 	});
 
 	$scope.click_upload = function() {
