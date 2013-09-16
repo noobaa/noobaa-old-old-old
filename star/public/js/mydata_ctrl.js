@@ -255,7 +255,7 @@ Inode.prototype.populate_dir = function(entries) {
 Inode.prototype.resort_entries = function() {
 	var sort_by = this.dir_state.sort_by || this.$scope.default_sort_by;
 	this.dir_state.sons_list.sort(sort_by);
-	this.dir_state.subdirs_list.sort(sort_by);
+	this.dir_state.subdirs_list.sort(this.$scope.default_sort_by);
 };
 
 // create new dir under this dir
@@ -556,7 +556,7 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 	// this drop handler is a generic implementation of drop over a directory.
 	// it will either rename if drag is an inode.
 	$scope.handle_drop = function(drop_inode, drag_inode) {
-		if (!drop_inode.isdir || !drag_inode) {
+		if (!drop_inode.isdir || !drag_inode || !drag_inode.id || !drop_inode.id) {
 			return;
 		}
 		// when drag is an inode, then move it under the drop dir
@@ -590,7 +590,8 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 			console.log('dropped into same parent. nothing to do.');
 			return;
 		}
-
+		drag_inode.rename(drop_inode, drag_inode.name);
+/*
 		var dlg = $('#move_dialog').clone();
 		dlg.find('.inode_label').eq(0).html(drag_inode.make_inode_with_icon());
 		dlg.find('.inode_label').eq(1).html(drop_inode.make_inode_with_icon());
@@ -608,6 +609,7 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 			remove_on_close: true,
 			modal: true
 		});
+*/
 	};
 
 	$scope.click_mkdir = function() {

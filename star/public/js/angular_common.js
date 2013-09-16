@@ -431,27 +431,30 @@
 		return {
 			restrict: 'A', // use as attribute
 			link: function(scope, element, attr) {
-				var obj = scope.$eval(attr.nbDrop);
-				if (!obj) {
-					return;
-				}
-				element.droppable({
-					accept: '.nbdrag',
-					hoverClass: 'drop_hover_class',
-					tolerance: 'pointer',
-					drop: function(event, ui) {
-						var nbobj = $(ui.draggable).data('nbobj');
-						console.log(nbobj);
-						scope.$apply(function() {
-							obj.handle_drop(nbobj);
-						});
-					},
-					over: function(event, ui) {
-						scope.handle_drop_over(event, ui, obj);
-					},
-					out: function(event, ui) {
-						scope.handle_drop_out(event, ui, obj);
+				scope.$watch(attr.nbDrop, function(value) {
+					var obj = scope.$eval(attr.nbDrop);
+					if (!obj) {
+						element.droppable("destroy");
+						return;
 					}
+					element.droppable({
+						greedy: true, //greedy and hoverclass combination seems a bit buggy
+						accept: '.nbdrag',
+						tolerance: 'pointer',
+						hoverClass: 'drop_hover_class',
+						drop: function(event, ui) {
+							var nbobj = $(ui.draggable).data('nbobj');
+							scope.$apply(function() {
+								obj.handle_drop(nbobj);
+							});
+						},
+						over: function(event, ui) {
+							scope.handle_drop_over(event, ui, obj);
+						},
+						out: function(event, ui) {
+							scope.handle_drop_out(event, ui, obj);
+						}
+					});
 				});
 			}
 		};
