@@ -62,13 +62,14 @@ function push_update(date, dev, next) {
 exports.device_create = function(req, res) {
 	// create args are passed in post body
 	var args = req.body;
+	var remote_ip = req.get('X-Forwarded-For') || req.socket.remoteAddress;
 
 	// prepare the device object (auto generate id).
 	var new_dev = new Device({
 		owner: req.user.id,
 		name: args.name || 'MyDevice',
 		host_info: args.host_info,
-		ip_address: req.socket.remoteAddress,
+		ip_address: remote_ip,
 		srv_port: args.srv_port,
 		total_updates: 0,
 		last_update: Date.now()
@@ -112,6 +113,7 @@ exports.device_create = function(req, res) {
 exports.device_update = function(req, res) {
 	// the device_id param is parsed as url param (/path/to/api/:device_id/...)
 	var dev_id = req.params.device_id;
+	var remote_ip = req.get('X-Forwarded-For') || req.socket.remoteAddress;
 
 	// pick valid updates
 	var updates = _.pick(req.body, 'coshare_space', 'srv_port');
@@ -142,8 +144,8 @@ exports.device_update = function(req, res) {
 			if (dev.srv_port === updates.srv_port) {
 				delete updates.srv_port;
 			}
-			if (dev.ip_address !== req.socket.remoteAddress) {
-				updates.ip_address = req.socket.remoteAddress;
+			if (dev.ip_address !== remote_ip) {
+				updates.ip_address = remote_ip;
 			}
 			if (_.isEmpty(updates)) {
 				return next(null, dev);
@@ -197,13 +199,14 @@ exports.device_list = function(req, res) {
 };
 
 exports.device_current = function(req, res) {
-	console.log('DEVICE CURRENT', req.socket.remoteAddress);
+	var remote_ip = req.get('X-Forwarded-For') || req.socket.remoteAddress;
+	console.log('DEVICE CURRENT', remote_ip);
 	async.waterfall([
 		// lookup devices by owner
 		function(next) {
 			return Device.find({
 				owner: req.user.id,
-				ip_address: req.socket.remoteAddress,
+				ip_address: remote_ip,
 			}, {
 				owner: 0,
 				updates_stats: 0 // dont fetch all the stats
