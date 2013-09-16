@@ -682,20 +682,22 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 	});
 
 	$scope.click_upload = function() {
-		if ($scope.local_planet) {
-			$http({
-				method: 'GET',
-				url: 'http://127.0.0.1:' + $scope.local_planet.srv_port
-			}).then(function(res) {
-				// ok planet will take over
-				if (res.data.trim() !== 'NBOK') {
-					console.log('UNEXPECTED RESPONSE', res.data);
-					$('#upload_modal').nbdialog('open');
-				}
-			}, function() {
-				$('#upload_modal').nbdialog('open');
-			});
+		if (!$scope.local_planet) {
+			$('#upload_modal').nbdialog('open');
+			return;
 		}
+		$http({
+			method: 'GET',
+			url: 'http://127.0.0.1:' + $scope.local_planet.srv_port
+		}).then(function(res) {
+			// ok planet will take over
+			if (res.data.trim() !== 'NBOK') {
+				console.log('UNEXPECTED RESPONSE', res.data);
+				$('#upload_modal').nbdialog('open');
+			}
+		}, function() {
+			$('#upload_modal').nbdialog('open');
+		});
 	};
 
 	$scope.click_coshare = function() {
