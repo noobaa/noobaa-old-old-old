@@ -131,7 +131,7 @@
 		////////////////////////////////////////////////////////////
 		// local http server to open the app window
 
-		$scope.srv_port_preferred = 12121;
+		$scope.srv_port_preferred = 0;
 		$scope.srv_port = 0;
 
 		function srv_start() {
