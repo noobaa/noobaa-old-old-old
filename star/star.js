@@ -228,8 +228,16 @@ app.post('/star_api/inode/', inode_api.inode_create);
 app.get('/star_api/inode/:inode_id', inode_api.inode_read);
 app.put('/star_api/inode/:inode_id', inode_api.inode_update);
 app.del('/star_api/inode/:inode_id', inode_api.inode_delete);
+
+app.post('/star_api/inode/:inode_id/multipart/', inode_api.inode_multipart_create);
+app.get('/star_api/inode/:inode_id/multipart/:part_num', inode_api.inode_multipart_get_part);
+app.put('/star_api/inode/:inode_id/multipart/:part_num', inode_api.inode_multipart_done_part);
+app.put('/star_api/inode/:inode_id/multipart/', inode_api.inode_multipart_complete);
+app.del('/star_api/inode/:inode_id/multipart/', inode_api.inode_multipart_abort);
+
 app.get('/star_api/inode/:inode_id/share_list', inode_api.inode_get_share_list);
 app.put('/star_api/inode/:inode_id/share_list', inode_api.inode_set_share_list);
+
 app.post('/star_api/inode/:inode_id/link', inode_api.inode_mklink);
 app.del('/star_api/inode/:inode_id/link', inode_api.inode_rmlinks);
 
@@ -244,6 +252,7 @@ var device_api = require('./routes/device_api');
 app.post('/star_api/device/', device_api.device_create);
 app.get('/star_api/device/', device_api.device_list);
 app.put('/star_api/device/:device_id', device_api.device_update);
+app.get('/star_api/device/current/', device_api.device_current);
 
 
 // setup admin pages

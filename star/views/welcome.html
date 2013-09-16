@@ -22,9 +22,8 @@
 			padding-top: 50px;
 		}
 		button.join-btn {
-			width: 130px !important;
-			height: 40px !important;
-			margin: 0 0 20px 40px;
+			width: 150px !important;
+			margin-top: 30px;
 			-moz-box-shadow: 	0 0 5px 5px rgba(255,255,255,0.9);
 			-webkit-box-shadow: 0 0 5px 5px rgba(255,255,255,0.9);
 			box-shadow: 		0 0 5px 5px rgba(255,255,255,0.9);
@@ -40,6 +39,12 @@
 			height: 30px;
 		}
 
+		.bg_item1, .bg_item2, .bg_item3,
+		.bg_clouds, .bg_bike, .bg_fall {
+			background-repeat: no-repeat;
+			background-attachment: fixed;
+			background-size: cover;
+		}
 		.bg_item1 {
 			background-image: url('/public/images/bg_skate.jpg');
 		}
@@ -49,26 +54,42 @@
 		.bg_item3 {
 			background-image: url('/public/images/bg_wave.jpg');
 		}
-		.bg_item1, .bg_item2, .bg_item3 {
-			background-repeat: no-repeat;
-			background-attachment: fixed;
-			background-size: cover;
-		}
 		@media all and (max-width: 600px) {
-			.bg_item1, .bg_item2, .bg_item3 {
+			.bg_item1 {
 				background-position: 60% 0;
 			}
+			.bg_item2 {
+				background-position: 40% 0;
+			}
+			.bg_item3 {
+				background-position: 40% 0;
+			}
 		}
-
 		.bg_clouds {
 			background-image: url('/public/images/bg_clouds.jpg');
-			background-size: cover;
+			height: 400px;
+		}
+		.bg_fall {
+			background-image: url('/public/images/bg_fall.jpg');
+			height: 400px;
+		}
+		.bg_bike {
+			background-image: url('/public/images/bg_bike.jpg');
 			height: 400px;
 		}
 		.bg_logo {
-			background-color: #222222;
+			background-color: #f2f2f2;
 			border-top-style: groove;
-			height: 200px;			
+			height: 200px;
+		}
+
+		#whatis > .row {
+			min-height: 150px;
+			padding: 70px 0 70px 0;
+		}
+		#whatis i.W1 {
+			color: #e2e2f2;
+			text-shadow: -2px 0 black, 0 2px black, 2px 0 black, 0 -2px black;
 		}
 
 		.shiner {
@@ -81,6 +102,30 @@
 			background-position: -1000px 0;
 			background-image: url('/public/images/bigshine.png');
 			background-repeat: no-repeat;
+		}
+		.tipex {
+			color: white;
+			text-shadow: -2px 0 black, 0 2px black, 2px 0 black, 0 -2px black;
+		}
+		.W1 {
+			font-size: 160px;
+			line-height: 1em;
+		}
+		.W2 {
+			font-size: 80px;
+		}
+		@media all and (min-width: 480px) and (max-width: 768px) {
+			.W1 {
+				font-size: 100px;
+			}
+		}
+		@media all and (max-width: 480px) {
+			.W1 {
+				font-size: 70px;
+			}
+			.W2 {
+				font-size: 50px;
+			}
 		}
 	</style>
 </head>
@@ -95,50 +140,59 @@
 		<div class="carousel-inner filling">
 			
 			<div class="active item filling bg_item1">
-				<div class="nb_page_pad text-left fntblk">
-					<br/><br/><br/>
-					<p class="H2 fntpaint">Cloud storage made</p>
-					<p class="H1 fntpaint">SIMPLE</p>
+				<div class="container text-left fntblk">
+					<h1 class="fntpaint tipex">
+						Cloud <br class="visible-xs"/>
+						storage <br class="visible-xs"/>
+						made
+					</h1>
+					<p class="W1 fntpaint tipex">SIMPLE</p>
 					<br/>
-					<button href="#join" nb-shine 
+					<h3>Terabytes of cloud storage</h3>
+					<h3>In under 60 seconds</h3>
+					<button href="#join"
+						nb-shine="{end: 200, step: 0.01, delay: 11000}"
 						class="join-btn btn btn-danger btn-lg scroller">
 						<b>JOIN !</b>
 					</button>
-					<p class="lead">All your data in one location.</p>
-					<p class="lead">No complex plans.</p>
-					<p class="lead">No complex decisions.</p>
-					<p class="lead">No additional hardware.</p>
 				</div>
 			</div>
 
 			<div class="item filling bg_item2">
-				<div class="nb_page_pad text-left fntwht">
-					<br/><br/><br/>
-					<p class="H2 fntpaint">Cloud storage made</p>
-					<p class="H1 fntpaint">FAST</p>
+				<div class="container text-left fntwht">
+					<h1 class="fntpaint tipex">
+						Cloud <br class="visible-xs"/>
+						storage <br class="visible-xs"/>
+						made
+					</h1>
+					<p class="W1 fntpaint tipex">FAST</p>
 					<br/>
-					<button href="#join" nb-shine
+					<h3>Stream HD movies</h3>
+					<h3>Directly from the cloud</h3>
+					<button href="#join"
+						nb-shine="{end: 200, step: 0.01, delay: 11000}"
 						class="join-btn btn btn-danger btn-lg scroller">
 						<b>JOIN !</b>
 					</button>
-					<p class="lead">Join the power of the crowd.</p>
-					<p class="lead">Together we are the most powerful data-center.</p>
 				</div>
 			</div>
 
 			<div class="item filling bg_item3">
-				<div class="nb_page_pad text-left fntwht">
-					<br/><br/><br/>
-					<p class="H2 fntpaint">Cloud storage made</p>
-					<p class="H1 fntpaint">FREE</p>
+				<div class="container text-left fntwht">
+					<h1 class="fntpaint tipex">
+						Cloud <br class="visible-xs"/>
+						storage <br class="visible-xs"/>
+						made
+					</h1>
+					<p class="W1 fntpaint tipex">FREE</p>
 					<br/>
-					<button href="#join" nb-shine
+					<h3>Free at any capacity</h3>
+					<h3>Try us</h3>
+					<button href="#join"
+						nb-shine="{end: 200, step: 0.01, delay: 11000}"
 						class="join-btn btn btn-danger btn-lg scroller">
 						<b>JOIN !</b>
 					</button>
-					<p class="lead">Unlimited capacity.</p>
-					<p class="lead">You control how much you get.</p>
-					<p class="lead">Absolutely free.</p>
 				</div>
 			</div>
 
@@ -150,10 +204,14 @@
 		</ol>
 		<a class="carousel-control left" 
 			href="#nb_carousel" 
-			data-slide="prev">&lsaquo;</a>
+			data-slide="prev">
+			<span class="icon-prev"></span>
+		</a>
 		<a class="carousel-control right"
 			href="#nb_carousel"
-			data-slide="next">&rsaquo;</a>
+			data-slide="next">
+			<span class="icon-next"></span>
+		</a>
 	</div>
 
 	<div id="nb_nav_marker"></div>
@@ -162,7 +220,7 @@
 		class="navbar navbar-inverse navbar-fixed-bottom"
 		role="navigation"
 		onresize="nb_nav_affix = undefined;">
-		<div class="nb_page_pad">
+		<div class="container">
 			<div class="navbar-header">
 				<button type="button" 
 					class="navbar-toggle" 
@@ -209,41 +267,134 @@
 
 	</nav>
 
-	<div id="whatis" class="nb_nav_link nb_page_pad fnt">
-		<div class="H2 fntpaint"><b>WHAT IS NOOBAA?</b></div>
+	<div id="whatis" class="nb_nav_link container fnt">
+		<div>
+			<p class="W2 fntpaint tipex">WHAT IS NOOBAA?</p>
+		</div>
+
+ 		<div class="row">
+ 			<div class="col-sm-6">
+ 				<h3>
+ 					Regular cloud services are good for storing documents.
+ 					<br/>
+ 					NooBaa is for all the rest.
+ 				</h3>
+				<p class="fntmd">
+					Get more space anytime you want using free space on your existing hard drive.
+					With so much free capacity in hand, you can fit all your data in one location.
+					NooBaa is perfect for media files which no other cloud can handle.
+				</p>
+			</div>
+ 			<div class="col-sm-6 text-center">
+ 				<br/>
+ 				<i class="W1 icon-cloud-upload"></i>
+ 			</div>
+		</div>
+ 		<div class="row">
+ 			<div class="col-sm-6 text-center">
+ 				<br/>
+ 				<i class="W1 icon-camera-retro"></i>
+ 			</div>
+ 			<div class="col-sm-6">
+ 				<h3>Who should use NooBaa?</h3>
+				<p class="fntmd">
+					Anyone who has lots of extreme digital data like pictures and movies, and can't afford spending $100 a month on storage.
+				</p>
+				<p class="fntmd">
+					Your files can be accesible from anywhere, protected from disk failures, and easily shared with your friends, and it's free!
+				</p>
+			</div>
+		</div>
+ 		<div class="row">
+ 			<div class="col-sm-6">
+ 				<h3>What can I store on NooBaa?</h3>
+				<p class="fntmd">
+					You can store all your files on NooBaa.
+				</p>
+				<p class="fntmd">
+					Your files stay private in your account and since it's free you don't need to think if you should store it on the cloud or not. 
+				</p>
+				<p class="fntmd">
+					You don't need to worry about backups - your data is already protected by data redundancy and accesible directly from the cloud.
+				</p>
+			</div>
+ 			<div class="col-sm-6 text-center">
+ 				<br/>
+ 				<i class="W1 icon-music"></i>
+ 			</div>
+		</div>
+ 		<div class="row">
+ 			<div class="col-sm-6 text-center">
+ 				<br/>
+ 				<i class="W1 icon-magic"></i>
+ 			</div>
+ 			<div class="col-sm-6">
+ 				<h3>How does NooBaa work?</h3>
+				<p class="fntmd">
+					It's really simple:
+					<br/>
+					Allocate 100GB on your local hard drive
+					<i class="icon-hand-right"></i>
+					<br/>
+					Get 100GB of protected, fast, always accessible cloud storage for free.
+				</p>
+				<p class="fntmd">
+					The more you allocate, the more space you get and better performance.
+				</p>
+			</div>
+		</div>
+ 		<div class="row">
+ 			<div class="col-sm-6">
+ 				<h3>Under the hood</h3>
+				<p class="fntmd">
+					NooBaa is a computer resources co-sharing social aware solution.
+				</p>
+				<p class="fntmd">
+					It uses the hard disk space allocated on its members computers' to store encrypted chunks of binary data which composes a very big pool of storage. 
+					
+					Trying to access the local allocation is equivalent to trying to read a document from a pile of shredded paper in a waste disposal site.
+				</p>
+				<p class="fntmd">
+					When users add files to their account, NooBaa stores the file data using the entire pool of storage by encrypting and spreading the data chunks.
+				</p>
+				<p class="fntmd">
+					When users access a file, NooBaa reconstructs the file and send it to the user over a secure connection.
+					As each file is spread across many locations, it is protected against hardware failure, theft, etc. and the performance is not bounded by a single stream to the Internet.
+				</p>
+			</div>
+ 			<div class="col-sm-6 text-center">
+ 				<br/>
+ 				<i class="W1 icon-cogs"></i>
+ 			</div>
+		</div>
 		<br/><br/>
-		<h2>NooBaa is a Crowd-Cloud!</h2>
-		<h5 class="lead">
-			<br/>
-			NooBaa enables you to join a network of people like you and me, and get access to the absolute best computer resource in the world in a simple way.
-			<br/><br/>
-			With NooBaa you Co-Share your existing local storage and enjoy the best possible cloud service.
-			<br/><br/>
-		</h5>
 	</div>
 
-	<div class="wfill bg_clouds"></div>
+	<div class="wfill bg_bike"></div>
 
-	<div id="vision" class="nb_nav_link nb_page_pad fnt">
-		<div class="H2 fntpaint"><b>NOOBAA'S VISION</b></div>
+	<div id="vision" class="nb_nav_link container fnt">
+		<div>
+			<p class="W2 fntpaint tipex">NOOBAA'S VISION</p>
+		</div>
 		<br/><br/>
 		<h2>In a world of connected devices, the crowd is the strongest force!</h2>
-		<h5 class="lead">
+		<p class="fntmd">
 			<br/>
-			Joining our devices together will create an entity that can make an impact on every aspect of our life - health, science, engineering, etc.
+			Joining our devices together will create a network that can make an impact on every aspect of our life - health, science, engineering, etc.
 			We believe that such a world should be controlled by the people.
 			<br/><br/>
 			Noobaa aims to democratize the cloud. <br/>
 			What might seem improbable, will soon become inevitable.
 			<br/><br/>
-		</h5>
+			<br/><br/>
+		</p>
 	</div>
 
-	<div class="wfill bg_clouds" style="background-position: 0 400px"></div>
+	<div class="wfill bg_fall"></div>
 
-	<div id="join" class="nb_nav_link nb_page_pad fnt"
+	<div id="join" class="nb_nav_link container fnt"
 		style="margin-bottom: 40px" ng-controller="HelpCtrl">
-		<div class="H2 fntpaint text-center"><b>JOIN US !</b></div>
+		<div class="W2 fntpaint text-center tipex">JOIN US !</div>
 		<br/><br/><br/>
 		<div class="text-center">
 			<a href="/auth/facebook/login/">
@@ -296,7 +447,7 @@
 
 	<div class="wfill bg_logo text-center">
 		<img src="/public/images/noobaa_logo.png"
-			style="height: 80px; margin: 60px 0 0 10px; opacity: 0.2">
+			style="height: 80px; margin: 60px 0 0 10px; opacity: 0.4">
 		</img>
 	</div>
 
