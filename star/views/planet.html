@@ -139,60 +139,40 @@
 		<div id="info_view">
 			<div class="text-center" class="row" style="margin-bottom: 20px;">
 				<div class="btn-group" style="width: 100%">
-					<button id="coshare_button" class="btn btn-danger"
-						style="width: 50%; border: solid 1px rgba(0,0,0,0.4);"
-						ng-click="coshare_view(true)"
-						ng-disabled="!planet_device"
-						title="Make Space">
-						<i class="icon-rocket icon-large"></i>
-					</button>
-					<button id="upload_button" class="btn btn-success"
-						style="width: 50%; border: solid 1px rgba(0,0,0,0.4);"
-						ng-click="click_upload()"
-						title="Upload"
-						ng-disabled="!dir_selection.inode">
-						<i class="icon-cloud-upload icon-large"></i>
-					</button>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-xs-6 text-center">
-					<div style="border: solid 1px black; min-height: 200px">
-						<br/>
+					<span id="coshare_button" class="btn btn-danger radius_right"
+						style="width: 50%; height: 150px; border: solid 1px rgba(0,0,0,0.2);">
 						<h4 ng-hide="planet_device" class="lead">Updating...</h4>
 						<div ng-show="planet_device">
-							<h4>
-								<i class="icon-rocket icon-2x icon-fixed-width"></i>
-								{{ human_size(planet_device.coshare_space || 0) }}
-							</h4>
-							<h4>Currently</h4>
-							<h4>Co-Shared</h4>
+							<h4><i class="icon-rocket icon-2x icon-fixed-width"></i></h4>
+							<h4>{{ human_size(planet_device.coshare_space || 0) }}</h4>
+							<button class="btn btn-default btn-sm"
+								ng-click="coshare_view(true)"
+								ng-disabled="!planet_device">
+								Add Space
+							</button>
 						</div>
-					</div>
-				</div>
-				<div class="col-xs-6 text-center">
-					<div style="border: solid 1px black; min-height: 200px">
-						<br/>
-						<h4><i class="icon-cloud-upload icon-2x icon-fixed-width"></i><h4>
-						<h4>Drag &amp; Drop</h4>
-						<h4>to start uploading!</h4>
-						<br/>
+					</span>
+					<span id="upload_button" class="btn btn-success radius_left"
+						style="width: 50%; height: 150px; border: solid 1px rgba(0,0,0,0.2);"
+						ng-click="click_upload()">
+						<h4><i class="icon-cloud-upload icon-2x icon-fixed-width"></i></h4>
+						<h4>Drag &amp; Drop Upload</h4>
 						<div class="btn-group">
 							<button id="choose_folder_button"
-								class="btn btn-primary btn-sm"
+								class="btn btn-default btn-sm"
 								onclick="$('#dir_upload_input').trigger('click')">
-								Choose Folder
+								Folder
 							</button>
 							<button id="choose_file_button"
-								class="btn btn-primary btn-sm"
+								class="btn btn-default btn-sm"
 								onclick="$('#file_upload_input').trigger('click')">
-								Choose Files
+								Files
 							</button>
 						</div>
-					</div>
+					</span>
 				</div>
 			</div>
-			<div class="row">
+			<div class="row" ng-show="has_uploads()">
 				<nb-upload-table/>
 			</div>
 		</div>

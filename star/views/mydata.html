@@ -95,13 +95,13 @@
 
 		<div class="col-md-3 text-center">
 			<div class="btn-group" style="width: 100%">
-				<button id="coshare_button" class="btn btn-danger"
+				<button id="coshare_button" class="btn btn-danger radius_right"
 					style="width: 50%; border: solid 1px rgba(0,0,0,0.4);"
 					ng-click="click_coshare()"
-					title="Make Space">
+					title="Add Space">
 					<i class="icon-rocket icon-large"></i>
 				</button>
-				<button id="upload_button" class="btn btn-success"
+				<button id="upload_button" class="btn btn-success radius_left"
 					style="width: 50%; border: solid 1px rgba(0,0,0,0.4);"
 					ng-click="click_upload()"
 					title="Upload"
@@ -674,7 +674,7 @@
 					{{inode.name}}
 				</div>
 				<div class="t-cell">
-					<span ng-show="inode.uploading" title="During Upload..."
+					<span ng-show="inode.uploading" title="Incomplete upload - Click to resume"
 						ng-click="inode_upload(inode)">
 						<i class="icon-cloud-upload icon-fixed-width"></i>
 					</span>

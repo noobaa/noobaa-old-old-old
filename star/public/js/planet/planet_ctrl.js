@@ -413,6 +413,10 @@
 		};
 
 
+		$scope.has_uploads = function() {
+			return nbUploadSrv.has_uploads();
+		};
+
 		$scope.add_upload = function(event, data) {
 			console.log('ADD UPLOAD');
 			if (!$scope.planet_user) {

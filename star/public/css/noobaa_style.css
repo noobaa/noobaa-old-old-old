@@ -7,7 +7,8 @@ html, body {
 }
 
 .fnt, body, h1, h2, h3, h4, h5, h6, .ui-widget, button {
-	font-family: 'Nunito', 'Ubuntu', sans-serif !important;
+	font-family: 'Ubuntu', sans-serif !important;
+	/*font-family: 'Nunito', 'Ubuntu', sans-serif !important;*/
 }
 .fntpaint {
 	font-family: 'Finger Paint', cursive !important;
@@ -226,6 +227,26 @@ html, body {
 .t-cell {
 	display: table-cell;
 	padding: 3px;
+}
+
+.radius_right {
+	-webkit-border-top-right-radius: 100px !important;
+	-moz-border-radius-topright: 100px !important;
+	border-top-right-radius: 100px !important;
+
+	-webkit-border-bottom-left-radius: 100px !important;
+	-moz-border-radius-bottomleft: 100px !important;
+	border-bottom-left-radius: 100px !important;
+
+}
+.radius_left {
+	-webkit-border-top-left-radius: 100px !important;
+	-moz-border-radius-topleft: 100px !important;
+	border-top-left-radius: 100px !important;
+
+	-webkit-border-bottom-right-radius: 100px !important;
+	-moz-border-radius-bottomright: 100px !important;
+	border-bottom-right-radius: 100px !important;
 }
 
 

@@ -1021,7 +1021,7 @@ function InodesListCtrl($scope) {
 		var file_upload_input = $('#file_upload_input');
 		var inode_label = $('<div class="inode_label"></div').html(inode.make_inode_with_icon());
 		var msg = $('<div></div>')
-			.append('<p>Resume the upload of the file by choosing</p>')
+			.append('<p>Resume the upload of this file by choosing the source file</p>')
 			.append(inode_label);
 		$.nbconfirm(msg, {
 			noButtonCaption: 'Close',

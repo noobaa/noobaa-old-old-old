@@ -89,7 +89,7 @@
 			console.log('[ok] upload file', res);
 			if (res.data.name !== file.name || res.data.size !== file.size) {
 				$.nbalert('Choose the same file to resume the upload');
-				me.$q.reject('mismatching file attr'); // rethrow error
+				return me.$q.reject('mismatching file attr'); // rethrow error
 			}
 			upload.mkfile = res.data;
 			upload.inode_id = res.data.id;

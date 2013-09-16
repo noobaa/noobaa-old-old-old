@@ -924,7 +924,9 @@ exports.inode_multipart_complete = function(req, res) {
 		},
 
 		function(next) {
-			delete ctx.fobj.s3_multipart;
+			ctx.fobj.s3_multipart.upload_id = null;
+			ctx.fobj.s3_multipart.part_size = null;
+			ctx.fobj.s3_multipart.parts = [];
 			return ctx.fobj.save(function(err) {
 				return next(err);
 			});
@@ -961,7 +963,9 @@ exports.inode_multipart_abort = function(req, res) {
 		},
 
 		function(next) {
-			delete ctx.fobj.s3_multipart;
+			ctx.fobj.s3_multipart.upload_id = null;
+			ctx.fobj.s3_multipart.part_size = null;
+			ctx.fobj.s3_multipart.parts = [];
 			return ctx.fobj.save(function(err) {
 				return next(err);
 			});
