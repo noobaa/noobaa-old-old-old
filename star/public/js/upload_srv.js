@@ -95,7 +95,7 @@
 			upload.inode_id = res.data.id;
 			upload.status = 'Uploading...';
 			var promise;
-			if (file.size > 0) { // TODO: bigger threshold? or non at all
+			if (file.size < 0) { // TODO: bigger threshold? or non at all
 				promise = me._upload_multipart(upload);
 			} else {
 				promise = me._upload_simple(upload);
