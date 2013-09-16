@@ -1,3 +1,14 @@
+/* jshint browser:true, jquery:true, devel:true */
+/* global angular:false */
+/* global _:false */
+/* global Backbone:false */
+// TODO: how do we fix this warning? - "Use the function form of "use strict". (W097)"
+/* jshint -W097 */
+'use strict';
+
+
+HelpCtrl.$inject = ['$scope', '$http'];
+
 function HelpCtrl($scope, $http) {
 	$scope.str2id = function(str) {
 		return str.split(' ').join('');
@@ -176,4 +187,3 @@ function HelpCtrl($scope, $http) {
 	};
 	$scope.faq = [$scope.general_faq, $scope.login_faq, $scope.client_faq];
 }
-HelpCtrl.$inject = ['$scope', '$http'];

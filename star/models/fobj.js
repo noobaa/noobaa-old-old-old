@@ -5,9 +5,14 @@ var mongoose = require('mongoose');
 
 var fobj_schema = new mongoose.Schema({
 	size: Number,
-	uploading: Boolean,
 	content_type: String,
-	upsize: Number
+	uploading: Boolean,
+	s3_multipart: {
+		upload_id: String,
+		part_size: Number,
+		// parts for S3.completeMultipartUpload()
+		parts: [String]
+	}
 });
 
 exports.Fobj = mongoose.model('Fobj', fobj_schema);

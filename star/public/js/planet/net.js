@@ -1,6 +1,7 @@
-/* jshint browser:true, jquery:true, devel:true */
+/* jshint node:true, browser:true, jquery:true, devel:true */
 /* global angular:false */
-
+/* global _:false */
+/* global Backbone:false */
 (function(global) {
 	'use strict';
 

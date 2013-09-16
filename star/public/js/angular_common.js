@@ -1,18 +1,23 @@
 /* jshint browser:true, jquery:true, devel:true */
 /* global angular:false */
-
-(function(global) {
+/* global _:false */
+/* global Backbone:false */
+(function() {
 	'use strict';
 
-	// declare our module with dependancy on the angular-ui module
-	var noobaa_app = angular.module('noobaa_app', ['ui']);
+	// create our module
+	var noobaa_app = angular.module('noobaa_app', []);
 
-	// set the symbol to avoid collision with server side templates
-	// this is unneeded for now, but keeping the code in comment just for reference.
-	// noobaa_app.config(function($interpolateProvider) {
-	//	$interpolateProvider.startSymbol('{{');
-	//	$interpolateProvider.endSymbol('}}');
-	// });
+	// noobaa_app.config([
+	//	'$httpProvider', '$interpolateProvider',
+	//	function($httpProvider, $interpolateProvider) {
+	//		delete $httpProvider.defaults.headers.put;
+	//		// set the symbol to avoid collision with server side templates
+	//		// this is unneeded for now, but keeping the code in comment just for reference.
+	//		$interpolateProvider.startSymbol('{{');
+	//		$interpolateProvider.endSymbol('}}');
+	//	}
+	// ]);
 
 	// safe apply handles cases when apply may fail with:
 	// "$apply already in progress" error
@@ -313,12 +318,7 @@
 		}, options));
 	}
 
-	function nbconfirm(str, options, yes_callback) {
-		if (typeof options === 'function') {
-			// no options, shift args
-			yes_callback = options;
-			options = {};
-		}
+	function nbconfirm(msg, options) {
 		var dlg = $('<div class="nbdialog confirm_dialog fnt fntmd"></div>');
 		var head = $('<div class="nbdialog_header nbdialog_drag"></div>').appendTo(dlg);
 		var content = $('<div class="nbdialog_content"></div>').appendTo(dlg);
@@ -329,21 +329,27 @@
 		$('<span>Hmmm?</span>')
 			.css('padding', '20px')
 			.appendTo(head);
-		$('<p></p>')
-			.append($('<b></b>').html(str))
-			.css('padding', '20px 20px 0 20px')
-			.appendTo(content);
+		content.css('padding', '20px').append(msg);
 		$('<button class="nbdialog_close"></button>')
 			.text(options.noButtonCaption || 'No')
 			.addClass(options.noButtonClass || 'btn btn-default')
 			.appendTo(foot);
+		if (options.on_close) {
+			dlg.on('nbdialog_close.nbconfirm', options.on_close.bind(dlg));
+		}
 		$('<button></button>')
 			.text(options.yesButtonCaption || 'Yes')
 			.addClass(options.yesButtonClass || 'btn btn-primary pull-right')
 			.appendTo(foot)
 			.on('click', function() {
-				dlg.nbdialog('close');
-				yes_callback();
+				var prevent_close = false;
+				if (options.on_confirm) {
+					prevent_close = options.on_confirm.bind(dlg)();
+				}
+				if (!prevent_close) {
+					dlg.off('nbdialog_close.nbconfirm');
+					dlg.nbdialog('close');
+				}
 			});
 		dlg.appendTo($('body'));
 		dlg.nbdialog('open', _.extend({
@@ -371,6 +377,20 @@
 			window.scrollTo(x, y);
 		};
 	});
+
+	// http wrapper to be used with async library
+	noobaa_app.factory('$http_async', [
+		'$http',
+		function($http) {
+			return function(req, callback) {
+				return $http(req).then(function(data) {
+					callback(null, data);
+				}, function(err) {
+					callback(err);
+				});
+			};
+		}
+	]);
 
 	noobaa_app.directive('nbRightClick', function($parse) {
 		return {
@@ -540,27 +560,39 @@
 		return {
 			restrict: 'A', // use as attribute
 			link: function(scope, element, attr) {
-				var opt = scope.$eval(attr.nbShine) || {};
-				angular.extend(opt, {
-					at: 'center',
-					thick: 20,
-					start: 0,
-					end: 100,
-					step: 1.7,
-					step_time: 10,
-					delay: 7000
-				});
+				var options = scope.$eval(attr.nbShine) || {};
+				var opt = angular.extend({
+					at: 'center', // position in the element, e.g. at: "25% 40%"
+					thick: 20, // pixels
+					color: 'rgba(255,255,255,0.85)',
+					start: 0, // pixel start radius
+					end: 100, // pixel end radius
+					step: 0.01, // step fraction (0-1)
+					step_time: 10, // milis between steps
+					delay: 10000 // milis between shines
+				}, options);
+				var pixel_step = opt.step * (opt.end - opt.start);
+				var pixel_thick = opt.thick / 2;
 				var R = opt.start;
-				var interval;
+				var template = 'radial-gradient(' +
+					'circle at ' + opt.at +
+					', transparent XXXpx' +
+					', ' + opt.color + ' YYYpx' +
+					', transparent ZZZpx)';
 				var renderer = function() {
-					element.css('background-image',
-						'radial-gradient(circle at ' + opt.at +
-						', transparent ' + R + 'px, rgba(255,255,255,0.7) ' + opt.thick + 'px' +
-						', transparent ' + (R + opt.thick) + 'px, transparent)');
-					R += opt.step;
-					if ((opt.step > 0 && R > opt.end) ||
-						(opt.step < 0 && R < opt.end)) {
+					var z = R;
+					var y = z - pixel_thick;
+					var x = y - pixel_thick;
+					var s = template;
+					s = s.replace('XXX', x);
+					s = s.replace('YYY', y);
+					s = s.replace('ZZZ', z);
+					element.css('background-image', s);
+					R += pixel_step;
+					if ((pixel_step > 0 && R > opt.end) ||
+						(pixel_step < 0 && R < opt.end)) {
 						R = opt.start;
+						element.css('background-image', '');
 						setTimeout(renderer, opt.delay);
 					} else {
 						setTimeout(renderer, opt.step_time);
@@ -571,4 +603,4 @@
 		};
 	});
 
-}(this)); // passing global this to allow exporting
+})();

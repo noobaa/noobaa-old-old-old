@@ -1,7 +1,7 @@
 /* jshint browser:true, jquery:true, devel:true */
+/* global angular:false */
 /* global _:false */
 /* global Backbone:false */
-
 // TODO: how do we fix this warning? - "Use the function form of "use strict". (W097)"
 /* jshint -W097 */
 'use strict';
@@ -215,22 +215,12 @@ Inode.prototype.populate_dir = function(entries) {
 
 		}
 
-		// compute entry progress
-		if (ent.uploading) {
-			if (ent.upsize && ent.size) {
-				ent.progress = (ent.upsize * 100 / ent.size) >> 0; // >>0 to make int
-			} else {
-				ent.progress = 0;
-			}
-		}
-
 		// sync fields which are mutable
 		sync_property(son, this, "$scope");
 		sync_property(son, ent, "name");
 		sync_property(son, ent, "isdir");
 		sync_property(son, ent, "size");
 		sync_property(son, ent, "uploading");
-		sync_property(son, ent, "progress");
 		sync_property(son, ent, "num_refs");
 		sync_property(son, ent, "not_mine");
 		sync_property(son, ent, "owner_name");
@@ -333,25 +323,6 @@ Inode.prototype.download_file = function() {
 		win.focus();
 	});
 	*/
-};
-
-Inode.prototype.mkfile = function(name, size, content_type, relative_path) {
-	var me = this;
-	return this.$scope.http({
-		method: 'POST',
-		url: this.$scope.inode_api_url,
-		data: {
-			id: this.id,
-			name: name,
-			isdir: false,
-			size: size,
-			uploading: true,
-			content_type: content_type,
-			relative_path: relative_path
-		}
-	}).on('all', function(mkfile_data) {
-		me.read_dir();
-	});
 };
 
 Inode.prototype.get_share_list = function() {
@@ -556,7 +527,7 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 			'all': function() {
 				cancel_curr_dir_refresh();
 				$scope.curr_dir_refresh_timeout =
-					$timeout(curr_dir_refresh, 30000);
+					$timeout(curr_dir_refresh, 60000);
 			}
 		});
 	}
@@ -702,8 +673,29 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 		});
 	};
 
+	$http({
+		method: 'GET',
+		url: '/star_api/device/current/'
+	}).then(function(res) {
+		console.log('LOCAL PLANET', res.data);
+		$scope.local_planet = res.data;
+	});
+
 	$scope.click_upload = function() {
-		$('#upload_modal').nbdialog('open');
+		if ($scope.local_planet) {
+			$http({
+				method: 'GET',
+				url: 'http://127.0.0.1:' + $scope.local_planet.srv_port
+			}).then(function(res) {
+				// ok planet will take over
+				if (res.data.trim() !== 'NBOK') {
+					console.log('UNEXPECTED RESPONSE', res.data);
+					$('#upload_modal').nbdialog('open');
+				}
+			}, function() {
+				$('#upload_modal').nbdialog('open');
+			});
+		}
 	};
 
 	$scope.click_coshare = function() {
@@ -1023,8 +1015,38 @@ function InodesListCtrl($scope) {
 				event.preventDefault();
 				return false;
 			default:
-				console.log(event.which);
+				// console.log(event.which);
 		}
+	};
+
+	$scope.inode_upload = function(inode) {
+		var file_upload_input = $('#file_upload_input');
+		var inode_label = $('<div class="inode_label"></div').html(inode.make_inode_with_icon());
+		var msg = $('<div></div>')
+			.append('<p>Resume the upload of this file by choosing the source file</p>')
+			.append(inode_label);
+		$.nbconfirm(msg, {
+			noButtonCaption: 'Close',
+			yesButtonCaption: 'Resume The Upload',
+			on_close: function() {
+				// we kept this dialog open exactly to get here and nullify
+				// the data field so that next upload operations will 
+				// see it blank, and not assume this inode from before is relevant.
+				file_upload_input.data('inode_upload', null);
+			},
+			on_confirm: function() {
+				var dlg = this;
+				console.log('GGG - INODE');
+				file_upload_input.data('inode_upload', inode);
+				file_upload_input.trigger('click');
+				file_upload_input.on('change.inode_upload', function() {
+					dlg.nbdialog('close');
+				});
+				// leave the dialog open so that onchange or on_close 
+				// will nullify the inode_upload in file_upload_input.data!!
+				return true;
+			}
+		});
 	};
 }
 
@@ -1139,9 +1161,9 @@ function ShareModalCtrl($scope) {
 ////////////////////////////////
 ////////////////////////////////
 
-UploadCtrl.$inject = ['$scope'];
+UploadCtrl.$inject = ['$scope', 'nbUploadSrv'];
 
-function UploadCtrl($scope) {
+function UploadCtrl($scope, nbUploadSrv) {
 
 	var upload_modal = $('#upload_modal');
 	upload_modal.nbdialog({
@@ -1150,12 +1172,8 @@ function UploadCtrl($scope) {
 		}
 	});
 
-	$scope.upload_id_idx = 0;
-	$scope.uploads = {};
-	$scope.max_uploads_at_once = 100;
-
 	$scope.has_uploads = function() {
-		return !_.isEmpty($scope.uploads);
+		return nbUploadSrv.has_uploads();
 	};
 
 	$scope.add_upload = function(event, data) {
@@ -1183,139 +1201,21 @@ function UploadCtrl($scope) {
 		// and the modal is hidden.
 		upload_modal.nbdialog('open');
 
-		// create the upload object and connect to uploads list,
-		var file = data.files[0];
-		var idx = $scope.upload_id_idx;
-		var upload = {
-			idx: idx,
-			dir_inode: dir_inode,
-			data: data,
-			file: file,
-			working: true,
-			progress: 0,
-			status: 'Creating...',
-			row_class: '',
-			progress_class: 'progress-bar progress-bar-success',
-		};
-		// link the upload object on the data to propagate progress
-		data.upload_idx = idx;
-		$scope.upload_id_idx++;
-		$scope.uploads[idx] = upload;
-		num_running_uploads++;
-
-		function upload_success() {
-			num_running_uploads--;
-			upload.status = 'Completed';
-			upload.row_class = 'success';
-			upload.working = false;
+		// TODO: need to nullify the inode_upload on input file dialog cancel
+		var inode_upload = $(event.target).data('inode_upload');
+		var existing_inode_id = inode_upload ? inode_upload.id : null;
+		var refresh_parent = function() {
 			dir_inode.read_dir();
-			$scope.safe_apply();
-		}
-
-		function upload_failed() {
-			num_running_uploads--;
-			upload.status = 'Failed!';
-			upload.row_class = 'danger';
-			upload.progress_class = 'progress-bar progress-bar-danger';
-			upload.progress = 100;
-			upload.working = false;
-			dir_inode.read_dir();
-			$scope.safe_apply();
-		}
-		upload.upload_failed = upload_failed; // expose for user cancel request
-
-		// create the file and receive upload location info
-		console.log('creating file:', file);
-		var ev = dir_inode.mkfile(file.name, file.size, file.type, file.webkitRelativePath);
-		ev.on('success', function(mkfile_data) {
-			upload.inode_id = mkfile_data.id;
-			upload.status = 'Uploading...';
-			// using s3 upload with signed url
-			data.type = 'POST';
-			data.multipart = true;
-			data.url = mkfile_data.s3_post_info.url;
-			data.formData = mkfile_data.s3_post_info.form;
-			console.log('MKFILE:', mkfile_data, data);
-			upload.xhr = data.submit();
-			upload.xhr.success(function(result, textStatus, jqXHR) {
-				console.log('[ok] upload success');
-				upload.status = 'Finishing...';
-				delete upload.last_star_update;
-				$scope.safe_apply();
-				// update the file state to uploading=false
-				return $scope.http({
-					method: 'PUT',
-					url: $scope.inode_api_url + mkfile_data.id,
-					data: {
-						uploading: false
-					}
-				}).on('success', upload_success)
-					.on('error', upload_failed);
-			});
-			upload.xhr.error(function(jqXHR, textStatus, errorThrown) {
-				console.error('upload error: ' + textStatus + ' ' + errorThrown, jqXHR.responseText);
-				upload_failed();
-			});
-			$scope.safe_apply();
-		});
-		ev.on('error', function(data) {
-			console.log('Failed in creation: ', data);
-			upload_failed();
-			$scope.safe_apply();
-		});
-		$scope.safe_apply();
-	};
-
-	$scope.update_progress = function(event, data) {
-		var upload = $scope.uploads[data.upload_idx];
-		upload.progress = parseInt(data.loaded / data.total * 100, 10);
-		$scope.safe_apply();
-		/* not really needed for now
-		//in order to make sure we don't overload the DB, we'll limit update per 10sec
-		var curr_time = new Date();
-		if (!upload.last_star_update) {
-			upload.last_star_update = curr_time;
-		}
-		if (curr_time - upload.last_star_update >= 10 * 1000) {
-			//As this is updating the DB on the progress, there is little that can be done
-			//except for logging. 
-			upload.last_star_update = curr_time;
-			return $scope.http({
-				method: 'PUT',
-				url: $scope.inode_api_url + upload.inode_id,
-				data: {
-					upsize: upload.data._progress.loaded,
-					uploading: true
-				}
-			}).on('success', function() {
-				$scope.safe_apply();
-			});
-		}
-*/
-	};
-
-	$scope.dismiss_upload = function(upload) {
-		var do_dismiss = function() {
-			if (upload.working) {
-				if (upload.xhr) {
-					upload.xhr.abort();
-				}
-			} else {
-				delete $scope.uploads[upload.idx];
-			}
 		};
-		if (!upload.working) {
-			do_dismiss();
-		} else {
-			$.nbconfirm('This upload is still working.<br/>' +
-				'Are you sure you want to cancel it?', do_dismiss);
-		}
+		nbUploadSrv
+			.add_upload(data, dir_inode, existing_inode_id)
+			.then(refresh_parent, refresh_parent);
 	};
 
 	// setup the global file/dir input and link them to this scope
 	$('#file_upload_input').fileupload({
 		add: $scope.add_upload,
-		progress: $scope.update_progress,
+		progress: nbUploadSrv.update_progress.bind(nbUploadSrv),
 		// we want single file per xhr
 		singleFileUploads: true,
 		// xml is is how amazon s3 work
@@ -1324,7 +1224,7 @@ function UploadCtrl($scope) {
 
 	$('#dir_upload_input').fileupload({
 		add: $scope.add_upload,
-		progress: $scope.update_progress,
+		progress: nbUploadSrv.update_progress.bind(nbUploadSrv),
 		// we want single file per xhr
 		singleFileUploads: true,
 		// xml is is how amazon s3 work

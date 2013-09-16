@@ -68,6 +68,8 @@ exports.device_create = function(req, res) {
 		owner: req.user.id,
 		name: args.name || 'MyDevice',
 		host_info: args.host_info,
+		ip_address: req.socket.remoteAddress,
+		srv_port: args.srv_port,
 		total_updates: 0,
 		last_update: Date.now()
 	});
@@ -112,7 +114,7 @@ exports.device_update = function(req, res) {
 	var dev_id = req.params.device_id;
 
 	// pick valid updates
-	var updates = _.pick(req.body, 'coshare_space');
+	var updates = _.pick(req.body, 'coshare_space', 'srv_port');
 
 	if (updates.coshare_space) {
 		var GB = 1024 * 1024 * 1024;
@@ -137,6 +139,12 @@ exports.device_update = function(req, res) {
 		common_api.req_ownership_checker(req),
 
 		function(dev, next) {
+			if (dev.srv_port === updates.srv_port) {
+				delete updates.srv_port;
+			}
+			if (dev.ip_address !== req.socket.remoteAddress) {
+				updates.ip_address = req.socket.remoteAddress;
+			}
 			if (_.isEmpty(updates)) {
 				return next(null, dev);
 			}
@@ -186,4 +194,27 @@ exports.device_list = function(req, res) {
 			}, next);
 		}
 	], common_api.reply_callback(req, res, 'DEVICE LIST ' + req.user.id));
+};
+
+exports.device_current = function(req, res) {
+	console.log('DEVICE CURRENT', req.socket.remoteAddress);
+	async.waterfall([
+		// lookup devices by owner
+		function(next) {
+			return Device.find({
+				owner: req.user.id,
+				ip_address: req.socket.remoteAddress,
+			}, {
+				owner: 0,
+				updates_stats: 0 // dont fetch all the stats
+			}, next);
+		},
+
+		function(devices, next) {
+			console.log('CURRENT DEVICES', devices);
+			var dev = devices.length ? devices[0] : null;
+			return next(null, dev);
+		}
+
+	], common_api.reply_callback(req, res, 'DEVICE CURRENT ' + req.user.id));
 };
