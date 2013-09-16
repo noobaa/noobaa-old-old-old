@@ -131,7 +131,7 @@
 		////////////////////////////////////////////////////////////
 		// local http server to open the app window
 
-		$scope.srv_port_preferred = 12121;
+		$scope.srv_port_preferred = 0;
 		$scope.srv_port = 0;
 
 		function srv_start() {
@@ -352,17 +352,11 @@
 
 		var GB = 1024 * 1024 * 1024;
 		$scope.coshare_options = [{
-			space: GB,
-			title: 'Free 1 GB',
-			// details: ''
-		}, {
 			space: 10 * GB,
-			title: 'Free 10 GB',
-			// details: '+ Performance Boost'
+			title: '10GB',
 		}, {
 			space: 100 * GB,
-			title: 'Free 100 GB',
-			// details: '+ Ultimate Performance'
+			title: '100GB',
 		}];
 
 		$scope.coshare_selection = -1;
@@ -379,7 +373,7 @@
 		};
 
 		$scope.coshare_options_class = function(index) {
-			return index === $scope.coshare_selection ? 'active' : '';
+			return index === $scope.coshare_selection ? 'btn-primary' : 'btn-default';
 		};
 
 		$scope.coshare_view = function(val) {

@@ -682,7 +682,7 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 	});
 
 	$scope.click_upload = function() {
-		if (!$scope.local_planet) {
+		if (!$scope.local_planet || !$scope.local_planet.srv_port) {
 			$('#upload_modal').nbdialog('open');
 			return;
 		}
