@@ -455,11 +455,11 @@ exports.inode_create = function(req, res) {
 	// prepare fobj if needed (auto generate id).
 	// then also set the link in the new inode.
 	var fobj;
-	if (!inode.isdir && args.uploading && args.size) {
+	if (!inode.isdir && args.uploading) {
 		fobj = new Fobj({
 			size: args.size,
 			content_type: args.content_type,
-			uploading: args.uploading,
+			uploading: !!args.uploading && !!args.size,
 		});
 		// link the inode to the fobj
 		inode.fobj = fobj._id;
@@ -1303,7 +1303,7 @@ function validate_inode_creation_conditions(inode, fobj, user, callback) {
 
 		//compare user quota to usage and reject if new file and usage exceeds quota
 		function(user, next) {
-			if (inode.isdir) {
+			if (inode.isdir || !inode.fobj) {
 				return next();
 			}
 			return user_inodes.get_user_usage_bytes(user.id, function(err, usage) {
