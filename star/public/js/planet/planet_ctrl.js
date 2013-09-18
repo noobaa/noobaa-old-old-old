@@ -467,7 +467,10 @@
 			singleFileUploads: true,
 			limitConcurrentUploads: 5,
 			// xml is is how amazon s3 work
-			dataType: 'xml'
+			dataType: 'xml',
+			// disabling drop/paste so that only one input will handle in the page
+			dropZone: null,
+			pasteZone: null
 		});
 
 		$('#dir_upload_input').fileupload({
@@ -478,10 +481,9 @@
 			limitConcurrentUploads: 5,
 			// xml is is how amazon s3 work
 			dataType: 'xml',
-			// disabling drop/paste, file_upload_input will handle globally,
-			// if we don't disable it will upload twice.
-			dropZone: null,
-			pasteZone: null
+			// disabling drop/paste so that only one input will handle in the page
+			// dropZone: null,
+			// pasteZone: null
 		});
 	}
 
