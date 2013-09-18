@@ -591,7 +591,7 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 			return;
 		}
 		drag_inode.rename(drop_inode, drag_inode.name);
-/*
+		/*
 		var dlg = $('#move_dialog').clone();
 		dlg.find('.inode_label').eq(0).html(drag_inode.make_inode_with_icon());
 		dlg.find('.inode_label').eq(1).html(drop_inode.make_inode_with_icon());
@@ -1022,7 +1022,9 @@ function InodesListCtrl($scope) {
 	};
 
 	$scope.inode_upload = function(inode) {
-		var file_upload_input = $('#file_upload_input');
+		if (inode.is_not_mine()) {
+			return;
+		}
 		var inode_label = $('<div class="inode_label"></div').html(inode.make_inode_with_icon());
 		var msg = $('<div></div>')
 			.append('<p>Resume the upload of this file by choosing the source file</p>')
@@ -1034,11 +1036,13 @@ function InodesListCtrl($scope) {
 				// we kept this dialog open exactly to get here and nullify
 				// the data field so that next upload operations will 
 				// see it blank, and not assume this inode from before is relevant.
-				file_upload_input.data('inode_upload', null);
+				$('#file_upload_input').data('inode_upload', null);
+				console.log('inode_upload CLOSE');
 			},
 			on_confirm: function() {
 				var dlg = this;
-				console.log('GGG - INODE');
+				console.log('inode_upload CONFIRM');
+				var file_upload_input = $('#file_upload_input');
 				file_upload_input.data('inode_upload', inode);
 				file_upload_input.trigger('click');
 				file_upload_input.on('change.inode_upload', function() {
@@ -1220,6 +1224,7 @@ function UploadCtrl($scope, nbUploadSrv) {
 		progress: nbUploadSrv.update_progress.bind(nbUploadSrv),
 		// we want single file per xhr
 		singleFileUploads: true,
+		limitConcurrentUploads: 5,
 		// xml is is how amazon s3 work
 		dataType: 'xml'
 	});
@@ -1229,6 +1234,7 @@ function UploadCtrl($scope, nbUploadSrv) {
 		progress: nbUploadSrv.update_progress.bind(nbUploadSrv),
 		// we want single file per xhr
 		singleFileUploads: true,
+		limitConcurrentUploads: 5,
 		// xml is is how amazon s3 work
 		dataType: 'xml',
 		// disabling drop/paste, file_upload_input will handle globally,
@@ -1236,4 +1242,5 @@ function UploadCtrl($scope, nbUploadSrv) {
 		dropZone: null,
 		pasteZone: null
 	});
+
 }

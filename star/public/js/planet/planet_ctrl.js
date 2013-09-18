@@ -441,6 +441,7 @@
 			progress: nbUploadSrv.update_progress.bind(nbUploadSrv),
 			// we want single file per xhr
 			singleFileUploads: true,
+			limitConcurrentUploads: 5,
 			// xml is is how amazon s3 work
 			dataType: 'xml'
 		});
@@ -450,6 +451,7 @@
 			progress: nbUploadSrv.update_progress.bind(nbUploadSrv),
 			// we want single file per xhr
 			singleFileUploads: true,
+			limitConcurrentUploads: 5,
 			// xml is is how amazon s3 work
 			dataType: 'xml',
 			// disabling drop/paste, file_upload_input will handle globally,
