@@ -240,11 +240,7 @@ app.get('/star_api/inode/:inode_id', inode_api.inode_read);
 app.put('/star_api/inode/:inode_id', inode_api.inode_update);
 app.del('/star_api/inode/:inode_id', inode_api.inode_delete);
 
-app.post('/star_api/inode/:inode_id/multipart/', inode_api.inode_multipart_create);
-app.get('/star_api/inode/:inode_id/multipart/:part_num', inode_api.inode_multipart_get_part);
-app.put('/star_api/inode/:inode_id/multipart/:part_num', inode_api.inode_multipart_done_part);
-app.put('/star_api/inode/:inode_id/multipart/', inode_api.inode_multipart_complete);
-app.del('/star_api/inode/:inode_id/multipart/', inode_api.inode_multipart_abort);
+app.post('/star_api/inode/:inode_id/multipart/', inode_api.inode_multipart);
 
 app.get('/star_api/inode/:inode_id/share_list', inode_api.inode_get_share_list);
 app.put('/star_api/inode/:inode_id/share_list', inode_api.inode_set_share_list);
