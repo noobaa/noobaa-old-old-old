@@ -460,7 +460,7 @@ exports.inode_create = function(req, res) {
 		fobj = new Fobj({
 			size: args.size,
 			content_type: args.content_type,
-			uploading: !!args.uploading && !!args.size,
+			uploading: !! args.uploading && !! args.size,
 		});
 		// link the inode to the fobj
 		inode.fobj = fobj._id;
@@ -852,7 +852,7 @@ exports.inode_multipart = function(req, res) {
 		parseInt(req.body.part_number_marker, 10) : 0;
 
 	// flow context variables
-	var inode, fobj;
+	var inode, fobj, fresh;
 
 	async.waterfall([
 		// find inode and the fobj
@@ -877,11 +877,19 @@ exports.inode_multipart = function(req, res) {
 				});
 			}
 			// create the multipart upload id at S3 if not already created
+			if (fobj.s3_multipart.upload_id) {
+				return next();
+			}
+			fresh = true;
 			return create_upload(inode, fobj, next);
 		},
 
 		// get list of parts from S3
 		function(next) {
+			if (fresh) {
+				// no need to list when just created
+				return next(null, [], 0);
+			}
 			return list_upload_parts(fobj, part_number_marker, next);
 		},
 
@@ -1005,9 +1013,6 @@ function get_upload_part_url(fobj, part_num) {
 
 
 function create_upload(inode, fobj, callback) {
-	if (fobj.s3_multipart.upload_id) {
-		return callback();
-	}
 	return async.waterfall([
 		// create the multipart upload id at S3
 		function(next) {

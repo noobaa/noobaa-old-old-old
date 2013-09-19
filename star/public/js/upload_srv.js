@@ -24,10 +24,6 @@
 		this.num_active_uploads = 0;
 		this.uploads = {};
 
-		// minimum part size by s3 is 5MB
-		// we pick the next power of 2.
-		this.multipart_size_threshold = 8 * 1024 * 1024;
-
 		// check for active uploads before page unloads
 		var me = this;
 		$(window).on('beforeunload', function() {
@@ -35,41 +31,116 @@
 				return 'Leaving this page will interrupt your active Uploads !!!';
 			}
 		});
-
-		/*
-		// TODO handle limited concurrency
-		// TODO continue with folder drop
-		this.pending_uploads = []; 
-		var prevent_event = function(event) {
-			return false;
-		};
-		document.documentElement.ondragover = prevent_event;
-		document.documentElement.ondragend = prevent_event;
-		document.documentElement.ondrop = function(event) {
-			event.preventDefault();
-			var length = event.dataTransfer.items.length;
-			for (var i = 0; i < length; i++) {
-				var entry = event.dataTransfer.items[i].webkitGetAsEntry();
-				if (entry.isFile) {
-					entry.file(function(file) {
-						me.on_new_upload(file);
-					});
-					console.log('FILE', entry);
-					// do whatever you want
-				} else if (entry.isDirectory) {
-					console.log('DIR', entry);
-					// do whatever you want
-				}
-			}
-			return false;
-		};
-		*/
 	}
 
-	// OVERRIDE ME
-	UploadSrv.prototype.on_new_upload = function(file) {
-		return this.add_upload(file);
+	UploadSrv.prototype.init_drop = function(elements) {
+		var me = this;
+		var prevent_event = function(event) {
+			event.preventDefault();
+			return false;
+		};
+		elements.on('dragover', prevent_event);
+		elements.on('dragend', prevent_event);
+		elements.on('drop', function(event) {
+			return me.handle_drop(event);
+		});
 	};
+
+	UploadSrv.prototype.init_file_input = function(elements) {
+		var me = this;
+		elements.on('change', function(event) {
+			me.handle_file_input_change(event);
+		});
+	}
+
+	UploadSrv.prototype.handle_drop = function(event) {
+		event.preventDefault();
+		event = event.originalEvent;
+		var me = this;
+		var tx = event.dataTransfer;
+		console.log('DROP EVENT', event);
+
+		if (tx.items) {
+			// html5 api (only webkit)
+			for (var i = 0; i < tx.items.length; i++) {
+				var entry = tx.items[i].webkitGetAsEntry();
+				me.handle_entry(event, entry);
+			}
+			return false;
+		}
+
+		this.handle_files(event, tx.files);
+		return false;
+	};
+
+	UploadSrv.prototype.handle_file_input_change = function(event) {
+		event = event.originalEvent;
+		console.log('CHANGE EVENT', event);
+		// We want to get the entries of the file input instead of list of files
+		// to avoid browser preloading all files on large dirs.
+		// However although on_drop works correctly unfortunately file input 
+		// with webkitdirectory is a bit broken (crbug.com/138987)
+		// and webkit doesn't populate .webkitEntries at all.
+		// So this path is here for when the bug is fixed.
+		var entries = event.target.webkitEntries;
+		if (entries && entries.length) {
+			for (var i = 0; i < entries.length; i++) {
+				this.handle_entry(event, entries[i]);
+			}
+		} else {
+			this.handle_files(event, event.target.files);
+		}
+	};
+
+	UploadSrv.prototype.handle_files = function(event, files) {
+		for (var i = 0; i < files.length; i++) {
+			this.handle_file(event, files[i]);
+		}
+	};
+
+	UploadSrv.prototype.handle_entry = function(event, entry, parent) {
+		var me = this;
+		if (entry.isDirectory) {
+			me.handle_dir(event, entry, parent);
+		} else {
+			entry.file(function(file) {
+				me.handle_file(event, file, parent);
+			});
+		}
+	};
+
+	UploadSrv.prototype.handle_dir = function(event, dir, parent) {
+		var me = this;
+		console.log('DIR', dir);
+		var reader = dir.createReader();
+		var readdir = function() {
+			reader.readEntries(function(entries) {
+				for (var i = 0; i < entries.length; i++) {
+					me.handle_entry(event, entries[i], dir);
+				}
+				// while still more entries submit next readdir
+				if (entries.length) {
+					setTimeout(readdir, 10);
+				}
+			});
+		};
+		readdir();
+	};
+
+	UploadSrv.prototype.handle_file = function(event, file, parent) {
+		console.log('FILE', file, parent);
+		if (parent) {
+			file.relative_path = parent.fullPath;
+		} else {
+			file.relative_path = file.webkitRelativePath;
+		}
+		if (this.on_file_upload) {
+			this.on_file_upload(event, file);
+		} else {
+			this.add_upload(file);
+		}
+	};
+
 
 	UploadSrv.prototype.has_uploads = function() {
 		return !!this.num_uploads;
@@ -77,12 +148,6 @@
 
 	UploadSrv.prototype.has_active_uploads = function() {
 		return !!this.num_active_uploads;
-	};
-
-	UploadSrv.prototype.update_progress = function(event, data) {
-		var upload = this.uploads[data.upload_id];
-		upload.progress = ((data.loaded / data.total) * 100).toFixed(1);
-		this.$rootScope.safe_apply();
 	};
 
 	UploadSrv.prototype.remove_upload = function(upload) {
@@ -112,9 +177,8 @@
 		}
 	};
 
-	UploadSrv.prototype.add_upload = function(data, parent, existing_inode_id) {
+	UploadSrv.prototype.add_upload = function(file, parent, existing_inode_id) {
 		var me = this;
-		var file = data.files[0];
 		var upload;
 		var file_request;
 
@@ -143,7 +207,7 @@
 					size: file.size,
 					uploading: true,
 					content_type: file.type,
-					relative_path: file.webkitRelativePath
+					relative_path: file.relative_path
 				}
 			};
 		}
@@ -164,12 +228,9 @@
 				parent: parent,
 				inode_id: res.data.id,
 				mkfile: res.data,
-				data: data,
 				file: file,
 				progress: 0
 			};
-			// link the upload object on the data to propagate progress
-			data.upload_id = upload.id;
 			me.uploads[upload.id] = upload;
 			me.num_uploads++;
 			return me.start_upload(upload);
@@ -189,16 +250,9 @@
 		upload.status = 'Uploading...';
 		upload.progress_class = 'progress-bar progress-bar-success';
 		me.num_active_uploads++;
-
-		var promise;
-		// TODO: remove override of multipart
-		if (true || upload.file.size > me.multipart_size_threshold) {
-			promise = me._upload_multipart(upload);
-		} else {
-			promise = me._upload_simple(upload);
-		}
 		me.$rootScope.safe_apply();
-		return promise.then(function() {
+
+		return me._upload_multipart(upload).then(function() {
 			console.log('[ok] upload done');
 			if (upload) {
 				me.num_active_uploads--;
@@ -223,44 +277,6 @@
 		});
 	};
 
-	// using s3 upload with signed post form
-	UploadSrv.prototype._upload_simple = function(upload) {
-		console.log('[ok] upload sending file');
-		var me = this;
-		upload.data.type = 'POST';
-		upload.data.multipart = true;
-		upload.data.url = upload.mkfile.s3_post_info.url;
-		upload.data.formData = upload.mkfile.s3_post_info.form;
-		var deferred = me.$q.defer();
-		upload.xhr = upload.data.submit();
-		upload.xhr.success(function(result, textStatus, jqXHR) {
-			// must call deferred inside apply for angular to digest it
-			me.$rootScope.safe_apply(function() {
-				deferred.resolve();
-			});
-		});
-		upload.xhr.error(function(jqXHR, textStatus, errorThrown) {
-			me.$rootScope.safe_apply(function() {
-				deferred.reject(
-					'XHR upload failed: ' + textStatus + ' ' +
-					errorThrown + ' ' + jqXHR.responseText);
-			});
-		});
-
-		return deferred.promise.then(function() {
-			console.log('[ok] upload finishing...');
-			upload.status = 'Finishing...';
-			// update the file state to uploading=false
-			me.$rootScope.safe_apply();
-			return me.$http({
-				method: 'PUT',
-				url: '/star_api/inode/' + upload.inode_id,
-				data: {
-					uploading: false
-				}
-			});
-		});
-	};
 
 	UploadSrv.prototype._upload_multipart = function(upload) {
 		var me = this;
@@ -355,10 +371,10 @@
 				'	</thead>',
 				'	<tr ng-repeat="(idx,upload) in srv.uploads" ng-class="upload.row_class">',
 				'		<td>',
-				'			{{upload.file.webkitRelativePath || upload.file.name}}',
+				'			{{upload.file.name}}',
 				'		</td>',
 				'		<td>',
-				'			{{upload.parent.name}}',
+				'			{{upload.parent.name + upload.file.relative_path}}',
 				'		</td>',
 				'		<td>',
 				'			{{human_size(upload.file.size)}}',
