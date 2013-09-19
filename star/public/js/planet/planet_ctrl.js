@@ -411,13 +411,16 @@
 			return nbUploadSrv.has_uploads();
 		};
 
-		$scope.add_upload = function(event, data) {
+		nbUploadSrv.init_drop($(document));
+		nbUploadSrv.init_file_input($('#file_upload_input'));
+		nbUploadSrv.init_file_input($('#dir_upload_input'));
+		nbUploadSrv.on_file_upload = function(event, file) {
 			console.log('ADD UPLOAD');
 			if (!$scope.planet_user) {
 				return;
 			}
 			if ($scope.planet_user.mydata) {
-				return nbUploadSrv.add_upload(data, $scope.planet_user.mydata);
+				return nbUploadSrv.add_upload(file, $scope.planet_user.mydata);
 			}
 			return $http({
 				method: 'GET',
@@ -428,39 +431,13 @@
 					var ent = res.data.entries[i];
 					if (ent.name === 'My Data') {
 						$scope.planet_user.mydata = ent;
-						return nbUploadSrv.add_upload(data, ent);
+						return nbUploadSrv.add_upload(file, ent);
 					}
 				}
 			}, function(res) {
 				console.error(res);
 			});
 		};
-
-		$('#file_upload_input').fileupload({
-			add: $scope.add_upload,
-			progress: nbUploadSrv.update_progress.bind(nbUploadSrv),
-			// we want single file per xhr
-			singleFileUploads: true,
-			limitConcurrentUploads: 5,
-			// xml is is how amazon s3 work
-			dataType: 'xml',
-			// disabling drop/paste so that only one input will handle in the page
-			dropZone: null,
-			pasteZone: null
-		});
-
-		$('#dir_upload_input').fileupload({
-			add: $scope.add_upload,
-			progress: nbUploadSrv.update_progress.bind(nbUploadSrv),
-			// we want single file per xhr
-			singleFileUploads: true,
-			limitConcurrentUploads: 5,
-			// xml is is how amazon s3 work
-			dataType: 'xml',
-			// disabling drop/paste so that only one input will handle in the page
-			// dropZone: null,
-			// pasteZone: null
-		});
 	}
 
 })();

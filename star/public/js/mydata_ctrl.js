@@ -1182,7 +1182,11 @@ function UploadCtrl($scope, nbUploadSrv) {
 		return nbUploadSrv.has_uploads();
 	};
 
-	$scope.add_upload = function(event, data) {
+
+	nbUploadSrv.init_drop($(document));
+	nbUploadSrv.init_file_input($('#file_upload_input'));
+	nbUploadSrv.init_file_input($('#dir_upload_input'));
+	nbUploadSrv.on_file_upload = function(event, file) {
 		var dir_inode = $scope.dir_selection.inode;
 		if (!dir_inode) {
 			console.error('no selected dir, bailing');
@@ -1214,35 +1218,8 @@ function UploadCtrl($scope, nbUploadSrv) {
 			dir_inode.read_dir();
 		};
 		nbUploadSrv
-			.add_upload(data, dir_inode, existing_inode_id)
+			.add_upload(file, dir_inode, existing_inode_id)
 			.then(refresh_parent, refresh_parent);
 	};
-
-	// setup the global file/dir input and link them to this scope
-	$('#file_upload_input').fileupload({
-		add: $scope.add_upload,
-		progress: nbUploadSrv.update_progress.bind(nbUploadSrv),
-		// we want single file per xhr
-		singleFileUploads: true,
-		limitConcurrentUploads: 5,
-		// xml is is how amazon s3 work
-		dataType: 'xml',
-		// disabling drop/paste so that only one input will handle in the entire page
-		dropZone: null,
-		pasteZone: null
-	});
-
-	$('#dir_upload_input').fileupload({
-		add: $scope.add_upload,
-		progress: nbUploadSrv.update_progress.bind(nbUploadSrv),
-		// we want single file per xhr
-		singleFileUploads: true,
-		limitConcurrentUploads: 5,
-		// xml is is how amazon s3 work
-		dataType: 'xml',
-		// disabling drop/paste so that only one input will handle in the entire page
-		// dropZone: null,
-		// pasteZone: null
-	});
 
 }
