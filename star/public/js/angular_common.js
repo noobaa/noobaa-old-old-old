@@ -53,6 +53,9 @@
 
 	function human_size(bytes) {
 		var x = Number(bytes);
+		if (isNaN(x)) {
+			return '';
+		}
 		if (x < 1024) {
 			return x + ' B';
 		}
