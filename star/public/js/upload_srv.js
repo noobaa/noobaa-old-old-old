@@ -207,7 +207,7 @@
 				if (entries.length) {
 					for (var i = 0; i < entries.length; i++) {
 						console.log('SUBMIT ENTRY', entries[i]);
-						me.submit_item(upload.event, upload.inode_id, me.root_upload, entries[i]);
+						me.submit_item(upload.event, upload.inode_id, upload, entries[i]);
 					}
 					// while still more entries submit next readdir
 					setTimeout(upload.readdir_func, 10);

@@ -183,7 +183,7 @@ Inode.prototype.read_dir = function() {
 		return this.dir_state.refreshing;
 	}
 	var me = this; // needed for callbacks propagation
-	this.dir_state.refreshing = this.$scope.http({
+	this.dir_state.refreshing = this.$scope.$http({
 		method: 'GET',
 		url: this.$scope.inode_api_url + this.id
 	}).then(function(res) {
@@ -265,7 +265,7 @@ Inode.prototype.resort_entries = function() {
 // create new dir under this dir
 Inode.prototype.mkdir = function(name) {
 	var me = this;
-	return this.$scope.http({
+	return this.$scope.$http({
 		method: 'POST',
 		url: this.$scope.inode_api_url,
 		data: {
@@ -283,26 +283,55 @@ Inode.prototype.mkdir = function(name) {
 };
 
 // delete this inode
-Inode.prototype.delete_inode = function() {
+Inode.prototype.delete_inode = function(avoid_read_parent) {
 	var me = this;
-	var parent = this.parent;
-	return this.$scope.http({
-		method: 'DELETE',
-		url: this.$scope.inode_api_url + this.id
-	}).then(function(res) {
-		parent.read_dir();
-		return res;
-	}, function(err) {
-		parent.read_dir();
-		throw err;
-	});
+	var do_delete = function() {
+		return me.$scope.$http({
+			method: 'DELETE',
+			url: me.$scope.inode_api_url + me.id
+		});
+	};
+	var do_read_parent = function(promise) {
+		return promise.then(function(res) {
+			if (!avoid_read_parent) {
+				me.parent.read_dir();
+			}
+			return res;
+		}, function(err) {
+			if (!avoid_read_parent) {
+				me.parent.read_dir();
+			}
+			throw err;
+		});
+	};
+	if (!me.isdir) {
+		return do_read_parent(do_delete());
+	}
+	var promise = me.read_dir().then(function() {
+		var sons = me.isdir ? me.dir_state.sons_list.slice(0) : null; // copy array
+		var delete_sons = function() {
+			if (!sons || !sons.length) {
+				console.log('NO SONS', me);
+				var deferred = me.$scope.$q.defer();
+				me.$scope.$rootScope.safe_apply(function() {
+					deferred.resolve();
+				});
+				return deferred.promise;
+			}
+			var son = sons.pop();
+			console.log('DEL SON', son);
+			return son.delete_inode(true).then(delete_sons);
+		};
+		return delete_sons();
+	}).then(do_delete);
+	return do_read_parent(promise);
 };
 
 // rename this inode to the given target dir,name
 Inode.prototype.rename = function(to_parent, to_name) {
 	var me = this;
 	var parent = this.parent;
-	return this.$scope.http({
+	return this.$scope.$http({
 		method: 'PUT',
 		url: this.$scope.inode_api_url + this.id,
 		data: {
@@ -331,7 +360,7 @@ Inode.prototype.download_file = function() {
 	/*
 	// removed this code because the browser considered as popup and did blocking
 	// so we prefer to open and be redirected by the server.
-	return this.$scope.http({
+	return this.$scope.$http({
 		method: 'GET',
 		url: this.$scope.inode_api_url + this.id
 	}).then(function(res) {
@@ -344,7 +373,7 @@ Inode.prototype.download_file = function() {
 
 Inode.prototype.get_share_list = function() {
 	console.log('get_share_list', this);
-	return this.$scope.http({
+	return this.$scope.$http({
 		method: 'GET',
 		url: this.$scope.inode_api_url + this.id + this.$scope.inode_share_sufix
 	});
@@ -352,7 +381,7 @@ Inode.prototype.get_share_list = function() {
 
 Inode.prototype.share = function(share_list) {
 	console.log('share', this, 'with', share_list);
-	return this.$scope.http({
+	return this.$scope.$http({
 		method: 'PUT',
 		url: this.$scope.inode_api_url + this.id + this.$scope.inode_share_sufix,
 		data: {
@@ -363,7 +392,7 @@ Inode.prototype.share = function(share_list) {
 
 Inode.prototype.mklink = function(link_options) {
 	console.log('mklink', this, link_options);
-	return this.$scope.http({
+	return this.$scope.$http({
 		method: 'POST',
 		url: this.$scope.inode_api_url + this.id + this.$scope.inode_link_sufix,
 		data: {
@@ -374,7 +403,7 @@ Inode.prototype.mklink = function(link_options) {
 
 Inode.prototype.rmlinks = function() {
 	console.log('revoke_links', this);
-	return this.$scope.http({
+	return this.$scope.$http({
 		method: 'DELETE',
 		url: this.$scope.inode_api_url + this.id + this.$scope.inode_link_sufix
 	});
@@ -440,17 +469,18 @@ InodesSelection.prototype.select = function(inode) {
 ////////////////////////////////
 ////////////////////////////////
 
-MyDataCtrl.$inject = ['$scope', '$http', '$timeout', '$window'];
+MyDataCtrl.$inject = ['$scope', '$http', '$timeout', '$window', '$q', '$rootScope'];
 
-function MyDataCtrl($scope, $http, $timeout, $window) {
+function MyDataCtrl($scope, $http, $timeout, $window, $q, $rootScope) {
 
 	$scope.timeout = $timeout;
 	$scope.api_url = "/star_api/";
 	$scope.inode_api_url = $scope.api_url + "inode/";
 	$scope.inode_share_sufix = "/share_list";
 	$scope.inode_link_sufix = "/link";
-
-	$scope.http = function(req) {
+	$scope.$q = $q;
+	$scope.$rootScope = $rootScope;
+	$scope.$http = function(req) {
 		console.log('[http]', req);
 		return $http(req).then(function(res) {
 			console.log('[http ok]', [req, res]);
@@ -739,15 +769,15 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 			$.nbalert('Cannot delete someone else\'s file');
 			return;
 		}
-		inode.is_dir_non_empty(function(is_it) {
+		inode.is_dir_non_empty(function(is_dir_non_empty) {
 			var dlg = $('#delete_dialog').clone();
 			if (is_dir_non_empty) {
-				dlg.find('#non_empty_msg').css('display', 'block');
+				dlg.find('#not_empty_msg').css('display', 'block');
 				dlg.find('#normal_msg').css('display', 'none');
 			}
 			dlg.find('.inode_label').html(inode.make_inode_with_icon());
 			dlg.find('#dialog_ok').off('click').on('click', function() {
-				dlg.nbdialog('close');
+				dlg.find('#dialog_ok').addClass('disabled').html('<i class="icon-spinner icon-spin"></i>');
 				var on_delete = function() {
 					if (inode.id == $scope.inode_selection.inode.id) {
 						$scope.select(inode.parent, {
@@ -755,6 +785,7 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 							open_dir: true
 						});
 					}
+					dlg.nbdialog('close');
 				};
 				inode.delete_inode().then(on_delete, on_delete);
 			});
