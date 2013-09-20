@@ -982,8 +982,10 @@ exports.inode_multipart_abort = function(req, res) {
 /////////////
 
 
-exports.inode_get_share_list = function(req, res) {
+exports.inode_get_share_list = inode_get_share_list;
 
+function inode_get_share_list(req, res) {
+	var user = req.user;
 	var inode_id = req.params.inode_id;
 	console.log('inode_get_share_list', inode_id);
 
@@ -997,42 +999,55 @@ exports.inode_get_share_list = function(req, res) {
 		// check inode ownership
 		common_api.req_ownership_checker(req),
 
+		//get currently refering users (some might not be friends any more but the user shoudl be aware)
 		function(inode, next) {
-			return user_inodes.get_refering_users(inode_id, next);
+			return user_inodes.get_referring_users(inode, next);
 		},
 
+		//get the friends list which are also noobaa users
 		function(ref_users, next) {
-			return auth.get_noobaa_friends_list(req.session.fbAccessToken, function(err, friends_list) {
+			return auth.get_noobaa_friends_list(req.session.tokens, function(err, friends_list) {
 				return next(err, ref_users, friends_list);
 			});
 		},
 
+		//prepare the structure for http send - setting sharing to true/false based on the structures.
 		function(ref_users, friends_list, next) {
-			var friends_not_sharing_with = _.difference(friends_list, ref_users);
 			var share_users_map = {};
-			friends_list.forEach(function(v) {
-				share_users_map[v._id] = {
-					"name": v.fb.name,
-					"shared": false,
-					"fb_id": v.fb.id,
-					"nb_id": v._id,
-				};
+			var local_collection = [];
+			//the order of the below push matters so change with care. The second pass will change
+			//friends that are shared with.
+			local_collection.push({
+				array: friends_list,
+				shared_state: false
 			});
-			//this may either add or modify existing entries.
-			ref_users.forEach(function(v) {
-				share_users_map[v._id] = {
-					"name": v.fb.name,
-					"shared": true,
-					"fb_id": v.fb.id,
-					"nb_id": v._id,
-				};
+			local_collection.push({
+				array: ref_users,
+				shared_state: true
 			});
+			local_collection.forEach(function(friend_struct) {
+				var curr_sharing = friend_struct.shared_state;
+				friend_struct.array.forEach(function(v) {
+					share_users_map[v._id] = {
+						"name": v.fb.name,
+						"shared": curr_sharing,
+						"nb_id": v._id,
+					};
+					if (v.fb) {
+						share_users_map[v._id].fb_id = v.fb.id;
+					}
+					if (v.google) {
+						share_users_map[v._id].google_id = v.google.id;
+					}
+				});
+			});
+
 			return next(null, {
 				"list": _.values(share_users_map)
 			});
 		}
 	], common_api.reply_callback(req, res, 'GET_SHARE ' + inode_id));
-};
+}
 
 exports.inode_set_share_list = function(req, res) {
 	var inode_id = req.params.inode_id;
@@ -1058,7 +1073,7 @@ exports.inode_set_share_list = function(req, res) {
 		// save inode in context
 		function(inode_arg, next) {
 			inode = inode_arg;
-			next(null, inode_id);
+			next(null, inode);
 		},
 
 		user_inodes.get_inode_refering_user_ids,

@@ -2,12 +2,21 @@
 'use strict';
 
 var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
 var Device = require('./device');
+var _ = require('underscore');
 
-var user_schema = new mongoose.Schema({
+var providers = ['fb', 'google', 'local'];
+
+var user_schema = new Schema({
 	fb: {}, // facebook info has free form
+	google: {},
+	local: {},
 	email: String, //this is used when the user updates a different email than the one in FB.
-	quota: { type: Number, default: Math.pow(1024,3) }, //default quota is 1GB for now
+	quota: {
+		type: Number,
+		default: Math.pow(1024, 3)
+	}, //default quota is 1GB for now
 	alpha_tester: Boolean // true to allow login to alpha testing
 });
 
@@ -15,7 +24,64 @@ var user_schema = new mongoose.Schema({
 user_schema.index({
 	'fb.id': 1
 }, {
-	unique: true
+	unique: true,
+	//sparse option explained:
+	//since we might have users who logged in via google, they won't have the FB
+	//http://docs.mongodb.org/manual/tutorial/create-a-unique-index/
+	sparse: true,
 });
 
-exports.User = mongoose.model('User', user_schema);
+user_schema.index({
+	'google.id': 1
+}, {
+	unique: true,
+	//sparse option explained:
+	//since we might have users who logged in via google, they won't have the FB
+	//http://docs.mongodb.org/manual/tutorial/create-a-unique-index/
+	sparse: true,
+});
+
+user_schema.methods.get_used_provider = function() {
+	var me = this;
+	return _.find(providers, function(provider) {
+		return ( !! me[provider]);
+	});
+};
+
+user_schema.methods.get_provider_field = function(field) {
+	var me = this;
+	var lprov = this.get_used_provider();
+	// console.log('me: ', me);
+	// console.log('lprov: ', lprov);
+	// console.log('field: ', field);
+	if (lprov && me[lprov][field]) {
+		return me[lprov][field];
+	}
+	return null;
+};
+
+user_schema.methods.get_email = function() {
+	var me = this;
+	if (me.email) {
+		return me.email;
+	}
+	return me.get_provider_field('email');
+};
+
+user_schema.methods.get_name = function() {
+	return this.get_provider_field('name');
+};
+
+user_schema.methods.get_provider_id = function() {
+	return this.get_provider_field('id');
+};
+
+user_schema.methods.get_first_name = function() {
+	return this.get_name().split(" ")[0];
+};
+user_schema.methods.get_last_name = function() {
+	return _.last(this.get_name().split(" "));
+};
+
+var User = mongoose.model('User', user_schema);
+exports.User = User;
