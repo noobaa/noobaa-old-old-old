@@ -438,13 +438,12 @@
 		nbUploadSrv.init_drop($(document));
 		nbUploadSrv.init_file_input($('#file_upload_input'));
 		nbUploadSrv.init_file_input($('#dir_upload_input'));
-		nbUploadSrv.on_file_upload = function(event, file) {
-			console.log('ADD UPLOAD');
+		nbUploadSrv.get_dir_inode_id = function(event) {
 			if (!$scope.planet_user) {
-				return;
+				return false;
 			}
 			if ($scope.planet_user.mydata) {
-				return nbUploadSrv.add_upload(file, $scope.planet_user.mydata);
+				return $scope.planet_user.mydata.id;
 			}
 			return $http({
 				method: 'GET',
@@ -455,7 +454,7 @@
 					var ent = res.data.entries[i];
 					if (ent.name === 'My Data') {
 						$scope.planet_user.mydata = ent;
-						return nbUploadSrv.add_upload(file, ent);
+						return $scope.planet_user.mydata.id;
 					}
 				}
 			}, function(res) {

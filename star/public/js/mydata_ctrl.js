@@ -120,12 +120,16 @@ Inode.prototype.is_dir_non_empty = function(callback) {
 		return;
 	}
 	var me = this;
-	var ev = this.load_dir();
-	if (!ev) {
+	var promise = this.load_dir();
+	if (!promise) {
 		callback( !! me.dir_state.sons_list.length);
 	} else {
-		ev.on('all', function() {
+		promise.then(function(res) {
 			callback( !! me.dir_state.sons_list.length);
+			return res;
+		}, function(err) {
+			callback( !! me.dir_state.sons_list.length);
+			throw res;
 		});
 	}
 };
@@ -178,18 +182,18 @@ Inode.prototype.read_dir = function() {
 		return this.dir_state.refreshing;
 	}
 	var me = this; // needed for callbacks propagation
-	var ev = this.$scope.http({
+	this.dir_state.refreshing = this.$scope.http({
 		method: 'GET',
 		url: this.$scope.inode_api_url + this.id
-	});
-	ev.on('all', function() {
+	}).then(function(res) {
 		delete me.dir_state.refreshing;
+		me.populate_dir(res.data.entries);
+		return res;
+	}, function(err) {
+		delete me.dir_state.refreshing;
+		throw err;
 	});
-	ev.on('success', function(data) {
-		me.populate_dir(data.entries);
-	});
-	this.dir_state.refreshing = ev;
-	return ev;
+	return this.dir_state.refreshing;
 };
 
 
@@ -267,8 +271,12 @@ Inode.prototype.mkdir = function(name) {
 			name: name,
 			isdir: true
 		}
-	}).on('all', function() {
+	}).then(function(res) {
 		me.read_dir();
+		return res;
+	}, function(err) {
+		me.read_dir();
+		throw err;
 	});
 };
 
@@ -279,8 +287,12 @@ Inode.prototype.delete_inode = function() {
 	return this.$scope.http({
 		method: 'DELETE',
 		url: this.$scope.inode_api_url + this.id
-	}).on('all', function() {
+	}).then(function(res) {
 		parent.read_dir();
+		return res;
+	}, function(err) {
+		parent.read_dir();
+		throw err;
 	});
 };
 
@@ -295,9 +307,14 @@ Inode.prototype.rename = function(to_parent, to_name) {
 			parent: to_parent.id,
 			name: to_name
 		}
-	}).on('all', function() {
+	}).then(function(res) {
 		to_parent.read_dir();
 		parent.read_dir();
+		return res;
+	}, function(err) {
+		to_parent.read_dir();
+		parent.read_dir();
+		throw err;
 	});
 };
 
@@ -315,9 +332,9 @@ Inode.prototype.download_file = function() {
 	return this.$scope.http({
 		method: 'GET',
 		url: this.$scope.inode_api_url + this.id
-	}).on('success', function(data) {
-		console.log(data.s3_get_url);
-		var win = window.open(data.s3_get_url, '_blank');
+	}).then(function(res) {
+		console.log(res.data.s3_get_url);
+		var win = window.open(res.data.s3_get_url, '_blank');
 		win.focus();
 	});
 	*/
@@ -431,26 +448,15 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 	$scope.inode_share_sufix = "/share_list";
 	$scope.inode_link_sufix = "/link";
 
-	// TODO: remove this http() and use $http().then().then() chaining instead
-	// returns an event object with 'success' and 'error' events,
-	// which allows multiple events can be registered on the ajax result.
 	$scope.http = function(req) {
 		console.log('[http]', req);
-		var ev = _.clone(Backbone.Events);
-		ev.on('success', function(data, status) {
-			console.log('[http ok]', [status, req]);
+		return $http(req).then(function(res) {
+			console.log('[http ok]', [req, res]);
+			return res;
+		}, function(err) {
+			console.error(err.data || 'http request failed', [req, err]);
+			throw err;
 		});
-		ev.on('error', function(data, status) {
-			console.error(data || 'http request failed', [status, req]);
-		});
-		var ajax = $http(req);
-		ajax.success(function(data, status, headers, config) {
-			ev.trigger('success', data, status, headers, config);
-		});
-		ajax.error(function(data, status, headers, config) {
-			ev.trigger('error', data, status, headers, config);
-		});
-		return ev;
 	};
 
 	$scope.root_dir = new Inode($scope, null, '', true, null);
@@ -533,12 +539,11 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 		if (!dir_inode) {
 			return;
 		}
-		dir_inode.read_dir().on({
-			'all': function() {
-				cancel_curr_dir_refresh();
-				$scope.curr_dir_refresh_timeout =
-					$timeout(curr_dir_refresh, 60000);
-			}
+		dir_inode.read_dir().then(function(res) {
+			cancel_curr_dir_refresh();
+			$scope.curr_dir_refresh_timeout =
+				$timeout(curr_dir_refresh, 60000);
+			return res;
 		});
 	}
 	curr_dir_refresh();
@@ -607,7 +612,7 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 		dlg.find('.inode_label').eq(1).html(drop_inode.make_inode_with_icon());
 		dlg.find('#dialog_ok').off('click').on('click', function() {
 			dlg.nbdialog('close');
-			drag_inode.rename(drop_inode, drag_inode.name).on('all', function() {
+			drag_inode.rename(drop_inode, drag_inode.name).then(function() {
 				// select the drop dir
 				$scope.select(drop_inode, {
 					dir: true,
@@ -689,6 +694,7 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 	}).then(function(res) {
 		console.log('LOCAL PLANET', res.data);
 		$scope.local_planet = res.data ? res.data.device : null;
+		return res;
 	});
 
 	$scope.click_upload = function() {
@@ -705,7 +711,7 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 				console.log('UNEXPECTED RESPONSE', res.data);
 				$('#upload_modal').nbdialog('open');
 			}
-		}, function() {
+		}, function(err) {
 			$('#upload_modal').nbdialog('open');
 		});
 	};
@@ -744,22 +750,23 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 			return;
 		}
 		inode.is_dir_non_empty(function(is_it) {
-			if (is_it) {
-				$.nbalert('Cannot delete non-empty folder');
-				return;
-			}
 			var dlg = $('#delete_dialog').clone();
+			if (is_dir_non_empty) {
+				dlg.find('#non_empty_msg').css('display', 'block');
+				dlg.find('#normal_msg').css('display', 'none');
+			}
 			dlg.find('.inode_label').html(inode.make_inode_with_icon());
 			dlg.find('#dialog_ok').off('click').on('click', function() {
 				dlg.nbdialog('close');
-				inode.delete_inode().on('all', function() {
+				var on_delete = function() {
 					if (inode.id == $scope.inode_selection.inode.id) {
 						$scope.select(inode.parent, {
 							dir: true,
 							open_dir: true
 						});
 					}
-				});
+				};
+				inode.delete_inode().then(on_delete, on_delete);
 			});
 			dlg.nbdialog('open', {
 				remove_on_close: true,
@@ -1099,9 +1106,10 @@ function ShareModalCtrl($scope) {
 		// TODO this is hacky accessing dlg.scope() ...
 		$scope.share_is_loading = true;
 		$scope.share_inode = inode;
-		inode.get_share_list().on('success', function(data) {
-			$scope.share_list = data.list;
-		}).on('all', function() {
+		inode.get_share_list().then(function(res) {
+			$scope.share_is_loading = false;
+			$scope.share_list = res.data.list;
+		}, function() {
 			$scope.share_is_loading = false;
 		});
 		dlg.nbdialog('open', {
@@ -1117,12 +1125,13 @@ function ShareModalCtrl($scope) {
 		var inode = $scope.share_inode;
 		var share_list = $scope.share_list;
 		$scope.share_is_loading = true;
-		inode.share(share_list).on('success', function(data) {
+		inode.share(share_list).then(function(res) {
+			$scope.share_is_loading = false;
 			$('#share_modal').nbdialog('close');
 			if (inode.parent) {
 				inode.parent.read_dir();
 			}
-		}).on('all', function() {
+		}, function() {
 			$scope.share_is_loading = false;
 		});
 	};
@@ -1130,14 +1139,15 @@ function ShareModalCtrl($scope) {
 	$scope.mklink = function() {
 		var inode = $scope.share_inode;
 		$scope.share_is_loading = true;
-		inode.mklink().on('success', function(data) {
+		inode.mklink().then(function(res) {
+			$scope.share_is_loading = false;
 			$('#share_modal').nbdialog('close');
-			console.log('mklink', data);
+			console.log('mklink', res.data);
 			var dlg = $('#getlink_dialog').clone();
 			dlg.find('.inode_label').html(inode.make_inode_with_icon());
 			dlg.find('.link_label').html(
 				'<div style="height: 100%; word-wrap: break-word; word-break: break-all">' +
-				window.location.host + data.url + '</div>');
+				window.location.host + res.data.url + '</div>');
 			dlg.nbdialog('open', {
 				remove_on_close: true,
 				modal: false,
@@ -1146,7 +1156,7 @@ function ShareModalCtrl($scope) {
 					height: 400
 				}
 			});
-		}).on('all', function() {
+		}, function() {
 			$scope.share_is_loading = false;
 		});
 	};
@@ -1154,11 +1164,12 @@ function ShareModalCtrl($scope) {
 	$scope.rmlinks = function() {
 		var inode = $scope.share_inode;
 		$scope.share_is_loading = true;
-		inode.rmlinks().on('success', function(data) {
+		inode.rmlinks().then(function(res) {
+			$scope.share_is_loading = false;
 			$('#share_modal').nbdialog('close');
-			console.log('rmlinks', data);
+			console.log('rmlinks', res.data);
 			$.nbalert('Revoked!');
-		}).on('all', function() {
+		}, function() {
 			$scope.share_is_loading = false;
 		});
 	};
@@ -1191,27 +1202,23 @@ function UploadCtrl($scope, nbUploadSrv) {
 	nbUploadSrv.init_drop($(document));
 	nbUploadSrv.init_file_input($('#file_upload_input'));
 	nbUploadSrv.init_file_input($('#dir_upload_input'));
-	nbUploadSrv.on_file_upload = function(event, file) {
+	nbUploadSrv.get_dir_inode_id = function(event) {
 		var dir_inode = $scope.dir_selection.inode;
 		if (!dir_inode) {
 			console.error('no selected dir, bailing');
-			return;
+			return false;
 		}
 		if (dir_inode.is_shared_with_me()) {
 			$.nbalert('Cannot upload to a shared folder');
-			return;
+			return false;
 		}
 		if (dir_inode.is_not_mine() || dir_inode.owner_name) {
 			$.nbalert('Cannot upload to someone else\'s folder');
-			return;
+			return false;
 		}
-
-		if (num_running_uploads > $scope.max_uploads_at_once) {
-			$.nbalert('Don\'t you think that ' + num_running_uploads +
-				' is too many files to upload at once?');
-			return;
-		}
-
+		return dir_inode.id;
+	};
+	nbUploadSrv.on_file_upload = function(event, file) {
 		// make sure the modal shows - this is needed when drop/paste
 		// and the modal is hidden.
 		upload_modal.nbdialog('open');
