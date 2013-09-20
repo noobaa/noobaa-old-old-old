@@ -10,15 +10,11 @@ var emailTemplates = require('email-templates');
 var nodemailer = require('nodemailer');
 var common_api = require('./common_api');
 
-function choose_mail(user) {
-	return user.email || user.fb.email || null;
-}
-
 // to see how to add dynamic info:
 // help.mandrill.com/entries/21678522-how-do-i-use-merge-tags-to-add-dynamic-content
 exports.send_alpha_welcome = function(user, callback) {
 
-	var localemail = choose_mail(user);
+	var localemail = user.get_email();
 	if (!localemail) {
 		console.log("User has no email defined.");
 		return callback(null, user);
@@ -36,14 +32,14 @@ exports.send_alpha_welcome = function(user, callback) {
 				content: 'http://www.noobaa.com/'
 			}, {
 				name: "FNAME",
-				content: user.fb.first_name
+				content: user.get_first_name()
 			}],
 			subject: 'Welcome to NooBaa!',
 			from_email: 'info@noobaa.com',
 			from_name: 'NooBaa Team',
 			to: [{
 				email: localemail,
-				name: user.fb.name
+				name: user.get_name()
 			}],
 		}
 	}, function(err, result) {
@@ -60,7 +56,7 @@ exports.send_alpha_welcome = function(user, callback) {
 
 exports.send_mail_changed = function(user, callback) {
 	console.log('send mail change email ');
-	var localemail = choose_mail(user);
+	var localemail = user.get_email();
 	if (!localemail) {
 		console.log("User has no email defined.");
 		return callback(null, user);
@@ -81,17 +77,17 @@ exports.send_mail_changed = function(user, callback) {
 				content: localemail
 			}, {
 				name: "FNAME",
-				content: user.fb.first_name
+				content: user.get_first_name()
 			}, {
 				name: "UNAME",
-				content: user.fb.name
+				content: user.get_name()
 			}],
 			subject: 'NooBaa account updated',
 			from_email: 'info@noobaa.com',
 			from_name: 'NooBaa Team',
 			to: [{
 				email: localemail,
-				name: user.fb.name
+				name: user.get_name()
 			}],
 		}
 	}, function(err, result) {
@@ -202,11 +198,11 @@ exports.send_swm_notification = send_swm_notification;
 // to losen the coupling with the inodes and FS structure. 
 
 function send_swm_notification(notified_user, sharing_user, file_name, custom_message, callback) {
-	var localemail = choose_mail(notified_user);
-	var notified_user_full_name = notified_user.fb.name;
-	var notified_user_first_name = notified_user.fb.first_name;
-	var sharing_user_full_name = sharing_user.fb.name;
-	var sharing_user_first_name = sharing_user.fb.first_name;
+	var localemail = notified_user.get_email();
+	var notified_user_full_name = notified_user.get_name();
+	var notified_user_first_name = notified_user.get_first_name();
+	var sharing_user_full_name = sharing_user.get_name();
+	var sharing_user_first_name = sharing_user.get_first_name();
 
 	if (!localemail) {
 		console.log(notified_user_full_name + ", has no updated email address.");
@@ -296,9 +292,9 @@ function send_swm_notification(notified_user, sharing_user, file_name, custom_me
 
 exports.send_alpha_approved_notification = send_alpha_approved_notification;
 function send_alpha_approved_notification(notified_user, callback) {
-	var localemail = choose_mail(notified_user);
-	var notified_user_full_name = notified_user.fb.name;
-	var notified_user_first_name = notified_user.fb.first_name;
+	var localemail = notified_user.get_email();
+	var notified_user_full_name = notified_user.get_name();
+	var notified_user_first_name = notified_user.get_first_name();
 
 	if (!localemail) {
 		console.log(notified_user_full_name + ", has no updated email address.");

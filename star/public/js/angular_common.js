@@ -413,7 +413,7 @@
 			link: function(scope, element, attr) {
 				scope.$watch(attr.nbDrop, function(value) {
 					var obj = scope.$eval(attr.nbDrop);
-					if (!obj) {
+					if (!obj && element && element.data('droppable')) {
 						element.droppable("destroy");
 						return;
 					}
