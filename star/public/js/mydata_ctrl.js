@@ -1233,7 +1233,7 @@ function UploadCtrl($scope, nbUploadSrv) {
 	nbUploadSrv.init_drop($(document));
 	nbUploadSrv.init_file_input($('#file_upload_input'));
 	nbUploadSrv.init_file_input($('#dir_upload_input'));
-	nbUploadSrv.get_dir_inode_id = function(event) {
+	nbUploadSrv.get_parent_inode_id = function(event) {
 		var dir_inode = $scope.dir_selection.inode;
 		if (!dir_inode) {
 			console.error('no selected dir, bailing');
@@ -1249,20 +1249,26 @@ function UploadCtrl($scope, nbUploadSrv) {
 		}
 		return dir_inode.id;
 	};
-	nbUploadSrv.on_file_upload = function(event, file) {
+	nbUploadSrv.on_file_upload = function(upload) {
 		// make sure the modal shows - this is needed when drop/paste
 		// and the modal is hidden.
-		upload_modal.nbdialog('open');
+		if (!upload.event.upload_modal_open) {
+			upload_modal.nbdialog('open');
+			upload.event.upload_modal_open = true;
+		}
 
-		// TODO: need to nullify the inode_upload on input file dialog cancel
-		var inode_upload = $(event.target).data('inode_upload');
-		var existing_inode_id = inode_upload ? inode_upload.id : null;
-		var refresh_parent = function() {
-			dir_inode.read_dir();
-		};
-		nbUploadSrv
-			.add_upload(file, dir_inode, existing_inode_id)
-			.then(refresh_parent, refresh_parent);
+		// see inode_upload()
+		var inode_upload = $(upload.event.target).data('inode_upload');
+		if (inode_upload) {
+			upload.inode_id = inode_upload.id;
+		}
+		return nbUploadSrv.upload_file(upload).then(function(res) {
+			$scope.dir_selection.inode.read_dir();
+			return res;
+		}, function(err) {
+			$scope.dir_selection.inode.read_dir();
+			throw err;
+		});
 	};
 
 }
