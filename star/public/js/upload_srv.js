@@ -77,7 +77,7 @@
 		// with webkitdirectory is a bit broken (crbug.com/138987)
 		// and webkit doesn't populate .webkitEntries at all.
 		// So this path is here for when the bug is fixed.
-		var entries = tx.webkitEntries;
+		var entries = !!tx.webkitEntries && !!tx.webkitEntries.length && tx.webkitEntries;
 		// convert items to entries 
 		if (!entries && tx.items) {
 			entries = new Array(tx.items.length);
@@ -223,7 +223,7 @@
 				if (entries.length) {
 					for (var i = 0; i < entries.length; i++) {
 						console.log('SUBMIT ENTRY', entries[i]);
-						me.submit_item(upload.event, upload.inode_id, me.root_upload, entries[i]);
+						me.submit_item(upload.event, upload.inode_id, upload, entries[i]);
 						if (check_aborted()) {
 							return;
 						}
@@ -295,11 +295,7 @@
 		} else {
 			// create the file and receive upload location info
 			console.log('[ok] upload creating file:', upload);
-			var relative_path = file.webkitRelativePath;
-			var parent = upload.parent_upload;
-			if (parent && parent.item && parent.item.fullPath) {
-				relative_path = parent.item.fullPath;
-			}
+			var relative_path = upload.item.isFile ? '' : file.webkitRelativePath;
 			file_request = {
 				method: 'POST',
 				url: '/star_api/inode/',
