@@ -92,10 +92,10 @@
 		}
 
 		// get the target directory (or a promise to get it)
-		var dir_inode_id;
-		if (me.get_dir_inode_id) {
-			dir_inode_id = me.get_dir_inode_id(event);
-			if (dir_inode_id === false) {
+		var parent_inode_id;
+		if (me.get_parent_inode_id) {
+			parent_inode_id = me.get_parent_inode_id(event);
+			if (parent_inode_id === false) {
 				return;
 			}
 		}
@@ -105,19 +105,19 @@
 			return;
 		}
 		for (var i = 0; i < items.length; i++) {
-			me.submit_item(event, dir_inode_id, me.root_upload, items[i]);
+			me.submit_item(event, parent_inode_id, me.root_upload, items[i]);
 		}
 		event.preventDefault();
 		return false;
 	};
 
-	UploadSrv.prototype.submit_item = function(event, dir_inode_id, parent_upload, item) {
+	UploadSrv.prototype.submit_item = function(event, parent_inode_id, parent_upload, item) {
 		var me = this;
 		console.log('ITEM', item);
 		var upload = {
 			event: event,
 			id: me.id_gen++,
-			dir_inode_id: dir_inode_id,
+			parent_inode_id: parent_inode_id,
 			parent_upload: parent_upload,
 			item: item,
 			uploads: {}
@@ -155,7 +155,7 @@
 				method: 'POST',
 				url: '/star_api/inode/',
 				data: {
-					id: upload.dir_inode_id,
+					id: upload.parent_inode_id,
 					name: item.name,
 					isdir: true
 				}
@@ -168,6 +168,11 @@
 			console.log('OPEN FILE', item);
 			promise = me.open_file(upload).then(function() {
 				console.log('FILE', upload.file);
+				if (me.on_file_upload) {
+					return me.on_file_upload(upload);
+				} else {
+					return me.upload_file(upload);
+				}
 			});
 		}
 
@@ -184,17 +189,17 @@
 
 		return promise.then(function() {
 			console.log('DONE');
-			finish_upload();
 			upload.status = 'Completed';
 			upload.row_class = 'success';
-		}, function(err) {
-			console.log('FAIL');
 			finish_upload();
+		}, function(err) {
+			console.log('FAIL', err);
 			upload.failed = true;
 			upload.status = 'Failed!';
 			upload.row_class = 'danger';
 			upload.progress_class = 'progress-bar progress-bar-danger';
-			return me.$q.reject(err); // rethrow error
+			finish_upload();
+			throw err;
 		});
 	};
 
@@ -204,10 +209,24 @@
 		upload.dir_reader = upload.item.createReader();
 		upload.readdir_func = function() {
 			upload.dir_reader.readEntries(function(entries) {
+				var check_aborted = function() {
+					if (upload.aborted) {
+						me.$rootScope.safe_apply(function() {
+							deferred.reject('aborted during readdir');
+						});
+						return true;
+					}
+				};
+				if (check_aborted()) {
+					return;
+				}
 				if (entries.length) {
 					for (var i = 0; i < entries.length; i++) {
 						console.log('SUBMIT ENTRY', entries[i]);
-						me.submit_item(upload.event, upload.inode_id, upload, entries[i]);
+						me.submit_item(upload.event, upload.inode_id, me.root_upload, entries[i]);
+						if (check_aborted()) {
+							return;
+						}
 					}
 					// while still more entries submit next readdir
 					setTimeout(upload.readdir_func, 10);
@@ -256,67 +275,17 @@
 	};
 
 
-	UploadSrv.prototype.handle_file = function(event, file, parent) {
-		console.log('FILE', file, parent);
-		if (parent) {
-			file.relative_path = parent.fullPath;
-		} else {
-			file.relative_path = file.webkitRelativePath;
-		}
-		if (this.on_file_upload) {
-			this.on_file_upload(event, file);
-		} else {
-			this.add_upload(file);
-		}
-	};
-
-
-	UploadSrv.prototype.has_uploads = function() {
-		return !!this.num_uploads;
-	};
-
-	UploadSrv.prototype.has_active_uploads = function() {
-		return !!this.num_active_uploads;
-	};
-
-	UploadSrv.prototype.remove_upload = function(upload) {
-		if (upload.active) {
-			upload.aborted = true;
-			if (upload.xhr) {
-				upload.xhr.abort();
-			}
-		} else {
-			if (upload.id in this.uploads) {
-				delete this.uploads[upload.id];
-				this.num_uploads--;
-			}
-		}
-		this.$rootScope.safe_apply();
-	};
-
-	UploadSrv.prototype.cancel_upload = function(upload) {
-		var do_remove = this.remove_upload.bind(this, upload);
-		if (!upload.active) {
-			do_remove();
-		} else {
-			$.nbconfirm('This upload is still working.<br/>' +
-				'Are you sure you want to cancel it?', {
-					on_confirm: do_remove
-				});
-		}
-	};
-
-	UploadSrv.prototype.add_upload = function(file, parent, existing_inode_id) {
+	UploadSrv.prototype.upload_file = function(upload) {
 		var me = this;
-		var upload;
+		var file = upload.file;
 		var file_request;
 
-		if (existing_inode_id) {
+		if (upload.inode_id) {
 			// inode_id supplied - just pass it on
-			console.log('[ok] upload gettattr file:', existing_inode_id, file);
+			console.log('[ok] upload gettattr file:', upload);
 			file_request = {
 				method: 'GET',
-				url: '/star_api/inode/' + existing_inode_id,
+				url: '/star_api/inode/' + upload.inode_id,
 				params: {
 					// tell the server to return attr 
 					// and not redirect us as in normal read
@@ -325,93 +294,48 @@
 			};
 		} else {
 			// create the file and receive upload location info
-			console.log('[ok] upload creating file:', file);
+			console.log('[ok] upload creating file:', upload);
+			var relative_path = file.webkitRelativePath;
+			var parent = upload.parent_upload;
+			if (parent && parent.item && parent.item.fullPath) {
+				relative_path = parent.item.fullPath;
+			}
 			file_request = {
 				method: 'POST',
 				url: '/star_api/inode/',
 				data: {
-					id: parent.id,
+					id: upload.parent_inode_id,
 					name: file.name,
 					isdir: false,
 					size: file.size,
 					uploading: true,
 					content_type: file.type,
-					relative_path: file.relative_path
+					relative_path: relative_path
 				}
 			};
+
 		}
 
 		return me.$http(file_request).then(function(res) {
 			console.log('[ok] upload file', res);
 			if (res.data.name !== file.name || res.data.size !== file.size) {
 				$.nbalert('Choose the same file to resume the upload');
-				return me.$q.reject('mismatching file attr'); // rethrow error
+				throw 'mismatching file attr';
 			}
 			if (file.size === 0) {
 				console.log('skip upload for zero size file', file);
 				return;
 			}
-			// create the upload object and connect to uploads list,
-			upload = {
-				id: me.id_gen++,
-				parent: parent,
-				inode_id: res.data.id,
-				mkfile: res.data,
-				file: file,
-				progress: 0
-			};
-			me.uploads[upload.id] = upload;
-			me.num_uploads++;
-			return me.run_upload(upload);
-		}, function(err) {
-			console.error('[ERR] upload failed to create/get file', err);
-			// TODO: show something to user?
+			upload.inode_id = res.data.id;
+			return me._upload_multipart(upload);
 		});
 	};
-
-	UploadSrv.prototype.run_upload = function(upload) {
-		var me = this;
-		// activate upload
-		upload.row_class = '';
-		upload.aborted = false;
-		upload.failed = false;
-		upload.active = true;
-		upload.status = 'Uploading...';
-		upload.progress_class = 'progress-bar progress-bar-success';
-		me.num_active_uploads++;
-		me.$rootScope.safe_apply();
-
-		return me._upload_multipart(upload).then(function() {
-			console.log('[ok] upload done');
-			if (upload) {
-				me.num_active_uploads--;
-				upload.active = false;
-				upload.status = 'Completed';
-				upload.row_class = 'success';
-			}
-			me.$rootScope.safe_apply();
-		}, function(err) {
-			console.error('[ERR] upload failed', err);
-			if (upload) {
-				me.num_active_uploads--;
-				upload.active = false;
-				upload.failed = true;
-				upload.status = 'Failed!';
-				// upload.progress = 100;
-				upload.row_class = 'danger';
-				upload.progress_class = 'progress-bar progress-bar-danger';
-			}
-			me.$rootScope.safe_apply();
-			return me.$q.reject(err); // rethrow error
-		});
-	};
-
 
 	UploadSrv.prototype._upload_multipart = function(upload) {
 		var me = this;
 		console.log('[ok] upload multipart run', upload.file.name);
 		if (upload.aborted) {
-			return me.$q.reject('aborted');
+			throw 'aborted';
 		}
 		// get missing parts
 		return me.$http({
@@ -421,7 +345,7 @@
 			upload.multipart = res.data;
 			console.log('[ok] upload multipart state', upload.multipart);
 			if (upload.aborted) {
-				return me.$q.reject('aborted');
+				throw 'aborted';
 			}
 			if (upload.multipart.complete) {
 				return; // done
@@ -474,6 +398,47 @@
 		return deferred.promise;
 	};
 
+
+	UploadSrv.prototype.remove_upload = function(upload) {
+		if (upload.active) {
+			upload.aborted = true;
+			if (upload.xhr) {
+				upload.xhr.abort();
+			}
+		} else {
+			if (upload.id in upload.parent_upload.uploads) {
+				delete upload.parent_upload.uploads[upload.id];
+				this.num_uploads--;
+			}
+			for (var i=0; i<this.queue.length; i++) {
+				if (upload.id === this.queue[i].id) {
+					this.queue.splice(i);
+					break;
+				}
+			}
+		}
+		this.$rootScope.safe_apply();
+	};
+
+	UploadSrv.prototype.cancel_upload = function(upload) {
+		var do_remove = this.remove_upload.bind(this, upload);
+		if (!upload.active) {
+			do_remove();
+		} else {
+			$.nbconfirm('This upload is still working.<br/>' +
+				'Are you sure you want to cancel it?', {
+					on_confirm: do_remove
+				});
+		}
+	};
+
+	UploadSrv.prototype.has_uploads = function() {
+		return !!this.num_uploads;
+	};
+
+	UploadSrv.prototype.has_active_uploads = function() {
+		return !!this.num_active_uploads;
+	};
 
 
 	noobaa_app.directive('nbUploadTable', function() {
