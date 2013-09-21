@@ -1076,12 +1076,15 @@ exports.inode_set_share_list = function(req, res) {
 			next(null, inode);
 		},
 
+		//get the currently refering ids
 		user_inodes.get_inode_refering_user_ids,
 
+		//add and remove referenes as needed
 		function(old_nb_ids, next) {
 			return user_inodes.update_inode_ghost_refs(inode_id, old_nb_ids, new_nb_ids, next);
 		},
 
+		//update number of references if was changed. 
 		function(next) {
 			var new_num_refs = new_nb_ids.length;
 			if (inode.num_refs === new_num_refs) {

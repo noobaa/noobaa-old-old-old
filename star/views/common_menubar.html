@@ -68,9 +68,16 @@
 					<ul class="dropdown-menu"
 						role="menu"
 						aria-labelledby="user_label">
-						<li align="center">
-							<img src="https://graph.facebook.com/<?! it.user.fbid ?>/picture\" style="height: 40px"></img>
-						</li>
+						<?? it.user.fbid ?>
+							<li align="center">
+								<img src="https://graph.facebook.com/<?! it.user.fbid ?>/picture\" style="height: 40px"></img>
+							</li>
+						<!-- http://www.stasha.info/index.php?id=170 -->
+						<??? it.user.googleid ?>
+							<li align="center">
+								<img src="https://plus.google.com/s2/photos/profile/<?! it.user.googleid ?>?sz=40" style="height: 40px"></img>
+							</li>
+						<???>
 						<li class="divider"></li>
 						<li>
 							<a>
