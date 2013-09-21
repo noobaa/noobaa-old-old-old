@@ -20,17 +20,20 @@
 	]);
 
 	function UploadSrv() {
-		this.id_gen = 1;
-		this.num_uploads = 0;
-		this.num_active_uploads = 0;
-		this.uploads_map = {};
-		this.list = new LinkedList('list');
-		this.pending = new LinkedList('pend');
+		this.root = {
+			sons: {},
+			pending_list: [],
+			num_sons: 0,
+			num_active: 0,
+			num_done: 0,
+			num_abort: 0,
+			id_gen: 1,
+		};
 
 		// check for active uploads before page unloads
 		var me = this;
 		$(window).on('beforeunload', function() {
-			if (me.num_active_uploads) {
+			if (me.root.num_active) {
 				return 'Leaving this page will interrupt your active Uploads !!!';
 			}
 		});
@@ -100,18 +103,18 @@
 			return;
 		}
 
-		// get the target directory (or a promise to get it)
-		var parent_inode_id;
-		if (me.get_parent_inode_id) {
-			parent_inode_id = me.get_parent_inode_id(event);
-			if (parent_inode_id === false) {
+		// get the target directory
+		var dir_inode_id;
+		if (me.get_dir_inode_id) {
+			dir_inode_id = me.get_dir_inode_id(event);
+			if (dir_inode_id === false) {
 				return;
 			}
 		}
 
 		// submit each of the items
 		for (var i = 0; i < items.length; i++) {
-			me.submit_item(event, parent_inode_id, null, items[i]);
+			me.submit_item(event, dir_inode_id, me.root, items[i]);
 		}
 		me.$rootScope.safe_apply();
 		event.preventDefault();
@@ -121,43 +124,51 @@
 	// submit single item to upload
 	// will create the upload object and insert into parent
 	// and will start processing if no other is running, otherwise add to queue.
-	UploadSrv.prototype.submit_item = function(event, parent_inode_id, parent_upload, item) {
+	UploadSrv.prototype.submit_item = function(event, dir_inode_id, parent, item) {
 		var me = this;
 		var upload;
 		console.log('ITEM', item);
 
-		upload = parent_upload ? parent_upload.sons[item.name] : null;
+		// try to find the item name in parent
+		// if found and type matches, it means we resume the parent
+		// so just update the item.
+		upload = parent.sons_by_name ? parent.sons_by_name[item.name] : null;
 		if (upload) {
 			console.log('EXISTING UPLOAD', upload, item)
 			if ( !! item.isDirectory === !! upload.item.isDirectory) {
 				// just update the item
 				upload.item = item;
+				me.set_pending(upload);
 				return;
 			} else {
 				console.log('EXISTING UPLOAD MISMATCHED');
 			}
 		}
+
+		// create new upload and add to parent
 		upload = {
 			event: event,
-			id: me.id_gen++,
-			parent_inode_id: parent_inode_id,
-			parent_upload: parent_upload,
 			item: item,
+			dir_inode_id: dir_inode_id,
+			id: parent.id_gen++,
+			parent: parent,
 		};
+		parent.sons[upload.id] = upload;
+		parent.num_sons++;
+		if (parent.sons_by_name) {
+			parent.sons_by_name[item.name] = upload;
+		}
 		if (item.isDirectory) {
 			upload.sons = {};
+			upload.sons_by_name = {};
+			upload.pending_list = [];
+			upload.num_sons = 0;
+			upload.num_active = 0;
+			upload.num_done = 0;
+			upload.num_abort = 0;
+			upload.id_gen = 1;
 		}
-		if (parent_upload) {
-			parent_upload.sons[item.name] = upload;
-		}
-		me.uploads_map[upload.id] = upload;
-		if (parent_upload) {
-			this.list.insert_after(parent_upload, upload);
-		} else {
-			this.list.insert_before(this.list, upload);
-		}
-		me.num_uploads++;
-		me.enqueue_pending(upload);
+		me.set_pending(upload);
 	};
 
 	UploadSrv.prototype.start_upload = function(upload) {
@@ -165,14 +176,9 @@
 		var item = upload.item;
 		var promise;
 
-		upload.aborted = false;
-		upload.failed = false;
-		upload.active = true;
-		upload.status = 'start';
-		upload.row_class = '';
-		upload.progress_class = 'progress-bar progress-bar-success';
-		me.num_active_uploads++;
-		me.$rootScope.safe_apply();
+		if (!me.set_active(upload)) {
+			return;
+		}
 
 		if (item.isDirectory) {
 			promise = me.upload_dir(upload);
@@ -187,30 +193,11 @@
 			});
 		}
 
-		return promise.then(function() {
-			console.log('DONE');
-			me.num_active_uploads--;
-			upload.active = false;
-			upload.status = 'done';
-			upload.row_class = 'success';
-			me.dequeue_pending();
-			me.$rootScope.safe_apply();
+		return promise.then(function(res) {
+			me.set_done(upload);
+			return res;
 		}, function(err) {
-			console.log('FAIL', err);
-			me.num_active_uploads--;
-			upload.active = false;
-			upload.failed = true;
-			upload.fail_count = 1 + (upload.fail_count ? upload.fail_count : 0);
-			upload.status = 'fail';
-			upload.row_class = 'danger';
-			upload.progress_class = 'progress-bar progress-bar-danger';
-			// when aborted dequeue another upload, otherwise retry
-			if (upload.aborted) {
-				me.dequeue_pending();
-			} else {
-				me.enqueue_pending(upload, 'front');
-			}
-			me.$rootScope.safe_apply();
+			me.set_fail(upload);
 			throw err;
 		});
 	};
@@ -239,7 +226,7 @@
 				method: 'POST',
 				url: '/star_api/inode/',
 				data: {
-					id: upload.parent_inode_id,
+					id: upload.dir_inode_id,
 					name: upload.item.name,
 					isdir: true
 				}
@@ -262,33 +249,28 @@
 		upload.dir_reader = upload.item.createReader();
 		upload.readdir_func = function() {
 			upload.dir_reader.readEntries(function(entries) {
-				var check_aborted = function() {
+				try {
 					if (upload.aborted) {
-						me.$rootScope.safe_apply(function() {
-							deferred.reject('readdir aborted');
-						});
-						return true;
+						throw 'aborted';
 					}
-				};
-				if (check_aborted()) {
-					return;
-				}
-				if (entries.length) {
 					for (var i = 0; i < entries.length; i++) {
 						console.log('SUBMIT ENTRY', entries[i]);
 						me.submit_item(upload.event, upload.inode_id, upload, entries[i]);
-						if (check_aborted()) {
-							return;
-						}
 					}
-					// while still more entries submit next readdir
-					setTimeout(upload.readdir_func, 10);
-				} else {
-					// done readdir
-					upload.dir_reader = null;
-					upload.readdir_func = null;
+					if (entries.length) {
+						// while still more entries submit next readdir
+						setTimeout(upload.readdir_func, 10);
+					} else {
+						// done readdir
+						upload.dir_reader = null;
+						upload.readdir_func = null;
+						me.$rootScope.safe_apply(function() {
+							deferred.resolve();
+						});
+					}
+				} catch (err) {
 					me.$rootScope.safe_apply(function() {
-						deferred.resolve();
+						deferred.reject(err);
 					});
 				}
 			}, function(err) {
@@ -355,7 +337,7 @@
 				method: 'POST',
 				url: '/star_api/inode/',
 				data: {
-					id: upload.parent_inode_id,
+					id: upload.dir_inode_id,
 					name: file.name,
 					isdir: false,
 					size: file.size,
@@ -379,6 +361,9 @@
 				console.log('skip upload for zero size file', file);
 				return;
 			}
+			if (upload.aborted) {
+				throw 'aborted';
+			}
 			upload.inode_id = res.data.id;
 			upload.status = 'upload';
 			me.$rootScope.safe_apply();
@@ -389,9 +374,6 @@
 	UploadSrv.prototype._upload_multipart = function(upload) {
 		var me = this;
 		console.log('[ok] upload multipart run', upload.file.name);
-		if (upload.aborted) {
-			throw 'aborted';
-		}
 		// get missing parts
 		return me.$http({
 			method: 'POST',
@@ -454,52 +436,136 @@
 	};
 
 
-	UploadSrv.prototype.enqueue_pending = function(upload, front) {
-		// if no other active, start it
-		if (!this.num_active_uploads) {
-			console.log('ENQUEUE start', upload);
-			this.start_upload(upload);
-			return;
+	UploadSrv.prototype.set_active = function(upload) {
+		if (upload.active) {
+			return false;
 		}
-		if (front === 'front') {
-			console.log('ENQUEUE front', upload);
-			this.pending.insert_after(this.pending, upload);
-			return;
+		upload.active = true;
+		upload.parent.num_active++;
+		if (upload.aborted) {
+			upload.aborted = false;
+			upload.parent.num_abort--;
 		}
-		console.log('ENQUEUE', upload);
-		this.pending.insert_before(this.pending, upload);
+		upload.failed = false;
+		upload.status = 'start';
+		upload.row_class = '';
+		upload.progress_class = 'progress-bar progress-bar-success';
+		this.$rootScope.safe_apply();
+		return true;
 	};
 
-	UploadSrv.prototype.dequeue_pending = function() {
-		if (this.pending.is_empty()) {
+	UploadSrv.prototype.set_done = function(upload) {
+		if (upload === this.root) {
 			return;
 		}
+		if (upload.done) {
+			return;
+		}
+		console.log('DONE', upload);
+		var is_done = true;
+		if (upload.item.isDirectory) {
+			is_done = (upload.num_done === upload.num_sons);
+		}
+		if (is_done) {
+			upload.done = true;
+			upload.parent.num_done++;
+			if (upload.active) {
+				upload.active = false;
+				upload.parent.num_active--;
+			}
+			upload.status = 'done';
+			upload.row_class = 'success';
+			this.set_done(upload.parent); // propagate
+		}
+		// start some other pending upload
+		this.run_pending();
+		this.$rootScope.safe_apply();
+	};
+
+	UploadSrv.prototype.set_fail = function(upload) {
+		console.log('FAIL', upload);
+		if (upload.active) {
+			upload.active = false;
+			upload.parent.num_active--;
+		}
+		upload.failed = true;
+		upload.fail_count = 1 + (upload.fail_count ? upload.fail_count : 0);
+		upload.status = 'fail';
+		upload.row_class = 'danger';
+		upload.progress_class = 'progress-bar progress-bar-danger';
+		if (upload.aborted) {
+			// start some other pending upload
+			this.run_pending();
+		} else {
+			// retry if not aborted
+			this.set_pending(upload, 'front');
+		}
+		this.$rootScope.safe_apply();
+	};
+
+	UploadSrv.prototype.set_abort = function(upload) {
+		if (!upload.active) {
+			return true;
+		}
+		// for active uploads try to abort them and interrupt their xhr
+		// but don't force remove, wait for them to join and remove the active flag
+		upload.aborted = true;
+		if (upload.xhr) {
+			upload.xhr.abort();
+		}
+		this.$rootScope.safe_apply();
+		return false;
+	};
+
+	UploadSrv.prototype.set_pending = function(upload, front) {
+		if (upload.pending) {
+			return;
+		}
+		upload.pending = true;
+		if (front === 'front') {
+			upload.parent.pending_list.unshift(upload);
+		} else {
+			upload.parent.pending_list.push(upload);
+		}
+		// see if anyone is ready
+		this.run_pending();
+	};
+
+	UploadSrv.prototype.run_pending = function(upload) {
+		if (!upload) {
+			upload = this.root;
+		}
 		// dequeue next upload and start it
-		var upload = this.pending.get_first();
-		this.pending.remove(upload);
-		console.log('DEQUEUE', upload);
-		this.start_upload(upload);
+		var next;
+		while (upload.pending_list.length && (!next || next.removed)) {
+			next = upload.pending_list.shift();
+		}
+		if (!next || next.removed) {
+			return false;
+		}
+		console.log('PENDING', next);
+		this.start_upload(next);
+		return true;
 	};
 
 	UploadSrv.prototype.remove_upload = function(upload) {
-		if (upload.active) {
-			upload.aborted = true;
-			if (upload.xhr) {
-				upload.xhr.abort();
-			}
-		} else {
-			this.pending.remove(upload);
-			// remove from parent
-			if (upload.parent_upload) {
-				delete upload.parent_upload.sons[upload.item.name];
-			}
-			// remove from global
-			if (upload.id in this.uploads_map) {
-				delete this.uploads_map[upload.id];
-				this.num_uploads--;
-			}
-			this.list.remove(upload);
+		if (!this.set_abort(upload)) {
+			return;
 		}
+
+		if (upload.id in upload.parent.sons) {
+			upload.parent.num_sons--;
+			if (upload.done) {
+				upload.parent.num_done--;
+			}
+			if (upload.aborted) {
+				upload.parent.num_abort--;
+			}
+			delete upload.parent.sons[upload.id];
+		}
+		// not removing from parent.pending_list because it requires to search
+		// instead mark as removed and run_pending() will discard.
+		upload.removed = true;
 		this.$rootScope.safe_apply();
 	};
 
@@ -516,11 +582,11 @@
 	};
 
 	UploadSrv.prototype.has_uploads = function() {
-		return !!this.num_uploads;
+		return !!this.root.num_sons;
 	};
 
 	UploadSrv.prototype.has_active_uploads = function() {
-		return !!this.num_active_uploads;
+		return !!this.root.num_active;
 	};
 
 
@@ -546,7 +612,7 @@
 				'			<th>Progress</th>',
 				'		</tr>',
 				'	</thead>',
-				'	<tr ng-repeat="(idx,upload) in srv.uploads_map" ng-class="upload.row_class">',
+				'	<tr ng-repeat="(id,upload) in srv.root.sons" ng-class="upload.row_class">',
 				'		<td>',
 				'			{{upload.item.name}}',
 				'		</td>',
@@ -590,18 +656,15 @@
 		};
 	});
 
-	// simple linked list
+	// linked list with option to get array
 
 	function LinkedList(id) {
 		this.next = '__next__' + id;
 		this.prev = '__prev__' + id;
+		this.index = '__index__' + id;
 		this[this.next] = this;
 		this[this.prev] = this;
-
-		// disguise as array
-		this.length = 0;
-		this.iter_index = -1;
-		this.iter = this;
+		this[this.index] = -1;
 	}
 
 	LinkedList.prototype.get_next = function(item) {
@@ -632,7 +695,11 @@
 		new_item[this.prev] = item;
 		next[this.prev] = new_item;
 		item[this.next] = new_item;
-		this._inc_len();
+		if (this.arr) {
+			var index = item[this.index] + 1;
+			this.arr.splice(index, 0, new_item);
+			new_item[this.index] = index;
+		}
 	};
 
 	LinkedList.prototype.insert_before = function(item, new_item) {
@@ -641,57 +708,50 @@
 		new_item[this.prev] = prev;
 		prev[this.next] = new_item;
 		item[this.prev] = new_item;
-		this._inc_len();
+		if (this.arr) {
+			var index = prev[this.index] + 1;
+			this.arr.splice(index, 0, new_item);
+			new_item[this.index] = index;
+		}
 	};
 
 	LinkedList.prototype.remove = function(item) {
-		if (!item[this.next] || !item[this.prev]) {
-			return false;
+		var next = item[this.next];
+		var prev = item[this.prev];
+		var index = item[this.index];
+		if (!next || !prev) {
+			return false; // already removed
 		}
-		item[this.next][this.prev] = item[this.prev];
-		item[this.prev][this.next] = item[this.next];
+		next[this.prev] = prev;
+		prev[this.next] = next;
 		delete item[this.next];
 		delete item[this.prev];
-		this.length--;
-		this._reset_iter();
+		delete item[this.index];
+		if (this.arr) {
+			this.arr.splice(index, 1);
+		}
 		return true;
 	};
 
-	LinkedList.prototype._inc_len = function() {
-		var me = this;
-		var n = me.length;
-		me.length++;
-		me._reset_iter();
-		delete me[n];
-		Object.defineProperty(me, n, {
-			enumerable: true,
-			configurable: true,
-			get: function() {
-				if (me.iter_index === n) {
-					return me.iter;
-				}
-				if (me.iter_index > n) {
-					me._reset_iter();
-				}
-				me.iter_index++;
-				me.iter = me.iter[me.next];
-				while (me.iter_index < n && me.iter !== me) {
-					me.iter_index++;
-					me.iter = me.iter[me.next];
-				}
-				if (me.iter === me) {
-					me._reset_iter();
-					return undefined;
-				}
-				console.log('ITER', n, me.length, me.iter_index, me.iter);
-				return me.iter;
-			}
-		});
+	LinkedList.prototype.get_array = function() {
+		if (this.arr) {
+			return this.arr;
+		}
+		this.arr = [];
+		var p = this.get_first();
+		var i = 0;
+		while (p) {
+			this.arr[i] = p;
+			p[this.index] = i;
+			p = this.get_next(p);
+			i++;
+		}
+		return this.arr;
 	};
 
-	LinkedList.prototype._reset_iter = function() {
-		this.iter_index = -1;
-		this.iter = this;
+	LinkedList.prototype.drop_array = function() {
+		delete this.arr;
 	};
+
 
 })();
