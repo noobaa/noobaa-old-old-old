@@ -204,6 +204,7 @@
 			$scope.planet_loading = false;
 			$scope.planet_user = f.noobaa_user;
 			schedule_device(1);
+			get_user_folders();
 			$scope.safe_apply();
 		};
 
@@ -406,6 +407,28 @@
 			return 'info_view';
 		};
 
+		function get_user_folders() {
+			if (!$scope.planet_user) {
+				return;
+			}
+			return $http({
+				method: 'GET',
+				url: '/star_api/inode/null'
+			}).then(function(res) {
+				console.log('GOT USER FOLDERS', res);
+				for (var i = 0; i < res.data.entries.length; i++) {
+					var ent = res.data.entries[i];
+					if (ent.name === 'My Data') {
+						$scope.planet_user.mydata = ent;
+					}
+				}
+				return res;
+			}, function(err) {
+				console.error('FAILED GET USER FOLDERS', err);
+				$timeout(get_user_folders, 1000); // retry later
+				throw err;
+			});
+		}
 
 		$scope.has_uploads = function() {
 			return nbUploadSrv.has_uploads();
@@ -415,27 +438,10 @@
 		nbUploadSrv.init_file_input($('#file_upload_input'));
 		nbUploadSrv.init_file_input($('#dir_upload_input'));
 		nbUploadSrv.get_parent_inode_id = function(event) {
-			if (!$scope.planet_user) {
+			if (!$scope.planet_user || !$scope.planet_user.mydata) {
 				return false;
 			}
-			if ($scope.planet_user.mydata) {
-				return $scope.planet_user.mydata.id;
-			}
-			return $http({
-				method: 'GET',
-				url: '/star_api/inode/null'
-			}).then(function(res) {
-				console.log(res);
-				for (var i = 0; i < res.data.entries.length; i++) {
-					var ent = res.data.entries[i];
-					if (ent.name === 'My Data') {
-						$scope.planet_user.mydata = ent;
-						return $scope.planet_user.mydata.id;
-					}
-				}
-			}, function(res) {
-				console.error(res);
-			});
+			return $scope.planet_user.mydata.id;
 		};
 	}
 
