@@ -312,7 +312,6 @@ function get_noobaa_friends_list(tokens, callback) {
 		get_friends_list.bind(null, tokens),
 
 		function(friends, next) {
-			// console.log('---------------------------------------friends: ', friends);
 			var fb_friends_id_list = _.pluck(friends.fb_friends_list, 'id');
 			var google_friends_id_list = _.pluck(friends.google_friends_list, 'id');
 			console.log('fb_friends_id_list: ', fb_friends_id_list);
