@@ -6,7 +6,6 @@
 /* jshint -W097 */
 'use strict';
 
-
 var num_running_uploads = 0;
 
 // init jquery stuff
@@ -591,7 +590,7 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 			return;
 		}
 		drag_inode.rename(drop_inode, drag_inode.name);
-/*
+		/*
 		var dlg = $('#move_dialog').clone();
 		dlg.find('.inode_label').eq(0).html(drag_inode.make_inode_with_icon());
 		dlg.find('.inode_label').eq(1).html(drop_inode.make_inode_with_icon());
@@ -1092,6 +1091,19 @@ function ShareModalCtrl($scope) {
 		$scope.share_inode = inode;
 		inode.get_share_list().on('success', function(data) {
 			$scope.share_list = data.list;
+			console.log('---------------');
+			console.log($scope.share_list);
+			$scope.share_list.forEach(function(fr) {
+				if (fr.fb_id) {
+					return fr.pic_url = 'https://graph.facebook.com/' + fr.fb_id + '/picture';
+				}
+				if (fr.google_id) {
+					return fr.pic_url = 'https://plus.google.com/s2/photos/profile/' + fr.google_id + '?sz=50';
+				}
+			});
+			console.log($scope.share_list);
+			console.log('---------------');
+
 		}).on('all', function() {
 			$scope.share_is_loading = false;
 		});

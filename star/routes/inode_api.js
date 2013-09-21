@@ -1017,6 +1017,7 @@ function inode_get_share_list(req, res) {
 			var local_collection = [];
 			//the order of the below push matters so change with care. The second pass will change
 			//friends that are shared with.
+			//TODO - don't run twice. It is stupid. removed the shared from friends.
 			local_collection.push({
 				array: friends_list,
 				shared_state: false
@@ -1025,19 +1026,21 @@ function inode_get_share_list(req, res) {
 				array: ref_users,
 				shared_state: true
 			});
+
 			local_collection.forEach(function(friend_struct) {
 				var curr_sharing = friend_struct.shared_state;
 				friend_struct.array.forEach(function(v) {
 					share_users_map[v._id] = {
-						"name": v.fb.name,
 						"shared": curr_sharing,
 						"nb_id": v._id,
 					};
 					if (v.fb) {
 						share_users_map[v._id].fb_id = v.fb.id;
+						share_users_map[v._id].name = v.fb.name;
 					}
 					if (v.google) {
 						share_users_map[v._id].google_id = v.google.id;
+						share_users_map[v._id].name = v.google.name;
 					}
 				});
 			});

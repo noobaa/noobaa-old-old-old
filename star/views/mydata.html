@@ -368,8 +368,8 @@
 			</div>
 			<div ng-show="!share_is_loading && !share_list.length">
 				<p>No friends availalbe for sharing.</p>
-				<p>Currenlty sharing is only availalbe for NooBaa users who are your Facebook friends.</p>
-				<p>Invite your Facebook friends to NooBaa today.</p>
+				<p>Currenlty sharing is only availalbe for NooBaa users who are your social network friends.</p>
+				<p>Invite your friends to NooBaa today.</p>
 			</div>
 			<div ng-show="!share_is_loading && share_list.length"
 				ng-init="filter_friend_name=''">
@@ -397,7 +397,7 @@
 						ng-class="{true: 'danger'}[friend.shared]"
 						ng-click="friend.shared = !friend.shared">
 						<td>
-							<img ng-src="https://graph.facebook.com/{{friend.fb_id}}/picture"></img>
+							<img ng-src="{{friend.pic_url}}"></img>
 						</td>
 						<td>{{friend.name}}</td>
 						<td>
