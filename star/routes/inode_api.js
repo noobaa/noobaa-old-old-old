@@ -750,8 +750,6 @@ function get_inode_fobj(req, inode_id, callback) {
 }
 
 
-<<<<<<< HEAD
-
 ///////////////
 ///////////////
 // MULTIPART //
@@ -985,10 +983,6 @@ exports.inode_multipart_abort = function(req, res) {
 
 exports.inode_get_share_list = inode_get_share_list;
 
-=======
-exports.inode_get_share_list = inode_get_share_list;
-
->>>>>>> 027674ff44eacf95246c4b4107aa1b0692c76546
 function inode_get_share_list(req, res) {
 	var user = req.user;
 	var inode_id = req.params.inode_id;
