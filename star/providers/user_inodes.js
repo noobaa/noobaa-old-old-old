@@ -252,7 +252,6 @@ function create_ref_ghost_per_user(live_inode, user_id, cb) {
 exports.get_referring_users = get_referring_users;
 
 function get_referring_users(inode, cb) {
-	console.log('yd100 ', inode);
 	async.waterfall([
 		function(next) {
 			get_inode_refering_user_ids(inode, next);

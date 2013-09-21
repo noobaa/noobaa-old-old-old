@@ -2,13 +2,12 @@
 'use strict';
 
 var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
 var Device = require('./device');
 var _ = require('underscore');
 
 var providers = ['fb', 'google', 'local'];
 
-var user_schema = new Schema({
+var user_schema = new mongoose.Schema({
 	fb: {}, // facebook info has free form
 	google: {},
 	local: {},
@@ -35,9 +34,7 @@ user_schema.index({
 	'google.id': 1
 }, {
 	unique: true,
-	//sparse option explained:
-	//since we might have users who logged in via google, they won't have the FB
-	//http://docs.mongodb.org/manual/tutorial/create-a-unique-index/
+	//sparse option - same as the above only for google users.
 	sparse: true,
 });
 
