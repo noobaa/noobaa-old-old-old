@@ -27,6 +27,7 @@
 			num_sons: 0,
 			num_remain: 0,
 			id_gen: 1,
+			level: 0,
 		};
 
 		// check for active uploads before page unloads
@@ -152,6 +153,7 @@
 			dir_inode_id: dir_inode_id,
 			id: parent.id_gen++,
 			parent: parent,
+			level: parent.level + 1
 		};
 		parent.sons[upload.id] = upload;
 		parent.num_sons++;
@@ -607,39 +609,49 @@
 			restrict: 'E',
 			replace: true,
 			template: [
-				'<table id="upload_table"',
-				'	class="table ng-cloak"',
-				'	style="margin: 0">',
-				'	<thead ng-show="!upload.id">',
-				'		<th>Name</th>',
-				'		<th>Folder</th>',
-				'		<th>Size</th>',
-				'		<th>Status</th>',
-				'		<th>Progress</th>',
-				'	</thead>',
-				'	<tbody ng-include="\'nb-upload-node.html\'"></tbody>',
-				'</table>'
+				'<div id="upload_table"',
+				'	ng-cloak',
+				'	style="margin: 0; max-width: 100%; width: 100%">',
+				'	<div class="row" style="margin-bottom: 10px; font-weight: bold">',
+				'		<div class="col-xs-4">Name</div>',
+				'		<div class="col-xs-2">Size</div>',
+				'		<div class="col-xs-2">Status</div>',
+				'		<div class="col-xs-2">Progress</div>',
+				'		<div class="col-xs-2"></div>',
+				'	</div>',
+				'	<div ng-include="\'nb-upload-node.html\'"></div>',
+				'</div>'
 			].join('\n')
 		};
 	});
 
 	function setup_upload_node_template($templateCache) {
 		$templateCache.put('nb-upload-node.html', [
-			'	<tr ng-repeat-start="(id,upload) in upload.sons" ng-class="upload.row_class">',
-			'		<td>',
-			'			{{upload.item.name}}',
-			'		</td>',
-			'		<td>',
-			'			{{upload.parent.name + upload.file.relative_path}}',
-			'		</td>',
-			'		<td>',
+			'<div ng-repeat="(id,upload) in upload.sons" ng-class="upload.row_class">',
+			'	<div class="row" ',
+			'		style="{{upload.selected && \'font-weight: bold; color: blue\' || \'\'}}">',
+			'		<div class="col-xs-4">',
+			'			<span style="cursor: pointer" ng-click="upload.selected = !upload.selected">',
+			'				<i ng-hide="upload.selected" class="icon-check-empty"></i>',
+			'				<i ng-show="upload.selected" class="icon-check"></i>',
+			'			</span>',
+			'			<span style="padding-left: {{upload.level*15}}px">',
+			'				<span style="cursor: pointer" ng-click="upload.expanded = !upload.expanded">',
+			'					<i ng-hide="upload.expanded" class="icon-plus"></i>',
+			'					<i ng-show="upload.expanded" class="icon-minus"></i>',
+			'				</span>',
+			'				{{upload.item.name}}',
+			'			</span>',
+			'		</div>',
+			'		<div class="col-xs-2">',
 			'			{{human_size(upload.file.size)}}',
-			'		</td>',
-			'		<td>',
+			'		</div>',
+			'		<div class="col-xs-2">',
 			'			{{upload.status}}',
-			'		</td>',
-			'		<td width="100px">',
-			'			<div ng-show="upload.num_sons" class="progress" style="position: relative">',
+			'		</div>',
+			'		<div class="col-xs-2">',
+			'			<div ng-show="upload.num_sons" class="progress"',
+			'				style="position: relative; text-align:center">',
 			'				{{upload.num_remain}} Remain',
 			'			</div>',
 			'			<div ng-show="!upload.num_sons" class="progress" style="position: relative">',
@@ -654,8 +666,8 @@
 			'					{{upload.progress}}%',
 			'				</div>',
 			'			</div>',
-			'		</td>',
-			'		<td>',
+			'		</div>',
+			'		<div class="col-xs-2">',
 			'			<button class="btn btn-default btn-xs"',
 			'				ng-click="srv.cancel_upload(upload)">',
 			'				<i class="icon-remove"></i>',
@@ -665,12 +677,13 @@
 			'				ng-click="srv.start_upload(upload)">',
 			'				<i class="icon-repeat"></i>',
 			'			</button>',
-			'		</td>',
-			'	</tr>',
-			'	<tr ng-repeat-end>',
-			'		<div>{{upload.name}}</div>',
-			'		<div ng-include="\'nb-upload-node.html\'"></div>',
-			'	</tr>',
+			'		</div>',
+			'	</div>',
+			'	<div ng-include="\'nb-upload-node.html\'"',
+			'		nb-effect-toggle="upload.expanded"',
+			'		nb-effect-options="{effect:\'fade\', duration:250}">',
+			'	</div>',
+			'</div>',
 		].join('\n'));
 	}
 
