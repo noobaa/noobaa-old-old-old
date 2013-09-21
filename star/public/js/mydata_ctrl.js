@@ -316,9 +316,13 @@ Inode.prototype.delete_inode = function(avoid_read_parent) {
 				});
 				return deferred.promise;
 			}
-			var son = sons.pop();
-			console.log('DEL SON', son);
-			return son.delete_inode(true).then(delete_sons);
+			var promises = [];
+			for (var i=0; i<20 && sons.length; i++) {
+				var son = sons.pop();
+				console.log('DEL SON', son);
+				promises.push(son.delete_inode(true));
+			}
+			return me.$scope.$q.all(promises).then(delete_sons);
 		};
 		return delete_sons();
 	}).then(do_delete);
