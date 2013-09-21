@@ -1095,10 +1095,12 @@ function ShareModalCtrl($scope) {
 			console.log($scope.share_list);
 			$scope.share_list.forEach(function(fr) {
 				if (fr.fb_id) {
-					return fr.pic_url = 'https://graph.facebook.com/' + fr.fb_id + '/picture';
+					fr.pic_url = 'https://graph.facebook.com/' + fr.fb_id + '/picture';
+					return;
 				}
 				if (fr.google_id) {
-					return fr.pic_url = 'https://plus.google.com/s2/photos/profile/' + fr.google_id + '?sz=50';
+					fr.pic_url = 'https://plus.google.com/s2/photos/profile/' + fr.google_id + '?sz=50';
+					return;
 				}
 			});
 			console.log($scope.share_list);
