@@ -750,6 +750,7 @@ function get_inode_fobj(req, inode_id, callback) {
 }
 
 
+<<<<<<< HEAD
 
 ///////////////
 ///////////////
@@ -984,6 +985,10 @@ exports.inode_multipart_abort = function(req, res) {
 
 exports.inode_get_share_list = inode_get_share_list;
 
+=======
+exports.inode_get_share_list = inode_get_share_list;
+
+>>>>>>> 027674ff44eacf95246c4b4107aa1b0692c76546
 function inode_get_share_list(req, res) {
 	var user = req.user;
 	var inode_id = req.params.inode_id;
@@ -1017,6 +1022,7 @@ function inode_get_share_list(req, res) {
 			var local_collection = [];
 			//the order of the below push matters so change with care. The second pass will change
 			//friends that are shared with.
+
 			//TODO - don't run twice. It is stupid. removed the shared from friends.
 			local_collection.push({
 				array: friends_list,
@@ -1026,7 +1032,6 @@ function inode_get_share_list(req, res) {
 				array: ref_users,
 				shared_state: true
 			});
-
 			local_collection.forEach(function(friend_struct) {
 				var curr_sharing = friend_struct.shared_state;
 				friend_struct.array.forEach(function(v) {
