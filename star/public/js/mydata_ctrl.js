@@ -1091,8 +1091,6 @@ function ShareModalCtrl($scope) {
 		$scope.share_inode = inode;
 		inode.get_share_list().on('success', function(data) {
 			$scope.share_list = data.list;
-			console.log('---------------');
-			console.log($scope.share_list);
 			$scope.share_list.forEach(function(fr) {
 				if (fr.fb_id) {
 					fr.pic_url = 'https://graph.facebook.com/' + fr.fb_id + '/picture';
@@ -1103,8 +1101,6 @@ function ShareModalCtrl($scope) {
 					return;
 				}
 			});
-			console.log($scope.share_list);
-			console.log('---------------');
 
 		}).on('all', function() {
 			$scope.share_is_loading = false;

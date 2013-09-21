@@ -70,21 +70,7 @@ var provider_to_db_map = {
 };
 
 function user_login(req, accessToken, refreshToken, profile, done) {
-	console.log("USER LOGIN");
-	console.log('refreshToken: ', refreshToken);
-	// console.log(arguments);
-	console.log('------------------------------------------');
-	console.log(profile.provider);
-	console.log('------------------------------------------');
-
-	// console.log('profile.provider_to_internal_user_map[profile.provider]: ', profile.provider_to_internal_user_map[profile.provider]);
-	// var key = profile.provider_to_internal_user_map[profile.provider] + '.id';
-	// console.log('key: ', key);
-	// var xxx = {
-	// profile.provider_to_internal_user_map[profile.provider] + '.id': profile.id
-	// };
-	// console.log('xxx: ',xxx);
-	// return done(null, user);
+	console.log("USER LOGIN: ", arguments);
 
 	async.waterfall([
 			//find the user in the DB
@@ -95,14 +81,11 @@ function user_login(req, accessToken, refreshToken, profile, done) {
 				//the two lines below will get {fb.id:'xxx'} or {google.id:'xxx'} based on the provider
 				var find_options = {};
 				find_options[provider_to_db_map[profile.provider] + '.id'] = profile.id;
-				console.log('find_options: ', find_options);
 				User.findOne(find_options, function(err, user) {
 					if (err) {
 						console.error('ERROR - FIND USER FAILED:', err);
 						return next(err);
 					}
-
-					console.log('yd 1609: ', user);
 
 					if (!user) {
 						return create_user(profile, next);
@@ -132,10 +115,6 @@ function user_login(req, accessToken, refreshToken, profile, done) {
 				access_token: accessToken,
 				refresh_token: refreshToken
 			};
-			console.log('in login - setting tokens:');
-			console.log('profile.provider: ', profile.provider);
-			console.log('req.session.tokens[profile.provider]: ', req.session.tokens[profile.provider]);
-
 			return done(null, user);
 		});
 }
@@ -209,7 +188,6 @@ exports.third_party_login = function(provider, req, res, next) {
 		}
 	};
 
-	console.log("Third party login: " + provider);
 	passport.authenticate(provider, {
 		// passing the query state to next steps to allow custom redirect
 		state: req.query.state,
@@ -271,15 +249,11 @@ function get_friends_list(tokens, callback) {
 			client.me.friends(cb);
 		},
 		google_friends_list: function(cb) {
-			console.log('in google get friends list');
 			if (!tokens.google) {
-				console.log('No google token found.');
 				return cb(null, []);
 			}
-			console.log('Google token was found. Expected to get some info on the userinfo');
 			var oauth2Client =
 				new OAuth2Client(process.env.GOOGLE_APP_ID, process.env.GOOGLE_SECRET, process.env.GOOGLE_AUTHORIZED_URL);
-
 			googleapis.discover('plus', 'v1').execute(function(err, client) {
 				console.log('tokens.google: ', tokens.google);
 				oauth2Client.credentials = tokens.google;
@@ -314,8 +288,6 @@ function get_noobaa_friends_list(tokens, callback) {
 		function(friends, next) {
 			var fb_friends_id_list = _.pluck(friends.fb_friends_list, 'id');
 			var google_friends_id_list = _.pluck(friends.google_friends_list, 'id');
-			console.log('fb_friends_id_list: ', fb_friends_id_list);
-			console.log('google_friends_id_list: ', google_friends_id_list);
 			User.find({
 					$or: [{
 						"fb.id": {
