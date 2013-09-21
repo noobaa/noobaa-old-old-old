@@ -257,8 +257,6 @@ function get_referring_users(inode, cb) {
 			get_inode_refering_user_ids(inode, next);
 		},
 
-		// get_inode_refering_user_ids,
-
 		function(ref_user_id_list, next) {
 			User.find({
 				_id: {
