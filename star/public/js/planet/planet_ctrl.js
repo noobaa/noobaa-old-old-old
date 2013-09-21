@@ -437,7 +437,7 @@
 		nbUploadSrv.init_drop($(document));
 		nbUploadSrv.init_file_input($('#file_upload_input'));
 		nbUploadSrv.init_file_input($('#dir_upload_input'));
-		nbUploadSrv.get_parent_inode_id = function(event) {
+		nbUploadSrv.get_dir_inode_id = function(event) {
 			if (!$scope.planet_user || !$scope.planet_user.mydata) {
 				return false;
 			}

@@ -1228,7 +1228,7 @@ function UploadCtrl($scope, nbUploadSrv) {
 	nbUploadSrv.init_drop($(document));
 	nbUploadSrv.init_file_input($('#file_upload_input'));
 	nbUploadSrv.init_file_input($('#dir_upload_input'));
-	nbUploadSrv.get_parent_inode_id = function(event) {
+	nbUploadSrv.get_dir_inode_id = function(event) {
 		var dir_inode = $scope.dir_selection.inode;
 		if (!dir_inode) {
 			console.error('no selected dir, bailing');
