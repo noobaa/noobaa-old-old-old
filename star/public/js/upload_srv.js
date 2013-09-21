@@ -23,10 +23,9 @@
 		this.id_gen = 1;
 		this.num_uploads = 0;
 		this.num_active_uploads = 0;
-		this.root_upload = {
-			uploads: {}
-		};
-		this.queue = [];
+		this.uploads_map = {};
+		this.list = new LinkedList('list');
+		this.pending = new LinkedList('pend');
 
 		// check for active uploads before page unloads
 		var me = this;
@@ -37,6 +36,7 @@
 		});
 	}
 
+	// use on jquery elements to setup an upload drop listener
 	UploadSrv.prototype.init_drop = function(elements) {
 		var me = this;
 		var prevent_event = function(event) {
@@ -50,6 +50,7 @@
 		});
 	};
 
+	// use on input jquery elements to setup an upload change listener
 	UploadSrv.prototype.init_file_input = function(elements) {
 		var me = this;
 		elements.on('change', function(event) {
@@ -57,6 +58,7 @@
 		});
 	}
 
+	// submit the upload event and start processing
 	UploadSrv.prototype.submit_upload = function(event) {
 		event = event.originalEvent;
 		var me = this;
@@ -77,7 +79,7 @@
 		// with webkitdirectory is a bit broken (crbug.com/138987)
 		// and webkit doesn't populate .webkitEntries at all.
 		// So this path is here for when the bug is fixed.
-		var entries = !!tx.webkitEntries && !!tx.webkitEntries.length && tx.webkitEntries;
+		var entries = !! tx.webkitEntries && !! tx.webkitEntries.length && tx.webkitEntries;
 		// convert items to entries 
 		if (!entries && tx.items) {
 			entries = new Array(tx.items.length);
@@ -91,6 +93,13 @@
 			}
 		}
 
+		// we abstract the items to upload as either entries or files
+		var items = entries || tx.files;
+		if (!items) {
+			console.log('NO ENTRIES OR FILES TO UPLOAD', event);
+			return;
+		}
+
 		// get the target directory (or a promise to get it)
 		var parent_inode_id;
 		if (me.get_parent_inode_id) {
@@ -100,38 +109,55 @@
 			}
 		}
 
-		var items = entries || tx.files;
-		if (!items) {
-			return;
-		}
+		// submit each of the items
 		for (var i = 0; i < items.length; i++) {
-			me.submit_item(event, parent_inode_id, me.root_upload, items[i]);
+			me.submit_item(event, parent_inode_id, null, items[i]);
 		}
+		me.$rootScope.safe_apply();
 		event.preventDefault();
 		return false;
 	};
 
+	// submit single item to upload
+	// will create the upload object and insert into parent
+	// and will start processing if no other is running, otherwise add to queue.
 	UploadSrv.prototype.submit_item = function(event, parent_inode_id, parent_upload, item) {
 		var me = this;
+		var upload;
 		console.log('ITEM', item);
-		var upload = {
+
+		upload = parent_upload ? parent_upload.sons[item.name] : null;
+		if (upload) {
+			console.log('EXISTING UPLOAD', upload, item)
+			if ( !! item.isDirectory === !! upload.item.isDirectory) {
+				// just update the item
+				upload.item = item;
+				return;
+			} else {
+				console.log('EXISTING UPLOAD MISMATCHED');
+			}
+		}
+		upload = {
 			event: event,
 			id: me.id_gen++,
 			parent_inode_id: parent_inode_id,
 			parent_upload: parent_upload,
 			item: item,
-			uploads: {}
 		};
-		parent_upload.uploads[upload.id] = upload;
-		me.num_uploads++;
-		if (!me.num_active_uploads) {
-			// if no other active, start it
-			// otherwise the active ones will start 
-			me.start_upload(upload);
-		} else {
-			console.log('ENQUEUE', upload);
-			me.queue.push(upload);
+		if (item.isDirectory) {
+			upload.sons = {};
 		}
+		if (parent_upload) {
+			parent_upload.sons[item.name] = upload;
+		}
+		me.uploads_map[upload.id] = upload;
+		if (parent_upload) {
+			this.list.insert_after(parent_upload, upload);
+		} else {
+			this.list.insert_before(this.list, upload);
+		}
+		me.num_uploads++;
+		me.enqueue_pending(upload);
 	};
 
 	UploadSrv.prototype.start_upload = function(upload) {
@@ -139,33 +165,18 @@
 		var item = upload.item;
 		var promise;
 
-		upload.row_class = '';
 		upload.aborted = false;
 		upload.failed = false;
 		upload.active = true;
-		upload.status = 'Uploading...';
+		upload.status = 'start';
+		upload.row_class = '';
 		upload.progress_class = 'progress-bar progress-bar-success';
 		me.num_active_uploads++;
 		me.$rootScope.safe_apply();
 
 		if (item.isDirectory) {
-			// mkdir
-			console.log('MKDIR');
-			promise = me.$http({
-				method: 'POST',
-				url: '/star_api/inode/',
-				data: {
-					id: upload.parent_inode_id,
-					name: item.name,
-					isdir: true
-				}
-			}).then(function(res) {
-				upload.inode_id = res.data.id;
-				console.log('READDIR');
-				return me.readdir(upload);
-			});
+			promise = me.upload_dir(upload);
 		} else {
-			console.log('OPEN FILE', item);
 			promise = me.open_file(upload).then(function() {
 				console.log('FILE', upload.file);
 				if (me.on_file_upload) {
@@ -176,43 +187,85 @@
 			});
 		}
 
-		var finish_upload = function() {
-			me.num_active_uploads--;
-			upload.active = false;
-			if (me.queue.length) {
-				var u = me.queue.pop();
-				console.log('DEQUEUE', u);
-				me.start_upload(u);
-			}
-			me.$rootScope.safe_apply();
-		};
-
 		return promise.then(function() {
 			console.log('DONE');
-			upload.status = 'Completed';
+			me.num_active_uploads--;
+			upload.active = false;
+			upload.status = 'done';
 			upload.row_class = 'success';
-			finish_upload();
+			me.dequeue_pending();
+			me.$rootScope.safe_apply();
 		}, function(err) {
 			console.log('FAIL', err);
+			me.num_active_uploads--;
+			upload.active = false;
 			upload.failed = true;
-			upload.status = 'Failed!';
+			upload.fail_count = 1 + (upload.fail_count ? upload.fail_count : 0);
+			upload.status = 'fail';
 			upload.row_class = 'danger';
 			upload.progress_class = 'progress-bar progress-bar-danger';
-			finish_upload();
+			// when aborted dequeue another upload, otherwise retry
+			if (upload.aborted) {
+				me.dequeue_pending();
+			} else {
+				me.enqueue_pending(upload, 'front');
+			}
+			me.$rootScope.safe_apply();
 			throw err;
+		});
+	};
+
+	UploadSrv.prototype.upload_dir = function(upload) {
+		var me = this;
+		var dir_request;
+		console.log('MKDIR');
+
+		if (upload.inode_id) {
+			// inode_id supplied - getattr to verify it exists
+			console.log('[ok] upload gettattr dir:', upload);
+			dir_request = {
+				method: 'GET',
+				url: '/star_api/inode/' + upload.inode_id,
+				params: {
+					// tell the server to return attr 
+					// and not readdir us as in normal read
+					getattr: true
+				}
+			};
+		} else {
+			// create the file and receive upload location info
+			console.log('[ok] upload creating dir:', upload);
+			dir_request = {
+				method: 'POST',
+				url: '/star_api/inode/',
+				data: {
+					id: upload.parent_inode_id,
+					name: upload.item.name,
+					isdir: true
+				}
+			};
+		}
+
+		upload.status = 'mkdir';
+		me.$rootScope.safe_apply();
+
+		return me.$http(dir_request).then(function(res) {
+			upload.inode_id = res.data.id;
+			return me.readdir(upload);
 		});
 	};
 
 	UploadSrv.prototype.readdir = function(upload) {
 		var me = this;
 		var deferred = me.$q.defer();
+		console.log('READDIR');
 		upload.dir_reader = upload.item.createReader();
 		upload.readdir_func = function() {
 			upload.dir_reader.readEntries(function(entries) {
 				var check_aborted = function() {
 					if (upload.aborted) {
 						me.$rootScope.safe_apply(function() {
-							deferred.reject('aborted during readdir');
+							deferred.reject('readdir aborted');
 						});
 						return true;
 					}
@@ -245,6 +298,8 @@
 			});
 		};
 		upload.readdir_func();
+		upload.status = 'readdir';
+		me.$rootScope.safe_apply();
 		return deferred.promise;
 	};
 
@@ -281,7 +336,7 @@
 		var file_request;
 
 		if (upload.inode_id) {
-			// inode_id supplied - just pass it on
+			// inode_id supplied - getattr to verify it exists
 			console.log('[ok] upload gettattr file:', upload);
 			file_request = {
 				method: 'GET',
@@ -309,8 +364,10 @@
 					relative_path: relative_path
 				}
 			};
-
 		}
+
+		upload.status = 'create';
+		me.$rootScope.safe_apply();
 
 		return me.$http(file_request).then(function(res) {
 			console.log('[ok] upload file', res);
@@ -323,6 +380,8 @@
 				return;
 			}
 			upload.inode_id = res.data.id;
+			upload.status = 'upload';
+			me.$rootScope.safe_apply();
 			return me._upload_multipart(upload);
 		});
 	};
@@ -395,6 +454,33 @@
 	};
 
 
+	UploadSrv.prototype.enqueue_pending = function(upload, front) {
+		// if no other active, start it
+		if (!this.num_active_uploads) {
+			console.log('ENQUEUE start', upload);
+			this.start_upload(upload);
+			return;
+		}
+		if (front === 'front') {
+			console.log('ENQUEUE front', upload);
+			this.pending.insert_after(this.pending, upload);
+			return;
+		}
+		console.log('ENQUEUE', upload);
+		this.pending.insert_before(this.pending, upload);
+	};
+
+	UploadSrv.prototype.dequeue_pending = function() {
+		if (this.pending.is_empty()) {
+			return;
+		}
+		// dequeue next upload and start it
+		var upload = this.pending.get_first();
+		this.pending.remove(upload);
+		console.log('DEQUEUE', upload);
+		this.start_upload(upload);
+	};
+
 	UploadSrv.prototype.remove_upload = function(upload) {
 		if (upload.active) {
 			upload.aborted = true;
@@ -402,16 +488,17 @@
 				upload.xhr.abort();
 			}
 		} else {
-			if (upload.id in upload.parent_upload.uploads) {
-				delete upload.parent_upload.uploads[upload.id];
+			this.pending.remove(upload);
+			// remove from parent
+			if (upload.parent_upload) {
+				delete upload.parent_upload.sons[upload.item.name];
+			}
+			// remove from global
+			if (upload.id in this.uploads_map) {
+				delete this.uploads_map[upload.id];
 				this.num_uploads--;
 			}
-			for (var i=0; i<this.queue.length; i++) {
-				if (upload.id === this.queue[i].id) {
-					this.queue.splice(i);
-					break;
-				}
-			}
+			this.list.remove(upload);
 		}
 		this.$rootScope.safe_apply();
 	};
@@ -459,7 +546,7 @@
 				'			<th>Progress</th>',
 				'		</tr>',
 				'	</thead>',
-				'	<tr ng-repeat="(idx,upload) in srv.root_upload.uploads" ng-class="upload.row_class">',
+				'	<tr ng-repeat="(idx,upload) in srv.uploads_map" ng-class="upload.row_class">',
 				'		<td>',
 				'			{{upload.item.name}}',
 				'		</td>',
@@ -502,5 +589,109 @@
 			].join('\n')
 		};
 	});
+
+	// simple linked list
+
+	function LinkedList(id) {
+		this.next = '__next__' + id;
+		this.prev = '__prev__' + id;
+		this[this.next] = this;
+		this[this.prev] = this;
+
+		// disguise as array
+		this.length = 0;
+		this.iter_index = -1;
+		this.iter = this;
+	}
+
+	LinkedList.prototype.get_next = function(item) {
+		var next = item[this.next];
+		return next === this ? null : next;
+	};
+
+	LinkedList.prototype.get_prev = function(item) {
+		var prev = item[this.prev];
+		return prev === this ? null : prev;
+	};
+
+	LinkedList.prototype.get_first = function() {
+		return this.get_next(this);
+	};
+
+	LinkedList.prototype.get_last = function() {
+		return this.get_prev(this);
+	};
+
+	LinkedList.prototype.is_empty = function() {
+		return !this.get_first();
+	};
+
+	LinkedList.prototype.insert_after = LinkedList.prototype.push = function(item, new_item) {
+		var next = item[this.next];
+		new_item[this.next] = next;
+		new_item[this.prev] = item;
+		next[this.prev] = new_item;
+		item[this.next] = new_item;
+		this._inc_len();
+	};
+
+	LinkedList.prototype.insert_before = function(item, new_item) {
+		var prev = item[this.prev];
+		new_item[this.next] = item;
+		new_item[this.prev] = prev;
+		prev[this.next] = new_item;
+		item[this.prev] = new_item;
+		this._inc_len();
+	};
+
+	LinkedList.prototype.remove = function(item) {
+		if (!item[this.next] || !item[this.prev]) {
+			return false;
+		}
+		item[this.next][this.prev] = item[this.prev];
+		item[this.prev][this.next] = item[this.next];
+		delete item[this.next];
+		delete item[this.prev];
+		this.length--;
+		this._reset_iter();
+		return true;
+	};
+
+	LinkedList.prototype._inc_len = function() {
+		var me = this;
+		var n = me.length;
+		me.length++;
+		me._reset_iter();
+		delete me[n];
+		Object.defineProperty(me, n, {
+			enumerable: true,
+			configurable: true,
+			get: function() {
+				if (me.iter_index === n) {
+					return me.iter;
+				}
+				if (me.iter_index > n) {
+					me._reset_iter();
+				}
+				me.iter_index++;
+				me.iter = me.iter[me.next];
+				while (me.iter_index < n && me.iter !== me) {
+					me.iter_index++;
+					me.iter = me.iter[me.next];
+				}
+				if (me.iter === me) {
+					me._reset_iter();
+					return undefined;
+				}
+				console.log('ITER', n, me.length, me.iter_index, me.iter);
+				return me.iter;
+			}
+		});
+	};
+
+	LinkedList.prototype._reset_iter = function() {
+		this.iter_index = -1;
+		this.iter = this;
+	};
 
 })();

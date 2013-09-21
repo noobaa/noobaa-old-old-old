@@ -285,9 +285,9 @@ function do_read_dir(user, dir_inode, next) {
 	});
 }
 
-// read of file - return attributes of inode and fobj if exists
+// return attributes of inode and fobj if exists
 
-function do_read_file_attr(inode, next) {
+function do_get_attr(inode, next) {
 	return async.waterfall([
 		// find fobj if exists
 		function(next) {
@@ -297,7 +297,7 @@ function do_read_file_attr(inode, next) {
 			return Fobj.findById(inode.fobj, next);
 		},
 
-		// convert the inode anf fobj to a reply entry
+		// convert the inode and fobj to a reply entry
 		function(fobj, next) {
 			return next(null, inode_to_entry(inode, {
 				fobj: fobj,
@@ -654,17 +654,19 @@ exports.inode_read = function(req, res) {
 					info: 'Not Found'
 				});
 			}
+			if (req.query.getattr) {
+				return do_get_attr(inode, next);
+			}
 			if (inode.isdir) {
 				return do_read_dir(req.user, inode, next);
 			}
 			// redirect to the fobj location in S3
-			if (!req.query.getattr && inode.fobj) {
+			if (inode.fobj) {
 				var url = s3_get_url(inode.fobj, inode.name);
 				res.redirect(url);
 				return next();
 			}
-			// get_attr
-			return do_read_file_attr(inode, next);
+			return do_get_attr(inode, next);
 		},
 
 		// waterfall end
