@@ -21,14 +21,18 @@
 	]);
 
 	function UploadSrv() {
+		this.id_gen = 1;
+
 		this.root = {
 			sons: {},
 			pending_list: [],
 			num_sons: 0,
 			num_remain: 0,
-			id_gen: 1,
 			level: 0,
 		};
+
+		// multiple ui selection
+		this.selection = {};
 
 		// check for active uploads before page unloads
 		var me = this;
@@ -152,7 +156,7 @@
 			event: event,
 			item: item,
 			dir_inode_id: dir_inode_id,
-			id: parent.id_gen++,
+			id: me.id_gen++,
 			parent: parent,
 			level: parent.level + 1
 		};
@@ -169,7 +173,6 @@
 			upload.pending_list = [];
 			upload.num_sons = 0;
 			upload.num_remain = 0;
-			upload.id_gen = 1;
 		}
 		me.set_pending(upload);
 	};
@@ -355,6 +358,10 @@
 				console.log('skip upload for zero size file', file);
 				return;
 			}
+			if (!res.data.uploading) {
+				console.log('file already uploaded', res.data, file);
+				return;
+			}
 			if (upload.is_aborted) {
 				throw 'aborted';
 			}
@@ -453,12 +460,15 @@
 	UploadSrv.prototype.run_pending = function(upload) {
 		if (!upload) {
 			upload = this.root;
+			console.log('PENDING IS ROOT', upload);
 		} else if (!upload.item.isDirectory) {
+			console.log('PENDING NOT DIR', upload);
 			return false;
 		}
 		if (upload.active_son) {
-			console.log('ACTIVE SON', upload.active_son.item.name);
+			console.log('ACTIVE SON', upload.active_son.item.name, upload);
 			if (this.run_pending(upload.active_son)) {
+				console.log('ACTIVE SON WAS RUN', upload.active_son.item.name, upload);
 				return true;
 			}
 		}
@@ -466,8 +476,10 @@
 		var next;
 		while (upload.pending_list.length && (!next || next.is_removed)) {
 			next = upload.pending_list.shift();
+			console.log('PENDING LIST', upload, next);
 		}
 		if (!next || next.is_removed) {
+			console.log('PENDING NOT FOUND', upload, next);
 			return false;
 		}
 		console.log('RUN PENDING', next.item.name, next);
@@ -481,24 +493,28 @@
 		if (upload.is_active) {
 			return false;
 		}
+		if (upload.parent.active_son && upload.parent.active_son !== upload) {
+			console.log('RETURN TO PENDING', upload, upload.parent.active_son);
+			this.set_pending(upload, 'front');
+			return false;
+		}
 		upload.parent.active_son = upload;
 		upload.is_active = true;
+		upload.is_done = false;
 		upload.is_aborted = false;
-		upload.is_failed = false;
-		upload.row_class = '';
 		upload.progress_class = 'progress-bar progress-bar-success';
 		this.$rootScope.safe_apply();
 		return true;
 	};
 
 	UploadSrv.prototype.set_done = function(upload) {
-		console.log('ENTER SET DONE', upload.item.name, upload);
 		if (upload === this.root) {
 			return;
 		}
 		if (upload.is_done) {
 			return;
 		}
+		console.log('CHECK DONE', upload.item.name, upload);
 		if (!upload.item.isDirectory || upload.num_remain === 0) {
 			console.log('SET DONE', upload.item.name, upload);
 			upload.parent.num_remain--;
@@ -506,10 +522,7 @@
 			this.recalc_progress(upload.parent);
 			upload.is_done = true;
 			upload.is_active = false;
-			upload.row_class = 'success';
-			if (upload.parent !== this.root) {
-				this.set_done(upload.parent); // propagate
-			}
+			this.set_done(upload.parent); // propagate
 		}
 		// start some other pending upload
 		this.run_pending();
@@ -517,12 +530,10 @@
 	};
 
 	UploadSrv.prototype.set_fail = function(upload) {
-		console.log('SET FAIL', upload.item.name, upload);
+		console.error('SET FAIL', upload.item.name, upload);
 		upload.parent.active_son = null;
 		upload.is_active = false;
-		upload.is_failed = true;
 		upload.fail_count = 1 + (upload.fail_count ? upload.fail_count : 0);
-		upload.row_class = 'danger';
 		upload.progress_class = 'progress-bar progress-bar-danger';
 		if (upload.is_aborted) {
 			// start some other pending upload
@@ -569,6 +580,9 @@
 			delete upload.parent.sons[upload.id];
 			this.recalc_progress(upload.parent);
 		}
+
+		delete this.selection[upload.id];
+
 		// not removing from parent.pending_list because it requires to search
 		// instead mark as removed and run_pending() will discard.
 		upload.is_removed = true;
@@ -604,18 +618,17 @@
 	};
 
 	UploadSrv.prototype.get_status = function(upload) {
+		var status;
 		if (upload.is_active) {
-			return 'Active...';
+			status = '...' + (upload.fail_count ? ' (attempt ' + upload.fail_count + ')' : '');
+		} else if (upload.is_done) {
+			status = 'Done';
+		} else if (upload.is_aborted) {
+			status = 'Aborted!';
+		} else if (upload.is_pending) {
+			status = (upload.fail_count ? '(attempt ' + upload.fail_count + ')' : '');
 		}
-		if (upload.is_done) {
-			return 'Done';
-		}
-		if (upload.is_aborted) {
-			return 'Aborted!';
-		}
-		if (upload.is_pending) {
-			return '(Pending)';
-		}
+		return status;
 	};
 
 	UploadSrv.prototype.clear_completed = function(upload) {
@@ -625,11 +638,39 @@
 		for (var id in upload.sons) {
 			var son = upload.sons[id];
 			this.clear_completed(son);
-			if (son.is_done && !upload.is_active) {
+			if (son.is_done && !son.is_active) {
 				this.remove_upload(son);
 			}
 		}
+		this.run_pending();
 	};
+
+	UploadSrv.prototype.toggle_select = function(upload) {
+		if (upload.selected) {
+			upload.selected = false;
+			delete this.selection[upload.id];
+		} else {
+			upload.selected = true;
+			this.selection[upload.id] = upload;
+		}
+	};
+
+	UploadSrv.prototype.cancel_selected = function() {
+		for (var id in this.selection) {
+			var upload = this.selection[id];
+			this.cancel_upload(upload);
+		}
+		this.run_pending();
+	};
+
+	UploadSrv.prototype.resume_selected = function() {
+		for (var id in this.selection) {
+			var upload = this.selection[id];
+			this.start_upload(upload);
+		}
+		this.run_pending();
+	};
+
 
 	noobaa_app.directive('nbUploadTable', function() {
 		return {
@@ -643,20 +684,32 @@
 			replace: true,
 			template: [
 				'<div id="upload_table"',
-				'	ng-cloak',
+				'	ng-cloak class="fntthin"',
 				'	style="margin: 0; max-width: 100%; width: 100%">',
-				'	<button class="btn btn-xs" ng-click="srv.clear_completed()">Clear Completed</button>',
-				// '	<button class="btn btn-xs">Cancel </button>',
-				// '	<button class="btn btn-xs">Select All</button>',
-				// '	<button class="btn btn-xs">Select None</button>',
+				'	<div class="btn-toolbar" align="left">',
+				'		<button class="btn btn-xs btn-primary"',
+				'			ng-click="srv.clear_completed()">',
+				'			Clear Completed',
+				'			<i class="icon-eraser"></i>',
+				'		</button>',
+				'		<button class="btn btn-xs btn-warning"',
+				'			ng-click="srv.cancel_selected()">',
+				'			Cancel Selected',
+				'			<i class="icon-remove"></i>',
+				'		</button>',
+				'		<button class="btn btn-xs btn-default"',
+				'			ng-click="srv.resume_selected()">',
+				'			Resume Selected',
+				'			<i class="icon-repeat"></i>',
+				'		</button>',
+				'	</div>',
 				'	<div class="row" style="margin-bottom: 10px; font-weight: bold">',
-				'		<div class="col-xs-4">Name</div>',
+				'		<div class="col-xs-6">Name</div>',
 				'		<div class="col-xs-2">Size</div>',
 				'		<div class="col-xs-2">Status</div>',
 				'		<div class="col-xs-2">Progress</div>',
-				'		<div class="col-xs-2"></div>',
 				'	</div>',
-				'	<div ng-include="\'nb-upload-node.html\'"></div>',
+				'	<div ng-include="\'nb-upload-node.html\'" style="font-size: 12px"></div>',
 				'</div>'
 			].join('\n')
 		};
@@ -664,11 +717,11 @@
 
 	function setup_upload_node_template($templateCache) {
 		$templateCache.put('nb-upload-node.html', [
-			'<div ng-repeat="(id,upload) in upload.sons" ng-class="upload.row_class">',
+			'<div ng-repeat="(id,upload) in upload.sons">',
 			'	<div class="row" ',
 			'		style="{{upload.selected && \'font-weight: bold; color: blue\' || \'\'}}">',
-			'		<div class="col-xs-4">',
-			'			<span style="cursor: pointer" ng-click="upload.selected = !upload.selected">',
+			'		<div class="col-xs-6">',
+			'			<span style="cursor: pointer" ng-click="srv.toggle_select(upload)">',
 			'				<i ng-hide="upload.selected" class="icon-check-empty"></i>',
 			'				<i ng-show="upload.selected" class="icon-check"></i>',
 			'			</span>',
@@ -700,17 +753,6 @@
 			'					{{upload.progress}}%',
 			'				</div>',
 			'			</div>',
-			'		</div>',
-			'		<div class="col-xs-2">',
-			'			<button class="btn btn-default btn-xs"',
-			'				ng-click="srv.cancel_upload(upload)">',
-			'				<i class="icon-remove"></i>',
-			'			</button>',
-			'			<button class="btn btn-default btn-xs"',
-			'				ng-disabled="!upload.is_aborted"',
-			'				ng-click="srv.start_upload(upload)">',
-			'				<i class="icon-repeat"></i>',
-			'			</button>',
 			'		</div>',
 			'	</div>',
 			'	<div ng-include="\'nb-upload-node.html\'"',
