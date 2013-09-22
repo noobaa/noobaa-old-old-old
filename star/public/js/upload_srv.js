@@ -116,6 +116,7 @@
 		for (var i = 0; i < items.length; i++) {
 			me.submit_item(event, dir_inode_id, me.root, items[i]);
 		}
+		me.run_pending();
 		me.$rootScope.safe_apply();
 		event.preventDefault();
 		return false;
@@ -127,7 +128,7 @@
 	UploadSrv.prototype.submit_item = function(event, dir_inode_id, parent, item) {
 		var me = this;
 		var upload;
-		console.log('ITEM', item);
+		console.log('SUBMIT', item.name, item);
 
 		// try to find the item name in parent
 		// if found and type matches, it means we resume the parent
@@ -158,6 +159,7 @@
 		parent.sons[upload.id] = upload;
 		parent.num_sons++;
 		parent.num_remain++;
+		me.recalc_progress(parent);
 		if (parent.sons_by_name) {
 			parent.sons_by_name[item.name] = upload;
 		}
@@ -185,7 +187,6 @@
 			promise = me.upload_dir(upload);
 		} else {
 			promise = me.open_file(upload).then(function() {
-				console.log('FILE', upload.file);
 				if (me.on_file_upload) {
 					return me.on_file_upload(upload);
 				} else {
@@ -206,7 +207,7 @@
 	UploadSrv.prototype.upload_dir = function(upload) {
 		var me = this;
 		var dir_request;
-		console.log('MKDIR');
+		console.log('MKDIR', upload.item.name, upload);
 
 		if (upload.inode_id) {
 			// inode_id supplied - getattr to verify it exists
@@ -234,7 +235,6 @@
 			};
 		}
 
-		upload.status = 'mkdir';
 		me.$rootScope.safe_apply();
 
 		return me.$http(dir_request).then(function(res) {
@@ -246,16 +246,15 @@
 	UploadSrv.prototype.readdir = function(upload) {
 		var me = this;
 		var deferred = me.$q.defer();
-		console.log('READDIR');
+		console.log('READDIR', upload.item.name, upload);
 		upload.dir_reader = upload.item.createReader();
 		upload.readdir_func = function() {
 			upload.dir_reader.readEntries(function(entries) {
 				try {
-					if (upload.aborted) {
+					if (upload.is_aborted) {
 						throw 'aborted';
 					}
 					for (var i = 0; i < entries.length; i++) {
-						console.log('SUBMIT ENTRY', entries[i]);
 						me.submit_item(upload.event, upload.inode_id, upload, entries[i]);
 					}
 					if (entries.length) {
@@ -281,7 +280,6 @@
 			});
 		};
 		upload.readdir_func();
-		upload.status = 'readdir';
 		me.$rootScope.safe_apply();
 		return deferred.promise;
 	};
@@ -317,7 +315,6 @@
 		var me = this;
 		var file = upload.file;
 		var file_request;
-
 		if (upload.inode_id) {
 			// inode_id supplied - getattr to verify it exists
 			console.log('[ok] upload gettattr file:', upload);
@@ -348,10 +345,6 @@
 				}
 			};
 		}
-
-		upload.status = 'create';
-		me.$rootScope.safe_apply();
-
 		return me.$http(file_request).then(function(res) {
 			console.log('[ok] upload file', res);
 			if (res.data.name !== file.name || res.data.size !== file.size) {
@@ -362,11 +355,10 @@
 				console.log('skip upload for zero size file', file);
 				return;
 			}
-			if (upload.aborted) {
+			if (upload.is_aborted) {
 				throw 'aborted';
 			}
 			upload.inode_id = res.data.id;
-			upload.status = 'upload';
 			me.$rootScope.safe_apply();
 			return me._upload_multipart(upload);
 		});
@@ -382,7 +374,7 @@
 		}).then(function(res) {
 			upload.multipart = res.data;
 			console.log('[ok] upload multipart state', upload.multipart);
-			if (upload.aborted) {
+			if (upload.is_aborted) {
 				throw 'aborted';
 			}
 			if (upload.multipart.complete) {
@@ -446,6 +438,7 @@
 
 
 	UploadSrv.prototype.set_pending = function(upload, front) {
+		console.log('SET PENDING', upload.item.name, front, upload);
 		if (upload.is_pending) {
 			return;
 		}
@@ -455,8 +448,6 @@
 		} else {
 			upload.parent.pending_list.push(upload);
 		}
-		// see if anyone is ready
-		this.run_pending();
 	};
 
 	UploadSrv.prototype.run_pending = function(upload) {
@@ -466,33 +457,34 @@
 			return false;
 		}
 		if (upload.active_son) {
+			console.log('ACTIVE SON', upload.active_son.item.name);
 			if (this.run_pending(upload.active_son)) {
 				return true;
 			}
 		}
 		// dequeue next upload and start it, skip removed items.
 		var next;
-		while (upload.pending_list.length && (!next || next.removed)) {
+		while (upload.pending_list.length && (!next || next.is_removed)) {
 			next = upload.pending_list.shift();
 		}
-		if (!next || next.removed) {
+		if (!next || next.is_removed) {
 			return false;
 		}
-		console.log('PENDING', next);
+		console.log('RUN PENDING', next.item.name, next);
 		next.is_pending = false;
 		this.start_upload(next);
 		return true;
 	};
 
 	UploadSrv.prototype.set_active = function(upload) {
-		if (upload.active) {
+		console.log('SET ACTIVE', upload.item.name, upload);
+		if (upload.is_active) {
 			return false;
 		}
 		upload.parent.active_son = upload;
-		upload.active = true;
-		upload.aborted = false;
-		upload.failed = false;
-		upload.status = 'start';
+		upload.is_active = true;
+		upload.is_aborted = false;
+		upload.is_failed = false;
 		upload.row_class = '';
 		upload.progress_class = 'progress-bar progress-bar-success';
 		this.$rootScope.safe_apply();
@@ -500,21 +492,24 @@
 	};
 
 	UploadSrv.prototype.set_done = function(upload) {
+		console.log('ENTER SET DONE', upload.item.name, upload);
 		if (upload === this.root) {
 			return;
 		}
-		if (upload.done) {
+		if (upload.is_done) {
 			return;
 		}
-		console.log('DONE', upload);
 		if (!upload.item.isDirectory || upload.num_remain === 0) {
+			console.log('SET DONE', upload.item.name, upload);
 			upload.parent.num_remain--;
 			upload.parent.active_son = null;
-			upload.done = true;
-			upload.active = false;
-			upload.status = 'done';
+			this.recalc_progress(upload.parent);
+			upload.is_done = true;
+			upload.is_active = false;
 			upload.row_class = 'success';
-			this.set_done(upload.parent); // propagate
+			if (upload.parent !== this.root) {
+				this.set_done(upload.parent); // propagate
+			}
 		}
 		// start some other pending upload
 		this.run_pending();
@@ -522,15 +517,14 @@
 	};
 
 	UploadSrv.prototype.set_fail = function(upload) {
-		console.log('FAIL', upload);
+		console.log('SET FAIL', upload.item.name, upload);
 		upload.parent.active_son = null;
-		upload.active = false;
-		upload.failed = true;
+		upload.is_active = false;
+		upload.is_failed = true;
 		upload.fail_count = 1 + (upload.fail_count ? upload.fail_count : 0);
-		upload.status = 'fail';
 		upload.row_class = 'danger';
 		upload.progress_class = 'progress-bar progress-bar-danger';
-		if (upload.aborted) {
+		if (upload.is_aborted) {
 			// start some other pending upload
 			this.run_pending();
 		} else {
@@ -541,13 +535,15 @@
 	};
 
 	UploadSrv.prototype.set_abort = function(upload) {
-		if (!upload.active) {
+		if (!upload.is_active) {
 			return true;
 		}
 		// for active uploads try to abort them and interrupt their xhr
 		// but don't force remove, wait for them to join and remove the active flag
-		upload.aborted = true;
+		console.log('SET ABORT', upload.item.name, upload);
+		upload.is_aborted = true;
 		if (upload.xhr) {
+			console.log('SET ABORT XHR', upload.item.name, upload);
 			upload.xhr.abort();
 		}
 		this.$rootScope.safe_apply();
@@ -561,8 +557,9 @@
 		}
 
 		if (upload.id in upload.parent.sons) {
+			console.log('REMOVING', upload.item.name, upload);
 			upload.parent.num_sons--;
-			if (!upload.done) {
+			if (!upload.is_done) {
 				upload.parent.num_remain--;
 			}
 			if (upload.parent.sons_by_name &&
@@ -570,16 +567,17 @@
 				delete upload.parent.sons_by_name[upload.item.name];
 			}
 			delete upload.parent.sons[upload.id];
+			this.recalc_progress(upload.parent);
 		}
 		// not removing from parent.pending_list because it requires to search
 		// instead mark as removed and run_pending() will discard.
-		upload.removed = true;
+		upload.is_removed = true;
 		this.$rootScope.safe_apply();
 	};
 
 	UploadSrv.prototype.cancel_upload = function(upload) {
 		var do_remove = this.remove_upload.bind(this, upload);
-		if (!upload.active) {
+		if (upload.is_done && !upload.is_active) {
 			do_remove();
 		} else {
 			$.nbconfirm('This upload is still working.<br/>' +
@@ -597,6 +595,41 @@
 		return !!this.root.num_remain;
 	};
 
+	UploadSrv.prototype.recalc_progress = function(upload) {
+		if (upload.num_sons === 0) {
+			upload.progress = 100;
+		} else {
+			upload.progress = (100 * (upload.num_sons - upload.num_remain) / upload.num_sons).toFixed(1);
+		}
+	};
+
+	UploadSrv.prototype.get_status = function(upload) {
+		if (upload.is_active) {
+			return 'Active...';
+		}
+		if (upload.is_done) {
+			return 'Done';
+		}
+		if (upload.is_aborted) {
+			return 'Aborted!';
+		}
+		if (upload.is_pending) {
+			return '(Pending)';
+		}
+	};
+
+	UploadSrv.prototype.clear_completed = function(upload) {
+		if (!upload) {
+			upload = this.root;
+		}
+		for (var id in upload.sons) {
+			var son = upload.sons[id];
+			this.clear_completed(son);
+			if (son.is_done && !upload.is_active) {
+				this.remove_upload(son);
+			}
+		}
+	};
 
 	noobaa_app.directive('nbUploadTable', function() {
 		return {
@@ -612,6 +645,10 @@
 				'<div id="upload_table"',
 				'	ng-cloak',
 				'	style="margin: 0; max-width: 100%; width: 100%">',
+				'	<button class="btn btn-xs" ng-click="srv.clear_completed()">Clear Completed</button>',
+				// '	<button class="btn btn-xs">Cancel </button>',
+				// '	<button class="btn btn-xs">Select All</button>',
+				// '	<button class="btn btn-xs">Select None</button>',
 				'	<div class="row" style="margin-bottom: 10px; font-weight: bold">',
 				'		<div class="col-xs-4">Name</div>',
 				'		<div class="col-xs-2">Size</div>',
@@ -636,7 +673,8 @@
 			'				<i ng-show="upload.selected" class="icon-check"></i>',
 			'			</span>',
 			'			<span style="padding-left: {{upload.level*15}}px">',
-			'				<span style="cursor: pointer" ng-click="upload.expanded = !upload.expanded">',
+			'				<span ng-click="upload.expanded = !upload.expanded"',
+			'					style="cursor: pointer; {{!upload.num_sons && \'visibility: hidden\' || \'\'}}">',
 			'					<i ng-hide="upload.expanded" class="icon-plus"></i>',
 			'					<i ng-show="upload.expanded" class="icon-minus"></i>',
 			'				</span>',
@@ -647,14 +685,10 @@
 			'			{{human_size(upload.file.size)}}',
 			'		</div>',
 			'		<div class="col-xs-2">',
-			'			{{upload.status}}',
+			'			{{srv.get_status(upload)}}',
 			'		</div>',
 			'		<div class="col-xs-2">',
-			'			<div ng-show="upload.num_sons" class="progress"',
-			'				style="position: relative; text-align:center">',
-			'				{{upload.num_remain}} Remain',
-			'			</div>',
-			'			<div ng-show="!upload.num_sons" class="progress" style="position: relative">',
+			'			<div class="progress" style="position: relative">',
 			'				<div ng-class="upload.progress_class"',
 			'					role="progressbar"',
 			'					aria-valuemin="0" aria-valuemax="100"',
@@ -673,7 +707,7 @@
 			'				<i class="icon-remove"></i>',
 			'			</button>',
 			'			<button class="btn btn-default btn-xs"',
-			'				ng-disabled="!upload.failed"',
+			'				ng-disabled="!upload.is_aborted"',
 			'				ng-click="srv.start_upload(upload)">',
 			'				<i class="icon-repeat"></i>',
 			'			</button>',
@@ -688,102 +722,106 @@
 	}
 
 
-	// linked list with option to get array
+	function unused_code() {
 
-	function LinkedList(id) {
-		this.next = '__next__' + id;
-		this.prev = '__prev__' + id;
-		this.index = '__index__' + id;
-		this[this.next] = this;
-		this[this.prev] = this;
-		this[this.index] = -1;
-	}
+		// linked list with option to get array
+		// its unused for now but might be
 
-	LinkedList.prototype.get_next = function(item) {
-		var next = item[this.next];
-		return next === this ? null : next;
-	};
-
-	LinkedList.prototype.get_prev = function(item) {
-		var prev = item[this.prev];
-		return prev === this ? null : prev;
-	};
-
-	LinkedList.prototype.get_first = function() {
-		return this.get_next(this);
-	};
-
-	LinkedList.prototype.get_last = function() {
-		return this.get_prev(this);
-	};
-
-	LinkedList.prototype.is_empty = function() {
-		return !this.get_first();
-	};
-
-	LinkedList.prototype.insert_after = LinkedList.prototype.push = function(item, new_item) {
-		var next = item[this.next];
-		new_item[this.next] = next;
-		new_item[this.prev] = item;
-		next[this.prev] = new_item;
-		item[this.next] = new_item;
-		if (this.arr) {
-			var index = item[this.index] + 1;
-			this.arr.splice(index, 0, new_item);
-			new_item[this.index] = index;
+		function LinkedList(id) {
+			this.next = '__next__' + id;
+			this.prev = '__prev__' + id;
+			this.index = '__index__' + id;
+			this[this.next] = this;
+			this[this.prev] = this;
+			this[this.index] = -1;
 		}
-	};
 
-	LinkedList.prototype.insert_before = function(item, new_item) {
-		var prev = item[this.prev];
-		new_item[this.next] = item;
-		new_item[this.prev] = prev;
-		prev[this.next] = new_item;
-		item[this.prev] = new_item;
-		if (this.arr) {
-			var index = prev[this.index] + 1;
-			this.arr.splice(index, 0, new_item);
-			new_item[this.index] = index;
-		}
-	};
+		LinkedList.prototype.get_next = function(item) {
+			var next = item[this.next];
+			return next === this ? null : next;
+		};
 
-	LinkedList.prototype.remove = function(item) {
-		var next = item[this.next];
-		var prev = item[this.prev];
-		var index = item[this.index];
-		if (!next || !prev) {
-			return false; // already removed
-		}
-		next[this.prev] = prev;
-		prev[this.next] = next;
-		delete item[this.next];
-		delete item[this.prev];
-		delete item[this.index];
-		if (this.arr) {
-			this.arr.splice(index, 1);
-		}
-		return true;
-	};
+		LinkedList.prototype.get_prev = function(item) {
+			var prev = item[this.prev];
+			return prev === this ? null : prev;
+		};
 
-	LinkedList.prototype.get_array = function() {
-		if (this.arr) {
+		LinkedList.prototype.get_first = function() {
+			return this.get_next(this);
+		};
+
+		LinkedList.prototype.get_last = function() {
+			return this.get_prev(this);
+		};
+
+		LinkedList.prototype.is_empty = function() {
+			return !this.get_first();
+		};
+
+		LinkedList.prototype.insert_after = LinkedList.prototype.push = function(item, new_item) {
+			var next = item[this.next];
+			new_item[this.next] = next;
+			new_item[this.prev] = item;
+			next[this.prev] = new_item;
+			item[this.next] = new_item;
+			if (this.arr) {
+				var index = item[this.index] + 1;
+				this.arr.splice(index, 0, new_item);
+				new_item[this.index] = index;
+			}
+		};
+
+		LinkedList.prototype.insert_before = function(item, new_item) {
+			var prev = item[this.prev];
+			new_item[this.next] = item;
+			new_item[this.prev] = prev;
+			prev[this.next] = new_item;
+			item[this.prev] = new_item;
+			if (this.arr) {
+				var index = prev[this.index] + 1;
+				this.arr.splice(index, 0, new_item);
+				new_item[this.index] = index;
+			}
+		};
+
+		LinkedList.prototype.remove = function(item) {
+			var next = item[this.next];
+			var prev = item[this.prev];
+			var index = item[this.index];
+			if (!next || !prev) {
+				return false; // already removed
+			}
+			next[this.prev] = prev;
+			prev[this.next] = next;
+			delete item[this.next];
+			delete item[this.prev];
+			delete item[this.index];
+			if (this.arr) {
+				this.arr.splice(index, 1);
+			}
+			return true;
+		};
+
+		LinkedList.prototype.get_array = function() {
+			if (this.arr) {
+				return this.arr;
+			}
+			this.arr = [];
+			var p = this.get_first();
+			var i = 0;
+			while (p) {
+				this.arr[i] = p;
+				p[this.index] = i;
+				p = this.get_next(p);
+				i++;
+			}
 			return this.arr;
-		}
-		this.arr = [];
-		var p = this.get_first();
-		var i = 0;
-		while (p) {
-			this.arr[i] = p;
-			p[this.index] = i;
-			p = this.get_next(p);
-			i++;
-		}
-		return this.arr;
-	};
+		};
 
-	LinkedList.prototype.drop_array = function() {
-		delete this.arr;
-	};
+		LinkedList.prototype.drop_array = function() {
+			delete this.arr;
+		};
+	}
 
 
 })();
