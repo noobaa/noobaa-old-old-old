@@ -124,6 +124,7 @@
 		}
 		me.run_pending();
 		me.$rootScope.safe_apply();
+
 		event.preventDefault();
 		event.stopPropagation();
 		return false;
@@ -391,8 +392,10 @@
 				throw 'aborted';
 			}
 			if (upload.multipart.complete) {
+				upload.progress = 100;
 				return; // done
 			}
+			upload.progress = (upload.multipart.upsize * 100 / upload.file.size).toFixed(1);
 			// send one part
 			// TODO: maybe send all the missing at once?
 			var part = upload.multipart.missing_parts[0];
@@ -499,6 +502,9 @@
 			return false;
 		}
 		if (upload.is_active) {
+			return false;
+		}
+		if (upload.is_done) {
 			return false;
 		}
 		if (upload.parent.active_son && upload.parent.active_son !== upload) {
@@ -718,7 +724,10 @@
 
 	noobaa_app.filter('upload_sons_sort', function() {
 		return function(upload) {
-			return upload.expanded ? upload.sons : null;
+			if (!upload.expanded) {
+				return null;
+			}
+			return upload.sons;
 			// TODO: too much cpu....
 			console.log('SORTING', upload.num_sons);
 			if (!upload.num_sons) {
