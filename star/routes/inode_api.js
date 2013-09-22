@@ -482,21 +482,7 @@ function inode_create_action(inode, fobj, user, relative_path, callback) {
 	async.waterfall([
 
 		function(next) {
-			return validate_inode_creation_conditions(inode, fobj, user, function(err, rejection) {
-				if (err) {
-					return next(err);
-				}
-				if (rejection) {
-					return next({
-						status: 400,
-						info: {
-							text: 'File creation failed.',
-							rejection: rejection
-						}
-					});
-				}
-				return next();
-			});
+			return validate_inode_creation_conditions(inode, fobj, user, next);
 		},
 
 		// create relative path if needed
@@ -1322,14 +1308,14 @@ function validate_inode_creation_conditions(inode, fobj, user, callback) {
 					next(err);
 				}
 				if (fobj.size + usage > user.quota) {
-					rejection = {
-						reason: 'User reached quota limitaion of ' + filesize(user.quota),
+					console.log("User reached quota limitaion ", rejection);
+					return next({
+						status: 507, // HTTP Insufficient Storage
+						err: 'User reached quota limitaion of ' + filesize(user.quota),
 						quota: user.quota,
 						usage: usage,
 						file_size: fobj.size
-					};
-					console.log("Reject: ", rejection);
-					return next(null, rejection);
+					});
 				}
 				return next();
 			});
