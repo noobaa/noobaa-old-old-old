@@ -202,6 +202,9 @@
 			me.set_done(upload);
 			return res;
 		}, function(err) {
+			if (err.status === 507) { // HTTP Insufficient Storage
+				upload.fail_reason = 'Out of space';
+			}
 			me.set_fail(upload);
 			throw err;
 		});
@@ -622,16 +625,27 @@
 
 	UploadSrv.prototype.get_status = function(upload) {
 		var status;
+		var add_fails = true;
 		if (upload.is_active) {
-			status = '...' + (upload.fail_count ? ' (attempt ' + upload.fail_count + ')' : '');
+			status = '...';
 		} else if (upload.is_done) {
 			status = 'Done';
+			add_fails = false;
 		} else if (upload.is_aborted) {
 			status = 'Aborted!';
+			add_fails = false;
 		} else if (upload.is_pending) {
-			status = (upload.fail_count ? '(attempt ' + upload.fail_count + ')' : '');
+			status = '';
 		} else {
-			status = (upload.fail_count ? '(attempt ' + upload.fail_count + ')' : '');
+			status = '';
+		}
+		if (add_fails) {
+			if (upload.fail_reason) {
+				status += ' ' + upload.fail_reason;
+			}
+			if (upload.fail_count) {
+				status += ' (attempting)';
+			}
 		}
 		return status;
 	};
