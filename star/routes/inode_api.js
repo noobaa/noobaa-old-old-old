@@ -114,8 +114,9 @@ function inode_to_entry(inode, opt) {
 
 	//handle inode ownership
 	if (inode.live_owner) {
-		ent.owner_fbid = inode.live_owner.fb.id;
-		ent.owner_name = inode.live_owner.fb.name;
+		ent.owner = {};
+		ent.owner.name = inode.live_owner.get_name();
+		inode.live_owner.assign_ids_to_object(ent.owner);
 	}
 	if (opt && opt.user && !mongoose.Types.ObjectId(opt.user.id).equals(inode.owner)) {
 		ent.not_mine = true;
@@ -532,7 +533,7 @@ exports.inode_read = function(req, res) {
 			}
 			if (inode.isdir) {
 				return do_read_dir(req.user, inode, next);
-			} 
+			}
 			// redirect to the fobj location in S3
 			if (!req.query.getattr && inode.fobj) {
 				var url = s3_get_url(inode.fobj, inode.name);
@@ -972,14 +973,24 @@ exports.inode_multipart_abort = function(req, res) {
 	], common_api.reply_callback(req, res, 'INODE_ABORT_MULTIPART ' + inode_id));
 };
 
-
-
 /////////////
 /////////////
 // SHARING //
 /////////////
 /////////////
 
+function update_users_share_map(share_map, users_array, shared_status) {
+	console.log('update_users_share_map. share status: ', shared_status);
+	console.log(_.pluck(users_array, '_id'));
+	users_array.forEach(function(v) {
+		share_map[v._id] = {
+			"shared": shared_status,
+			"nb_id": v._id,
+			"name": v.get_name()
+		};
+		v.assign_ids_to_object(share_map[v._id]);
+	});
+}
 
 exports.inode_get_share_list = inode_get_share_list;
 
@@ -1013,37 +1024,8 @@ function inode_get_share_list(req, res) {
 		//prepare the structure for http send - setting sharing to true/false based on the structures.
 		function(ref_users, friends_list, next) {
 			var share_users_map = {};
-			var local_collection = [];
-			//the order of the below push matters so change with care. The second pass will change
-			//friends that are shared with.
-
-			//TODO - don't run twice. It is stupid. removed the shared from friends.
-			local_collection.push({
-				array: friends_list,
-				shared_state: false
-			});
-			local_collection.push({
-				array: ref_users,
-				shared_state: true
-			});
-			local_collection.forEach(function(friend_struct) {
-				var curr_sharing = friend_struct.shared_state;
-				friend_struct.array.forEach(function(v) {
-					share_users_map[v._id] = {
-						"shared": curr_sharing,
-						"nb_id": v._id,
-					};
-					if (v.fb) {
-						share_users_map[v._id].fb_id = v.fb.id;
-						share_users_map[v._id].name = v.fb.name;
-					}
-					if (v.google) {
-						share_users_map[v._id].google_id = v.google.id;
-						share_users_map[v._id].name = v.google.name;
-					}
-				});
-			});
-
+			update_users_share_map(share_users_map, _.difference(friends_list, ref_users), false);
+			update_users_share_map(share_users_map, ref_users, true);
 			return next(null, {
 				"list": _.values(share_users_map)
 			});

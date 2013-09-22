@@ -397,7 +397,7 @@
 						ng-class="{true: 'danger'}[friend.shared]"
 						ng-click="friend.shared = !friend.shared">
 						<td>
-							<img ng-src="{{friend.pic_url}}"></img>
+							<img ng-src="{{ get_pic_url(friend) }}"></img>
 						</td>
 						<td>{{friend.name}}</td>
 						<td>
@@ -686,15 +686,15 @@
 					</span>
 				</div>
 				<div class="t-cell text-center">
-					<span ng-show="inode.owner_name">
-						{{inode.owner_name}}</span>
+					<span ng-show="inode.owner">
+						{{inode.owner.name}}</span>
 					<i ng-show="!!inode.num_refs"
 						class="icon-share icon-large d-icon"
 						title="Shared with {{inode.num_refs}} friends"
 						ng-click="click_share(inode)"></i>
-					<img ng-show="!!inode.owner_fbid"
+					<img ng-show="!!inode.owner"
 						class="pull-right"
-						ng-src="{{fb_pic_url(inode.owner_fbid)}}" 
+						ng-src="{{get_pic_url(inode.owner)}}" 
 						style="width: 30px; height: 30px;"></img>
 				</div>
 				<div class="t-cell  text-center">

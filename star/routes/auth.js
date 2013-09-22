@@ -154,12 +154,7 @@ passport.serializeUser(function(user, done) {
 		email: user.get_email(),
 		alpha_tester: user.alpha_tester,
 	};
-	if (user.fb) {
-		user_info.fbid = user.fb.id;
-	}
-	if (user.google) {
-		user_info.googleid = user.google.id;
-	}
+	user.assign_ids_to_object(user_info);
 
 	// insert the adminoobaa field only if admin user,
 	// and avoid exposing it (even with false value) when not.
@@ -174,7 +169,7 @@ passport.deserializeUser(function(user_info, done) {
 });
 
 // third party login is handled by passport
-exports.third_party_login = function(provider, req, res, next) {
+exports.provider_login = function(provider, req, res, next) {
 	var auth_provider_conf = {
 		'facebook': {
 			scope: ['email']
@@ -198,7 +193,7 @@ exports.third_party_login = function(provider, req, res, next) {
 
 // when authorization is complete (either success/failed)
 // facebook will redirect here.
-exports.third_party_authorized = function(provider, req, res, next) {
+exports.provider_authorized = function(provider, req, res, next) {
 	// allow to pass in req.query.state the url to redirect
 	var redirect_url = req.query.state || '/';
 	var failure_url = (function() {

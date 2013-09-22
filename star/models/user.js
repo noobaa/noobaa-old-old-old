@@ -48,9 +48,6 @@ user_schema.methods.get_used_provider = function() {
 user_schema.methods.get_provider_field = function(field) {
 	var me = this;
 	var lprov = this.get_used_provider();
-	// console.log('me: ', me);
-	// console.log('lprov: ', lprov);
-	// console.log('field: ', field);
 	if (lprov && me[lprov][field]) {
 		return me[lprov][field];
 	}
@@ -58,11 +55,7 @@ user_schema.methods.get_provider_field = function(field) {
 };
 
 user_schema.methods.get_email = function() {
-	var me = this;
-	if (me.email) {
-		return me.email;
-	}
-	return me.get_provider_field('email');
+	return this.email || this.get_provider_field('email');
 };
 
 user_schema.methods.get_name = function() {
@@ -76,8 +69,18 @@ user_schema.methods.get_provider_id = function() {
 user_schema.methods.get_first_name = function() {
 	return this.get_name().split(" ")[0];
 };
+
 user_schema.methods.get_last_name = function() {
 	return _.last(this.get_name().split(" "));
+};
+
+user_schema.methods.assign_ids_to_object = function(object) {
+	var me = this;
+	providers.forEach(function(provider){
+		if (!! me[provider]){
+			object[provider+'id']=me[provider].id
+		}
+	});
 };
 
 var User = mongoose.model('User', user_schema);

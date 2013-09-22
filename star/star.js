@@ -219,15 +219,15 @@ var auth = require('./routes/auth');
 var facebook_auth_path = URL.parse(process.env.FACEBOOK_AUTHORIZED_URL).path;
 var google_auth_path = URL.parse(process.env.GOOGLE_AUTHORIZED_URL).path;
 
-app.get(facebook_auth_path, auth.third_party_authorized.bind(null, 'facebook'));
-app.get(google_auth_path, auth.third_party_authorized.bind(null, 'google'));
+app.get(facebook_auth_path, auth.provider_authorized.bind(null, 'facebook'));
+app.get(google_auth_path, auth.provider_authorized.bind(null, 'google'));
 
 
 app.get('/auth/facebook/channel.html', auth.facebook_channel);
 app.get('/auth/logout/', auth.logout);
 
-app.get('/auth/facebook/login/', auth.third_party_login.bind(null, 'facebook'));
-app.get('/auth/google/login/', auth.third_party_login.bind(null, 'google'));
+app.get('/auth/facebook/login/', auth.provider_login.bind(null, 'facebook'));
+app.get('/auth/google/login/', auth.provider_login.bind(null, 'google'));
 
 
 // setup star API routes

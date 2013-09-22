@@ -222,13 +222,12 @@ Inode.prototype.populate_dir = function(entries) {
 		sync_property(son, ent, "uploading");
 		sync_property(son, ent, "num_refs");
 		sync_property(son, ent, "not_mine");
-		sync_property(son, ent, "owner_name");
+		sync_property(son, ent, "owner");
 
 		//get only the first name for display. Cleaner and friendlier.
-		if (son.owner_name) {
-			son.owner_name = son.owner_name.split(' ')[0];
+		if (son.owner && son.owner.name) {
+			son.owner.name = son.owner.name.split(' ')[0];
 		}
-		sync_property(son, ent, "owner_fbid");
 		sync_property(son, ent, "ctime");
 		if (son.ctime) {
 			son.ctime_display = new Date(son.ctime).toLocaleDateString();
@@ -470,6 +469,18 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 		'inode_active': 'active'
 	});
 	$scope.inode_selection.select($scope.root_dir);
+
+	$scope.get_pic_url = function(user) {
+		if (!user) {
+			return;
+		}
+		if (user.fbid) {
+			return 'https://graph.facebook.com/' + user.fbid + '/picture';
+		}
+		if (user.googleid) {
+			return 'https://plus.google.com/s2/photos/profile/' + user.googleid + '?sz=50';
+		}
+	}
 
 	$scope.select = function(inode, opt) {
 		if (!inode) {
@@ -962,11 +973,6 @@ function InodesListCtrl($scope) {
 
 	var inodes_list = $('#inodes_list');
 
-	$scope.fb_pic_url = function(fbid) {
-		return (!fbid || fbid == ' ') ? '' :
-			'https://graph.facebook.com/' + fbid + '/picture';
-	};
-
 	$scope.inode_click = function(inode) {
 		$scope.select(inode);
 		inodes_list.focusWithoutScrolling();
@@ -1091,17 +1097,6 @@ function ShareModalCtrl($scope) {
 		$scope.share_inode = inode;
 		inode.get_share_list().on('success', function(data) {
 			$scope.share_list = data.list;
-			$scope.share_list.forEach(function(fr) {
-				if (fr.fb_id) {
-					fr.pic_url = 'https://graph.facebook.com/' + fr.fb_id + '/picture';
-					return;
-				}
-				if (fr.google_id) {
-					fr.pic_url = 'https://plus.google.com/s2/photos/profile/' + fr.google_id + '?sz=50';
-					return;
-				}
-			});
-
 		}).on('all', function() {
 			$scope.share_is_loading = false;
 		});
