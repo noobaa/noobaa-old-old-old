@@ -317,7 +317,7 @@ Inode.prototype.delete_inode = function(avoid_read_parent) {
 				return deferred.promise;
 			}
 			var promises = [];
-			for (var i=0; i<20 && sons.length; i++) {
+			for (var i = 0; i < 20 && sons.length; i++) {
 				var son = sons.pop();
 				console.log('DEL SON', son);
 				promises.push(son.delete_inode(true));
@@ -722,32 +722,32 @@ function MyDataCtrl($scope, $http, $timeout, $window, $q, $rootScope) {
 		});
 	};
 
-	$http({
-		method: 'GET',
-		url: '/star_api/device/current/'
-	}).then(function(res) {
-		console.log('LOCAL PLANET', res.data);
-		$scope.local_planet = res.data ? res.data.device : null;
-		return res;
-	});
-
-	$scope.click_upload = function() {
-		if (!$scope.local_planet || !$scope.local_planet.srv_port) {
-			$('#upload_modal').nbdialog('open');
-			return;
-		}
+	$scope.open_local_planet = function() {
 		$http({
 			method: 'GET',
-			url: 'http://127.0.0.1:' + $scope.local_planet.srv_port
+			url: '/star_api/device/current/'
 		}).then(function(res) {
-			// ok planet will take over
-			if (res.data.trim() !== 'NBOK') {
-				console.log('UNEXPECTED RESPONSE', res.data);
-				$('#upload_modal').nbdialog('open');
+			console.log('LOCAL PLANET', res.data);
+			var local_planet = res.data ? res.data.device : null;
+			if (!local_planet || !local_planet.srv_port) {
+				throw 'NO PLANET';
 			}
-		}, function(err) {
-			$('#upload_modal').nbdialog('open');
+			return $http({
+				method: 'GET',
+				url: 'http://127.0.0.1:' + local_planet.srv_port
+			});
+		}).then(function(res) {
+			if (res.data.trim() !== 'NBOK') {
+				throw ('UNEXPECTED PLANET RESPONSE' + res.data);
+			}
+		}).then(null, function(err) {
+			console.log(err);
+			$scope.click_coshare();
 		});
+	};
+
+	$scope.click_upload = function() {
+		$('#upload_modal').nbdialog('open');
 	};
 
 	$scope.click_coshare = function() {

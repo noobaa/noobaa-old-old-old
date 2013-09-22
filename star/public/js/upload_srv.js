@@ -29,6 +29,7 @@
 			num_sons: 0,
 			num_remain: 0,
 			level: 0,
+			expanded: true,
 		};
 
 		// multiple ui selection
@@ -48,6 +49,7 @@
 		var me = this;
 		var prevent_event = function(event) {
 			event.preventDefault();
+			event.stopPropagation();
 			return false;
 		};
 		elements.on('dragover', prevent_event);
@@ -123,6 +125,7 @@
 		me.run_pending();
 		me.$rootScope.safe_apply();
 		event.preventDefault();
+		event.stopPropagation();
 		return false;
 	};
 
@@ -492,7 +495,9 @@
 	};
 
 	UploadSrv.prototype.set_active = function(upload) {
-		console.log('SET ACTIVE', upload.item.name, upload);
+		if (upload.is_aborted) {
+			return false;
+		}
 		if (upload.is_active) {
 			return false;
 		}
@@ -501,10 +506,10 @@
 			this.set_pending(upload, 'front');
 			return false;
 		}
+		console.log('SET ACTIVE', upload.item.name, upload);
 		upload.parent.active_son = upload;
 		upload.is_active = true;
 		upload.is_done = false;
-		upload.is_aborted = false;
 		upload.progress_class = 'progress-bar progress-bar-success';
 		this.$rootScope.safe_apply();
 		return true;
@@ -552,9 +557,6 @@
 	};
 
 	UploadSrv.prototype.set_abort = function(upload) {
-		if (!upload.is_active) {
-			return true;
-		}
 		// for active uploads try to abort them and interrupt their xhr
 		// but don't force remove, wait for them to join and remove the active flag
 		console.log('SET ABORT', upload.item.name, upload);
@@ -563,14 +565,34 @@
 			console.log('SET ABORT XHR', upload.item.name, upload);
 			upload.xhr.abort();
 		}
-		this.$rootScope.safe_apply();
-		return false;
+		// recurse to sons
+		if (upload.num_sons) {
+			for (var id in upload.sons) {
+				var son = upload.sons[id];
+				this.set_abort(son);
+			}
+		}
+		this.run_pending();
+	};
+
+	UploadSrv.prototype.resume_upload = function(upload) {
+		// recurse to sons
+		if (upload.num_sons) {
+			for (var id in upload.sons) {
+				var son = upload.sons[id];
+				this.resume_upload(son);
+			}
+		}
+		upload.is_aborted = false;
+		this.start_upload(upload);
+		this.run_pending();
 	};
 
 
 	UploadSrv.prototype.remove_upload = function(upload) {
-		if (!this.set_abort(upload)) {
-			return;
+		this.set_abort(upload);
+		if (upload.is_active) {
+			return false;
 		}
 
 		if (upload.id in upload.parent.sons) {
@@ -593,8 +615,10 @@
 		// instead mark as removed and run_pending() will discard.
 		upload.is_removed = true;
 		this.$rootScope.safe_apply();
+		return true;
 	};
 
+	// TODO remove this func, unused?
 	UploadSrv.prototype.cancel_upload = function(upload) {
 		var do_remove = this.remove_upload.bind(this, upload);
 		if (upload.is_done && !upload.is_active) {
@@ -625,27 +649,28 @@
 
 	UploadSrv.prototype.get_status = function(upload) {
 		var status;
-		var add_fails = true;
-		if (upload.is_active) {
-			status = '...';
+		var add_attempt = false;
+		var add_fail = false;
+		if (upload.is_aborted) {
+			status = 'Aborted!';
 		} else if (upload.is_done) {
 			status = 'Done';
-			add_fails = false;
-		} else if (upload.is_aborted) {
-			status = 'Aborted!';
-			add_fails = false;
+		} else if (upload.is_active) {
+			status = '...';
+			add_fail = true;
+			add_attempt = true;
 		} else if (upload.is_pending) {
 			status = '';
+			add_fail = true;
 		} else {
 			status = '';
+			add_fail = true;
 		}
-		if (add_fails) {
-			if (upload.fail_reason) {
-				status += ' ' + upload.fail_reason;
-			}
-			if (upload.fail_count) {
-				status += ' (attempting)';
-			}
+		if (add_fail && upload.fail_reason) {
+			status += ' ' + upload.fail_reason;
+		}
+		if (add_attempt && upload.fail_count) {
+			status += ' (attempting)';
 		}
 		return status;
 	};
@@ -677,7 +702,7 @@
 	UploadSrv.prototype.cancel_selected = function() {
 		for (var id in this.selection) {
 			var upload = this.selection[id];
-			this.cancel_upload(upload);
+			this.remove_upload(upload);
 		}
 		this.run_pending();
 	};
@@ -685,11 +710,32 @@
 	UploadSrv.prototype.resume_selected = function() {
 		for (var id in this.selection) {
 			var upload = this.selection[id];
-			this.start_upload(upload);
+			this.resume_upload(upload);
 		}
 		this.run_pending();
 	};
 
+
+	noobaa_app.filter('upload_sons_sort', function() {
+		return function(upload) {
+			return upload.expanded ? upload.sons : null;
+			// TODO: too much cpu....
+			console.log('SORTING', upload.num_sons);
+			if (!upload.num_sons) {
+				return null;
+			}
+			var arr = _.values(upload.sons);
+			return _.sortBy(arr, function(son) {
+				if (son.is_active) {
+					return 1;
+				}
+				if (son.is_done) {
+					return 2;
+				}
+				return 3;
+			});
+		};
+	});
 
 	noobaa_app.directive('nbUploadTable', function() {
 		return {
@@ -704,8 +750,8 @@
 			template: [
 				'<div id="upload_table"',
 				'	ng-cloak class="fntthin"',
-				'	style="margin: 0; max-width: 100%; width: 100%">',
-				'	<div class="btn-toolbar" align="left">',
+				'	style="margin: 0; width: 100%; height: 100%; overflow: hidden">',
+				'	<div class="row" style="margin: 0; height: 30px">',
 				'		<button class="btn btn-xs btn-primary"',
 				'			ng-click="srv.clear_completed()">',
 				'			Clear Completed',
@@ -722,13 +768,13 @@
 				'			<i class="icon-repeat"></i>',
 				'		</button>',
 				'	</div>',
-				'	<div class="row" style="margin-bottom: 10px; font-weight: bold">',
+				'	<div class="row" style="margin: 0 0 10px 0; font-weight: bold; border-bottom: 1px solid black">',
 				'		<div class="col-xs-6">Name</div>',
 				'		<div class="col-xs-2">Size</div>',
 				'		<div class="col-xs-2">Status</div>',
 				'		<div class="col-xs-2">Progress</div>',
 				'	</div>',
-				'	<div ng-include="\'nb-upload-node.html\'" style="font-size: 12px"></div>',
+				'	<div ng-include="\'nb-upload-node.html\'" style="margin: 0; font-size: 12px; width: 100%; height: 100%; overflow: auto"></div>',
 				'</div>'
 			].join('\n')
 		};
@@ -736,9 +782,9 @@
 
 	function setup_upload_node_template($templateCache) {
 		$templateCache.put('nb-upload-node.html', [
-			'<div ng-repeat="(id,upload) in upload.sons">',
+			'<div ng-repeat="(id,upload) in upload|upload_sons_sort">',
 			'	<div class="row" ',
-			'		style="{{upload.selected && \'font-weight: bold; color: blue\' || \'\'}}">',
+			'		style="margin: 0; {{upload.selected && \'font-weight: bold; color: blue\' || \'\'}}">',
 			'		<div class="col-xs-6">',
 			'			<span style="cursor: pointer" ng-click="srv.toggle_select(upload)">',
 			'				<i ng-hide="upload.selected" class="icon-check-empty"></i>',
