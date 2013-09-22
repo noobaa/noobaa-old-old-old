@@ -262,7 +262,7 @@
 					}
 					if (entries.length) {
 						// while still more entries submit next readdir
-						setTimeout(upload.readdir_func, 10);
+						me.$timeout(upload.readdir_func, 10);
 					} else {
 						// done readdir
 						upload.dir_reader = null;
@@ -408,10 +408,10 @@
 		var xhr = upload.xhr = new XMLHttpRequest();
 		xhr.onreadystatechange = function() {
 			me.$rootScope.safe_apply(function() {
-				console.log('[ok] upload multipart xhr', xhr);
 				if (xhr.readyState !== 4) {
 					return;
 				}
+				console.log('[ok] upload multipart xhr', xhr);
 				upload.xhr = null;
 				if (xhr.status !== 200) {
 					deferred.reject('xhr failed status ' + xhr.status);
@@ -530,6 +530,7 @@
 	};
 
 	UploadSrv.prototype.set_fail = function(upload) {
+		var me = this;
 		console.error('SET FAIL', upload.item.name, upload);
 		upload.parent.active_son = null;
 		upload.is_active = false;
@@ -537,12 +538,14 @@
 		upload.progress_class = 'progress-bar progress-bar-danger';
 		if (upload.is_aborted) {
 			// start some other pending upload
-			this.run_pending();
+			me.run_pending();
 		} else {
-			// retry if not aborted
-			this.start_upload(upload);
+			// retry if not aborted, but some delay to avoid pegging
+			me.$timeout(function() {
+				me.start_upload(upload);
+			}, 3000);
 		}
-		this.$rootScope.safe_apply();
+		me.$rootScope.safe_apply();
 	};
 
 	UploadSrv.prototype.set_abort = function(upload) {
@@ -626,6 +629,8 @@
 		} else if (upload.is_aborted) {
 			status = 'Aborted!';
 		} else if (upload.is_pending) {
+			status = (upload.fail_count ? '(attempt ' + upload.fail_count + ')' : '');
+		} else {
 			status = (upload.fail_count ? '(attempt ' + upload.fail_count + ')' : '');
 		}
 		return status;
