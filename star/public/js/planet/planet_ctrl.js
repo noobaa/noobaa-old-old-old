@@ -148,7 +148,7 @@
 					}
 					res.end('NBOK\n');
 					$scope.show();
-					$('#file_upload_input').trigger('click');
+					// $('#file_upload_input').trigger('click');
 					$scope.safe_apply();
 				});
 				$scope.srv.on('error', function(err) {
