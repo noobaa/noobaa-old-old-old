@@ -20,6 +20,8 @@ var dot_emc = require('dot-emc');
 var express = require('express');
 var passport = require('passport');
 var mongoose = require('mongoose');
+var User = require('./models/user').User;
+
 // var fbapi = require('facebook-api');
 var common_api = require('./routes/common_api');
 
@@ -290,14 +292,26 @@ function redirect_no_user(req, res, next) {
 		res.redirect('/welcome');
 		return;
 	}
-	// NOTE: this check uses the session, and not the DB.
-	// so in order to notice a db change it requires logout & login 
-	// which will create a new session.
-	if (!req.user.alpha_tester) {
-		res.redirect('/thankyou');
-		return;
+	if (req.user.alpha_tester) {
+		return next();
 	}
-	next();
+
+	//in case the user is not an alpha tester - we want to validate in the DB if this is still the case.
+	User.findById(req.user.id, function(err, user) {
+		if (err) {
+			return next(err);
+		}
+		if (!user) {
+			res.redirect('/auth/logout/');
+			return;
+		}
+		if (!user.alpha_tester) {
+			res.redirect('/thankyou');
+			return;
+		}
+		//user is an approved user
+		return next();
+	});
 }
 
 app.get('/welcome', function(req, res) {
