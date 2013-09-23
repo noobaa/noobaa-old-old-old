@@ -254,7 +254,7 @@ exports.get_referring_users = get_referring_users;
 function get_referring_users(inode, cb) {
 	async.waterfall([
 		function(next) {
-			get_inode_refering_user_ids(inode, next);
+			return get_inode_refering_user_ids(inode, next);
 		},
 
 		function(ref_user_id_list, next) {
