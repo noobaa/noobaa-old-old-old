@@ -413,10 +413,36 @@
 				return; // done
 			}
 			upload.progress = (upload.multipart.upsize * 100 / upload.file.size).toFixed(1);
-			// send one part
-			// TODO: maybe send all the missing at once?
-			var part = upload.multipart.missing_parts[0];
-			return me._send_part(upload, part).then(function() {
+			// send missing parts
+			// TODO: maintain part_number_marker to ease on the server
+			var missing_parts = upload.multipart.missing_parts;
+			// init promise to send forst part in the batch
+			var promise = me._send_part(upload, missing_parts[0]);
+			// define part sender that takes part as argument (see why below)
+			var sender = function(part) {
+				console.log('PART SEND', part);
+				// increasing upsize between parts in batch
+				// once batch is over the multipart response will update again.
+				upload.multipart.upsize += upload.multipart.part_size;
+				return me._send_part(upload, part);
+			};
+			// chain the rest of the parts on the promise
+			for (var i = 1; i < missing_parts.length; i++) {
+				// some care is needed here to bind to the part correctly.
+				// we use bind() to get a function which is fixed to the specific 
+				// part object of each loop iteration.
+				// its easy to confuse here and define local function inside the loop
+				// but its closure variables 'i' or 'part' are mutating in the loop
+				// so with closure they won't be valid when executed.
+				// The point is to not refer by closure to any of the loop iterators,
+				// and bind() makes it so.
+				var part = missing_parts[i];
+				var part_sender = sender.bind(null, part);
+				console.log('PART PROMISE', i, part);
+				promise = promise.then(part_sender);
+			}
+			// last stage would be to recurse into this function to upload rest till completed
+			return promise.then(function() {
 				return me._upload_multipart(upload);
 			});
 		});
@@ -486,7 +512,6 @@
 	UploadSrv.prototype.run_pending = function(upload) {
 		if (!upload) {
 			upload = this.root;
-			console.log('PENDING IS ROOT', upload);
 		} else if (!upload.item.isDirectory) {
 			console.log('PENDING NOT DIR', upload);
 			return false;
@@ -502,10 +527,8 @@
 		var next;
 		while (upload.pending_list.length && (!next || next.is_removed)) {
 			next = upload.pending_list.shift();
-			console.log('PENDING LIST', upload, next);
 		}
 		if (!next || next.is_removed) {
-			console.log('PENDING NOT FOUND', upload, next);
 			return false;
 		}
 		console.log('RUN PENDING', next.item.name, next);
@@ -607,16 +630,23 @@
 			}
 		}
 		upload.is_aborted = false;
+		if (upload.is_done) {
+			// TODO: not sure that we really need to un-done like this... dont like it.
+			upload.is_done = false;
+			upload.parent.num_remain++;
+			this.recalc_progress(upload.parent);
+		}
 		this.start_upload(upload);
 		this.run_pending();
 	};
 
 
 	UploadSrv.prototype.remove_upload = function(upload) {
-		this.set_abort(upload);
 		if (upload.is_active) {
+			this.set_abort(upload);
 			return false;
 		}
+		this.set_abort(upload);
 
 		if (upload.id in upload.parent.sons) {
 			console.log('REMOVING', upload.item.name, upload);
@@ -693,7 +723,7 @@
 			status += ' ' + upload.fail_reason;
 		}
 		if (add_attempt && upload.fail_count) {
-			status += ' (attempting)';
+			status += ' (retrying)';
 		}
 		return status;
 	};
@@ -712,29 +742,65 @@
 		this.run_pending();
 	};
 
+	UploadSrv.prototype.toggle_select_all = function() {
+		// toggle the global flag
+		if (!this.selected_all && _.isEmpty(this.selection)) {
+			this.selected_all = true;
+		} else {
+			this.selected_all = false;
+		}
+		// in any case remove the selection from each of the uploads
+		for (var id in this.selection) {
+			var upload = this.selection[id];
+			upload.selected = false;
+		}
+		this.selection = [];
+	};
+
 	UploadSrv.prototype.toggle_select = function(upload) {
+		// reset the global flag
+		this.selected_all = undefined;
+		// toggle current state
 		if (upload.selected) {
 			upload.selected = false;
 			delete this.selection[upload.id];
 		} else {
 			upload.selected = true;
 			this.selection[upload.id] = upload;
+			// when selecting, deselect all parents (only immediate parent is really expected)
+			for (var p = upload.parent; p; p = p.parent) {
+				p.selected = false;
+				delete this.selection[p.id];
+			}
+		}
+	};
+
+	UploadSrv.prototype.foreach_selected = function(func) {
+		var iter = function(upload) {
+			for (var id in upload.sons) {
+				var son = upload.sons[id];
+				// iter(son);
+				func(son);
+			}
+		};
+		if (this.selected_all) {
+			iter(this.root);
+		} else {
+			for (var id in this.selection) {
+				var upload = this.selection[id];
+				// iter(upload);
+				func(upload);
+			}
 		}
 	};
 
 	UploadSrv.prototype.cancel_selected = function() {
-		for (var id in this.selection) {
-			var upload = this.selection[id];
-			this.remove_upload(upload);
-		}
+		this.foreach_selected(this.remove_upload.bind(this));
 		this.run_pending();
 	};
 
 	UploadSrv.prototype.resume_selected = function() {
-		for (var id in this.selection) {
-			var upload = this.selection[id];
-			this.resume_upload(upload);
-		}
+		this.foreach_selected(this.resume_upload.bind(this));
 		this.run_pending();
 	};
 
@@ -798,12 +864,19 @@
 				'	<div class="row"',
 				'		style="margin: 0; padding: 5px 0 5px 0; background-color: #e2e2e2;',
 				' 			border-top: 1px solid #333; border-bottom: 1px solid #333">',
-				'		<div class="col-xs-6">Name</div>',
+				'		<div class="col-xs-6">',
+				'			<span style="cursor: pointer" ng-click="srv.toggle_select_all()">',
+				'				<i ng-hide="srv.selected_all" class="icon-check-empty icon-fixed-width"></i>',
+				'				<i ng-show="srv.selected_all" class="icon-check icon-fixed-width"></i>',
+				'			</span>&nbsp;',
+				'			Name</div>',
 				'		<div class="col-xs-2">Size</div>',
 				'		<div class="col-xs-2">Status</div>',
 				'		<div class="col-xs-2">Progress</div>',
 				'	</div>',
-				'	<div ng-include="\'nb-upload-node.html\'" style="margin: 0; font-size: 12px; width: 100%; height: 100%; overflow: auto"></div>',
+				'	<div ng-include="\'nb-upload-node.html\'"',
+				'		style="margin: 0; font-size: 12px; width: 100%;',
+				'			height: auto; overflow: auto"></div>',
 				'</div>'
 			].join('\n')
 		};
@@ -814,11 +887,11 @@
 			'<div ng-repeat="(id,upload) in upload|upload_sons_sort">',
 			'	<div class="row" ',
 			'		style="margin: 0; border-bottom: 1px solid #ddd;',
-			'			{{upload.selected && \'font-weight: bold; color: blue\' || \'\'}}">',
+			'			{{(upload.selected || srv.selected_all) && \'font-weight: bold; color: blue\' || \'\'}}">',
 			'		<div class="col-xs-6">',
 			'			<span style="cursor: pointer" ng-click="srv.toggle_select(upload)">',
-			'				<i ng-hide="upload.selected" class="icon-check-empty"></i>',
-			'				<i ng-show="upload.selected" class="icon-check"></i>',
+			'				<i ng-hide="upload.selected || srv.selected_all" class="icon-check-empty icon-large icon-fixed-width"></i>',
+			'				<i ng-show="upload.selected || srv.selected_all" class="icon-check icon-large icon-fixed-width"></i>',
 			'			</span>',
 			'			<span style="padding-left: {{upload.level*15}}px">',
 			'				<span ng-click="upload.expanded = !upload.expanded"',

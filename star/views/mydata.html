@@ -309,7 +309,9 @@
 			ng-style="has_uploads() && {padding: 0, backgroundColor: 'white'} || {padding: 0}">
 			<div ng-hide="has_uploads()" class="text-center fnt" style="padding: 20px">
 				<div style="font-size: 80px"><i class="icon-cloud-upload"></i></div>
-				<h2>Drag &amp; Drop to start uploading!</h2>
+				<h2>Drag &amp; Drop to Upload</h2>
+				<br/>
+				<h4>Also complete folders !!! (chrome only)</h4>
 			</div>
 			<div ng-show="has_uploads()">
 				<nb-upload-table></nb-upload-table>
@@ -320,11 +322,11 @@
 			<div class="pull-right">
 				<button class="btn btn-success"
 					ng-click="open_local_planet()">
-					Upload with NooBaa Client 
+					Improved Upload with NooBaa Client 
 				</button>
 				<!-- fileinput-button span is used 
 					to style the file input field as button -->
-				<span id="choose_folder_button"
+				<span ng-show="false" id="choose_folder_button"
 					class="btn btn-primary fileinput-button">
 					Choose Folder
 					<input id="dir_upload_input" 
@@ -335,7 +337,7 @@
 						directory="">
 					</input>
 				</span>
-				<span id="choose_file_button"
+				<span ng-show="mobile_check()" id="choose_file_button"
 					class="btn btn-primary fileinput-button">
 					Choose Files
 					<input id="file_upload_input"

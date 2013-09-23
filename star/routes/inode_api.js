@@ -980,7 +980,8 @@ function find_missing_parts(fobj, parts) {
 				num: i,
 				url: get_upload_part_url(fobj, i)
 			});
-			if (missing_parts.length >= 3) {
+			// send a bunch of missing parts
+			if (missing_parts.length >= 2) {
 				break;
 			}
 		}
