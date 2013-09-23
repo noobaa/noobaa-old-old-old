@@ -216,6 +216,9 @@
 				} else {
 					return me.upload_file(upload);
 				}
+			}).then(function() {
+				// release the opened file memory (if it means anything)
+				upload.file = null;
 			});
 		}
 
@@ -317,22 +320,23 @@
 	UploadSrv.prototype.open_file = function(upload) {
 		var me = this;
 		var deferred = me.$q.defer();
-		if (upload.item.isFile) { // means this is an entry object of the file
-			upload.item.file(function(file) {
-				upload.file = file;
-				me.$rootScope.safe_apply(function() {
-					deferred.resolve();
-				});
-			}, function(err) {
+		var handle_file = function(file) {
+			upload.file = file;
+			upload.file_size = file.size;
+			me.$rootScope.safe_apply(function() {
+				deferred.resolve();
+			});
+		};
+		// isFile means this is an entry object of the file
+		if (upload.item.isFile) {
+			upload.item.file(handle_file, function(err) {
 				me.$rootScope.safe_apply(function() {
 					deferred.reject(err);
 				});
 			});
 		} else {
-			upload.file = upload.item;
-			me.$rootScope.safe_apply(function() {
-				deferred.resolve();
-			});
+			// item itself is assumed to already be a file object
+			handle_file(upload.item);
 		}
 		return deferred.promise;
 	};
@@ -365,7 +369,7 @@
 					id: upload.dir_inode_id,
 					name: file.name,
 					isdir: false,
-					size: file.size,
+					size: upload.file_size,
 					uploading: true,
 					content_type: file.type,
 					relative_path: relative_path
@@ -374,11 +378,11 @@
 		}
 		return me.$http(file_request).then(function(res) {
 			console.log('[ok] upload file', res);
-			if (res.data.name !== file.name || res.data.size !== file.size) {
+			if (res.data.name !== file.name || res.data.size !== upload.file_size) {
 				$.nbalert('Choose the same file to resume the upload');
 				throw 'mismatching file attr';
 			}
-			if (file.size === 0) {
+			if (upload.file_size === 0) {
 				console.log('skip upload for zero size file', file);
 				return;
 			}
@@ -412,7 +416,7 @@
 				upload.progress = 100;
 				return; // done
 			}
-			upload.progress = (upload.multipart.upsize * 100 / upload.file.size).toFixed(1);
+			upload.progress = (upload.multipart.upsize * 100 / upload.file_size).toFixed(1);
 			// send missing parts
 			// TODO: maintain part_number_marker to ease on the server
 			var missing_parts = upload.multipart.missing_parts;
@@ -478,7 +482,7 @@
 			});
 		};
 		xhr.upload.onprogress = function(event) {
-			upload.progress = ((upsize + event.loaded) * 100 / upload.file.size).toFixed(1);
+			upload.progress = ((upsize + event.loaded) * 100 / upload.file_size).toFixed(1);
 			me.$rootScope.safe_apply();
 		};
 		xhr.open('PUT', part.url, true);
@@ -517,9 +521,7 @@
 			return false;
 		}
 		if (upload.active_son) {
-			console.log('ACTIVE SON', upload.active_son.item.name, upload);
 			if (this.run_pending(upload.active_son)) {
-				console.log('ACTIVE SON WAS RUN', upload.active_son.item.name, upload);
 				return true;
 			}
 		}
@@ -568,7 +570,6 @@
 		if (upload.is_done) {
 			return;
 		}
-		console.log('CHECK DONE', upload.item.name, upload);
 		if (!upload.item.isDirectory || upload.num_remain === 0) {
 			console.log('SET DONE', upload.item.name, upload);
 			upload.parent.num_remain--;
@@ -909,7 +910,7 @@
 			'			</span>',
 			'		</div>',
 			'		<div class="col-xs-2">',
-			'			{{human_size(upload.file.size)}}',
+			'			{{human_size(upload.file_size)}}',
 			'		</div>',
 			'		<div class="col-xs-2">',
 			'			{{srv.get_status(upload)}}',
@@ -924,7 +925,7 @@
 			'				</div>',
 			'				<div style="position: absolute; top:0; left:0;',
 			'						width:100%; text-align:center; color:black">',
-			'					{{upload.progress}}%',
+			'					{{upload.progress && upload.progress+\'%\' || \'\'}}',
 			'				</div>',
 			'			</div>',
 			'		</div>',
