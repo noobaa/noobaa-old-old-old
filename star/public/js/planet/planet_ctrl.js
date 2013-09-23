@@ -467,6 +467,16 @@
 			}
 			return $scope.planet_user.mydata.id;
 		};
+		nbUploadSrv.on_file_upload = function(upload) {
+			// save last upload path for next open
+			$scope.last_file_path = upload.file && upload.file.path || '';
+			return nbUploadSrv.upload_file(upload);
+		};
+
+		$scope.click_upload = function() {
+			gui.Shell.showItemInFolder($scope.last_file_path);
+		};
+
 	}
 
 })();
