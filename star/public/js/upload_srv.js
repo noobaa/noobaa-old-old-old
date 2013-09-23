@@ -44,12 +44,20 @@
 		});
 	}
 
+
+	/////////////////////
+	/////////////////////
+	// EVENTS HANDLING //
+	/////////////////////
+	/////////////////////
+
+
 	// use on jquery elements to setup an upload drop listener
 	UploadSrv.prototype.init_drop = function(elements) {
 		var me = this;
 		var prevent_event = function(event) {
 			event.preventDefault();
-			event.stopPropagation();
+			// event.stopPropagation();
 			return false;
 		};
 		elements.on('dragover', prevent_event);
@@ -64,6 +72,7 @@
 		var me = this;
 		elements.on('change', function(event) {
 			me.submit_upload(event);
+			this.value = ''; // reset the input to allow open same file next
 		});
 	}
 
@@ -129,6 +138,14 @@
 		event.stopPropagation();
 		return false;
 	};
+
+
+
+	//////////////
+	//////////////
+	// INTERNAL //
+	//////////////
+	//////////////
 
 	// submit single item to upload
 	// will create the upload object and insert into parent
@@ -760,13 +777,14 @@
 				'<div id="upload_table"',
 				'	ng-cloak class="fntthin"',
 				'	style="margin: 0; width: 100%; height: 100%; overflow: hidden">',
-				'	<div class="row" style="margin: 0; height: 30px">',
-				'		<button class="btn btn-xs btn-primary"',
+				'	<div class="row" style="margin: 0; padding: 5px 0 8px 0;',
+				'			text-align: center; vertical-align: middle; background-color: white">',
+				'		<button class="btn btn-xs btn-success"',
 				'			ng-click="srv.clear_completed()">',
 				'			Clear Completed',
 				'			<i class="icon-eraser"></i>',
 				'		</button>',
-				'		<button class="btn btn-xs btn-warning"',
+				'		<button class="btn btn-xs btn-default"',
 				'			ng-click="srv.cancel_selected()">',
 				'			Cancel Selected',
 				'			<i class="icon-remove"></i>',
@@ -777,7 +795,9 @@
 				'			<i class="icon-repeat"></i>',
 				'		</button>',
 				'	</div>',
-				'	<div class="row" style="margin: 0 0 10px 0; font-weight: bold; border-bottom: 1px solid black">',
+				'	<div class="row"',
+				'		style="margin: 0; padding: 5px 0 5px 0; background-color: #e2e2e2;',
+				' 			border-top: 1px solid #333; border-bottom: 1px solid #333">',
 				'		<div class="col-xs-6">Name</div>',
 				'		<div class="col-xs-2">Size</div>',
 				'		<div class="col-xs-2">Status</div>',
@@ -793,7 +813,8 @@
 		$templateCache.put('nb-upload-node.html', [
 			'<div ng-repeat="(id,upload) in upload|upload_sons_sort">',
 			'	<div class="row" ',
-			'		style="margin: 0; {{upload.selected && \'font-weight: bold; color: blue\' || \'\'}}">',
+			'		style="margin: 0; border-bottom: 1px solid #ddd;',
+			'			{{upload.selected && \'font-weight: bold; color: blue\' || \'\'}}">',
 			'		<div class="col-xs-6">',
 			'			<span style="cursor: pointer" ng-click="srv.toggle_select(upload)">',
 			'				<i ng-hide="upload.selected" class="icon-check-empty"></i>',
@@ -802,8 +823,14 @@
 			'			<span style="padding-left: {{upload.level*15}}px">',
 			'				<span ng-click="upload.expanded = !upload.expanded"',
 			'					style="cursor: pointer; {{!upload.num_sons && \'visibility: hidden\' || \'\'}}">',
-			'					<i ng-hide="upload.expanded" class="icon-plus"></i>',
-			'					<i ng-show="upload.expanded" class="icon-minus"></i>',
+			'					<span ng-show="!upload.expanded" class="icon-stack icon-fixed-width">',
+			'						<i class="icon-folder-close icon-stack-base icon-fixed-width"',
+			'							style="font-size: 12px"></i>',
+			'						<i class="icon-plus icon-light icon-fixed-width"',
+			'							style="font-size: 8px"></i>',
+			'					</span>',
+			'					<i ng-show="upload.expanded" style="font-size: 12px"',
+			'						class="icon-folder-open icon-fixed-width"></i>',
 			'				</span>',
 			'				{{upload.item.name}}',
 			'			</span>',
@@ -815,7 +842,7 @@
 			'			{{srv.get_status(upload)}}',
 			'		</div>',
 			'		<div class="col-xs-2">',
-			'			<div class="progress" style="position: relative">',
+			'			<div class="progress" style="position: relative; margin: 3px 0 3px 0">',
 			'				<div ng-class="upload.progress_class"',
 			'					role="progressbar"',
 			'					aria-valuemin="0" aria-valuemax="100"',
@@ -937,7 +964,41 @@
 		LinkedList.prototype.drop_array = function() {
 			delete this.arr;
 		};
-	}
 
+
+
+		function JobQueue(concurrency) {
+			this.concurrency = concurrency;
+			this._queue = [];
+			this._num_running = 0;
+		}
+
+		// submit the given function to the jobs queue
+		// which will run it when time comes.
+		// job should be an object with job.run() function.
+		JobQueue.prototype.submit = function(job) {
+			this._queue.push(job);
+			this.process(true);
+		};
+
+		JobQueue.prototype.process = function(check_concurrency) {
+			if (check_concurrency && this._num_running >= this.concurrency) {
+				return;
+			}
+			if (!this._queue.length) {
+				return;
+			}
+			var me = this;
+			var job = this._queue.shift();
+			this._num_running++;
+			// submit the job to run in background 
+			// to be able to return here immediately
+			setTimeout(function() {
+				job.run();
+				this._num_running--;
+				me.process(true);
+			}, 0);
+		};
+	}
 
 })();

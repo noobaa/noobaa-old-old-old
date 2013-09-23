@@ -305,7 +305,8 @@
 				<span class="close">x</span>
 			</a>
 		</div>
-		<div class="nbdialog_content">
+		<div class="nbdialog_content"
+			ng-style="has_uploads() && {padding: 0, backgroundColor: 'white'} || {padding: 0}">
 			<div ng-hide="has_uploads()" class="text-center fnt" style="padding: 20px">
 				<div style="font-size: 80px"><i class="icon-cloud-upload"></i></div>
 				<h2>Drag &amp; Drop to start uploading!</h2>
@@ -314,12 +315,12 @@
 				<nb-upload-table></nb-upload-table>
 			</div>
 		</div>
-		<div class="nbdialog_footer">
+		<div class="nbdialog_footer" style="overflow: auto">
 			<button class="nbdialog_close btn btn-default">Hide</button>
 			<div class="pull-right">
-				<button class="btn btn-danger"
+				<button class="btn btn-success"
 					ng-click="open_local_planet()">
-					Improved Uploads With The NooBaa Client
+					Upload with NooBaa Client 
 				</button>
 				<!-- fileinput-button span is used 
 					to style the file input field as button -->
