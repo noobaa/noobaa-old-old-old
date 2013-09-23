@@ -480,7 +480,7 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 		if (user.googleid) {
 			return 'https://plus.google.com/s2/photos/profile/' + user.googleid + '?sz=50';
 		}
-	}
+	};
 
 	$scope.select = function(inode, opt) {
 		if (!inode) {

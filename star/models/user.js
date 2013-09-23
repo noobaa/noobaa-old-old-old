@@ -78,7 +78,7 @@ user_schema.methods.assign_ids_to_object = function(object) {
 	var me = this;
 	providers.forEach(function(provider){
 		if (!! me[provider]){
-			object[provider+'id']=me[provider].id
+			object[provider+'id']=me[provider].id;
 		}
 	});
 };
