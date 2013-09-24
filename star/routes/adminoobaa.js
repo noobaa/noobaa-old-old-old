@@ -87,22 +87,20 @@ function merge_users_and_devices(result, callback) {
 	], callback);
 }
 
-exports.admin_view = function(req, res, next_err_handler) {
+exports.admin_view = function(req, res, next_rout) {
 	async.waterfall([
-
 		fetch_users_and_devices,
-
-		function(result, next) {
-			var ctx = common_api.page_context(req);
-			ctx.users = merge_users_and_devices(result);
-			return merge_users_and_devices(result, function(err, users) {
-				ctx.users = users;
-				return next(null, res.render('adminoobaa.html', ctx));
-			});
-			// on successful render, stop and don't call next
-			// to allow using this as route handler.
+		merge_users_and_devices,
+	], function(err, users) {
+		if (err) {
+			next_rout(err);
 		}
-	], next_err_handler);
+		// on successful render, stop and don't call next
+		// to allow using this as route handler.
+		var ctx = common_api.page_context(req);
+		ctx.users = users;
+		return res.render('adminoobaa.html', ctx);
+	});
 };
 
 exports.admin_update = function(req, res) {
