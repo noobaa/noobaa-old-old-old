@@ -126,6 +126,17 @@
 		var win_frame_width = win.width - win_inner_width;
 		var win_frame_height = win.height - win_inner_height;
 
+		$scope.get_pic_url = function(user) {
+			if (!user) {
+				return;
+			}
+			if (user.fbid) {
+				return 'https://graph.facebook.com/' + user.fbid + '/picture';
+			}
+			if (user.googleid) {
+				return 'https://plus.google.com/s2/photos/profile/' + user.googleid + '?sz=50';
+			}
+		};
 
 
 		////////////////////////////////////////////////////////////
@@ -203,6 +214,7 @@
 			console.log('USER:', f.noobaa_user);
 			$scope.planet_loading = false;
 			$scope.planet_user = f.noobaa_user;
+			console.log('$scope.planet_user: ', $scope.planet_user);
 			schedule_device(1);
 			$scope.safe_apply();
 		};
@@ -215,7 +227,7 @@
 			}
 			window.frames.auth_frame.FB.login(function(res) {
 				if (res.authResponse) {
-					$scope.auth_frame_path('/auth/'+provider+'/login/?state=/planet/auth');
+					$scope.auth_frame_path('/auth/' + provider + '/login/?state=/planet/auth');
 				}
 			});
 		};
