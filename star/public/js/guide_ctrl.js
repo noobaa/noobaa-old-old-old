@@ -374,7 +374,7 @@ var global_menu_bar_last_guide;
 			title: "THE SHARING BUTTON",
 			content: [
 				'<p><a class="btn btn-default toolbtn" href="#"><i class="icon-share icon-large"></i></a> Allows you to share a file or folder. </p>',
-				'<p> You can select whom you\'d like to share with from your Facebook friends.</p>',
+				'<p> You can select whom you\'d like to share with from your social network friends.</p>',
 			].join('\n ')
 		});
 
@@ -449,7 +449,7 @@ var global_menu_bar_last_guide;
 			placement: 'right auto',
 			title: "THE 'SHARED WITH ME' FOLDER",
 			content: [
-				'<p> As one can share only with his Facebook friends spamming is not an option.</p>',
+				'<p> As one can share only within your social network, spamming is not an option.</p>',
 				'<p> Well... except for that friends you\'re not sure why you have on you friends list...</p>',
 			].join('\n')
 		});
@@ -525,7 +525,7 @@ var global_menu_bar_last_guide;
 				'<p>Download the NooBaa client for your OS.</p>',
 				'<p><small>(we are working with the Chrome team to resolve the warning)</small></p>',
 				'<p>Run the installer.</p>',
-				'<p>When the program starts, login to your Facebook account.',
+				'<p>When the program starts, login to your Facebook/Google account.',
 			].join('\n')
 		});
 

@@ -11,22 +11,33 @@
 	<div class="container">
 		<table class="table">
 			<thead>
+				<th>#</th>
 				<th>Name</th>
+				<th>providers</th>
 				<th>Alpha</th>
+				<th>Files</th>
 				<th>Quota</th>
+				<th>Consumption</th>
 				<th>Custom Email</th>
 				<th>Devices</th>
 			</thead>
 			<tbody>
 
-				<tr ng-repeat="(user_id,user) in users">
-					<td>{{user.fb.name}}</td>
+				<tr ng-repeat="(row_index,user) in users_array | orderBy:'_id':true ">
+					<td>{{users_array.length-row_index}}</td>
+					<td>{{ user.name}}</td>
 					<td>
-						<button class="btn btn-sm"
+						<div ng-show="user.fb"> FB </div>
+						<div ng-show="user.google"> Google </div></td>
+					<td>
+						<button 
+						ng-class="{true: ' btn btn-success', false:'btn btn-warning'}[!!user.alpha_tester]"
 							ng-click="toggle_alpha(user)">
 							{{user.alpha_tester || 'false'}}
 						</button>
 					</td>
+					<td>{{user.files}}</td>
+					<td>{{human_size(user.consumption)}}</td>
 					<td>{{human_size(user.quota)}}</td>
 					<td>{{user.email}}</td>
 					<td>
@@ -73,6 +84,8 @@
 		function AdminoobaaCtrl($scope, $http, $window, $timeout) {
 			// parse user data from safe json in html
 			$scope.users = JSON.parse($('#users_data').html());
+			$scope.users_array = _.values($scope.users);
+			$scope.row_num=0
 			console.log('USERS AND DEVICES DATA:', $scope.users);
 			
 			$scope.locale_date = function(date) {

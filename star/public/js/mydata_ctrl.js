@@ -6,7 +6,6 @@
 /* jshint -W097 */
 'use strict';
 
-
 var num_running_uploads = 0;
 
 // init jquery stuff
@@ -223,13 +222,12 @@ Inode.prototype.populate_dir = function(entries) {
 		sync_property(son, ent, "uploading");
 		sync_property(son, ent, "num_refs");
 		sync_property(son, ent, "not_mine");
-		sync_property(son, ent, "owner_name");
+		sync_property(son, ent, "owner");
 
 		//get only the first name for display. Cleaner and friendlier.
-		if (son.owner_name) {
-			son.owner_name = son.owner_name.split(' ')[0];
+		if (son.owner && son.owner.name) {
+			son.owner.name = son.owner.name.split(' ')[0];
 		}
-		sync_property(son, ent, "owner_fbid");
 		sync_property(son, ent, "ctime");
 		if (son.ctime) {
 			son.ctime_display = new Date(son.ctime).toLocaleDateString();
@@ -472,6 +470,18 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 	});
 	$scope.inode_selection.select($scope.root_dir);
 
+	$scope.get_pic_url = function(user) {
+		if (!user) {
+			return;
+		}
+		if (user.fbid) {
+			return 'https://graph.facebook.com/' + user.fbid + '/picture';
+		}
+		if (user.googleid) {
+			return 'https://plus.google.com/s2/photos/profile/' + user.googleid + '?sz=50';
+		}
+	};
+
 	$scope.select = function(inode, opt) {
 		if (!inode) {
 			return;
@@ -591,7 +601,7 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 			return;
 		}
 		drag_inode.rename(drop_inode, drag_inode.name);
-/*
+		/*
 		var dlg = $('#move_dialog').clone();
 		dlg.find('.inode_label').eq(0).html(drag_inode.make_inode_with_icon());
 		dlg.find('.inode_label').eq(1).html(drop_inode.make_inode_with_icon());
@@ -962,11 +972,6 @@ InodesListCtrl.$inject = ['$scope'];
 function InodesListCtrl($scope) {
 
 	var inodes_list = $('#inodes_list');
-
-	$scope.fb_pic_url = function(fbid) {
-		return (!fbid || fbid == ' ') ? '' :
-			'https://graph.facebook.com/' + fbid + '/picture';
-	};
 
 	$scope.inode_click = function(inode) {
 		$scope.select(inode);

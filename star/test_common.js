@@ -9,6 +9,7 @@ process.env.FACEBOOK_APP_ID = '123';
 process.env.FACEBOOK_SECRET = 'sec';
 process.env.FACEBOOK_AUTHORIZED_URL = 'callback';
 var async = require('async');
+var User = require('./models/user').User;
 
 exports.get_rand_entry = get_rand_entry;
 
@@ -34,5 +35,53 @@ function get_rand_entry(model, selection, callback) {
 		},
 */
 	], callback);
+}
+
+exports.get_all_user_types = get_all_user_types;
+
+function get_all_user_types(callback) {
+	var users = [];
+	async.waterfall([
+		function(next) {
+			return get_rand_entry(User, {}, function(err, user) {
+				if (err) {
+					return next(err);
+				}
+				users.push(user);
+				return next(null);
+			});
+		},
+		function(next) {
+			return User.findOne({
+				'fb': {
+					$exists: true
+				}
+			}, function(err, user) {
+				if (err) {
+					return next(err);
+				}
+				users.push(user);
+				return next(null);
+			});
+		},
+		function(next) {
+			return User.findOne({
+				'fb': {
+					$exists: false
+				}
+			}, function(err, user) {
+				if (err) {
+					return next(err);
+				}
+				users.push(user);
+				return next(null);
+			});
+		}
+	], function(err) {
+		if (err) {
+			return callback(err);
+		}
+		return callback(null, users);
+	});
 
 }
