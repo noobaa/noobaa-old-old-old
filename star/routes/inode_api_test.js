@@ -8,11 +8,6 @@ process.on('uncaughtException', function(err) {
 var db_connect = require('../db_connect');
 var test_common = require('../test_common');
 
-// process.env.FACEBOOK_APP_ID = '123';
-// process.env.FACEBOOK_SECRET = 'sec';
-// process.env.FACEBOOK_AUTHORIZED_URL = 'callback';
-// process.env.MONGOHQ_URL = 'mongodb://admin:admin@localhost/test';
-
 var User = require('../models/user').User;
 var Inode = require('../models/inode').Inode;
 var inode_api = require('./inode_api');
@@ -32,7 +27,7 @@ exports.test_inodes_api = {
 
 			//get random folder of that user
 			function(user, next) {
-				console.log('user name: ', user.fb.name);
+				console.log('user name: ', user.get_name());
 				console.log('user id: ', user._id);
 				return test_common.get_rand_entry(Inode, {
 					isdir: true,

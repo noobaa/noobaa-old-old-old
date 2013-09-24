@@ -18,6 +18,8 @@
 		"dot-emc": "0.1.2",
 		"passport": "0.1.17",
 		"passport-facebook": "0.1.5",
+		"passport-google-oauth": "0.1.5",
+		"googleapis": "0.4.5",
 		"mongoose": "3.6.15",
 		"nodemailer": "0.5.2",
 		"email-templates": "0.1.0",

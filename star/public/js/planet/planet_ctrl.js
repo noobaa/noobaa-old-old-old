@@ -126,6 +126,17 @@
 		var win_frame_width = win.width - win_inner_width;
 		var win_frame_height = win.height - win_inner_height;
 
+		$scope.get_pic_url = function(user) {
+			if (!user) {
+				return;
+			}
+			if (user.fbid) {
+				return 'https://graph.facebook.com/' + user.fbid + '/picture';
+			}
+			if (user.googleid) {
+				return 'https://plus.google.com/s2/photos/profile/' + user.googleid + '?sz=50';
+			}
+		};
 
 
 		////////////////////////////////////////////////////////////
@@ -203,19 +214,32 @@
 			console.log('USER:', f.noobaa_user);
 			$scope.planet_loading = false;
 			$scope.planet_user = f.noobaa_user;
+			console.log('$scope.planet_user: ', $scope.planet_user);
 			schedule_device(1);
 			$scope.safe_apply();
 		};
 
 		// submit connect request - will open facebool login dialog window.
-		$scope.do_connect = function() {
+		$scope.do_connect = function(provider) {
 			if (!window.frames.auth_frame.FB) {
 				$scope.auth_frame_path('/auth/logout/?state=/planet/auth');
 				return;
 			}
-			window.frames.auth_frame.FB.login(function(res) {
-				if (res.authResponse) {
-					$scope.auth_frame_path('/auth/facebook/login/?state=/planet/auth');
+
+			var login_path = '/auth/' + provider + '/login/?state=/planet/auth';
+			var login_window = gui.Window.open(window.location.protocol + '//' +
+				window.location.host + login_path, {
+					'toolbar': false,
+					'frame': true,
+					'focus': true,
+					'position': 'center',
+				});
+
+			login_window.on('loaded', function() {
+				if (this.window.frames && this.window.frames.noobaa_user) {
+					$scope.planet_user = this.window.frames.noobaa_user;
+					$scope.safe_apply();
+					login_window.close();
 				}
 			});
 		};

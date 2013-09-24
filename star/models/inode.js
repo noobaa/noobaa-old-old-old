@@ -3,6 +3,8 @@
 
 var mongoose = require('mongoose');
 var types = mongoose.Schema.Types;
+var _ = require('underscore');
+
 
 var inode_schema = new mongoose.Schema({
 	// user ownership
@@ -49,14 +51,24 @@ inode_schema.methods.follow_ref = function(cb) {
 	this.model('Inode').findById(inode.ghost_ref, cb);
 };
 
-inode_schema.statics.get_refering_ghosts = function(real_id, next) {
+inode_schema.methods.get_referring_ghosts = function(callback) {
 	console.log("get_refering_ghosts ", arguments);
-	this.model('Inode').find({
-		ghost_ref: real_id
-	}, function(err, ghosts) {
-		return next(err, ghosts);
+	return this.model('Inode').find({
+		ghost_ref: this._id
+	}, callback);
+};
+
+//gets the user id's this inodes is shared with
+inode_schema.methods.get_referring_user_ids = function(callback) {
+	var ref_user_ids;
+	return this.get_referring_ghosts(function(err, inodes) {
+		if (!err) {
+			ref_user_ids = _.pluck(inodes, 'owner');
+		}
+		return callback(err, ref_user_ids);
 	});
 };
+
 
 // check if dir has any sons, and call back next(err, inode, true/false)
 inode_schema.statics.isDirHasSons = function(inode, next) {
@@ -71,4 +83,5 @@ inode_schema.statics.isDirHasSons = function(inode, next) {
 	});
 };
 
-exports.Inode = mongoose.model('Inode', inode_schema);
+var Inode = mongoose.model('Inode', inode_schema);
+exports.Inode = Inode;

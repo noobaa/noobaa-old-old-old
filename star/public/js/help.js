@@ -38,66 +38,54 @@ function HelpCtrl($scope, $http) {
 		}, {
 			q: 'Must my device be connected at all times to the network?',
 			a: [
-				'Preferably yes. We will monitor the unavailability periods of your device and will notify you',
+				'No. We will monitor the unavailability periods of your device and will notify you',
 				'if the time off the grid makes the device unusable to NooBaa.'
 			].join('\n')
 		}, {
 			q: 'I\'ve downloaded and installed the application but can\'t find the sync folder.',
 			a: [
 				'NooBaa doesn\'t have a sync folder.',
-				'Sync folders are great for very small amounts of data, but NooBaa is for BIG data.',
+				'Sync folders are great for small amounts of data such as documents, but NooBaa is for BIG data.',
 				'A sync folder which holds 2GB and is synced between your PC, you tablet and your mobile phone takes 6GB.',
-				'This is OK for a small folder.',
-				'When you want a cloud service for Terra-bytes, it\'s not efficient to sync everything, and better to consume directly from the cloud.',
+				'Now imagine that the sync folder is 2TB in size. Do you want it to take 6TB on your local devices?',
+				'Just consume eveything directly from the cloud.',
 			].join('\n')
 		}]
 	};
 
 	$scope.login_faq = {
-		title: 'Facebook Login FAQ',
+		title: 'Login FAQ',
 		questions: [{
-			q: 'Why do you require a Facebook login?',
+			q: 'Why do you require a Facebook/Google login?',
 			a: [
-				'All you data on NooBaa is kept private, so we had to provide you with way to authenticate your identity. ',
+				'All your data on NooBaa is kept private, so we had to provide you with way to authenticate your identity. ',
 				'As we can never remember our own passwords, and reusing passwords is a bad habit, ',
 				'why would we force another nuisance on you?!',
 			].join('\n')
 		}, {
 			q: 'Why don\'t you allow me to login with my email?',
 			a: [
-				'NooBaa is a social aware network, i.e. it allows you to quickly share with your Facebook friends who are also NooBaa users.',
-				' With Facebook you don\'t need to create yet another contacts/friends list',
+				'NooBaa is a social aware network, i.e. it allows you to quickly share with your social network friends who are also NooBaa users.',
+				' Using an existing social netowork account frees you from the need to create yet another contacts/friends list.',
 			].join('\n')
 		}, {
-			q: 'I don\'t have a Facebook user and would like to use NooBaa anyway.',
+			q: 'Why only Facebook and Google?',
 			a: [
-				'We currently only support Facebook login so the easiest path would be to sign up to Facebook.',
-				'We plan to allow a variety of other login accounts such as Google and Twitter but not very soon.',
+				'The chances you already have either of those accounts are higher compared to all the rest.',
 			].join('\n')
 		}, {
-			q: 'Why only Facebook and why Facebook first?',
+			q: 'Why does Facebook/Google ask me to approve your access?',
 			a: [
-				'The chances you already have a Facebook account are higher compared to all the rest.',
-			].join('\n')
-		}, {
-			q: 'Must I Like your page on Facebook?',
-			a: [
-				'No. It would be beneficial to everybody as we\'re building a community and not a passive service. ',
-				'Communicating with our customers would help us do the right thing.',
-			].join('\n')
-		}, {
-			q: 'Why does Facebook ask me to approve your access?',
-			a: [
-				'This is done in order to keep your privacy. Every Facebook access shows a dialog with the access ',
+				'This is done in order to keep your privacy. Every access with your account shows a dialog with the access ',
 				'reqeust the service provider, NooBaa, is making.',
-				'As we would like to make it easy to share with your Facebook friends so it requires access to your Facebook list.',
+				'As we would like to make it easy to share with your friends, it requires access to your friends list.',
 				'We need your email to be able to communicate with you outside of NooBaa.',
-				'We won\'t post on your wall or add you to any newsletter without getting your explicit permission first.'
+				'We won\'t post on your wall/feed or add you to any newsletter without getting your explicit permission first.'
 			].join('\n')
 		}, {
-			q: 'Do you have access to my Facebook password or data?',
+			q: 'Do you have access to my Facebook/Google password or data?',
 			a: [
-				'No. NooBaa can\'t read your password nor can it post to your wall.',
+				'No. NooBaa can\'t access your passwords, nor can it post to your wall on your behalf.',
 			].join('\n')
 		}],
 	};
@@ -141,7 +129,7 @@ function HelpCtrl($scope, $http) {
 			q: 'I\'m sensitive about my privacy as I store my family pictures on the cloud. Is NooBaa right for me?',
 			a: [
 				'As you have full control of your content and whom you share with, NooBaa is very sensitive about your privacy',
-				'As data is encrypted, chunked and distributed, it\'s impossible to scan it at a single location'
+				'As data is encrypted, chunked and distributed, it\'s impossible to scan it at a single location.'
 			].join('\n')
 		}, {
 			q: 'I already use another cloud service. Why should I care?',

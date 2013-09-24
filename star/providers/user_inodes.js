@@ -106,22 +106,10 @@ function get_user_basic_folder_id(folder_name, user_id, next) {
 	});
 }
 
-//gets the user id's this inodes is shred with
-var get_inode_refering_user_ids = function(inode_id, next) {
-	Inode.get_refering_ghosts(inode_id, function(err, inodes) {
-		if (err) {
-			console.error('ERROR - Failed while quering inode: ', inode_id, " ", err);
-			return next(err, null);
-		}
-		var ref_user_ids = _.pluck(inodes, 'owner');
-		console.log("ref_user_ids:", ref_user_ids);
-		return next(null, ref_user_ids);
-	});
-};
-exports.get_inode_refering_user_ids = get_inode_refering_user_ids;
+exports.update_inode_ghost_refs = update_inode_ghost_refs;
 
 //add and remove ghosts as needed
-exports.update_inode_ghost_refs = function(live_inode_id, old_user_ids, new_user_ids, cb) {
+function update_inode_ghost_refs(live_inode_id, old_user_ids, new_user_ids, cb) {
 	var old_user_ids_strings = _.invoke(old_user_ids, 'toHexString');
 	var user_ids_to_add = _.difference(new_user_ids, old_user_ids_strings);
 	var user_ids_to_remove = _.difference(old_user_ids_strings, new_user_ids);
@@ -137,7 +125,7 @@ exports.update_inode_ghost_refs = function(live_inode_id, old_user_ids, new_user
 		// no need to pass on the parallel results array
 		cb(err);
 	});
-};
+}
 
 //remove ghosts which refer to the live inode and belong to the users in the list
 
@@ -246,13 +234,13 @@ function create_ref_ghost_per_user(live_inode, user_id, cb) {
 	], cb);
 }
 
-var get_refering_users = function(inode_id, cb) {
+exports.get_referring_users = get_referring_users;
+
+function get_referring_users(inode, cb) {
 	async.waterfall([
 		function(next) {
-			next(null, inode_id);
+			return inode.get_referring_user_ids(next);
 		},
-
-		get_inode_refering_user_ids,
 
 		function(ref_user_id_list, next) {
 			User.find({
@@ -262,9 +250,7 @@ var get_refering_users = function(inode_id, cb) {
 			}, next);
 		}
 	], cb);
-};
-exports.get_refering_users = get_refering_users;
-
+}
 
 //This will return the sum of all fobjs' sizes that are referenced by owned 
 //inodes of the user.

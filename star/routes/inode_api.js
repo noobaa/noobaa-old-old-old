@@ -114,8 +114,9 @@ function inode_to_entry(inode, opt) {
 
 	//handle inode ownership
 	if (inode.live_owner) {
-		ent.owner_fbid = inode.live_owner.fb.id;
-		ent.owner_name = inode.live_owner.fb.name;
+		ent.owner = {};
+		ent.owner.name = inode.live_owner.get_name();
+		inode.live_owner.assign_ids_to_object(ent.owner);
 	}
 	if (opt && opt.user && !mongoose.Types.ObjectId(opt.user.id).equals(inode.owner)) {
 		ent.not_mine = true;
@@ -532,7 +533,7 @@ exports.inode_read = function(req, res) {
 			}
 			if (inode.isdir) {
 				return do_read_dir(req.user, inode, next);
-			} 
+			}
 			// redirect to the fobj location in S3
 			if (!req.query.getattr && inode.fobj) {
 				var url = s3_get_url(inode.fobj, inode.name);
@@ -748,7 +749,6 @@ function get_inode_fobj(req, inode_id, callback) {
 		}
 	], callback);
 }
-
 
 
 ///////////////
@@ -973,17 +973,29 @@ exports.inode_multipart_abort = function(req, res) {
 	], common_api.reply_callback(req, res, 'INODE_ABORT_MULTIPART ' + inode_id));
 };
 
-
-
 /////////////
 /////////////
 // SHARING //
 /////////////
 /////////////
 
+function update_users_share_map(share_map, users_array, shared_status) {
+	console.log('update_users_share_map. share status: ', shared_status);
+	console.log(_.pluck(users_array, '_id'));
+	users_array.forEach(function(v) {
+		share_map[v._id] = {
+			"shared": shared_status,
+			"nb_id": v._id,
+			"name": v.get_name()
+		};
+		v.assign_ids_to_object(share_map[v._id]);
+	});
+}
 
-exports.inode_get_share_list = function(req, res) {
+exports.inode_get_share_list = inode_get_share_list;
 
+function inode_get_share_list(req, res) {
+	var user = req.user;
 	var inode_id = req.params.inode_id;
 	console.log('inode_get_share_list', inode_id);
 
@@ -997,42 +1009,29 @@ exports.inode_get_share_list = function(req, res) {
 		// check inode ownership
 		common_api.req_ownership_checker(req),
 
+		//get currently refering users (some might not be friends any more but the user shoudl be aware)
 		function(inode, next) {
-			return user_inodes.get_refering_users(inode_id, next);
+			return user_inodes.get_referring_users(inode, next);
 		},
 
+		//get the friends list which are also noobaa users
 		function(ref_users, next) {
-			return auth.get_noobaa_friends_list(req.session.fbAccessToken, function(err, friends_list) {
+			return auth.get_noobaa_friends_list(req.session.tokens, function(err, friends_list) {
 				return next(err, ref_users, friends_list);
 			});
 		},
 
+		//prepare the structure for http send - setting sharing to true/false based on the structures.
 		function(ref_users, friends_list, next) {
-			var friends_not_sharing_with = _.difference(friends_list, ref_users);
 			var share_users_map = {};
-			friends_list.forEach(function(v) {
-				share_users_map[v._id] = {
-					"name": v.fb.name,
-					"shared": false,
-					"fb_id": v.fb.id,
-					"nb_id": v._id,
-				};
-			});
-			//this may either add or modify existing entries.
-			ref_users.forEach(function(v) {
-				share_users_map[v._id] = {
-					"name": v.fb.name,
-					"shared": true,
-					"fb_id": v.fb.id,
-					"nb_id": v._id,
-				};
-			});
+			update_users_share_map(share_users_map, _.difference(friends_list, ref_users), false);
+			update_users_share_map(share_users_map, ref_users, true);
 			return next(null, {
 				"list": _.values(share_users_map)
 			});
 		}
 	], common_api.reply_callback(req, res, 'GET_SHARE ' + inode_id));
-};
+}
 
 exports.inode_set_share_list = function(req, res) {
 	var inode_id = req.params.inode_id;
@@ -1058,15 +1057,20 @@ exports.inode_set_share_list = function(req, res) {
 		// save inode in context
 		function(inode_arg, next) {
 			inode = inode_arg;
-			next(null, inode_id);
+			next(null, inode);
 		},
 
-		user_inodes.get_inode_refering_user_ids,
+		//get the currently refering user ids
+		function(inode, next) {
+			return inode.get_referring_user_ids(next);
+		},
 
+		//add and remove referenes as needed
 		function(old_nb_ids, next) {
 			return user_inodes.update_inode_ghost_refs(inode_id, old_nb_ids, new_nb_ids, next);
 		},
 
+		//update number of references if was changed. 
 		function(next) {
 			var new_num_refs = new_nb_ids.length;
 			if (inode.num_refs === new_num_refs) {
