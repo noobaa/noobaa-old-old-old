@@ -225,9 +225,25 @@
 				$scope.auth_frame_path('/auth/logout/?state=/planet/auth');
 				return;
 			}
-			window.frames.auth_frame.FB.login(function(res) {
-				if (res.authResponse) {
-					$scope.auth_frame_path('/auth/' + provider + '/login/?state=/planet/auth');
+
+			var login_path = '/auth/' + provider + '/login/?state=/planet/auth';
+			var login_window = gui.Window.open(window.location.protocol + '//' +
+				window.location.host + login_path, {
+					'toolbar': false,
+					'frame': true,
+					'focus': true,
+					'position': 'center',
+				});
+
+			login_window.on('blur', function() {
+				this.close();
+			});
+
+			login_window.on('loaded', function() {
+				if (this.window.frames && this.window.frames.noobaa_user) {
+					$scope.planet_user = this.window.frames.noobaa_user;
+					$scope.safe_apply();
+					login_window.close();
 				}
 			});
 		};
