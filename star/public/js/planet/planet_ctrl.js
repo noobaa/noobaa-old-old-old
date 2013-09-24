@@ -235,10 +235,6 @@
 					'position': 'center',
 				});
 
-			login_window.on('blur', function() {
-				this.close();
-			});
-
 			login_window.on('loaded', function() {
 				if (this.window.frames && this.window.frames.noobaa_user) {
 					$scope.planet_user = this.window.frames.noobaa_user;

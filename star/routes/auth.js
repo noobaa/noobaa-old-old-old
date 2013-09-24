@@ -183,12 +183,17 @@ exports.provider_login = function(provider, req, res, next) {
 		}
 	};
 
-	passport.authenticate(provider, {
+	var auth_options = {
 		// passing the query state to next steps to allow custom redirect
 		state: req.query.state,
-		// display: 'popup',
 		scope: auth_provider_conf[provider].scope,
-	})(req, res, next);
+	};
+
+	if (auth_options.state && auth_options.state.indexOf('planet') != -1) {
+		auth_options.display = 'popup';
+	}
+
+	passport.authenticate(provider, auth_options)(req, res, next);
 };
 
 // when authorization is complete (either success/failed)
