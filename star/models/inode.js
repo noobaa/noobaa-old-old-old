@@ -3,6 +3,8 @@
 
 var mongoose = require('mongoose');
 var types = mongoose.Schema.Types;
+var _ = require('underscore');
+
 
 var inode_schema = new mongoose.Schema({
 	// user ownership
@@ -56,20 +58,17 @@ inode_schema.methods.get_referring_ghosts = function(callback) {
 	}, callback);
 };
 
-//TODO - why can't this work? Getting model as no method on: get_referring_ghosts
-
 //gets the user id's this inodes is shared with
-/*inode_schema.methods.get_inode_refering_user_ids = function(callback) {
+inode_schema.methods.get_referring_user_ids = function(callback) {
 	var ref_user_ids;
-	return this.model('Inode').get_referring_ghosts(function(err, inodes) {
+	return this.get_referring_ghosts(function(err, inodes) {
 		if (!err) {
 			ref_user_ids = _.pluck(inodes, 'owner');
-			console.log("ref_user_ids:", ref_user_ids);
 		}
 		return callback(err, ref_user_ids);
 	});
 };
-*/
+
 
 // check if dir has any sons, and call back next(err, inode, true/false)
 inode_schema.statics.isDirHasSons = function(inode, next) {

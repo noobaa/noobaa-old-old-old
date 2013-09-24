@@ -1060,8 +1060,10 @@ exports.inode_set_share_list = function(req, res) {
 			next(null, inode);
 		},
 
-		//get the currently refering ids
-		user_inodes.get_inode_refering_user_ids,
+		//get the currently refering user ids
+		function(inode, next) {
+			return inode.get_referring_user_ids(next);
+		},
 
 		//add and remove referenes as needed
 		function(old_nb_ids, next) {

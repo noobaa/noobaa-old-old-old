@@ -106,21 +106,6 @@ function get_user_basic_folder_id(folder_name, user_id, next) {
 	});
 }
 
-exports.get_inode_refering_user_ids = get_inode_refering_user_ids;
-//gets the user id's this inodes is shared with
-
-function get_inode_refering_user_ids(inode, next) {
-	inode.get_referring_ghosts(function(err, inodes) {
-		if (err) {
-			console.error('ERROR - Failed while quering inode: ', inode_id, " ", err);
-			return next(err, null);
-		}
-		var ref_user_ids = _.pluck(inodes, 'owner');
-		console.log("ref_user_ids:", ref_user_ids);
-		return next(null, ref_user_ids);
-	});
-}
-
 exports.update_inode_ghost_refs = update_inode_ghost_refs;
 
 //add and remove ghosts as needed
@@ -254,7 +239,7 @@ exports.get_referring_users = get_referring_users;
 function get_referring_users(inode, cb) {
 	async.waterfall([
 		function(next) {
-			return get_inode_refering_user_ids(inode, next);
+			return inode.get_referring_user_ids(next);
 		},
 
 		function(ref_user_id_list, next) {
@@ -266,7 +251,6 @@ function get_referring_users(inode, cb) {
 		}
 	], cb);
 }
-
 
 //This will return the sum of all fobjs' sizes that are referenced by owned 
 //inodes of the user.
