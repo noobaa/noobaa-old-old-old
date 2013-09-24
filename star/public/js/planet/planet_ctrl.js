@@ -208,14 +208,37 @@
 		};
 
 		// submit connect request - will open facebool login dialog window.
-		$scope.do_connect = function() {
+		$scope.do_connect = function(provider) {
+			// console.log('provider: ', provider);
+			// var login_path = '/auth/' + provider + '/login/';
+			// console.log('login_path: ', login_path);
+			// var new_win = gui.Window.get(
+			// 	window.open(login_path)
+			// );
+
+			//I didn't manage to listen to url changes on the new windw
+			//saw it as an issue: https://github.com/rogerwang/node-webkit/issues/36
+			// though don't think it works.
+			
+			// // And listen to new window's focus event
+			// new_win.on('loaded', function() {
+			// 	console.log('------------------');
+			// 	// console.log('New window: ',new_win);
+			// 	console.log('New window: ',this);
+			// 	// console.log(new_win)
+			// 	// new_win.__proto__.foreach(function(m) {
+			// 	// 	console.log(m);
+			// 	// });
+			// });
+			// return;
+
 			if (!window.frames.auth_frame.FB) {
 				$scope.auth_frame_path('/auth/logout/?state=/planet/auth');
 				return;
 			}
 			window.frames.auth_frame.FB.login(function(res) {
 				if (res.authResponse) {
-					$scope.auth_frame_path('/auth/facebook/login/?state=/planet/auth');
+					$scope.auth_frame_path('/auth/'+provider+'/login/?state=/planet/auth');
 				}
 			});
 		};
