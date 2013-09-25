@@ -31,7 +31,9 @@
 
 		this.jobq_load = new JobQueue(4, $timeout);
 		this.jobq_upload_small = new JobQueue(8, $timeout);
-		this.jobq_upload_large = new JobQueue(2, $timeout);
+		this.jobq_upload_medium = new JobQueue(4, $timeout);
+		this.jobq_upload_large = new JobQueue(1, $timeout);
+		this.medium_threshold = 1 * 1024 * 1024;
 		this.large_threshold = 8 * 1024 * 1024;
 
 		this.id_gen = 1;
@@ -68,6 +70,7 @@
 			(!this.list_retrying.is_empty()) ||
 			( !! this.jobq_load.length) ||
 			( !! this.jobq_upload_small.length) ||
+			( !! this.jobq_upload_medium.length) ||
 			( !! this.jobq_upload_large.length);
 	};
 
@@ -446,8 +449,14 @@
 		if (upload.is_pending_upload) {
 			return;
 		}
-		var jobq = item.size < this.large_threshold ?
-			this.jobq_upload_small : this.jobq_upload_large;
+		var jobq;
+		if (item.size >= this.large_threshold) {
+			jobq = this.jobq_upload_large;
+		} else if (item.size >= this.medium_threshold) {
+			jobq = this.jobq_upload_medium;
+		} else {
+			jobq = this.jobq_upload_small;
+		}
 		upload.is_pending_upload = true;
 		jobq.add(function() {
 			upload.is_pending_upload = false;
@@ -1099,9 +1108,10 @@
 				'			load {{srv.list_loading.length}} /',
 				'			upload {{srv.list_uploading.length}} /',
 				'			retry {{srv.list_retrying.length}} /',
-				'			pending load {{srv.jobq_load.length}} /',
-				'			pending upload small {{srv.jobq_upload_small.length}} /',
-				'			pending upload large {{srv.jobq_upload_large.length}}',
+				'			load queue {{srv.jobq_load.length}} /',
+				'			small queue {{srv.jobq_upload_small.length}} /',
+				'			medium queue {{srv.jobq_upload_medium.length}} /',
+				'			large queue {{srv.jobq_upload_large.length}}',
 				'		</div>',
 				'	</div>',
 				'	<div class="row"',
