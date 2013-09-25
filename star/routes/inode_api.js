@@ -10,6 +10,7 @@ var auth = require('./auth');
 var async = require('async');
 var mongoose = require('mongoose');
 var querystring = require('querystring');
+var mime = require('mime');
 
 var Inode = require('../models/inode').Inode;
 var Fobj = require('../models/fobj').Fobj;
@@ -38,6 +39,13 @@ function fobj_s3_key(fobj_id) {
 
 function name_to_content_dispos(name) {
 	return 'filename="' + querystring.escape(name) + '"';
+}
+
+function detect_content_type(type, name) {
+	if (type) {
+		return type;
+	}
+	return mime.lookup(name);
 }
 
 // return a signed GET url for the fobj in S3
@@ -459,8 +467,8 @@ exports.inode_create = function(req, res) {
 	if (!inode.isdir && args.uploading) {
 		fobj = new Fobj({
 			size: args.size,
-			content_type: args.content_type,
-			uploading: !! args.uploading && !! args.size,
+			content_type: detect_content_type(args.content_type, args.name),
+			uploading: !! args.uploading,
 		});
 		// link the inode to the fobj
 		inode.fobj = fobj._id;
