@@ -177,12 +177,16 @@
 			upload.is_submit = true;
 
 			return me.$q.when().then(function() {
+				throw_if_aborted(upload);
 				return me._prepare_file_attr(upload);
 			}).then(function() {
+				throw_if_aborted(upload);
 				return me._prepare_file_entry(upload);
 			}).then(function() {
+				throw_if_aborted(upload);
 				return me._mkdir(upload);
 			}).then(function() {
+				throw_if_aborted(upload);
 				return me._readdir(upload);
 			}).then(function() {
 				// after readdir we can update the parents bytes size
@@ -190,17 +194,24 @@
 					p.bytes_sons += upload.item.size;
 				}
 			}).then(function() {
+				throw_if_aborted(upload);
 				return me._add_file_job(upload);
 			}).then(function() {
 				console.log('SUBMIT DONE', item.name);
 				upload.is_submit = false;
 			}).then(null, function(err) {
 				console.error('SUBMIT ERROR', err);
-				upload.is_submit = false;
+				upload.error_text = err;
+				upload.progress_class = 'danger';
 			});
 		});
 	};
 
+	function throw_if_aborted(upload) {
+		if (upload.is_aborted) {
+			throw 'aborted';
+		}
+	}
 
 	UploadSrv.prototype._create_upload = function(item, target, parent) {
 		console.log('SUBMIT create upload', item.name);
@@ -392,9 +403,11 @@
 		if (item.isDirectory) {
 			return;
 		}
+		upload.is_pending = true;
 		var jobq = item.size < this.large_threshold ?
 			this.jobq_send_small : this.jobq_send_large;
 		jobq.add(function() {
+			upload.is_pending = false;
 			return me.upload_file(upload);
 		});
 	};
@@ -414,28 +427,38 @@
 
 		upload.is_send = true;
 		return me.$q.when().then(function() {
+			throw_if_aborted(upload);
 			return me._open_file_for_read(upload);
 		}).then(function() {
+			throw_if_aborted(upload);
 			return me._mkfile(upload);
 		}).then(function(res) {
+			throw_if_aborted(upload);
 			if (!me._mkfile_check(upload, res)) {
 				throw 'mkfile_check';
 			}
 		}).then(function() {
+			throw_if_aborted(upload);
 			return me._upload_multipart(upload);
 		}).then(function() {
-			// TODO close fd
-			upload.is_send = false;
-			// me.set_done(upload);
-		}).then(null, function(err) {
-			// TODO close fd
-			console.error('SEND ERROR', err);
-			upload.is_send = false;
-			if (err.status === 507) { // HTTP Insufficient Storage
-				upload.fail_reason = 'Out of space';
+			console.error('SEND DONE', upload.item.name);
+			if (upload.item.fd) {
+				me.$fs.closeSync(upload.item.fd);
+				upload.item.fd = null;
 			}
-			// me.set_fail(upload);
-			// throw err;
+			upload.is_send = false;
+		}).then(null, function(err) {
+			console.error('SEND ERROR', err);
+			if (upload.item.fd) {
+				me.$fs.closeSync(upload.item.fd);
+				upload.item.fd = null;
+			}
+			if (err.status === 507) { // HTTP Insufficient Storage
+				upload.error_text = 'Out of space';
+			} else {
+				upload.error_text = err;
+			}
+			upload.progress_class = 'danger';
 		});
 	};
 
@@ -533,11 +556,9 @@
 			method: 'POST',
 			url: '/star_api/inode/' + upload.target.inode_id + '/multipart/'
 		}).then(function(res) {
+			throw_if_aborted(upload);
 			upload.multipart = res.data;
 			console.log('[ok] upload multipart state', upload.multipart);
-			if (upload.is_aborted) {
-				throw 'aborted';
-			}
 			if (upload.multipart.complete) {
 				upload.progress = 100;
 				return; // done
