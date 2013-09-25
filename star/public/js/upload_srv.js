@@ -285,7 +285,6 @@
 				return defer.reject(err);
 			}
 			try {
-				item.srv = me;
 				if (stats.isDirectory()) {
 					item.isDirectory = true;
 					item.size = 0;
@@ -293,7 +292,6 @@
 					item.size = stats.size;
 					item.type = 'plain/text'; // TODO detect content type
 				}
-				upload.item = item;
 				return defer.resolve();
 			} catch (err) {
 				return defer.reject(err);
@@ -593,10 +591,12 @@
 			throw 'mismatching file attr';
 		}
 		if (item.size === 0) {
+			// TODO ....
 			console.log('skip upload for zero size file', item.name);
 			return;
 		}
 		if (!res.data.uploading) {
+			// TODO ....
 			console.log('file already uploaded', res.data, item.name);
 			return;
 		}
@@ -700,13 +700,22 @@
 		if (!me.$fs || !item.fd) {
 			throw 'missing fd for item slice';
 		}
+		if (end > item.size) {
+			end = item.size;
+		}
+		if (end < start) {
+			throw 'bad slice range';
+		}
 		var defer = me.$q.defer();
-		me.$fs.read(fd, new Buffer(end - start), 0, end - start, start,
+		me.$fs.read(item.fd, new Buffer(end - start), 0, end - start, start,
 			me.$cb(function(err, nbytes, buf) {
 				if (err) {
 					return defer.reject(err);
 				} else {
-					return defer.resolve(new Uint8Array(buf, 0, nbytes));
+					var data_slice = buf.slice(0, nbytes);
+					var data_view = new Uint8Array(data_slice);
+					var blob = new Blob([data_view]);
+					return defer.resolve(blob);
 				}
 			})
 		);
@@ -717,7 +726,7 @@
 	function calc_progress(current, total) {
 		return (current === total) ? 100 : (current * 100 / total).toFixed(1);
 	}
-	
+
 	function update_upsize(upload, upsize) {
 		upload.upsize = upload.upsize || 0; // init
 		var diffsize = upsize - upload.upsize;
