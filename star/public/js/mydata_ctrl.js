@@ -281,12 +281,14 @@ Inode.prototype.mkdir = function(name) {
 };
 
 // delete this inode
-Inode.prototype.delete_inode = function(avoid_read_parent) {
+Inode.prototype.delete_inode = function(stats, avoid_read_parent) {
 	var me = this;
 	var do_delete = function() {
 		return me.$scope.$http({
 			method: 'DELETE',
 			url: me.$scope.inode_api_url + me.id
+		}).then(function() {
+			stats.count++;
 		});
 	};
 	var do_read_parent = function(promise) {
@@ -309,18 +311,14 @@ Inode.prototype.delete_inode = function(avoid_read_parent) {
 		var sons = me.isdir ? me.dir_state.sons_list.slice(0) : null; // copy array
 		var delete_sons = function() {
 			if (!sons || !sons.length) {
-				console.log('NO SONS', me);
-				var deferred = me.$scope.$q.defer();
-				me.$scope.$rootScope.safe_apply(function() {
-					deferred.resolve();
-				});
-				return deferred.promise;
+				// console.log('NO SONS', me);
+				return me.$scope.$q.when();
 			}
 			var promises = [];
 			for (var i = 0; i < 20 && sons.length; i++) {
 				var son = sons.pop();
-				console.log('DEL SON', son);
-				promises.push(son.delete_inode(true));
+				// console.log('DEL SON', son);
+				promises.push(son.delete_inode(stats, true));
 			}
 			return me.$scope.$q.all(promises).then(delete_sons);
 		};
@@ -794,6 +792,9 @@ function MyDataCtrl($scope, $http, $timeout, $window, $q, $rootScope) {
 			dlg.find('.inode_label').html(inode.make_inode_with_icon());
 			dlg.find('#dialog_ok').off('click').on('click', function() {
 				dlg.find('#dialog_ok').addClass('disabled').html('<i class="icon-spinner icon-spin"></i>');
+				var stats = {
+					count: 0
+				};
 				var on_delete = function() {
 					if (inode.id == $scope.inode_selection.inode.id) {
 						$scope.select(inode.parent, {
@@ -802,8 +803,9 @@ function MyDataCtrl($scope, $http, $timeout, $window, $q, $rootScope) {
 						});
 					}
 					dlg.nbdialog('close');
+					$.nbalert('stats.count: ' + stats.count);
 				};
-				inode.delete_inode().then(on_delete, on_delete);
+				inode.delete_inode(stats).then(on_delete, on_delete);
 			});
 			dlg.nbdialog('open', {
 				remove_on_close: true,

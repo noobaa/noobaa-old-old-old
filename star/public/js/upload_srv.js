@@ -26,8 +26,8 @@
 		this.$path = window.require && window.require('path');
 
 		this.jobq_submit = new JobQueue(4, $timeout);
-		this.jobq_small = new JobQueue(2, $timeout);
-		this.jobq_large = new JobQueue(1, $timeout);
+		this.jobq_send_small = new JobQueue(2, $timeout);
+		this.jobq_send_large = new JobQueue(1, $timeout);
 		this.large_threshold = 8 * 1024; // * 1024;
 
 
@@ -55,6 +55,7 @@
 			}
 		});
 	}
+
 
 
 	/////////////////////
@@ -152,30 +153,31 @@
 
 
 
-	//////////////
-	//////////////
-	// INTERNAL //
-	//////////////
-	//////////////
+	/////////////////
+	/////////////////
+	// SUBMIT FLOW //
+	/////////////////
+	/////////////////
 
 
 	// submit single item to upload.
 	// the flow starts on create the upload object and insert into parent.
 	// then we prepare the file/dir by resolving type and reading directories (and submit sons).
-	// finally add to pending queue.
+	// finally add files to job queue.
 	UploadSrv.prototype.submit_item = function(item, target, parent) {
 		var me = this;
 
 		me.jobq_submit.add(function() {
 
-			console.log('SUBMIT', item.name, item);
+			console.log('SUBMIT', item.name);
 			var upload = me._create_upload(item, target, parent);
 			if (!upload) {
 				return;
 			}
+			upload.is_submit = true;
 
 			return me.$q.when().then(function() {
-				return me._prepare_node_file(upload);
+				return me._prepare_file_attr(upload);
 			}).then(function() {
 				return me._prepare_file_entry(upload);
 			}).then(function() {
@@ -188,9 +190,13 @@
 					p.bytes_sons += upload.item.size;
 				}
 			}).then(function() {
-				return me._add_upload_job(upload);
+				return me._add_file_job(upload);
+			}).then(function() {
+				console.log('SUBMIT DONE', item.name);
+				upload.is_submit = false;
 			}).then(null, function(err) {
 				console.error('SUBMIT ERROR', err);
+				upload.is_submit = false;
 			});
 		});
 	};
@@ -212,14 +218,14 @@
 
 
 	// for node items with full paths, stat and fill properties of the item
-	UploadSrv.prototype._prepare_node_file = function(upload) {
+	UploadSrv.prototype._prepare_file_attr = function(upload) {
 		var me = this;
 		var item = upload.item;
 		if (!me.$fs || !item.path) {
 			return me.$q.when();
 		}
 
-		console.log('SUBMIT create node file', item.path);
+		console.log('SUBMIT prepare file attr', item.path);
 
 		// node file/dir
 		var defer = me.$q.defer();
@@ -249,14 +255,15 @@
 	// for html5 file entry, get the file.
 	UploadSrv.prototype._prepare_file_entry = function(upload) {
 		var me = this;
-		if (!upload.item.isFile) {
+		var item = upload.item;
+		if (!item.isFile) {
 			return me.$q.when();
 		}
 
-		console.log('SUBMIT prepare file entry', upload.item);
+		console.log('SUBMIT prepare file entry', item.name);
 
 		var defer = me.$q.defer();
-		upload.item.file(me.$cb(function(file) {
+		item.file(me.$cb(function(file) {
 			// replace the item from file entry to the file object
 			upload.item = file;
 			defer.resolve();
@@ -273,7 +280,7 @@
 			return me.$q.when();
 		}
 
-		console.log('SUBMIT mkdir', upload.item.name, upload.target);
+		console.log('SUBMIT mkdir', upload.item.name);
 
 		var inode_id = upload.target.inode_id;
 		if (inode_id) {
@@ -320,6 +327,7 @@
 		}
 
 		item.size = 0;
+		// we fill level only for potential parent
 		upload.level = upload.parent.level + 1;
 		upload.sons = {};
 		upload.num_sons = 0;
@@ -378,109 +386,152 @@
 		return defer.promise;
 	};
 
-	UploadSrv.prototype._add_upload_job = function(upload) {
-		var item = upload.item;
-		if (item.isDirectory) {
-			return;
-		}
-		var q = item.size < this.large_threshold ? this.jobq_small : this.jobq_large;
-		q.add(function() {});
-		// me.set_pending(upload);
-		// try process the pending queue if needed
-		// me.run_pending();
-	};
-
-
-	UploadSrv.prototype.start_upload = function(upload) {
+	UploadSrv.prototype._add_file_job = function(upload) {
 		var me = this;
 		var item = upload.item;
-		var promise;
-
-		if (!me.set_active(upload)) {
+		if (item.isDirectory) {
 			return;
 		}
-
-		if (item.isDirectory) {
-			promise = me.upload_dir(upload);
-		} else {
-			promise = me.upload_file(upload);
-		}
-		return promise.then(function(res) {
-			me.set_done(upload);
-			return res;
-		}, function(err) {
-			if (err.status === 507) { // HTTP Insufficient Storage
-				upload.fail_reason = 'Out of space';
-			}
-			me.set_fail(upload);
-			throw err;
+		var jobq = item.size < this.large_threshold ?
+			this.jobq_send_small : this.jobq_send_large;
+		jobq.add(function() {
+			return me.upload_file(upload);
 		});
 	};
 
+
+
+	///////////////
+	///////////////
+	// SEND FLOW //
+	///////////////
+	///////////////
+
+
 	UploadSrv.prototype.upload_file = function(upload) {
 		var me = this;
-		var file = upload.file;
-		var file_request;
-		if (upload.inode_id) {
+		var item = upload.item;
+
+		upload.is_send = true;
+		return me.$q.when().then(function() {
+			return me._open_file_for_read(upload);
+		}).then(function() {
+			return me._mkfile(upload);
+		}).then(function(res) {
+			if (!me._mkfile_check(upload, res)) {
+				throw 'mkfile_check';
+			}
+		}).then(function() {
+			return me._upload_multipart(upload);
+		}).then(function() {
+			// TODO close fd
+			upload.is_send = false;
+			// me.set_done(upload);
+		}).then(null, function(err) {
+			// TODO close fd
+			console.error('SEND ERROR', err);
+			upload.is_send = false;
+			if (err.status === 507) { // HTTP Insufficient Storage
+				upload.fail_reason = 'Out of space';
+			}
+			// me.set_fail(upload);
+			// throw err;
+		});
+	};
+
+
+	// open the file and save fd in the item for node files.
+	// will return resolved promise if file is already open,
+	// or if the item has the slice function (html5 file blob api)
+	UploadSrv.prototype._open_file_for_read = function(upload) {
+		var me = this;
+		var item = upload.item;
+		if (item.fd || typeof item.slice === 'function') {
+			return me.$q.when();
+		}
+		if (!me.$fs || !item.path) {
+			throw 'missing fs path for item slice';
+		}
+		var defer = me.$q.defer();
+		me.$fs.open(item.path, 'r', me.$cb(function(err, fd) {
+			if (err) {
+				return defer.reject(err);
+			}
+			item.fd = fd;
+			return defer.resolve(fd);
+		}));
+		return defer.promise;
+	};
+
+
+	UploadSrv.prototype._mkfile = function(upload) {
+		var me = this;
+		var item = upload.item;
+
+		if (upload.target.inode_id) {
 			// inode_id supplied - getattr to verify it exists
 			console.log('[ok] upload gettattr file:', upload);
-			file_request = {
+			return me.$http({
 				method: 'GET',
-				url: '/star_api/inode/' + upload.inode_id,
+				url: '/star_api/inode/' + upload.target.inode_id,
 				params: {
 					// tell the server to return attr 
 					// and not redirect us as in normal read
 					getattr: true
 				}
-			};
-		} else {
-			// create the file and receive upload location info
-			console.log('[ok] upload creating file:', upload);
-			var relative_path = upload.item.isFile ? '' : file.webkitRelativePath;
-			file_request = {
-				method: 'POST',
-				url: '/star_api/inode/',
-				data: {
-					id: upload.dir_inode_id,
-					name: file.name,
-					isdir: false,
-					size: upload.file_size,
-					uploading: true,
-					content_type: file.type,
-					relative_path: relative_path
-				}
-			};
+			});
 		}
-		return me.$http(file_request).then(function(res) {
-			console.log('[ok] upload file', res);
-			if (res.data.name !== file.name || res.data.size !== upload.file_size) {
-				$.nbalert('Choose the same file to resume the upload');
-				throw 'mismatching file attr';
+
+		// create the file and receive upload location info
+		console.log('[ok] upload creating file:', upload);
+		return me.$http({
+			method: 'POST',
+			url: '/star_api/inode/',
+			data: {
+				id: upload.target.dir_inode_id,
+				isdir: false,
+				uploading: true,
+				name: item.name,
+				size: item.size,
+				content_type: item.type,
+				relative_path: item.webkitRelativePath
 			}
-			if (upload.file_size === 0) {
-				console.log('skip upload for zero size file', file);
-				return;
-			}
-			if (!res.data.uploading) {
-				console.log('file already uploaded', res.data, file);
-				return;
-			}
-			if (upload.is_aborted) {
-				throw 'aborted';
-			}
-			upload.inode_id = res.data.id;
-			me.$rootScope.safe_apply();
-			return me._upload_multipart(upload);
 		});
+
+		throw 'unknown target';
 	};
+
+
+	UploadSrv.prototype._mkfile_check = function(upload, res) {
+		var item = upload.item;
+		console.log('[ok] upload file', res);
+		if (res.data.name !== item.name || res.data.size !== item.size) {
+			$.nbalert('Choose the same file to resume the upload');
+			throw 'mismatching file attr';
+		}
+		if (item.size === 0) {
+			console.log('skip upload for zero size file', item.name);
+			return;
+		}
+		if (!res.data.uploading) {
+			console.log('file already uploaded', res.data, item.name);
+			return;
+		}
+		if (upload.is_aborted) {
+			throw 'aborted';
+		}
+		upload.target.inode_id = res.data.id;
+		return true;
+	};
+
 
 	UploadSrv.prototype._upload_multipart = function(upload) {
 		var me = this;
-		console.log('[ok] upload multipart run', upload.file.name);
+		console.log('[ok] upload multipart run', upload.item.name);
 		// get missing parts
 		return me.$http({
 			method: 'POST',
-			url: '/star_api/inode/' + upload.inode_id + '/multipart/'
+			url: '/star_api/inode/' + upload.target.inode_id + '/multipart/'
 		}).then(function(res) {
 			upload.multipart = res.data;
 			console.log('[ok] upload multipart state', upload.multipart);
@@ -491,7 +542,7 @@
 				upload.progress = 100;
 				return; // done
 			}
-			upload.progress = (upload.multipart.upsize * 100 / upload.file_size).toFixed(1);
+			upload.progress = (upload.multipart.upsize * 100 / upload.item.size).toFixed(1);
 			// send missing parts
 			// TODO: maintain part_number_marker to ease on the server
 			var missing_parts = upload.multipart.missing_parts;
@@ -527,6 +578,7 @@
 		});
 	};
 
+
 	UploadSrv.prototype._send_part = function(upload, part) {
 		var me = this;
 		var part_size = upload.multipart.part_size;
@@ -545,12 +597,12 @@
 				upload.xhr = null;
 				if (xhr.status !== 200) {
 					defer.reject('xhr failed status ' + xhr.status);
-					return;
+				} else {
+					defer.resolve();
 				}
-				defer.resolve();
 			});
 			xhr.upload.onprogress = me.$cb(function(event) {
-				upload.progress = ((upsize + event.loaded) * 100 / upload.file_size).toFixed(1);
+				upload.progress = ((upsize + event.loaded) * 100 / upload.item.size).toFixed(1);
 			});
 			xhr.open('PUT', part.url, true);
 			// xhr.setRequestHeader('Access-Control-Expose-Headers', 'ETag');
@@ -559,44 +611,26 @@
 		});
 	};
 
+
 	UploadSrv.prototype._item_slice = function(item, start, end) {
 		var me = this;
-		if (item.slice) {
+		if (typeof item.slice === 'function') {
 			return me.$q.when(item.slice(start, end));
 		}
-		if (item.isDirectory) {
-			throw 'cant slice directory';
+		if (!me.$fs || !item.fd) {
+			throw 'missing fd for item slice';
 		}
-		if (!me.$fs || !item.path) {
-			throw 'missing path for item slice';
-		}
-		// lazy get file descriptor and save into the item
-		// we also need to close that fd later.
-		var fd_promise;
-		if (item.fd) {
-			fd_promise = me.$q.when(item.fd);
-		} else {
-			var defer = me.$q.defer();
-			me.$fs.open(item.path, 'r', me.$cb(function(err, fd) {
+		var defer = me.$q.defer();
+		me.$fs.read(fd, new Buffer(end - start), 0, end - start, start,
+			me.$cb(function(err, nbytes, buf) {
 				if (err) {
 					return defer.reject(err);
+				} else {
+					return defer.resolve(new Uint8Array(buf, 0, nbytes));
 				}
-				item.fd = fd;
-				defer.resolve(fd);
-			}));
-			fd_promise = defer.promise;
-		}
-		// read the slice from the file using the fd
-		fd_promise.then(function(fd) {
-			var defer = me.$q.defer();
-			me.$fs.read(fd, new Buffer(end - start), 0, end - start, start, me.$cb(function(err, nbytes, buf) {
-				if (err) {
-					return defer.reject(err);
-				}
-				defer.resolve(new Uint8Array(buf, 0, nbytes));
-			}));
-			return defer.promise;
-		});
+			})
+		);
+		return defer.promise;
 	}
 
 
@@ -806,6 +840,15 @@
 	};
 
 	UploadSrv.prototype.get_status = function(upload) {
+		if (upload.is_submit) {
+			return 'Loading...';
+		} else if (upload.is_send) {
+			return 'Uploading...';
+		} else {
+			return '';
+		}
+
+		// TODO REMOVE OLD CODE
 		var status;
 		var add_attempt = false;
 		var add_fail = false;
@@ -910,7 +953,7 @@
 	};
 
 
-	noobaa_app.filter('upload_sons_sort', function() {
+	noobaa_app.filter('upload_sons_filter', function() {
 		return function(upload) {
 			if (!upload.expanded) {
 				return null;
@@ -965,6 +1008,11 @@
 				'			Resume Selected',
 				'			<i class="icon-repeat"></i>',
 				'		</button>',
+				'		<div>',
+				'			{{srv.jobq_submit.length}} /',
+				'			{{srv.jobq_send_small.length}} /',
+				'			{{srv.jobq_send_large.length}}',
+				'		</div>',
 				'	</div>',
 				'	<div class="row"',
 				'		style="margin: 0; padding: 5px 0 5px 0; background-color: #e2e2e2;',
@@ -989,7 +1037,7 @@
 
 	function setup_upload_node_template($templateCache) {
 		$templateCache.put('nb-upload-node.html', [
-			'<div ng-repeat="(id,upload) in upload|upload_sons_sort">',
+			'<div ng-repeat="(id,upload) in upload|upload_sons_filter">',
 			'	<div class="row" ',
 			'		style="margin: 0; border-bottom: 1px solid #ddd;',
 			'			{{(upload.selected || srv.selected_all) && \'font-weight: bold; color: blue\' || \'\'}}">',
@@ -1027,7 +1075,7 @@
 			'		</div>',
 			'		<div class="col-xs-2">',
 			'			<div class="progress" style="position: relative; margin: 3px 0 3px 0">',
-			'				<div ng-class="upload.progress_class"',
+			'				<div class="progress-bar progress-bar-{{upload.progress_class || \'success\'}}"',
 			'					role="progressbar"',
 			'					aria-valuemin="0" aria-valuemax="100"',
 			'					style="position: absolute; top:0; left:0;',
@@ -1139,6 +1187,12 @@
 		this.delay = delay || 0;
 		this._queue = new LinkedList(name);
 		this._num_running = 0;
+		Object.defineProperty(this, 'length', {
+			enumerable: true,
+			get: function() {
+				return this._queue.length;
+			}
+		});
 	}
 
 	// add the given function to the jobs queue
