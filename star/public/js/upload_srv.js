@@ -28,6 +28,7 @@
 		this.list_loading = new LinkedList();
 		this.list_uploading = new LinkedList();
 		this.list_retrying = new LinkedList();
+
 		this.jobq_load = new JobQueue(4, $timeout);
 		this.jobq_upload_small = new JobQueue(8, $timeout);
 		this.jobq_upload_large = new JobQueue(2, $timeout);
@@ -220,7 +221,7 @@
 	// finally add files to send queue.
 	UploadSrv.prototype._run_load_flow = function(upload) {
 		var me = this;
-		return me.$q.when(function() {
+		return me.$q.when().then(function() {
 			me.list_loading.push_back(upload);
 			upload.is_loading = true;
 			delete upload.progress_class;
@@ -472,7 +473,7 @@
 	UploadSrv.prototype.run_upload_flow = function(upload) {
 		var me = this;
 		var item = upload.item;
-		return me.$q.when(function() {
+		return me.$q.when().then(function() {
 			me.list_uploading.push_back(upload);
 			upload.is_uploading = true;
 			delete upload.progress_class;
@@ -758,6 +759,7 @@
 			};
 		}
 		// TODO handle more errors
+		console.error('~~~~~ UNDETECTED ERROR ~~~~~~', err, typeof err);
 		return {
 			text: err,
 			retry: false
@@ -1092,9 +1094,12 @@
 				'			<i class="icon-repeat"></i>',
 				'		</button>',
 				'		<div>',
-				'			{{srv.jobq_load.length}} /',
-				'			{{srv.jobq_upload_small.length}} /',
-				'			{{srv.jobq_upload_large.length}}',
+				'			load {{srv.list_loading.length}} /',
+				'			upload {{srv.list_uploading.length}} /',
+				'			retry {{srv.list_retrying.length}} /',
+				'			pending load {{srv.jobq_load.length}} /',
+				'			pending upload small {{srv.jobq_upload_small.length}} /',
+				'			pending upload large {{srv.jobq_upload_large.length}}',
 				'		</div>',
 				'	</div>',
 				'	<div class="row"',
