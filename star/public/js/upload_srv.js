@@ -7,27 +7,39 @@
 
 	var noobaa_app = angular.module('noobaa_app');
 
-	noobaa_app.factory('nbUploadSrv', [
-		'$http', '$q', '$rootScope', '$timeout', '$templateCache',
-		function($http, $q, $rootScope, $timeout, $templateCache) {
-			setup_upload_node_template($templateCache);
-			var u = new UploadSrv();
-			u.$http = $http;
-			u.$q = $q;
-			u.$rootScope = $rootScope;
-			u.$timeout = $timeout;
-			return u;
-		}
+	noobaa_app.service('nbUploadSrv', [
+		'$q', '$http', '$timeout', '$rootScope', '$templateCache', UploadSrv
 	]);
 
-	function UploadSrv() {
+	function UploadSrv($q, $http, $timeout, $rootScope, $templateCache) {
+		this.$q = $q;
+		this.$http = $http;
+		this.$timeout = $timeout;
+		this.$rootScope = $rootScope;
+
+		this.$cb = $rootScope.safe_callback.bind($rootScope);
+
+		setup_upload_node_template($templateCache);
+
+		// use node-webkit modules if available
+		this.$fs = window.require && window.require('fs');
+		this.$path = window.require && window.require('path');
+
+		this.jobq_submit = new JobQueue(4, $timeout);
+		this.jobq_small = new JobQueue(2, $timeout);
+		this.jobq_large = new JobQueue(1, $timeout);
+		this.large_threshold = 8 * 1024; // * 1024;
+
+
 		this.id_gen = 1;
 
 		this.root = {
 			sons: {},
 			pending_list: [],
 			num_sons: 0,
-			num_remain: 0,
+			num_sons_done: 0,
+			bytes_sons: 0,
+			bytes_sons_done: 0,
 			level: 0,
 			expanded: true,
 		};
@@ -53,7 +65,7 @@
 
 
 	// use on jquery elements to setup an upload drop listener
-	UploadSrv.prototype.init_drop = function(elements) {
+	UploadSrv.prototype.setup_drop = function(elements) {
 		var me = this;
 		var prevent_event = function(event) {
 			event.preventDefault();
@@ -67,14 +79,16 @@
 		});
 	};
 
+
 	// use on input jquery elements to setup an upload change listener
-	UploadSrv.prototype.init_file_input = function(elements) {
+	UploadSrv.prototype.setup_file_input = function(elements) {
 		var me = this;
 		elements.on('change', function(event) {
 			me.submit_upload(event);
 			this.value = ''; // reset the input to allow open same file next
 		});
 	}
+
 
 	// submit the upload event and start processing
 	UploadSrv.prototype.submit_upload = function(event) {
@@ -89,18 +103,16 @@
 			return;
 		}
 
-		// use html5 api (supported only on webkit) to get as entry
-		// which is better for big folders.
+		// in browser (not planet) use html5 api (supported only on webkit) 
+		// to get as entry which is better for big folders.
 		// We want to get the entries of the file input instead of list of files
 		// to avoid browser preloading all files on large dirs.
 		// However although on_drop works correctly unfortunately file input 
 		// with webkitdirectory is a bit broken (crbug.com/138987)
-		// and webkit doesn't populate .webkitEntries at all.
-		// So this path is here for when the bug is fixed.
-		var entries = !! tx.webkitEntries && !! tx.webkitEntries.length && tx.webkitEntries;
-		// convert items to entries 
-		if (!entries && tx.items) {
-			entries = new Array(tx.items.length);
+		// and webkit doesn't populate tx.webkitEntries at all (at least untill fixed).
+		var entries = tx.webkitEntries || [];
+		if (tx.items) {
+			// convert html5 items to entries 
 			for (var i = 0; i < tx.items.length; i++) {
 				var item = tx.items[i];
 				if (item.getAsEntry) {
@@ -111,28 +123,27 @@
 			}
 		}
 
-		// we abstract the items to upload as either entries or files
-		var items = entries || tx.files;
-		if (!items) {
-			console.log('NO ENTRIES OR FILES TO UPLOAD', event);
-			return;
+		var items;
+		if (this.$fs && tx.files) {
+			items = tx.files; // node-webkit files with full path
+		} else if (entries.length) {
+			items = entries; // html5 entries
+		} else if (tx.files) {
+			items = tx.files; // plain html files
+		} else {
+			return; // someother event
 		}
 
-		// get the target directory
-		var dir_inode_id;
-		if (me.get_dir_inode_id) {
-			dir_inode_id = me.get_dir_inode_id(event);
-			if (dir_inode_id === false) {
-				return;
-			}
+		// get the target directory or inode
+		var upload_target = me.get_upload_target(event);
+		if (!upload_target) {
+			return; // no target, cancel
 		}
 
 		// submit each of the items
 		for (var i = 0; i < items.length; i++) {
-			me.submit_item(event, dir_inode_id, me.root, items[i]);
+			me.submit_item(items[i], upload_target, me.root);
 		}
-		me.run_pending();
-		me.$rootScope.safe_apply();
 
 		event.preventDefault();
 		event.stopPropagation();
@@ -147,56 +158,238 @@
 	//////////////
 	//////////////
 
-	// submit single item to upload
-	// will create the upload object and insert into parent
-	// and will start processing if no other is running, otherwise add to queue.
-	UploadSrv.prototype.submit_item = function(event, dir_inode_id, parent, item) {
+
+	// submit single item to upload.
+	// the flow starts on create the upload object and insert into parent.
+	// then we prepare the file/dir by resolving type and reading directories (and submit sons).
+	// finally add to pending queue.
+	UploadSrv.prototype.submit_item = function(item, target, parent) {
 		var me = this;
-		var upload;
-		console.log('SUBMIT', item.name, item);
 
-		// try to find the item name in parent
-		// if found and type matches, it means we resume the parent
-		// so just update the item.
-		upload = parent.sons_by_name ? parent.sons_by_name[item.name] : null;
-		if (upload) {
-			console.log('EXISTING UPLOAD', upload, item)
-			// TODO test this flow
-			if ( !! item.isDirectory === !! upload.item.isDirectory) {
-				// just update the item
-				upload.item = item;
-				me.set_pending(upload);
+		me.jobq_submit.add(function() {
+
+			console.log('SUBMIT', item.name, item);
+			var upload = me._create_upload(item, target, parent);
+			if (!upload) {
 				return;
-			} else {
-				console.log('EXISTING UPLOAD MISMATCHED');
 			}
-		}
 
+			return me.$q.when().then(function() {
+				return me._prepare_node_file(upload);
+			}).then(function() {
+				return me._prepare_file_entry(upload);
+			}).then(function() {
+				return me._mkdir(upload);
+			}).then(function() {
+				return me._readdir(upload);
+			}).then(function() {
+				// after readdir we can update the parents bytes size
+				for (var p = upload.parent; p; p = p.parent) {
+					p.bytes_sons += upload.item.size;
+				}
+			}).then(function() {
+				return me._add_upload_job(upload);
+			}).then(null, function(err) {
+				console.error('SUBMIT ERROR', err);
+			});
+		});
+	};
+
+
+	UploadSrv.prototype._create_upload = function(item, target, parent) {
+		console.log('SUBMIT create upload', item.name);
 		// create new upload and add to parent
-		upload = {
-			event: event,
+		var upload = {
 			item: item,
-			dir_inode_id: dir_inode_id,
-			id: me.id_gen++,
+			target: target,
+			id: this.id_gen++,
 			parent: parent,
-			level: parent.level + 1
 		};
 		parent.sons[upload.id] = upload;
 		parent.num_sons++;
-		parent.num_remain++;
-		me.recalc_progress(parent);
-		if (parent.sons_by_name) {
-			parent.sons_by_name[item.name] = upload;
-		}
-		if (item.isDirectory) {
-			upload.sons = {};
-			upload.sons_by_name = {};
-			upload.pending_list = [];
-			upload.num_sons = 0;
-			upload.num_remain = 0;
-		}
-		me.set_pending(upload);
+		return upload;
 	};
+
+
+	// for node items with full paths, stat and fill properties of the item
+	UploadSrv.prototype._prepare_node_file = function(upload) {
+		var me = this;
+		var item = upload.item;
+		if (!me.$fs || !item.path) {
+			return me.$q.when();
+		}
+
+		console.log('SUBMIT create node file', item.path);
+
+		// node file/dir
+		var defer = me.$q.defer();
+		me.$fs.stat(item.path, me.$cb(function(err, stats) {
+			if (err) {
+				return defer.reject(err);
+			}
+			try {
+				item.srv = me;
+				if (stats.isDirectory()) {
+					item.isDirectory = true;
+					item.size = 0;
+				} else {
+					item.size = stats.size;
+					item.type = 'plain/text'; // TODO detect content type
+				}
+				upload.item = item;
+				return defer.resolve();
+			} catch (err) {
+				return defer.reject(err);
+			}
+		}));
+		return defer.promise;
+	};
+
+
+	// for html5 file entry, get the file.
+	UploadSrv.prototype._prepare_file_entry = function(upload) {
+		var me = this;
+		if (!upload.item.isFile) {
+			return me.$q.when();
+		}
+
+		console.log('SUBMIT prepare file entry', upload.item);
+
+		var defer = me.$q.defer();
+		upload.item.file(me.$cb(function(file) {
+			// replace the item from file entry to the file object
+			upload.item = file;
+			defer.resolve();
+		}), me.$cb(function(err) {
+			defer.reject(err);
+		}));
+		return defer.promise;
+	};
+
+	// create the dir inode in the server or find the existing one
+	UploadSrv.prototype._mkdir = function(upload) {
+		var me = this;
+		if (!upload.item.isDirectory) {
+			return me.$q.when();
+		}
+
+		console.log('SUBMIT mkdir', upload.item.name, upload.target);
+
+		var inode_id = upload.target.inode_id;
+		if (inode_id) {
+			// inode_id supplied - getattr to verify it exists
+			return me.$http({
+				method: 'GET',
+				url: '/star_api/inode/' + inode_id,
+				params: {
+					// tell the server to return attr 
+					// and not readdir us as in normal read
+					getattr: true
+				}
+			});
+		}
+
+		var dir_inode_id = upload.target.dir_inode_id;
+		if (dir_inode_id) {
+			// create the file and receive upload location info
+			return me.$http({
+				method: 'POST',
+				url: '/star_api/inode/',
+				data: {
+					id: dir_inode_id,
+					name: upload.item.name,
+					isdir: true
+				}
+			}).then(function(res) {
+				// fill the target inode id for retries
+				console.log('mkdir id', res.data.id);
+				upload.target.inode_id = res.data.id;
+			});
+		}
+
+		throw 'unknown target';
+	};
+
+
+	// for directories - readdir and submit sons
+	UploadSrv.prototype._readdir = function(upload) {
+		var me = this;
+		var item = upload.item;
+		if (!item.isDirectory) {
+			return me.$q.when();
+		}
+
+		item.size = 0;
+		upload.level = upload.parent.level + 1;
+		upload.sons = {};
+		upload.num_sons = 0;
+		upload.num_sons_done = 0;
+		upload.bytes_sons = 0;
+		upload.bytes_sons_done = 0;
+		var target = {
+			dir_inode_id: upload.target.inode_id
+		};
+
+		var defer = me.$q.defer();
+		if (item.path) {
+			// use nodejs filesystem api
+			console.log('SUBMIT readdir (node)', item.name, item.path);
+			me.$fs.readdir(item.path, me.$cb(function(err, entries) {
+				if (err) {
+					return defer.reject(err);
+				}
+				try {
+					for (var i = 0; i < entries.length; i++) {
+						var son = {
+							name: entries[i],
+							path: me.$path.join(item.path, entries[i])
+						};
+						me.submit_item(son, target, upload);
+					}
+				} catch (err) {
+					return defer.reject(err);
+				}
+				return defer.resolve();
+			}));
+		} else {
+			// use html5 filesystem api
+			console.log('SUBMIT readdir (html5)', item.name);
+			var dir_reader = item.createReader();
+			var readdir_func = function() {
+				dir_reader.readEntries(me.$cb(function(entries) {
+					try {
+						// html5 readdir is done when zero length array is passed
+						if (!entries.length) {
+							return defer.resolve();
+						}
+						for (var i = 0; i < entries.length; i++) {
+							me.submit_item(entries[i], target, upload);
+						}
+						me.$timeout(readdir_func, 10); // submit next readdir
+					} catch (err) {
+						return defer.reject(err);
+					}
+				}), me.$cb(function(err) {
+					return defer.reject(err);
+				}));
+			};
+			readdir_func();
+		}
+		return defer.promise;
+	};
+
+	UploadSrv.prototype._add_upload_job = function(upload) {
+		var item = upload.item;
+		if (item.isDirectory) {
+			return;
+		}
+		var q = item.size < this.large_threshold ? this.jobq_small : this.jobq_large;
+		q.add(function() {});
+		// me.set_pending(upload);
+		// try process the pending queue if needed
+		// me.run_pending();
+	};
+
 
 	UploadSrv.prototype.start_upload = function(upload) {
 		var me = this;
@@ -210,18 +403,8 @@
 		if (item.isDirectory) {
 			promise = me.upload_dir(upload);
 		} else {
-			promise = me.open_file(upload).then(function() {
-				if (me.on_file_upload) {
-					return me.on_file_upload(upload);
-				} else {
-					return me.upload_file(upload);
-				}
-			}).then(function() {
-				// release the opened file memory (if it means anything)
-				upload.file = null;
-			});
+			promise = me.upload_file(upload);
 		}
-
 		return promise.then(function(res) {
 			me.set_done(upload);
 			return res;
@@ -233,114 +416,6 @@
 			throw err;
 		});
 	};
-
-	UploadSrv.prototype.upload_dir = function(upload) {
-		var me = this;
-		var dir_request;
-		console.log('MKDIR', upload.item.name, upload);
-
-		if (upload.inode_id) {
-			// inode_id supplied - getattr to verify it exists
-			console.log('[ok] upload gettattr dir:', upload);
-			dir_request = {
-				method: 'GET',
-				url: '/star_api/inode/' + upload.inode_id,
-				params: {
-					// tell the server to return attr 
-					// and not readdir us as in normal read
-					getattr: true
-				}
-			};
-		} else {
-			// create the file and receive upload location info
-			console.log('[ok] upload creating dir:', upload);
-			dir_request = {
-				method: 'POST',
-				url: '/star_api/inode/',
-				data: {
-					id: upload.dir_inode_id,
-					name: upload.item.name,
-					isdir: true
-				}
-			};
-		}
-
-		me.$rootScope.safe_apply();
-
-		return me.$http(dir_request).then(function(res) {
-			upload.inode_id = res.data.id;
-			return me.readdir(upload);
-		});
-	};
-
-	UploadSrv.prototype.readdir = function(upload) {
-		var me = this;
-		var deferred = me.$q.defer();
-		console.log('READDIR', upload.item.name, upload);
-		upload.dir_reader = upload.item.createReader();
-		upload.readdir_func = function() {
-			upload.dir_reader.readEntries(function(entries) {
-				try {
-					if (upload.is_aborted) {
-						throw 'aborted';
-					}
-					for (var i = 0; i < entries.length; i++) {
-						me.submit_item(upload.event, upload.inode_id, upload, entries[i]);
-					}
-					if (entries.length) {
-						// while still more entries submit next readdir
-						me.$timeout(upload.readdir_func, 10);
-					} else {
-						// done readdir
-						upload.dir_reader = null;
-						upload.readdir_func = null;
-						me.$rootScope.safe_apply(function() {
-							deferred.resolve();
-						});
-					}
-				} catch (err) {
-					me.$rootScope.safe_apply(function() {
-						deferred.reject(err);
-					});
-				}
-			}, function(err) {
-				me.$rootScope.safe_apply(function() {
-					deferred.reject(err);
-				});
-			});
-		};
-		upload.readdir_func();
-		me.$rootScope.safe_apply();
-		return deferred.promise;
-	};
-
-
-	// for entry open the file, otherwise assume item is already a file
-	// returns promise that will be resolved with the file.
-	UploadSrv.prototype.open_file = function(upload) {
-		var me = this;
-		var deferred = me.$q.defer();
-		var handle_file = function(file) {
-			upload.file = file;
-			upload.file_size = file.size;
-			me.$rootScope.safe_apply(function() {
-				deferred.resolve();
-			});
-		};
-		// isFile means this is an entry object of the file
-		if (upload.item.isFile) {
-			upload.item.file(handle_file, function(err) {
-				me.$rootScope.safe_apply(function() {
-					deferred.reject(err);
-				});
-			});
-		} else {
-			// item itself is assumed to already be a file object
-			handle_file(upload.item);
-		}
-		return deferred.promise;
-	};
-
 
 	UploadSrv.prototype.upload_file = function(upload) {
 		var me = this;
@@ -454,42 +529,75 @@
 
 	UploadSrv.prototype._send_part = function(upload, part) {
 		var me = this;
-		var deferred = me.$q.defer();
 		var part_size = upload.multipart.part_size;
 		var upsize = upload.multipart.upsize;
 		var start = (part.num - 1) * part_size;
-		var stop = start + part_size;
-		console.log('[ok] upload multipart send start', start, stop);
-		var blob = upload.file.slice(start, stop);
-		var xhr = upload.xhr = new XMLHttpRequest();
-		xhr.onreadystatechange = function() {
-			me.$rootScope.safe_apply(function() {
+		var end = start + part_size;
+		console.log('[ok] upload multipart send start', start, end);
+		return me._item_slice(upload.item, start, end).then(function(data) {
+			var defer = me.$q.defer();
+			var xhr = upload.xhr = new XMLHttpRequest();
+			xhr.onreadystatechange = me.$cb(function() {
 				if (xhr.readyState !== 4) {
 					return;
 				}
 				console.log('[ok] upload multipart xhr', xhr);
 				upload.xhr = null;
 				if (xhr.status !== 200) {
-					deferred.reject('xhr failed status ' + xhr.status);
+					defer.reject('xhr failed status ' + xhr.status);
 					return;
 				}
-				try {
-					// var etag = xhr.getResponseHeader('ETag');
-					deferred.resolve( /*etag*/ );
-				} catch (err) {
-					deferred.reject(err);
-				}
+				defer.resolve();
 			});
-		};
-		xhr.upload.onprogress = function(event) {
-			upload.progress = ((upsize + event.loaded) * 100 / upload.file_size).toFixed(1);
-			me.$rootScope.safe_apply();
-		};
-		xhr.open('PUT', part.url, true);
-		// xhr.setRequestHeader('Access-Control-Expose-Headers', 'ETag');
-		xhr.send(blob);
-		return deferred.promise;
+			xhr.upload.onprogress = me.$cb(function(event) {
+				upload.progress = ((upsize + event.loaded) * 100 / upload.file_size).toFixed(1);
+			});
+			xhr.open('PUT', part.url, true);
+			// xhr.setRequestHeader('Access-Control-Expose-Headers', 'ETag');
+			xhr.send(data);
+			return defer.promise;
+		});
 	};
+
+	UploadSrv.prototype._item_slice = function(item, start, end) {
+		var me = this;
+		if (item.slice) {
+			return me.$q.when(item.slice(start, end));
+		}
+		if (item.isDirectory) {
+			throw 'cant slice directory';
+		}
+		if (!me.$fs || !item.path) {
+			throw 'missing path for item slice';
+		}
+		// lazy get file descriptor and save into the item
+		// we also need to close that fd later.
+		var fd_promise;
+		if (item.fd) {
+			fd_promise = me.$q.when(item.fd);
+		} else {
+			var defer = me.$q.defer();
+			me.$fs.open(item.path, 'r', me.$cb(function(err, fd) {
+				if (err) {
+					return defer.reject(err);
+				}
+				item.fd = fd;
+				defer.resolve(fd);
+			}));
+			fd_promise = defer.promise;
+		}
+		// read the slice from the file using the fd
+		fd_promise.then(function(fd) {
+			var defer = me.$q.defer();
+			me.$fs.read(fd, new Buffer(end - start), 0, end - start, start, me.$cb(function(err, nbytes, buf) {
+				if (err) {
+					return defer.reject(err);
+				}
+				defer.resolve(new Uint8Array(buf, 0, nbytes));
+			}));
+			return defer.promise;
+		});
+	}
 
 
 
@@ -654,10 +762,6 @@
 			upload.parent.num_sons--;
 			if (!upload.is_done) {
 				upload.parent.num_remain--;
-			}
-			if (upload.parent.sons_by_name &&
-				upload.parent.sons_by_name[upload.item.name] === upload) {
-				delete upload.parent.sons_by_name[upload.item.name];
 			}
 			delete upload.parent.sons[upload.id];
 			this.recalc_progress(upload.parent);
@@ -869,7 +973,7 @@
 				'			<span style="cursor: pointer" ng-click="srv.toggle_select_all()">',
 				'				<i ng-hide="srv.selected_all" class="icon-check-empty icon-fixed-width"></i>',
 				'				<i ng-show="srv.selected_all" class="icon-check icon-fixed-width"></i>',
-				'			</span>&nbsp;',
+				'			</span>',
 				'			Name</div>',
 				'		<div class="col-xs-2">Size</div>',
 				'		<div class="col-xs-2">Status</div>',
@@ -894,7 +998,7 @@
 			'				<i ng-hide="upload.selected || srv.selected_all" class="icon-check-empty icon-large icon-fixed-width"></i>',
 			'				<i ng-show="upload.selected || srv.selected_all" class="icon-check icon-large icon-fixed-width"></i>',
 			'			</span>',
-			'			<span style="padding-left: {{upload.level*15}}px">',
+			'			<span style="padding-left: {{upload.parent.level*15}}px">',
 			'				<span ng-click="upload.expanded = !upload.expanded"',
 			'					style="cursor: pointer; {{!upload.num_sons && \'visibility: hidden\' || \'\'}}">',
 			'					<span ng-show="!upload.expanded" class="icon-stack icon-fixed-width">',
@@ -910,7 +1014,13 @@
 			'			</span>',
 			'		</div>',
 			'		<div class="col-xs-2">',
-			'			{{human_size(upload.file_size)}}',
+			'			<span ng-show="upload.item.isDirectory">',
+			'				{{ human_size(upload.bytes_sons || 0) }},',
+			'				{{ upload.num_sons }} items',
+			'			</span>',
+			'			<span ng-hide="upload.item.isDirectory">',
+			'				{{ human_size(upload.item.size) }}',
+			'			</span>',
 			'		</div>',
 			'		<div class="col-xs-2">',
 			'			{{srv.get_status(upload)}}',
@@ -939,140 +1049,135 @@
 	}
 
 
-	function unused_code() {
 
-		// linked list with option to get array
-		// its unused for now but might be
-
-		function LinkedList(id) {
-			this.next = '__next__' + id;
-			this.prev = '__prev__' + id;
-			this.index = '__index__' + id;
-			this[this.next] = this;
-			this[this.prev] = this;
-			this[this.index] = -1;
-		}
-
-		LinkedList.prototype.get_next = function(item) {
-			var next = item[this.next];
-			return next === this ? null : next;
-		};
-
-		LinkedList.prototype.get_prev = function(item) {
-			var prev = item[this.prev];
-			return prev === this ? null : prev;
-		};
-
-		LinkedList.prototype.get_first = function() {
-			return this.get_next(this);
-		};
-
-		LinkedList.prototype.get_last = function() {
-			return this.get_prev(this);
-		};
-
-		LinkedList.prototype.is_empty = function() {
-			return !this.get_first();
-		};
-
-		LinkedList.prototype.insert_after = LinkedList.prototype.push = function(item, new_item) {
-			var next = item[this.next];
-			new_item[this.next] = next;
-			new_item[this.prev] = item;
-			next[this.prev] = new_item;
-			item[this.next] = new_item;
-			if (this.arr) {
-				var index = item[this.index] + 1;
-				this.arr.splice(index, 0, new_item);
-				new_item[this.index] = index;
-			}
-		};
-
-		LinkedList.prototype.insert_before = function(item, new_item) {
-			var prev = item[this.prev];
-			new_item[this.next] = item;
-			new_item[this.prev] = prev;
-			prev[this.next] = new_item;
-			item[this.prev] = new_item;
-			if (this.arr) {
-				var index = prev[this.index] + 1;
-				this.arr.splice(index, 0, new_item);
-				new_item[this.index] = index;
-			}
-		};
-
-		LinkedList.prototype.remove = function(item) {
-			var next = item[this.next];
-			var prev = item[this.prev];
-			var index = item[this.index];
-			if (!next || !prev) {
-				return false; // already removed
-			}
-			next[this.prev] = prev;
-			prev[this.next] = next;
-			delete item[this.next];
-			delete item[this.prev];
-			delete item[this.index];
-			if (this.arr) {
-				this.arr.splice(index, 1);
-			}
-			return true;
-		};
-
-		LinkedList.prototype.get_array = function() {
-			if (this.arr) {
-				return this.arr;
-			}
-			this.arr = [];
-			var p = this.get_first();
-			var i = 0;
-			while (p) {
-				this.arr[i] = p;
-				p[this.index] = i;
-				p = this.get_next(p);
-				i++;
-			}
-			return this.arr;
-		};
-
-		LinkedList.prototype.drop_array = function() {
-			delete this.arr;
-		};
-
-
-
-		function JobQueue(concurrency) {
-			this.concurrency = concurrency;
-			this._queue = [];
-			this._num_running = 0;
-		}
-
-		// submit the given function to the jobs queue
-		// which will run it when time comes.
-		// job should be an object with job.run() function.
-		JobQueue.prototype.submit = function(job) {
-			this._queue.push(job);
-			this.process(true);
-		};
-
-		JobQueue.prototype.process = function(check_concurrency) {
-			if (check_concurrency && this._num_running >= this.concurrency) {
-				return;
-			}
-			if (!this._queue.length) {
-				return;
-			}
-			var me = this;
-			var job = this._queue.shift();
-			this._num_running++;
-			// submit the job to run in background 
-			// to be able to return here immediately
-			setTimeout(function() {
-				job.run();
-				this._num_running--;
-				me.process(true);
-			}, 0);
-		};
+	function LinkedList(name) {
+		name = name || '';
+		this.next = '_lln_' + name;
+		this.prev = '_llp_' + name;
+		this.length = 0;
+		this[this.next] = this;
+		this[this.prev] = this;
 	}
+	LinkedList.prototype.get_next = function(item) {
+		var next = item[this.next];
+		return next === this ? null : next;
+	};
+	LinkedList.prototype.get_prev = function(item) {
+		var prev = item[this.prev];
+		return prev === this ? null : prev;
+	};
+	LinkedList.prototype.get_front = function() {
+		return this.get_next(this);
+	};
+	LinkedList.prototype.get_back = function() {
+		return this.get_prev(this);
+	};
+	LinkedList.prototype.is_empty = function() {
+		return !this.get_front();
+	};
+	LinkedList.prototype.insert_after = function(item, new_item) {
+		var next = item[this.next];
+		new_item[this.next] = next;
+		new_item[this.prev] = item;
+		next[this.prev] = new_item;
+		item[this.next] = new_item;
+		this.length++;
+	};
+	LinkedList.prototype.insert_before = function(item, new_item) {
+		var prev = item[this.prev];
+		new_item[this.next] = item;
+		new_item[this.prev] = prev;
+		prev[this.next] = new_item;
+		item[this.prev] = new_item;
+		this.length++;
+	};
+	LinkedList.prototype.remove = function(item) {
+		var next = item[this.next];
+		var prev = item[this.prev];
+		if (!next || !prev) {
+			return false; // already removed
+		}
+		next[this.prev] = prev;
+		prev[this.next] = next;
+		delete item[this.next];
+		delete item[this.prev];
+		this.length--;
+		return true;
+	};
+	LinkedList.prototype.push_front = function(item) {
+		this.insert_after(this, item);
+	};
+	LinkedList.prototype.push_back = function(item) {
+		this.insert_before(this, item);
+	};
+	LinkedList.prototype.pop_front = function() {
+		var item = this.get_front();
+		if (item) {
+			this.remove(item);
+			return item;
+		}
+	};
+	LinkedList.prototype.pop_back = function() {
+		var item = this.get_back();
+		if (item) {
+			this.remove(item);
+			return item;
+		}
+	};
+
+
+
+	// 'concurrency' with positive integer will do auto process with given concurrency level.
+	// use concurrency 0 for manual processing.
+	// 'delay' is number of milli-seconds between auto processing.
+	// name is optional in case multiple job queues (or linked lists) 
+	// are used on the same elements.
+
+	function JobQueue(concurrency, timeout, delay, name) {
+		this.concurrency = concurrency || (concurrency === 0 ? 0 : 1);
+		this.timeout = timeout || setTimeout;
+		this.delay = delay || 0;
+		this._queue = new LinkedList(name);
+		this._num_running = 0;
+	}
+
+	// add the given function to the jobs queue
+	// which will run it when time comes.
+	// job should be a function.
+	JobQueue.prototype.add = function(job) {
+		this._queue.push_back(job);
+		this.process(true);
+	};
+
+	JobQueue.prototype.process = function(check_concurrency) {
+		var me = this;
+		if (check_concurrency && me._num_running >= me.concurrency) {
+			return;
+		}
+		if (me._queue.is_empty()) {
+			return;
+		}
+		var job = me._queue.pop_front();
+		me._num_running++;
+		var end = function() {
+			me._num_running--;
+			me.process(true);
+		};
+		// submit the job to run in background 
+		// to be able to return here immediately
+		me.timeout(function() {
+			try {
+				var promise = job();
+				if (!promise || !promise.then) {
+					end();
+				} else {
+					promise.then(end, end);
+				}
+			} catch (err) {
+				console.error('UNCAUGHT EXCEPTION', err, err.stack);
+				end();
+			}
+		}, me.delay);
+	};
 
 })();
