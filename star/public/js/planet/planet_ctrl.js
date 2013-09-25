@@ -444,7 +444,7 @@
 			}
 			return {
 				dir_inode_id: $scope.planet_user.mydata.id
-			}
+			};
 		};
 
 		nbUploadSrv.on_file_upload = function(upload) {

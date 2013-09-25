@@ -130,7 +130,7 @@ Inode.prototype.is_dir_non_empty = function(callback) {
 			return res;
 		}, function(err) {
 			callback( !! me.dir_state.sons_list.length);
-			throw res;
+			throw err;
 		});
 	}
 };

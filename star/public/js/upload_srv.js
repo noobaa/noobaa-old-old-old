@@ -102,13 +102,14 @@
 			me.submit_upload(event);
 			this.value = ''; // reset the input to allow open same file next
 		});
-	}
+	};
 
 
 	// submit the upload event and start processing
 	UploadSrv.prototype.submit_upload = function(event) {
 		event = event.originalEvent;
 		var me = this;
+		var i;
 
 		// try using dataTransfer object if available (drop event)
 		// or target object for file input.
@@ -128,7 +129,7 @@
 		var entries = tx.webkitEntries || [];
 		if (tx.items) {
 			// convert html5 items to entries 
-			for (var i = 0; i < tx.items.length; i++) {
+			for (i = 0; i < tx.items.length; i++) {
 				var item = tx.items[i];
 				if (item.getAsEntry) {
 					entries[i] = item.getAsEntry();
@@ -156,7 +157,7 @@
 		}
 
 		// submit each of the items
-		for (var i = 0; i < items.length; i++) {
+		for (i = 0; i < items.length; i++) {
 			me.submit_item(items[i], upload_target, me.root);
 		}
 
@@ -290,11 +291,10 @@
 					item.size = 0;
 				} else {
 					item.size = stats.size;
-					item.type = 'plain/text'; // TODO detect content type
 				}
 				return defer.resolve();
-			} catch (err) {
-				return defer.reject(err);
+			} catch (ex) {
+				return defer.reject(ex);
 			}
 		}));
 		return defer.promise;
@@ -404,8 +404,8 @@
 						};
 						me.submit_item(son, target, upload);
 					}
-				} catch (err) {
-					return defer.reject(err);
+				} catch (ex) {
+					return defer.reject(ex);
 				}
 				return defer.resolve();
 			}));
@@ -563,21 +563,23 @@
 			});
 		}
 
-		// create the file and receive upload location info
-		console.log('UPLOAD create', upload);
-		return me.$http({
-			method: 'POST',
-			url: '/star_api/inode/',
-			data: {
-				id: upload.target.dir_inode_id,
-				isdir: false,
-				uploading: true,
-				name: item.name,
-				size: item.size,
-				content_type: item.type,
-				relative_path: item.webkitRelativePath
-			}
-		});
+		if (upload.target.dir_inode_id) {
+			// create the file and receive upload location info
+			console.log('UPLOAD create', upload);
+			return me.$http({
+				method: 'POST',
+				url: '/star_api/inode/',
+				data: {
+					id: upload.target.dir_inode_id,
+					isdir: false,
+					uploading: true,
+					name: item.name,
+					size: item.size,
+					content_type: item.type,
+					relative_path: item.webkitRelativePath
+				}
+			});
+		}
 
 		throw 'unknown target';
 	};
@@ -589,11 +591,6 @@
 		if (res.data.name !== item.name || res.data.size !== item.size) {
 			$.nbalert('Choose the same file to resume the upload');
 			throw 'mismatching file attr';
-		}
-		if (item.size === 0) {
-			// TODO ....
-			console.log('skip upload for zero size file', item.name);
-			return;
 		}
 		if (!res.data.uploading) {
 			// TODO ....
@@ -720,7 +717,7 @@
 			})
 		);
 		return defer.promise;
-	}
+	};
 
 
 	function calc_progress(current, total) {
@@ -756,20 +753,26 @@
 	function detect_error(err) {
 		if (err.status === 0) { // no http response
 			return {
-				text: 'Disconnected',
+				text: 'Disconnected, will retry',
 				retry: true
+			};
+		}
+		if (err.status === 404) { // http not found
+			return {
+				text: 'Not found',
+				retry: false // TODO really stop retry?
 			};
 		}
 		if (err.status === 500) { // http internal error
 			return {
-				text: 'Server error: ' + err.data,
+				text: 'Server error, will retry',
 				retry: true
 			};
 		}
 		if (err.status === 507) { // http insufficient storage
 			return {
 				text: 'Out of space',
-				retry: false
+				retry: false // TODO maybe retry with long delay?
 			};
 		}
 		// TODO handle more errors
@@ -949,7 +952,7 @@
 
 	UploadSrv.prototype.get_status = function(upload) {
 		if (upload.is_pending_load) {
-			return 'Pending Load'
+			return 'Pending Load';
 		} else if (upload.is_loading) {
 			return 'Loading...';
 		} else if (upload.is_pending_upload) {
@@ -1052,29 +1055,14 @@
 	};
 
 
+	// this forces the html to be empty when not expanded
+	// and saves some memory and overhead in case there are lots of items
 	noobaa_app.filter('upload_sons_filter', function() {
 		return function(upload) {
-			if (!upload.expanded) {
-				return null;
-			}
-			return upload.sons;
-			// TODO: too much cpu....
-			if (!upload.num_sons) {
-				return null;
-			}
-			// console.log('SORTING', upload.num_sons);
-			var arr = _.values(upload.sons);
-			return _.sortBy(arr, function(son) {
-				if (son.is_uploading) {
-					return 1;
-				}
-				if (son.is_uploaded) {
-					return 2;
-				}
-				return 3;
-			});
+			return upload.expanded ? upload.sons : null;
 		};
 	});
+
 
 	noobaa_app.directive('nbUploadTable', function() {
 		return {
@@ -1118,7 +1106,7 @@
 				'	</div>',
 				'	<div class="row"',
 				'		style="margin: 0; padding: 5px 0 5px 0; background-color: #e2e2e2;',
-				' 			border-top: 1px solid #333; border-bottom: 1px solid #333">',
+				'			border-top: 1px solid #333; border-bottom: 1px solid #333">',
 				'		<div class="col-xs-6">',
 				'			<span style="cursor: pointer" ng-click="srv.toggle_select_all()">',
 				'				<i ng-hide="srv.selected_all" class="icon-check-empty icon-fixed-width"></i>',
