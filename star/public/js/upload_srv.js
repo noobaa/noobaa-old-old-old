@@ -25,10 +25,10 @@
 		this.$fs = window.require && window.require('fs');
 		this.$path = window.require && window.require('path');
 
-		this.jobq_submit = new JobQueue(4, $timeout);
-		this.jobq_send_small = new JobQueue(2, $timeout);
-		this.jobq_send_large = new JobQueue(1, $timeout);
-		this.large_threshold = 8 * 1024; // * 1024;
+		this.jobq_load = new JobQueue(4, $timeout);
+		this.jobq_upload_small = new JobQueue(8, $timeout);
+		this.jobq_upload_large = new JobQueue(2, $timeout);
+		this.large_threshold = 8 * 1024 * 1024;
 
 
 		this.id_gen = 1;
@@ -152,79 +152,94 @@
 	};
 
 
-
-	/////////////////
-	/////////////////
-	// SUBMIT FLOW //
-	/////////////////
-	/////////////////
-
-
 	// submit single item to upload.
-	// the flow starts on create the upload object and insert into parent.
-	// then we prepare the file/dir by resolving type and reading directories (and submit sons).
-	// finally add files to job queue.
 	UploadSrv.prototype.submit_item = function(item, target, parent) {
-		var me = this;
-
-		me.jobq_submit.add(function() {
-
-			console.log('SUBMIT', item.name);
-			var upload = me._create_upload(item, target, parent);
-			if (!upload) {
-				return;
-			}
-			upload.is_submit = true;
-
-			return me.$q.when().then(function() {
-				throw_if_aborted(upload);
-				return me._prepare_file_attr(upload);
-			}).then(function() {
-				throw_if_aborted(upload);
-				return me._prepare_file_entry(upload);
-			}).then(function() {
-				throw_if_aborted(upload);
-				return me._mkdir(upload);
-			}).then(function() {
-				throw_if_aborted(upload);
-				return me._readdir(upload);
-			}).then(function() {
-				// after readdir we can update the parents bytes size
-				for (var p = upload.parent; p; p = p.parent) {
-					p.bytes_sons += upload.item.size;
-				}
-			}).then(function() {
-				throw_if_aborted(upload);
-				return me._add_file_job(upload);
-			}).then(function() {
-				console.log('SUBMIT DONE', item.name);
-				upload.is_submit = false;
-			}).then(null, function(err) {
-				console.error('SUBMIT ERROR', err);
-				upload.error_text = err;
-				upload.progress_class = 'danger';
-			});
-		});
+		console.log('SUBMIT', item.name);
+		var upload = this._create_upload(item, target, parent);
+		if (upload) {
+			this._add_to_load_queue(upload);
+		}
 	};
 
-	function throw_if_aborted(upload) {
-		if (upload.is_aborted) {
-			throw 'aborted';
-		}
-	}
+
+
+	///////////////
+	///////////////
+	// LOAD FLOW //
+	///////////////
+	///////////////
+
 
 	UploadSrv.prototype._create_upload = function(item, target, parent) {
-		console.log('SUBMIT create upload', item.name);
 		// create new upload and add to parent
 		var upload = {
 			item: item,
-			target: target,
+			target: _.clone(target),
 			id: this.id_gen++,
 			parent: parent,
 		};
 		parent.sons[upload.id] = upload;
 		parent.num_sons++;
 		return upload;
+	};
+
+
+	UploadSrv.prototype._add_to_load_queue = function(upload) {
+		if (upload.is_pending_load) {
+			return;
+		}
+		var me = this;
+		upload.is_pending_load = true;
+		me.jobq_load.add(function() {
+			upload.is_pending_load = false;
+			me._run_load_flow(upload);
+		});
+	};
+
+
+	// the load flow prepares the file/dir by resolving type 
+	// and reading directories (and submit sons).
+	// finally add files to send queue.
+	UploadSrv.prototype._run_load_flow = function(upload) {
+		var me = this;
+		upload.is_loading = true;
+		return me.$q.when().then(function() {
+			throw_if_aborted(upload);
+			return me._prepare_file_attr(upload);
+		}).then(function() {
+			throw_if_aborted(upload);
+			return me._prepare_file_entry(upload);
+		}).then(function() {
+			throw_if_aborted(upload);
+			return me._mkdir(upload);
+		}).then(function() {
+			throw_if_aborted(upload);
+			return me._readdir(upload);
+		}).then(function() {
+			// after readdir we can update the parents bytes size
+			// TODO not reentrant
+			for (var p = upload.parent; p; p = p.parent) {
+				p.bytes_sons += upload.item.size;
+			}
+		}).then(function() {
+			throw_if_aborted(upload);
+			return me._add_to_upload_queue(upload);
+		}).then(function() {
+			console.log('LOAD DONE', upload.item.name);
+			upload.is_loading = false;
+			upload.is_loaded = true;
+		}).then(null, function(err) {
+			console.error('LOAD ERROR', err, err.stack);
+			upload.is_loading = false;
+			upload.progress_class = 'danger';
+			var err_info = detect_error(err);
+			upload.error_text = err_info.text;
+			if (err_info.retry) {
+				me.$timeout(function() {
+					me._add_to_load_queue(upload);
+				}, 3000);
+			}
+		});
 	};
 
 
@@ -236,7 +251,7 @@
 			return me.$q.when();
 		}
 
-		console.log('SUBMIT prepare file attr', item.path);
+		console.log('LOAD prepare file attr', item.path);
 
 		// node file/dir
 		var defer = me.$q.defer();
@@ -271,7 +286,7 @@
 			return me.$q.when();
 		}
 
-		console.log('SUBMIT prepare file entry', item.name);
+		console.log('LOAD prepare file entry', item.name);
 
 		var defer = me.$q.defer();
 		item.file(me.$cb(function(file) {
@@ -284,6 +299,7 @@
 		return defer.promise;
 	};
 
+
 	// create the dir inode in the server or find the existing one
 	UploadSrv.prototype._mkdir = function(upload) {
 		var me = this;
@@ -291,7 +307,7 @@
 			return me.$q.when();
 		}
 
-		console.log('SUBMIT mkdir', upload.item.name);
+		console.log('LOAD mkdir', upload.item.name);
 
 		var inode_id = upload.target.inode_id;
 		if (inode_id) {
@@ -352,7 +368,7 @@
 		var defer = me.$q.defer();
 		if (item.path) {
 			// use nodejs filesystem api
-			console.log('SUBMIT readdir (node)', item.name, item.path);
+			console.log('LOAD readdir (node)', item.name, item.path);
 			me.$fs.readdir(item.path, me.$cb(function(err, entries) {
 				if (err) {
 					return defer.reject(err);
@@ -372,7 +388,7 @@
 			}));
 		} else {
 			// use html5 filesystem api
-			console.log('SUBMIT readdir (html5)', item.name);
+			console.log('LOAD readdir (html5)', item.name);
 			var dir_reader = item.createReader();
 			var readdir_func = function() {
 				dir_reader.readEntries(me.$cb(function(entries) {
@@ -397,35 +413,41 @@
 		return defer.promise;
 	};
 
-	UploadSrv.prototype._add_file_job = function(upload) {
+
+	UploadSrv.prototype._add_to_upload_queue = function(upload) {
 		var me = this;
 		var item = upload.item;
 		if (item.isDirectory) {
 			return;
 		}
-		upload.is_pending = true;
+		if (upload.is_pending_upload) {
+			return;
+		}
 		var jobq = item.size < this.large_threshold ?
-			this.jobq_send_small : this.jobq_send_large;
+			this.jobq_upload_small : this.jobq_upload_large;
+		upload.is_pending_upload = true;
 		jobq.add(function() {
-			upload.is_pending = false;
-			return me.upload_file(upload);
+			upload.is_pending_upload = false;
+			return me.run_upload_flow(upload);
 		});
 	};
 
 
 
-	///////////////
-	///////////////
-	// SEND FLOW //
-	///////////////
-	///////////////
+	/////////////////
+	/////////////////
+	// UPLOAD FLOW //
+	/////////////////
+	/////////////////
 
 
-	UploadSrv.prototype.upload_file = function(upload) {
+	UploadSrv.prototype.run_upload_flow = function(upload) {
 		var me = this;
 		var item = upload.item;
 
-		upload.is_send = true;
+		upload.is_uploading = true;
+		delete upload.progress_class;
+
 		return me.$q.when().then(function() {
 			throw_if_aborted(upload);
 			return me._open_file_for_read(upload);
@@ -441,24 +463,22 @@
 			throw_if_aborted(upload);
 			return me._upload_multipart(upload);
 		}).then(function() {
-			console.error('SEND DONE', upload.item.name);
-			if (upload.item.fd) {
-				me.$fs.closeSync(upload.item.fd);
-				upload.item.fd = null;
-			}
-			upload.is_send = false;
+			console.log('UPLOAD DONE', upload.item.name);
+			me._close_file(upload);
+			upload.is_uploading = false;
+			upload.is_uploaded = true;
 		}).then(null, function(err) {
-			console.error('SEND ERROR', err);
-			if (upload.item.fd) {
-				me.$fs.closeSync(upload.item.fd);
-				upload.item.fd = null;
-			}
-			if (err.status === 507) { // HTTP Insufficient Storage
-				upload.error_text = 'Out of space';
-			} else {
-				upload.error_text = err;
-			}
+			console.error('UPLOAD ERROR', err, err.stack);
+			me._close_file(upload);
+			upload.is_uploading = false;
 			upload.progress_class = 'danger';
+			var err_info = detect_error(err);
+			upload.error_text = err_info.text;
+			if (err_info.retry) {
+				me.$timeout(function() {
+					me._add_to_upload_queue(upload);
+				}, 3000);
+			}
 		});
 	};
 
@@ -487,13 +507,21 @@
 	};
 
 
+	UploadSrv.prototype._close_file = function(upload) {
+		if (upload.item.fd) {
+			this.$fs.closeSync(upload.item.fd);
+			upload.item.fd = null;
+		}
+	};
+
+
 	UploadSrv.prototype._mkfile = function(upload) {
 		var me = this;
 		var item = upload.item;
 
 		if (upload.target.inode_id) {
 			// inode_id supplied - getattr to verify it exists
-			console.log('[ok] upload gettattr file:', upload);
+			console.log('UPLOAD gettattr', upload);
 			return me.$http({
 				method: 'GET',
 				url: '/star_api/inode/' + upload.target.inode_id,
@@ -506,7 +534,7 @@
 		}
 
 		// create the file and receive upload location info
-		console.log('[ok] upload creating file:', upload);
+		console.log('UPLOAD create', upload);
 		return me.$http({
 			method: 'POST',
 			url: '/star_api/inode/',
@@ -527,7 +555,7 @@
 
 	UploadSrv.prototype._mkfile_check = function(upload, res) {
 		var item = upload.item;
-		console.log('[ok] upload file', res);
+		console.log('UPLOAD mkfile result', res.data);
 		if (res.data.name !== item.name || res.data.size !== item.size) {
 			$.nbalert('Choose the same file to resume the upload');
 			throw 'mismatching file attr';
@@ -550,7 +578,7 @@
 
 	UploadSrv.prototype._upload_multipart = function(upload) {
 		var me = this;
-		console.log('[ok] upload multipart run', upload.item.name);
+		console.log('UPLOAD multipart', upload.item.name);
 		// get missing parts
 		return me.$http({
 			method: 'POST',
@@ -558,7 +586,7 @@
 		}).then(function(res) {
 			throw_if_aborted(upload);
 			upload.multipart = res.data;
-			console.log('[ok] upload multipart state', upload.multipart);
+			console.log('UPLOAD multipart state', upload.multipart);
 			if (upload.multipart.complete) {
 				upload.progress = 100;
 				return; // done
@@ -571,7 +599,6 @@
 			var promise = me._send_part(upload, missing_parts[0]);
 			// define part sender that takes part as argument (see why below)
 			var sender = function(part) {
-				console.log('PART SEND', part);
 				// increasing upsize between parts in batch
 				// once batch is over the multipart response will update again.
 				upload.multipart.upsize += upload.multipart.part_size;
@@ -589,7 +616,6 @@
 				// and bind() makes it so.
 				var part = missing_parts[i];
 				var part_sender = sender.bind(null, part);
-				console.log('PART PROMISE', i, part);
 				promise = promise.then(part_sender);
 			}
 			// last stage would be to recurse into this function to upload rest till completed
@@ -606,7 +632,7 @@
 		var upsize = upload.multipart.upsize;
 		var start = (part.num - 1) * part_size;
 		var end = start + part_size;
-		console.log('[ok] upload multipart send start', start, end);
+		console.log('UPLOAD part', part, start, end);
 		return me._item_slice(upload.item, start, end).then(function(data) {
 			var defer = me.$q.defer();
 			var xhr = upload.xhr = new XMLHttpRequest();
@@ -614,7 +640,7 @@
 				if (xhr.readyState !== 4) {
 					return;
 				}
-				console.log('[ok] upload multipart xhr', xhr);
+				console.log('UPLOAD xhr', xhr);
 				upload.xhr = null;
 				if (xhr.status !== 200) {
 					defer.reject('xhr failed status ' + xhr.status);
@@ -663,44 +689,39 @@
 	///////////////////
 
 
-	UploadSrv.prototype.set_pending = function(upload, front) {
-		console.log('SET PENDING', upload.item.name, front, upload);
-		if (upload.is_pending) {
-			return;
+	function throw_if_aborted(upload) {
+		if (upload.is_aborted) {
+			throw 'aborted';
 		}
-		upload.is_pending = true;
-		if (front === 'front') {
-			upload.parent.pending_list.unshift(upload);
-		} else {
-			upload.parent.pending_list.push(upload);
-		}
-	};
+	}
 
-	UploadSrv.prototype.run_pending = function(upload) {
-		if (!upload) {
-			upload = this.root;
-		} else if (!upload.item.isDirectory) {
-			console.log('PENDING NOT DIR', upload);
-			return false;
+
+	function detect_error(err) {
+		if (err.status === 0) { // no http response
+			return {
+				text: 'Disconnected',
+				retry: true
+			};
 		}
-		if (upload.active_son) {
-			if (this.run_pending(upload.active_son)) {
-				return true;
-			}
+		if (err.status === 500) { // http internal error
+			return {
+				text: 'Server error: ' + err.data,
+				retry: true
+			};
 		}
-		// dequeue next upload and start it, skip removed items.
-		var next;
-		while (upload.pending_list.length && (!next || next.is_removed)) {
-			next = upload.pending_list.shift();
+		if (err.status === 507) { // http insufficient storage
+			return {
+				text: 'Out of space',
+				retry: false
+			};
 		}
-		if (!next || next.is_removed) {
-			return false;
-		}
-		console.log('RUN PENDING', next.item.name, next);
-		next.is_pending = false;
-		this.start_upload(next);
-		return true;
-	};
+		// TODO handle more errors
+		return {
+			text: err,
+			retry: false
+		};
+	}
+
 
 	UploadSrv.prototype.set_active = function(upload) {
 		if (upload.is_aborted) {
@@ -861,9 +882,13 @@
 	};
 
 	UploadSrv.prototype.get_status = function(upload) {
-		if (upload.is_submit) {
+		if (upload.is_pending_load) {
+			return 'Pending Load'
+		} else if (upload.is_loading) {
 			return 'Loading...';
-		} else if (upload.is_send) {
+		} else if (upload.is_pending_upload) {
+			return 'Pending Upload';
+		} else if (upload.is_uploading) {
 			return 'Uploading...';
 		} else {
 			return '';
@@ -1030,9 +1055,9 @@
 				'			<i class="icon-repeat"></i>',
 				'		</button>',
 				'		<div>',
-				'			{{srv.jobq_submit.length}} /',
-				'			{{srv.jobq_send_small.length}} /',
-				'			{{srv.jobq_send_large.length}}',
+				'			{{srv.jobq_load.length}} /',
+				'			{{srv.jobq_upload_small.length}} /',
+				'			{{srv.jobq_upload_large.length}}',
 				'		</div>',
 				'	</div>',
 				'	<div class="row"',
@@ -1061,7 +1086,7 @@
 			'<div ng-repeat="(id,upload) in upload|upload_sons_filter">',
 			'	<div class="row" ',
 			'		style="margin: 0; border-bottom: 1px solid #ddd;',
-			'			{{(upload.selected || srv.selected_all) && \'font-weight: bold; color: blue\' || \'\'}}">',
+			'			{{(upload.selected || srv.selected_all) && \'color: blue\' || \'\'}}">',
 			'		<div class="col-xs-6">',
 			'			<span style="cursor: pointer" ng-click="srv.toggle_select(upload)">',
 			'				<i ng-hide="upload.selected || srv.selected_all" class="icon-check-empty icon-large icon-fixed-width"></i>',
@@ -1094,7 +1119,7 @@
 			'		<div class="col-xs-2">',
 			'			{{srv.get_status(upload)}}',
 			'		</div>',
-			'		<div class="col-xs-2">',
+			'		<div class="col-xs-2" title="{{upload.error_text}}">',
 			'			<div class="progress" style="position: relative; margin: 3px 0 3px 0">',
 			'				<div class="progress-bar progress-bar-{{upload.progress_class || \'success\'}}"',
 			'					role="progressbar"',
