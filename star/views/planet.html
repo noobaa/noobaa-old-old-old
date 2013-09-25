@@ -13,10 +13,7 @@
 		style="display: none"
 		type="file"
 		name="file"
-		TODO-nwdirectory=""
-		webkitdirectory=""
-		mozdirectory=""
-		directory=""></input>
+		nwdirectory=""></input>
 	<input id="file_upload_input"
 		style="display: none"
 		type="file"
@@ -153,23 +150,23 @@
 						</div>
 					</span>
 					<span id="upload_button" class="btn btn-success radius_left"
-						style="width: 50%; height: 150px; border: solid 1px rgba(0,0,0,0.2);"
-						ng-click="click_upload()">
+						style="width: 50%; height: 150px; border: solid 1px rgba(0,0,0,0.2);">
 						<h4><i class="icon-cloud-upload icon-2x icon-fixed-width"></i></h4>
 						<h4>Drag &amp; Drop to Upload</h4>
-						<button class="btn btn-default btn-sm">
-							Files / Folders
-						</button>
-						<div class="btn-group" ng-show="false">
+						<div class="btn-group">
+							<button class="btn btn-default btn-sm"
+								ng-click="click_upload()">
+								<small>Browse</small>
+							</button>
 							<button id="choose_folder_button"
 								class="btn btn-default btn-sm"
 								onclick="$('#dir_upload_input').trigger('click')">
-								Folder
+								<small>Folder</small>
 							</button>
 							<button id="choose_file_button"
 								class="btn btn-default btn-sm"
 								onclick="$('#file_upload_input').trigger('click')">
-								Files
+								<small>Files</small>
 							</button>
 						</div>
 					</span>

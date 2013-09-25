@@ -434,19 +434,22 @@
 			return nbUploadSrv.has_uploads();
 		};
 
-		nbUploadSrv.init_drop($(document));
-		nbUploadSrv.init_file_input($('#file_upload_input'));
-		nbUploadSrv.init_file_input($('#dir_upload_input'));
-		nbUploadSrv.get_dir_inode_id = function(event) {
+		nbUploadSrv.setup_drop($(document));
+		nbUploadSrv.setup_file_input($('#file_upload_input'));
+		nbUploadSrv.setup_file_input($('#dir_upload_input'));
+
+		nbUploadSrv.get_upload_target = function(event) {
 			if (!$scope.planet_user || !$scope.planet_user.mydata) {
 				return false;
 			}
-			return $scope.planet_user.mydata.id;
+			return {
+				dir_inode_id: $scope.planet_user.mydata.id
+			}
 		};
+
 		nbUploadSrv.on_file_upload = function(upload) {
-			// save last upload path for next open
+			// TODO save last upload path for next open
 			$scope.last_file_path = upload.file && upload.file.path || '';
-			return nbUploadSrv.upload_file(upload);
 		};
 
 		$scope.click_upload = function() {

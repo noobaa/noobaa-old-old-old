@@ -730,6 +730,8 @@ function MyDataCtrl($scope, $http, $timeout, $window, $q, $rootScope) {
 			if (res.data.trim() !== 'NBOK') {
 				throw ('UNEXPECTED PLANET RESPONSE' + res.data);
 			}
+			// ok, so close the upload dialog
+			$('#upload_modal').nbdialog('close');
 		}).then(null, function(err) {
 			console.log(err);
 			$scope.click_coshare();
@@ -1229,10 +1231,26 @@ function UploadCtrl($scope, nbUploadSrv) {
 	};
 
 
-	nbUploadSrv.init_drop($(document));
-	nbUploadSrv.init_file_input($('#file_upload_input'));
-	nbUploadSrv.init_file_input($('#dir_upload_input'));
-	nbUploadSrv.get_dir_inode_id = function(event) {
+	nbUploadSrv.setup_drop($(document));
+	nbUploadSrv.setup_file_input($('#file_upload_input'));
+	nbUploadSrv.setup_file_input($('#dir_upload_input'));
+
+	nbUploadSrv.get_upload_target = function(event) {
+		// make sure the modal shows - this is needed when drop/paste
+		// and the modal is hidden.
+		if (!event.upload_modal_open) {
+			upload_modal.nbdialog('open');
+			event.upload_modal_open = true;
+		}
+
+		// see inode_upload()
+		var inode_upload = $(event.target).data('inode_upload');
+		if (inode_upload) {
+			return {
+				inode_id: inode_upload.id
+			};
+		}
+
 		var dir_inode = $scope.dir_selection.inode;
 		if (!dir_inode) {
 			console.error('no selected dir, bailing');
@@ -1246,28 +1264,14 @@ function UploadCtrl($scope, nbUploadSrv) {
 			$.nbalert('Cannot upload to someone else\'s folder');
 			return false;
 		}
-		return dir_inode.id;
+		return {
+			dir_inode_id: dir_inode.id
+		};
 	};
-	nbUploadSrv.on_file_upload = function(upload) {
-		// make sure the modal shows - this is needed when drop/paste
-		// and the modal is hidden.
-		if (!upload.event.upload_modal_open) {
-			upload_modal.nbdialog('open');
-			upload.event.upload_modal_open = true;
-		}
 
-		// see inode_upload()
-		var inode_upload = $(upload.event.target).data('inode_upload');
-		if (inode_upload) {
-			upload.inode_id = inode_upload.id;
-		}
-		return nbUploadSrv.upload_file(upload).then(function(res) {
-			$scope.dir_selection.inode.read_dir();
-			return res;
-		}, function(err) {
-			$scope.dir_selection.inode.read_dir();
-			throw err;
-		});
+	nbUploadSrv.on_file_upload = function(upload) {
+		// TODO: avoid refresh per file...
+		$scope.dir_selection.inode.read_dir();
 	};
 
 }

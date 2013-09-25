@@ -37,18 +37,19 @@
 
 	function safe_callback(func) {
 		/* jshint validthis:true */
-		var callback = function() {
-			// when callback is called, it passes the sent args 
-			// into the inner call to func inside safe_apply.
-			var args = Array.prototype.slice.call(arguments);
-			return this.safe_apply(function() {
-				if (func) {
-					func.apply(null, args);
-				}
-			});
+		var me = this;
+		return function() {
+			// build the args array to have null for 'this' 
+			// and rest is taken from the callback arguments
+			var args = new Array(arguments.length + 1);
+			args[0] = null;
+			for (var i = 0; i < arguments.length; i++) {
+				args[i + 1] = arguments[i];
+			}
+			// the following is in fact calling func.bind(null, a1, a2, ...)
+			var fn = Function.prototype.bind.apply(func, args);
+			return me.safe_apply(fn);
 		};
-		// return callback bound to same this as current context
-		return callback.bind(this);
 	}
 
 	function human_size(bytes) {
