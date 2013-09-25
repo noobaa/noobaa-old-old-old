@@ -40,10 +40,8 @@
 			sons: {},
 			num_sons: 0,
 			total_sons: 0,
-			bytes_sons: 0,
-			num_sons_up: 0,
-			total_sons_up: 0,
-			bytes_sons_up: 0,
+			sons_size: 0,
+			sons_upsize: 0,
 			level: 0,
 			expanded: true,
 		};
@@ -248,7 +246,7 @@
 				upload.is_loaded = true;
 				// after readdir we can update the parents bytes size
 				for (var p = upload.parent; p; p = p.parent) {
-					p.bytes_sons += upload.item.size;
+					p.sons_size += upload.item.size;
 				}
 			}
 		}).then(null, function(err) {
@@ -386,10 +384,8 @@
 		upload.sons = {};
 		upload.num_sons = 0;
 		upload.total_sons = 0;
-		upload.bytes_sons = 0;
-		upload.num_sons_up = 0;
-		upload.total_sons_up = 0;
-		upload.bytes_sons_up = 0;
+		upload.sons_size = 0;
+		upload.sons_upsize = 0;
 		var target = {
 			dir_inode_id: upload.target.inode_id
 		};
@@ -496,13 +492,6 @@
 			console.log('UPLOAD DONE', upload.item.name);
 			me.list_uploading.remove(upload);
 			me._close_file(upload);
-			if (!upload.is_uploaded) {
-				upload.parent.num_sons_up++;
-				for (var p = upload.parent; p; p = p.parent) {
-					p.total_sons_up++;
-					p.bytes_sons_up += upload.item.size;
-				}
-			}
 			upload.is_uploading = false;
 			upload.is_uploaded = true;
 		}).then(null, function(err) {
@@ -631,10 +620,11 @@
 			upload.multipart = res.data;
 			console.log('UPLOAD multipart state', upload.multipart);
 			if (upload.multipart.complete) {
-				upload.progress = 100;
+				update_upsize(upload, upload.item.size);
 				return; // done
 			}
-			upload.progress = (upload.multipart.upsize * 100 / upload.item.size).toFixed(1);
+			// maintain upsize on this upload and parents
+			update_upsize(upload, upload.multipart.upsize);
 			// send missing parts
 			// TODO: maintain part_number_marker to ease on the server
 			var missing_parts = upload.multipart.missing_parts;
@@ -645,6 +635,7 @@
 				// increasing upsize between parts in batch
 				// once batch is over the multipart response will update again.
 				upload.multipart.upsize += upload.multipart.part_size;
+				update_upsize(upload, upload.multipart.upsize);
 				return me._send_part(upload, part);
 			};
 			// chain the rest of the parts on the promise
@@ -672,7 +663,6 @@
 	UploadSrv.prototype._send_part = function(upload, part) {
 		var me = this;
 		var part_size = upload.multipart.part_size;
-		var upsize = upload.multipart.upsize;
 		var start = (part.num - 1) * part_size;
 		var end = start + part_size;
 		console.log('UPLOAD part', part, start, end);
@@ -686,13 +676,13 @@
 				console.log('UPLOAD xhr', xhr);
 				upload.xhr = null;
 				if (xhr.status !== 200) {
-					defer.reject('xhr failed status ' + xhr.status);
+					defer.reject(xhr);
 				} else {
 					defer.resolve();
 				}
 			});
 			xhr.upload.onprogress = me.$cb(function(event) {
-				upload.progress = ((upsize + event.loaded) * 100 / upload.item.size).toFixed(1);
+				update_upsize(upload, upload.multipart.upsize + event.loaded);
 			});
 			xhr.open('PUT', part.url, true);
 			// xhr.setRequestHeader('Access-Control-Expose-Headers', 'ETag');
@@ -723,6 +713,21 @@
 		return defer.promise;
 	}
 
+
+	function calc_progress(current, total) {
+		return (current === total) ? 100 : (current * 100 / total).toFixed(1);
+	}
+	
+	function update_upsize(upload, upsize) {
+		upload.upsize = upload.upsize || 0; // init
+		var diffsize = upsize - upload.upsize;
+		upload.upsize += diffsize;
+		upload.progress = calc_progress(upload.upsize, upload.item.size);
+		for (var p = upload.parent; p; p = p.parent) {
+			p.sons_upsize += diffsize;
+			p.progress = calc_progress(p.sons_upsize, p.sons_size);
+		}
+	}
 
 
 	///////////////////
@@ -1151,7 +1156,7 @@
 			'		</div>',
 			'		<div class="col-xs-2">',
 			'			<span ng-show="upload.item.isDirectory">',
-			'				{{ human_size(upload.bytes_sons || 0) }},',
+			'				{{ human_size(upload.sons_size || 0) }},',
 			'				{{ upload.total_sons }} items',
 			'			</span>',
 			'			<span ng-hide="upload.item.isDirectory">',
