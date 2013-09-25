@@ -25,21 +25,24 @@
 		this.$fs = window.require && window.require('fs');
 		this.$path = window.require && window.require('path');
 
+		this.list_loading = new LinkedList();
+		this.list_uploading = new LinkedList();
+		this.list_retrying = new LinkedList();
 		this.jobq_load = new JobQueue(4, $timeout);
 		this.jobq_upload_small = new JobQueue(8, $timeout);
 		this.jobq_upload_large = new JobQueue(2, $timeout);
 		this.large_threshold = 8 * 1024 * 1024;
 
-
 		this.id_gen = 1;
 
 		this.root = {
 			sons: {},
-			pending_list: [],
 			num_sons: 0,
-			num_sons_done: 0,
+			total_sons: 0,
 			bytes_sons: 0,
-			bytes_sons_done: 0,
+			num_sons_up: 0,
+			total_sons_up: 0,
+			bytes_sons_up: 0,
 			level: 0,
 			expanded: true,
 		};
@@ -56,6 +59,18 @@
 		});
 	}
 
+	UploadSrv.prototype.has_uploads = function() {
+		return !!this.root.num_sons;
+	};
+
+	UploadSrv.prototype.has_unfinished_uploads = function() {
+		return (!this.list_loading.is_empty()) ||
+			(!this.list_uploading.is_empty()) ||
+			(!this.list_retrying.is_empty()) ||
+			( !! this.jobq_load.length) ||
+			( !! this.jobq_upload_small.length) ||
+			( !! this.jobq_upload_large.length);
+	};
 
 
 	/////////////////////
@@ -180,6 +195,9 @@
 		};
 		parent.sons[upload.id] = upload;
 		parent.num_sons++;
+		for (var p = parent; p; p = p.parent) {
+			p.total_sons++;
+		}
 		return upload;
 	};
 
@@ -202,8 +220,11 @@
 	// finally add files to send queue.
 	UploadSrv.prototype._run_load_flow = function(upload) {
 		var me = this;
-		upload.is_loading = true;
-		return me.$q.when().then(function() {
+		return me.$q.when(function() {
+			me.list_loading.push_back(upload);
+			upload.is_loading = true;
+			delete upload.progress_class;
+		}).then(function() {
 			throw_if_aborted(upload);
 			return me._prepare_file_attr(upload);
 		}).then(function() {
@@ -216,26 +237,31 @@
 			throw_if_aborted(upload);
 			return me._readdir(upload);
 		}).then(function() {
-			// after readdir we can update the parents bytes size
-			// TODO not reentrant
-			for (var p = upload.parent; p; p = p.parent) {
-				p.bytes_sons += upload.item.size;
-			}
-		}).then(function() {
 			throw_if_aborted(upload);
 			return me._add_to_upload_queue(upload);
 		}).then(function() {
 			console.log('LOAD DONE', upload.item.name);
+			me.list_loading.remove(upload);
 			upload.is_loading = false;
-			upload.is_loaded = true;
+			if (!upload.is_loaded) {
+				upload.is_loaded = true;
+				// after readdir we can update the parents bytes size
+				for (var p = upload.parent; p; p = p.parent) {
+					p.bytes_sons += upload.item.size;
+				}
+			}
 		}).then(null, function(err) {
 			console.error('LOAD ERROR', err, err.stack);
-			upload.is_loading = false;
+			me.list_loading.remove(upload);
 			upload.progress_class = 'danger';
 			var err_info = detect_error(err);
 			upload.error_text = err_info.text;
 			if (err_info.retry) {
+				upload.is_pending_retry = true;
+				me.list_retrying.push_back(upload);
 				me.$timeout(function() {
+					upload.is_pending_retry = false;
+					me.list_retrying.remove(upload);
 					me._add_to_load_queue(upload);
 				}, 3000);
 			}
@@ -358,9 +384,11 @@
 		upload.level = upload.parent.level + 1;
 		upload.sons = {};
 		upload.num_sons = 0;
-		upload.num_sons_done = 0;
+		upload.total_sons = 0;
 		upload.bytes_sons = 0;
-		upload.bytes_sons_done = 0;
+		upload.num_sons_up = 0;
+		upload.total_sons_up = 0;
+		upload.bytes_sons_up = 0;
 		var target = {
 			dir_inode_id: upload.target.inode_id
 		};
@@ -444,11 +472,11 @@
 	UploadSrv.prototype.run_upload_flow = function(upload) {
 		var me = this;
 		var item = upload.item;
-
-		upload.is_uploading = true;
-		delete upload.progress_class;
-
-		return me.$q.when().then(function() {
+		return me.$q.when(function() {
+			me.list_uploading.push_back(upload);
+			upload.is_uploading = true;
+			delete upload.progress_class;
+		}).then(function() {
 			throw_if_aborted(upload);
 			return me._open_file_for_read(upload);
 		}).then(function() {
@@ -456,6 +484,7 @@
 			return me._mkfile(upload);
 		}).then(function(res) {
 			throw_if_aborted(upload);
+			// TODO really throw on zero size file etc?
 			if (!me._mkfile_check(upload, res)) {
 				throw 'mkfile_check';
 			}
@@ -464,18 +493,31 @@
 			return me._upload_multipart(upload);
 		}).then(function() {
 			console.log('UPLOAD DONE', upload.item.name);
+			me.list_uploading.remove(upload);
 			me._close_file(upload);
+			if (!upload.is_uploaded) {
+				upload.parent.num_sons_up++;
+				for (var p = upload.parent; p; p = p.parent) {
+					p.total_sons_up++;
+					p.bytes_sons_up += upload.item.size;
+				}
+			}
 			upload.is_uploading = false;
 			upload.is_uploaded = true;
 		}).then(null, function(err) {
 			console.error('UPLOAD ERROR', err, err.stack);
+			me.list_uploading.remove(upload);
 			me._close_file(upload);
 			upload.is_uploading = false;
 			upload.progress_class = 'danger';
 			var err_info = detect_error(err);
 			upload.error_text = err_info.text;
 			if (err_info.retry) {
+				upload.is_pending_retry = true;
+				me.list_retrying.push_back(upload);
 				me.$timeout(function() {
+					upload.is_pending_retry = false;
+					me.list_retrying.remove(upload);
 					me._add_to_upload_queue(upload);
 				}, 3000);
 			}
@@ -723,6 +765,21 @@
 	}
 
 
+	UploadSrv.prototype.clear_completed = function(upload) {
+		if (!upload) {
+			upload = this.root;
+		}
+		for (var id in upload.sons) {
+			var son = upload.sons[id];
+			this.clear_completed(son);
+			if (son.is_done && !son.is_active) {
+				this.remove_upload(son);
+			}
+		}
+		this.run_pending();
+	};
+
+
 	UploadSrv.prototype.set_active = function(upload) {
 		if (upload.is_aborted) {
 			return false;
@@ -865,13 +922,6 @@
 		}
 	};
 
-	UploadSrv.prototype.has_uploads = function() {
-		return !!this.root.num_sons;
-	};
-
-	UploadSrv.prototype.has_unfinished_uploads = function() {
-		return !!this.root.num_remain;
-	};
 
 	UploadSrv.prototype.recalc_progress = function(upload) {
 		if (upload.num_sons === 0) {
@@ -922,19 +972,6 @@
 		return status;
 	};
 
-	UploadSrv.prototype.clear_completed = function(upload) {
-		if (!upload) {
-			upload = this.root;
-		}
-		for (var id in upload.sons) {
-			var son = upload.sons[id];
-			this.clear_completed(son);
-			if (son.is_done && !son.is_active) {
-				this.remove_upload(son);
-			}
-		}
-		this.run_pending();
-	};
 
 	UploadSrv.prototype.toggle_select_all = function() {
 		// toggle the global flag
@@ -1006,16 +1043,16 @@
 			}
 			return upload.sons;
 			// TODO: too much cpu....
-			console.log('SORTING', upload.num_sons);
 			if (!upload.num_sons) {
 				return null;
 			}
+			// console.log('SORTING', upload.num_sons);
 			var arr = _.values(upload.sons);
 			return _.sortBy(arr, function(son) {
-				if (son.is_active) {
+				if (son.is_uploading) {
 					return 1;
 				}
-				if (son.is_done) {
+				if (son.is_uploaded) {
 					return 2;
 				}
 				return 3;
@@ -1110,7 +1147,7 @@
 			'		<div class="col-xs-2">',
 			'			<span ng-show="upload.item.isDirectory">',
 			'				{{ human_size(upload.bytes_sons || 0) }},',
-			'				{{ upload.num_sons }} items',
+			'				{{ upload.total_sons }} items',
 			'			</span>',
 			'			<span ng-hide="upload.item.isDirectory">',
 			'				{{ human_size(upload.item.size) }}',
