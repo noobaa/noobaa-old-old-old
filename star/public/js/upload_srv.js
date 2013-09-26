@@ -771,7 +771,6 @@
 	function detect_error(err) {
 		if (err === 'nb-upload-stop') {
 			return {
-				text: 'Stopped',
 				retry: false
 			};
 		}
@@ -809,14 +808,21 @@
 
 
 	UploadSrv.prototype.get_status = function(upload) {
-		if (upload.is_pending_load) {
+		if (upload.is_stopped) {
+			return 'Paused';
+		} else if (upload.is_pending_load) {
 			return 'Pending Load';
-		} else if (upload.is_loading) {
-			return 'Loading...';
 		} else if (upload.is_pending_upload) {
 			return 'Pending Upload';
+		} else if (upload.is_pending_retry) {
+			return 'Pending Retry';
+		} else if (upload.is_loading) {
+			return 'Loading...';
 		} else if (upload.is_uploading) {
 			return 'Uploading...';
+		} else if (upload.is_uploaded ||
+			(upload.item.isDirectory && upload.total_completed === upload.total_sons)) {
+			return 'Done';
 		} else {
 			return '';
 		}
@@ -827,7 +833,8 @@
 	UploadSrv.prototype.clear_completed = function() {
 		for (var id in this.root.sons) {
 			var son = this.root.sons[id];
-			if (son.total_completed === son.total_sons) {
+			if (son.is_uploaded ||
+				(son.item.isDirectory && son.total_completed === son.total_sons)) {
 				console.log('CLEAR COMPLETED', son);
 				this.do_remove(son);
 			}
@@ -845,13 +852,22 @@
 	};
 
 	UploadSrv.prototype.remove_selected = function() {
-		this.foreach_selected(this.do_remove.bind(this));
-		this.clear_selection();
+		var me = this;
+		$.nbconfirm('Are you sure to remove the selected uploads?', {
+			on_confirm: me.$cb(function() {
+				me.foreach_selected(me.do_remove.bind(me));
+				me.clear_selection();
+			})
+		});
 	};
 
 
-	UploadSrv.prototype.do_stop = function(upload, dont_recurse) {
+	UploadSrv.prototype.do_stop = function(upload, func) {
 		upload.is_stopped = true;
+		if (func) {
+			func(upload);
+		}
+		// quickly remove from job queues
 		if (this.jobq_load.remove(upload)) {
 			upload.run = null;
 			upload.is_pending_load = false;
@@ -861,15 +877,15 @@
 			upload.run = null;
 			upload.is_pending_upload = false;
 		}
+		// stop working connection
 		if (upload.xhr) {
 			console.log('ABORT XHR', upload.item.name);
 			upload.xhr.abort();
 		}
-		if (!dont_recurse) {
-			for (var id in upload.sons) {
-				var son = upload.sons[id];
-				this.do_stop(son);
-			}
+		// propagate to sons
+		for (var id in upload.sons) {
+			var son = upload.sons[id];
+			this.do_stop(son, func);
 		}
 	};
 
@@ -879,29 +895,49 @@
 			this.do_resume(son);
 		}
 		upload.is_stopped = false;
+		// add to proper job queue
 		if (!upload.is_loaded && !upload.is_loading) {
 			this._add_to_load_queue(upload);
-			return;
-		}
-		if (!upload.item.isDirectory && !upload.is_uploaded && !upload.is_uploading) {
+		} else if (!upload.item.isDirectory && !upload.is_uploaded && !upload.is_uploading) {
 			this._add_to_upload_queue(upload);
 		}
 	};
 
 	UploadSrv.prototype.do_remove = function(upload) {
-		for (var id in upload.sons) {
-			var son = upload.sons[id];
-			this.do_remove(son);
-		}
+		var me = this;
 		console.log('REMOVING', upload.item.name);
-		this.do_stop(upload, true); // true to avoid another recursion
-		if (upload.selected) {
-			upload.selected = false;
-			delete this.selection[upload.id];
+		// stop entire tree of uploads below and remove
+		me.do_stop(upload, function(son) {
+			// will run on every item during stop recursion
+			if (son.selected) {
+				son.selected = false;
+				delete me.selection[son.id];
+			}
+			son.is_removed = true;
+		});
+		// uncount entire tree under this upload
+		var diff_sons, diff_completed, diff_size, diff_upsize;
+		if (upload.item.isDirectory) {
+			diff_sons = (upload.total_sons || 0) + (upload.is_loaded ? 1 : 0);
+			diff_completed = upload.total_completed || 0;
+			diff_size = upload.total_size || 0;
+			diff_upsize = upload.total_upsize || 0;
+		} else {
+			diff_sons = 1;
+			diff_completed = (upload.is_uploaded ? 1 : 0);
+			diff_size = upload.item.size || 0;
+			diff_upsize = upload.upsize || 0;
 		}
+		for (var p = upload.parent; p; p = p.parent) {
+			p.total_sons -= diff_sons;
+			p.total_completed -= diff_completed;
+			p.total_size -= diff_size;
+			p.total_upsize -= diff_upsize;
+			p.progress = calc_progress(p.total_upsize, p.total_size);
+		}
+		// detach from parent
 		delete upload.parent.sons[upload.id];
 		upload.parent.num_sons--;
-		upload.is_removed = true;
 	};
 
 
