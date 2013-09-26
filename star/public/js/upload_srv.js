@@ -691,7 +691,6 @@
 				update_upsize(upload, upload.multipart.upsize + event.loaded);
 			});
 			xhr.open('PUT', part.url, true);
-			// xhr.setRequestHeader('Access-Control-Expose-Headers', 'ETag');
 			xhr.send(data);
 			return defer.promise;
 		});
@@ -791,6 +790,22 @@
 			retry: false
 		};
 	}
+
+
+	UploadSrv.prototype.get_status = function(upload) {
+		if (upload.is_pending_load) {
+			return 'Pending Load';
+		} else if (upload.is_loading) {
+			return 'Loading...';
+		} else if (upload.is_pending_upload) {
+			return 'Pending Upload';
+		} else if (upload.is_uploading) {
+			return 'Uploading...';
+		} else {
+			return '';
+		}
+	};
+
 
 
 	UploadSrv.prototype.clear_completed = function(upload) {
@@ -957,47 +972,6 @@
 		} else {
 			upload.progress = (100 * (upload.num_sons - upload.num_remain) / upload.num_sons).toFixed(1);
 		}
-	};
-
-	UploadSrv.prototype.get_status = function(upload) {
-		if (upload.is_pending_load) {
-			return 'Pending Load';
-		} else if (upload.is_loading) {
-			return 'Loading...';
-		} else if (upload.is_pending_upload) {
-			return 'Pending Upload';
-		} else if (upload.is_uploading) {
-			return 'Uploading...';
-		} else {
-			return '';
-		}
-
-		// TODO REMOVE OLD CODE
-		var status;
-		var add_attempt = false;
-		var add_fail = false;
-		if (upload.is_aborted) {
-			status = 'Aborted!';
-		} else if (upload.is_done) {
-			status = 'Done';
-		} else if (upload.is_active) {
-			status = '...';
-			add_fail = true;
-			add_attempt = true;
-		} else if (upload.is_pending) {
-			status = '';
-			add_fail = true;
-		} else {
-			status = '';
-			add_fail = true;
-		}
-		if (add_fail && upload.fail_reason) {
-			status += ' ' + upload.fail_reason;
-		}
-		if (add_attempt && upload.fail_count) {
-			status += ' (retrying)';
-		}
-		return status;
 	};
 
 
