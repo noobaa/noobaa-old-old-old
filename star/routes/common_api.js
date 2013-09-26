@@ -65,11 +65,13 @@ function reply_callback(req, res, debug_info, skip_starlog) {
 		}
 		if (err) {
 			console.log('FAILED', debug_info, ':', err);
-			if (typeof err.status === 'number' &&
-				err.status >= 100 &&
-				err.status < 600
+			var status = err.status || err.statusCode;
+			var message = err.info || err.message;
+			if (typeof status === 'number' &&
+				status >= 100 &&
+				status < 600
 			) {
-				return res.json(err.status, err.info);
+				return res.json(status, message);
 			} else {
 				return res.json(500, err);
 			}
