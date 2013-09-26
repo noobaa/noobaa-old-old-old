@@ -341,7 +341,7 @@ function get_inode_fobj(req, inode_id, callback) {
 				if (!fobj) {
 					return next({
 						status: 404,
-						err: 'FOBJ NOT FOUND'
+						data: 'FOBJ NOT FOUND'
 					});
 				}
 				return next(err, inode, fobj);
@@ -467,7 +467,7 @@ exports.inode_create = function(req, res) {
 		fobj = new Fobj({
 			size: args.size,
 			content_type: detect_content_type(args.content_type, args.name),
-			uploading: !! args.uploading,
+			uploading: !! args.uploading && !! args.size,
 		});
 		// link the inode to the fobj
 		inode.fobj = fobj._id;
@@ -608,7 +608,7 @@ exports.inode_read = function(req, res) {
 				if (err) {
 					return next({
 						status: 403, // forbidden
-						info: err
+						data: err
 					});
 				} else {
 					return next(null, inode);
@@ -644,7 +644,7 @@ exports.inode_read = function(req, res) {
 			if (!inode) {
 				return next({
 					status: 404, // HTTP Not Found
-					info: 'Not Found'
+					data: 'Not Found'
 				});
 			}
 			if (req.query.getattr) {
@@ -718,7 +718,7 @@ exports.inode_update = function(req, res) {
 			if (!inode.fobj) {
 				return next({
 					status: 404,
-					info: 'File Object Not Found'
+					data: 'File Object Not Found'
 				});
 			}
 			console.log('FOBJ UPDATE:', inode_id, inode.fobj, fobj_args);
@@ -768,7 +768,7 @@ function inode_delete_action(inode_id, user_id, callback) {
 			if (inode.parent === null) {
 				return next({
 					status: 400,
-					info: 'Cannot Delete Root'
+					data: 'Cannot Delete Root'
 				});
 			}
 			return next(null, inode);
@@ -783,10 +783,7 @@ function inode_delete_action(inode_id, user_id, callback) {
 			if (inode.isdir && has_sons) {
 				return next({
 					status: 400,
-					info: {
-						text: 'Directory Not Empty',
-						id: inode_id
-					}
+					data: 'Directory Not Empty'
 				});
 			}
 			return next(null, inode);
@@ -862,14 +859,16 @@ exports.inode_multipart = function(req, res) {
 			fobj = fobj_result;
 			if (!fobj.uploading) {
 				return next({
-					status: 404,
-					err: 'FOBJ NOT UPLOADING'
+					status: 200,
+					data: {
+						complete: true
+					}
 				});
 			}
 			if (fobj.size <= 0) {
 				return next({
-					status: 404,
-					err: 'FOBJ INVALID SIZE'
+					status: 400,
+					data: 'FOBJ INVALID SIZE'
 				});
 			}
 			// create the multipart upload id at S3 if not already created
@@ -1316,10 +1315,11 @@ function validate_inode_creation_conditions(inode, fobj, user, callback) {
 					console.log("User reached quota limitaion ", rejection);
 					return next({
 						status: 507, // HTTP Insufficient Storage
-						err: 'User reached quota limitaion of ' + filesize(user.quota),
-						quota: user.quota,
-						usage: usage,
-						file_size: fobj.size
+						data: {
+							quota: user.quota,
+							usage: usage,
+							file_size: fobj.size
+						}
 					});
 				}
 				return next();
