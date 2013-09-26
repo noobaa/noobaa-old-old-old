@@ -791,7 +791,10 @@ function MyDataCtrl($scope, $http, $timeout, $window, $q, $rootScope) {
 			}
 			dlg.find('.inode_label').html(inode.make_inode_with_icon());
 			dlg.find('#dialog_ok').off('click').on('click', function() {
-				dlg.find('#dialog_ok').addClass('disabled').html('<i class="icon-spinner icon-spin"></i>');
+				dlg.find('#dialog_ok')
+					.addClass('disabled')
+					.html('<i class="icon-spinner icon-spin"></i>');
+				dlg.find('.nbdialog_close').text('Hide');
 				var stats = {
 					count: 0
 				};

@@ -918,8 +918,8 @@
 		// uncount entire tree under this upload
 		var diff_sons, diff_completed, diff_size, diff_upsize;
 		if (upload.item.isDirectory) {
-			diff_sons = (upload.total_sons || 0) + (upload.is_loaded ? 1 : 0);
-			diff_completed = upload.total_completed || 0;
+			diff_sons = (upload.total_sons || 0) + 1;
+			diff_completed = (upload.total_completed || 0) + (upload.is_loaded ? 1 : 0);
 			diff_size = upload.total_size || 0;
 			diff_upsize = upload.total_upsize || 0;
 		} else {
