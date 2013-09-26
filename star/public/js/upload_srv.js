@@ -25,9 +25,9 @@
 		this.$fs = window.require && window.require('fs');
 		this.$path = window.require && window.require('path');
 
-		this.list_loading = new LinkedList();
-		this.list_uploading = new LinkedList();
-		this.list_retrying = new LinkedList();
+		this.list_loading = new LinkedList('ld');
+		this.list_uploading = new LinkedList('up');
+		this.list_retrying = new LinkedList('rt');
 
 		this.jobq_load = new JobQueue(4, $timeout);
 		this.jobq_upload_small = new JobQueue(8, $timeout);
@@ -212,10 +212,14 @@
 		}
 		var me = this;
 		upload.is_pending_load = true;
-		me.jobq_load.add(function() {
+		upload.run = function() {
+			upload.run = null;
 			upload.is_pending_load = false;
-			me._run_load_flow(upload);
-		});
+			if (!upload.is_removed) {
+				return me._run_load_flow(upload);
+			}
+		};
+		me.jobq_load.add(upload);
 	};
 
 
@@ -229,19 +233,19 @@
 			upload.is_loading = true;
 			delete upload.progress_class;
 		}).then(function() {
-			throw_if_aborted(upload);
+			throw_if_stopped(upload);
 			return me._prepare_file_attr(upload);
 		}).then(function() {
-			throw_if_aborted(upload);
+			throw_if_stopped(upload);
 			return me._prepare_file_entry(upload);
 		}).then(function() {
-			throw_if_aborted(upload);
+			throw_if_stopped(upload);
 			return me._mkdir(upload);
 		}).then(function() {
-			throw_if_aborted(upload);
+			throw_if_stopped(upload);
 			return me._readdir(upload);
 		}).then(function() {
-			throw_if_aborted(upload);
+			throw_if_stopped(upload);
 			return me._add_to_upload_queue(upload);
 		}).then(function() {
 			console.log('LOAD DONE', upload.item.name);
@@ -467,10 +471,14 @@
 			jobq = this.jobq_upload_small;
 		}
 		upload.is_pending_upload = true;
-		jobq.add(function() {
+		upload.run = function() {
+			upload.run = null;
 			upload.is_pending_upload = false;
-			return me.run_upload_flow(upload);
-		});
+			if (!upload.is_removed) {
+				return me.run_upload_flow(upload);
+			}
+		};
+		jobq.add(upload);
 	};
 
 
@@ -490,16 +498,16 @@
 			upload.is_uploading = true;
 			delete upload.progress_class;
 		}).then(function() {
-			throw_if_aborted(upload);
+			throw_if_stopped(upload);
 			return me._open_file_for_read(upload);
 		}).then(function() {
-			throw_if_aborted(upload);
+			throw_if_stopped(upload);
 			return me._mkfile(upload);
 		}).then(function(res) {
-			throw_if_aborted(upload);
+			throw_if_stopped(upload);
 			return me._mkfile_check(upload, res);
 		}).then(function() {
-			throw_if_aborted(upload);
+			throw_if_stopped(upload);
 			return me._upload_multipart(upload);
 		}).then(function() {
 			console.log('UPLOAD DONE', upload.item.name);
@@ -624,7 +632,7 @@
 			method: 'POST',
 			url: '/star_api/inode/' + upload.target.inode_id + '/multipart/'
 		}).then(function(res) {
-			throw_if_aborted(upload);
+			throw_if_stopped(upload);
 			upload.multipart = res.data;
 			console.log('UPLOAD multipart state', upload.multipart);
 			if (upload.multipart.complete) {
@@ -753,14 +761,20 @@
 	///////////////////
 
 
-	function throw_if_aborted(upload) {
-		if (upload.is_aborted) {
-			throw 'aborted';
+	function throw_if_stopped(upload) {
+		if (upload.is_stopped) {
+			throw 'nb-upload-stop';
 		}
 	}
 
 
 	function detect_error(err) {
+		if (err === 'nb-upload-stop') {
+			return {
+				text: 'Stopped',
+				retry: false
+			};
+		}
 		if (err.status === 0) { // no http response
 			return {
 				text: 'Disconnected, will retry',
@@ -813,162 +827,99 @@
 	UploadSrv.prototype.clear_completed = function() {
 		for (var id in this.root.sons) {
 			var son = this.root.sons[id];
-			console.log('CHECK CLEAR', son);
 			if (son.total_completed === son.total_sons) {
-				console.log('CHECK CLEAR', son);
-				this.remove_upload(son);
+				console.log('CLEAR COMPLETED', son);
+				this.do_remove(son);
 			}
 		}
 	};
 
+	UploadSrv.prototype.pause_selected = function() {
+		this.foreach_selected(this.do_stop.bind(this));
+		this.clear_selection();
+	};
 
-	UploadSrv.prototype.remove_upload = function(upload) {
-		if (upload.is_loading || upload.is_uploading) {
-			this.set_abort(upload);
-			return false;
-		}
+	UploadSrv.prototype.resume_selected = function() {
+		this.foreach_selected(this.do_resume.bind(this));
+		this.clear_selection();
+	};
 
-		console.log('REMOVING', upload.item.name);
-		for (var p = upload.parent; p; p = p.parent) {
-			p.total_sons--;
-			if (upload.is_loaded) {
-				if (upload.item.isDirectory) {
-					p.total_completed--;
-				} else {
-					p.total_size -= upload.item.size;
-				}
-			}
-			if (upload.is_uploaded) {
-				p.total_completed--;
-			}
-		}
-		delete this.selection[upload.id];
-		delete upload.parent.sons[upload.id];
-		upload.parent.num_sons--;
-		upload.parent = null;
-		upload.is_removed = true;
-		return true;
+	UploadSrv.prototype.remove_selected = function() {
+		this.foreach_selected(this.do_remove.bind(this));
+		this.clear_selection();
 	};
 
 
-	UploadSrv.prototype.set_abort = function(upload) {
-		// for active uploads try to abort them and interrupt their xhr
-		// but don't force remove, wait for them to join and remove the active flag
-		console.log('SET ABORT', upload.item.name);
-		upload.is_aborted = true;
+	UploadSrv.prototype.do_stop = function(upload, dont_recurse) {
+		upload.is_stopped = true;
+		if (this.jobq_load.remove(upload)) {
+			upload.run = null;
+			upload.is_pending_load = false;
+		} else if (this.jobq_upload_small.remove(upload) ||
+			this.jobq_upload_medium.remove(upload) ||
+			this.jobq_upload_large.remove(upload)) {
+			upload.run = null;
+			upload.is_pending_upload = false;
+		}
 		if (upload.xhr) {
-			console.log('SET ABORT XHR', upload.item.name);
+			console.log('ABORT XHR', upload.item.name);
 			upload.xhr.abort();
 		}
-		// recurse to sons
-		for (var id in upload.sons) {
-			var son = upload.sons[id];
-			this.set_abort(son);
-		}
-	};
-
-
-
-	UploadSrv.prototype.set_active = function(upload) {
-		if (upload.is_aborted) {
-			return false;
-		}
-		if (upload.is_active) {
-			return false;
-		}
-		if (upload.is_done) {
-			return false;
-		}
-		if (upload.parent.active_son && upload.parent.active_son !== upload) {
-			console.log('RETURN TO PENDING', upload, upload.parent.active_son);
-			this.set_pending(upload, 'front');
-			return false;
-		}
-		console.log('SET ACTIVE', upload.item.name, upload);
-		upload.parent.active_son = upload;
-		upload.is_active = true;
-		upload.is_done = false;
-		upload.progress_class = 'progress-bar progress-bar-success';
-		this.$rootScope.safe_apply();
-		return true;
-	};
-
-	UploadSrv.prototype.set_done = function(upload) {
-		if (upload === this.root) {
-			return;
-		}
-		if (upload.is_done) {
-			return;
-		}
-		if (!upload.item.isDirectory || upload.num_remain === 0) {
-			console.log('SET DONE', upload.item.name, upload);
-			upload.parent.num_remain--;
-			upload.parent.active_son = null;
-			this.recalc_progress(upload.parent);
-			upload.is_done = true;
-			upload.is_active = false;
-			this.set_done(upload.parent); // propagate
-		}
-		// start some other pending upload
-		this.run_pending();
-		this.$rootScope.safe_apply();
-	};
-
-	UploadSrv.prototype.set_fail = function(upload) {
-		var me = this;
-		console.error('SET FAIL', upload.item.name, upload);
-		upload.parent.active_son = null;
-		upload.is_active = false;
-		upload.fail_count = 1 + (upload.fail_count ? upload.fail_count : 0);
-		upload.progress_class = 'progress-bar progress-bar-danger';
-		if (upload.is_aborted) {
-			// start some other pending upload
-			me.run_pending();
-		} else {
-			// retry if not aborted, but some delay to avoid pegging
-			me.$timeout(function() {
-				me.start_upload(upload);
-			}, 3000);
-		}
-		me.$rootScope.safe_apply();
-	};
-
-
-	UploadSrv.prototype.resume_upload = function(upload) {
-		// recurse to sons
-		if (upload.num_sons) {
+		if (!dont_recurse) {
 			for (var id in upload.sons) {
 				var son = upload.sons[id];
-				this.resume_upload(son);
+				this.do_stop(son);
 			}
 		}
-		upload.is_aborted = false;
-		if (upload.is_done) {
-			// TODO: not sure that we really need to un-done like this... dont like it.
-			upload.is_done = false;
-			upload.parent.num_remain++;
-			this.recalc_progress(upload.parent);
+	};
+
+	UploadSrv.prototype.do_resume = function(upload) {
+		for (var id in upload.sons) {
+			var son = upload.sons[id];
+			this.do_resume(son);
 		}
-		this.start_upload(upload);
-		this.run_pending();
+		upload.is_stopped = false;
+		if (!upload.is_loaded && !upload.is_loading) {
+			this._add_to_load_queue(upload);
+			return;
+		}
+		if (!upload.item.isDirectory && !upload.is_uploaded && !upload.is_uploading) {
+			this._add_to_upload_queue(upload);
+		}
+	};
+
+	UploadSrv.prototype.do_remove = function(upload) {
+		for (var id in upload.sons) {
+			var son = upload.sons[id];
+			this.do_remove(son);
+		}
+		console.log('REMOVING', upload.item.name);
+		this.do_stop(upload, true); // true to avoid another recursion
+		if (upload.selected) {
+			upload.selected = false;
+			delete this.selection[upload.id];
+		}
+		delete upload.parent.sons[upload.id];
+		upload.parent.num_sons--;
+		upload.is_removed = true;
 	};
 
 
 
-	// TODO remove this func, unused?
-	UploadSrv.prototype.cancel_upload = function(upload) {
-		var do_remove = this.remove_upload.bind(this, upload);
-		if (upload.is_done && !upload.is_active) {
-			do_remove();
-		} else {
-			$.nbconfirm('This upload is still working.<br/>' +
-				'Are you sure you want to cancel it?', {
-					on_confirm: do_remove
-				});
+	UploadSrv.prototype.clear_selection = function(leave_global) {
+		var had_any = false;
+		for (var id in this.selection) {
+			var upload = this.selection[id];
+			upload.selected = false;
+			had_any = true;
+		}
+		if (had_any) {
+			this.selection = [];
+		}
+		if (!leave_global) {
+			this.selected_all = undefined;
 		}
 	};
-
-
 
 	UploadSrv.prototype.toggle_select_all = function() {
 		// toggle the global flag
@@ -978,11 +929,7 @@
 			this.selected_all = false;
 		}
 		// in any case remove the selection from each of the uploads
-		for (var id in this.selection) {
-			var upload = this.selection[id];
-			upload.selected = false;
-		}
-		this.selection = [];
+		this.clear_selection(true);
 	};
 
 	UploadSrv.prototype.toggle_select = function(upload) {
@@ -995,41 +942,15 @@
 		} else {
 			upload.selected = true;
 			this.selection[upload.id] = upload;
-			// when selecting, deselect all parents (only immediate parent is really expected)
-			for (var p = upload.parent; p; p = p.parent) {
-				p.selected = false;
-				delete this.selection[p.id];
-			}
 		}
 	};
 
 	UploadSrv.prototype.foreach_selected = function(func) {
-		var iter = function(upload) {
-			for (var id in upload.sons) {
-				var son = upload.sons[id];
-				// iter(son);
-				func(son);
-			}
-		};
-		if (this.selected_all) {
-			iter(this.root);
-		} else {
-			for (var id in this.selection) {
-				var upload = this.selection[id];
-				// iter(upload);
-				func(upload);
-			}
+		var col = this.selected_all ? this.root.sons : this.selection;
+		for (var id in col) {
+			var upload = col[id];
+			func(upload);
 		}
-	};
-
-	UploadSrv.prototype.cancel_selected = function() {
-		this.foreach_selected(this.remove_upload.bind(this));
-		this.run_pending();
-	};
-
-	UploadSrv.prototype.resume_selected = function() {
-		this.foreach_selected(this.resume_upload.bind(this));
-		this.run_pending();
 	};
 
 
@@ -1064,14 +985,19 @@
 				'			<i class="icon-eraser"></i>',
 				'		</button>',
 				'		<button class="btn btn-xs btn-default"',
-				'			ng-click="srv.cancel_selected()">',
-				'			Cancel Selected',
-				'			<i class="icon-remove"></i>',
+				'			ng-click="srv.pause_selected()">',
+				'			Pause Selected',
+				'			<i class="icon-pause"></i>',
 				'		</button>',
 				'		<button class="btn btn-xs btn-default"',
 				'			ng-click="srv.resume_selected()">',
 				'			Resume Selected',
 				'			<i class="icon-repeat"></i>',
+				'		</button>',
+				'		<button class="btn btn-xs btn-default"',
+				'			ng-click="srv.remove_selected()">',
+				'			Remove Selected',
+				'			<i class="icon-remove"></i>',
 				'		</button>',
 				'		<div>',
 				'			load {{srv.list_loading.length}} /',
@@ -1171,9 +1097,11 @@
 		name = name || '';
 		this.next = '_lln_' + name;
 		this.prev = '_llp_' + name;
+		this.head = '_llh_' + name;
 		this.length = 0;
 		this[this.next] = this;
 		this[this.prev] = this;
+		this[this.head] = this;
 	}
 	LinkedList.prototype.get_next = function(item) {
 		var next = item[this.next];
@@ -1193,22 +1121,34 @@
 		return !this.get_front();
 	};
 	LinkedList.prototype.insert_after = function(item, new_item) {
+		if (item[this.head] !== this) {
+			return false;
+		}
 		var next = item[this.next];
 		new_item[this.next] = next;
 		new_item[this.prev] = item;
 		next[this.prev] = new_item;
 		item[this.next] = new_item;
 		this.length++;
+		return true;
 	};
 	LinkedList.prototype.insert_before = function(item, new_item) {
+		if (item[this.head] !== this) {
+			return false;
+		}
 		var prev = item[this.prev];
 		new_item[this.next] = item;
 		new_item[this.prev] = prev;
+		new_item[this.head] = this;
 		prev[this.next] = new_item;
 		item[this.prev] = new_item;
 		this.length++;
+		return true;
 	};
 	LinkedList.prototype.remove = function(item) {
+		if (item[this.head] !== this) {
+			return false;
+		}
 		var next = item[this.next];
 		var prev = item[this.prev];
 		if (!next || !prev) {
@@ -1216,16 +1156,17 @@
 		}
 		next[this.prev] = prev;
 		prev[this.next] = next;
-		delete item[this.next];
-		delete item[this.prev];
+		item[this.next] = null;
+		item[this.prev] = null;
+		item[this.head] = null;
 		this.length--;
 		return true;
 	};
 	LinkedList.prototype.push_front = function(item) {
-		this.insert_after(this, item);
+		return this.insert_after(this, item);
 	};
 	LinkedList.prototype.push_back = function(item) {
-		this.insert_before(this, item);
+		return this.insert_before(this, item);
 	};
 	LinkedList.prototype.pop_front = function() {
 		var item = this.get_front();
@@ -1250,10 +1191,11 @@
 	// name is optional in case multiple job queues (or linked lists) 
 	// are used on the same elements.
 
-	function JobQueue(concurrency, timeout, delay, name) {
+	function JobQueue(concurrency, timeout, delay, name, method) {
 		this.concurrency = concurrency || (concurrency === 0 ? 0 : 1);
 		this.timeout = timeout || setTimeout;
 		this.delay = delay || 0;
+		this.method = method || 'run';
 		this._queue = new LinkedList(name);
 		this._num_running = 0;
 		Object.defineProperty(this, 'length', {
@@ -1266,10 +1208,14 @@
 
 	// add the given function to the jobs queue
 	// which will run it when time comes.
-	// job should be a function.
+	// job have its method property (by default 'run').
 	JobQueue.prototype.add = function(job) {
 		this._queue.push_back(job);
 		this.process(true);
+	};
+
+	JobQueue.prototype.remove = function(job) {
+		return this._queue.remove(job);
 	};
 
 	JobQueue.prototype.process = function(check_concurrency) {
@@ -1290,7 +1236,7 @@
 		// to be able to return here immediately
 		me.timeout(function() {
 			try {
-				var promise = job();
+				var promise = job[me.method]();
 				if (!promise || !promise.then) {
 					end();
 				} else {
