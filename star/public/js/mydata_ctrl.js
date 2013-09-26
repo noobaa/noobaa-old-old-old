@@ -471,9 +471,9 @@ InodesSelection.prototype.select = function(inode) {
 ////////////////////////////////
 ////////////////////////////////
 
-MyDataCtrl.$inject = ['$scope', '$http', '$timeout', '$window', '$q', '$rootScope'];
+MyDataCtrl.$inject = ['$scope', '$http', '$timeout', '$window', '$q', '$rootScope', '$compile'];
 
-function MyDataCtrl($scope, $http, $timeout, $window, $q, $rootScope) {
+function MyDataCtrl($scope, $http, $timeout, $window, $q, $rootScope, $compile) {
 
 	$scope.timeout = $timeout;
 	$scope.api_url = "/star_api/";
@@ -779,15 +779,17 @@ function MyDataCtrl($scope, $http, $timeout, $window, $q, $rootScope) {
 				dlg.find('#not_empty_msg').css('display', 'block');
 				dlg.find('#normal_msg').css('display', 'none');
 			}
+			var del_scope = $scope.$new();
+			del_scope.count = 0;
 			dlg.find('.inode_label').html(inode.make_inode_with_icon());
 			dlg.find('#dialog_ok').off('click').on('click', function() {
+				dlg.find('button.nbdialog_close').text('Hide');
+				dlg.find('a.nbdialog_close').attr('title', 'Hide');
 				dlg.find('#dialog_ok')
 					.addClass('disabled')
-					.html('<i class="icon-spinner icon-spin"></i>');
-				dlg.find('.nbdialog_close').text('Hide');
-				var stats = {
-					count: 0
-				};
+					.empty()
+					.append($('<i class="icon-spinner icon-spin icon-large icon-fixed-width"></i>'))
+					.append($compile('<span style="padding-left: 20px">Deleted {{count}}</span>')(del_scope));
 				var on_delete = function() {
 					if (inode.id == $scope.inode_selection.inode.id) {
 						$scope.select(inode.parent, {
@@ -796,9 +798,9 @@ function MyDataCtrl($scope, $http, $timeout, $window, $q, $rootScope) {
 						});
 					}
 					dlg.nbdialog('close');
-					$.nbalert('stats.count: ' + stats.count);
+					del_scope.$destroy();
 				};
-				inode.delete_inode(stats).then(on_delete, on_delete);
+				inode.delete_inode(del_scope).then(on_delete, on_delete);
 			});
 			dlg.nbdialog('open', {
 				remove_on_close: true,
