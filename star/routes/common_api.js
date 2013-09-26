@@ -66,12 +66,12 @@ function reply_callback(req, res, debug_info, skip_starlog) {
 		if (err) {
 			console.log('FAILED', debug_info, ':', err);
 			var status = err.status || err.statusCode;
-			var message = err.info || err.message;
+			var data = err.data || err.message;
 			if (typeof status === 'number' &&
 				status >= 100 &&
 				status < 600
 			) {
-				return res.json(status, message);
+				return res.json(status, data);
 			} else {
 				return res.json(500, err);
 			}
@@ -113,13 +113,13 @@ function check_ownership(user_id, obj, next) {
 	if (!obj) {
 		return next({
 			status: 404, // HTTP Not Found
-			info: 'Not Found'
+			data: 'Not Found'
 		});
 	}
 	if (!mongoose.Types.ObjectId(user_id).equals(obj.owner)) {
 		return next({
 			status: 403, // HTTP Forbidden
-			info: 'User Not Owner'
+			data: 'User Not Owner'
 		});
 	}
 	return next(null, obj);
