@@ -693,7 +693,7 @@
 						ng-click="inode_upload(inode)">
 						<i class="icon-cloud-upload icon-fixed-width"></i>
 					</span>
-					<span ng-show="inode.size">
+					<span ng-hide="inode.isdir">
 						{{human_size(inode.size)}}
 					</span>
 				</div>

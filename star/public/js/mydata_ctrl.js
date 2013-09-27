@@ -339,7 +339,7 @@ Inode.prototype.rename = function(to_parent, to_name) {
 
 // open a download window on this file
 Inode.prototype.download_file = function() {
-	if (this.uploading) {
+	if (this.uploading || !this.size) {
 		return;
 	}
 	var url = this.$scope.inode_api_url + this.id;
