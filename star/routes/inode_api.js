@@ -10,6 +10,7 @@ var auth = require('./auth');
 var async = require('async');
 var mongoose = require('mongoose');
 var querystring = require('querystring');
+var mime = require('mime');
 
 var Inode = require('../models/inode').Inode;
 var Fobj = require('../models/fobj').Fobj;
@@ -38,6 +39,13 @@ function fobj_s3_key(fobj_id) {
 
 function name_to_content_dispos(name) {
 	return 'filename="' + querystring.escape(name) + '"';
+}
+
+function detect_content_type(type, name) {
+	if (type) {
+		return type;
+	}
+	return mime.lookup(name);
 }
 
 // return a signed GET url for the fobj in S3
@@ -99,7 +107,8 @@ function inode_to_entry(inode, opt) {
 	var ent = {
 		id: inode._id,
 		name: inode.name,
-		ctime: inode._id.getTimestamp()
+		ctime: inode._id.getTimestamp(),
+		size: 0 // fobj will override, but needed for 0 size files without fobj
 	};
 	if (inode.isdir) {
 		ent.isdir = inode.isdir;
@@ -285,9 +294,9 @@ function do_read_dir(user, dir_inode, next) {
 	});
 }
 
-// read of file - return attributes of inode and fobj if exists
+// return attributes of inode and fobj if exists
 
-function do_read_file_attr(inode, next) {
+function do_get_attr(inode, next) {
 	return async.waterfall([
 		// find fobj if exists
 		function(next) {
@@ -297,7 +306,7 @@ function do_read_file_attr(inode, next) {
 			return Fobj.findById(inode.fobj, next);
 		},
 
-		// convert the inode anf fobj to a reply entry
+		// convert the inode and fobj to a reply entry
 		function(fobj, next) {
 			return next(null, inode_to_entry(inode, {
 				fobj: fobj,
@@ -308,6 +317,129 @@ function do_read_file_attr(inode, next) {
 		// on complete, pass the reply to the read_file callback
 		next(err, reply);
 	});
+}
+
+
+// get inode, check ownership and get fobj
+
+function get_inode_fobj(req, inode_id, callback) {
+	return async.waterfall([
+		// find the inode
+		function(next) {
+			return Inode.findById(inode_id, next);
+		},
+
+		// check inode ownership
+		common_api.check_ownership.bind(null, req.user.id),
+
+		function(inode, next) {
+			if (!inode.fobj) {
+				return next(null, inode, null);
+			}
+			return Fobj.findById(inode.fobj, function(err, fobj) {
+				if (err) {
+					return next(err);
+				}
+				if (!fobj) {
+					return next({
+						status: 404,
+						data: 'FOBJ NOT FOUND'
+					});
+				}
+				return next(err, inode, fobj);
+			});
+		}
+	], callback);
+}
+
+
+// when inode pointing to this fobj is deleted,
+// the fobj might be deleted if no other refs exist
+
+function unref_fobj(fobj_id, callback) {
+	return async.waterfall([
+		// count refs
+		function(next) {
+			return Inode.count({
+				fobj: fobj_id
+			}, next);
+		},
+
+		function(num_refs, next) {
+			// currently deleting inode is still there, so we are expecting 1,
+			// but will also delete if 0.
+			if (num_refs === 1 || num_refs === 0) {
+				return delete_fobj(fobj_id, next);
+			} else {
+				console.log('FOBJ has', num_refs, 'refs. leaving intact');
+				return next();
+			}
+		}
+	], callback);
+}
+
+
+function delete_fobj(fobj_id, callback) {
+	var fobj;
+
+	return async.waterfall([
+		// find fobj
+		function(next) {
+			return Fobj.findById(fobj_id, function(err, fobj_result) {
+				if (err) {
+					return next(err);
+				}
+				if (!fobj_result) {
+					console.log('DELETE FOBJ NOT FOUND - SKIP', fobj_id);
+					// calling the top callback directly and leaving the waterfall
+					return callback();
+				}
+				fobj = fobj_result;
+				return next();
+			});
+		},
+
+		// abort multipart upload if exist
+		function(next) {
+			if (!fobj.s3_multipart.upload_id) {
+				return next();
+			}
+			var params = {
+				Bucket: process.env.S3_BUCKET,
+				Key: fobj_s3_key(fobj.id),
+				UploadId: fobj.s3_multipart.upload_id
+			};
+			console.log('DELETE FOBJ S3.abortMultipartUpload:', params);
+			return S3.abortMultipartUpload(params, function(err) {
+				if (err) {
+					// TODO detect NoSuchUpload error and ignore it
+					console.log('DELETE FOBJ S3.abortMultipartUpload failed',
+						err, typeof err, params);
+				}
+				return next(err);
+			});
+		},
+
+		// remove s3 object if any
+		function(next) {
+			var params = {
+				Bucket: process.env.S3_BUCKET,
+				Key: fobj_s3_key(fobj.id)
+			};
+			console.log('DELETE FOBJ S3.deleteObject:', params);
+			return S3.deleteObject(params, function(err) {
+				return next(err);
+			});
+		},
+
+		// remove fobj if any
+		function(next) {
+			console.log('FOBJ DELETE:', fobj.id);
+			fobj.remove(function(err) {
+				return next(err);
+			});
+		},
+	], callback);
 }
 
 
@@ -333,11 +465,11 @@ exports.inode_create = function(req, res) {
 	// prepare fobj if needed (auto generate id).
 	// then also set the link in the new inode.
 	var fobj;
-	if (!inode.isdir && args.uploading) {
+	if (!inode.isdir && args.uploading && args.size) {
 		fobj = new Fobj({
 			size: args.size,
-			content_type: args.content_type,
-			uploading: args.uploading,
+			content_type: detect_content_type(args.content_type, args.name),
+			uploading: !! args.uploading,
 		});
 		// link the inode to the fobj
 		inode.fobj = fobj._id;
@@ -359,21 +491,7 @@ function inode_create_action(inode, fobj, user, relative_path, callback) {
 	async.waterfall([
 
 		function(next) {
-			return validate_inode_creation_conditions(inode, fobj, user, function(err, rejection) {
-				if (err) {
-					return next(err);
-				}
-				if (rejection) {
-					return next({
-						status: 400,
-						info: {
-							text: 'File creation failed.',
-							rejection: rejection
-						}
-					});
-				}
-				return next();
-			});
+			return validate_inode_creation_conditions(inode, fobj, user, next);
 		},
 
 		// create relative path if needed
@@ -492,7 +610,7 @@ exports.inode_read = function(req, res) {
 				if (err) {
 					return next({
 						status: 403, // forbidden
-						info: err
+						data: err
 					});
 				} else {
 					return next(null, inode);
@@ -528,20 +646,25 @@ exports.inode_read = function(req, res) {
 			if (!inode) {
 				return next({
 					status: 404, // HTTP Not Found
-					info: 'Not Found'
+					data: 'Not Found'
 				});
+			}
+			if (req.query.getattr) {
+				return do_get_attr(inode, next);
 			}
 			if (inode.isdir) {
 				return do_read_dir(req.user, inode, next);
 			}
-			// redirect to the fobj location in S3
-			if (!req.query.getattr && inode.fobj) {
-				var url = s3_get_url(inode.fobj, inode.name);
-				res.redirect(url);
-				return next();
+			if (!inode.fobj) {
+				return next({
+					status: 404, // HTTP Not Found
+					data: 'Not Found'
+				});
 			}
-			// get_attr
-			return do_read_file_attr(inode, next);
+			// redirect to the fobj location in S3
+			var url = s3_get_url(inode.fobj, inode.name);
+			res.redirect(url);
+			return next();
 		},
 
 		// waterfall end
@@ -600,7 +723,7 @@ exports.inode_update = function(req, res) {
 			if (!inode.fobj) {
 				return next({
 					status: 404,
-					info: 'File Object Not Found'
+					data: 'File Object Not Found'
 				});
 			}
 			console.log('FOBJ UPDATE:', inode_id, inode.fobj, fobj_args);
@@ -650,7 +773,7 @@ function inode_delete_action(inode_id, user_id, callback) {
 			if (inode.parent === null) {
 				return next({
 					status: 400,
-					info: 'Cannot Delete Root'
+					data: 'Cannot Delete Root'
 				});
 			}
 			return next(null, inode);
@@ -665,28 +788,10 @@ function inode_delete_action(inode_id, user_id, callback) {
 			if (inode.isdir && has_sons) {
 				return next({
 					status: 400,
-					info: {
-						text: 'Directory Not Empty',
-						id: inode_id
-					}
+					data: 'Directory Not Empty'
 				});
 			}
 			return next(null, inode);
-		},
-
-		// remove s3 object if any
-		function(inode, next) {
-			if (!inode.fobj) {
-				return next(null, inode);
-			}
-			var params = {
-				Bucket: process.env.S3_BUCKET,
-				Key: fobj_s3_key(inode.fobj)
-			};
-			console.log('S3 OBJECT DELETE:', inode_id);
-			return S3.deleteObject(params, function(err) {
-				return next(err, inode);
-			});
 		},
 
 		// remove fobj if any
@@ -694,13 +799,12 @@ function inode_delete_action(inode_id, user_id, callback) {
 			if (!inode.fobj) {
 				return next(null, inode);
 			}
-			console.log('FOBJ DELETE:', inode_id);
-			return Fobj.findByIdAndRemove(inode.fobj, function(err) {
+			return unref_fobj(inode.fobj, function(err) {
 				return next(err, inode);
 			});
 		},
 
-		//remove any ghost refs
+		// remove any ghost refs
 		function(inode, next) {
 			var params = {
 				ghost_ref: inode._id
@@ -727,28 +831,6 @@ function inode_delete_action(inode_id, user_id, callback) {
 	});
 }
 
-// get inode, check ownership and get fobj
-
-function get_inode_fobj(req, inode_id, callback) {
-	return async.waterfall([
-		// find the inode
-		function(next) {
-			return Inode.findById(inode_id, next);
-		},
-
-		// check inode ownership
-		common_api.check_ownership.bind(null, req.user.id),
-
-		function(inode, next) {
-			if (!inode.fobj) {
-				return next(null, inode, null);
-			}
-			return Fobj.findById(inode.fobj, function(err, fobj) {
-				return next(err, inode, fobj);
-			});
-		}
-	], callback);
-}
 
 
 ///////////////
@@ -758,9 +840,17 @@ function get_inode_fobj(req, inode_id, callback) {
 ///////////////
 
 
-exports.inode_multipart_create = function(req, res) {
+exports.inode_multipart = function(req, res) {
 	var inode_id = req.params.inode_id;
-	var ctx = {};
+
+	// client will pass part_number_marker to get incremental results
+	// but to complete the upload it will call without part_number_marker
+	// and we will collect all parts to send to completeMultipartUpload().
+	var part_number_marker = req.body.part_number_marker ?
+		parseInt(req.body.part_number_marker, 10) : 0;
+
+	// flow context variables
+	var inode, fobj, fresh;
 
 	async.waterfall([
 		// find inode and the fobj
@@ -768,210 +858,225 @@ exports.inode_multipart_create = function(req, res) {
 			return get_inode_fobj(req, inode_id, next);
 		},
 
-		function(inode, fobj, next) {
-			ctx.inode = inode;
-			ctx.fobj = fobj;
-			if (!fobj.uploading) {
+		// save inode and fobj in function context
+		function(inode_result, fobj_result, next) {
+			inode = inode_result;
+			fobj = fobj_result;
+			if (!fobj || !fobj.uploading) {
 				return next({
-					status: 404,
-					err: 'NOT IN UPLOADING STATE!'
+					status: 200,
+					data: {
+						complete: true
+					}
 				});
 			}
-			// if upload id already exists skip creating
-			if (fobj.s3_multipart.upload_id) {
-				return next(null, null);
+			if (fobj.size <= 0) {
+				return next({
+					status: 400,
+					data: 'FOBJ INVALID SIZE'
+				});
 			}
-			// when the upload is new mark it, and ask for upload id from s3
-			return S3.createMultipartUpload({
+			// create the multipart upload id at S3 if not already created
+			if (fobj.s3_multipart.upload_id) {
+				return next();
+			}
+			fresh = true;
+			return create_upload(inode, fobj, next);
+		},
+
+		// get list of parts from S3
+		function(next) {
+			if (fresh) {
+				// no need to list when just created
+				return next(null, [], 0);
+			}
+			return list_upload_parts(fobj, part_number_marker, next);
+		},
+
+		// check if upload is complete and reply.
+		// if missing parts - return the first missing part numbers.
+		// if done, complete the upload and save the 
+		// complete is only relevant if we didn't receive a skip marker
+		function(parts, upsize, next) {
+			var missing_parts = find_missing_parts(fobj, parts);
+			console.log('FOBJ UPLOAD STATUS num parts', parts.length,
+				'upsize', upsize, 'num missing', missing_parts.length);
+			if (part_number_marker === 0 && missing_parts.length === 0) {
+				return complete_upload(fobj, parts, function(err) {
+					return next(err, {
+						complete: true
+					});
+				});
+			} else {
+				console.log('UPLOAD NOT COMPLETE', fobj, 'MISSING', missing_parts, 'upsize', upsize);
+				return next(null, {
+					complete: false,
+					part_size: fobj.s3_multipart.part_size,
+					upsize: upsize,
+					missing_parts: missing_parts,
+				});
+			}
+		}
+	], common_api.reply_callback(req, res, 'INODE_MULTIPART ' + inode_id));
+};
+
+// get full list of multipart upload parts from S3
+
+function list_upload_parts(fobj, part_number_marker, callback) {
+	var marker = part_number_marker;
+	var list_done = false;
+	var parts = [];
+	var upsize = 0;
+
+	return async.whilst(function() {
+		// continue listing until done or enough missing parts collected
+		return !list_done;
+
+	}, function(next) {
+		var params = {
+			Bucket: process.env.S3_BUCKET,
+			Key: fobj_s3_key(fobj.id),
+			UploadId: fobj.s3_multipart.upload_id,
+			PartNumberMarker: marker.toString()
+		};
+		console.log('S3.listParts', params);
+		return S3.listParts(params, function(err, data) {
+			if (err) {
+				return next(err);
+			}
+			// fill parts from result
+			for (var i = 0; i < data.Parts.length; i++) {
+				var p = data.Parts[i];
+				parts[p.PartNumber - 1] = p;
+				upsize += p.Size;
+				console.log('PART', p);
+			}
+			// advance marker if not done
+			if (data.IsTruncated) {
+				marker = data.NextPartNumberMarker;
+			} else {
+				list_done = true;
+			}
+			return next();
+		});
+	}, function(err) {
+		return callback(err, parts, upsize);
+	});
+}
+
+function find_missing_parts(fobj, parts) {
+	// calculate number of parts and last_part_size (the only one which is not part_size)
+	var part_size = fobj.s3_multipart.part_size;
+	var num_parts = Math.floor(fobj.size / part_size);
+	var last_part_size = fobj.size - (num_parts * part_size);
+	if (last_part_size) {
+		num_parts++;
+	}
+	// find first missing parts
+	var missing_parts = [];
+	// notice that parts numbers are indexed by 1 based index
+	// but in parts array we shift them to zero based index
+	for (var i = 1; i <= num_parts; i++) {
+		var p = parts[i - 1];
+		// part is valid if both etag and size is complete
+		if (p && p.ETag &&
+			((i < num_parts && p.Size === part_size) ||
+				(i === num_parts && p.Size === last_part_size))) {
+			// we need to remove extra fields for completeMulitpartUpload() to work
+			parts[i - 1] = {
+				PartNumber: p.PartNumber,
+				ETag: p.ETag
+			};
+		} else {
+			missing_parts.push({
+				num: i,
+				url: get_upload_part_url(fobj, i)
+			});
+			// send a bunch of missing parts
+			if (missing_parts.length >= 2) {
+				break;
+			}
+		}
+	}
+	return missing_parts;
+}
+
+function get_upload_part_url(fobj, part_num) {
+	var params = {
+		Bucket: process.env.S3_BUCKET,
+		Key: fobj_s3_key(fobj.id),
+		UploadId: fobj.s3_multipart.upload_id,
+		PartNumber: part_num.toString(),
+		Expires: 1 * 60 * 60, // 1 hours
+	};
+	return S3.getSignedUrl('uploadPart', params);
+}
+
+
+function create_upload(inode, fobj, callback) {
+	return async.waterfall([
+		// create the multipart upload id at S3
+		function(next) {
+			var params = {
 				Bucket: process.env.S3_BUCKET,
-				Key: fobj_s3_key(ctx.inode.fobj),
+				Key: fobj_s3_key(fobj.id),
 				ACL: 'private',
 				ContentDisposition: name_to_content_dispos(inode.name),
 				ContentType: fobj.content_type
-			}, function(err, data) {
+			};
+			console.log('S3.createMultipartUpload', params);
+			return S3.createMultipartUpload(params, function(err, data) {
 				return next(err, data);
 			});
 		},
 
+		// save the fobj with upload id info
 		function(create_data, next) {
-			console.log(ctx.fobj, next, typeof next, create_data, typeof create_data);
-			if (ctx.fobj.s3_multipart.upload_id) {
-				return next();
-			}
-			// for new upload save the upload id into the fobj
-			ctx.fobj.s3_multipart = {
+			fobj.s3_multipart = {
 				upload_id: create_data.UploadId,
-				part_size: 5 * 1024 * 1024,
-				parts: [''] // 0 part number is unused
+				// minimum part size by s3 is 5MB
+				// we pick the next power of 2.
+				part_size: 8 * 1024 * 1024,
 			};
-			return ctx.fobj.save(function(err) {
-				return next(err);
-			});
-		},
-
-		function(next) {
-			return next(null, {
-				part_size: ctx.fobj.s3_multipart.part_size,
-				next_part: ctx.fobj.s3_multipart.parts.length || 1 // at least 1
-			});
-		}
-
-	], common_api.reply_callback(req, res, 'INODE_CREATE_MULTIPART ' + inode_id));
-};
-
-exports.inode_multipart_get_part = function(req, res) {
-	var inode_id = req.params.inode_id;
-	var part_num = req.params.part_num;
-
-	async.waterfall([
-		// find inode and the fobj
-		function(next) {
-			return get_inode_fobj(req, inode_id, next);
-		},
-
-		function(inode, fobj, next) {
-			var params = {
-				Bucket: process.env.S3_BUCKET,
-				Key: fobj_s3_key(fobj.id),
-				UploadId: fobj.s3_multipart.upload_id,
-				PartNumber: part_num,
-				Expires: 1 * 60 * 60, // 1 hours
-			};
-			var url = S3.getSignedUrl('uploadPart', params);
-			return next(null, {
-				url: url
-			});
-		}
-	], common_api.reply_callback(req, res, 'INODE_GET_MULTIPART ' + inode_id));
-};
-
-exports.inode_multipart_done_part = function(req, res) {
-	var inode_id = req.params.inode_id;
-	var part_num = parseInt(req.params.part_num, 10);
-	var etag = req.body.etag;
-
-	async.waterfall([
-		// find inode and the fobj
-		function(next) {
-			return get_inode_fobj(req, inode_id, next);
-		},
-
-		function(inode, fobj, next) {
-			var next_part = fobj.s3_multipart.parts.length || 1;
-			if (next_part !== part_num) {
-				console.log('PART NUMBER MISTMATCH',
-					'expected', next_part,
-					'got', part_num);
-				return next({
-					status: 404,
-					err: 'Part number mismatch'
-				});
-			}
-			if (!etag || typeof etag !== 'string') {
-				return next({
-					status: 404,
-					err: 'ETAG MISSING'
-				});
-			}
-			console.log('PART', part_num, etag, 'INODE', inode_id, 'FOBJ', fobj.id);
-			fobj.s3_multipart.parts.set(part_num, etag);
 			return fobj.save(function(err) {
 				return next(err);
 			});
 		}
-	], common_api.reply_callback(req, res, 'INODE_PUT_MULTIPART ' + inode_id));
-};
+	], callback);
+}
 
-exports.inode_multipart_complete = function(req, res) {
-	var inode_id = req.params.inode_id;
-	var ctx = {};
-
-	async.waterfall([
-		// find inode and the fobj
+function complete_upload(fobj, parts, callback) {
+	return async.waterfall([
+		// complete the upload at S3
 		function(next) {
-			return get_inode_fobj(req, inode_id, next);
-		},
-
-		function(inode, fobj, next) {
-			ctx.inode = inode;
-			ctx.fobj = fobj;
-			if (!fobj.s3_multipart.upload_id) {
-				return next({
-					status: 404,
-					err: 'Not found multipart'
-				});
-			}
-			var parts = [];
-			// parts are numbered from 1...
-			for (var i = 1; i < fobj.s3_multipart.parts.length; i++) {
-				var etag = fobj.s3_multipart.parts[i];
-				console.log('PART', i, etag);
-				parts.push({
-					PartNumber: i,
-					ETag: etag
-				});
-			}
-			return S3.completeMultipartUpload({
+			var params = {
 				Bucket: process.env.S3_BUCKET,
 				Key: fobj_s3_key(fobj.id),
 				UploadId: fobj.s3_multipart.upload_id,
 				MultipartUpload: {
 					Parts: parts
 				}
-			}, function(err) {
+			};
+			console.log('FOBJ S3.completeMultipartUpload', params);
+			return S3.completeMultipartUpload(params, function(err) {
 				return next(err);
 			});
 		},
 
+		// remove the uploading state from fobj
 		function(next) {
-			ctx.fobj.s3_multipart.upload_id = null;
-			ctx.fobj.s3_multipart.part_size = null;
-			ctx.fobj.s3_multipart.parts = [];
-			return ctx.fobj.save(function(err) {
+			console.log('FOBJ UPLOAD DONE', fobj);
+			fobj.s3_multipart.upload_id = undefined;
+			fobj.s3_multipart.part_size = undefined;
+			fobj.uploading = undefined;
+			return fobj.save(function(err) {
 				return next(err);
 			});
 		}
-	], common_api.reply_callback(req, res, 'INODE_COMPLETE_MULTIPART ' + inode_id));
-};
+	], callback);
+}
 
-exports.inode_multipart_abort = function(req, res) {
-	var inode_id = req.params.inode_id;
-	var ctx = {};
 
-	async.waterfall([
-		// find inode and the fobj
-		function(next) {
-			return get_inode_fobj(req, inode_id, next);
-		},
-
-		function(inode, fobj, next) {
-			ctx.inode = inode;
-			ctx.fobj = fobj;
-			if (!fobj.s3_multipart.upload_id) {
-				return next({
-					status: 404,
-					err: 'Not found multipart'
-				});
-			}
-			return S3.abortMultipartUpload({
-				Bucket: process.env.S3_BUCKET,
-				Key: fobj_s3_key(fobj.id),
-				UploadId: fobj.s3_multipart.upload_id
-			}, function(err) {
-				return next(err);
-			});
-		},
-
-		function(next) {
-			ctx.fobj.s3_multipart.upload_id = null;
-			ctx.fobj.s3_multipart.part_size = null;
-			ctx.fobj.s3_multipart.parts = [];
-			return ctx.fobj.save(function(err) {
-				return next(err);
-			});
-		}
-	], common_api.reply_callback(req, res, 'INODE_ABORT_MULTIPART ' + inode_id));
-};
 
 /////////////
 /////////////
@@ -1210,7 +1315,7 @@ function validate_inode_creation_conditions(inode, fobj, user, callback) {
 
 		//compare user quota to usage and reject if new file and usage exceeds quota
 		function(user, next) {
-			if (inode.isdir) {
+			if (inode.isdir || !inode.fobj) {
 				return next();
 			}
 			return user_inodes.get_user_usage_bytes(user.id, function(err, usage) {
@@ -1218,14 +1323,15 @@ function validate_inode_creation_conditions(inode, fobj, user, callback) {
 					next(err);
 				}
 				if (fobj.size + usage > user.quota) {
-					rejection = {
-						reason: 'User reached quota limitaion of ' + filesize(user.quota),
-						quota: user.quota,
-						usage: usage,
-						file_size: fobj.size
-					};
-					console.log("Reject: ", rejection);
-					return next(null, rejection);
+					console.log("User reached quota limitaion ", rejection);
+					return next({
+						status: 507, // HTTP Insufficient Storage
+						data: {
+							quota: user.quota,
+							usage: usage,
+							file_size: fobj.size
+						}
+					});
 				}
 				return next();
 			});

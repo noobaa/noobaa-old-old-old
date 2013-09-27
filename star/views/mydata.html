@@ -305,21 +305,28 @@
 				<span class="close">x</span>
 			</a>
 		</div>
-		<div class="nbdialog_content">
+		<div class="nbdialog_content"
+			ng-style="has_uploads() && {padding: 0, backgroundColor: 'white'} || {padding: 0}">
 			<div ng-hide="has_uploads()" class="text-center fnt" style="padding: 20px">
 				<div style="font-size: 80px"><i class="icon-cloud-upload"></i></div>
-				<h2>Drag &amp; Drop to start uploading!</h2>
+				<h2>Drag &amp; Drop to Upload</h2>
+				<br/>
+				<h4>Drop entire folders !!! (chrome only)</h4>
 			</div>
-			<div ng-show="has_uploads()" class="table-responsive">
+			<div ng-show="has_uploads()">
 				<nb-upload-table></nb-upload-table>
 			</div>
 		</div>
-		<div class="nbdialog_footer">
+		<div class="nbdialog_footer" style="overflow: auto">
 			<button class="nbdialog_close btn btn-default">Hide</button>
 			<div class="pull-right">
+				<button class="btn btn-success"
+					ng-click="open_local_planet()">
+					More Space & Improved Upload with NooBaa Client
+				</button>
 				<!-- fileinput-button span is used 
 					to style the file input field as button -->
-				<span id="choose_folder_button"
+				<span ng-show="false" id="choose_folder_button"
 					class="btn btn-primary fileinput-button">
 					Choose Folder
 					<input id="dir_upload_input" 
@@ -501,7 +508,12 @@
 			</a>
 		</div>
 		<div class="nbdialog_content">
-			<p>Are you sure you want to delete this item?</p>
+			<p id="not_empty_msg" style="display: none">
+				This folder is not empty.
+				<br/>
+				Are you sure you want to delete it and all its content?
+			</p>
+			<p id="normal_msg">Are you sure you want to delete this item?</p>
 			<div class="inode_label"></div>
 		</div>
 		<div class="nbdialog_footer">
@@ -681,7 +693,7 @@
 						ng-click="inode_upload(inode)">
 						<i class="icon-cloud-upload icon-fixed-width"></i>
 					</span>
-					<span ng-show="inode.size">
+					<span ng-hide="inode.isdir">
 						{{human_size(inode.size)}}
 					</span>
 				</div>

@@ -6,18 +6,6 @@
 /* jshint -W097 */
 'use strict';
 
-var num_running_uploads = 0;
-
-// init jquery stuff
-$(function() {
-	window.onbeforeunload = function() {
-		if (num_running_uploads) {
-			return "Leaving this page will interrupt your running Uploads !!!";
-		}
-	};
-});
-
-
 // open the page context menu element on the given mouse event position
 
 function open_context_menu(event) {
@@ -120,12 +108,16 @@ Inode.prototype.is_dir_non_empty = function(callback) {
 		return;
 	}
 	var me = this;
-	var ev = this.load_dir();
-	if (!ev) {
+	var promise = this.load_dir();
+	if (!promise) {
 		callback( !! me.dir_state.sons_list.length);
 	} else {
-		ev.on('all', function() {
+		promise.then(function(res) {
 			callback( !! me.dir_state.sons_list.length);
+			return res;
+		}, function(err) {
+			callback( !! me.dir_state.sons_list.length);
+			throw err;
 		});
 	}
 };
@@ -178,18 +170,18 @@ Inode.prototype.read_dir = function() {
 		return this.dir_state.refreshing;
 	}
 	var me = this; // needed for callbacks propagation
-	var ev = this.$scope.http({
+	this.dir_state.refreshing = this.$scope.$http({
 		method: 'GET',
 		url: this.$scope.inode_api_url + this.id
-	});
-	ev.on('all', function() {
+	}).then(function(res) {
 		delete me.dir_state.refreshing;
+		me.populate_dir(res.data.entries);
+		return res;
+	}, function(err) {
+		delete me.dir_state.refreshing;
+		throw err;
 	});
-	ev.on('success', function(data) {
-		me.populate_dir(data.entries);
-	});
-	this.dir_state.refreshing = ev;
-	return ev;
+	return this.dir_state.refreshing;
 };
 
 
@@ -259,7 +251,7 @@ Inode.prototype.resort_entries = function() {
 // create new dir under this dir
 Inode.prototype.mkdir = function(name) {
 	var me = this;
-	return this.$scope.http({
+	return this.$scope.$http({
 		method: 'POST',
 		url: this.$scope.inode_api_url,
 		data: {
@@ -267,20 +259,59 @@ Inode.prototype.mkdir = function(name) {
 			name: name,
 			isdir: true
 		}
-	}).on('all', function() {
+	}).then(function(res) {
 		me.read_dir();
+		return res;
+	}, function(err) {
+		me.read_dir();
+		throw err;
 	});
 };
 
 // delete this inode
-Inode.prototype.delete_inode = function() {
+Inode.prototype.delete_inode = function(del_scope, avoid_read_parent) {
 	var me = this;
-	var parent = this.parent;
-	return this.$scope.http({
-		method: 'DELETE',
-		url: this.$scope.inode_api_url + this.id
-	}).on('all', function() {
-		parent.read_dir();
+	var do_delete = function() {
+		del_scope.concurrency++;
+		return me.$scope.$http({
+			method: 'DELETE',
+			url: me.$scope.inode_api_url + me.id
+		}).then(function() {
+			del_scope.concurrency--;
+			del_scope.count++;
+		});
+	};
+	var promise;
+	if (me.isdir) {
+		del_scope.concurrency++;
+		promise = me.read_dir().then(function() {
+			del_scope.concurrency--;
+			var sons = me.dir_state.sons_list.slice(0); // copy array
+			var delete_sons = function() {
+				if (!sons || !sons.length) {
+					return me.$scope.$q.when();
+				}
+				var promises = [];
+				while (del_scope.concurrency < del_scope.max_concurrency && sons.length) {
+					promises.push(sons.pop().delete_inode(del_scope, true));
+				}
+				return me.$scope.$q.all(promises).then(delete_sons);
+			};
+			return delete_sons();
+		}).then(do_delete);
+	} else {
+		promise = do_delete();
+	}
+	// when recursing don't read parent
+	if (avoid_read_parent) {
+		return promise;
+	}
+	return promise.then(function(res) {
+		me.parent.read_dir();
+		return res;
+	}, function(err) {
+		me.parent.read_dir();
+		throw err;
 	});
 };
 
@@ -288,22 +319,27 @@ Inode.prototype.delete_inode = function() {
 Inode.prototype.rename = function(to_parent, to_name) {
 	var me = this;
 	var parent = this.parent;
-	return this.$scope.http({
+	return this.$scope.$http({
 		method: 'PUT',
 		url: this.$scope.inode_api_url + this.id,
 		data: {
 			parent: to_parent.id,
 			name: to_name
 		}
-	}).on('all', function() {
+	}).then(function(res) {
 		to_parent.read_dir();
 		parent.read_dir();
+		return res;
+	}, function(err) {
+		to_parent.read_dir();
+		parent.read_dir();
+		throw err;
 	});
 };
 
 // open a download window on this file
 Inode.prototype.download_file = function() {
-	if (this.uploading) {
+	if (this.uploading || !this.size) {
 		return;
 	}
 	var url = this.$scope.inode_api_url + this.id;
@@ -312,12 +348,12 @@ Inode.prototype.download_file = function() {
 	/*
 	// removed this code because the browser considered as popup and did blocking
 	// so we prefer to open and be redirected by the server.
-	return this.$scope.http({
+	return this.$scope.$http({
 		method: 'GET',
 		url: this.$scope.inode_api_url + this.id
-	}).on('success', function(data) {
-		console.log(data.s3_get_url);
-		var win = window.open(data.s3_get_url, '_blank');
+	}).then(function(res) {
+		console.log(res.data.s3_get_url);
+		var win = window.open(res.data.s3_get_url, '_blank');
 		win.focus();
 	});
 	*/
@@ -325,7 +361,7 @@ Inode.prototype.download_file = function() {
 
 Inode.prototype.get_share_list = function() {
 	console.log('get_share_list', this);
-	return this.$scope.http({
+	return this.$scope.$http({
 		method: 'GET',
 		url: this.$scope.inode_api_url + this.id + this.$scope.inode_share_sufix
 	});
@@ -333,7 +369,7 @@ Inode.prototype.get_share_list = function() {
 
 Inode.prototype.share = function(share_list) {
 	console.log('share', this, 'with', share_list);
-	return this.$scope.http({
+	return this.$scope.$http({
 		method: 'PUT',
 		url: this.$scope.inode_api_url + this.id + this.$scope.inode_share_sufix,
 		data: {
@@ -344,7 +380,7 @@ Inode.prototype.share = function(share_list) {
 
 Inode.prototype.mklink = function(link_options) {
 	console.log('mklink', this, link_options);
-	return this.$scope.http({
+	return this.$scope.$http({
 		method: 'POST',
 		url: this.$scope.inode_api_url + this.id + this.$scope.inode_link_sufix,
 		data: {
@@ -355,7 +391,7 @@ Inode.prototype.mklink = function(link_options) {
 
 Inode.prototype.rmlinks = function() {
 	console.log('revoke_links', this);
-	return this.$scope.http({
+	return this.$scope.$http({
 		method: 'DELETE',
 		url: this.$scope.inode_api_url + this.id + this.$scope.inode_link_sufix
 	});
@@ -421,36 +457,26 @@ InodesSelection.prototype.select = function(inode) {
 ////////////////////////////////
 ////////////////////////////////
 
-MyDataCtrl.$inject = ['$scope', '$http', '$timeout', '$window'];
+MyDataCtrl.$inject = ['$scope', '$http', '$timeout', '$window', '$q', '$rootScope', '$compile'];
 
-function MyDataCtrl($scope, $http, $timeout, $window) {
+function MyDataCtrl($scope, $http, $timeout, $window, $q, $rootScope, $compile) {
 
 	$scope.timeout = $timeout;
 	$scope.api_url = "/star_api/";
 	$scope.inode_api_url = $scope.api_url + "inode/";
 	$scope.inode_share_sufix = "/share_list";
 	$scope.inode_link_sufix = "/link";
-
-	// TODO: remove this http() and use $http().then().then() chaining instead
-	// returns an event object with 'success' and 'error' events,
-	// which allows multiple events can be registered on the ajax result.
-	$scope.http = function(req) {
+	$scope.$q = $q;
+	$scope.$rootScope = $rootScope;
+	$scope.$http = function(req) {
 		console.log('[http]', req);
-		var ev = _.clone(Backbone.Events);
-		ev.on('success', function(data, status) {
-			console.log('[http ok]', [status, req]);
+		return $http(req).then(function(res) {
+			console.log('[http ok]', [req, res]);
+			return res;
+		}, function(err) {
+			console.error(err.data || 'http request failed', [req, err]);
+			throw err;
 		});
-		ev.on('error', function(data, status) {
-			console.error(data || 'http request failed', [status, req]);
-		});
-		var ajax = $http(req);
-		ajax.success(function(data, status, headers, config) {
-			ev.trigger('success', data, status, headers, config);
-		});
-		ajax.error(function(data, status, headers, config) {
-			ev.trigger('error', data, status, headers, config);
-		});
-		return ev;
 	};
 
 	$scope.root_dir = new Inode($scope, null, '', true, null);
@@ -533,12 +559,11 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 		if (!dir_inode) {
 			return;
 		}
-		dir_inode.read_dir().on({
-			'all': function() {
-				cancel_curr_dir_refresh();
-				$scope.curr_dir_refresh_timeout =
-					$timeout(curr_dir_refresh, 60000);
-			}
+		dir_inode.read_dir().then(function(res) {
+			cancel_curr_dir_refresh();
+			$scope.curr_dir_refresh_timeout =
+				$timeout(curr_dir_refresh, 60000);
+			return res;
 		});
 	}
 	curr_dir_refresh();
@@ -607,7 +632,7 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 		dlg.find('.inode_label').eq(1).html(drop_inode.make_inode_with_icon());
 		dlg.find('#dialog_ok').off('click').on('click', function() {
 			dlg.nbdialog('close');
-			drag_inode.rename(drop_inode, drag_inode.name).on('all', function() {
+			drag_inode.rename(drop_inode, drag_inode.name).then(function() {
 				// select the drop dir
 				$scope.select(drop_inode, {
 					dir: true,
@@ -683,31 +708,34 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 		});
 	};
 
-	$http({
-		method: 'GET',
-		url: '/star_api/device/current/'
-	}).then(function(res) {
-		console.log('LOCAL PLANET', res.data);
-		$scope.local_planet = res.data ? res.data.device : null;
-	});
-
-	$scope.click_upload = function() {
-		if (!$scope.local_planet || !$scope.local_planet.srv_port) {
-			$('#upload_modal').nbdialog('open');
-			return;
-		}
+	$scope.open_local_planet = function() {
 		$http({
 			method: 'GET',
-			url: 'http://127.0.0.1:' + $scope.local_planet.srv_port
+			url: '/star_api/device/current/'
 		}).then(function(res) {
-			// ok planet will take over
-			if (res.data.trim() !== 'NBOK') {
-				console.log('UNEXPECTED RESPONSE', res.data);
-				$('#upload_modal').nbdialog('open');
+			console.log('LOCAL PLANET', res.data);
+			var local_planet = res.data ? res.data.device : null;
+			if (!local_planet || !local_planet.srv_port) {
+				throw 'NO PLANET';
 			}
-		}, function() {
-			$('#upload_modal').nbdialog('open');
+			return $http({
+				method: 'GET',
+				url: 'http://127.0.0.1:' + local_planet.srv_port
+			});
+		}).then(function(res) {
+			if (res.data.trim() !== 'NBOK') {
+				throw ('UNEXPECTED PLANET RESPONSE' + res.data);
+			}
+			// ok, so close the upload dialog
+			$('#upload_modal').nbdialog('close');
+		}).then(null, function(err) {
+			console.log(err);
+			$scope.click_coshare();
 		});
+	};
+
+	$scope.click_upload = function() {
+		$('#upload_modal').nbdialog('open');
 	};
 
 	$scope.click_coshare = function() {
@@ -743,23 +771,36 @@ function MyDataCtrl($scope, $http, $timeout, $window) {
 			$.nbalert('Cannot delete someone else\'s file');
 			return;
 		}
-		inode.is_dir_non_empty(function(is_it) {
-			if (is_it) {
-				$.nbalert('Cannot delete non-empty folder');
-				return;
-			}
+		inode.is_dir_non_empty(function(is_dir_non_empty) {
 			var dlg = $('#delete_dialog').clone();
+			if (is_dir_non_empty) {
+				dlg.find('#not_empty_msg').css('display', 'block');
+				dlg.find('#normal_msg').css('display', 'none');
+			}
+			var del_scope = $scope.$new();
+			del_scope.count = 0;
+			del_scope.concurrency = 0;
+			del_scope.max_concurrency = 32;
 			dlg.find('.inode_label').html(inode.make_inode_with_icon());
 			dlg.find('#dialog_ok').off('click').on('click', function() {
-				dlg.nbdialog('close');
-				inode.delete_inode().on('all', function() {
+				dlg.find('button.nbdialog_close').text('Hide');
+				dlg.find('a.nbdialog_close').attr('title', 'Hide');
+				dlg.find('#dialog_ok')
+					.addClass('disabled')
+					.empty()
+					.append($('<i class="icon-spinner icon-spin icon-large icon-fixed-width"></i>'))
+					.append($compile('<span style="padding-left: 20px">Deleted {{count}}</span>')(del_scope));
+				var on_delete = function() {
 					if (inode.id == $scope.inode_selection.inode.id) {
 						$scope.select(inode.parent, {
 							dir: true,
 							open_dir: true
 						});
 					}
-				});
+					dlg.nbdialog('close');
+					del_scope.$destroy();
+				};
+				inode.delete_inode(del_scope).then(on_delete, on_delete);
 			});
 			dlg.nbdialog('open', {
 				remove_on_close: true,
@@ -1027,7 +1068,9 @@ function InodesListCtrl($scope) {
 	};
 
 	$scope.inode_upload = function(inode) {
-		var file_upload_input = $('#file_upload_input');
+		if (inode.is_not_mine()) {
+			return;
+		}
 		var inode_label = $('<div class="inode_label"></div').html(inode.make_inode_with_icon());
 		var msg = $('<div></div>')
 			.append('<p>Resume the upload of this file by choosing the source file</p>')
@@ -1039,11 +1082,13 @@ function InodesListCtrl($scope) {
 				// we kept this dialog open exactly to get here and nullify
 				// the data field so that next upload operations will 
 				// see it blank, and not assume this inode from before is relevant.
-				file_upload_input.data('inode_upload', null);
+				$('#file_upload_input').data('inode_upload', null);
+				console.log('inode_upload CLOSE');
 			},
 			on_confirm: function() {
 				var dlg = this;
-				console.log('GGG - INODE');
+				console.log('inode_upload CONFIRM');
+				var file_upload_input = $('#file_upload_input');
 				file_upload_input.data('inode_upload', inode);
 				file_upload_input.trigger('click');
 				file_upload_input.on('change.inode_upload', function() {
@@ -1095,9 +1140,10 @@ function ShareModalCtrl($scope) {
 		// TODO this is hacky accessing dlg.scope() ...
 		$scope.share_is_loading = true;
 		$scope.share_inode = inode;
-		inode.get_share_list().on('success', function(data) {
-			$scope.share_list = data.list;
-		}).on('all', function() {
+		inode.get_share_list().then(function(res) {
+			$scope.share_is_loading = false;
+			$scope.share_list = res.data.list;
+		}, function() {
 			$scope.share_is_loading = false;
 		});
 		dlg.nbdialog('open', {
@@ -1113,12 +1159,13 @@ function ShareModalCtrl($scope) {
 		var inode = $scope.share_inode;
 		var share_list = $scope.share_list;
 		$scope.share_is_loading = true;
-		inode.share(share_list).on('success', function(data) {
+		inode.share(share_list).then(function(res) {
+			$scope.share_is_loading = false;
 			$('#share_modal').nbdialog('close');
 			if (inode.parent) {
 				inode.parent.read_dir();
 			}
-		}).on('all', function() {
+		}, function() {
 			$scope.share_is_loading = false;
 		});
 	};
@@ -1126,14 +1173,15 @@ function ShareModalCtrl($scope) {
 	$scope.mklink = function() {
 		var inode = $scope.share_inode;
 		$scope.share_is_loading = true;
-		inode.mklink().on('success', function(data) {
+		inode.mklink().then(function(res) {
+			$scope.share_is_loading = false;
 			$('#share_modal').nbdialog('close');
-			console.log('mklink', data);
+			console.log('mklink', res.data);
 			var dlg = $('#getlink_dialog').clone();
 			dlg.find('.inode_label').html(inode.make_inode_with_icon());
 			dlg.find('.link_label').html(
 				'<div style="height: 100%; word-wrap: break-word; word-break: break-all">' +
-				window.location.host + data.url + '</div>');
+				window.location.host + res.data.url + '</div>');
 			dlg.nbdialog('open', {
 				remove_on_close: true,
 				modal: false,
@@ -1142,7 +1190,7 @@ function ShareModalCtrl($scope) {
 					height: 400
 				}
 			});
-		}).on('all', function() {
+		}, function() {
 			$scope.share_is_loading = false;
 		});
 	};
@@ -1150,11 +1198,12 @@ function ShareModalCtrl($scope) {
 	$scope.rmlinks = function() {
 		var inode = $scope.share_inode;
 		$scope.share_is_loading = true;
-		inode.rmlinks().on('success', function(data) {
+		inode.rmlinks().then(function(res) {
+			$scope.share_is_loading = false;
 			$('#share_modal').nbdialog('close');
-			console.log('rmlinks', data);
+			console.log('rmlinks', res.data);
 			$.nbalert('Revoked!');
-		}).on('all', function() {
+		}, function() {
 			$scope.share_is_loading = false;
 		});
 	};
@@ -1175,7 +1224,8 @@ function UploadCtrl($scope, nbUploadSrv) {
 	var upload_modal = $('#upload_modal');
 	upload_modal.nbdialog({
 		css: {
-			width: "70%"
+			width: '70%',
+			height: '70%'
 		}
 	});
 
@@ -1183,62 +1233,48 @@ function UploadCtrl($scope, nbUploadSrv) {
 		return nbUploadSrv.has_uploads();
 	};
 
-	$scope.add_upload = function(event, data) {
+
+	nbUploadSrv.setup_drop($(document));
+	nbUploadSrv.setup_file_input($('#file_upload_input'));
+	nbUploadSrv.setup_file_input($('#dir_upload_input'));
+
+	nbUploadSrv.get_upload_target = function(event) {
+		// make sure the modal shows - this is needed when drop/paste
+		// and the modal is hidden.
+		if (!event.upload_modal_open) {
+			upload_modal.nbdialog('open');
+			event.upload_modal_open = true;
+		}
+
+		// see inode_upload()
+		var inode_upload = $(event.target).data('inode_upload');
+		if (inode_upload) {
+			return {
+				inode_id: inode_upload.id
+			};
+		}
+
 		var dir_inode = $scope.dir_selection.inode;
 		if (!dir_inode) {
 			console.error('no selected dir, bailing');
-			return;
+			return false;
 		}
 		if (dir_inode.is_shared_with_me()) {
 			$.nbalert('Cannot upload to a shared folder');
-			return;
+			return false;
 		}
 		if (dir_inode.is_not_mine() || dir_inode.owner_name) {
 			$.nbalert('Cannot upload to someone else\'s folder');
-			return;
+			return false;
 		}
-
-		if (num_running_uploads > $scope.max_uploads_at_once) {
-			$.nbalert('Don\'t you think that ' + num_running_uploads +
-				' is too many files to upload at once?');
-			return;
-		}
-
-		// make sure the modal shows - this is needed when drop/paste
-		// and the modal is hidden.
-		upload_modal.nbdialog('open');
-
-		// TODO: need to nullify the inode_upload on input file dialog cancel
-		var inode_upload = $(event.target).data('inode_upload');
-		var existing_inode_id = inode_upload ? inode_upload.id : null;
-		var refresh_parent = function() {
-			dir_inode.read_dir();
+		return {
+			dir_inode_id: dir_inode.id
 		};
-		nbUploadSrv
-			.add_upload(data, dir_inode, existing_inode_id)
-			.then(refresh_parent, refresh_parent);
 	};
 
-	// setup the global file/dir input and link them to this scope
-	$('#file_upload_input').fileupload({
-		add: $scope.add_upload,
-		progress: nbUploadSrv.update_progress.bind(nbUploadSrv),
-		// we want single file per xhr
-		singleFileUploads: true,
-		// xml is is how amazon s3 work
-		dataType: 'xml'
-	});
+	nbUploadSrv.on_file_upload = function(upload) {
+		// TODO: avoid refresh per file...
+		$scope.dir_selection.inode.read_dir();
+	};
 
-	$('#dir_upload_input').fileupload({
-		add: $scope.add_upload,
-		progress: nbUploadSrv.update_progress.bind(nbUploadSrv),
-		// we want single file per xhr
-		singleFileUploads: true,
-		// xml is is how amazon s3 work
-		dataType: 'xml',
-		// disabling drop/paste, file_upload_input will handle globally,
-		// if we don't disable it will upload twice.
-		dropZone: null,
-		pasteZone: null
-	});
 }
