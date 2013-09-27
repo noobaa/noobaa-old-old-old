@@ -1224,7 +1224,8 @@ function UploadCtrl($scope, nbUploadSrv) {
 	var upload_modal = $('#upload_modal');
 	upload_modal.nbdialog({
 		css: {
-			width: "70%"
+			width: '70%',
+			height: '70%'
 		}
 	});
 
