@@ -193,7 +193,7 @@
 
 	// submit single item to upload.
 	UploadSrv.prototype.submit_item = function(item, target, parent) {
-		console.log('SUBMIT', item.name);
+		// console.log('SUBMIT', item.name);
 		var upload = this._create_upload(item, target, parent);
 		if (upload) {
 			this._add_to_load_queue(upload);
@@ -269,7 +269,7 @@
 			throw_if_stopped(upload);
 			return me._add_to_upload_queue(upload);
 		}).then(function() {
-			console.log('LOAD DONE', upload.item.name);
+			// console.log('LOAD DONE', upload.item.name);
 			me.list_loading.remove(upload);
 			upload.is_loading = false;
 			if (!upload.is_loaded) {
@@ -311,7 +311,7 @@
 			return me.$q.when();
 		}
 
-		console.log('LOAD prepare file attr', item.path);
+		// console.log('LOAD prepare file attr', item.path);
 
 		// node file/dir
 		var defer = me.$q.defer();
@@ -343,7 +343,7 @@
 			return me.$q.when();
 		}
 
-		console.log('LOAD prepare file entry', item.name);
+		// console.log('LOAD prepare file entry', item.name);
 
 		var defer = me.$q.defer();
 		item.file(me.$cb(function(file) {
@@ -530,7 +530,7 @@
 			throw_if_stopped(upload);
 			return me._upload_multipart(upload);
 		}).then(function() {
-			console.log('UPLOAD DONE', upload.item.name);
+			// console.log('UPLOAD DONE', upload.item.name);
 			me.list_uploading.remove(upload);
 			me._close_file(upload);
 			upload.is_uploading = false;
@@ -651,7 +651,7 @@
 		}).then(function(res) {
 			throw_if_stopped(upload);
 			upload.multipart = res.data;
-			console.log('UPLOAD multipart state', upload.multipart);
+			// console.log('UPLOAD multipart state', upload.multipart);
 			if (upload.multipart.complete) {
 				update_upsize(upload, upload.item.size);
 				return; // done
@@ -699,7 +699,7 @@
 		var start = (part.num - 1) * part_size;
 		var end = start + part_size;
 		var last_loaded = 0;
-		console.log('UPLOAD part', part, start, end);
+		// console.log('UPLOAD part', part, start, end);
 		return me._item_slice(upload.item, start, end).then(function(data) {
 			var defer = me.$q.defer();
 			var xhr = upload.xhr = new XMLHttpRequest();
@@ -707,7 +707,7 @@
 				if (xhr.readyState !== 4) {
 					return;
 				}
-				console.log('UPLOAD xhr', xhr);
+				// console.log('UPLOAD xhr', xhr);
 				upload.xhr = null;
 				if (xhr.status !== 200) {
 					defer.reject(xhr);
@@ -1057,7 +1057,19 @@
 	// and saves some memory and overhead in case there are lots of items
 	noobaa_app.filter('upload_sons_filter', function() {
 		return function(upload) {
-			return upload.is_expanded ? upload.sons : null;
+			if (!upload.is_expanded) {
+				return null;
+			}
+			return upload.sons;
+			/* TODO too much cpu for sorting
+			return _.sortBy(upload.sons, function(son) {
+				if (son.item.isDirectory) {
+					return -son.total_size;
+				} else {
+					return -son.item.size;
+				}
+			});
+			*/
 		};
 	});
 
@@ -1113,7 +1125,7 @@
 				'			<b>Speed</b> {{srv.speed.toFixed(1)}} KB/sec',
 				'			</small>',
 				'		</span>',
-				'		<button class="btn btn-default btn-sm"',
+				'		<button ng-show="false" class="btn btn-default btn-sm"',
 				'			ng-click="srv.show_advanced = !srv.show_advanced"',
 				'			title="Advanced Stats">',
 				'			<i style="color: black" class="icon-bar-chart"></i>',
