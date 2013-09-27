@@ -74,7 +74,6 @@
 		}), 2000);
 
 		// check for active uploads before page unloads
-		var me = this;
 		$(window).on('beforeunload', function() {
 			if (me.has_unfinished_uploads()) {
 				return 'Leaving this page will interrupt your active Uploads !!!';
@@ -270,18 +269,19 @@
 			return me._add_to_upload_queue(upload);
 		}).then(function() {
 			// console.log('LOAD DONE', upload.item.name);
+			var p;
 			me.list_loading.remove(upload);
 			upload.is_loading = false;
 			if (!upload.is_loaded) {
 				upload.is_loaded = true;
 				if (upload.item.isDirectory) {
 					// for dirs they completed their job so update parents
-					for (var p = upload.parent; p; p = p.parent) {
+					for (p = upload.parent; p; p = p.parent) {
 						p.total_completed++;
 					}
 				} else {
 					// for files update the parents bytes size
-					for (var p = upload.parent; p; p = p.parent) {
+					for (p = upload.parent; p; p = p.parent) {
 						p.total_size += upload.item.size;
 					}
 				}
@@ -825,7 +825,7 @@
 		upload.progress = 100;
 		upload.error_text = err;
 		return false; // TODO maybe retry on unknown error? not sure what is better
-	}
+	};
 
 	UploadSrv.prototype.is_completed = function(upload) {
 		if (upload.item.isDirectory) {
@@ -836,12 +836,6 @@
 	};
 
 	UploadSrv.prototype.get_status = function(upload) {
-		// if (upload.is_pending_load) {
-		// 	return 'Pending Load';
-		// }
-		// if (upload.is_pending_upload) {
-		// 	return 'Pending Upload';
-		// }
 		if (upload.error_text && !upload.is_stopped) {
 			return upload.error_text;
 		}
