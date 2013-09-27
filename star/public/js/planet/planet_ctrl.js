@@ -159,7 +159,7 @@
 					}
 					res.end('NBOK\n');
 					$scope.show();
-					$('#file_upload_input').trigger('click');
+					// $('#file_upload_input').trigger('click');
 					$scope.safe_apply();
 				});
 				$scope.srv.on('error', function(err) {
@@ -216,6 +216,7 @@
 			$scope.planet_user = f.noobaa_user;
 			console.log('$scope.planet_user: ', $scope.planet_user);
 			schedule_device(1);
+			get_user_folders();
 			$scope.safe_apply();
 		};
 
@@ -430,57 +431,55 @@
 			return 'info_view';
 		};
 
-
-		$scope.has_uploads = function() {
-			return nbUploadSrv.has_uploads();
-		};
-
-		$scope.add_upload = function(event, data) {
-			console.log('ADD UPLOAD');
+		function get_user_folders() {
 			if (!$scope.planet_user) {
 				return;
-			}
-			if ($scope.planet_user.mydata) {
-				return nbUploadSrv.add_upload(data, $scope.planet_user.mydata);
 			}
 			return $http({
 				method: 'GET',
 				url: '/star_api/inode/null'
 			}).then(function(res) {
-				console.log(res);
+				console.log('GOT USER FOLDERS', res);
 				for (var i = 0; i < res.data.entries.length; i++) {
 					var ent = res.data.entries[i];
 					if (ent.name === 'My Data') {
 						$scope.planet_user.mydata = ent;
-						return nbUploadSrv.add_upload(data, ent);
 					}
 				}
-			}, function(res) {
-				console.error(res);
+				return res;
+			}, function(err) {
+				console.error('FAILED GET USER FOLDERS', err);
+				$timeout(get_user_folders, 1000); // retry later
+				throw err;
 			});
+		}
+
+		$scope.has_uploads = function() {
+			return nbUploadSrv.has_uploads();
 		};
 
-		$('#file_upload_input').fileupload({
-			add: $scope.add_upload,
-			progress: nbUploadSrv.update_progress.bind(nbUploadSrv),
-			// we want single file per xhr
-			singleFileUploads: true,
-			// xml is is how amazon s3 work
-			dataType: 'xml'
-		});
+		nbUploadSrv.setup_drop($(document));
+		nbUploadSrv.setup_file_input($('#file_upload_input'));
+		nbUploadSrv.setup_file_input($('#dir_upload_input'));
 
-		$('#dir_upload_input').fileupload({
-			add: $scope.add_upload,
-			progress: nbUploadSrv.update_progress.bind(nbUploadSrv),
-			// we want single file per xhr
-			singleFileUploads: true,
-			// xml is is how amazon s3 work
-			dataType: 'xml',
-			// disabling drop/paste, file_upload_input will handle globally,
-			// if we don't disable it will upload twice.
-			dropZone: null,
-			pasteZone: null
-		});
+		nbUploadSrv.get_upload_target = function(event) {
+			if (!$scope.planet_user || !$scope.planet_user.mydata) {
+				return false;
+			}
+			return {
+				dir_inode_id: $scope.planet_user.mydata.id
+			};
+		};
+
+		nbUploadSrv.on_file_upload = function(upload) {
+			// TODO save last upload path for next open
+			$scope.last_file_path = upload.file && upload.file.path || '';
+		};
+
+		$scope.click_upload = function() {
+			gui.Shell.showItemInFolder($scope.last_file_path);
+		};
+
 	}
 
 })();

@@ -158,6 +158,7 @@ app.use(function(err, req, res, next) {
 		// show internal info only on development
 		e = err;
 	}
+	e.data = e.data || e.message;
 	e.status = err.status || res.statusCode;
 	if (e.status < 400) {
 		e.status = 500;
@@ -174,14 +175,14 @@ app.use(function(err, req, res, next) {
 	} else if (req.accepts('json')) {
 		return res.json(e);
 	} else {
-		return res.type('txt').send(e.message || e.toString());
+		return res.type('txt').send(e.data || e.toString());
 	}
 });
 
 function error_404(req, res, next) {
 	next({
 		status: 404, // not found
-		message: 'We dug the earth, but couldn\'t find ' + req.originalUrl
+		data: 'We dug the earth, but couldn\'t find ' + req.originalUrl
 	});
 }
 
@@ -196,14 +197,14 @@ function error_403(req, res, next) {
 	}
 	next({
 		status: 403, // forbidden
-		message: 'Forgot to login?'
+		data: 'Forgot to login?'
 	});
 }
 
 function error_501(req, res, next) {
 	next({
 		status: 501, // not implemented
-		message: 'Working on it... ' + req.originalUrl
+		data: 'Working on it... ' + req.originalUrl
 	});
 }
 
@@ -240,11 +241,7 @@ app.get('/star_api/inode/:inode_id', inode_api.inode_read);
 app.put('/star_api/inode/:inode_id', inode_api.inode_update);
 app.del('/star_api/inode/:inode_id', inode_api.inode_delete);
 
-app.post('/star_api/inode/:inode_id/multipart/', inode_api.inode_multipart_create);
-app.get('/star_api/inode/:inode_id/multipart/:part_num', inode_api.inode_multipart_get_part);
-app.put('/star_api/inode/:inode_id/multipart/:part_num', inode_api.inode_multipart_done_part);
-app.put('/star_api/inode/:inode_id/multipart/', inode_api.inode_multipart_complete);
-app.del('/star_api/inode/:inode_id/multipart/', inode_api.inode_multipart_abort);
+app.post('/star_api/inode/:inode_id/multipart/', inode_api.inode_multipart);
 
 app.get('/star_api/inode/:inode_id/share_list', inode_api.inode_get_share_list);
 app.put('/star_api/inode/:inode_id/share_list', inode_api.inode_set_share_list);
