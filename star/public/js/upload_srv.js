@@ -46,7 +46,7 @@
 			total_size: 0,
 			total_upsize: 0,
 			level: 0,
-			expanded: true,
+			is_expanded: true,
 		};
 
 		// multiple ui selection
@@ -804,11 +804,16 @@
 		};
 	}
 
+	UploadSrv.prototype.is_completed = function(upload) {
+		if (upload.item.isDirectory) {
+			return upload.total_completed === upload.total_sons;
+		} else {
+			return upload.is_uploaded;
+		}
+	};
 
 	UploadSrv.prototype.get_status = function(upload) {
-		if (upload.is_stopped) {
-			return 'Paused';
-		} else if (upload.is_pending_load) {
+		if (upload.is_pending_load) {
 			return 'Pending Load';
 		} else if (upload.is_pending_upload) {
 			return 'Pending Upload';
@@ -818,9 +823,10 @@
 			return 'Loading...';
 		} else if (upload.is_uploading) {
 			return 'Uploading...';
-		} else if (upload.is_uploaded ||
-			(upload.item.isDirectory && upload.total_completed === upload.total_sons)) {
+		} else if (this.is_completed(upload)) {
 			return 'Done';
+		} else if (upload.is_stopped) {
+			return 'Paused';
 		} else {
 			return '';
 		}
@@ -830,11 +836,10 @@
 
 	UploadSrv.prototype.clear_completed = function() {
 		for (var id in this.root.sons) {
-			var son = this.root.sons[id];
-			if (son.is_uploaded ||
-				(son.item.isDirectory && son.total_completed === son.total_sons)) {
-				console.log('CLEAR COMPLETED', son);
-				this.do_remove(son);
+			var upload = this.root.sons[id];
+			if (this.is_completed(upload)) {
+				console.log('CLEAR COMPLETED', upload);
+				this.do_remove(upload);
 			}
 		}
 	};
@@ -851,12 +856,25 @@
 
 	UploadSrv.prototype.remove_selected = function() {
 		var me = this;
-		$.nbconfirm('Are you sure to remove the selected uploads?', {
-			on_confirm: me.$cb(function() {
-				me.foreach_selected(me.do_remove.bind(me));
-				me.clear_selection();
-			})
+		// check if there are selected uploads which are not completed
+		var has_incomplete = false;
+		me.foreach_selected(function(upload) {
+			if (!me.is_completed(upload)) {
+				has_incomplete = true;
+				return false; // break from foreach
+			}
 		});
+		if (!has_incomplete) {
+			me.foreach_selected(me.do_remove.bind(me));
+			me.clear_selection();
+		} else {
+			$.nbconfirm('Some of the selected uploads did not complete. Are you sure?', {
+				on_confirm: me.$cb(function() {
+					me.foreach_selected(me.do_remove.bind(me));
+					me.clear_selection();
+				})
+			});
+		}
 	};
 
 
@@ -907,8 +925,8 @@
 		// stop entire tree of uploads below and remove
 		me.do_stop(upload, function(son) {
 			// will run on every item during stop recursion
-			if (son.selected) {
-				son.selected = false;
+			if (son.is_selected) {
+				son.is_selected = false;
 				delete me.selection[son.id];
 			}
 			son.is_removed = true;
@@ -944,7 +962,7 @@
 		var had_any = false;
 		for (var id in this.selection) {
 			var upload = this.selection[id];
-			upload.selected = false;
+			upload.is_selected = false;
 			had_any = true;
 		}
 		if (had_any) {
@@ -970,11 +988,11 @@
 		// reset the global flag
 		this.selected_all = undefined;
 		// toggle current state
-		if (upload.selected) {
-			upload.selected = false;
+		if (upload.is_selected) {
+			upload.is_selected = false;
 			delete this.selection[upload.id];
 		} else {
-			upload.selected = true;
+			upload.is_selected = true;
 			this.selection[upload.id] = upload;
 		}
 	};
@@ -983,16 +1001,35 @@
 		var col = this.selected_all ? this.root.sons : this.selection;
 		for (var id in col) {
 			var upload = col[id];
-			func(upload);
+			var ignore_selection = false;
+			for (var p = upload.parent; p; p=p.parent) {
+				// make sure not to iterate sons of already selected items
+				// the parent will be iterated instead.
+				// also ignore if any parent is not expanded to avoid unwanted actions
+				if (p.is_selected || !p.is_expanded) {
+					ignore_selection = true;
+					break;
+				}
+			}
+			if (!ignore_selection) {
+				var ret = func(upload);
+				// allow to break from the loop by returning false (exactly false, not undefined)
+				if (ret === false) {
+					break;
+				}
+			}
 		}
 	};
 
+	UploadSrv.prototype.expand_upload = function(upload) {
+		upload.is_expanded = !upload.is_expanded;
+	};
 
 	// this forces the html to be empty when not expanded
 	// and saves some memory and overhead in case there are lots of items
 	noobaa_app.filter('upload_sons_filter', function() {
 		return function(upload) {
-			return upload.expanded ? upload.sons : null;
+			return upload.is_expanded ? upload.sons : null;
 		};
 	});
 
@@ -1011,28 +1048,50 @@
 				'<div id="upload_table"',
 				'	ng-cloak class="fntthin"',
 				'	style="margin: 0; width: 100%; height: 100%; overflow: hidden">',
-				'	<div class="row" style="margin: 0; padding: 5px 0 8px 0;',
-				'			text-align: center; vertical-align: middle; background-color: white">',
-				'		<button class="btn btn-xs btn-success"',
-				'			ng-click="srv.clear_completed()">',
-				'			Clear Completed',
+				'	<div class="row" style="margin: 0; padding: 5px 10px 8px 10px;',
+				'			text-align: left; vertical-align: middle; background-color: white">',
+				'		<button class="btn btn-sm btn-success"',
+				'			ng-click="srv.clear_completed()"',
+				'			title="Clear Completed">',
 				'			<i class="icon-eraser"></i>',
 				'		</button>',
-				'		<button class="btn btn-xs btn-default"',
-				'			ng-click="srv.pause_selected()">',
-				'			Pause Selected',
-				'			<i class="icon-pause"></i>',
-				'		</button>',
-				'		<button class="btn btn-xs btn-default"',
-				'			ng-click="srv.resume_selected()">',
-				'			Resume Selected',
-				'			<i class="icon-repeat"></i>',
-				'		</button>',
-				'		<button class="btn btn-xs btn-default"',
-				'			ng-click="srv.remove_selected()">',
-				'			Remove Selected',
-				'			<i class="icon-remove"></i>',
-				'		</button>',
+				'		<div class="btn-group">',
+				'			<button class="btn btn-sm btn-default"',
+				'				ng-click="srv.toggle_select_all()"',
+				'				title="Select All / None">',
+				'				<i ng-hide="srv.selected_all" class="icon-check-empty icon-large icon-fixed-width"></i>',
+				'				<i ng-show="srv.selected_all" class="icon-check icon-large icon-fixed-width"></i>',
+				'			</button>',
+				'			<button class="btn btn-sm btn-default"',
+				'				ng-click="srv.pause_selected()"',
+				'				title="Pause Selected">',
+				'				<i class="icon-pause"></i>',
+				'			</button>',
+				'			<button class="btn btn-sm btn-default"',
+				'				ng-click="srv.resume_selected()"',
+				'				title="Resume Selected">',
+				'				<i class="icon-play"></i>',
+				'			</button>',
+				'			<button class="btn btn-sm btn-default"',
+				'				ng-click="srv.remove_selected()"',
+				'				title="Remove Selected">',
+				'				<i class="icon-remove"></i>',
+				'			</button>',
+				'		</div>',
+				'		<span>',
+				'			<div class="progress" style="position: relative; margin: 3px 0 3px 0">',
+				'				<div class="progress-bar progress-bar-success"',
+				'					role="progressbar"',
+				'					aria-valuemin="0" aria-valuemax="100"',
+				'					style="position: absolute; top:0; left:0;',
+				'						width: {{srv.root.progress}}%;">',
+				'				</div>',
+				'				<div style="position: absolute; top:0; left:0;',
+				'						width:100%; text-align:center; color:black">',
+				'					{{srv.root.progress && srv.root.progress+\'%\' || \'\'}}',
+				'				</div>',
+				'			</div>',
+				'		</span>',
 				'		<div>',
 				'			load {{srv.list_loading.length}} /',
 				'			upload {{srv.list_uploading.length}} /',
@@ -1046,12 +1105,7 @@
 				'	<div class="row"',
 				'		style="margin: 0; padding: 5px 0 5px 0; background-color: #e2e2e2;',
 				'			border-top: 1px solid #333; border-bottom: 1px solid #333">',
-				'		<div class="col-xs-6">',
-				'			<span style="cursor: pointer" ng-click="srv.toggle_select_all()">',
-				'				<i ng-hide="srv.selected_all" class="icon-check-empty icon-fixed-width"></i>',
-				'				<i ng-show="srv.selected_all" class="icon-check icon-fixed-width"></i>',
-				'			</span>',
-				'			Name</div>',
+				'		<div class="col-xs-6">Name</div>',
 				'		<div class="col-xs-2">Size</div>',
 				'		<div class="col-xs-2">Status</div>',
 				'		<div class="col-xs-2">Progress</div>',
@@ -1067,24 +1121,24 @@
 	function setup_upload_node_template($templateCache) {
 		$templateCache.put('nb-upload-node.html', [
 			'<div ng-repeat="(id,upload) in upload|upload_sons_filter">',
-			'	<div class="row" ng-click="srv.toggle_select(upload)"',
-			'		style="cursor: pointer; margin: 0; border-bottom: 1px solid #ddd;',
-			'			{{(upload.selected || srv.selected_all) && \'color: blue\' || \'\'}}">',
+			'	<div class="row"',
+			'		style="margin: 0; border-bottom: 1px solid #ddd;',
+			'			{{(upload.is_selected || srv.selected_all) && \'color: blue\' || \'\'}}">',
 			'		<div class="col-xs-6">',
-			'			<span style="cursor: pointer">',
-			'				<i ng-hide="upload.selected || srv.selected_all" class="icon-check-empty icon-large icon-fixed-width"></i>',
-			'				<i ng-show="upload.selected || srv.selected_all" class="icon-check icon-large icon-fixed-width"></i>',
+			'			<span style="cursor: pointer" ng-click="srv.toggle_select(upload)">',
+			'				<i ng-hide="upload.is_selected || srv.selected_all" class="icon-check-empty icon-large icon-fixed-width"></i>',
+			'				<i ng-show="upload.is_selected || srv.selected_all" class="icon-check icon-large icon-fixed-width"></i>',
 			'			</span>',
 			'			<span style="padding-left: {{upload.parent.level*15}}px">',
-			'				<span ng-click="upload.expanded = !upload.expanded"',
-			'					style="{{!upload.num_sons && \'visibility: hidden\' || \'\'}}">',
-			'					<span ng-show="!upload.expanded" class="icon-stack icon-fixed-width">',
+			'				<span ng-click="srv.expand_upload(upload)"',
+			'					style="{{!upload.item.isDirectory && \'visibility: hidden\' || \'\'}}">',
+			'					<span ng-show="!upload.is_expanded" class="icon-stack icon-fixed-width">',
 			'						<i class="icon-folder-close icon-stack-base icon-fixed-width"',
 			'							style="font-size: 12px"></i>',
 			'						<i class="icon-plus icon-light icon-fixed-width"',
 			'							style="font-size: 8px"></i>',
 			'					</span>',
-			'					<i ng-show="upload.expanded" style="font-size: 12px"',
+			'					<i ng-show="upload.is_expanded" style="font-size: 12px"',
 			'						class="icon-folder-open icon-fixed-width"></i>',
 			'				</span>',
 			'				{{upload.item.name}}',
@@ -1118,7 +1172,7 @@
 			'		</div>',
 			'	</div>',
 			'	<div ng-include="\'nb-upload-node.html\'"',
-			'		nb-effect-toggle="upload.expanded"',
+			'		nb-effect-toggle="upload.is_expanded"',
 			'		nb-effect-options="{effect:\'fade\', duration:250}">',
 			'	</div>',
 			'</div>',
