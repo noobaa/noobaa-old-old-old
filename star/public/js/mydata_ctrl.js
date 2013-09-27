@@ -6,18 +6,6 @@
 /* jshint -W097 */
 'use strict';
 
-var num_running_uploads = 0;
-
-// init jquery stuff
-$(function() {
-	window.onbeforeunload = function() {
-		if (num_running_uploads) {
-			return "Leaving this page will interrupt your running Uploads !!!";
-		}
-	};
-});
-
-
 // open the page context menu element on the given mouse event position
 
 function open_context_menu(event) {

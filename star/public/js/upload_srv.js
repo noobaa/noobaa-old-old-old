@@ -86,13 +86,11 @@
 	// use on jquery elements to setup an upload drop listener
 	UploadSrv.prototype.setup_drop = function(elements) {
 		var me = this;
-		var prevent_event = function(event) {
-			event.preventDefault();
-			// event.stopPropagation();
+		var return_false = function() {
 			return false;
 		};
-		elements.on('dragover', prevent_event);
-		elements.on('dragend', prevent_event);
+		elements.on('dragover', return_false);
+		elements.on('dragend', return_false);
 		elements.on('drop', function(event) {
 			return me.submit_upload(event);
 		});
@@ -1069,17 +1067,17 @@
 	function setup_upload_node_template($templateCache) {
 		$templateCache.put('nb-upload-node.html', [
 			'<div ng-repeat="(id,upload) in upload|upload_sons_filter">',
-			'	<div class="row" ',
-			'		style="margin: 0; border-bottom: 1px solid #ddd;',
+			'	<div class="row" ng-click="srv.toggle_select(upload)"',
+			'		style="cursor: pointer; margin: 0; border-bottom: 1px solid #ddd;',
 			'			{{(upload.selected || srv.selected_all) && \'color: blue\' || \'\'}}">',
 			'		<div class="col-xs-6">',
-			'			<span style="cursor: pointer" ng-click="srv.toggle_select(upload)">',
+			'			<span style="cursor: pointer">',
 			'				<i ng-hide="upload.selected || srv.selected_all" class="icon-check-empty icon-large icon-fixed-width"></i>',
 			'				<i ng-show="upload.selected || srv.selected_all" class="icon-check icon-large icon-fixed-width"></i>',
 			'			</span>',
 			'			<span style="padding-left: {{upload.parent.level*15}}px">',
 			'				<span ng-click="upload.expanded = !upload.expanded"',
-			'					style="cursor: pointer; {{!upload.num_sons && \'visibility: hidden\' || \'\'}}">',
+			'					style="{{!upload.num_sons && \'visibility: hidden\' || \'\'}}">',
 			'					<span ng-show="!upload.expanded" class="icon-stack icon-fixed-width">',
 			'						<i class="icon-folder-close icon-stack-base icon-fixed-width"',
 			'							style="font-size: 12px"></i>',
