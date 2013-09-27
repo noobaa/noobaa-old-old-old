@@ -779,6 +779,7 @@
 		// http insufficient storage
 		if (err.status === 507) {
 			upload.progress_class = 'warning';
+			upload.progress = 100;
 			upload.error_text = 'Out of space';
 			return false; // TODO maybe retry with long delay?
 		}
@@ -791,12 +792,14 @@
 		// http not found
 		if (err.status === 404) {
 			upload.progress_class = 'danger';
+			upload.progress = 100;
 			upload.error_text = 'File not found';
 			return false; // TODO is it right for all 404 cases?
 		}
 		// TODO handle more errors
 		console.error('~~~~~ UNDETECTED ERROR ~~~~~~', err, typeof err);
 		upload.progress_class = 'danger';
+		upload.progress = 100;
 		upload.error_text = err;
 		return false; // TODO maybe retry on unknown error? not sure what is better
 	}

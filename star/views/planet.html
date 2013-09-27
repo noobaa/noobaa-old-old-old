@@ -167,19 +167,19 @@
 						<h4><i class="icon-cloud-upload icon-2x icon-fixed-width"></i></h4>
 						<h4>Drag &amp; Drop to Upload</h4>
 						<div class="btn-group">
-							<button class="btn btn-default btn-sm"
-								ng-click="click_upload()">
-								<small>Browse</small>
+							<button id="choose_file_button"
+								class="btn btn-default btn-sm"
+								onclick="$('#file_upload_input').trigger('click')">
+								<small>Files</small>
 							</button>
 							<button id="choose_folder_button"
 								class="btn btn-default btn-sm"
 								onclick="$('#dir_upload_input').trigger('click')">
 								<small>Folder</small>
 							</button>
-							<button id="choose_file_button"
-								class="btn btn-default btn-sm"
-								onclick="$('#file_upload_input').trigger('click')">
-								<small>Files</small>
+							<button class="btn btn-default btn-sm"
+								ng-click="click_upload()">
+								<small>Browse</small>
 							</button>
 						</div>
 					</span>
