@@ -737,7 +737,7 @@
 
 
 	function calc_progress(current, total) {
-		return (current === total) ? 100 : (current * 100 / total).toFixed(1);
+		return (current === total) ? 100 : (current * 100 / total);
 	}
 
 	function update_upsize(upload, upsize) {
@@ -813,23 +813,28 @@
 	};
 
 	UploadSrv.prototype.get_status = function(upload) {
-		if (upload.is_pending_load) {
-			return 'Pending Load';
-		} else if (upload.is_pending_upload) {
-			return 'Pending Upload';
-		} else if (upload.is_pending_retry) {
-			return 'Pending Retry';
-		} else if (upload.is_loading) {
-			return 'Loading...';
-		} else if (upload.is_uploading) {
-			return 'Uploading...';
-		} else if (this.is_completed(upload)) {
-			return 'Done';
-		} else if (upload.is_stopped) {
-			return 'Paused';
-		} else {
-			return '';
+		// if (upload.is_pending_load) {
+		// 	return 'Pending Load';
+		// }
+		// if (upload.is_pending_upload) {
+		// 	return 'Pending Upload';
+		// }
+		if (upload.is_pending_retry) {
+			return 'Retry';
 		}
+		if (upload.is_loading) {
+			return 'Loading...';
+		}
+		if (this.is_completed(upload)) {
+			return 'Done';
+		}
+		if (upload.is_stopped) {
+			return 'Paused';
+		}
+		if (upload.progress) {
+			return upload.progress.toFixed(1) + '%';
+		}
+		return '';
 	};
 
 
@@ -1002,7 +1007,7 @@
 		for (var id in col) {
 			var upload = col[id];
 			var ignore_selection = false;
-			for (var p = upload.parent; p; p=p.parent) {
+			for (var p = upload.parent; p; p = p.parent) {
 				// make sure not to iterate sons of already selected items
 				// the parent will be iterated instead.
 				// also ignore if any parent is not expanded to avoid unwanted actions
@@ -1021,7 +1026,7 @@
 		}
 	};
 
-	UploadSrv.prototype.expand_upload = function(upload) {
+	UploadSrv.prototype.toggle_expand = function(upload) {
 		upload.is_expanded = !upload.is_expanded;
 	};
 
@@ -1088,7 +1093,7 @@
 				'				</div>',
 				'				<div style="position: absolute; top:0; left:0;',
 				'						width:100%; text-align:center; color:black">',
-				'					{{srv.root.progress && srv.root.progress+\'%\' || \'\'}}',
+				'					{{srv.root.progress && srv.root.progress.toFixed(1)+\'%\' || \'\'}}',
 				'				</div>',
 				'			</div>',
 				'		</span>',
@@ -1106,12 +1111,11 @@
 				'		style="margin: 0; padding: 5px 0 5px 0; background-color: #e2e2e2;',
 				'			border-top: 1px solid #333; border-bottom: 1px solid #333">',
 				'		<div class="col-xs-6">Name</div>',
-				'		<div class="col-xs-2">Size</div>',
-				'		<div class="col-xs-2">Status</div>',
-				'		<div class="col-xs-2">Progress</div>',
+				'		<div class="col-xs-3">Size</div>',
+				'		<div class="col-xs-3">Status</div>',
 				'	</div>',
 				'	<div ng-include="\'nb-upload-node.html\'"',
-				'		style="margin: 0; font-size: 12px; width: 100%;',
+				'		style="margin: 0; font-size: 13px; width: 100%;',
 				'			height: auto; overflow: auto"></div>',
 				'</div>'
 			].join('\n')
@@ -1122,29 +1126,37 @@
 		$templateCache.put('nb-upload-node.html', [
 			'<div ng-repeat="(id,upload) in upload|upload_sons_filter">',
 			'	<div class="row"',
-			'		style="margin: 0; border-bottom: 1px solid #ddd;',
+			'		style="margin: 0; border-bottom: 1px solid #ddd; position: relative;',
 			'			{{(upload.is_selected || srv.selected_all) && \'color: blue\' || \'\'}}">',
+			'		<div class="progress-bar progress-bar-{{upload.progress_class || \'success\'}}"',
+			'			role="progressbar"',
+			'			aria-valuemin="0" aria-valuemax="100"',
+			'			style="position: absolute; top:0; left:0;',
+			'				width: {{upload.progress}}%;">',
+			'		</div>',
 			'		<div class="col-xs-6">',
 			'			<span style="cursor: pointer" ng-click="srv.toggle_select(upload)">',
 			'				<i ng-hide="upload.is_selected || srv.selected_all" class="icon-check-empty icon-large icon-fixed-width"></i>',
 			'				<i ng-show="upload.is_selected || srv.selected_all" class="icon-check icon-large icon-fixed-width"></i>',
 			'			</span>',
 			'			<span style="padding-left: {{upload.parent.level*15}}px">',
-			'				<span ng-click="srv.expand_upload(upload)"',
-			'					style="{{!upload.item.isDirectory && \'visibility: hidden\' || \'\'}}">',
-			'					<span ng-show="!upload.is_expanded" class="icon-stack icon-fixed-width">',
+			'				<span ng-click="srv.toggle_expand(upload)">',
+			'					<span ng-show="upload.item.isDirectory && !upload.is_expanded"',
+			'						class="icon-stack icon-fixed-width">',
 			'						<i class="icon-folder-close icon-stack-base icon-fixed-width"',
 			'							style="font-size: 12px"></i>',
 			'						<i class="icon-plus icon-light icon-fixed-width"',
 			'							style="font-size: 8px"></i>',
 			'					</span>',
-			'					<i ng-show="upload.is_expanded" style="font-size: 12px"',
-			'						class="icon-folder-open icon-fixed-width"></i>',
+			'					<i ng-show="upload.item.isDirectory && upload.is_expanded"',
+			'						style="font-size: 12px" class="icon-folder-open icon-fixed-width"></i>',
+			'					<i ng-show="!upload.item.isDirectory"',
+			'						style="font-size: 12px" class="icon-file icon-fixed-width"></i>',
 			'				</span>',
 			'				{{upload.item.name}}',
 			'			</span>',
 			'		</div>',
-			'		<div class="col-xs-2">',
+			'		<div class="col-xs-3">',
 			'			<span ng-show="upload.item.isDirectory">',
 			'				{{ human_size(upload.total_size || 0) }},',
 			'				{{ upload.total_sons }} items',
@@ -1153,22 +1165,8 @@
 			'				{{ human_size(upload.item.size) }}',
 			'			</span>',
 			'		</div>',
-			'		<div class="col-xs-2">',
+			'		<div class="col-xs-3" title="{{upload.error_text}}">',
 			'			{{srv.get_status(upload)}}',
-			'		</div>',
-			'		<div class="col-xs-2" title="{{upload.error_text}}">',
-			'			<div class="progress" style="position: relative; margin: 3px 0 3px 0">',
-			'				<div class="progress-bar progress-bar-{{upload.progress_class || \'success\'}}"',
-			'					role="progressbar"',
-			'					aria-valuemin="0" aria-valuemax="100"',
-			'					style="position: absolute; top:0; left:0;',
-			'						width: {{upload.progress}}%;">',
-			'				</div>',
-			'				<div style="position: absolute; top:0; left:0;',
-			'						width:100%; text-align:center; color:black">',
-			'					{{upload.progress && upload.progress+\'%\' || \'\'}}',
-			'				</div>',
-			'			</div>',
 			'		</div>',
 			'	</div>',
 			'	<div ng-include="\'nb-upload-node.html\'"',
