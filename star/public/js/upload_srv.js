@@ -52,6 +52,27 @@
 		// multiple ui selection
 		this.selection = {};
 
+		this.total_bytes = 0;
+
+		// calculate global upload speed
+		var me = this;
+		var now = new Date().getTime();
+		me.speed = 0;
+		me.speed_x = [0, 0, 0];
+		me.speed_t = [now, now, now];
+		setInterval(me.$cb(function() {
+			var last = me.speed_x.length - 1;
+			for (var i = 0; i < last; i++) {
+				me.speed_x[i] = me.speed_x[i + 1];
+				me.speed_t[i] = me.speed_t[i + 1];
+			}
+			me.speed_x[last] = me.total_bytes;
+			me.speed_t[last] = new Date().getTime();
+			var dx = me.speed_x[last] - me.speed_x[0];
+			var dt = me.speed_t[last] - me.speed_t[0];
+			me.speed = (dx * 1000) / (dt * 1024); // KB/s
+		}), 2000);
+
 		// check for active uploads before page unloads
 		var me = this;
 		$(window).on('beforeunload', function() {
@@ -74,6 +95,7 @@
 			( !! this.jobq_upload_medium.length) ||
 			( !! this.jobq_upload_large.length);
 	};
+
 
 
 	/////////////////////
@@ -676,6 +698,7 @@
 		var part_size = upload.multipart.part_size;
 		var start = (part.num - 1) * part_size;
 		var end = start + part_size;
+		var last_loaded = 0;
 		console.log('UPLOAD part', part, start, end);
 		return me._item_slice(upload.item, start, end).then(function(data) {
 			var defer = me.$q.defer();
@@ -694,6 +717,8 @@
 			});
 			xhr.upload.onprogress = me.$cb(function(event) {
 				update_upsize(upload, upload.multipart.upsize + event.loaded);
+				me.total_bytes += event.loaded - last_loaded;
+				last_loaded = event.loaded;
 			});
 			xhr.open('PUT', part.url, true);
 			xhr.send(data);
@@ -817,7 +842,7 @@
 		// if (upload.is_pending_upload) {
 		// 	return 'Pending Upload';
 		// }
-		if (upload.error_text) {
+		if (upload.error_text && !upload.is_stopped) {
 			return upload.error_text;
 		}
 		if (upload.is_loading) {
@@ -1081,19 +1106,20 @@
 				'				<i class="icon-remove"></i>',
 				'			</button>',
 				'		</div>',
+				'		<span>',
+				'			<small>',
+				'			<b>Total</b> {{human_size(srv.root.total_size)}} {{srv.root.total_sons}} items ',
+				'			<b>Complete</b> {{human_size(srv.root.total_upsize)}} {{srv.root.total_completed}} items ',
+				'			<b>Speed</b> {{srv.speed.toFixed(1)}} KB/sec',
+				'			</small>',
+				'		</span>',
 				'		<button class="btn btn-default btn-sm"',
 				'			ng-click="srv.show_advanced = !srv.show_advanced"',
 				'			title="Advanced Stats">',
 				'			<i style="color: black" class="icon-bar-chart"></i>',
 				'		</button>',
-				'		<span>',
-				// '			<small>',
-				'			<b>Total</b> {{human_size(srv.root.total_size)}} {{srv.root.total_sons}} items ',
-				'			<b>Complete</b> {{human_size(srv.root.total_upsize)}} {{srv.root.total_completed}} items ',
-				'			<b>Speed</b> ......... ',
-				// '			</small>',
-				'		</span>',
 				'		<div ng-show="srv.show_advanced">',
+				'			<canvas width=50 height=20 id="upload_speed_gauge"></canvas>',
 				'			<p><b>Load queue</b> {{srv.jobq_load.length}}</p>',
 				'			<p><b>Small queue</b> {{srv.jobq_upload_small.length}}</p>',
 				'			<p><b>Medium queue</b> {{srv.jobq_upload_medium.length}}</p>',
