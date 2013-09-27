@@ -283,50 +283,50 @@ Inode.prototype.mkdir = function(name) {
 };
 
 // delete this inode
-Inode.prototype.delete_inode = function(stats, avoid_read_parent) {
+Inode.prototype.delete_inode = function(del_scope, avoid_read_parent) {
 	var me = this;
 	var do_delete = function() {
+		del_scope.concurrency++;
 		return me.$scope.$http({
 			method: 'DELETE',
 			url: me.$scope.inode_api_url + me.id
 		}).then(function() {
-			stats.count++;
+			del_scope.concurrency--;
+			del_scope.count++;
 		});
 	};
-	var do_read_parent = function(promise) {
-		return promise.then(function(res) {
-			if (!avoid_read_parent) {
-				me.parent.read_dir();
-			}
-			return res;
-		}, function(err) {
-			if (!avoid_read_parent) {
-				me.parent.read_dir();
-			}
-			throw err;
-		});
-	};
-	if (!me.isdir) {
-		return do_read_parent(do_delete());
+	var promise;
+	if (me.isdir) {
+		del_scope.concurrency++;
+		promise = me.read_dir().then(function() {
+			del_scope.concurrency--;
+			var sons = me.dir_state.sons_list.slice(0); // copy array
+			var delete_sons = function() {
+				if (!sons || !sons.length) {
+					return me.$scope.$q.when();
+				}
+				var promises = [];
+				while (del_scope.concurrency < del_scope.max_concurrency && sons.length) {
+					promises.push(sons.pop().delete_inode(del_scope, true));
+				}
+				return me.$scope.$q.all(promises).then(delete_sons);
+			};
+			return delete_sons();
+		}).then(do_delete);
+	} else {
+		promise = do_delete();
 	}
-	var promise = me.read_dir().then(function() {
-		var sons = me.isdir ? me.dir_state.sons_list.slice(0) : null; // copy array
-		var delete_sons = function() {
-			if (!sons || !sons.length) {
-				// console.log('NO SONS', me);
-				return me.$scope.$q.when();
-			}
-			var promises = [];
-			for (var i = 0; i < 20 && sons.length; i++) {
-				var son = sons.pop();
-				// console.log('DEL SON', son);
-				promises.push(son.delete_inode(stats, true));
-			}
-			return me.$scope.$q.all(promises).then(delete_sons);
-		};
-		return delete_sons();
-	}).then(do_delete);
-	return do_read_parent(promise);
+	// when recursing don't read parent
+	if (avoid_read_parent) {
+		return promise;
+	}
+	return promise.then(function(res) {
+		me.parent.read_dir();
+		return res;
+	}, function(err) {
+		me.parent.read_dir();
+		throw err;
+	});
 };
 
 // rename this inode to the given target dir,name
@@ -781,6 +781,8 @@ function MyDataCtrl($scope, $http, $timeout, $window, $q, $rootScope, $compile) 
 			}
 			var del_scope = $scope.$new();
 			del_scope.count = 0;
+			del_scope.concurrency = 0;
+			del_scope.max_concurrency = 32;
 			dlg.find('.inode_label').html(inode.make_inode_with_icon());
 			dlg.find('#dialog_ok').off('click').on('click', function() {
 				dlg.find('button.nbdialog_close').text('Hide');
