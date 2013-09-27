@@ -107,7 +107,8 @@ function inode_to_entry(inode, opt) {
 	var ent = {
 		id: inode._id,
 		name: inode.name,
-		ctime: inode._id.getTimestamp()
+		ctime: inode._id.getTimestamp(),
+		size: 0 // fobj will override, but needed for 0 size files without fobj
 	};
 	if (inode.isdir) {
 		ent.isdir = inode.isdir;
@@ -464,11 +465,11 @@ exports.inode_create = function(req, res) {
 	// prepare fobj if needed (auto generate id).
 	// then also set the link in the new inode.
 	var fobj;
-	if (!inode.isdir && args.uploading) {
+	if (!inode.isdir && args.uploading && args.size) {
 		fobj = new Fobj({
 			size: args.size,
 			content_type: detect_content_type(args.content_type, args.name),
-			uploading: !! args.uploading && !! args.size,
+			uploading: !! args.uploading,
 		});
 		// link the inode to the fobj
 		inode.fobj = fobj._id;
@@ -654,13 +655,16 @@ exports.inode_read = function(req, res) {
 			if (inode.isdir) {
 				return do_read_dir(req.user, inode, next);
 			}
-			// redirect to the fobj location in S3
-			if (inode.fobj) {
-				var url = s3_get_url(inode.fobj, inode.name);
-				res.redirect(url);
-				return next();
+			if (!inode.fobj) {
+				return next({
+					status: 404, // HTTP Not Found
+					data: 'Not Found'
+				});
 			}
-			return do_get_attr(inode, next);
+			// redirect to the fobj location in S3
+			var url = s3_get_url(inode.fobj, inode.name);
+			res.redirect(url);
+			return next();
 		},
 
 		// waterfall end
@@ -854,11 +858,11 @@ exports.inode_multipart = function(req, res) {
 			return get_inode_fobj(req, inode_id, next);
 		},
 
-		// save inode anf fobj in function context
+		// save inode and fobj in function context
 		function(inode_result, fobj_result, next) {
 			inode = inode_result;
 			fobj = fobj_result;
-			if (!fobj.uploading) {
+			if (!fobj || !fobj.uploading) {
 				return next({
 					status: 200,
 					data: {
