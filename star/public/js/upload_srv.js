@@ -30,8 +30,8 @@
 		this.list_retrying = new LinkedList('rt');
 
 		this.jobq_load = new JobQueue(4, $timeout);
-		this.jobq_upload_small = new JobQueue(8, $timeout);
-		this.jobq_upload_medium = new JobQueue(4, $timeout);
+		this.jobq_upload_small = new JobQueue(4, $timeout);
+		this.jobq_upload_medium = new JobQueue(2, $timeout);
 		this.jobq_upload_large = new JobQueue(1, $timeout);
 		this.medium_threshold = 1 * 1024 * 1024;
 		this.large_threshold = 8 * 1024 * 1024;
@@ -230,6 +230,7 @@
 			me.list_loading.push_back(upload);
 			upload.is_loading = true;
 			delete upload.progress_class;
+			delete upload.error_text;
 		}).then(function() {
 			throw_if_stopped(upload);
 			return me._prepare_file_attr(upload);
@@ -266,10 +267,9 @@
 		}).then(null, function(err) {
 			console.error('LOAD ERROR', err, err.stack);
 			me.list_loading.remove(upload);
-			upload.progress_class = 'danger';
-			var err_info = detect_error(err);
-			upload.error_text = err_info.text;
-			if (err_info.retry) {
+			upload.is_loading = false;
+			var retry = me.detect_error(upload, err);
+			if (retry) {
 				upload.is_pending_retry = true;
 				me.list_retrying.push_back(upload);
 				me.$timeout(function() {
@@ -495,6 +495,7 @@
 			me.list_uploading.push_back(upload);
 			upload.is_uploading = true;
 			delete upload.progress_class;
+			delete upload.error_text;
 		}).then(function() {
 			throw_if_stopped(upload);
 			return me._open_file_for_read(upload);
@@ -523,10 +524,8 @@
 			me.list_uploading.remove(upload);
 			me._close_file(upload);
 			upload.is_uploading = false;
-			upload.progress_class = 'danger';
-			var err_info = detect_error(err);
-			upload.error_text = err_info.text;
-			if (err_info.retry) {
+			var retry = me.detect_error(upload, err);
+			if (retry) {
 				upload.is_pending_retry = true;
 				me.list_retrying.push_back(upload);
 				me.$timeout(function() {
@@ -765,43 +764,41 @@
 		}
 	}
 
-
-	function detect_error(err) {
+	// returns true if should retry
+	UploadSrv.prototype.detect_error = function (upload, err) {
+		// pause exception
 		if (err === 'nb-upload-stop') {
-			return {
-				retry: false
-			};
+			return false;
 		}
-		if (err.status === 0) { // no http response
-			return {
-				text: 'Disconnected, will retry',
-				retry: true
-			};
+		// no http response
+		if (err.status === 0) {
+			upload.progress_class = 'warning';
+			upload.error_text = 'Disconnected, retrying';
+			return true;
 		}
-		if (err.status === 404) { // http not found
-			return {
-				text: 'Not found',
-				retry: false // TODO really stop retry?
-			};
+		// http insufficient storage
+		if (err.status === 507) {
+			upload.progress_class = 'warning';
+			upload.error_text = 'Out of space';
+			return false; // TODO maybe retry with long delay?
 		}
-		if (err.status === 500) { // http internal error
-			return {
-				text: 'Server error, will retry',
-				retry: true
-			};
+		// http internal error
+		if (err.status === 500) {
+			upload.progress_class = 'warning';
+			upload.error_text = 'Server error, retrying';
+			return true; // TODO server error could be persistent... not sure if should retry
 		}
-		if (err.status === 507) { // http insufficient storage
-			return {
-				text: 'Out of space',
-				retry: false // TODO maybe retry with long delay?
-			};
+		// http not found
+		if (err.status === 404) {
+			upload.progress_class = 'danger';
+			upload.error_text = 'File not found';
+			return false; // TODO is it right for all 404 cases?
 		}
 		// TODO handle more errors
 		console.error('~~~~~ UNDETECTED ERROR ~~~~~~', err, typeof err);
-		return {
-			text: err,
-			retry: false
-		};
+		upload.progress_class = 'danger';
+		upload.error_text = err;
+		return false; // TODO maybe retry on unknown error? not sure what is better
 	}
 
 	UploadSrv.prototype.is_completed = function(upload) {
@@ -819,8 +816,8 @@
 		// if (upload.is_pending_upload) {
 		// 	return 'Pending Upload';
 		// }
-		if (upload.is_pending_retry) {
-			return 'Retry';
+		if (upload.error_text) {
+			return upload.error_text;
 		}
 		if (upload.is_loading) {
 			return 'Loading...';
