@@ -289,6 +289,11 @@ function redirect_no_user(req, res, next) {
 		res.redirect('/welcome');
 		return;
 	}
+	if (!req.session.accessToken || !req.session.tokens) {
+		console.log('NO TOKENS FORCE LOGOUT', req.user);
+		res.redirect('/auth/logout/?state=/welcome#join');
+		return;
+	}
 	if (req.user.alpha_tester) {
 		return next();
 	}

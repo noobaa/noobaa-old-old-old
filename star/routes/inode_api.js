@@ -784,7 +784,6 @@ function inode_delete_action(inode_id, user_id, callback) {
 
 		// fail if dir and has sons
 		function(inode, has_sons, next) {
-			// TODO support recursive dir deletion
 			if (inode.isdir && has_sons) {
 				return next({
 					status: 400,
