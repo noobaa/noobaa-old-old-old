@@ -1144,7 +1144,7 @@
 				'	</div>',
 				'	<div ng-include="\'nb-upload-node.html\'"',
 				'		style="margin: 0; font-size: 16px; width: 100%;',
-				'			height: auto; overflow: auto"></div>',
+				'			height: auto; overflow: auto; border-top: 1px solid #ccc;"></div>',
 				'</div>'
 			].join('\n')
 		};
