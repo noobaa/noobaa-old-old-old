@@ -1068,7 +1068,7 @@ function InodesListCtrl($scope) {
 	};
 
 	$scope.inode_upload = function(inode) {
-		if (inode.is_not_mine()) {
+		if (inode.is_not_mine() || inode.is_shared_with_me()) {
 			return;
 		}
 		var inode_label = $('<div class="inode_label"></div').html(inode.make_inode_with_icon());
