@@ -70,7 +70,7 @@ var provider_to_db_map = {
 };
 
 function user_login(req, accessToken, refreshToken, profile, done) {
-	console.log("USER LOGIN: ", arguments);
+	console.log("USER LOGIN: ", req.user, req.session, accessToken, refreshToken, profile);
 
 	async.waterfall([
 			//find the user in the DB
