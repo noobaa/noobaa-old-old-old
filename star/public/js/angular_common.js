@@ -516,11 +516,6 @@
 				restrict: 'A', // use as attribute
 				link: function(scope, element, attrs) {
 					var opt = scope.$eval(attrs.nbEffectOptions);
-					if (opt.complete) {
-						opt.complete = function() {
-							scope.safe_apply(opt.complete);
-						};
-					}
 					var jqelement = angular.element(element);
 					var last = {};
 					scope.$watch(attrs.nbEffectToggle, function(value) {
@@ -532,8 +527,12 @@
 							}
 							last.value = value;
 						} else if (last.value !== value) {
-							jqelement.toggle(opt);
 							last.value = value;
+							if (value) {
+								jqelement.stop().show(opt);
+							} else {
+								jqelement.stop().hide(opt);
+							}
 						}
 					});
 				}

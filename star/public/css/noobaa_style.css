@@ -101,10 +101,12 @@ html, body {
 	/*padding: 5px;*/
 	border-style: solid;
 	border-width: 1px;
-	border-color: rgba(0, 0, 0, 0.3);
+	border-color: #777;
+	/*
 	-moz-box-shadow: 	0 0 5px 5px rgba(0, 0, 0, 0.3);
 	-webkit-box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.3);
 	box-shadow: 		0 0 5px 5px rgba(0, 0, 0, 0.3);
+	*/
 }
 
 
@@ -115,9 +117,11 @@ html, body {
 	overflow: hidden;
 	background-color: white;
 	border-radius: 10px/10px;
+	/*
 	-moz-box-shadow: 	0 0 3px 3px rgba(0, 0, 0, 0.4);
 	-webkit-box-shadow: 0 0 3px 3px rgba(0, 0, 0, 0.4);
 	box-shadow: 		0 0 3px 3px rgba(0, 0, 0, 0.4);
+	*/
 	border: 3px solid rgba(50, 50, 50, 0.5);
 	-moz-background-clip: 		padding;
 	-webkit-background-clip: 	padding;

@@ -748,7 +748,15 @@ function MyDataCtrl($scope, $http, $timeout, $window, $q, $rootScope, $compile, 
 
 	nbUploadSrv.get_upload_target = function(event) {
 		// make sure the uploads view shows
-		$scope.show_uploads_view = true;
+		if (!$scope.show_uploads_view && !event.show_uploads_view) {
+			// open the view with some delay to prevent flickering
+			// and let the file be added to the list first.
+			// also mark this on the event to prevent more than one timout submitted per event.
+			event.show_uploads_view = true;
+			$timeout(function() {
+				$scope.show_uploads_view = true;
+			}, 500);
+		}
 
 		// see inode_upload()
 		var inode_upload = $(event.target).data('inode_upload');
