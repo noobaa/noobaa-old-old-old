@@ -68,6 +68,9 @@ html, body {
 	background-color: #222222;
 	color: #fafafa;
 }
+.bggrey {
+	background-color: #ebe9f1;
+}
 
 
 .text-ellipses {
@@ -124,7 +127,7 @@ html, body {
 	padding: 15px;
 }
 .nbdialog_content {
-	background-color: rgba(160,150,190,0.20);
+	background-color: #ebe9f1; /*includes bggrey*/
 	border-top: 	solid 1px rgba(0,0,0,0.2);
 	border-bottom: 	solid 1px rgba(0,0,0,0.2);
 }
@@ -321,4 +324,22 @@ html, body {
 .nonresp .navbar .open .dropdown-menu > .disabled > a:focus {
 	color: #999 !important;
 	background-color: transparent !important;
+}
+
+
+.fileinput-button {
+	position: relative;
+	overflow: hidden;
+}
+.fileinput-button input {
+	position: absolute;
+	top: 0;
+	right: 0;
+	margin: 0;
+	opacity: 0;
+	filter: alpha(opacity=0);
+	transform: translate(-300px, 0) scale(4);
+	font-size: 23px;
+	direction: ltr;
+	cursor: pointer;
 }

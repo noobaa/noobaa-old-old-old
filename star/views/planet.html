@@ -165,7 +165,7 @@
 					<span id="upload_button" class="btn btn-success radius_left"
 						style="width: 50%; height: 150px; border: solid 1px rgba(0,0,0,0.2);">
 						<h4><i class="icon-cloud-upload icon-2x icon-fixed-width"></i></h4>
-						<h4>Drag &amp; Drop to Upload</h4>
+						<h4>Drag &amp; Drop Upload</h4>
 						<div class="btn-group">
 							<button id="choose_file_button"
 								class="btn btn-default btn-sm"
@@ -187,8 +187,8 @@
 					</span>
 				</div>
 			</div>
-			<div class="row" ng-show="has_uploads()"
-				style="margin: 0; padding: 0">
+			<div class="row" style="margin: 0; padding: 0"
+				nb-effect-toggle="has_uploads()" nb-effect-options="{effect: 'blind'}">
 				<nb-upload-table></nb-upload-table>
 			</div>
 		</div>
