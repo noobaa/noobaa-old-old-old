@@ -529,9 +529,9 @@
 						} else if (last.value !== value) {
 							last.value = value;
 							if (value) {
-								jqelement.stop().show(opt);
+								jqelement.show(opt);
 							} else {
-								jqelement.stop().hide(opt);
+								jqelement.hide(opt);
 							}
 						}
 					});

@@ -181,6 +181,7 @@ var global_menu_bar_last_guide;
 		$scope.$root.nbguides = $scope.guides;
 
 
+
 		//// WELCOME ////
 
 		$scope.guides.welcome.steps.push({
@@ -198,9 +199,20 @@ var global_menu_bar_last_guide;
 			title: 'UPLOAD',
 			content: [
 				'<p>Use the upload button',
-				'<a class="btn btn-success" href="#"><i class="icon-cloud-upload icon-large"></i></a>',
+				'<a class="btn btn-sm btn-success" href="#"><i class="icon-cloud-upload icon-large"></i></a>',
 				'  to upload files to your account.</p>',
 				'<p>They will remain private until you share them.</p>',
+			].join('\n')
+		});
+
+		$scope.guides.welcome.steps.push({
+			element: '#space_button',
+			placement: 'bottom',
+			title: 'ADD SPACE',
+			content: [
+				'<p>Add space to your account using the NooBaa client available with this button',
+				' <a class="btn btn-sm btn-danger"><i class="icon-rocket icon-large"></i></a> .</p>',
+				'<p>Install the client to add space by co-sharing, and for improved uploads.</p>',
 			].join('\n')
 		});
 
@@ -220,97 +232,74 @@ var global_menu_bar_last_guide;
 		$scope.guides.welcome.steps_ready(true);
 
 
+
 		//// UPLOAD FILE ////
-
-		function advance_on_upload_modal_show(tour) {
-			// advance to next step once the upload modal is shown
-			$('#upload_modal').on('nbdialog_open.upload_guide', function() {
-				tour.next();
-			});
-		}
-
-		function done_advance_on_upload_modal_show(tour) {
-			// remove the event we registered in onShow
-			$('#upload_modal').off('nbdialog_open.upload_guide');
-		}
-
-		$scope.guides.upload_file.steps.push({
-			title: 'UPLOAD',
-			content: [
-				'<p>This guide will show you how to upload using:</p>',
-				'<ul class="nav">',
-				'  <li><p><i class="icon-compass icon-li icon-fixed-width"></i>Drag & Drop</p></li>',
-				'  <li><p><i class="icon-compass icon-li icon-fixed-width"></i>File Chooser</p></li>',
-				'</ul>'
-			].join('\n'),
-		});
 
 		$scope.guides.upload_file.steps.push({
 			element: '#upload_button',
 			placement: 'bottom',
+			title: 'UPLOAD\'S WINDOW',
+			content: [
+				'<p>The upload button ',
+				'<a class="btn btn-sm btn-success"><i class="icon-cloud-upload icon-large"></i></a>',
+				' shows or hides the upload\'s window.',
+				'<p>In the upload\'s window use the <a class="btn btn-sm btn-success">Choose Files</a>',
+				' button to start uploading.</p>'
+			].join('\n'),
+			onShow: function() {
+				$scope.$root.$broadcast('show_uploads_view');
+			}
+		});
+
+		$scope.guides.upload_file.steps.push({
 			title: 'DRAG & DROP',
 			content: [
 				'<p>Drag a file and drop it <b>anywhere</b> in the NooBaa window.</p>',
-				'<p>This will immediately start uploading.</p>',
-				'<p>Try it now or click next to continue...</p>',
-			].join('\n'),
-			onShow: advance_on_upload_modal_show,
-			onHide: done_advance_on_upload_modal_show
+				'<p>This will immediately start uploading and the uploads window will open to show the progress.</p>',
+			].join('\n')
 		});
 
+
 		$scope.guides.upload_file.steps.push({
-			element: '#upload_button',
+			element: '#space_button',
 			placement: 'bottom',
-			title: 'UPLOADING',
+			title: 'UPLOAD ENTIRE FOLDER',
 			content: [
-				'<p>Alrighty then!</p>',
-				'<p>The upload dialog keeps your upload\'s progress.',
-				'<p>You can always get back to it using the upload button',
-				'  <a class="btn btn-success" href="#"><i class="icon-cloud-upload icon-large"></i></a>.',
-				'  It will also open whenever you drop files to upload.'
+				'<p>Entire folder upload is currently only supported by chrome browser ',
+				' <a href="https://www.google.com/intl/en_us/chrome/browser/" target="_blank">',
+				'  <img alt="Chrome" src="/public/images/chrome_icon.png" width=20/></a>',
+				' using drag and drop. We wish more browsers will support but they don\'t yet.</p>',
+				'<p>For uploading big files and folders we recommend using the NooBaa client',
+				' available to download with this button',
+				' <a class="btn btn-sm btn-danger"><i class="icon-rocket icon-large"></i></a>',
+				' which can upload big folders, handles disconnections,',
+				' allows to add space using co-sharing, and is free.</p>',
 			].join('\n')
 		});
 
 		$scope.guides.upload_file.steps.push({
-			element: '#upload_button',
-			placement: 'bottom',
-			title: 'USING FILE CHOOSER',
-			content: [
-				'<p>In the upload dialod use the "Choose Files" button to select files to upload.</p>'
-			].join('\n')
-		});
-
-		$scope.guides.upload_file.steps.push({
-			element: '#upload_button',
-			placement: 'bottom',
-			title: 'USING FODLER CHOOSER',
-			content: [
-				'<p>Folder upload is supported on some browsers (e.g. Chrome, Safari).</p>',
-				'<p>Use the "Choose Folders" button to select a folder to upload.</p>',
-				'<p>The entire folder content will be uploaded.</p>',
-			].join('\n')
-		});
-
-		$scope.guides.upload_file.steps.push({
-			element: '#upload_button',
-			placement: 'bottom',
+			element: '#inodes_tree',
+			placement: 'right',
 			title: 'WHERE IS IT?',
 			content: [
 				'<p>Upload are added to your account',
 				'  into the folder that is selected when the upload starts.',
-				'<p>You should see your uploads listed in the current folder.</p>',
+				'<p><b>But</b> you don\'t need to sit and wait for uploads to complete -',
+				' you can organize them (share, move, rename, etc.) while they are still being uploaded!</p>',
 			].join('\n')
 		});
 
 		$scope.guides.upload_file.steps.push({
 			title: 'DONE',
 			content: [
-				'<p>Well Done! You are a now a master of uploads!</p>',
+				'<p>Well done - you are a now a master of uploads!</p>',
 				'<p>Check out more guides using',
 				'  <i class="icon-info-sign text-info"></i></p>',
 			].join('\n')
 		});
 		$scope.guides.upload_file.steps_ready();
+
+
 
 		// ACCESS FILE ////
 
@@ -366,6 +355,7 @@ var global_menu_bar_last_guide;
 		$scope.guides.access_file.steps_ready();
 
 
+
 		//// SHARE FILE ////
 
 		$scope.guides.share_file.steps.push({
@@ -418,6 +408,8 @@ var global_menu_bar_last_guide;
 		});
 
 		$scope.guides.share_file.steps_ready();
+
+
 
 		// SHARED WITH ME //
 
@@ -474,13 +466,13 @@ var global_menu_bar_last_guide;
 			].join('\n')
 		});
 
-
 		$scope.guides.shared_with_me.steps_ready();
+
+
 
 		//// CO SHARING ////
 
 		$scope.guides.cosharing.steps.push({
-			path: "/settings",
 			title: "CO-SHARING",
 			content: [
 				'<p>This guide will show you how to get cloud storage space simply by co-sharing.</p>',
@@ -489,7 +481,6 @@ var global_menu_bar_last_guide;
 		});
 
 		$scope.guides.cosharing.steps.push({
-			path: "/settings",
 			title: "CO-SHARING",
 			content: [
 				'<p>Co-sharing is the key to gain access to unlimited fast cloud storage.</p>',
@@ -498,7 +489,6 @@ var global_menu_bar_last_guide;
 		});
 
 		$scope.guides.cosharing.steps.push({
-			path: "/settings",
 			title: "REQUIREMENTS",
 			content: [
 				'<p>In order to co-share all you will need is a Computer ',
@@ -507,7 +497,6 @@ var global_menu_bar_last_guide;
 		});
 
 		$scope.guides.cosharing.steps.push({
-			path: "/settings",
 			title: "COSTS",
 			content: [
 				'<p>FREE for any capacity.</p>',
@@ -517,31 +506,31 @@ var global_menu_bar_last_guide;
 		});
 
 		$scope.guides.cosharing.steps.push({
-			path: "/settings",
-			element: "#dl",
-			placement: 'top',
+			element: "#space_button",
+			placement: 'bottom',
 			title: "DOWNLOAD -> INSTALL -> LOGIN",
 			content: [
 				'<p>Download the NooBaa client for your OS.</p>',
-				'<p><small>(we are working with the Chrome team to resolve the warning)</small></p>',
+				'<p><small>(we are working with the Chrome team to resolve the download warning)</small></p>',
 				'<p>Run the installer.</p>',
 				'<p>When the program starts, login to your Facebook/Google account.',
-			].join('\n')
+			].join('\n'),
+			onShow: function() {
+				$scope.$root.$broadcast('show_planet_downloads_view');
+			}
 		});
 
 		$scope.guides.cosharing.steps.push({
-			path: "/settings",
 			title: "MAKING SPACE",
 			content: [
 				'<p>In the client window use the button <a class="btn btn-danger"><i class="icon-rocket"></i></a>',
-				'to make more space in your account.</p>',
-				'<p>NooBaa will allocate the same amount of storage on your hard drive.</p>',
+				'to add space to your account.</p>',
+				'<p>NooBaa will allocate the same amount of storage from your hard drive free space.</p>',
 				'<p>You can keep adding more as you go.</p>',
 			].join('\n')
 		});
 
 		$scope.guides.cosharing.steps.push({
-			path: "/settings",
 			title: "CLIENT UPLOAD",
 			content: [
 				'<p>In the client window use the button <a class="btn btn-success"><i class="icon-cloud-upload"></i></a>',
@@ -552,7 +541,6 @@ var global_menu_bar_last_guide;
 		});
 
 		$scope.guides.cosharing.steps.push({
-			path: "/settings",
 			title: "AWESOME",
 			content: [
 				'<p>Enjoy the power of NooBaa\'s crowd-cloud and spread the word!</p>',

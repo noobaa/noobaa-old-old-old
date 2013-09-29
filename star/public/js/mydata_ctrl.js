@@ -708,7 +708,14 @@ function MyDataCtrl($scope, $http, $timeout, $window, $q, $rootScope, $compile, 
 		});
 	};
 
+
+	$scope.show_planet_downloads_view = false;
+
 	$scope.open_local_planet = function() {
+		if ($scope.show_planet_downloads_view) {
+			$scope.show_planet_downloads_view = false;
+			return;
+		}
 		$http({
 			method: 'GET',
 			url: '/star_api/device/current/'
@@ -728,11 +735,23 @@ function MyDataCtrl($scope, $http, $timeout, $window, $q, $rootScope, $compile, 
 			}
 		}).then(null, function(err) {
 			console.log(err);
-			$scope.click_coshare();
+			$scope.show_planet_downloads_view = true;
+			// $scope.nbguides.cosharing.run();
 		});
 	};
 
+	// register handler to allow tour to show
+	$scope.$on('show_planet_downloads_view', function() {
+		$scope.show_planet_downloads_view = true;
+	});
+
+
 	$scope.show_uploads_view = false;
+
+	// register handler to allow tour to show the uploads view
+	$scope.$on('show_uploads_view', function() {
+		$scope.show_uploads_view = true;
+	});
 
 	$scope.toggle_uploads_view = function() {
 		$scope.show_uploads_view = !$scope.show_uploads_view;
@@ -789,10 +808,6 @@ function MyDataCtrl($scope, $http, $timeout, $window, $q, $rootScope, $compile, 
 		$scope.dir_selection.inode.read_dir();
 	};
 
-
-	$scope.click_coshare = function() {
-		$scope.nbguides.cosharing.run();
-	};
 
 	$scope.click_open = function() {
 		var inode = $scope.inode_selection.inode;

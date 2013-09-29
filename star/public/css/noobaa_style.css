@@ -6,6 +6,12 @@ html, body {
 	min-height: 100%;
 }
 
+html {
+	/* force scroll-y to show, to prevent flickery resizes */
+	overflow-y: scroll;
+	overflow-x: auto;
+}
+
 .fnt, body, h1, h2, h3, h4, h5, h6, .ui-widget, button {
 	font-family: 'Ubuntu', sans-serif !important;
 	/*font-family: 'Nunito', 'Ubuntu', sans-serif !important;*/
