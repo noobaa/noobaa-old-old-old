@@ -113,16 +113,18 @@
 					Login with the same account you used for NooBaa.
 				</b>
 			</p>
-			<div ng-show="!planet_user">
+			<div ng-show="!planet_user" class="text-center" 
+				style="border: 1px solid #ccc; width: 380px; padding: 20px;
+					border-radius: 7px/7px;	margin-left: auto; margin-right: auto;">
 				<a 
 					ng-click="do_connect('facebook')" href="#"
 					style="margin-left: 10px">
 					<img src="/public/images/facebook_login_button_big.png"
 						width="300px"></img>
 				</a>
-				<br/>
-				OR
-				<br/>
+				<div style="height: 1px; background-color: #ccc; text-align: center; margin: 30px 0 30px 0">
+					<span style="background-color: white; position: relative; top: -0.75em; padding: 10px">OR</span>
+				</div>
 				<a 
 					ng-click="do_connect('google')" href="#"
 					style="margin-left: 10px">
@@ -130,9 +132,8 @@
 						width="300px"></img>
 				</a>
 			</div>
-			<br/><br/><br/>
-				Logging in does not allocate any co sharing area.
-				
+			<br/>
+			Logging in does not allocate any co sharing area.
 		</div>
 	</script>
 
