@@ -399,32 +399,36 @@
 
 	<div class="wfill bg_fall"></div>
 
-	<div id="join" class="nb_nav_link container fnt"
+	<div id="join" class="nb_nav_link container fnt text-center"
 		style="margin-bottom: 40px" ng-controller="HelpCtrl">
 		<div class="W2 fntpaint text-center tipex">JOIN US !</div>
 		<br/>
-		<div class="text-center">
+		<div class="text-center" 
+			style="border: 1px solid #ccc; width: 380px; padding: 20px;
+				border-radius: 7px/7px;	margin-left: auto; margin-right: auto;">
 			<a href="/auth/facebook/login/">
 				<img
 					onmouseover="$('body').chardinJs('start')"
 					onmouseout="$('body').chardinJs('stop')"
 					data-intro="Easily share with your Facebook friends" data-position="left" 
 					src="/public/images/facebook_signup_button_big.png"
-					style="max-width: 250px"></img>
+					style="width: 100%"></img>
 			</a>
-			<br/><br/>
-			OR 
-			<br/><br/>
+			<div style="height: 1px; background-color: #ccc; text-align: center; margin: 30px 0 30px 0">
+				<span style="background-color: white; position: relative; top: -0.75em; padding: 10px">OR</span>
+			</div>
+			<!-- <hr style="float: left; margin-left:auto; margin-right: auto; width: 100px"> -->
+			<!-- OR -->
+			<!-- <hr style="float: right; margin-left:auto; margin-right: auto; width: 100px"> -->
 			<a href="/auth/google/login/">
 				<img
 					onmouseover="$('body').chardinJs('start')"
 					onmouseout="$('body').chardinJs('stop')"
 					data-intro="Easily share with your Google Plus friends" data-position="right" 
 					src="/public/images/google_login_buttin_big.jpg"
-					style="max-width: 250px"></img>
+					style="width: 100%"></img>
 				
 			</a>
-			<br/><br/>
 		</div>
 		<br/>
 
@@ -433,7 +437,7 @@
 			<div class="text-center" >
 				<a class="btn btn-default"
 					data-toggle="collapse"
-					href="#curr_faq_section_content{{sec_idx}}" style="width:300px">
+					href="#curr_faq_section_content{{sec_idx}}" style="width: 380px">
 					<b>{{curr_faq_section.title}}</b>
 					<i class="caret"></i>
 				</a>
