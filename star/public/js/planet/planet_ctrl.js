@@ -89,19 +89,19 @@
 			$scope.show();
 			$.nbconfirm(q, {
 				on_confirm: callback,
-				css: {
-					width: win.width - win_frame_width,
-					height: win.height - win_frame_height,
-					top: 0,
-					left: 0
-				}
+				// css: {
+				//	width: win.width - win_frame_width,
+				//	height: win.height - win_frame_height,
+				//	top: 0,
+				//	left: 0
+				// }
 			});
 		};
 
 		// terminate the entire application
 		$scope.quit_app = function() {
-			var q = 'Quitting will stop co-sharing, ' +
-				'which will affect your account quota and performance.<br/>' +
+			var q = 'Quitting will stop co-sharing.<br/>' +
+				'This will affect your account quota and performance.<br/>' +
 				'Click "No" to keep co-sharing:';
 			$scope.nbconfirm(q, function() {
 				gui.App.quit();
@@ -247,7 +247,7 @@
 
 		// logout - mostly for testing
 		$scope.do_logout = function() {
-			var q = 'Logging out will stop co-sharing, ' +
+			var q = 'Logging out will stop co-sharing.<br/>' +
 				'which will affect your account quota and performance.<br/>' +
 				'Click "No" to keep co-sharing:';
 			$scope.nbconfirm(q, function() {
