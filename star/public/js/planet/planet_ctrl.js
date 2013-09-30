@@ -41,6 +41,7 @@
 
 		$scope.stop = function() {
 			srv_stop();
+			gui.App.removeListener('open', $scope.on_open_cmd);
 		};
 
 		$scope.hide_win = function() {
@@ -107,6 +108,30 @@
 				gui.App.quit();
 			});
 		};
+
+		// Listen to open event
+		$scope.on_open_cmd = function(cmd) {
+			var up = cmd.match(/upload\s+(.*)/);
+			console.log('APP OPEN', cmd, 'UPLOAD', up);
+			if (!up) {
+				return;
+			}
+			var event = {
+				preventDefault: function() {},
+				stopPropagation: function() {},
+				dataTransfer: {
+					files: [{
+						path: up[1],
+						name: path.basename(up[1])
+					}]
+				}
+			};
+			event.originalEvent = event;
+			nbUploadSrv.submit_upload(event);
+		};
+
+		gui.App.on('open', $scope.on_open_cmd);
+
 
 		// on load show the window.
 		// TODO: this might be too annoying if triggered by auto update
