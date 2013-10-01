@@ -476,15 +476,8 @@ var global_menu_bar_last_guide;
 			title: "CO-SHARING",
 			content: [
 				'<p>This guide will show you how to get cloud storage space simply by co-sharing.</p>',
-				'<p>To start co-sharing we jumped to the account settings page.</p>'
-			].join('\n')
-		});
-
-		$scope.guides.cosharing.steps.push({
-			title: "CO-SHARING",
-			content: [
-				'<p>Co-sharing is the key to gain access to unlimited fast cloud storage.</p>',
-				'<p>Co-sharing enables NooBaa to convert local hard drive resources into cloud resources.</p>',
+				'<p>Co-sharing is the key to gain access to unlimited fast cloud storage - ',
+				' it enables NooBaa to convert local hard drive resources into cloud resources.</p>',
 			].join('\n')
 		});
 
