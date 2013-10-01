@@ -37,8 +37,8 @@ function fobj_s3_key(fobj_id) {
 	return path.join(process.env.S3_PATH, 'fobjs', String(fobj_id));
 }
 
-function name_to_content_dispos(name) {
-	return 'filename="' + querystring.escape(name) + '"';
+function name_to_content_dispos(name, is_download) {
+	return (is_download ? 'attachment;' : '') + 'filename="' + querystring.escape(name) + '"';
 }
 
 function detect_content_type(type, name) {
@@ -50,12 +50,12 @@ function detect_content_type(type, name) {
 
 // return a signed GET url for the fobj in S3
 
-function s3_get_url(fobj_id, name) {
+function s3_get_url(fobj_id, name, is_download) {
 	var params = {
 		Bucket: process.env.S3_BUCKET,
 		Key: fobj_s3_key(fobj_id),
 		Expires: 24 * 60 * 60, // 24 hours
-		ResponseContentDisposition: name_to_content_dispos(name)
+		ResponseContentDisposition: name_to_content_dispos(name, is_download)
 	};
 	return S3.getSignedUrl('getObject', params);
 }
@@ -662,7 +662,7 @@ exports.inode_read = function(req, res) {
 				});
 			}
 			// redirect to the fobj location in S3
-			var url = s3_get_url(inode.fobj, inode.name);
+			var url = s3_get_url(inode.fobj, inode.name, req.query.is_download);
 			res.redirect(url);
 			return next();
 		},

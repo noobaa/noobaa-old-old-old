@@ -338,11 +338,14 @@ Inode.prototype.rename = function(to_parent, to_name) {
 };
 
 // open a download window on this file
-Inode.prototype.download_file = function() {
+Inode.prototype.open_file = function(is_download) {
 	if (this.uploading || !this.size) {
 		return;
 	}
 	var url = this.$scope.inode_api_url + this.id;
+	if (is_download) {
+		url += '?is_download=true';
+	}
 	var win = window.open(url, '_blank');
 	win.focus();
 	/*
@@ -529,7 +532,7 @@ function MyDataCtrl($scope, $http, $timeout, $window, $q, $rootScope, $compile, 
 			}
 		} else {
 			if (opt.open) {
-				inode.download_file();
+				inode.open_file(opt.download);
 			}
 		}
 		if (opt.context) {
@@ -814,6 +817,14 @@ function MyDataCtrl($scope, $http, $timeout, $window, $q, $rootScope, $compile, 
 		$scope.select(inode, {
 			dir: true,
 			open: true
+		});
+	};
+	$scope.click_download = function() {
+		var inode = $scope.inode_selection.inode;
+		$scope.select(inode, {
+			dir: true,
+			open: true,
+			download: true
 		});
 	};
 	$scope.click_refresh = function() {
