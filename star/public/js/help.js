@@ -142,7 +142,7 @@ function HelpCtrl($scope, $http) {
 		}, {
 			q: 'What makes NooBaa simple?',
 			a: [
-				'Think you how you manage your data today. Photo\'s go there, movies in here, documents on cloud ',
+				'Think how you manage your data today. Photo\'s go there, movies in here, documents on cloud ',
 				'A and scans on cloud B. You seldom have an efficient backup process, if any, and you\'re ',
 				'managing it all manually. Now think of the following: One protected always accessible fast location. '
 			].join('\n')
