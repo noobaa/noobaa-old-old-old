@@ -311,7 +311,7 @@ function send_alpha_approved_notification(notified_user, callback) {
 				'We\'re very fortunate to have you and are happy to notify you that you\'ve been approved',
 				'as one of the very few alpha users.\n',
 				'\n',
-				'As an approved user you can use your facebook login again at http://www.noobaa.com. ',
+				'As an approved user you can use your facebook/google login again at http://www.noobaa.com. ',
 				'This time you\'ll get to the NooBaa dashboard, where you can upload, share and see files',
 				'shared with you by your friends.', 
 				'\n\t\t\t\t\t\t The NooBaa Team'
