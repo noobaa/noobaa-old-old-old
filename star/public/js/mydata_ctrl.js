@@ -868,6 +868,7 @@ function MyDataCtrl($scope, $http, $timeout, $window, $q, $rootScope, $compile, 
 					.empty()
 					.append($('<i class="icon-spinner icon-spin icon-large icon-fixed-width"></i>'))
 					.append($compile('<span style="padding-left: 20px">Deleted {{count}}</span>')(del_scope));
+				del_scope.$digest();
 				var on_delete = function() {
 					if (inode.id == $scope.inode_selection.inode.id) {
 						$scope.select(inode.parent, {
