@@ -116,18 +116,30 @@
 			if (!up) {
 				return;
 			}
+			var file_path = up[1].trim();
+			// on windows the path comes quoted, and we strip the quotes
+			// so that the fs module will be able to work with it.
+			var quoted = file_path.match(/\"(.*)\"/);
+			if (quoted) {
+				file_path = quoted[1];
+			}
+			console.log('UPLOAD PATH', file_path);
+			// prepare pseudo event with the path information
+			// and pass to upload service
 			var event = {
 				preventDefault: function() {},
 				stopPropagation: function() {},
 				dataTransfer: {
 					files: [{
-						path: up[1],
-						name: path.basename(up[1])
+						path: file_path,
+						name: path.basename(file_path)
 					}]
 				}
 			};
 			event.originalEvent = event;
 			nbUploadSrv.submit_upload(event);
+			$scope.show();
+			$scope.safe_apply();
 		};
 
 		gui.App.on('open', $scope.on_open_cmd);
