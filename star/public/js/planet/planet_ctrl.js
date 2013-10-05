@@ -48,14 +48,19 @@
 			win.hide();
 		};
 
-		$scope.show = function() {
+
+		function show_window(w) {
 			// using always on top to popup the window
-			win.setAlwaysOnTop(true);
-			win.show();
-			win.restore();
-			win.blur();
-			win.focus();
-			// win.requestAttention(true);
+			w.setAlwaysOnTop(true);
+			w.show();
+			w.restore();
+			w.blur();
+			w.focus();
+			// w.requestAttention(true);
+		}
+
+		$scope.show = function() {
+			show_window(win);
 		};
 
 		// dont really be always on top,
@@ -235,9 +240,9 @@
 		$scope.planet_user = null;
 
 		// update the connect frame src to load a new url
-		// the frame is used to contain the facebook connect code
-		// which cannot be used inside a 'file://' type url 
-		// which is used by node-webkit.
+		// the hidden frame is used to maintain the login/logout state
+		// this could also be done with ajax, but in order to reuse 
+		// the existing login/logout paths it was a bit shorter with a frame.
 		$scope.auth_frame_path = function(path) {
 			$('#auth_frame')[0].src = path;
 			$scope.planet_loading = true;
@@ -251,32 +256,41 @@
 			console.log('USER:', f.noobaa_user);
 			$scope.planet_loading = false;
 			$scope.planet_user = f.noobaa_user;
-			console.log('$scope.planet_user: ', $scope.planet_user);
 			schedule_device(1);
 			get_user_folders();
 			$scope.safe_apply();
 		};
 
-		// submit connect request - will open facebool login dialog window.
+		var login_window;
+
+		// submit connect request - will open facebook/google login dialog window.
 		$scope.do_connect = function(provider) {
-			if (!window.frames.auth_frame.FB) {
-				$scope.auth_frame_path('/auth/logout/?state=/planet/auth');
+			// if the window exists, just show it
+			if (login_window) {
+				show_window(login_window);
 				return;
 			}
-
+			// create the login window according to the provider
 			var login_path = '/auth/' + provider + '/login/?state=/planet/auth';
-			var login_window = gui.Window.open(window.location.protocol + '//' +
-				window.location.host + login_path, {
-					'toolbar': false,
-					'frame': true,
-					'focus': true,
-					'position': 'center',
-				});
-
+			var login_url = window.location.protocol + '//' + window.location.host + login_path;
+			login_window = gui.Window.open(login_url, {
+				toolbar: false,
+				frame: true,
+				focus: true,
+				position: 'center',
+			});
+			// set event handler to nullify the window variable once closed
+			// which will allow to open it again if canceled, or later on.
+			login_window.on('closed', function() {
+				login_window = null;
+			});
 			login_window.on('loaded', function() {
+				// after the window loads new content refresh the user in the auth frame
+				// it might be right after successful login, but might also occur on bad password etc.
+				// in any case we refresh the frame which is the decision point about login success.
+				$scope.auth_frame_path('/planet/auth');
+				// auto close window on successful login
 				if (this.window.frames && this.window.frames.noobaa_user) {
-					$scope.planet_user = this.window.frames.noobaa_user;
-					$scope.safe_apply();
 					login_window.close();
 				}
 			});

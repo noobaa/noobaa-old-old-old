@@ -5,9 +5,7 @@
 	<?# def.include('common_head.html') ?>
 </head>
 
-<body class="bglight">
-	<?# def.facebook_init_body ?>
-
+<body>
 	<!-- server data is safely embedded in a JSON type script -->
 	<script id="user_data" type="application/json">
 		<?= JSON.stringify(it.user) ?>
@@ -20,7 +18,6 @@
 		var noobaa_user = null;
 		<???>
 	</script>
-
 </body>
 
 </html>
