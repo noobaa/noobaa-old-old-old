@@ -122,6 +122,13 @@
 
 		<div class="col-md-6">
 			<button class="btn btn-default toolbtn"
+				id="copy_button"
+				ng-click="click_copy()"
+				title="copy"
+				ng-disabled="!inode_selection.inode">
+				<i class="icon-copy icon-large"></i>
+			</button>
+			<button class="btn btn-default toolbtn"
 				id="open_button"
 				ng-click="click_open()"
 				title="Open"
@@ -180,6 +187,12 @@
 						<a href="#" ng-click="click_delete()">
 							<i class="icon-trash icon-large icon-fixed-width"></i>
 							Delete
+						</a>
+					</li>
+					<li>
+						<a href="#" ng-click="click_copy()">
+							<i class="icon-copy icon-large icon-fixed-width"></i>
+							Copy
 						</a>
 					</li>
 				</ul>
@@ -272,6 +285,12 @@
 				<a href="#" ng-click="click_delete()">
 					<i class="icon-trash icon-fixed-width"></i>
 					Delete
+				</a>
+			</li>
+			<li>
+				<a href="#" ng-click="click_copy()">
+					<i class="icon-copy icon-fixed-width"></i>
+					Copy
 				</a>
 			</li>
 		</ul>
@@ -571,6 +590,21 @@
 		<div class="nbdialog_footer">
 			<button class="nbdialog_close btn btn-default">Cancel</button>
 			<button id="dialog_ok" class="btn btn-danger pull-right">Delete</button>
+		</div>
+	</div>
+
+<!-- COPY DIALOG -->
+
+	<div id="copy_dialog" class="nbdialog fntmd">
+		<div class="nbdialog_header nbdialog_drag">
+			Files copied to "My Data"
+			<a class="pull-right nbdialog_close btn btn-default btn-xs"
+				title="OK">
+				<i class="icon-remove"></i>
+			</a>
+		</div>
+		<div class="nbdialog_footer">
+			<button class="nbdialog_close btn btn-default">Ok</button>
 		</div>
 	</div>
 

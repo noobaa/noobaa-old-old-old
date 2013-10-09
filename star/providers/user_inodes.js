@@ -73,19 +73,19 @@ exports.verify_and_create_base_folders = function(user, cb) {
 
 //get's the inodes of the shared with me folder
 var get_user_SWM = function(user_id, next) {
-	return get_user_basic_folder_id(CONST_BASE_FOLDERS.SWM, user_id, next);
+	return get_user_basic_folder(CONST_BASE_FOLDERS.SWM, user_id, next);
 };
-exports.get_user_SWM_id = get_user_SWM;
+exports.get_user_SWM = get_user_SWM;
 
 //get's the inodes of the my data folder
 var get_user_MYD = function(user_id, next) {
-	return get_user_basic_folder_id(CONST_BASE_FOLDERS.MYDATA, user_id, next);
+	return get_user_basic_folder(CONST_BASE_FOLDERS.MYDATA, user_id, next);
 };
-exports.get_user_MYD_id = get_user_MYD;
+exports.get_user_MYD = get_user_MYD;
 
 //get's the inodes of requested folder with null parent.
 
-function get_user_basic_folder_id(folder_name, user_id, next) {
+function get_user_basic_folder(folder_name, user_id, next) {
 	// find the requested base folder
 	Inode.findOne({
 		owner: user_id,

@@ -268,6 +268,46 @@ Inode.prototype.mkdir = function(name) {
 	});
 };
 
+Inode.prototype.copy = function(copy_scope, new_parent_id, new_name) {
+	var me = this;
+	var do_copy = function() {
+		copy_scope.concurrency++;
+		return me.$scope.$http({
+			method: 'PUT',
+			url: me.$scope.inode_api_url + me.id + me.$scope.inode_copy_sufix,
+			data: {
+				new_parent_id: new_parent_id,
+				new_name: new_name,
+			}
+		});
+	};
+	return do_copy().then(function(results) {
+		copy_scope.concurrency--;
+		console.log('Que? me:',me);
+		if (!me.isdir) {
+			return me.$scope.$q.when();
+		}
+		console.log('At least we KNOW its a dir');
+		var new_parent_id = results.data.id;
+		copy_scope.concurrency++;
+		me.read_dir().then(function() {
+			copy_scope.concurrency--;
+			var sons = me.dir_state.sons_list.slice(0); // copy array
+			var copy_sons = function() {
+				if (!sons || !sons.length) {
+					return me.$scope.$q.when();
+				}
+				var promises = [];
+				while (copy_scope.concurrency < copy_scope.max_concurrency && sons.length) {
+					promises.push(sons.pop().copy(copy_scope, new_parent_id).then(copy_sons));
+				}
+				return me.$scope.$q.all(promises);
+			};
+			return copy_sons();
+		});
+	});
+};
+
 // delete this inode
 Inode.prototype.delete_inode = function(del_scope, avoid_read_parent) {
 	var me = this;
@@ -293,9 +333,9 @@ Inode.prototype.delete_inode = function(del_scope, avoid_read_parent) {
 				}
 				var promises = [];
 				while (del_scope.concurrency < del_scope.max_concurrency && sons.length) {
-					promises.push(sons.pop().delete_inode(del_scope, true));
+					promises.push(sons.pop().delete_inode(del_scope, true).then(delete_sons));
 				}
-				return me.$scope.$q.all(promises).then(delete_sons);
+				return me.$scope.$q.all(promises);
 			};
 			return delete_sons();
 		}).then(do_delete);
@@ -468,6 +508,7 @@ function MyDataCtrl($scope, $http, $timeout, $window, $q, $rootScope, $compile, 
 	$scope.api_url = "/star_api/";
 	$scope.inode_api_url = $scope.api_url + "inode/";
 	$scope.inode_share_sufix = "/share_list";
+	$scope.inode_copy_sufix = "/copy";
 	$scope.inode_link_sufix = "/link";
 	$scope.$q = $q;
 	$scope.$rootScope = $rootScope;
@@ -835,7 +876,39 @@ function MyDataCtrl($scope, $http, $timeout, $window, $q, $rootScope, $compile, 
 		}
 		dir_inode.read_dir();
 	};
+
+	$scope.click_copy = function() {
+
+		console.log("in click copy");
+		var inode = $scope.inode_selection.inode;
+
+		if (!inode) {
+			console.error('no selected inode, bailing');
+			return;
+		}
+		if (inode.is_immutable_root()) {
+			$.nbalert('Cannot copy root folder');
+			return;
+		}
+
+		inode.is_dir_non_empty(function(is_dir_non_empty) {
+
+			var copy_scope = $scope.$new();
+			copy_scope.count = 0;
+			copy_scope.concurrency = 0;
+			copy_scope.max_concurrency = 32;
+
+			var on_copy = function() {
+				console.log('in on copy')
+				return;
+			};
+			inode.copy(copy_scope, null).then(on_copy, on_copy);
+			return;
+		});
+	};
+
 	$scope.click_delete = function() {
+		//validation tests..
 		var inode = $scope.inode_selection.inode;
 		if (!inode) {
 			console.error('no selected inode, bailing');
@@ -849,9 +922,11 @@ function MyDataCtrl($scope, $http, $timeout, $window, $q, $rootScope, $compile, 
 			$.nbalert('Cannot delete someone else\'s file');
 			return;
 		}
+
 		inode.is_dir_non_empty(function(is_dir_non_empty) {
 			var dlg = $('#delete_dialog').clone();
 			if (is_dir_non_empty) {
+				//modify the display message in the dialog
 				dlg.find('#not_empty_msg').css('display', 'block');
 				dlg.find('#normal_msg').css('display', 'none');
 			}

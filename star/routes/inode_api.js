@@ -635,7 +635,6 @@ exports.inode_read = function(req, res) {
 			}
 		},
 
-
 		function(inode, next) {
 			inode.follow_ref(next);
 		},
@@ -1339,7 +1338,7 @@ function validate_inode_creation_conditions(inode, fobj, user, callback) {
 	], callback);
 }
 
-exports.create_inode_copy = create_inode_copy;
+exports.inode_copy_action = inode_copy_action;
 
 //all inode copies are shallow
 //Deep inode copies should be initiated by the above levels. 
@@ -1347,19 +1346,77 @@ exports.create_inode_copy = create_inode_copy;
 var ERR_CANT_COPY_SWM = new Error('SWM files can\'t be copied');
 exports.ERR_CANT_COPY_SWM = ERR_CANT_COPY_SWM;
 
-function create_inode_copy(inode, new_parent, new_name, callback) {
+function inode_copy_action(inode, new_parent, new_name, callback) {
+
 	if (inode.ghost_ref) {
 		return callback(ERR_CANT_COPY_SWM);
 	}
-	var new_local_name = new_name || inode.name;
-
 	var new_inode = new Inode();
 
-	new_inode.owner = inode.owner;
+	var new_local_name = new_name || inode.name;
 	new_inode.parent = new_parent._id;
+	new_inode.owner = new_parent.owner;
 	new_inode.name = new_local_name;
 	new_inode.isdir = inode.isdir;
 	new_inode.fobj = inode.fobj;
 
-	return new_inode.save(callback);
+	return new_inode.save(function(err) {
+		return callback(err, new_inode);
+	});
+
+}
+
+exports.inode_copy = inode_copy;
+
+function inode_copy(req, res) {
+
+	console.log('in inode copy');
+	// console.log('req: ',req);
+	// return;
+	// args.inode_id,
+	// args.new_parent_id,
+	// req.user.id,
+	// args.new_name,
+
+	var args = req.body;
+	var new_name = args.new_name || null;
+
+	async.waterfall([
+
+		//find the inode to copy
+		function(next) {
+			return Inode.findById(req.params.inode_id, next);
+		},
+
+		//if it's a ghost ref we'd want to copy the live inode but maintain the ghost ref name
+		function(inode, next) {
+			if (inode.ghost_ref) {
+				new_name = inode.name;
+			}
+			inode.follow_ref(next);
+		},
+
+		//if no parent is provided, we'd use the primary MYD folder
+		function(inode, next) {
+			if (args.new_parent_id) {
+				return Inode.findById(args.new_parent_id, function(err, new_parent) {
+					return next(err, inode, new_parent);
+				});
+			}
+			return user_inodes.get_user_MYD(req.user.id, function(err, new_parent) {
+				return next(err, inode, new_parent);
+			});
+		},
+
+		function(inode, new_parent, next) {
+			console.log('inode: ',inode);
+			console.log('new_parent: ',new_parent);
+			return inode_copy_action(inode, new_parent, new_name, next);
+		},
+
+		function(new_inode, next) {
+			console.log('new_inode: ',new_inode);
+			return next(null, inode_to_entry(new_inode, {}));
+		}
+	], common_api.reply_callback(req, res, 'INODE COPY ' + args.inode_id));
 }
