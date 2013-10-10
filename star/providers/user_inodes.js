@@ -305,8 +305,6 @@ exports.shared_ancestor = shared_ancestor;
 //this is a recursive function 
 
 function shared_ancestor(user_id, inode, callback) {
-	console.log('shared_ancestor. Inode: ', inode);
-
 	//stopping the recursion
 	if (!inode) {
 		return callback(null, false);

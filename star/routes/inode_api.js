@@ -820,13 +820,7 @@ function inode_delete_action(inode_id, user_id, callback) {
 			});
 		}
 
-		// waterfall end
-		// ], callback);
-	], function(err, result) {
-		console.log(err);
-		console.log(result);
-		callback(err, result);
-	});
+	], callback);
 }
 
 
