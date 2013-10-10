@@ -133,10 +133,10 @@ function inode_to_entry(inode, opt) {
 
 	if (opt && opt.fobj) {
 		// when fobj is given add its info to the entry
-		ent = _.extend(ent, {
-			size: opt.fobj.size,
-			uploading: opt.fobj.uploading
-		});
+		ent.size = opt.fobj.size;
+		if (opt.fobj.uploading) {
+			ent.uploading = opt.fobj.uploading;
+		}
 		if (opt.s3_post) {
 			// add S3 post info only if requested specifically
 			// this requires signing which might be heavy if done all the time.
@@ -150,6 +150,29 @@ function inode_to_entry(inode, opt) {
 	}
 	return ent;
 }
+
+
+// find all the fobjs for inode list using one big query.
+function find_fobjs_for_inodes(inodes_list, callback) {
+	// create the query by removing empty fobj ids.
+	var fobj_ids = _.compact(_.pluck(inodes_list, 'fobj'));
+	return Fobj.find({
+		_id: {
+			'$in': fobj_ids
+		}
+	}, function(err, fobjs) {
+		if (err) {
+			return callback(err);
+		}
+		// create a map from fobj._id to fobj
+		var fobj_map = {};
+		_.each(fobjs, function(fobj) {
+			fobj_map[fobj._id] = fobj;
+		});
+		return callback(null, inodes_list, fobj_map);
+	});
+}
+
 
 // read_dir finds all the sons of the directory.
 // for inodes with fobj also add the fobj info to the response.
@@ -252,32 +275,14 @@ function do_read_dir(user, dir_inode, next) {
 			});
 		},
 
-		// query the fobjs for all the entries found
-		function(list, next) {
-			// find all the fobjs for inode list using one big query.
-			// create the query by removing empty fobj ids.
-			var fobj_ids = _.compact(_.pluck(list, 'fobj'));
-			return Fobj.find({
-				_id: {
-					'$in': fobj_ids
-				}
-			}, function(err, fobjs) {
-				next(err, list, fobjs);
-			});
-		},
+		// query the fobjs for all the inodes found
+		find_fobjs_for_inodes,
 
-		// merge the list of entries with the fobjs
-		function(list, fobjs, next) {
-			console.log('INODE READDIR:', dir_inode._id,
-				'entries', list.length, 'fobjs', fobjs.length);
-			// create a map from fobj._id to fobj
-			var fobj_map = {};
-			_.each(fobjs, function(fobj) {
-				fobj_map[fobj._id] = fobj;
-			});
-
+		// merge the inodes_list of entries with the fobjs
+		function(inodes_list, fobj_map, next) {
+			console.log('INODE READDIR:', dir_inode._id, 'entries', inodes_list.length);
 			// for each inode return an entry with both inode and fobj info
-			var entries = _.map(list, function(inode) {
+			var entries = _.map(inodes_list, function(inode) {
 				return inode_to_entry(inode, {
 					user: user,
 					fobj: fobj_map[inode.fobj]
@@ -461,6 +466,12 @@ exports.inode_create = function(req, res) {
 		name: args.name,
 		isdir: args.isdir
 	});
+
+	console.log('TODO CREATE ARGS', args);
+	if (args.src_dev_id) {
+		inode.src_dev_id = args.src_dev_id;
+		inode.src_dev_path = args.src_dev_path;
+	}
 
 	// prepare fobj if needed (auto generate id).
 	// then also set the link in the new inode.
@@ -663,6 +674,9 @@ exports.inode_read = function(req, res) {
 			// redirect to the fobj location in S3
 			var url = s3_get_url(inode.fobj, inode.name, req.query.is_download);
 			res.redirect(url);
+			// var ctx = common_api.page_context(req);
+			// ctx.url = url;
+			// res.render('media.html', ctx);
 			return next();
 		},
 
@@ -824,6 +838,54 @@ function inode_delete_action(inode_id, user_id, callback) {
 }
 
 
+/////////////////////////////////////
+/////////////////////////////////////
+// QUERY INODES WITH SOURCE DEVICE //
+/////////////////////////////////////
+/////////////////////////////////////
+
+exports.inode_source_device = function(req, res) {
+	var device_id = req.params.device_id;
+
+	async.waterfall([
+		function(next) {
+			var selector = {
+				owner: req.user.id,
+			};
+			if (device_id && device_id !== 'undefined') {
+				selector.src_dev_id = device_id;
+			} else {
+				selector.src_dev_id = {
+					$exists: true
+				};
+			}
+			return Inode.find(selector, next);
+		},
+
+		// query the fobjs for all the inodes found
+		find_fobjs_for_inodes,
+
+		function(inodes_list, fobj_map, next) {
+			// for each inode return an entry with both inode and fobj info
+			var entries = _.map(inodes_list, function(inode) {
+				var ent = inode_to_entry(inode, {
+					user: req.user,
+					fobj: fobj_map[inode.fobj]
+				});
+				ent.src_dev_id = inode.src_dev_id;
+				ent.src_dev_path = inode.src_dev_path;
+				console.log('INODE_SRC_DEV', inode, ent);
+				return ent;
+			});
+			return next(null, {
+				entries: entries
+			});
+		}
+
+	], common_api.reply_callback(req, res, 'INODE_SRC_DEV ' + device_id));
+};
+
+
 
 ///////////////
 ///////////////
@@ -940,7 +1002,10 @@ function list_upload_parts(fobj, part_number_marker, callback) {
 			for (var i = 0; i < data.Parts.length; i++) {
 				var p = data.Parts[i];
 				parts[p.PartNumber - 1] = p;
-				upsize += p.Size;
+				if (p.ETag) {
+					// TODO best move here the part validity instead in find_missing_parts()
+					upsize += p.Size;
+				}
 				console.log('PART', p);
 			}
 			// advance marker if not done

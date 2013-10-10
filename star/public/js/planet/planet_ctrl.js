@@ -382,14 +382,33 @@
 					host_info: get_host_info(),
 					srv_port: $scope.srv_port
 				}
-			}).success(function(data, status, headers, config) {
-				console.log('[ok] create device', status);
-				close_if_reload_requested(data);
-				save_device_info(data);
+			}).then(function(res) {
+				console.log('[ok] create device', res);
+				close_if_reload_requested(res.data);
+				save_device_info(res.data);
+				return $http({
+					method: 'GET',
+					url: '/star_api/inode/src_dev/' + $scope.planet_device.id,
+				});
+			}).then(function(res) {
+				var ents = res.data.entries;
+				for (var i = 0; i < ents.length; i++) {
+					var ent = ents[i];
+					var item = {
+						name: ent.name,
+						path: ent.src_dev_path
+					}
+					var target = {
+						inode_id: ent.id
+					}
+					console.log('SUBMIT ITEM FROM SOURCE', ent, item, target);
+					nbUploadSrv.submit_item(item, target);
+				};
+			}).then(function() {
 				schedule_device(5000);
-			}).error(function(data, status, headers, config) {
-				console.error('[ERR] create device', data, status);
-				close_if_reload_requested(data);
+			}, function(err) {
+				console.error('[ERR] create device', err);
+				close_if_reload_requested();
 				schedule_device(5000);
 			});
 		}
@@ -403,17 +422,17 @@
 					srv_port: $scope.srv_port,
 					coshare_space: coshare_space
 				}
-			}).success(function(data, status, headers, config) {
-				console.log('[ok] update device', status);
-				close_if_reload_requested(data);
+			}).then(function(res) {
+				console.log('[ok] update device', res);
+				close_if_reload_requested(res.data);
 				if (coshare_space) {
-					save_device_info(data);
+					save_device_info(res.data);
 				}
 				schedule_device(60000);
-			}).error(function(data, status, headers, config) {
-				console.error('[ERR] update device', data, status);
+			}, function(err) {
+				console.error('[ERR] update device', err);
 				reconnect_device();
-				close_if_reload_requested(data);
+				close_if_reload_requested();
 			});
 		}
 
@@ -517,8 +536,10 @@
 			if (!$scope.planet_user || !$scope.planet_user.mydata) {
 				return false;
 			}
+			console.log('DEV ID', $scope.planet_device, $scope.planet_device.id, $scope.planet_device._id);
 			return {
-				dir_inode_id: $scope.planet_user.mydata.id
+				dir_inode_id: $scope.planet_user.mydata.id,
+				src_dev_id: $scope.planet_device._id
 			};
 		};
 

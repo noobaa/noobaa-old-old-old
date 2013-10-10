@@ -192,6 +192,7 @@
 
 	// submit single item to upload.
 	UploadSrv.prototype.submit_item = function(item, target, parent) {
+		parent = parent || this.root;
 		// console.log('SUBMIT', item.name);
 		var upload = this._create_upload(item, target, parent);
 		if (upload) {
@@ -261,6 +262,9 @@
 		}).then(function() {
 			throw_if_stopped(upload);
 			return me._mkdir(upload);
+		}).then(function() {
+			throw_if_stopped(upload);
+			return me._readdir_from_star(upload);
 		}).then(function() {
 			throw_if_stopped(upload);
 			return me._readdir(upload);
@@ -366,6 +370,8 @@
 
 		console.log('LOAD mkdir', upload.item.name);
 
+		find_existing_dirent_in_parent(upload);
+
 		var inode_id = upload.target.inode_id;
 		if (inode_id) {
 			// inode_id supplied - getattr to verify it exists
@@ -389,7 +395,9 @@
 				data: {
 					id: dir_inode_id,
 					name: upload.item.name,
-					isdir: true
+					isdir: true,
+					src_dev_id: upload.target.src_dev_id,
+					src_dev_path: upload.item.path
 				}
 			}).then(function(res) {
 				// fill the target inode id for retries
@@ -402,7 +410,66 @@
 	};
 
 
-	// for directories - readdir and submit sons
+	// readdir from star to discover existing sons
+	UploadSrv.prototype._readdir_from_star = function(upload) {
+		var me = this;
+		var item = upload.item;
+		var inode_id = upload.target.inode_id;
+		if (!item.isDirectory || !inode_id) {
+			return me.$q.when();
+		}
+		return me.$http({
+			method: 'GET',
+			url: '/star_api/inode/' + inode_id,
+		}).then(function(res) {
+			var ents = res.data.entries;
+			console.log('READDIR FROM STAR', upload.item.name, ents);
+			upload.dirents = {};
+			for (var i = 0; i < ents.length; i++) {
+				var en = ents[i];
+				var eo = upload.dirents[en.name];
+				if (eo) {
+					if (eo.length) {
+						eo.push(en);
+					} else {
+						upload.dirents[en.name] = [eo, en];
+					}
+				} else {
+					upload.dirents[en.name] = en;
+				}
+			}
+		});
+	};
+
+	function find_existing_dirent_in_parent(upload) {
+		if (!upload.parent.dirents) {
+			return;
+		}
+		var ent = upload.parent.dirents[upload.item.name];
+		if (!ent) {
+			return;
+		}
+		if (!ent.length) {
+			fill_existing_dirent(upload, ent);
+		} else {
+			for (var i = 0; i < ent.length; i++) {
+				if (fill_existing_dirent(upload, ent[i])) {
+					break;
+				}
+			}
+		}
+	}
+
+	function fill_existing_dirent(upload, ent) {
+		if (!ent.isdir !== !upload.item.isDirectory) {
+			return false;
+		}
+		upload.target.inode_id = ent.id;
+		return true;
+	}
+
+
+	// for directories - readdir entries from local fs and submit sons
 	UploadSrv.prototype._readdir = function(upload) {
 		var me = this;
 		var item = upload.item;
@@ -594,6 +661,8 @@
 		var me = this;
 		var item = upload.item;
 
+		find_existing_dirent_in_parent(upload);
+
 		if (upload.target.inode_id) {
 			// inode_id supplied - getattr to verify it exists
 			console.log('UPLOAD gettattr', upload);
@@ -621,7 +690,9 @@
 					name: item.name,
 					size: item.size,
 					content_type: item.type,
-					relative_path: item.webkitRelativePath
+					relative_path: item.webkitRelativePath,
+					src_dev_id: upload.target.src_dev_id,
+					src_dev_path: item.path
 				}
 			});
 		}

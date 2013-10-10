@@ -242,6 +242,7 @@ app.put('/star_api/inode/:inode_id', inode_api.inode_update);
 app.put('/star_api/inode/:inode_id/copy', inode_api.inode_copy);
 app.del('/star_api/inode/:inode_id', inode_api.inode_delete);
 
+app.get('/star_api/inode/src_dev/:device_id', inode_api.inode_source_device);
 app.post('/star_api/inode/:inode_id/multipart/', inode_api.inode_multipart);
 
 app.get('/star_api/inode/:inode_id/share_list', inode_api.inode_get_share_list);
