@@ -904,7 +904,6 @@ function MyDataCtrl($scope, $http, $timeout, $window, $q, $rootScope, $compile, 
 		copy_scope.max_concurrency = 32;
 
 		var on_copy = function() {
-			console.log('in on copy')
 			return;
 		};
 		return inode.copy(copy_scope, null, null, true).then(on_copy, on_copy);
