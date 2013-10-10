@@ -163,16 +163,10 @@
 							Rename
 						</a>
 					</li>
-					<li class="disabled">
-						<a href="#">
+					<li>
+						<a href="#" ng-click="click_copy()">
 							<i class="icon-copy icon-large icon-fixed-width"></i>
-							Copy To
-						</a>
-					</li>
-					<li class="disabled">
-						<a href="#">
-							<i class="icon-move icon-large icon-fixed-width"></i>
-							Move To
+							Copy
 						</a>
 					</li>
 					<li class="divider"></li>
@@ -255,16 +249,10 @@
 					Rename
 				</a>
 			</li>
-			<li class="disabled">
-				<a href="#">
+			<li>
+				<a href="#" ng-click="click_copy()">
 					<i class="icon-copy icon-fixed-width"></i>
-					Copy To
-				</a>
-			</li>
-			<li class="disabled">
-				<a href="#">
-					<i class="icon-move icon-fixed-width"></i>
-					Move To
+					Copy
 				</a>
 			</li>
 			<li class="divider"></li>
@@ -571,6 +559,21 @@
 		<div class="nbdialog_footer">
 			<button class="nbdialog_close btn btn-default">Cancel</button>
 			<button id="dialog_ok" class="btn btn-danger pull-right">Delete</button>
+		</div>
+	</div>
+
+<!-- COPY DIALOG -->
+
+	<div id="copy_dialog" class="nbdialog fntmd">
+		<div class="nbdialog_header nbdialog_drag">
+			Files copied to "My Data"
+			<a class="pull-right nbdialog_close btn btn-default btn-xs"
+				title="OK">
+				<i class="icon-remove"></i>
+			</a>
+		</div>
+		<div class="nbdialog_footer">
+			<button class="nbdialog_close btn btn-default">Ok</button>
 		</div>
 	</div>
 
