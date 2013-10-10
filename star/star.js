@@ -239,6 +239,7 @@ var inode_api = require('./routes/inode_api');
 app.post('/star_api/inode/', inode_api.inode_create);
 app.get('/star_api/inode/:inode_id', inode_api.inode_read);
 app.put('/star_api/inode/:inode_id', inode_api.inode_update);
+app.put('/star_api/inode/:inode_id/copy', inode_api.inode_copy);
 app.del('/star_api/inode/:inode_id', inode_api.inode_delete);
 
 app.post('/star_api/inode/:inode_id/multipart/', inode_api.inode_multipart);

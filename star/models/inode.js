@@ -48,7 +48,7 @@ inode_schema.methods.follow_ref = function(cb) {
 	if (!inode.ghost_ref) {
 		return cb(null, inode);
 	}
-	this.model('Inode').findById(inode.ghost_ref, cb);
+	return this.model('Inode').findById(inode.ghost_ref, cb);
 };
 
 inode_schema.methods.get_referring_ghosts = function(callback) {
