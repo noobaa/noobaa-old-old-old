@@ -1370,14 +1370,6 @@ exports.inode_copy = inode_copy;
 
 function inode_copy(req, res) {
 
-	console.log('in inode copy');
-	// console.log('req: ',req);
-	// return;
-	// args.inode_id,
-	// args.new_parent_id,
-	// req.user.id,
-	// args.new_name,
-
 	var args = req.body;
 	var new_name = args.new_name || null;
 
@@ -1409,14 +1401,11 @@ function inode_copy(req, res) {
 		},
 
 		function(inode, new_parent, next) {
-			console.log('inode: ',inode);
-			console.log('new_parent: ',new_parent);
 			return inode_copy_action(inode, new_parent, new_name, next);
 		},
 
 		function(new_inode, next) {
-			console.log('new_inode: ',new_inode);
 			return next(null, inode_to_entry(new_inode, {}));
 		}
-	], common_api.reply_callback(req, res, 'INODE COPY ' + args.inode_id));
+	], common_api.reply_callback(req, res, 'INODE COPY ' + req.params.inode_id));
 }

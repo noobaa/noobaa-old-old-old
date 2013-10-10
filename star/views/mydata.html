@@ -122,13 +122,6 @@
 
 		<div class="col-md-6">
 			<button class="btn btn-default toolbtn"
-				id="copy_button"
-				ng-click="click_copy()"
-				title="copy"
-				ng-disabled="!inode_selection.inode">
-				<i class="icon-copy icon-large"></i>
-			</button>
-			<button class="btn btn-default toolbtn"
 				id="open_button"
 				ng-click="click_open()"
 				title="Open"
@@ -170,16 +163,10 @@
 							Rename
 						</a>
 					</li>
-					<li class="disabled">
-						<a href="#">
+					<li>
+						<a href="#" ng-click="click_copy()">
 							<i class="icon-copy icon-large icon-fixed-width"></i>
-							Copy To
-						</a>
-					</li>
-					<li class="disabled">
-						<a href="#">
-							<i class="icon-move icon-large icon-fixed-width"></i>
-							Move To
+							Copy
 						</a>
 					</li>
 					<li class="divider"></li>
@@ -187,12 +174,6 @@
 						<a href="#" ng-click="click_delete()">
 							<i class="icon-trash icon-large icon-fixed-width"></i>
 							Delete
-						</a>
-					</li>
-					<li>
-						<a href="#" ng-click="click_copy()">
-							<i class="icon-copy icon-large icon-fixed-width"></i>
-							Copy
 						</a>
 					</li>
 				</ul>
@@ -268,16 +249,10 @@
 					Rename
 				</a>
 			</li>
-			<li class="disabled">
-				<a href="#">
+			<li>
+				<a href="#" ng-click="click_copy()">
 					<i class="icon-copy icon-fixed-width"></i>
-					Copy To
-				</a>
-			</li>
-			<li class="disabled">
-				<a href="#">
-					<i class="icon-move icon-fixed-width"></i>
-					Move To
+					Copy
 				</a>
 			</li>
 			<li class="divider"></li>
@@ -285,12 +260,6 @@
 				<a href="#" ng-click="click_delete()">
 					<i class="icon-trash icon-fixed-width"></i>
 					Delete
-				</a>
-			</li>
-			<li>
-				<a href="#" ng-click="click_copy()">
-					<i class="icon-copy icon-fixed-width"></i>
-					Copy
 				</a>
 			</li>
 		</ul>

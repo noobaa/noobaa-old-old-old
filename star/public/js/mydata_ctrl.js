@@ -268,7 +268,7 @@ Inode.prototype.mkdir = function(name) {
 	});
 };
 
-Inode.prototype.copy = function(copy_scope, new_parent_id, new_name) {
+Inode.prototype.copy = function(copy_scope, new_parent_id, new_name, refresh_parent) {
 	var me = this;
 	var do_copy = function() {
 		copy_scope.concurrency++;
@@ -281,13 +281,17 @@ Inode.prototype.copy = function(copy_scope, new_parent_id, new_name) {
 			}
 		});
 	};
-	return do_copy().then(function(results) {
+	var promise = do_copy().then(function(results) {
+		if (refresh_parent) {
+			me.parent.read_dir();
+		}
+
 		copy_scope.concurrency--;
-		console.log('Que? me:',me);
+		copy_scope.count++;
 		if (!me.isdir) {
 			return me.$scope.$q.when();
 		}
-		console.log('At least we KNOW its a dir');
+
 		var new_parent_id = results.data.id;
 		copy_scope.concurrency++;
 		me.read_dir().then(function() {
@@ -295,17 +299,20 @@ Inode.prototype.copy = function(copy_scope, new_parent_id, new_name) {
 			var sons = me.dir_state.sons_list.slice(0); // copy array
 			var copy_sons = function() {
 				if (!sons || !sons.length) {
+					me.read_dir();
 					return me.$scope.$q.when();
 				}
 				var promises = [];
 				while (copy_scope.concurrency < copy_scope.max_concurrency && sons.length) {
-					promises.push(sons.pop().copy(copy_scope, new_parent_id).then(copy_sons));
+					promises.push(sons.pop().copy(copy_scope, new_parent_id, null, false).then(copy_sons));
 				}
 				return me.$scope.$q.all(promises);
 			};
 			return copy_sons();
 		});
 	});
+
+	return promise;
 };
 
 // delete this inode
@@ -891,20 +898,16 @@ function MyDataCtrl($scope, $http, $timeout, $window, $q, $rootScope, $compile, 
 			return;
 		}
 
-		inode.is_dir_non_empty(function(is_dir_non_empty) {
+		var copy_scope = $scope.$new();
+		copy_scope.count = 0;
+		copy_scope.concurrency = 0;
+		copy_scope.max_concurrency = 32;
 
-			var copy_scope = $scope.$new();
-			copy_scope.count = 0;
-			copy_scope.concurrency = 0;
-			copy_scope.max_concurrency = 32;
-
-			var on_copy = function() {
-				console.log('in on copy')
-				return;
-			};
-			inode.copy(copy_scope, null).then(on_copy, on_copy);
+		var on_copy = function() {
+			console.log('in on copy')
 			return;
-		});
+		};
+		return inode.copy(copy_scope, null, null, true).then(on_copy, on_copy);
 	};
 
 	$scope.click_delete = function() {
