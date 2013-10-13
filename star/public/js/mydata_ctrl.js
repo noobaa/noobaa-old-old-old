@@ -294,12 +294,11 @@ Inode.prototype.copy = function(copy_scope, new_parent_id, new_name, refresh_par
 
 		var new_parent_id = results.data.id;
 		copy_scope.concurrency++;
-		me.read_dir().then(function() {
+		return me.read_dir().then(function() {
 			copy_scope.concurrency--;
 			var sons = me.dir_state.sons_list.slice(0); // copy array
 			var copy_sons = function() {
 				if (!sons || !sons.length) {
-					me.read_dir();
 					return me.$scope.$q.when();
 				}
 				var promises = [];
@@ -904,7 +903,24 @@ function MyDataCtrl($scope, $http, $timeout, $window, $q, $rootScope, $compile, 
 		copy_scope.max_concurrency = 32;
 
 		var on_copy = function() {
-			return;
+			$(function() {
+
+				inode.is_dir_non_empty(function(is_dir_non_empty) {
+
+					var notify_message = 'Copy of ' + inode.name + ' is done.'
+					if (is_dir_non_empty) {
+						notify_message += ' Copied ' + copy_scope.count + ' items.';
+					}
+					setTimeout(function() {
+						$.bootstrapGrowl(notify_message, {
+							type: 'success',
+							align: 'center',
+							width: 'auto',
+						});
+					}, 10);
+				});
+				return;
+			});
 		};
 		return inode.copy(copy_scope, null, null, true).then(on_copy, on_copy);
 	};
