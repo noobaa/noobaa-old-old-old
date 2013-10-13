@@ -386,24 +386,13 @@
 				console.log('[ok] create device', res);
 				close_if_reload_requested(res.data);
 				save_device_info(res.data);
-				return $http({
-					method: 'GET',
-					url: '/star_api/inode/src_dev/' + $scope.planet_device.id,
-				});
-			}).then(function(res) {
-				var ents = res.data.entries;
-				for (var i = 0; i < ents.length; i++) {
-					var ent = ents[i];
-					var item = {
-						name: ent.name,
-						path: ent.src_dev_path
-					}
-					var target = {
-						inode_id: ent.id
-					}
-					console.log('SUBMIT ITEM FROM SOURCE', ent, item, target);
-					nbUploadSrv.submit_item(item, target);
-				};
+			}).then(function() {
+				if (!$scope.loaded_source_dev) {
+					console.log('RELOAD SOURCE DEVICE', $scope.planet_device);
+					return nbUploadSrv.reload_source($scope.planet_device.id).then(function() {
+						$scope.loaded_source_dev = true;
+					});
+				}
 			}).then(function() {
 				schedule_device(5000);
 			}, function(err) {

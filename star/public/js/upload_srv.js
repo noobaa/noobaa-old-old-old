@@ -33,7 +33,7 @@
 		this.jobq_upload_small = new JobQueue(4, $timeout);
 		this.jobq_upload_medium = new JobQueue(2, $timeout);
 		this.jobq_upload_large = new JobQueue(1, $timeout);
-		this.medium_threshold = 1 * 1024 * 1024;
+		this.medium_threshold = 512 * 1024; // ~5 seconds upload with 100 KB/s
 		this.large_threshold = 8 * 1024 * 1024;
 
 		this.id_gen = 1;
@@ -213,10 +213,18 @@
 		// create new upload and add to parent
 		var upload = {
 			item: item,
-			target: _.clone(target),
 			id: this.id_gen++,
 			parent: parent,
 		};
+		if (target.inode_id) {
+			upload.inode_id = target.inode_id;
+		}
+		if (target.dir_inode_id) {
+			upload.dir_inode_id = target.dir_inode_id;
+		}
+		if (target.src_dev_id) {
+			upload.src_dev_id = target.src_dev_id;
+		}
 		parent.sons[upload.id] = upload;
 		parent.num_sons++;
 		for (var p = parent; p; p = p.parent) {
@@ -372,12 +380,11 @@
 
 		find_existing_dirent_in_parent(upload);
 
-		var inode_id = upload.target.inode_id;
-		if (inode_id) {
+		if (upload.inode_id) {
 			// inode_id supplied - getattr to verify it exists
 			return me.$http({
 				method: 'GET',
-				url: '/star_api/inode/' + inode_id,
+				url: '/star_api/inode/' + upload.inode_id,
 				params: {
 					// tell the server to return attr 
 					// and not readdir us as in normal read
@@ -386,23 +393,22 @@
 			});
 		}
 
-		var dir_inode_id = upload.target.dir_inode_id;
-		if (dir_inode_id) {
+		if (upload.dir_inode_id) {
 			// create the file and receive upload location info
 			return me.$http({
 				method: 'POST',
 				url: '/star_api/inode/',
 				data: {
-					id: dir_inode_id,
+					id: upload.dir_inode_id,
 					name: upload.item.name,
 					isdir: true,
-					src_dev_id: upload.target.src_dev_id,
+					src_dev_id: upload.src_dev_id,
 					src_dev_path: upload.item.path
 				}
 			}).then(function(res) {
 				// fill the target inode id for retries
 				console.log('mkdir id', res.data.id);
-				upload.target.inode_id = res.data.id;
+				upload.inode_id = res.data.id;
 			});
 		}
 
@@ -414,13 +420,12 @@
 	UploadSrv.prototype._readdir_from_star = function(upload) {
 		var me = this;
 		var item = upload.item;
-		var inode_id = upload.target.inode_id;
-		if (!item.isDirectory || !inode_id) {
+		if (!item.isDirectory || !upload.inode_id) {
 			return me.$q.when();
 		}
 		return me.$http({
 			method: 'GET',
-			url: '/star_api/inode/' + inode_id,
+			url: '/star_api/inode/' + upload.inode_id,
 		}).then(function(res) {
 			var ents = res.data.entries;
 			console.log('READDIR FROM STAR', upload.item.name, ents);
@@ -464,7 +469,7 @@
 		if (!ent.isdir !== !upload.item.isDirectory) {
 			return false;
 		}
-		upload.target.inode_id = ent.id;
+		upload.inode_id = ent.id;
 		return true;
 	}
 
@@ -487,7 +492,7 @@
 		upload.total_size = 0;
 		upload.total_upsize = 0;
 		var target = {
-			dir_inode_id: upload.target.inode_id
+			dir_inode_id: upload.inode_id
 		};
 
 		var defer = me.$q.defer();
@@ -663,12 +668,12 @@
 
 		find_existing_dirent_in_parent(upload);
 
-		if (upload.target.inode_id) {
+		if (upload.inode_id) {
 			// inode_id supplied - getattr to verify it exists
 			console.log('UPLOAD gettattr', upload);
 			return me.$http({
 				method: 'GET',
-				url: '/star_api/inode/' + upload.target.inode_id,
+				url: '/star_api/inode/' + upload.inode_id,
 				params: {
 					// tell the server to return attr 
 					// and not redirect us as in normal read
@@ -677,21 +682,21 @@
 			});
 		}
 
-		if (upload.target.dir_inode_id) {
+		if (upload.dir_inode_id) {
 			// create the file and receive upload location info
 			console.log('UPLOAD create', upload);
 			return me.$http({
 				method: 'POST',
 				url: '/star_api/inode/',
 				data: {
-					id: upload.target.dir_inode_id,
+					id: upload.dir_inode_id,
 					isdir: false,
 					uploading: true,
 					name: item.name,
 					size: item.size,
 					content_type: item.type,
 					relative_path: item.webkitRelativePath,
-					src_dev_id: upload.target.src_dev_id,
+					src_dev_id: upload.src_dev_id,
 					src_dev_path: item.path
 				}
 			});
@@ -708,7 +713,7 @@
 			$.nbalert('Choose the same file to resume the upload');
 			throw 'mismatching file attr';
 		}
-		upload.target.inode_id = res.data.id;
+		upload.inode_id = res.data.id;
 	};
 
 
@@ -718,7 +723,7 @@
 		// get missing parts
 		return me.$http({
 			method: 'POST',
-			url: '/star_api/inode/' + upload.target.inode_id + '/multipart/'
+			url: '/star_api/inode/' + upload.inode_id + '/multipart/'
 		}).then(function(res) {
 			throw_if_stopped(upload);
 			upload.multipart = res.data;
@@ -900,7 +905,7 @@
 
 	UploadSrv.prototype.is_completed = function(upload) {
 		if (upload.item.isDirectory) {
-			return upload.total_completed === upload.total_sons;
+			return upload.is_loaded && (upload.total_completed === upload.total_sons);
 		} else {
 			return upload.is_uploaded;
 		}
@@ -1047,6 +1052,56 @@
 		// detach from parent
 		delete upload.parent.sons[upload.id];
 		upload.parent.num_sons--;
+		// detach the inode source to stop reloading
+		me.detach_source(upload);
+	};
+
+
+	// update server to remove the item source device
+	UploadSrv.prototype.detach_source = function(upload) {
+		if (!upload.src_dev_id || !upload.inode_id) {
+			return;
+		}
+		var me = this;
+		return me.$http({
+			method: 'PUT',
+			url: '/star_api/inode/' + upload.inode_id,
+			data: {
+				src_dev_id: null
+			}
+		}).then(function(res) {
+			console.log('DETACHED SOURCE', upload.inode_id);
+		}, function(err) {
+			var retry = err.status !== 404;
+			console.log('FAILED DETACH SOURCE', upload.inode_id, retry ? 'will retry' : '');
+			if (retry) {
+				me.$timeout(function() {
+					me.detach_source(upload);
+				}, 1000);
+			}
+		});
+	};
+
+	UploadSrv.prototype.reload_source = function(device_id) {
+		var me = this;
+		return me.$http({
+			method: 'GET',
+			url: '/star_api/inode/src_dev/' + device_id,
+		}).then(function(res) {
+			var ents = res.data.entries;
+			for (var i = 0; i < ents.length; i++) {
+				var ent = ents[i];
+				var item = {
+					name: ent.name,
+					path: ent.src_dev_path
+				}
+				var target = {
+					inode_id: ent.id
+				}
+				console.log('SUBMIT ITEM FROM SOURCE', ent, item, target);
+				me.submit_item(item, target);
+			}
+		});
 	};
 
 

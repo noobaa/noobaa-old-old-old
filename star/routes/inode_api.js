@@ -153,6 +153,7 @@ function inode_to_entry(inode, opt) {
 
 
 // find all the fobjs for inode list using one big query.
+
 function find_fobjs_for_inodes(inodes_list, callback) {
 	// create the query by removing empty fobj ids.
 	var fobj_ids = _.compact(_.pluck(inodes_list, 'fobj'));
@@ -693,8 +694,14 @@ exports.inode_update = function(req, res) {
 	var inode_id = req.params.inode_id;
 
 	// we pick only the keys we allow to update from the request body
-	// TODO: check the validity of the input
 	var inode_args = _.pick(req.body, 'parent', 'name');
+	// convert the request to remove src_dev_id to proper $unset update
+	if (req.body.src_dev_id === null) {
+		inode_args.$unset = {
+			src_dev_id: 1
+		};
+	}
+	// TODO updating the uploading is deprecated, maybe remove the code path?
 	var fobj_args = _.pick(req.body, 'uploading');
 
 	async.waterfall([
@@ -917,6 +924,7 @@ exports.inode_multipart = function(req, res) {
 			inode = inode_result;
 			fobj = fobj_result;
 			if (!fobj || !fobj.uploading) {
+				// we want to reply immediately so breaking the waterfall by raising error-like status 200
 				return next({
 					status: 200,
 					data: {
