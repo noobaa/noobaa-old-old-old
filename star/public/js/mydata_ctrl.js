@@ -907,7 +907,7 @@ function MyDataCtrl($scope, $http, $timeout, $window, $q, $rootScope, $compile, 
 
 				inode.is_dir_non_empty(function(is_dir_non_empty) {
 
-					var notify_message = 'Copy of ' + inode.name + ' is done.'
+					var notify_message = 'Copy of ' + inode.name + ' is done.';
 					if (is_dir_non_empty) {
 						notify_message += ' Copied ' + copy_scope.count + ' items.';
 					}
