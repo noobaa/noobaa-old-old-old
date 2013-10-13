@@ -935,7 +935,7 @@
 	UploadSrv.prototype.clear_completed = function() {
 		for (var id in this.root.sons) {
 			var upload = this.root.sons[id];
-			if (this.is_completed(upload)) {
+			if (!upload.is_pin && this.is_completed(upload)) {
 				console.log('CLEAR COMPLETED', upload);
 				this.do_remove(upload);
 			}
@@ -973,6 +973,14 @@
 				})
 			});
 		}
+	};
+
+	UploadSrv.prototype.pin_selected = function() {
+		var me = this;
+		me.foreach_selected(function(upload) {
+			upload.is_pin = !upload.is_pin;
+		});
+		me.clear_selection();
 	};
 
 
@@ -1096,7 +1104,8 @@
 					path: ent.src_dev_path
 				}
 				var target = {
-					inode_id: ent.id
+					inode_id: ent.id,
+					src_dev_id: ent.src_dev_id
 				}
 				console.log('SUBMIT ITEM FROM SOURCE', ent, item, target);
 				me.submit_item(item, target);
@@ -1236,6 +1245,11 @@
 				'				title="Remove Selected">',
 				'				<i class="icon-remove"></i>',
 				'			</button>',
+				'			<button class="btn btn-warning btn-sm"',
+				'				ng-click="srv.pin_selected()"',
+				'				title="Pin Selected">',
+				'				<i class="icon-pushpin"></i>',
+				'			</button>',
 				'		</div></div>',
 				'		<div class="col-sm-8 text-center" style="font-size: 12px; line-height: 12px">',
 				'			<div class="col-xs-4">',
@@ -1322,6 +1336,7 @@
 			'				{{ human_size(upload.item.isDirectory && upload.total_size || upload.item.size) }} ',
 			'			</div>',
 			'			<div class="col-xs-4" title="{{upload.error_text}}">',
+			'				<a ng-show="upload.is_pin" class="btn btn-warning btn-sm"><i class="icon-pushpin icon-fixed-width"></i></a>',
 			'				{{srv.get_status(upload)}}',
 			'			</div>',
 			'		</div>',
