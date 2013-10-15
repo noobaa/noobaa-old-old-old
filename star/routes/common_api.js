@@ -10,6 +10,7 @@ var StarLog = require('../models/starlog.js').StarLog;
 // add data to the request starlog, which will be attached
 // to the log record that reply callback will write to the DB.
 // TODO: add info in the relevant routes - tests code complicates stuff because req is not available
+
 function starlog(req, data) {
 	if (!req.starlog) {
 		req.starlog = {};
@@ -64,9 +65,9 @@ function reply_callback(req, res, debug_info, skip_starlog) {
 			submit_starlog(err, req);
 		}
 		if (err) {
-			console.log('FAILED', debug_info, ':', err);
 			var status = err.status || err.statusCode;
 			var data = err.data || err.message;
+			console.log(status === 200 ? 'COMPLETED' : 'FAILED', debug_info, ':', err);
 			if (typeof status === 'number' &&
 				status >= 100 &&
 				status < 600

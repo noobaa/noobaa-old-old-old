@@ -33,7 +33,7 @@
 		this.jobq_upload_small = new JobQueue(4, $timeout);
 		this.jobq_upload_medium = new JobQueue(2, $timeout);
 		this.jobq_upload_large = new JobQueue(1, $timeout);
-		this.medium_threshold = 1 * 1024 * 1024;
+		this.medium_threshold = 512 * 1024; // ~5 seconds upload with 100 KB/s
 		this.large_threshold = 8 * 1024 * 1024;
 
 		this.id_gen = 1;
@@ -192,6 +192,7 @@
 
 	// submit single item to upload.
 	UploadSrv.prototype.submit_item = function(item, target, parent) {
+		parent = parent || this.root;
 		// console.log('SUBMIT', item.name);
 		var upload = this._create_upload(item, target, parent);
 		if (upload) {
@@ -212,10 +213,18 @@
 		// create new upload and add to parent
 		var upload = {
 			item: item,
-			target: _.clone(target),
 			id: this.id_gen++,
 			parent: parent,
 		};
+		if (target.inode_id) {
+			upload.inode_id = target.inode_id;
+		}
+		if (target.dir_inode_id) {
+			upload.dir_inode_id = target.dir_inode_id;
+		}
+		if (target.src_dev_id) {
+			upload.src_dev_id = target.src_dev_id;
+		}
 		parent.sons[upload.id] = upload;
 		parent.num_sons++;
 		for (var p = parent; p; p = p.parent) {
@@ -261,6 +270,9 @@
 		}).then(function() {
 			throw_if_stopped(upload);
 			return me._mkdir(upload);
+		}).then(function() {
+			throw_if_stopped(upload);
+			return me._readdir_from_star(upload);
 		}).then(function() {
 			throw_if_stopped(upload);
 			return me._readdir(upload);
@@ -366,12 +378,13 @@
 
 		console.log('LOAD mkdir', upload.item.name);
 
-		var inode_id = upload.target.inode_id;
-		if (inode_id) {
+		find_existing_dirent_in_parent(upload);
+
+		if (upload.inode_id) {
 			// inode_id supplied - getattr to verify it exists
 			return me.$http({
 				method: 'GET',
-				url: '/star_api/inode/' + inode_id,
+				url: '/star_api/inode/' + upload.inode_id,
 				params: {
 					// tell the server to return attr 
 					// and not readdir us as in normal read
@@ -380,21 +393,22 @@
 			});
 		}
 
-		var dir_inode_id = upload.target.dir_inode_id;
-		if (dir_inode_id) {
+		if (upload.dir_inode_id) {
 			// create the file and receive upload location info
 			return me.$http({
 				method: 'POST',
 				url: '/star_api/inode/',
 				data: {
-					id: dir_inode_id,
+					id: upload.dir_inode_id,
 					name: upload.item.name,
-					isdir: true
+					isdir: true,
+					src_dev_id: upload.src_dev_id,
+					src_dev_path: upload.item.path
 				}
 			}).then(function(res) {
 				// fill the target inode id for retries
 				console.log('mkdir id', res.data.id);
-				upload.target.inode_id = res.data.id;
+				upload.inode_id = res.data.id;
 			});
 		}
 
@@ -402,7 +416,65 @@
 	};
 
 
-	// for directories - readdir and submit sons
+	// readdir from star to discover existing sons
+	UploadSrv.prototype._readdir_from_star = function(upload) {
+		var me = this;
+		var item = upload.item;
+		if (!item.isDirectory || !upload.inode_id) {
+			return me.$q.when();
+		}
+		return me.$http({
+			method: 'GET',
+			url: '/star_api/inode/' + upload.inode_id,
+		}).then(function(res) {
+			var ents = res.data.entries;
+			console.log('READDIR FROM STAR', upload.item.name, ents);
+			upload.dirents = {};
+			for (var i = 0; i < ents.length; i++) {
+				var en = ents[i];
+				var eo = upload.dirents[en.name];
+				if (eo) {
+					if (eo.length) {
+						eo.push(en);
+					} else {
+						upload.dirents[en.name] = [eo, en];
+					}
+				} else {
+					upload.dirents[en.name] = en;
+				}
+			}
+		});
+	};
+
+	function find_existing_dirent_in_parent(upload) {
+		if (!upload.parent.dirents) {
+			return;
+		}
+		var ent = upload.parent.dirents[upload.item.name];
+		if (!ent) {
+			return;
+		}
+		if (!ent.length) {
+			fill_existing_dirent(upload, ent);
+		} else {
+			for (var i = 0; i < ent.length; i++) {
+				if (fill_existing_dirent(upload, ent[i])) {
+					break;
+				}
+			}
+		}
+	}
+
+	function fill_existing_dirent(upload, ent) {
+		if (!ent.isdir !== !upload.item.isDirectory) {
+			return false;
+		}
+		upload.inode_id = ent.id;
+		return true;
+	}
+
+
+	// for directories - readdir entries from local fs and submit sons
 	UploadSrv.prototype._readdir = function(upload) {
 		var me = this;
 		var item = upload.item;
@@ -420,7 +492,7 @@
 		upload.total_size = 0;
 		upload.total_upsize = 0;
 		var target = {
-			dir_inode_id: upload.target.inode_id
+			dir_inode_id: upload.inode_id
 		};
 
 		var defer = me.$q.defer();
@@ -594,12 +666,14 @@
 		var me = this;
 		var item = upload.item;
 
-		if (upload.target.inode_id) {
+		find_existing_dirent_in_parent(upload);
+
+		if (upload.inode_id) {
 			// inode_id supplied - getattr to verify it exists
 			console.log('UPLOAD gettattr', upload);
 			return me.$http({
 				method: 'GET',
-				url: '/star_api/inode/' + upload.target.inode_id,
+				url: '/star_api/inode/' + upload.inode_id,
 				params: {
 					// tell the server to return attr 
 					// and not redirect us as in normal read
@@ -608,20 +682,22 @@
 			});
 		}
 
-		if (upload.target.dir_inode_id) {
+		if (upload.dir_inode_id) {
 			// create the file and receive upload location info
 			console.log('UPLOAD create', upload);
 			return me.$http({
 				method: 'POST',
 				url: '/star_api/inode/',
 				data: {
-					id: upload.target.dir_inode_id,
+					id: upload.dir_inode_id,
 					isdir: false,
 					uploading: true,
 					name: item.name,
 					size: item.size,
 					content_type: item.type,
-					relative_path: item.webkitRelativePath
+					relative_path: item.webkitRelativePath,
+					src_dev_id: upload.src_dev_id,
+					src_dev_path: item.path
 				}
 			});
 		}
@@ -637,7 +713,7 @@
 			$.nbalert('Choose the same file to resume the upload');
 			throw 'mismatching file attr';
 		}
-		upload.target.inode_id = res.data.id;
+		upload.inode_id = res.data.id;
 	};
 
 
@@ -647,7 +723,7 @@
 		// get missing parts
 		return me.$http({
 			method: 'POST',
-			url: '/star_api/inode/' + upload.target.inode_id + '/multipart/'
+			url: '/star_api/inode/' + upload.inode_id + '/multipart/'
 		}).then(function(res) {
 			throw_if_stopped(upload);
 			upload.multipart = res.data;
@@ -829,7 +905,7 @@
 
 	UploadSrv.prototype.is_completed = function(upload) {
 		if (upload.item.isDirectory) {
-			return upload.total_completed === upload.total_sons;
+			return upload.is_loaded && (upload.total_completed === upload.total_sons);
 		} else {
 			return upload.is_uploaded;
 		}
@@ -859,7 +935,7 @@
 	UploadSrv.prototype.clear_completed = function() {
 		for (var id in this.root.sons) {
 			var upload = this.root.sons[id];
-			if (this.is_completed(upload)) {
+			if (!upload.is_pin && this.is_completed(upload)) {
 				console.log('CLEAR COMPLETED', upload);
 				this.do_remove(upload);
 			}
@@ -897,6 +973,14 @@
 				})
 			});
 		}
+	};
+
+	UploadSrv.prototype.pin_selected = function() {
+		var me = this;
+		me.foreach_selected(function(upload) {
+			upload.is_pin = !upload.is_pin;
+		});
+		me.clear_selection();
 	};
 
 
@@ -976,6 +1060,57 @@
 		// detach from parent
 		delete upload.parent.sons[upload.id];
 		upload.parent.num_sons--;
+		// detach the inode source to stop reloading
+		me.detach_source(upload);
+	};
+
+
+	// update server to remove the item source device
+	UploadSrv.prototype.detach_source = function(upload) {
+		if (!upload.src_dev_id || !upload.inode_id) {
+			return;
+		}
+		var me = this;
+		return me.$http({
+			method: 'PUT',
+			url: '/star_api/inode/' + upload.inode_id,
+			data: {
+				src_dev_id: null
+			}
+		}).then(function(res) {
+			console.log('DETACHED SOURCE', upload.inode_id);
+		}, function(err) {
+			var retry = err.status !== 404;
+			console.log('FAILED DETACH SOURCE', upload.inode_id, retry ? 'will retry' : '');
+			if (retry) {
+				me.$timeout(function() {
+					me.detach_source(upload);
+				}, 1000);
+			}
+		});
+	};
+
+	UploadSrv.prototype.reload_source = function(device_id) {
+		var me = this;
+		return me.$http({
+			method: 'GET',
+			url: '/star_api/inode/src_dev/' + device_id,
+		}).then(function(res) {
+			var ents = res.data.entries;
+			for (var i = 0; i < ents.length; i++) {
+				var ent = ents[i];
+				var item = {
+					name: ent.name,
+					path: ent.src_dev_path
+				}
+				var target = {
+					inode_id: ent.id,
+					src_dev_id: ent.src_dev_id
+				}
+				console.log('SUBMIT ITEM FROM SOURCE', ent, item, target);
+				me.submit_item(item, target);
+			}
+		});
 	};
 
 
@@ -1110,6 +1245,11 @@
 				'				title="Remove Selected">',
 				'				<i class="icon-remove"></i>',
 				'			</button>',
+				'			<button ng-show="false" class="btn btn-warning btn-sm"',
+				'				ng-click="srv.pin_selected()"',
+				'				title="Pin Selected">',
+				'				<i class="icon-pushpin"></i>',
+				'			</button>',
 				'		</div></div>',
 				'		<div class="col-sm-8 text-center" style="font-size: 12px; line-height: 12px">',
 				'			<div class="col-xs-4">',
@@ -1196,6 +1336,7 @@
 			'				{{ human_size(upload.item.isDirectory && upload.total_size || upload.item.size) }} ',
 			'			</div>',
 			'			<div class="col-xs-4" title="{{upload.error_text}}">',
+			'				<a ng-show="upload.is_pin" class="btn btn-warning btn-sm"><i class="icon-pushpin icon-fixed-width"></i></a>',
 			'				{{srv.get_status(upload)}}',
 			'			</div>',
 			'		</div>',
