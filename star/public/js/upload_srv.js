@@ -466,7 +466,9 @@
 	}
 
 	function fill_existing_dirent(upload, ent) {
-		if (!ent.isdir !== !upload.item.isDirectory) {
+		var ent_isdir = !!ent.isdir;
+		var item_isdir = !!upload.item.isDirectory;
+		if (ent_isdir !== item_isdir) {
 			return false;
 		}
 		upload.inode_id = ent.id;
@@ -1102,11 +1104,11 @@
 				var item = {
 					name: ent.name,
 					path: ent.src_dev_path
-				}
+				};
 				var target = {
 					inode_id: ent.id,
 					src_dev_id: ent.src_dev_id
-				}
+				};
 				console.log('SUBMIT ITEM FROM SOURCE', ent, item, target);
 				me.submit_item(item, target);
 			}
