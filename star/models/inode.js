@@ -17,6 +17,9 @@ var inode_schema = new mongoose.Schema({
 	fobj: types.ObjectId,
 	ghost_ref: types.ObjectId,
 	num_refs: Number,
+	// device source info
+	src_dev_id: types.ObjectId,
+	src_dev_path: String,
 	// version number used to revoke public links
 	link_vers: {
 		type: Number,
