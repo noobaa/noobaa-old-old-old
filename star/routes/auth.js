@@ -16,15 +16,20 @@ var User = require('../models/user').User;
 var email = require('./email');
 var user_inodes = require('../providers/user_inodes');
 
+var AUTO_ACCEPT_ALPHA_USERS = true;
 
 // Gets the FB profile and current user DB appearance and makes sure we the uptodate details
 // mainly - email, privilages and the likes which are important for our communication 
 // with the user.
 var user_details_update = function(profile, user, callback) {
 	console.log('user_details_update');
-	if (_.isEqual(user[provider_to_db_map[profile.provider]], profile._json)) {
+	var add_to_alpha = AUTO_ACCEPT_ALPHA_USERS && !user.alpha_tester;
+	if (!add_to_alpha && _.isEqual(user[provider_to_db_map[profile.provider]], profile._json)) {
 		console.log('no update required');
 		return callback(null, user);
+	}
+	if (add_to_alpha) {
+		user.alpha_tester = true;
 	}
 	user[provider_to_db_map[profile.provider]] = profile._json;
 	user.save(function(err, user, num) {
@@ -33,7 +38,13 @@ var user_details_update = function(profile, user, callback) {
 			return callback(err);
 		}
 		console.log('USER updated: ', user);
-		callback(null, user);
+		if (add_to_alpha) {
+			return email.send_alpha_approved_notification(user, function(err, rejection) {
+				return callback(err, user);
+			});
+		} else {
+			return callback(null, user);
+		}
 	});
 };
 
@@ -45,7 +56,6 @@ function create_user(profile, callback) {
 	async.waterfall([
 		function(next) {
 			var user = new User();
-			// user.alpha_tester = false; // will be changed manually for alpha users
 			user[provider_to_db_map[profile.provider]] = profile._json;
 			user.save(function(err, user, num) {
 				if (err) {
