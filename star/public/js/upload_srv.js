@@ -1245,7 +1245,7 @@
 				'				title="Remove Selected">',
 				'				<i class="icon-remove"></i>',
 				'			</button>',
-				'			<button class="btn btn-warning btn-sm"',
+				'			<button ng-show="false" class="btn btn-warning btn-sm"',
 				'				ng-click="srv.pin_selected()"',
 				'				title="Pin Selected">',
 				'				<i class="icon-pushpin"></i>',
