@@ -64,6 +64,37 @@ function create_user(profile, callback) {
 	], callback);
 }
 
+function add_provider_to_user(user_id, profile, callback) {
+	console.log("ADD PROVIDER", user_id, profile);
+
+	async.waterfall([
+		function(next) {
+			return User.findById(user_id, next);
+		},
+		function(user, next) {
+			console.log('user: ', user);
+			console.log('profile: ', profile);
+			if (!user[provider_to_db_map[profile.provider]] ||
+				user[provider_to_db_map[profile.provider]].id == profile.provider.id) {
+				return next(null, user);
+			}
+			return next(new Error('Login mismatch: user' + user + ', Profile: '+ profile));
+		},
+
+		function(user, next) {
+			user[provider_to_db_map[profile.provider]] = profile._json;
+			return user.save(function(err, user, num) {
+				if (err) {
+					console.error('ERROR - ADDING PROVIDER TO USER: ', err);
+					return next(err, null);
+				}
+				console.log('UPDATED PROVIDER FOR :', user);
+				return next(null, user);
+			});
+		},
+	], callback);
+}
+
 var provider_to_db_map = {
 	'facebook': 'fb',
 	'google': 'google'
@@ -81,16 +112,22 @@ function user_login(req, accessToken, refreshToken, profile, done) {
 				//the two lines below will get {fb.id:'xxx'} or {google.id:'xxx'} based on the provider
 				var find_options = {};
 				find_options[provider_to_db_map[profile.provider] + '.id'] = profile.id;
-				User.findOne(find_options, function(err, user) {
+				return User.findOne(find_options, function(err, user) {
 					if (err) {
 						console.error('ERROR - FIND USER FAILED:', err);
 						return next(err);
 					}
 
-					if (!user) {
-						return create_user(profile, next);
+					if (user) {
+						return next(null, user);
 					}
-					return next(null, user);
+
+					if (req.user) {
+						return add_provider_to_user(req.user.id, profile, next);
+					}
+
+					return create_user(profile, next);
+
 				});
 			},
 
@@ -105,16 +142,19 @@ function user_login(req, accessToken, refreshToken, profile, done) {
 				delete req.session.tokens;
 				return done(err);
 			}
-
-			req.session.accessToken = accessToken;
 			if (!req.session.tokens) {
 				req.session.tokens = {};
 			}
-			// req.session.tokens[profile.provider] = accessToken;
 			req.session.tokens[profile.provider] = {
 				access_token: accessToken,
 				refresh_token: refreshToken
 			};
+
+			user.tokens = {};
+			_.each(req.session.tokens, function(val, key) {
+				user.tokens[provider_to_db_map[key]] = true;
+			});
+
 			return done(null, user);
 		});
 }
@@ -153,6 +193,7 @@ passport.serializeUser(function(user, done) {
 		first_name: user.get_first_name(),
 		email: user.get_email(),
 		alpha_tester: user.alpha_tester,
+		tokens: user.tokens,
 	};
 	user.assign_ids_to_object(user_info);
 
@@ -240,6 +281,7 @@ exports.viewback = function(err, data) {
 exports.get_friends_list = get_friends_list;
 
 function get_friends_list(tokens, callback) {
+	console.log('tokens: ', tokens);
 	async.parallel({
 		fb_friends_list: function(cb) {
 			if (!tokens.facebook) {
@@ -265,6 +307,10 @@ function get_friends_list(tokens, callback) {
 					.withAuthClient(oauth2Client)
 				// .execute(cb);
 				.execute(function(err, resutls) {
+
+					console.log('err: ', err);
+					console.log('resutls: ', resutls);
+
 					cb(err, resutls.items);
 				});
 			});

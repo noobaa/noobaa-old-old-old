@@ -14,19 +14,53 @@
 	////////////////////////////////
 	////////////////////////////////
 
-
 	noobaa_app.controller('MenuBarCtrl', [
-		'$scope', '$http', '$timeout', '$window',
+		'$scope', '$http', '$timeout', '$window', 'nbUserSrv',
 		MenuBarCtrl
 	]);
 
-	function MenuBarCtrl($scope, $http, $timeout, $window) {
+	function MenuBarCtrl($scope, $http, $timeout, $window, nbUserSrv) {
 		$scope.active_link = function(link) {
 			return link === $window.location.pathname ? 'active' : '';
 		};
 		$scope.click_feedback = function() {
 			$('#feedback_dialog').scope().open();
 		};
+
+		$scope.providers = {};
+		$scope.providers['fb'] = {
+			provider_id: 'fbid',
+			auth_path: '/auth/facebook/login/'
+		};
+		$scope.providers['google'] = {
+			provider_id: 'googleid',
+			auth_path: '/auth/google/login/'
+		};
+
+		$scope.get_provider_state_text = function(provider) {
+			// var local_id = $scope.providers[provider].provider_id;
+			// console.log('local_id: ',local_id);
+			if (!nbUserSrv.get_user()[$scope.providers[provider].provider_id]) {
+				//unknown provider state
+				return 'Connect';
+			}
+			if (nbUserSrv.has_token(provider)) {
+				return 'Connected';
+			}
+			return 'Re-connect';
+		}
+
+		$scope.provider_auth_link = function(provider) {
+			console.log('in provider_auth_link. Provider:', provider);
+			console.log('$scope.get_provider_state_text(provider): ', $scope.get_provider_state_text(provider));
+			if ($scope.get_provider_state_text(provider) === 'Connected') {
+				console.log('link to nothing...');
+				return null;
+			}
+			console.log('link should link to: ', provider);
+			return $scope.providers[provider].auth_path;
+		}
+
 	}
 
 	////////////////////////////////
