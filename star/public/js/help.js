@@ -48,7 +48,7 @@ function HelpCtrl($scope, $http) {
 				'Sync folders are great for small amounts of data such as documents, but NooBaa is for BIG data.',
 				'A sync folder which holds 2GB and is synced between your PC, you tablet and your mobile phone takes 6GB.',
 				'Now imagine that the sync folder is 2TB in size. Do you want it to take 6TB on your local devices?',
-				'Just consume eveything directly from the cloud.',
+				'Just consume everything directly from the cloud.',
 			].join('\n')
 		}]
 	};
@@ -66,7 +66,7 @@ function HelpCtrl($scope, $http) {
 			q: 'Why don\'t you allow me to login with my email?',
 			a: [
 				'NooBaa is a social aware network, i.e. it allows you to quickly share with your social network friends who are also NooBaa users.',
-				' Using an existing social netowork account frees you from the need to create yet another contacts/friends list.',
+				' Using an existing social network account frees you from the need to create yet another contacts/friends list.',
 			].join('\n')
 		}, {
 			q: 'Why only Facebook and Google?',
@@ -77,7 +77,7 @@ function HelpCtrl($scope, $http) {
 			q: 'Why does Facebook/Google ask me to approve your access?',
 			a: [
 				'This is done in order to keep your privacy. Every access with your account shows a dialog with the access ',
-				'reqeust the service provider, NooBaa, is making.',
+				'request the service provider, NooBaa, is making.',
 				'As we would like to make it easy to share with your friends, it requires access to your friends list.',
 				'We need your email to be able to communicate with you outside of NooBaa.',
 				'We won\'t post on your wall/feed or add you to any newsletter without getting your explicit permission first.'
@@ -118,9 +118,9 @@ function HelpCtrl($scope, $http) {
 				'In the same scenario, you can even allocate 500GB for co-sharing, and move all your data to the cloud',
 			].join('\n')
 		}, {
-			q: 'If I give 100GB and get 100GB, what\'s init for me?',
+			q: 'If I give 100GB and get 100GB, what\'s in it for me?',
 			a: [
-				'One allocates 100GB on a local, non redundant, inaccessible remotely, hardly sharable location and gets ',
+				'One allocates 100GB on a local, non-redundant, inaccessible remotely, hardly sharable location and gets ',
 				'a simple redundant solution to store extreme media files. Device stolen or breaks? Your data is in the cloud. ',
 				'Want to share your wipe-out movie collection from the office? No problem. Share family pictures with family ',
 				'without exposing them to the social networks.'
@@ -142,7 +142,7 @@ function HelpCtrl($scope, $http) {
 		}, {
 			q: 'What makes NooBaa simple?',
 			a: [
-				'Think how you manage your data today. Photo\'s go there, movies in here, documents on cloud ',
+				'Think how you manage your data today. Photos go there, movies in here, documents on cloud ',
 				'A and scans on cloud B. You seldom have an efficient backup process, if any, and you\'re ',
 				'managing it all manually. Now think of the following: One protected always accessible fast location. '
 			].join('\n')
@@ -152,7 +152,7 @@ function HelpCtrl($scope, $http) {
 				'You own and control all the files under your account.',
 				'People can only share owned files with people on their social network. This guarantees knowledge  ',
 				'of the shared file source.',
-				'Co-shared area doesn\'t contain  any content in it\'s original form, so you can\'t ',
+				'Co-shared area doesn\'t contain any content in its original form, so you can\'t ',
 				'access it even if you wanted to.',
 				'Therefore, as long a you stick to the right side of the law, you\'re safe'
 			].join('\n')
