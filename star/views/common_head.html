@@ -2,19 +2,11 @@
 
 <!-- charset needs to appear as early as possible -->
 <meta charset="utf-8" />
-<meta name="description" 
-	content="NooBaa is a Crowd Cloud where users create the cloud service by Co-Sharing computer resources"/>
-<meta name="viewport" 
-	content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes" />
+<meta name="description" content="NooBaa is a Crowd Cloud where users create the cloud service by Co-Sharing computer resources" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes" />
 <title>NooBaa - Crowd Cloud</title>
 
-<?#''/*
-<!-- These are Open Graph tags.  They add meta data to your  -->
-<!-- site that facebook uses when your content is shared     -->
-<!-- over facebook.  You should fill these tags in with      -->
-<!-- your data.  To learn more about Open Graph, visit       -->
 <!-- 'https://developers.facebook.com/docs/opengraph/'       -->
-*/?>
 <meta content="" property="og:title" />
 <meta content="" property="og:type" />
 <meta content="" property="og:url" />
@@ -22,22 +14,21 @@
 <meta content="" property="og:site_name" />
 <meta property="og:description" content="My First App" />
 <meta content="<?= it.app_id ?>" property="fb:app_id" />
-<meta name="google-site-verification"
-	content="b9-qjbu-C0OP5e7s-CzA0z02i-xggvWs-Op9hlJikL0" />
+<meta name="google-site-verification" content="b9-qjbu-C0OP5e7s-CzA0z02i-xggvWs-Op9hlJikL0" />
 
-<link rel="shortcut icon" href="/public/images/noobaa_icon16.ico"/>
+<link rel="shortcut icon" href="/public/images/noobaa_icon16.ico" />
 
 
 <!-- STYLES -->
 
 
-<link href="/public/css/noobaa_style.css" type="text/css" rel="stylesheet"/>
+<link href="/public/css/noobaa_style.css" type="text/css" rel="stylesheet" />
 <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.no-icons.min.css" rel="stylesheet">
 <!-- <link href="//bootswatch.com/slate/bootstrap.min.css" rel="stylesheet"> -->
 <!-- <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-theme.min.css" rel="stylesheet"> -->
-<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" type="text/css" rel="stylesheet"/>
-<link href="/vendor/bootstrap-tour/css/bootstrap-tour.min.css" type="text/css" rel="stylesheet"/>
-<link href="//code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" type="text/css" rel="stylesheet"/>
+<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" type="text/css" rel="stylesheet" />
+<link href="/vendor/bootstrap-tour/css/bootstrap-tour.min.css" type="text/css" rel="stylesheet" />
+<link href="//code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" type="text/css" rel="stylesheet" />
 
 <!-- Google Fonts -->
 <link href='//fonts.googleapis.com/css?family=Finger+Paint|Ubuntu' rel='stylesheet' type='text/css'>
@@ -52,12 +43,19 @@
 
 <!-- Google analytics snippet - best included as soon as possible -->
 <script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-  ga('create', 'UA-42330226-1', 'noobaa.com');
-  ga('send', 'pageview');
+(function(i, s, o, g, r, a, m) {
+	i['GoogleAnalyticsObject'] = r;
+	i[r] = i[r] || function() {
+		(i[r].q = i[r].q || []).push(arguments)
+	}, i[r].l = 1 * new Date();
+	a = s.createElement(o),
+	m = s.getElementsByTagName(o)[0];
+	a.async = 1;
+	a.src = g;
+	m.parentNode.insertBefore(a, m)
+})(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+ga('create', 'UA-42330226-1', 'noobaa.com');
+ga('send', 'pageview');
 </script>
 
 
@@ -71,42 +69,87 @@
 
 
 
-<?## def.facebook_init_body:
-	<!-- facebook init - best be included right after body tag -->
+<!-- start Mixpanel -->
+<script type="text/javascript">
+(function(e, b) {
+	if (!b.__SV) {
+		var a, f, i, g;
+		window.mixpanel = b;
+		a = e.createElement("script");
+		a.type = "text/javascript";
+		a.async = !0;
+		a.src = ("https:" === e.location.protocol ? "https:" : "http:") + '//cdn.mxpnl.com/libs/mixpanel-2.2.min.js';
+		f = e.getElementsByTagName("script")[0];
+		f.parentNode.insertBefore(a, f);
+		b._i = [];
+		b.init = function(a, e, d) {
+			function f(b, h) {
+				var a = h.split(".");
+				2 == a.length && (b = b[a[0]], h = a[1]);
+				b[h] = function() {
+					b.push([h].concat(Array.prototype.slice.call(arguments, 0)))
+				}
+			}
+			var c = b;
+			"undefined" !==
+				typeof d ? c = b[d] = [] : d = "mixpanel";
+			c.people = c.people || [];
+			c.toString = function(b) {
+				var a = "mixpanel";
+				"mixpanel" !== d && (a += "." + d);
+				b || (a += " (stub)");
+				return a
+			};
+			c.people.toString = function() {
+				return c.toString(1) + ".people (stub)"
+			};
+			i = "disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+			for (g = 0; g < i.length; g++) f(c, i[g]);
+			b._i.push([a, e, d])
+		};
+		b.__SV = 1.2
+	}
+})(document, window.mixpanel || []);
+mixpanel.init("3d665008b89e33420b7bf831b5fbd694");
+</script>
+<!-- end Mixpanel -->
+
+
+<?## def.facebook_init_body: <!-- facebook init - best be included right after body tag -->
 	<div id="fb-root"></div>
 	<script type="text/javascript">
-		// Facebook initialization code
-		window.fbAsyncInit = function() {
-			FB.init({
-				appId      : '<?= it.app_id ?>', // App ID
-				channelUrl : '<?= it.channel_url ?>', // Channel File
-				status     : true, // check login status
-				cookie     : true, // enable cookies to allow the server to access the session
-				xfbml      : true // parse XFBML
-			});
+	// Facebook initialization code
+	window.fbAsyncInit = function() {
+		FB.init({
+			appId: '<?= it.app_id ?>', // App ID
+			channelUrl: '<?= it.channel_url ?>', // Channel File
+			status: true, // check login status
+			cookie: true, // enable cookies to allow the server to access the session
+			xfbml: true // parse XFBML
+		});
 
-			// Listen to the auth.login which will be called when the user logs in
-			// using the Login button
-			// FB.Event.subscribe('auth.login', function(response) {
-				// We want to reload the page now so Ruby can read the cookie that the
-				// Javascript SDK sat. But we don't want to use
-				// window.location.reload() because if this is in a canvas there was a
-				// post made to this page and a reload will trigger a message to the
-				// user asking if they want to send data again.
-				// window.location = window.location;
-			// });
-			// this one is causing some errors, so removing for now
-			// FB.Canvas.setAutoGrow();
-		};
+		// Listen to the auth.login which will be called when the user logs in
+		// using the Login button
+		// FB.Event.subscribe('auth.login', function(response) {
+		// We want to reload the page now so Ruby can read the cookie that the
+		// Javascript SDK sat. But we don't want to use
+		// window.location.reload() because if this is in a canvas there was a
+		// post made to this page and a reload will trigger a message to the
+		// user asking if they want to send data again.
+		// window.location = window.location;
+		// });
+		// this one is causing some errors, so removing for now
+		// FB.Canvas.setAutoGrow();
+	};
 
-		// Load the SDK Asynchronously
-		(function(d, s, id) {
-			var js, fjs = d.getElementsByTagName(s)[0];
-			if (d.getElementById(id)) return;
-			js = d.createElement(s); 
-			js.id = id;
-			js.src = "//connect.facebook.net/en_US/all.js";
-			fjs.parentNode.insertBefore(js, fjs);
-		}(document, 'script', 'facebook-jssdk'));
+	// Load the SDK Asynchronously
+	(function(d, s, id) {
+		var js, fjs = d.getElementsByTagName(s)[0];
+		if (d.getElementById(id)) return;
+		js = d.createElement(s);
+		js.id = id;
+		js.src = "//connect.facebook.net/en_US/all.js";
+		fjs.parentNode.insertBefore(js, fjs);
+	}(document, 'script', 'facebook-jssdk'));
 	</script>
-#?>
+	#?>
