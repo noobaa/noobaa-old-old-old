@@ -22,16 +22,27 @@
 
 <!-- jquery initializations -->
 <script type="text/javascript">
-	$(function(){
-		// enable tooltips and popovers
-		// the container=body is needed due to https://github.com/twitter/bootstrap/issues/5687
-		// jqueryui tooltips are better than bootstrap
-		// we also make sure to load the jqueryui script after bootstrap.
-		$(document).tooltip({
-			container: 'body'
-		});
-		$('[rel=popover]').popover({
-			container: 'body'
-		});
+$(function() {
+	// enable tooltips and popovers
+	// the container=body is needed due to https://github.com/twitter/bootstrap/issues/5687
+	// jqueryui tooltips are better than bootstrap
+	// we also make sure to load the jqueryui script after bootstrap.
+	$(document).tooltip({
+		container: 'body'
 	});
+	$('[rel=popover]').popover({
+		container: 'body'
+	});
+});
+</script>
+
+<script type="text/javascript">
+setTimeout(function() {
+	var a = document.createElement("script");
+	var b = document.getElementsByTagName("script")[0];
+	a.src = document.location.protocol + "//dnn506yrbagrg.cloudfront.net/pages/scripts/0018/8760.js?" + Math.floor(new Date().getTime() / 3600000);
+	a.async = true;
+	a.type = "text/javascript";
+	b.parentNode.insertBefore(a, b)
+}, 1);
 </script>
