@@ -239,23 +239,25 @@
 		$scope.planet_loading = false;
 		$scope.planet_user = null;
 
+		var auth_frame = $('#auth_frame')[0];
+		var auth_frame_window = window.frames['auth_frame'].window;
+
 		// update the connect frame src to load a new url
 		// the hidden frame is used to maintain the login/logout state
 		// this could also be done with ajax, but in order to reuse 
 		// the existing login/logout paths it was a bit shorter with a frame.
 		$scope.auth_frame_path = function(path) {
-			$('#auth_frame')[0].src = path;
+			auth_frame.src = path;
 			$scope.planet_loading = true;
 			$scope.safe_apply();
 		};
 
 		// pull info from the frame once it loads
-		$('#auth_frame')[0].onload = function() {
-			var f = window.frames.auth_frame;
+		auth_frame.onload = function() {
 			// when the user login returned info, pull it to our state
-			console.log('USER:', f.noobaa_user);
+			console.log('USER:', auth_frame_window.noobaa_user, auth_frame, auth_frame_window);
 			$scope.planet_loading = false;
-			$scope.planet_user = f.noobaa_user;
+			$scope.planet_user = auth_frame_window.noobaa_user;
 			schedule_device(1);
 			get_user_folders();
 			$scope.safe_apply();
