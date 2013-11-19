@@ -240,7 +240,7 @@
 		$scope.planet_user = null;
 
 		var auth_frame = $('#auth_frame')[0];
-		var auth_frame_window = window.frames['auth_frame'].window;
+		var auth_frame_window = window.frames.auth_frame.window;
 
 		// update the connect frame src to load a new url
 		// the hidden frame is used to maintain the login/logout state
