@@ -153,3 +153,28 @@ mixpanel.init("3d665008b89e33420b7bf831b5fbd694");
 	}(document, 'script', 'facebook-jssdk'));
 	</script>
 	#?>
+
+	<?## def.clicktale_top: <!-- ClickTale Top part -->
+		<script type="text/javascript">
+		var WRInitTime = (new Date()).getTime();
+		</script>
+		<!-- ClickTale end of Top part -->
+		#?>
+
+		<?## def.clicktale_bottom: <!-- ClickTale Bottom part -->
+
+			<script type='text/javascript'>
+			// The ClickTale Balkan Tracking Code may be programmatically customized using hooks:
+			 // 
+			 //   function ClickTalePreRecordingHook() { /* place your customized code here */  }
+			 //
+			 // For details about ClickTale hooks, please consult the wiki page http://wiki.clicktale.com/Article/Customizing_code_version_2
+
+			document.write(unescape("%3Cscript%20src='" +
+				(document.location.protocol == 'https:' ?
+					"https://clicktalecdn.sslcs.cdngc.net/www02/ptc/05b0658f-0532-40f2-8362-dbae32f0a2e7.js" :
+					"http://cdn.clicktale.net/www02/ptc/05b0658f-0532-40f2-8362-dbae32f0a2e7.js") + "'%20type='text/javascript'%3E%3C/script%3E"));
+			</script>
+
+			<!-- ClickTale end of Bottom part -->
+			#?>
