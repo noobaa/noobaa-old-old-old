@@ -4,7 +4,7 @@
 var _ = require('underscore');
 var async = require('async');
 var common_api = require('./common_api');
-var user_inodes = require('../providers/user_inodes');
+var user_inodes = require('./user_inodes');
 var User = require('../models/user').User;
 var email = require('./email');
 

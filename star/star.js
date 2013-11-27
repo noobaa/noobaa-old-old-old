@@ -23,7 +23,7 @@ var mongoose = require('mongoose');
 var User = require('./models/user').User;
 
 // var fbapi = require('facebook-api');
-var common_api = require('./routes/common_api');
+var common_api = require('./lib/common_api');
 
 // connect to the database
 mongoose.connect(process.env.MONGOHQ_URL);
@@ -217,7 +217,7 @@ function error_501(req, res, next) {
 
 // setup auth routes
 
-var auth = require('./routes/auth');
+var auth = require('./lib/auth');
 
 var facebook_auth_path = URL.parse(process.env.FACEBOOK_AUTHORIZED_URL).path;
 var google_auth_path = URL.parse(process.env.GOOGLE_AUTHORIZED_URL).path;
@@ -235,7 +235,7 @@ app.get('/auth/google/login/', auth.provider_login.bind(null, 'google'));
 
 // setup star API routes
 
-var inode_api = require('./routes/inode_api');
+var inode_api = require('./lib/inode_api');
 app.post('/api/inode/', inode_api.inode_create);
 app.get('/api/inode/:inode_id', inode_api.inode_read);
 app.put('/api/inode/:inode_id', inode_api.inode_update);
@@ -251,14 +251,14 @@ app.put('/api/inode/:inode_id/share_list', inode_api.inode_set_share_list);
 app.post('/api/inode/:inode_id/link', inode_api.inode_mklink);
 app.del('/api/inode/:inode_id/link', inode_api.inode_rmlinks);
 
-var user_api = require('./routes/user_api');
+var user_api = require('./lib/user_api');
 app.get('/api/user/', user_api.user_read);
 app.put('/api/user/', user_api.user_update);
 
-var email = require('./routes/email');
+var email = require('./lib/email');
 app.post('/api/user/feedback/', email.user_feedback);
 
-var device_api = require('./routes/device_api');
+var device_api = require('./lib/device_api');
 app.post('/api/device/', device_api.device_create);
 app.get('/api/device/', device_api.device_list);
 app.put('/api/device/:device_id', device_api.device_update);
@@ -267,7 +267,7 @@ app.get('/api/device/current/', device_api.device_current);
 
 // setup admin pages
 
-var adminoobaa = require('./routes/adminoobaa');
+var adminoobaa = require('./lib/adminoobaa');
 app.get('/adminoobaa/', adminoobaa.admin_view);
 app.put('/adminoobaa/', adminoobaa.admin_update);
 

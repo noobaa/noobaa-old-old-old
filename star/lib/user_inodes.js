@@ -4,8 +4,8 @@ var Inode = require('../models/inode').Inode;
 var User = require('../models/user').User;
 var Fobj = require('../models/fobj').Fobj;
 var wnst = require('winston');
-var email = require('../routes/email');
-var common_api = require('../routes/common_api');
+var email = require('./email');
+var common_api = require('./common_api');
 
 var CONST_BASE_FOLDERS = {
 	'MYDATA': 'My Data',

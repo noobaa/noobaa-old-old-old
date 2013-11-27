@@ -7,7 +7,7 @@ var common_api = require('./common_api');
 var User = require('../models/user').User;
 var Inodes = require('../models/inode').Inode;
 var Device = require('../models/device.js').Device;
-var user_inodes = require('../providers/user_inodes');
+var user_inodes = require('./user_inodes');
 var email = require('./email');
 var mongoose = require('mongoose');
 
