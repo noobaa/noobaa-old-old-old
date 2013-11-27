@@ -379,7 +379,7 @@
 		function create_device() {
 			return $http({
 				method: 'POST',
-				url: '/star_api/device/',
+				url: '/api/device/',
 				data: {
 					host_info: get_host_info(),
 					srv_port: $scope.srv_port
@@ -407,7 +407,7 @@
 		function update_device(coshare_space) {
 			return $http({
 				method: 'PUT',
-				url: '/star_api/device/' + $scope.planet_device._id,
+				url: '/api/device/' + $scope.planet_device._id,
 				data: {
 					host_info: get_host_info(),
 					srv_port: $scope.srv_port,
@@ -498,7 +498,7 @@
 			}
 			return $http({
 				method: 'GET',
-				url: '/star_api/inode/null'
+				url: '/api/inode/null'
 			}).then(function(res) {
 				console.log('GOT USER FOLDERS', res);
 				for (var i = 0; i < res.data.entries.length; i++) {

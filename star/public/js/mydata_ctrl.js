@@ -511,8 +511,7 @@ MyDataCtrl.$inject = ['$scope', '$http', '$timeout', '$window', '$q', '$rootScop
 function MyDataCtrl($scope, $http, $timeout, $window, $q, $rootScope, $compile, nbUploadSrv) {
 
 	$scope.timeout = $timeout;
-	$scope.api_url = "/star_api/";
-	$scope.inode_api_url = $scope.api_url + "inode/";
+	$scope.inode_api_url = "/api/inode/";
 	$scope.inode_share_sufix = "/share_list";
 	$scope.inode_copy_sufix = "/copy";
 	$scope.inode_link_sufix = "/link";
@@ -768,7 +767,7 @@ function MyDataCtrl($scope, $http, $timeout, $window, $q, $rootScope, $compile, 
 		}
 		$http({
 			method: 'GET',
-			url: '/star_api/device/current/'
+			url: '/api/device/current/'
 		}).then(function(res) {
 			console.log('LOCAL PLANET', res.data);
 			var local_planet = res.data ? res.data.device : null;

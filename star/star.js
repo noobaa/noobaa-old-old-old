@@ -39,8 +39,8 @@ var dot_emc_app = dot_emc.init({
 	app: app
 });
 dot.templateSettings.strip = false;
-dot.templateSettings.cache = ('development' != app.get('env'));
-// replace dot regexp to use <% %> to avoid collision with angular {{ }}
+dot.templateSettings.cache = true; // ('development' != app.get('env'));
+// replace dot regexp to use <? ?> to avoid collision with angular {{ }}
 for (var i in dot.templateSettings) {
 	var reg = dot.templateSettings[i];
 	if (!(reg instanceof RegExp)) {
@@ -114,7 +114,7 @@ app.use(express.cookieSession({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
-app.use('/star_api/', function(req, res, next) {
+app.use('/api/', function(req, res, next) {
 	// general validations preceding all the star api functions
 	if (!req.user) {
 		return error_403(req, res, next);
@@ -236,33 +236,33 @@ app.get('/auth/google/login/', auth.provider_login.bind(null, 'google'));
 // setup star API routes
 
 var inode_api = require('./routes/inode_api');
-app.post('/star_api/inode/', inode_api.inode_create);
-app.get('/star_api/inode/:inode_id', inode_api.inode_read);
-app.put('/star_api/inode/:inode_id', inode_api.inode_update);
-app.put('/star_api/inode/:inode_id/copy', inode_api.inode_copy);
-app.del('/star_api/inode/:inode_id', inode_api.inode_delete);
+app.post('/api/inode/', inode_api.inode_create);
+app.get('/api/inode/:inode_id', inode_api.inode_read);
+app.put('/api/inode/:inode_id', inode_api.inode_update);
+app.put('/api/inode/:inode_id/copy', inode_api.inode_copy);
+app.del('/api/inode/:inode_id', inode_api.inode_delete);
 
-app.get('/star_api/inode/src_dev/:device_id', inode_api.inode_source_device);
-app.post('/star_api/inode/:inode_id/multipart/', inode_api.inode_multipart);
+app.get('/api/inode/src_dev/:device_id', inode_api.inode_source_device);
+app.post('/api/inode/:inode_id/multipart/', inode_api.inode_multipart);
 
-app.get('/star_api/inode/:inode_id/share_list', inode_api.inode_get_share_list);
-app.put('/star_api/inode/:inode_id/share_list', inode_api.inode_set_share_list);
+app.get('/api/inode/:inode_id/share_list', inode_api.inode_get_share_list);
+app.put('/api/inode/:inode_id/share_list', inode_api.inode_set_share_list);
 
-app.post('/star_api/inode/:inode_id/link', inode_api.inode_mklink);
-app.del('/star_api/inode/:inode_id/link', inode_api.inode_rmlinks);
+app.post('/api/inode/:inode_id/link', inode_api.inode_mklink);
+app.del('/api/inode/:inode_id/link', inode_api.inode_rmlinks);
 
 var user_api = require('./routes/user_api');
-app.get('/star_api/user/', user_api.user_read);
-app.put('/star_api/user/', user_api.user_update);
+app.get('/api/user/', user_api.user_read);
+app.put('/api/user/', user_api.user_update);
 
 var email = require('./routes/email');
-app.post('/star_api/user/feedback/', email.user_feedback);
+app.post('/api/user/feedback/', email.user_feedback);
 
 var device_api = require('./routes/device_api');
-app.post('/star_api/device/', device_api.device_create);
-app.get('/star_api/device/', device_api.device_list);
-app.put('/star_api/device/:device_id', device_api.device_update);
-app.get('/star_api/device/current/', device_api.device_current);
+app.post('/api/device/', device_api.device_create);
+app.get('/api/device/', device_api.device_list);
+app.put('/api/device/:device_id', device_api.device_update);
+app.get('/api/device/current/', device_api.device_current);
 
 
 // setup admin pages

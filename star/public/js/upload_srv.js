@@ -384,7 +384,7 @@
 			// inode_id supplied - getattr to verify it exists
 			return me.$http({
 				method: 'GET',
-				url: '/star_api/inode/' + upload.inode_id,
+				url: '/api/inode/' + upload.inode_id,
 				params: {
 					// tell the server to return attr 
 					// and not readdir us as in normal read
@@ -397,7 +397,7 @@
 			// create the file and receive upload location info
 			return me.$http({
 				method: 'POST',
-				url: '/star_api/inode/',
+				url: '/api/inode/',
 				data: {
 					id: upload.dir_inode_id,
 					name: upload.item.name,
@@ -425,7 +425,7 @@
 		}
 		return me.$http({
 			method: 'GET',
-			url: '/star_api/inode/' + upload.inode_id,
+			url: '/api/inode/' + upload.inode_id,
 		}).then(function(res) {
 			var ents = res.data.entries;
 			console.log('READDIR FROM STAR', upload.item.name, ents);
@@ -675,7 +675,7 @@
 			console.log('UPLOAD gettattr', upload);
 			return me.$http({
 				method: 'GET',
-				url: '/star_api/inode/' + upload.inode_id,
+				url: '/api/inode/' + upload.inode_id,
 				params: {
 					// tell the server to return attr 
 					// and not redirect us as in normal read
@@ -689,7 +689,7 @@
 			console.log('UPLOAD create', upload);
 			return me.$http({
 				method: 'POST',
-				url: '/star_api/inode/',
+				url: '/api/inode/',
 				data: {
 					id: upload.dir_inode_id,
 					isdir: false,
@@ -725,7 +725,7 @@
 		// get missing parts
 		return me.$http({
 			method: 'POST',
-			url: '/star_api/inode/' + upload.inode_id + '/multipart/'
+			url: '/api/inode/' + upload.inode_id + '/multipart/'
 		}).then(function(res) {
 			throw_if_stopped(upload);
 			upload.multipart = res.data;
@@ -1075,7 +1075,7 @@
 		var me = this;
 		return me.$http({
 			method: 'PUT',
-			url: '/star_api/inode/' + upload.inode_id,
+			url: '/api/inode/' + upload.inode_id,
 			data: {
 				src_dev_id: null
 			}
@@ -1096,7 +1096,7 @@
 		var me = this;
 		return me.$http({
 			method: 'GET',
-			url: '/star_api/inode/src_dev/' + device_id,
+			url: '/api/inode/src_dev/' + device_id,
 		}).then(function(res) {
 			var ents = res.data.entries;
 			for (var i = 0; i < ents.length; i++) {

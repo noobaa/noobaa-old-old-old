@@ -75,7 +75,7 @@
 			console.log('sending feedback.', 'queue:', $scope.feedbacks.length);
 			$scope.sending = $http({
 				method: 'POST',
-				url: '/star_api/user/feedback/',
+				url: '/api/user/feedback/',
 				data: {
 					feedback: $scope.feedbacks[0]
 				}
@@ -121,7 +121,7 @@
 			cancel_usage_refresh();
 			$http({
 				method: "GET",
-				url: "/star_api/user/",
+				url: "/api/user/",
 			}).success(function(data, status, headers, config) {
 				$scope.user_quota = data.quota;
 				$scope.user_usage = data.usage;

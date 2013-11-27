@@ -1294,7 +1294,7 @@ exports.inode_mklink = function(req, res) {
 			// signing the link_options with a secret to prevent tampering
 			var link = common_api.json_encode_sign(link_options, NBLINK_SECRET);
 			var url = URL.format({
-				pathname: '/star_api/inode/' + inode_id,
+				pathname: '/api/inode/' + inode_id,
 				query: {
 					nblink: JSON.stringify(link) // link object fields: data, sign.
 				}
