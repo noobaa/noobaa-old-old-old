@@ -11,23 +11,36 @@
 		<table class="table">
 			<thead>
 				<th>#</th>
-				<th>Name</th>
-				<th>providers</th>
-				<th>Alpha</th>
-				<th>Files</th>
-				<th>Quota</th>
-				<th>Consumption</th>
-				<th>Custom Email</th>
-				<th>Devices</th>
+				<th>User</th>
+				<!-- <th>Alpha</th> -->
+				<th>
+					Files
+					<span class="badge">{{totals.num_files}}</span>
+				</th>
+				<th>
+					Consumption
+					<span class="badge">{{human_size(totals.usage)}}</span>
+				</th>
+				<th>
+					Quota
+					<span class="badge">{{human_size(totals.quota)}}</span>
+				</th>
+				<th>
+					Device
+					<span class="badge">{{totals.num_devices}}</span>
+				</th>
 			</thead>
 			<tbody>
 
 				<tr ng-repeat="(row_index,user) in users_array | orderBy:'_id':true ">
 					<td>{{users_array.length-row_index}}</td>
-					<td>{{ user.name}}</td>
-					<td>
-						<div ng-show="user.fb"> FB </div>
-						<div ng-show="user.google"> Google </div></td>
+					<td title="{{user.email}}">
+						<span>{{user.name}}</span>
+						<span ng-show="user.fb">[FB]</span>
+						<span ng-show="user.google">[G+]</span>
+						<span ng-show="user.email">(@)</span>
+					</td>
+					<!-- 
 					<td>
 						<button 
 						ng-class="{true: ' btn btn-success', false:'btn btn-warning'}[!!user.alpha_tester]"
@@ -35,10 +48,20 @@
 							{{user.alpha_tester || 'false'}}
 						</button>
 					</td>
+					 -->
 					<td>{{user.files}}</td>
-					<td>{{human_size(user.consumption)}}</td>
-					<td>{{human_size(user.quota)}}</td>
-					<td>{{user.email}}</td>
+					<td ng-style="style_usage(user)">
+						{{human_size(user.consumption)}}
+					</td>
+					<td ng-style="style_quota(user)">
+						{{human_size(user.quota)}}
+					</td>
+					<td ng-style="style_dev_time(user)">
+						<span ng-repeat="(dev_id,dev) in user.devices" title="[{{dev.host_info.platform}}] {{dev.host_info.hostname}}">
+						{{locale_date(dev.last_update)}}
+						</span>
+					</td>
+					<!-- 
 					<td>
 						<table
 							class="table table-condensed">
@@ -62,6 +85,7 @@
 							</tbody>
 						</table>
 					</td>
+					-->
 				</tr>
 
 
@@ -84,9 +108,73 @@
 			// parse user data from safe json in html
 			$scope.users = JSON.parse($('#users_data').html());
 			$scope.users_array = _.values($scope.users);
-			$scope.row_num=0
-			console.log('USERS AND DEVICES DATA:', $scope.users);
+			$scope.totals = {
+				num_devices: 0,
+				quota: 0,
+				usage: 0,
+				num_files: 0
+			};
+			for (var user_id in $scope.users) {
+				var user = $scope.users[user_id];
+				for (var dev_id in user.devices) {
+					$scope.totals.num_devices++;
+				}
+				if (user.quota > 1024*1024*1024) {
+					$scope.totals.quota += user.quota;
+				}
+				if (user.consumption) {
+					$scope.totals.usage += user.consumption;
+				}
+				if (user.files) {
+					$scope.totals.num_files += user.files;
+				}
+			}
+			console.log('USERS AND DEVICES DATA:', $scope.users, $scope.totals);
 			
+			$scope.style_usage = function(user) {
+				if (user.consumption >= 1024*1024*1024) {
+					return {
+						'background-color': 'red'
+					};
+				}
+				if (user.consumption >= 1024*1024) {
+					return {
+						'background-color': 'yellow'
+					};
+				}
+			};
+			$scope.style_quota = function(user) {
+				if (user.quota >= 100*1024*1024*1024) {
+					return {
+						'background-color': 'red'
+					};
+				}
+				if (user.quota >= 10*1024*1024*1024) {
+					return {
+						'background-color': 'yellow'
+					};
+				}
+			};
+			$scope.style_dev_time = function(user) {
+				var now = (new Date()).getTime();
+				for (var dev_id in user.devices) {
+					var dev = user.devices[dev_id];
+					if (dev.last_update) {
+						var time = (new Date(dev.last_update)).getTime();
+						if (now - time <= 3600000*24) { // 24 hours
+							return {
+								'background-color': 'red'
+							};
+						}
+						if (now - time <= 3600000*24*7) { // 1 week
+							return {
+								'background-color': 'yellow'
+							};
+						}						
+					}
+				}
+			}
+
 			$scope.locale_date = function(date) {
 				if (!date) {
 					return '';
