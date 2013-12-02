@@ -338,12 +338,12 @@ app.get('/settings', redirect_no_user, function(req, res) {
 	return res.render('settings.html', common_api.page_context(req));
 });
 
-app.get('/mydata', redirect_no_user, function(req, res) {
-	return res.render('mydata.html', common_api.page_context(req));
+app.get('/home', redirect_no_user, function(req, res) {
+	return res.render('home.html', common_api.page_context(req));
 });
 
 app.get('/', redirect_no_user, function(req, res) {
-	return res.redirect('/mydata');
+	return res.redirect('/home');
 });
 
 
