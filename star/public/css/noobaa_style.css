@@ -10,7 +10,7 @@ html {
 	overflow-y: scroll;
 	overflow-x: auto;
 }
-.btn, .panel, .panel-heading, .form-group input {
+.btn, .form-group input, .Xpanel, .Xpanel-heading {
 	border-radius: 0 !important;
 }
 .thumbnail {
@@ -249,7 +249,7 @@ html {
 	border-bottom-right-radius: 100px !important;
 }
 .file_line {
-	line-height: 50px;
+	line-height: 44px;
 	vertical-align: middle;
 	border-color: rgba(50, 118, 177, 0.1);
 	border-style: solid;
