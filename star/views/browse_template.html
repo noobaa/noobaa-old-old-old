@@ -1,6 +1,6 @@
 <div>
-	<div class="panel panel-primary">
-		<div class="panel-heading" style="padding: 0 10px 10px 10px; background-color: #f2f2f2; color: black">
+	<div class="panel panel-default">
+		<div class="panel-heading" style="padding: 0 10px 10px 10px">
 			<div ng-repeat="parent in parents_path(dir_inode)" style="display: inline-block; margin-top: 10px">
 				<i ng-show="!$first" class="fa fa-angle-double-right fa-fw"></i>
 				<button class="btn btn-primary {{$last && 'active' || ''}}" ng-click="open_inode(parent)">
@@ -15,12 +15,29 @@
 
 		<div class="panel-body" style="padding: 0">
 			<div ng-repeat="inode in dir_inode.sons" class="file_line notextselect {{selections[inode.id] && 'active' || ''}}" style="border-bottom-width: 1px; border-top-width: 1px" ng-click="select_inode(inode, $event, $index)">
-				<div style="overflow: scroll; margin-right: 30px">
+				<div style="margin-right: 30px; overflow: scroll">
 					<i ng-show="!!inode.isdir" class="fa fa-folder fa-fw fa-lg text-info"></i>
 					<i ng-show="!inode.isdir" class="fa fa-file-o fa-fw fa-lg text-muted"></i>
 					<a class="btn btn-link" ng-click="open_inode(inode)" style="padding-left: 0; display: inline">
 						{{inode.name}}
 					</a>
+					<div ng-if="end_select_index===$index" class="btn-group">
+						<button type="button" class="btn btn-default dropdown-toggle" Xng-click="open_context_menu($event)" data-toggle="dropdown">
+							<!-- <i class="fa fa-ellipsis-h"></i> -->
+							<span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu" role="menu">
+							<li><a href="#">Action</a>
+							</li>
+							<li><a href="#">Another action</a>
+							</li>
+							<li><a href="#">Something else here</a>
+							</li>
+							<li class="divider"></li>
+							<li><a href="#">Separated link</a>
+							</li>
+						</ul>
+					</div>
 				</div>
 				<div ng-if="playing === inode">
 					<div class="text-center">

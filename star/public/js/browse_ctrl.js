@@ -61,7 +61,8 @@
 						} else {
 							$scope.dir_inode = inode;
 							$scope.selections = {};
-							$scope.last_select_index = -1;
+							$scope.start_select_index = -1;
+							$scope.end_select_index = -1;
 							read_dir(inode);
 						}
 					}
@@ -69,21 +70,24 @@
 					function select_inode(inode, $event, $index, toggle) {
 						if ($event.ctrlKey || $event.metaKey || toggle === 'toggle') {
 							$scope.selections[inode.id] = !$scope.selections[inode.id];
-							$scope.last_select_index = $scope.selections[inode.id] ? $index : -1;
-						} else if ($event.shiftKey && $scope.last_select_index >= 0) {
-							if ($index >= $scope.last_select_index) {
-								for (var i = $scope.last_select_index; i <= $index; i++) {
+							$scope.start_select_index = $scope.selections[inode.id] ? $index : -1;
+							$scope.end_select_index = $scope.start_select_index;
+						} else if ($event.shiftKey && $scope.start_select_index >= 0) {
+							if ($index >= $scope.start_select_index) {
+								for (var i = $scope.start_select_index; i <= $index; i++) {
 									$scope.selections[inode.parent.sons[i].id] = true;
 								}
 							} else {
-								for (var i = $scope.last_select_index; i >= $index; i--) {
+								for (var i = $scope.start_select_index; i >= $index; i--) {
 									$scope.selections[inode.parent.sons[i].id] = true;
 								}
 							}
+							$scope.end_select_index = $index;
 						} else {
 							$scope.selections = {};
 							$scope.selections[inode.id] = true;
-							$scope.last_select_index = $index;
+							$scope.start_select_index = $index;
+							$scope.end_select_index = $index;
 						}
 						$event.stopPropagation();
 						return false;
@@ -99,9 +103,17 @@
 						return parents;
 					}
 
+					// TODO - dropdown doesn't work yet
+					function open_context_menu($event) {
+						$($event.target).dropdown('toggle');
+						$event.stopPropagation();
+						return false;
+					}
+
 					$scope.open_inode = open_inode;
 					$scope.select_inode = select_inode;
 					$scope.parents_path = parents_path;
+					$scope.open_context_menu = open_context_menu;
 
 					$scope.inode_source_url = function(inode) {
 						return '/api/inode/' + inode.id;
