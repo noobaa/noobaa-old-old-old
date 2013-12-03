@@ -86,22 +86,19 @@
 	</style>
 </head>
 
-<body ng-cloak>
+<body ng-cloak ng-controller="MyDataCtrl" ng-init="filter_file_name=''">
 
 	<!-- <div class="bgfilter"></div> -->
 
 	<?# def.include('common_menubar.html') ?>
 
-	<div ng-controller="MyDataCtrl"
-		ng-init="filter_file_name=''"
-		id="my_data_content"
-		class="container">
+	<div id="my_data_content" class="container">
 
 
 <!-- TOOLBAR -->
 
 
-	<div class="row" style="margin-bottom: 20px;">
+	<div class="row" style="margin-bottom: 20px;" hidden>
 
 		<div class="col-md-3 text-center">
 			<div class="btn-group" style="width: 100%">

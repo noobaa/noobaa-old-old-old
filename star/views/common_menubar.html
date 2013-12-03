@@ -6,21 +6,25 @@
 			<button type="button" 
 				class="navbar-toggle" 
 				data-toggle="collapse" 
-				data-target=".navbar-ex1-collapse">
-				<span class="sr-only">Toggle navigation</span>
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
+				data-target=".navbar-ex1-collapse"
+				style="color: white">
+				Menu
+				<i class="fa fa-caret-down"></i>
 			</button>
 			<a id="logo_link" class="navbar-brand" href="/">
 				<img src="/public/images/noobaa_logo.png"></img>
 			</a>
 		</div>
+		<div class="nav navbar-nav navbar-left" style="padding-left: 20px">
+			<button class="navbar-btn btn btn-danger" ng-click="open_local_planet()" id="space_button">
+				Install
+			</button>
+			<button class="navbar-btn btn btn-success" ng-click="toggle_uploads_view()" id="upload_button">
+				Upload
+			</button>
+		</div>
 		<div class="collapse navbar-collapse navbar-ex1-collapse">
 			<ul id="menu_right" class="nav navbar-nav navbar-right">
-				<li ng-class="active_link('/home')">
-					<a href="/home" id="my_data_link">Home</a>
-				</li>
 				<li ng-controller="GuideCtrl" class="dropdown">
 					<a id="my_guides"
 						href="#"
