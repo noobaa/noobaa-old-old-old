@@ -427,6 +427,15 @@
 		};
 	});
 
+	noobaa_app.directive('nbResizable', function() {
+		return {
+			restrict: 'A', // use as attribute
+			link: function(scope, element, attr) {
+				element.resizable();
+			}
+		};
+	});
+
 	noobaa_app.directive('nbKey', function($parse) {
 		return {
 			restrict: 'A', // use as attribute

@@ -5,24 +5,27 @@ html, body {
 	height: 100%;
 	min-height: 100%;
 }
-
 html {
 	/* force scroll-y to show, to prevent flickery resizes */
 	overflow-y: scroll;
 	overflow-x: auto;
 }
-
+.btn, .panel, .panel-heading, .form-group input {
+	border-radius: 0 !important;
+}
+.thumbnail {
+	border: none !important;
+}
 .fnt, body, h1, h2, h3, h4, h5, h6, .ui-widget, button {
-	font-family: 'Ubuntu', sans-serif !important;
+	font-family:'Ubuntu', sans-serif !important;
 	/*font-family: 'Nunito', 'Ubuntu', sans-serif !important;*/
 }
 .fntpaint {
-	font-family: 'Finger Paint', cursive !important;
+	font-family:'Finger Paint', cursive !important;
 }
 .fntthin {
-	font-family: 'Ubuntu', sans-serif !important;
+	font-family:'Ubuntu', sans-serif !important;
 }
-
 .fntmd {
 	/* normal font is 14px and line 1.428em by bootstrap */
 	font-size: 16px;
@@ -36,15 +39,12 @@ html {
 		font-size: 50px;
 	}
 }
-
 .fntblk {
 	color: black;
 }
 .fntwht {
 	color: white;
 }
-
-
 .navbar {
 	opacity: 0.95;
 }
@@ -54,7 +54,6 @@ html {
 .navbar .navbar-brand img {
 	height: 40px;
 }
-
 @media all and (min-width: 992px) and (max-width: 1099px) {
 	.container {
 		width: 750px !important;
@@ -65,8 +64,6 @@ html {
 		width: 1000px !important;
 	}
 }
-
-
 .bglight {
 	background-color: white;
 }
@@ -77,31 +74,25 @@ html {
 .bggrey {
 	background-color: #ebe9f1;
 }
-
-
 .text-ellipses {
 	overflow: hidden;
 	white-space: nowrap;
 	text-overflow: ellipsis;
 }
-
 .filling {
 	width: 100%;
 	height: 100%;
 	min-height: 100%;
 	margin: 0;
 }
-
-.hfill { 
+.hfill {
 	height: 100%;
 	/*min-height: 100%;*/
 }
-
-.wfill { 
+.wfill {
 	width: 100%;
 	min-width: 100%;
 }
-
 .roundbord {
 	/*border-radius: 7px/7px;*/
 	/*padding: 5px;*/
@@ -114,55 +105,46 @@ html {
 	box-shadow: 		0 0 5px 5px rgba(0, 0, 0, 0.3);
 	*/
 }
-
-
-
 .nbdialog {
 	display: none;
 	outline: none;
 	overflow: hidden;
 	background-color: white;
-	border-radius: 10px/10px;
+	/*border-radius: 10px/10px;*/
 	/*
 	-moz-box-shadow: 	0 0 3px 3px rgba(0, 0, 0, 0.4);
 	-webkit-box-shadow: 0 0 3px 3px rgba(0, 0, 0, 0.4);
 	box-shadow: 		0 0 3px 3px rgba(0, 0, 0, 0.4);
 	*/
 	border: 3px solid rgba(50, 50, 50, 0.5);
-	-moz-background-clip: 		padding;
-	-webkit-background-clip: 	padding;
-	background-clip: 			padding-box;
+	-moz-background-clip: padding;
+	-webkit-background-clip: padding;
+	background-clip: padding-box;
 }
 .nbdialog_header, .nbdialog_content, .nbdialog_footer {
 	padding: 15px;
 }
 .nbdialog_content {
-	background-color: #ebe9f1; /*includes bggrey*/
-	border-top: 	solid 1px rgba(0,0,0,0.2);
-	border-bottom: 	solid 1px rgba(0,0,0,0.2);
+	background-color: #ebe9f1;
+	/*includes bggrey*/
+	border-top: solid 1px rgba(0, 0, 0, 0.2);
+	border-bottom: solid 1px rgba(0, 0, 0, 0.2);
 }
 .nbdialog .inode_label {
 	margin: 20px;
 	word-wrap: break-word;
 }
-
 .alert_dialog .nbdialog_header .alert_icon {
 	font-size: 35px;
-	color: rgba(255,200,100,1);
-	text-shadow: 
-		-1px 0 black, 0 1px black,
-		1px 0 black,  0 -1px black;
+	color: rgba(255, 200, 100, 1);
+	text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
 }
 .confirm_dialog .nbdialog_header .confirm_icon {
 	font-size: 35px;
-	color: rgba(255,200,100,1);
-	text-shadow: 
-		-1px 0 black, 0 1px black,
-		1px 0 black,  0 -1px black;
+	color: rgba(255, 200, 100, 1);
+	text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
 }
-
-.nbdialog_modal_backdrop,
-.tour-backdrop {
+.nbdialog_modal_backdrop, .tour-backdrop {
 	background-color: black;
 	opacity: 0.5 !important;
 	position: fixed !important;
@@ -171,38 +153,44 @@ html {
 	height: 100% !important;
 	width: 100% !important;
 }
-
 .tour .popover-content {
 	/*background-color: rgba(50,50,50,1);*/
 	/*color: white;*/
 	/*background-color: rgba(255,200,0,0.6);*/
-	background: rgb(210,255,82); /* Old browsers */
-	background: -moz-linear-gradient(-45deg,  rgba(210,255,82,1) 0%, rgba(145,232,66,1) 100%); /* FF3.6+ */
-	background: -webkit-gradient(linear, left top, right bottom, color-stop(0%,rgba(210,255,82,1)), color-stop(100%,rgba(145,232,66,1))); /* Chrome,Safari4+ */
-	background: -webkit-linear-gradient(-45deg,  rgba(210,255,82,1) 0%,rgba(145,232,66,1) 100%); /* Chrome10+,Safari5.1+ */
-	background: -o-linear-gradient(-45deg,  rgba(210,255,82,1) 0%,rgba(145,232,66,1) 100%); /* Opera 11.10+ */
-	background: -ms-linear-gradient(-45deg,  rgba(210,255,82,1) 0%,rgba(145,232,66,1) 100%); /* IE10+ */
-	background: linear-gradient(135deg,  rgba(210,255,82,1) 0%,rgba(145,232,66,1) 100%); /* W3C */
-	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d2ff52', endColorstr='#91e842',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+	background: rgb(210, 255, 82);
+	/* Old browsers */
+	background: -moz-linear-gradient(-45deg, rgba(210, 255, 82, 1) 0%, rgba(145, 232, 66, 1) 100%);
+	/* FF3.6+ */
+	background: -webkit-gradient(linear, left top, right bottom, color-stop(0%, rgba(210, 255, 82, 1)), color-stop(100%, rgba(145, 232, 66, 1)));
+	/* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(-45deg, rgba(210, 255, 82, 1) 0%, rgba(145, 232, 66, 1) 100%);
+	/* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(-45deg, rgba(210, 255, 82, 1) 0%, rgba(145, 232, 66, 1) 100%);
+	/* Opera 11.10+ */
+	background: -ms-linear-gradient(-45deg, rgba(210, 255, 82, 1) 0%, rgba(145, 232, 66, 1) 100%);
+	/* IE10+ */
+	background: linear-gradient(135deg, rgba(210, 255, 82, 1) 0%, rgba(145, 232, 66, 1) 100%);
+	/* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#d2ff52', endColorstr='#91e842', GradientType=1);
+	/* IE6-9 fallback on horizontal gradient */
 }
 .tour .popover-title, .tour .popover-navigation {
 	/*background-color: #5cb85c;*/
 	background-color: white;
 }
 .tour-step-backdrop {
-	z-index: 1010 !important; /* forced below tour step */
+	z-index: 1010 !important;
+	/* forced below tour step */
 }
 .tour-step-background {
 	display: none !important;
 }
-
 .bgpattern {
-	background-image: url('/public/images/pattern.png'); 
+	background-image: url('/public/images/pattern.png');
 	position: absolute;
 	width: 100%;
 	height: 100%;
 }
-
 .notextselect {
 	/* begin disable text selection highlight */
 	-webkit-touch-callout: none;
@@ -212,11 +200,16 @@ html {
 	-ms-user-select: none;
 	user-select: none;
 }
-
-.selectable .ui-selecting { background: #FECA40; }
-.selectable .ui-selected { background: #F39814; color: white; }
-.selectable { list-style-type: none; }
-
+.selectable .ui-selecting {
+	background: #FECA40;
+}
+.selectable .ui-selected {
+	background: #F39814;
+	color: white;
+}
+.selectable {
+	list-style-type: none;
+}
 /*
 	Allow angular.js to be loaded in body, hiding cloaked elements until 
 	templates compile.  The !important is important given that there may be 
@@ -225,8 +218,6 @@ html {
 [ng\:cloak], [ng-cloak], .ng-cloak {
 	display: none !important;
 }
-
-
 .t-table {
 	display: table;
 	width: 100%;
@@ -241,29 +232,41 @@ html {
 	display: table-cell;
 	padding: 3px;
 }
-
 .radius_right {
 	-webkit-border-top-right-radius: 100px !important;
 	-moz-border-radius-topright: 100px !important;
 	border-top-right-radius: 100px !important;
-
 	-webkit-border-bottom-left-radius: 100px !important;
 	-moz-border-radius-bottomleft: 100px !important;
 	border-bottom-left-radius: 100px !important;
-
 }
 .radius_left {
 	-webkit-border-top-left-radius: 100px !important;
 	-moz-border-radius-topleft: 100px !important;
 	border-top-left-radius: 100px !important;
-
 	-webkit-border-bottom-right-radius: 100px !important;
 	-moz-border-radius-bottomright: 100px !important;
 	border-bottom-right-radius: 100px !important;
 }
-
-
-
+.file_line {
+	line-height: 50px;
+	vertical-align: middle;
+	border-color: rgba(50, 118, 177, 0.1);
+	border-style: solid;
+	border-width: 0;
+	padding-left: 7px;
+	padding-right: 7px;
+}
+.file_line:hover {
+	border-left-width: 7px;
+	border-right-width: 7px;
+	padding-left: 0px;
+	padding-right: 0px;
+	border-color: rgba(50, 118, 177, 1);
+}
+.file_line.active {
+	background-color: rgb(217, 237, 247);
+}
 /* http://getbootstrap.com/examples/non-responsive/
  * 
  * Non-responsive overrides
@@ -273,16 +276,16 @@ html {
  */
 
 /* Reset the container */
-.nonresp .container {
+ .nonresp .container {
 	max-width: none !important;
 	/* fixed width seems unneeded */
 }
 /* Always float the navbar header */
-.nonresp .navbar-header {
+ .nonresp .navbar-header {
 	float: left;
 }
 /* Undo the collapsing navbar */
-.nonresp .navbar-collapse {
+ .nonresp .navbar-collapse {
 	display: block !important;
 	height: auto !important;
 	padding-bottom: 0;
@@ -292,7 +295,7 @@ html {
 	display: none;
 }
 /* Always apply the floated nav */
-.nonresp .navbar-nav {
+ .nonresp .navbar-nav {
 	float: left;
 	margin: 0;
 }
@@ -303,11 +306,11 @@ html {
 	padding: 15px;
 }
 /* Redeclare since we override the float above */
-.nonresp .navbar-nav.navbar-right {
+ .nonresp .navbar-nav.navbar-right {
 	float: right;
 }
 /* Undo custom dropdowns */
-.nonresp .navbar .open .dropdown-menu {
+ .nonresp .navbar .open .dropdown-menu {
 	position: absolute;
 	float: left;
 	background-color: #fff;
@@ -321,22 +324,14 @@ html {
 .nonresp .navbar .open .dropdown-menu > li > a {
 	color: #333 !important;
 }
-.nonresp .navbar .open .dropdown-menu > li > a:hover,
-.nonresp .navbar .open .dropdown-menu > li > a:focus,
-.nonresp .navbar .open .dropdown-menu > .active > a,
-.nonresp .navbar .open .dropdown-menu > .active > a:hover,
-.nonresp .navbar .open .dropdown-menu > .active > a:focus {
+.nonresp .navbar .open .dropdown-menu > li > a:hover, .nonresp .navbar .open .dropdown-menu > li > a:focus, .nonresp .navbar .open .dropdown-menu > .active > a, .nonresp .navbar .open .dropdown-menu > .active > a:hover, .nonresp .navbar .open .dropdown-menu > .active > a:focus {
 	color: #fff !important;
 	background-color: #428bca !important;
 }
-.nonresp .navbar .open .dropdown-menu > .disabled > a,
-.nonresp .navbar .open .dropdown-menu > .disabled > a:hover,
-.nonresp .navbar .open .dropdown-menu > .disabled > a:focus {
+.nonresp .navbar .open .dropdown-menu > .disabled > a, .nonresp .navbar .open .dropdown-menu > .disabled > a:hover, .nonresp .navbar .open .dropdown-menu > .disabled > a:focus {
 	color: #999 !important;
 	background-color: transparent !important;
 }
-
-
 .fileinput-button {
 	position: relative;
 	overflow: hidden;

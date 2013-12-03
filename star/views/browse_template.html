@@ -1,0 +1,38 @@
+<div>
+	<div class="panel panel-primary">
+		<div class="panel-heading" style="padding: 10px; Xbackground-color: #f2f2f2">
+			<span ng-repeat="parent in parents_path(dir_inode)">
+				<i ng-show="!$first" class="fa fa-angle-double-right fa-fw"></i>
+				<button class="btn btn-primary {{$last && 'active' || ''}}" ng-click="open_inode(parent)">
+					{{parent.name}}
+				</button>
+			</span>
+			<span ng-if="dir_inode.is_loading">
+				&nbsp;
+				<i class="fa fa-refresh fa-spin fa-fw"></i>
+			</span>
+		</div>
+
+		<div class="panel-body" style="padding: 0">
+			<div ng-repeat="inode in dir_inode.sons" class="file_line notextselect {{selections[inode.id] && 'active' || ''}}" style="border-bottom-width: 1px; border-top-width: 1px" ng-click="select_inode(inode, $event, $index)">
+				<div style="display: inline-block; min-height: 100%" ng-click="select_inode(inode, $event, $index, 'toggle')">
+					<i ng-show="!!selections[inode.id]" class="fa fa-check-square-o fa-fw fa-lg"></i>
+					<i ng-show="!selections[inode.id]" class="fa fa-square-o fa-fw fa-lg"></i>
+				</div>
+				<button class="btn btn-link" ng-click="open_inode(inode)">
+					<i ng-show="!!inode.isdir" class="fa fa-folder fa-fw fa-lg text-info"></i>
+					<i ng-show="!inode.isdir" class="fa fa-file-o fa-fw fa-lg text-muted"></i>
+					{{inode.name}}
+				</button>
+				<div ng-if="playing === inode" nb-resizable>
+					<iframe ng-src="{{inode_source_url(inode)}}" width="100%" height="500px" seamless="seamless"></iframe>
+				</div>
+			</div>
+			<div ng-if="!dir_inode.sons.length">
+				<div class="file_line text-center">
+					- No files -
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
