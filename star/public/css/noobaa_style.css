@@ -10,7 +10,7 @@ html {
 	overflow-y: scroll;
 	overflow-x: auto;
 }
-.btn, .form-group input, .Xpanel, .Xpanel-heading {
+.btn, .form-group input, .form-group textarea, .Xpanel, .Xpanel-heading {
 	border-radius: 0 !important;
 }
 .thumbnail {

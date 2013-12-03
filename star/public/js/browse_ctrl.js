@@ -51,48 +51,6 @@
 						});
 					}
 
-					function open_inode(inode) {
-						if (!inode.isdir) {
-							if ($scope.playing === inode) {
-								$scope.playing = null;
-							} else {
-								$scope.playing = inode;
-							}
-						} else {
-							$scope.dir_inode = inode;
-							$scope.selections = {};
-							$scope.start_select_index = -1;
-							$scope.end_select_index = -1;
-							read_dir(inode);
-						}
-					}
-
-					function select_inode(inode, $event, $index, toggle) {
-						if ($event.ctrlKey || $event.metaKey || toggle === 'toggle') {
-							$scope.selections[inode.id] = !$scope.selections[inode.id];
-							$scope.start_select_index = $scope.selections[inode.id] ? $index : -1;
-							$scope.end_select_index = $scope.start_select_index;
-						} else if ($event.shiftKey && $scope.start_select_index >= 0) {
-							if ($index >= $scope.start_select_index) {
-								for (var i = $scope.start_select_index; i <= $index; i++) {
-									$scope.selections[inode.parent.sons[i].id] = true;
-								}
-							} else {
-								for (var i = $scope.start_select_index; i >= $index; i--) {
-									$scope.selections[inode.parent.sons[i].id] = true;
-								}
-							}
-							$scope.end_select_index = $index;
-						} else {
-							$scope.selections = {};
-							$scope.selections[inode.id] = true;
-							$scope.start_select_index = $index;
-							$scope.end_select_index = $index;
-						}
-						$event.stopPropagation();
-						return false;
-					}
-
 					function parents_path(inode) {
 						var parents = new Array(inode.level + 1);
 						var p = inode;
@@ -103,21 +61,124 @@
 						return parents;
 					}
 
-					// TODO - dropdown doesn't work yet
-					function open_context_menu($event) {
-						$($event.target).dropdown('toggle');
-						$event.stopPropagation();
+					function stop_event(event) {
+						if (event.stopPropagation) {
+							event.stopPropagation();
+						}
 						return false;
 					}
 
+					function open_inode(inode, $index, $event) {
+						if (inode.isdir) {
+							reset_selection();
+							read_dir(inode);
+							$scope.dir_inode = inode;
+						} else {
+							inode.is_previewing = true;
+							select_inode(inode, $index, $event);
+							return stop_event($event);
+						}
+					}
+
+					function add_selection(inode, index) {
+						if (inode.is_selected) {
+							return;
+						}
+						$scope.selection.push(inode);
+						inode.is_selected = true;
+						inode.select_index = index;
+					}
+
+					function remove_selection(inode) {
+						if (!inode.is_selected) {
+							return;
+						}
+						var pos = $scope.selection.indexOf(inode);
+						if (pos >= 0) {
+							$scope.selection.splice(pos, 1);
+						}
+						inode.is_selected = false;
+						inode.select_index = null;
+						inode.is_previewing = false;
+					}
+
+					function reset_selection() {
+						var selection = $scope.selection;
+						$scope.selection = [];
+						if (!selection) {
+							return;
+						}
+						for (var i = 0; i < selection.length; i++) {
+							remove_selection(selection[i]);
+						}
+					}
+
+					function select_inode(inode, $index, $event) {
+						if ($event.ctrlKey || $event.metaKey ||
+							($scope.selection.length === 1 && $scope.selection[0] === inode)) {
+							console.log('SELECT TOGGLE', inode.name, inode.is_selected);
+							if (inode.is_selected) {
+								remove_selection(inode);
+							} else {
+								add_selection(inode, $index);
+							}
+						} else if ($event.shiftKey && $scope.selection.length) {
+							var from = $scope.selection[$scope.selection.length - 1].select_index;
+							console.log('SELECT FROM', from, 'TO', $index);
+							if ($index >= from) {
+								for (var i = from; i <= $index; i++) {
+									add_selection(inode.parent.sons[i], i);
+								}
+							} else {
+								for (var i = from; i >= $index; i--) {
+									add_selection(inode.parent.sons[i], i);
+								}
+							}
+						} else {
+							console.log('SELECT ONE', inode.name);
+							reset_selection();
+							add_selection(inode, $index);
+						}
+					}
+
+					function toggle_preview(inode) {
+						inode.is_previewing = !inode.is_previewing;
+					}
+
+					function inode_source_url(inode) {
+						return '/api/inode/' + inode.id;
+					}
+
+					function download_inode(inode) {
+						var url = inode_source_url(inode) + '?is_download=true';
+						$('<iframe style="display: none">')[0].src = url;
+						// var win = window.open(url, '_blank');
+						// win.focus();
+					}
+
+					function rename_inode(inode) {
+					}
+
+					function delete_inodes() {
+					}
+
+					function new_folder() {
+
+					}
+
+					function move_inodes() {
+					}
+					
+					$scope.parents_path = parents_path;
 					$scope.open_inode = open_inode;
 					$scope.select_inode = select_inode;
-					$scope.parents_path = parents_path;
-					$scope.open_context_menu = open_context_menu;
-
-					$scope.inode_source_url = function(inode) {
-						return '/api/inode/' + inode.id;
-					};
+					$scope.toggle_preview = toggle_preview;
+					$scope.inode_source_url = inode_source_url;
+					$scope.download_inode = download_inode;
+					$scope.rename_inode = rename_inode;
+					$scope.delete_inodes = delete_inodes;
+					$scope.new_folder = new_folder;
+					$scope.move_inodes = move_inodes;
 				}
 			]
 		};

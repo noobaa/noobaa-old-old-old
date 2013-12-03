@@ -7,49 +7,63 @@
 					<div class="text-ellipses" style="max-width: 150px">{{parent.name}}</div>
 				</button>
 			</div>
+			&nbsp;
 			<span ng-if="dir_inode.is_loading">
-				&nbsp;
 				<i class="fa fa-refresh fa-spin fa-fw"></i>
 			</span>
+			<button class="btn btn-link btn-sm" ng-click="new_folder()">
+				<i class="fa fa-plus-square"></i>
+				New Folder
+			</button>
 		</div>
 
 		<div class="panel-body" style="padding: 0">
-			<div ng-repeat="inode in dir_inode.sons" class="file_line notextselect {{selections[inode.id] && 'active' || ''}}" style="border-bottom-width: 1px; border-top-width: 1px" ng-click="select_inode(inode, $event, $index)">
-				<div style="margin-right: 30px; overflow: scroll">
+			<div ng-repeat="inode in dir_inode.sons" class="file_line notextselect {{inode.is_selected && 'active' || ''}}" style="border-bottom-width: 1px; border-top-width: 1px">
+				<div style="margin-right: 30px; overflow: scroll" ng-click="select_inode(inode, $index, $event)">
 					<i ng-show="!!inode.isdir" class="fa fa-folder fa-fw fa-lg text-info"></i>
 					<i ng-show="!inode.isdir" class="fa fa-file-o fa-fw fa-lg text-muted"></i>
-					<a class="btn btn-link" ng-click="open_inode(inode)" style="padding-left: 0; display: inline">
+					<a class="btn btn-link" ng-click="open_inode(inode, $index, $event)" style="padding-left: 0; display: inline">
 						{{inode.name}}
 					</a>
-					<div ng-if="end_select_index===$index" class="btn-group">
-						<button type="button" class="btn btn-default dropdown-toggle" Xng-click="open_context_menu($event)" data-toggle="dropdown">
-							<!-- <i class="fa fa-ellipsis-h"></i> -->
-							<span class="caret"></span>
-						</button>
-						<ul class="dropdown-menu" role="menu">
-							<li><a href="#">Action</a>
-							</li>
-							<li><a href="#">Another action</a>
-							</li>
-							<li><a href="#">Something else here</a>
-							</li>
-							<li class="divider"></li>
-							<li><a href="#">Separated link</a>
-							</li>
-						</ul>
-					</div>
 				</div>
-				<div ng-if="playing === inode">
-					<div class="text-center">
-						<a class="btn btn-default" href="{{inode_source_url(inode)}}?is_download=true" target="_blank">
+				<div ng-if="selection[selection.length-1] === inode" style="border-top: 1px #bbb solid">
+					<div ng-if="selection.length === 1" style="padding: 0 10px">
+						<div ng-repeat="i in [1,2,3,4,5,6,7]" style="display: inline-block; padding: 0 5px 5px 0">
+							<img src="https://graph.facebook.com/<?! it.user.fbid ?>/picture\" style="height: 32px"></img>
+						</div>
+						<textarea class="form-control" rows="2" placeholder="Share and tell your friends..." style="resize: none"></textarea>
+						<button class="btn btn-success">Share</button>
+					</div>
+					<div class="text-right">
+						<span ng-if="selection.length > 1">
+							{{selection.length}} items:
+						</span>
+						<button ng-if="!inode.is_previewing && !inode.isdir && selection.length === 1" class="btn btn-link" ng-click="toggle_preview(inode)">
+							<i class="fa fa-play fa-fw"></i>
+							Open Preview
+						</button>
+						<button ng-if="inode.is_previewing && !inode.isdir && selection.length === 1" class="btn btn-link" ng-click="toggle_preview(inode)">
+							<i class="fa fa-pause fa-fw"></i>
+							Hide Preview
+						</button>
+						<a ng-if="!inode.isdir && !inode.uploading && inode.size && selection.length === 1" class="btn btn-link" ng-click="download_inode(inode)" href="{{inode_source_url(inode)}}?is_download=true" target="_blank">
 							<i class="fa fa-cloud-download fa-fw"></i>
 							Download
 						</a>
-						<button class="btn btn-default" ng-click="open_inode(inode)">
-							Close
+						<button ng-if="selection.length === 1" class="btn btn-link" ng-click="rename_inode(inode)">
+							<i class="fa fa-pencil fa-rotate-270 fa-fw"></i>
+							Rename
+						</button>
+						<button class="btn btn-link" ng-click="move_inodes()">
+							<i class="fa fa-arrows fa-fw"></i>
+							Move {{selection.length>1 && 'all' || ''}}
+						</button>
+						<button class="btn btn-link" ng-click="delete_inodes()">
+							<i class="fa fa-trash-o fa-fw"></i>
+							Delete {{selection.length>1 && 'all' || ''}}
 						</button>
 					</div>
-					<iframe ng-src="{{inode_source_url(inode)}}" width="100%" height="500px" seamless="seamless"></iframe>
+					<iframe ng-if="inode.is_previewing" ng-src="{{inode_source_url(inode)}}" width="100%" height="500px" seamless="seamless"></iframe>
 				</div>
 			</div>
 			<div ng-if="!dir_inode.sons.length">
