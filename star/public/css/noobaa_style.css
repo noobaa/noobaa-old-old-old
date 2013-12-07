@@ -10,7 +10,137 @@ html {
 	overflow-y: scroll;
 	overflow-x: auto;
 }
-.btn, .form-group input, .form-group textarea, .Xpanel, .Xpanel-heading {
+/* COLOR SCHEME */
+
+/* COLOR LIGHT BLUE */
+ .bg-light-blue {
+	background-color: hsl(212, 41%, 71%) !important;
+}
+.btn-info {
+	background-color: hsl(212, 41%, 71%) !important;
+}
+.btn-info:hover {
+	background-color: hsl(212, 41%, 66%) !important;
+}
+.text-info {
+	color: hsl(212, 41%, 71%) !important;
+}
+.panel-info {
+	border-color: hsl(212, 41%, 71%) !important;
+}
+.panel-info .panel-heading {
+	background-color: hsl(212, 41%, 71%) !important;
+}
+.progress-bar-info {
+	background-color: hsl(212, 41%, 71%) !important;
+}
+.label-info {
+	background-color: hsl(212, 41%, 71%) !important;
+}
+/* COLOR DARK BLUE */
+ .bg-dark-blue {
+	background-color: hsl(238, 30%, 50%) !important;
+}
+.btn-primary {
+	background-color: hsl(238, 30%, 50%) !important;
+}
+.btn-primary:hover {
+	background-color: hsl(238, 30%, 45%) !important;
+}
+.text-primary {
+	color: hsl(238, 30%, 50%) !important;
+}
+.panel-primary {
+	border-color: hsl(238, 30%, 50%) !important;
+}
+.panel-primary .panel-heading {
+	background-color: hsl(238, 30%, 50%) !important;
+}
+.progress-bar-primary {
+	background-color: hsl(238, 30%, 50%) !important;
+}
+.label-primary {
+	background-color: hsl(238, 30%, 50%) !important;
+}
+/* COLOR GREEN */
+ .bg-green {
+	background-color: hsl(166, 100%, 30%) !important;
+}
+.btn-success {
+	background-color: hsl(166, 100%, 30%) !important;
+}
+.btn-success:hover {
+	background-color: hsl(166, 100%, 25%) !important;
+}
+.text-success {
+	color: hsl(166, 100%, 30%) !important;
+}
+.panel-success {
+	border-color: hsl(166, 100%, 30%) !important;
+}
+.panel-success .panel-heading {
+	background-color: hsl(166, 100%, 30%) !important;
+}
+.progress-bar-success {
+	background-color: hsl(166, 100%, 30%) !important;
+}
+.label-success {
+	background-color: hsl(166, 100%, 30%) !important;
+}
+/* COLOR YELLOW */
+ .bg-yellow {
+	background-color: hsl(42, 83%, 63%) !important;
+}
+.btn-warning {
+	background-color: hsl(42, 83%, 63%) !important;
+}
+.btn-warning:hover {
+	background-color: hsl(42, 83%, 58%) !important;
+}
+.text-warning {
+	color: hsl(42, 83%, 63%) !important;
+}
+.panel-warning {
+	border-color: hsl(42, 83%, 63%) !important;
+}
+.panel-warning .panel-heading {
+	background-color: hsl(42, 83%, 63%) !important;
+}
+.progress-bar-warning {
+	background-color: hsl(42, 83%, 63%) !important;
+}
+.label-warning {
+	background-color: hsl(42, 83%, 63%) !important;
+}
+/* COLOR RED */
+ .bg-red {
+	background-color: hsl(351, 68%, 44%) !important;
+}
+.btn-danger {
+	background-color: hsl(351, 68%, 44%) !important;
+}
+.btn-danger:hover {
+	background-color: hsl(351, 68%, 39%) !important;
+}
+.text-danger {
+	color: hsl(351, 68%, 44%) !important;
+}
+.panel-danger {
+	border-color: hsl(351, 68%, 44%) !important;
+}
+.panel-danger .panel-heading {
+	background-color: hsl(351, 68%, 44%) !important;
+}
+.progress-bar-danger {
+	background-color: hsl(351, 68%, 44%) !important;
+}
+.label-danger {
+	background-color: hsl(351, 68%, 44%) !important;
+}
+/**/
+
+/* LAYOUTS */
+ .btn, .form-group input, .form-group textarea, .Xpanel, .Xpanel-heading {
 	border-radius: 0 !important;
 }
 .thumbnail {
@@ -105,7 +235,50 @@ html {
 	box-shadow: 		0 0 5px 5px rgba(0, 0, 0, 0.3);
 	*/
 }
-.nbdialog {
+/**/
+
+/* FILE BROWSER */
+ .file_line {
+	line-height: 44px;
+	vertical-align: middle;
+	border-color: hsla(212, 41%, 71%, 0.1);
+	border-style: solid;
+	border-width: 0;
+	padding-left: 7px;
+	padding-right: 7px;
+}
+.file_line:hover {
+	border-left-width: 7px;
+	border-right-width: 7px;
+	padding-left: 0px;
+	padding-right: 0px;
+	border-color: hsl(212, 41%, 71%);
+}
+.file_line.active {
+	background-color: hsl(42, 83%, 63%);
+}
+.file_line a.btn-link, .file_line button.btn-link {
+	color: hsl(0, 0%, 15%);
+}
+.browser i.fa-folder {
+	color: hsl(351, 68%, 44%);
+}
+.browser i.fa-file-o {
+	color: hsl(351, 68%, 44%);
+}
+.browser .panel-heading {
+	/*background-color: hsl(166, 100%, 30%) !important;*/
+}
+.browser .panel-heading .btn-link {
+	color: hsl(0, 0%, 30%) !important;
+}
+.browser .panel-body {
+	background-color: hsl(212, 20%, 90%);
+}
+/**/
+
+/* DIALOGS */
+ .nbdialog {
 	display: none;
 	outline: none;
 	overflow: hidden;
@@ -248,90 +421,8 @@ html {
 	-moz-border-radius-bottomright: 100px !important;
 	border-bottom-right-radius: 100px !important;
 }
-.file_line {
-	line-height: 44px;
-	vertical-align: middle;
-	border-color: hsla(212, 41%, 71%, 0.1);
-	border-style: solid;
-	border-width: 0;
-	padding-left: 7px;
-	padding-right: 7px;
-}
-.file_line:hover {
-	border-left-width: 7px;
-	border-right-width: 7px;
-	padding-left: 0px;
-	padding-right: 0px;
-	border-color: hsl(212, 41%, 71%);
-}
-.file_line.active {
-	background-color: hsl(42, 83%, 63%);
-}
-.file_line a.btn-link, .file_line button.btn-link {
-	color: hsl(0, 0%, 15%);
-}
-.browser i.fa-folder {
-	color: hsl(351, 68%, 44%);
-}
-.browser i.fa-file-o {
-	color: hsl(351, 68%, 44%);
-}
-.browser .panel-heading {
-	background-color: hsl(166, 100%, 30%) !important;
-	/*background-color: hsl(238, 30%, 50%) !important;*/
-}
-.browser .panel-heading .btn-link {
-	color: hsl(0, 0%, 30%) !important;
-}
-.browser .panel-body {
-	background-color: hsl(212, 20%, 90%);
-}
-.bg-light-blue {
-	background-color: hsl(212, 41%, 71%) !important;
-}
-.bg-dark-blue {
-	background-color: hsl(238, 30%, 50%) !important;
-}
-.bg-green {
-	background-color: hsl(166, 100%, 30%) !important;
-}
-.bg-yellow {
-	background-color: hsl(42, 83%, 63%) !important;
-}
-.bg-red {
-	background-color: hsl(351, 68%, 44%) !important;
-}
 /**/
-.btn-danger {
-	background-color: hsl(351, 68%, 44%) !important;
-}
-.btn-danger:hover {
-	background-color: hsl(351, 68%, 34%) !important;
-}
-.btn-warning {
-	background-color: hsl(42, 83%, 63%) !important;
-}
-.btn-warning:hover {
-	background-color: hsl(42, 83%, 53%) !important;
-}
-.btn-success {
-	background-color: hsl(166, 100%, 30%) !important;
-}
-.btn-success:hover {
-	background-color: hsl(166, 100%, 20%) !important;
-}
-.btn-primary {
-	background-color: hsl(238, 30%, 50%) !important;
-}
-.btn-primary:hover {
-	background-color: hsl(238, 30%, 40%) !important;
-}
-.btn-info {
-	background-color: hsl(212, 41%, 71%) !important;
-}
-.btn-info:hover {
-	background-color: hsl(212, 41%, 61%) !important;
-}
+
 /* http://getbootstrap.com/examples/non-responsive/
  * 
  * Non-responsive overrides
