@@ -251,7 +251,8 @@ html {
 .file_line {
 	line-height: 44px;
 	vertical-align: middle;
-	border-color: rgba(50, 118, 177, 0.1);
+	/*border-color: rgba(50, 118, 177, 0.1);*/
+	border-color: hsla(212, 41%, 71%, 0.1);
 	border-style: solid;
 	border-width: 0;
 	padding-left: 7px;
@@ -262,10 +263,30 @@ html {
 	border-right-width: 7px;
 	padding-left: 0px;
 	padding-right: 0px;
-	border-color: rgba(50, 118, 177, 1);
+	/*border-color: rgba(50, 118, 177, 1);*/
+	border-color: hsl(212, 41%, 71%);
 }
 .file_line.active {
-	background-color: rgb(217, 237, 247);
+	/*background-color: rgb(217, 237, 247);*/
+	background-color: hsl(55, 83%, 63%);
+}
+.file_line a.btn-link, .file_line button.btn-link {
+	color: hsl(0, 0%, 15%);
+}
+.browser i.fa-folder {
+	color: hsl(351, 68%, 44%);
+}
+.browser i.fa-file-o {
+	color: hsl(351, 68%, 44%);
+}
+.browser .panel-heading {
+	background-color: hsl(166, 100%, 30%) !important;
+}
+.browser .panel-heading .btn-link {
+	color: hsl(0, 0%, 30%) !important;
+}
+.browser .panel-body {
+	background-color: hsl(212, 10%, 90%);
 }
 /* http://getbootstrap.com/examples/non-responsive/
  * 

@@ -1,16 +1,16 @@
-<div>
+<div class="browser">
 	<div class="panel panel-default">
 		<div class="panel-heading" style="padding: 0 10px 10px 10px">
 			<div ng-repeat="parent in parents_path(dir_inode)" style="display: inline-block; margin-top: 10px">
 				<i ng-show="!$first" class="fa fa-angle-double-right fa-fw"></i>
-				<button class="btn btn-primary {{$last && 'active' || ''}}" ng-click="open_inode(parent)">
-					<div class="text-ellipses" style="max-width: 150px">{{parent.name}}</div>
+				<button class="btn btn-default {{$first && 'active' || ''}}" ng-click="open_inode(parent)">
+					<div class="text-ellipses" style="max-width: 150px">
+						<i ng-if="parent.is_loading" class="fa fa-refresh fa-spin fa-fw"></i>
+						{{parent.name}}
+					</div>
 				</button>
 			</div>
 			&nbsp;
-			<span ng-if="dir_inode.is_loading">
-				<i class="fa fa-refresh fa-spin fa-fw"></i>
-			</span>
 			<button class="btn btn-link btn-sm" ng-click="new_folder()">
 				<i class="fa fa-plus-square"></i>
 				New Folder
@@ -20,20 +20,13 @@
 		<div class="panel-body" style="padding: 0">
 			<div ng-repeat="inode in dir_inode.sons" class="file_line notextselect {{inode.is_selected && 'active' || ''}}" style="border-bottom-width: 1px; border-top-width: 1px">
 				<div style="margin-right: 30px; overflow: scroll" ng-click="select_inode(inode, $index, $event)">
-					<i ng-show="!!inode.isdir" class="fa fa-folder fa-fw fa-lg text-info"></i>
-					<i ng-show="!inode.isdir" class="fa fa-file-o fa-fw fa-lg text-muted"></i>
+					<i ng-show="!!inode.isdir" class="fa fa-folder fa-fw fa-lg Xtext-info"></i>
+					<i ng-show="!inode.isdir" class="fa fa-file-o fa-fw fa-lg Xtext-muted"></i>
 					<a class="btn btn-link" ng-click="open_inode(inode, $index, $event)" style="padding-left: 0; display: inline">
 						{{inode.name}}
 					</a>
 				</div>
 				<div ng-if="selection[selection.length-1] === inode" style="border-top: 1px #bbb solid">
-					<div ng-if="selection.length === 1" style="padding: 0 10px">
-						<div ng-repeat="i in [1,2,3,4,5,6,7]" style="display: inline-block; padding: 0 5px 5px 0">
-							<img src="https://graph.facebook.com/<?! it.user.fbid ?>/picture\" style="height: 32px"></img>
-						</div>
-						<textarea class="form-control" rows="2" placeholder="Share and tell your friends..." style="resize: none"></textarea>
-						<button class="btn btn-success">Share</button>
-					</div>
 					<div class="text-right">
 						<span ng-if="selection.length > 1">
 							{{selection.length}} items:
@@ -63,7 +56,28 @@
 							Delete {{selection.length>1 && 'all' || ''}}
 						</button>
 					</div>
-					<iframe ng-if="inode.is_previewing" ng-src="{{inode_source_url(inode)}}" width="100%" height="500px" seamless="seamless"></iframe>
+					<div style="padding: 15px">
+						<div class="row">
+							<div class="col-sm-6">
+								<div ng-if="inode.is_previewing && inode.content_kind" ng-switch="inode.content_kind">
+									<video ng-switch-when="video" controls ng-src="{{inode_source_url(inode)}}" width="100%"></video>
+									<audio ng-switch-when="audio" controls ng-src="{{inode_source_url(inode)}}" width="100%"></audio>
+									<img ng-switch-when="image" ng-src="{{inode_source_url(inode)}}" width="100%" />
+									<div nb-resizable>
+										<object ng-switch-default ng-attr-data="{{inode_source_url(inode)}}" ng-attr-type="{{inode.content_type}}" width="100%" height="100%" style="width: 100%; height: 100%"></object>
+									</div>
+								</div>
+							</div>
+							<div class="col-sm-6" ng-if="selection.length === 1" style="padding: 0 10px">
+								<div>Friends who also collected this item:</div>
+								<div ng-repeat="i in [1,2,3]" style="display: inline-block; padding: 0 5px 5px 0">
+									<img src="https://graph.facebook.com/<?! it.user.fbid ?>/picture\" style="height: 32px"></img>
+								</div>
+								<textarea class="form-control" rows="2" placeholder="Describe it..." style="resize: none"></textarea>
+								<button class="btn btn-success">Save</button>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 			<div ng-if="!dir_inode.sons.length">

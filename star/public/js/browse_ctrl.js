@@ -18,19 +18,22 @@
 					$scope.root_inode = {
 						id: null,
 						isdir: true,
-						level: 0,
+						level: -1,
 						name: 'Home',
 						parents: [],
 						sons: []
 					};
 
-					open_inode($scope.root_inode);
+					// open_inode($scope.root_inode);
+					read_dir($scope.root_inode).then(function() {
+						open_inode($scope.root_inode.sons[0]);
+					});
 
 					function read_dir(dir_inode) {
 						dir_inode.is_loading = true;
 						return $http({
 							method: 'GET',
-							url: '/api/inode/' + dir_inode.id
+							url: inode_source_url(dir_inode)
 						}).then(function(res) {
 							dir_inode.is_loading = false;
 							console.log('READDIR', res);
@@ -47,6 +50,22 @@
 						}, function(err) {
 							dir_inode.is_loading = false;
 							console.error('FAILED READDIR', err);
+							return $timeout(function() {
+								read_dir(dir_inode);
+							}, 3000);
+						});
+					}
+
+					function read_file_attr(inode) {
+						return $http({
+							method: 'HEAD',
+							url: inode_source_url(inode)
+						}).then(function(res) {
+							inode.content_type = res.headers('Content-Type');
+							inode.content_kind = inode.content_type.split('/')[0];
+							console.log('HEAD', inode.content_type, inode.content_kind);
+						}, function(err) {
+							console.error('FAILED HEAD', err);
 							throw err;
 						});
 					}
@@ -54,7 +73,8 @@
 					function parents_path(inode) {
 						var parents = new Array(inode.level + 1);
 						var p = inode;
-						for (var i = inode.level; i >= 0; i--) {
+						// for (var i = inode.level; i >= 0; i--) {
+						for (var i = 0; i <= inode.level; i++) {
 							parents[i] = p;
 							p = p.parent;
 						}
@@ -66,18 +86,6 @@
 							event.stopPropagation();
 						}
 						return false;
-					}
-
-					function open_inode(inode, $index, $event) {
-						if (inode.isdir) {
-							reset_selection();
-							read_dir(inode);
-							$scope.dir_inode = inode;
-						} else {
-							inode.is_previewing = true;
-							select_inode(inode, $index, $event);
-							return stop_event($event);
-						}
 					}
 
 					function add_selection(inode, index) {
@@ -141,8 +149,24 @@
 						}
 					}
 
+					function open_inode(inode, $index, $event) {
+						if (inode.isdir) {
+							reset_selection();
+							read_dir(inode);
+							$scope.dir_inode = inode;
+						} else {
+							select_inode(inode, $index, $event);
+							inode.is_previewing = true;
+							read_file_attr(inode);
+							return stop_event($event);
+						}
+					}
+
 					function toggle_preview(inode) {
 						inode.is_previewing = !inode.is_previewing;
+						if (inode.is_previewing && !inode.content_type) {
+							read_file_attr(inode);
+						}
 					}
 
 					function inode_source_url(inode) {
@@ -156,19 +180,16 @@
 						// win.focus();
 					}
 
-					function rename_inode(inode) {
-					}
+					function rename_inode(inode) {}
 
-					function delete_inodes() {
-					}
+					function delete_inodes() {}
 
 					function new_folder() {
 
 					}
 
-					function move_inodes() {
-					}
-					
+					function move_inodes() {}
+
 					$scope.parents_path = parents_path;
 					$scope.open_inode = open_inode;
 					$scope.select_inode = select_inode;

@@ -672,6 +672,21 @@ exports.inode_read = function(req, res) {
 					data: 'Not Found'
 				});
 			}
+			// support head request
+			if (req.method === 'HEAD') {
+				var params = {
+					Bucket: process.env.S3_BUCKET,
+					Key: fobj_s3_key(inode.fobj)
+				};
+				return S3.headObject(params, function(err, data) {
+					if (err) {
+						return next(err);
+					}
+					res.setHeader('Content-Length', data.ContentLength);
+					res.setHeader('Content-Type', data.ContentType);
+					return next();
+				});
+			}
 			// redirect to the fobj location in S3
 			var url = s3_get_url(inode.fobj, inode.name, req.query.is_download);
 			res.redirect(url);
