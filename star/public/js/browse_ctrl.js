@@ -21,12 +21,13 @@
 						level: -1,
 						name: 'Home',
 						parents: [],
-						sons: []
+						entries: [],
+						entries_map: {}
 					};
 
 					// open_inode($scope.root_inode);
 					read_dir($scope.root_inode).then(function() {
-						open_inode($scope.root_inode.sons[0]);
+						open_inode($scope.root_inode.entries[0]);
 					});
 
 					function read_dir(dir_inode) {
@@ -41,11 +42,24 @@
 							entries.sort(function(a, b) {
 								return a.isdir ? -1 : 1;
 							});
-							dir_inode.sons = entries;
+							dir_inode.entries = entries;
+							dir_inode.entries_map = dir_inode.entries_map || {};
+							var entries_map = {};
 							for (var i = 0; i < entries.length; i++) {
-								entries[i].parent = dir_inode;
-								entries[i].level = dir_inode.level + 1;
+								var e = dir_inode.entries_map[entries[i].id];
+								if (!e) {
+									e = entries[i];
+								} else {
+									angular.extend(e, entries[i]);
+								}
+								e.parent = dir_inode;
+								e.level = dir_inode.level + 1;
+								e.ctime_display = e.ctime ?
+									new Date(e.ctime).toLocaleDateString() : null;
+								entries[i] = e;
+								entries_map[e.id] = e;
 							}
+							dir_inode.entries_map = entries_map;
 							return res;
 						}, function(err) {
 							dir_inode.is_loading = false;
@@ -68,6 +82,40 @@
 							console.error('FAILED HEAD', err);
 							throw err;
 						});
+					}
+
+					// return true for "My Data" and "Shared With Me"
+					// which are user root dirs and shouldn't be modified.
+
+					function is_immutable_root(inode) {
+						return inode.level <= 0;
+					}
+
+					function is_shared_with_me(inode) {
+						return inode.swm; // TODO NEED TO FILL THIS OR REMOVE
+					}
+
+					function is_not_mine(inode) {
+						return inode.not_mine;
+					}
+
+					function is_dir_non_empty(inode, callback) {
+						if (!inode.isdir) {
+							callback(false);
+							return;
+						}
+						var promise = read_dir(inode);
+						if (!promise) {
+							callback( !! inode.entries.length);
+						} else {
+							promise.then(function(res) {
+								callback( !! inode.entries.length);
+								return res;
+							}, function(err) {
+								callback( !! inode.entries.length);
+								throw err;
+							});
+						}
 					}
 
 					function parents_path(inode) {
@@ -135,11 +183,11 @@
 							console.log('SELECT FROM', from, 'TO', $index);
 							if ($index >= from) {
 								for (var i = from; i <= $index; i++) {
-									add_selection(inode.parent.sons[i], i);
+									add_selection(inode.parent.entries[i], i);
 								}
 							} else {
 								for (var i = from; i >= $index; i--) {
-									add_selection(inode.parent.sons[i], i);
+									add_selection(inode.parent.entries[i], i);
 								}
 							}
 						} else {
@@ -180,24 +228,62 @@
 						// win.focus();
 					}
 
-					function rename_inode(inode) {}
+					function rename_inode(inode) {
+						if (!inode) {
+							console.error('no selected inode, bailing');
+							return;
+						}
+						if (is_immutable_root(inode)) {
+							$.nbalert('Cannot rename root folder');
+							return;
+						}
+						if (is_not_mine(inode)) {
+							$.nbalert('Cannot rename someone else\'s file');
+							return;
+						}
+						var dlg = $('#rename_dialog').clone();
+						var input = dlg.find('#dialog_input');
+						input.val(inode.name);
+						dlg.find('.inode_label').html(inode.name /*make_inode_with_icon()*/ );
+						dlg.find('#dialog_ok').off('click').on('click', function() {
+							dlg.nbdialog('close');
+							if (!input.val() || input.val() === inode.name) {
+								return;
+							}
+							return $http({
+								method: 'PUT',
+								url: '/api/inode/' + inode.id,
+								data: {
+									parent: inode.parent.id,
+									name: input.val()
+								}
+							}).then(function(res) {
+								read_dir(inode.parent);
+								return res;
+							}, function(err) {
+								read_dir(inode.parent);
+								throw err;
+							});
+						});
+						dlg.nbdialog('open', {
+							remove_on_close: true,
+							modal: true
+						});
+					}
 
-					function delete_inodes() {}
-
-					function new_folder() {
-						var dir_inode = $scope.dir_inode;
+					function new_folder(dir_inode) {
 						if (!dir_inode) {
 							console.error('no selected dir, bailing');
 							return;
 						}
-						//check dir creation conditions
-						//the first condition is true when looking at a directory which is not owned by the user 
-						//the second  is true for ghosts or when not owned by the user
-						// TODO FIX THIS CODE
-						// if (dir_inode.is_not_mine() || dir_inode.owner_name) {
-						// $.nbalert('Cannot create folder in someone else\'s folder');
-						// return;
-						// }
+						// check dir creation conditions
+						// the first condition is true when looking at a directory 
+						// which is not owned by the user.
+						// the second is true for ghosts or when not owned by the user
+						if (is_not_mine(dir_inode) || dir_inode.owner_name) {
+							$.nbalert('Cannot create folder in someone else\'s folder');
+							return;
+						}
 						var dlg = $('#mkdir_dialog').clone();
 						var input = dlg.find('#dialog_input');
 						input.val('');
@@ -228,6 +314,8 @@
 							modal: true
 						});
 					}
+
+					function delete_inodes() {}
 
 					function move_inodes() {}
 

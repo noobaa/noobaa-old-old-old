@@ -30,9 +30,15 @@
 						</li>
 						<li class="divider"></li>
 						<li>
-							<a href="#" ng-click="new_folder()">
+							<a href="#" ng-click="new_folder(parent)">
 								<i class="fa fa-plus fa-fw"></i>
 								New Folder...
+							</a>
+						</li>
+						<li>
+							<a href="#" ng-click="rename_inode(parent)">
+								<i class="fa fa-pencil fa-fw"></i>
+								Rename...
 							</a>
 						</li>
 					</ul>
@@ -41,7 +47,7 @@
 		</div>
 
 		<div class="panel-body" style="padding: 0">
-			<div ng-repeat="inode in dir_inode.sons" class="file_line notextselect {{inode.is_selected && 'active' || ''}}" style="border-bottom-width: 1px; border-top-width: 1px">
+			<div ng-repeat="inode in dir_inode.entries" class="file_line notextselect {{inode.is_selected && 'active' || ''}}" style="border-bottom-width: 1px; border-top-width: 1px">
 				<div style="margin-right: 30px; overflow: scroll" ng-click="select_inode(inode, $index, $event)">
 					<i ng-show="!!inode.isdir" class="fa fa-folder fa-fw fa-lg Xtext-info"></i>
 					<i ng-show="!inode.isdir" class="fa fa-file-o fa-fw fa-lg Xtext-muted"></i>
@@ -55,11 +61,11 @@
 							{{selection.length}} items:
 						</span>
 						<button ng-if="!inode.is_previewing && !inode.isdir && selection.length === 1" class="btn btn-link" ng-click="toggle_preview(inode)">
-							<i class="fa fa-play fa-fw"></i>
-							Open Preview
+							<i class="fa fa-eye fa-fw"></i>
+							Show Preview
 						</button>
 						<button ng-if="inode.is_previewing && !inode.isdir && selection.length === 1" class="btn btn-link" ng-click="toggle_preview(inode)">
-							<i class="fa fa-pause fa-fw"></i>
+							<i class="fa fa-eye-slash fa-fw"></i>
 							Hide Preview
 						</button>
 						<a ng-if="!inode.isdir && !inode.uploading && inode.size && selection.length === 1" class="btn btn-link" ng-click="download_inode(inode)" href="{{inode_source_url(inode)}}?is_download=true" target="_blank">
@@ -106,7 +112,7 @@
 					</div>
 				</div>
 			</div>
-			<div ng-if="!dir_inode.sons.length">
+			<div ng-if="!dir_inode.entries.length">
 				<div style="padding-left: 20px; line-height: 80px; vertical-align: middle">
 					- No files yet -
 				</div>
