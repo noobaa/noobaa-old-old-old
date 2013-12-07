@@ -185,7 +185,48 @@
 					function delete_inodes() {}
 
 					function new_folder() {
-
+						var dir_inode = $scope.dir_inode;
+						if (!dir_inode) {
+							console.error('no selected dir, bailing');
+							return;
+						}
+						//check dir creation conditions
+						//the first condition is true when looking at a directory which is not owned by the user 
+						//the second  is true for ghosts or when not owned by the user
+						// TODO FIX THIS CODE
+						// if (dir_inode.is_not_mine() || dir_inode.owner_name) {
+						// $.nbalert('Cannot create folder in someone else\'s folder');
+						// return;
+						// }
+						var dlg = $('#mkdir_dialog').clone();
+						var input = dlg.find('#dialog_input');
+						input.val('');
+						dlg.find('.inode_label').html(dir_inode.name /*make_inode_with_icon()*/ );
+						dlg.find('#dialog_ok').off('click').on('click', function() {
+							dlg.nbdialog('close');
+							if (!input.val()) {
+								return;
+							}
+							return $http({
+								method: 'POST',
+								url: '/api/inode/',
+								data: {
+									id: dir_inode.id,
+									name: input.val(),
+									isdir: true
+								}
+							}).then(function(res) {
+								read_dir(dir_inode);
+								return res;
+							}, function(err) {
+								read_dir(dir_inode);
+								throw err;
+							});
+						});
+						dlg.nbdialog('open', {
+							remove_on_close: true,
+							modal: true
+						});
 					}
 
 					function move_inodes() {}

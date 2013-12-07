@@ -72,7 +72,7 @@ html {
 	color: #fafafa;
 }
 .bggrey {
-	background-color: #ebe9f1;
+	background-color: hsl(212, 20%, 90%);
 }
 .text-ellipses {
 	overflow: hidden;
@@ -125,7 +125,7 @@ html {
 	padding: 15px;
 }
 .nbdialog_content {
-	background-color: #ebe9f1;
+	background-color: hsl(212, 20%, 90%);
 	/*includes bggrey*/
 	border-top: solid 1px rgba(0, 0, 0, 0.2);
 	border-bottom: solid 1px rgba(0, 0, 0, 0.2);
@@ -265,7 +265,7 @@ html {
 	border-color: hsl(212, 41%, 71%);
 }
 .file_line.active {
-	background-color: hsl(55, 83%, 63%);
+	background-color: hsl(42, 83%, 63%);
 }
 .file_line a.btn-link, .file_line button.btn-link {
 	color: hsl(0, 0%, 15%);
@@ -285,6 +285,52 @@ html {
 }
 .browser .panel-body {
 	background-color: hsl(212, 20%, 90%);
+}
+.bg-light-blue {
+	background-color: hsl(212, 41%, 71%) !important;
+}
+.bg-dark-blue {
+	background-color: hsl(238, 30%, 50%) !important;
+}
+.bg-green {
+	background-color: hsl(166, 100%, 30%) !important;
+}
+.bg-yellow {
+	background-color: hsl(42, 83%, 63%) !important;
+}
+.bg-red {
+	background-color: hsl(351, 68%, 44%) !important;
+}
+/**/
+.btn-danger {
+	background-color: hsl(351, 68%, 44%) !important;
+}
+.btn-danger:hover {
+	background-color: hsl(351, 68%, 34%) !important;
+}
+.btn-warning {
+	background-color: hsl(42, 83%, 63%) !important;
+}
+.btn-warning:hover {
+	background-color: hsl(42, 83%, 53%) !important;
+}
+.btn-success {
+	background-color: hsl(166, 100%, 30%) !important;
+}
+.btn-success:hover {
+	background-color: hsl(166, 100%, 20%) !important;
+}
+.btn-primary {
+	background-color: hsl(238, 30%, 50%) !important;
+}
+.btn-primary:hover {
+	background-color: hsl(238, 30%, 40%) !important;
+}
+.btn-info {
+	background-color: hsl(212, 41%, 71%) !important;
+}
+.btn-info:hover {
+	background-color: hsl(212, 41%, 61%) !important;
 }
 /* http://getbootstrap.com/examples/non-responsive/
  * 
