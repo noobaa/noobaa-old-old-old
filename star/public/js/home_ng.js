@@ -8,6 +8,11 @@
 	var noobaa_app = angular.module('noobaa_app');
 
 
+	///////////////////
+	// ROUTES CONFIG //
+	///////////////////
+
+
 	noobaa_app.config(function($routeProvider, $locationProvider) {
 		$locationProvider.html5Mode(true);
 		$routeProvider.when('/home', {
@@ -33,6 +38,13 @@
 			redirectTo: '/home'
 		});
 	});
+
+
+
+	/////////////////////
+	// HOME CONTROLLER //
+	/////////////////////
+
 
 	noobaa_app.controller('HomeCtrl', ['$scope', '$http', '$timeout', '$location', 'nbUploadSrv',
 		function($scope, $http, $timeout, $location, nbUploadSrv) {
@@ -156,6 +168,62 @@
 			};
 		}
 	]);
+
+
+
+	//////////////////////
+	// FEEDS CONTROLLER //
+	//////////////////////
+
+
+	noobaa_app.controller('FeedCtrl', ['$scope', '$http', '$timeout', 'nbUploadSrv',
+		function($scope, $http, $timeout, nbUploadSrv) {
+
+			function refresh_feeds() {
+				console.log('READ SWM', $scope.swm);
+				if (!$scope.swm) {
+					return;
+				}
+				$scope.refreshing_feeds = true;
+				$http({
+					method: 'GET',
+					url: '/api/inode/' + $scope.swm.id
+				}).then(function(res) {
+					$scope.refreshing_feeds = false;
+					console.log('SWM FOLDER', res);
+					for (var i = 0; i < res.data.entries.length; i++) {
+						var e = res.data.entries[i];
+						if (e.ctime) {
+							e.ctime_date = new Date(e.ctime);
+							e.ctime_display = e.ctime_date.toLocaleDateString();
+						}
+						console.log('SWM', e);
+					}
+					$scope.feeds = res.data.entries;
+					$scope.feeds.sort(function(a, b) {
+						return a.ctime_date > b.ctime_date ? -1 : 1;
+					});
+					return res;
+				}, function(err) {
+					$scope.refreshing_feeds = false;
+					console.error('GET SWM FOLDER FAILED', err);
+					throw err;
+				});
+			}
+
+			$scope.$watch('swm', refresh_feeds);
+			refresh_feeds();
+
+			$scope.refresh_feeds = refresh_feeds;
+		}
+	]);
+
+
+
+	//////////////////////
+	// BROWSE DIRECTIVE //
+	//////////////////////
+
 
 	noobaa_app.directive('nbBrowse', function() {
 		return {
@@ -511,47 +579,5 @@
 		};
 	});
 
-
-	noobaa_app.controller('FeedCtrl', ['$scope', '$http', '$timeout', 'nbUploadSrv',
-		function($scope, $http, $timeout, nbUploadSrv) {
-
-			function refresh_feeds() {
-				console.log('READ SWM', $scope.swm);
-				if (!$scope.swm) {
-					return;
-				}
-				$scope.refreshing_feeds = true;
-				$http({
-					method: 'GET',
-					url: '/api/inode/' + $scope.swm.id
-				}).then(function(res) {
-					$scope.refreshing_feeds = false;
-					console.log('SWM FOLDER', res);
-					for (var i = 0; i < res.data.entries.length; i++) {
-						var e = res.data.entries[i];
-						if (e.ctime) {
-							e.ctime_date = new Date(e.ctime);
-							e.ctime_display = e.ctime_date.toLocaleDateString();
-						}
-						console.log('SWM', e);
-					}
-					$scope.feeds = res.data.entries;
-					$scope.feeds.sort(function(a, b) {
-						return a.ctime_date > b.ctime_date ? -1 : 1;
-					});
-					return res;
-				}, function(err) {
-					$scope.refreshing_feeds = false;
-					console.error('GET SWM FOLDER FAILED', err);
-					throw err;
-				});
-			}
-
-			$scope.$watch('swm', refresh_feeds);
-			refresh_feeds();
-
-			$scope.refresh_feeds = refresh_feeds;
-		}
-	]);
 
 })();
