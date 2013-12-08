@@ -1,0 +1,24 @@
+<div class="feeder">
+	<div class="container">
+		<div>
+			<span class="text-muted">News Feed</span>
+			&nbsp;
+			<button class="btn btn-default btn-sm" ng-click="refresh_feeds()" title="Refresh" nb-tooltip>
+				<i class="fa fa-refresh {{refreshing_feeds && 'fa-spin' || ''}} Xfa-fw fa-lg"></i>
+			</button>
+		</div>
+		<div>
+			<div ng-repeat="feed in feeds" class="feed_line">
+				<div class="media">
+					<a class="pull-left">
+						<img class="media-object img-thumbnail" ng-src="{{get_pic_url(feed.owner)}}" alt="...">
+					</a>
+					<div class="media-body">
+						<h4 class="media-heading">{{feed.name}}</h4>
+						CTIME={{feed.ctime_display}}, ISDIR={{feed.isdir}}, SIZE={{feed.size}}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

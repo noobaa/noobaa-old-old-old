@@ -1,0 +1,21 @@
+<div class="container">
+	<div class="bggrey" style="padding: 20px" Xnb-effect-toggle="!has_uploads()" Xnb-effect-options="{effect: 'blind'}">
+		<i class="fa fa-cloud-upload fa-border pull-left" style="font-size: 80px; line-height: 0.8em"></i>
+		<h3 style="margin-top: 0">Drag &amp; Drop Upload</h3>
+		<h5>Drop entire folders (with chrome)</h5>
+		<div style="margin: 10px">
+			<span id="choose_file_button" class="btn btn-success fileinput-button">
+				Choose Files
+				<input id="file_upload_input" type="file" name="file" multiple="multiple"></input>
+			</span>
+			<span ng-show="false" id="choose_folder_button" class="btn btn-success fileinput-button">
+				Choose Folder
+				<input id="dir_upload_input" type="file" name="file" webkitdirectory="" mozdirectory="" directory="">
+				</input>
+			</span>
+		</div>
+	</div>
+	<div nb-effect-toggle="has_uploads()" nb-effect-options="{effect: 'blind'}">
+		<nb-upload-table></nb-upload-table>
+	</div>
+</div>

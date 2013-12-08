@@ -138,7 +138,6 @@ html {
 .label-danger {
 	background-color: hsl(351, 68%, 44%) !important;
 }
-
 /**/
 
 /* LAYOUTS */
@@ -244,16 +243,38 @@ html {
 	box-shadow: 		0 0 5px 5px rgba(0, 0, 0, 0.3);
 	*/
 }
+.view-animate.ng-enter {
+	opacity: 0;
+}
+.view-animate.ng-enter.ng-enter-active {
+	opacity: 1;
+}
+.view-animate.ng-leave {
+	opacity: 1;
+}
+.view-animate.ng-leave.ng-leave-active {
+	opacity: 0;
+}
+.view-animate {
+	-webkit-transition: opacity 0.5s linear;
+	-moz-transition: opacity 0.5s linear;
+	-o-transition: opacity 0.5s linear;
+	transition: opacity 0.5s linear;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+}
 /**/
 
 /* FILE BROWSER */
-.browser .panel-body {
+ .browser .panel-body {
 	background-color: hsl(212, 20%, 90%);
 }
 .browser .panel-heading {
 	padding: 0 10px 10px 10px !important;
 }
- .file_line {
+.file_line {
 	line-height: 36px;
 	vertical-align: middle;
 	border-color: hsla(212, 41%, 71%, 0.1);
@@ -286,26 +307,29 @@ html {
 /**/
 
 /* FEED */
-.feeder .panel-body {
+ .feeder .panel-body {
 	background-color: hsl(212, 20%, 90%);
 }
 .feeder .panel-heading {
 	padding: 10px !important;
 }
- .feed_line {
+.feed_line {
 	line-height: 36px;
 	vertical-align: middle;
 	border-color: hsla(212, 41%, 71%, 0.1);
 	border-style: solid;
 	border-width: 0;
-	padding-left: 7px;
-	padding-right: 7px;
+	padding-left: 27px;
+	padding-right: 27px;
+	border-top-width: 1px;
+	margin-top: 20px;
+	padding-top: 20px;
 }
 .feed_line:hover {
 	border-left-width: 7px;
 	border-right-width: 7px;
-	padding-left: 0px;
-	padding-right: 0px;
+	padding-left: 20px;
+	padding-right: 20px;
 	border-color: hsl(212, 41%, 71%);
 }
 /**/

@@ -6,7 +6,7 @@
 	'use strict';
 
 	// create our module
-	var noobaa_app = angular.module('noobaa_app', []);
+	var noobaa_app = angular.module('noobaa_app', ['ngRoute', 'ngAnimate']);
 
 	// noobaa_app.config([
 	//	'$httpProvider', '$interpolateProvider',

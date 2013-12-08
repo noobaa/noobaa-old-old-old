@@ -7,20 +7,47 @@
 
 	var noobaa_app = angular.module('noobaa_app');
 
+
+	noobaa_app.config(function($routeProvider, $locationProvider) {
+		$locationProvider.html5Mode(true);
+		$routeProvider.when('/home', {
+			templateUrl: '/public/html/feed_template.html',
+			controller: 'FeedCtrl'
+		}).when('/home/mydata/:path*?', {
+			template: [
+				'<div class="container">',
+				'	<div nb-browse root_inode="mydata"></div>',
+				'</div>'
+			].join('\n')
+		}).when('/home/upload', {
+			templateUrl: '/public/html/upload_template.html',
+			controller: ['$scope', '$http', '$timeout', 'nbUploadSrv',
+				function($scope, $http, $timeout, nbUploadSrv) {
+					nbUploadSrv.setup_file_input($('#file_upload_input'));
+					nbUploadSrv.setup_file_input($('#dir_upload_input'));
+				}
+			]
+		}).when('/home/install', {
+			templateUrl: '/public/html/install_template.html',
+		}).otherwise({
+			redirectTo: '/home'
+		});
+	});
+
 	noobaa_app.controller('HomeCtrl', ['$scope', '$http', '$timeout', 'nbUploadSrv',
 		function($scope, $http, $timeout, nbUploadSrv) {
 
 			var server_data_raw = $('#server_data').html();
 			$scope.server_data = server_data_raw ? JSON.parse(server_data_raw) : {};
 			$scope.user = $scope.server_data.user;
-			
+
 			$scope.user_quota = 0;
 			$scope.user_usage = 0;
 			$scope.usage_percents = 0;
 
 			function usage_refresh() {
 				reset_usage_refresh(true);
-				$http({
+				return $http({
 					method: "GET",
 					url: "/api/user/",
 				}).then(function(res) {
@@ -28,9 +55,11 @@
 					$scope.user_usage = res.data.usage;
 					$scope.usage_percents = Math.floor(100 * $scope.user_usage / $scope.user_quota);
 					reset_usage_refresh();
+					return res;
 				}, function(err) {
 					console.log("Error in querying user usage: ", err);
 					reset_usage_refresh();
+					throw err;
 				});
 			}
 
@@ -54,7 +83,8 @@
 				method: 'GET',
 				url: '/api/inode/null'
 			}).then(function(res) {
-				for (var i = 0; i < res.data.entries; i++) {
+				console.log('ROOT FOLDERS', res);
+				for (var i = 0; i < res.data.entries.length; i++) {
 					var e = res.data.entries[i];
 					if (e.name === 'My Data') {
 						$scope.mydata = e;
@@ -64,22 +94,86 @@
 						console.error('UNRECOGNIZED ROOT FOLDER', e);
 					}
 				}
+				return res;
 			}, function(err) {
 				console.error('GET ROOT FOLDERS FAILED', err);
+				throw err;
 			});
 
+
+			$scope.has_uploads = function() {
+				return nbUploadSrv.has_uploads();
+			};
+
+			nbUploadSrv.setup_drop($(document));
+
+			nbUploadSrv.get_upload_target = function(event) {
+				// make sure the uploads view shows
+				if (!$scope.show_uploads_view && !event.show_uploads_view) {
+					// open the view with some delay to prevent flickering
+					// and let the file be added to the list first.
+					// also mark this on the event to prevent more than one timout submitted per event.
+					event.show_uploads_view = true;
+					$timeout(function() {
+						$scope.show_uploads_view = true;
+					}, 500);
+				}
+
+				// see inode_upload()
+				var inode_upload = $(event.target).data('inode_upload');
+				if (inode_upload) {
+					return {
+						inode_id: inode_upload.id
+					};
+				}
+
+				console.log('UP', $scope, $scope.mydata);
+				var dir_inode = $scope.mydata;
+				if (!dir_inode) {
+					console.error('no selected dir, bailing');
+					return false;
+				}
+				/* TODO FIX
+				if (dir_inode.is_shared_with_me()) {
+					$.nbalert('Cannot upload to a shared folder');
+					return false;
+				}
+				if (dir_inode.is_not_mine() || dir_inode.owner_name) {
+					$.nbalert('Cannot upload to someone else\'s folder');
+					return false;
+				}
+				*/
+				return {
+					dir_inode_id: dir_inode.id
+				};
+			};
+
+			$scope.get_pic_url = function(user) {
+				if (!user) {
+					return;
+				}
+				if (user.fbid) {
+					return 'https://graph.facebook.com/' + user.fbid + '/picture';
+				}
+				if (user.googleid) {
+					return 'https://plus.google.com/s2/photos/profile/' + user.googleid + '?sz=50';
+				}
+			};
 		}
 	]);
 
 	noobaa_app.directive('nbBrowse', function() {
 		return {
 			replace: true,
-			templateUrl: '/browse_template.html',
+			templateUrl: '/public/html/browse_template.html',
+			scope: { // isolated scope
+				root_inode: '='
+			},
 			controller: ['$scope', '$http', '$timeout', 'nbUploadSrv',
 				function($scope, $http, $timeout, nbUploadSrv) {
-					$scope.show_files = false;
 
 					if ($scope.root_inode) {
+						console.log('INITED WITH ROOT', $scope.root_inode);
 						$scope.root_inode = {
 							id: $scope.root_inode.id,
 							isdir: $scope.root_inode.isdir,
@@ -130,8 +224,10 @@
 								}
 								e.parent = dir_inode;
 								e.level = dir_inode.level + 1;
-								e.ctime_display = e.ctime ?
-									new Date(e.ctime).toLocaleDateString() : null;
+								if (e.ctime) {
+									e.ctime_date = new Date(e.ctime);
+									e.ctime_display = e.ctime_date.toLocaleDateString();
+								}
 								entries[i] = e;
 								entries_map[e.id] = e;
 							}
@@ -195,6 +291,9 @@
 					}
 
 					function parents_path(inode) {
+						if (!inode) {
+							return;
+						}
 						var parents = new Array(inode.level + 1);
 						var p = inode;
 						// for (var i = inode.level; i >= 0; i--) {
@@ -418,16 +517,46 @@
 	});
 
 
-	noobaa_app.directive('nbFeed', function() {
-		return {
-			replace: true,
-			templateUrl: '/feed_template.html',
-			controller: ['$scope', '$http', '$timeout', 'nbUploadSrv',
-				function($scope, $http, $timeout, nbUploadSrv) {
-					$scope.show_feeds = true;
+	noobaa_app.controller('FeedCtrl', ['$scope', '$http', '$timeout', 'nbUploadSrv',
+		function($scope, $http, $timeout, nbUploadSrv) {
+
+			function refresh_feeds() {
+				console.log('READ SWM', $scope.swm);
+				if (!$scope.swm) {
+					return;
 				}
-			]
-		};
-	});
+				$scope.refreshing_feeds = true;
+				$http({
+					method: 'GET',
+					url: '/api/inode/' + $scope.swm.id
+				}).then(function(res) {
+					$scope.refreshing_feeds = false;
+					console.log('SWM FOLDER', res);
+					for (var i = 0; i < res.data.entries.length; i++) {
+						var e = res.data.entries[i];
+						if (e.ctime) {
+							e.ctime_date = new Date(e.ctime);
+							e.ctime_display = e.ctime_date.toLocaleDateString();
+						}
+						console.log('SWM', e);
+					}
+					$scope.feeds = res.data.entries;
+					$scope.feeds.sort(function(a, b) {
+						return a.ctime_date > b.ctime_date ? -1 : 1;
+					});
+					return res;
+				}, function(err) {
+					$scope.refreshing_feeds = false;
+					console.error('GET SWM FOLDER FAILED', err);
+					throw err;
+				});
+			}
+
+			$scope.$watch('swm', refresh_feeds);
+			refresh_feeds();
+
+			$scope.refresh_feeds = refresh_feeds;
+		}
+	]);
 
 })();
