@@ -169,8 +169,9 @@ app.use(function(err, req, res, next) {
 		return res.json(e);
 	} else if (req.accepts('html')) {
 		return res.render('error.html', {
-			err: e,
-			req: req
+			data: e.data,
+			status: e.status,
+			stack: e.stack
 		});
 	} else if (req.accepts('json')) {
 		return res.json(e);

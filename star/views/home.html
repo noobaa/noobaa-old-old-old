@@ -3,6 +3,7 @@
 
 <head>
 	<?# def.include( 'common_head.html') ?>
+	<base href="/home">
 </head>
 
 <body ng-cloak ng-controller="HomeCtrl" ng-init="filter_file_name=''">
@@ -44,20 +45,14 @@
 				<div class="col-sm-8">
 					<small class="text-muted">Actions:</small>
 					<div>
-						<a class="btn btn-danger" href="/home/mydata/">
+						<a class="btn btn-default" href="/home/mydata/">
 							My-Data
 						</a>
-						<a class="btn btn-warning" href="/home/upload">
+						<a class="btn btn-default" href="/home/upload">
 							Upload
 						</a>
-						<a class="btn btn-success" href="/home/install">
+						<a class="btn btn-default" href="/home/install">
 							Install
-						</a>
-						<a class="btn btn-primary" href="https://www.facebook.com/dialog/send?app_id={{server_data.app_id}}&link=https://www.noobaa.com&redirect_uri=https://www.facebook.com" target="_blank">
-							Invite a friend
-						</a>
-						<a class="btn btn-info" href="https://www.facebook.com/dialog/feed?app_id={{server_data.app_id}}&link=https://www.noobaa.com&redirect_uri=https://www.facebook.com" target="_blank">
-							Tell your friends
 						</a>
 						<a class="btn btn-default">
 							More
@@ -69,6 +64,12 @@
 						<div ng-repeat="i in [1,2,3]" style="margin-right: 10px; display: inline-block">
 							<img ng-src="https://graph.facebook.com/{{user.fbid}}/picture\" style="height: 40px" class="img-thumbnail"></img>
 						</div>
+						<a class="btn btn-default" href="https://www.facebook.com/dialog/send?app_id={{server_data.app_id}}&link=https://www.noobaa.com&redirect_uri=https://www.facebook.com" target="_blank">
+							Invite a friend
+						</a>
+						<a class="btn btn-default" href="https://www.facebook.com/dialog/feed?app_id={{server_data.app_id}}&link=https://www.noobaa.com&redirect_uri=https://www.facebook.com" target="_blank">
+							Tell your friends
+						</a>
 					</div>
 				</div>
 			</div>
