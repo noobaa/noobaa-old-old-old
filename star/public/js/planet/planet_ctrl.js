@@ -10,14 +10,16 @@
 	// and avoid failures when console is null on fast refresh.
 	var console = window.console;
 	var localStorage = window.localStorage;
-	var os = require('os');
-	var path = require('path');
-	var http = require('http');
-	// load native node-webkit library
-	var gui = window.require('nw.gui');
-	// get the node-webkit native window of the planet
-	var win = gui.Window.get();
 
+	if (window.require) {
+		var os = require('os');
+		var path = require('path');
+		var http = require('http');
+		// load native node-webkit library
+		var gui = window.require('nw.gui');
+		// get the node-webkit native window of the planet
+		var win = gui.Window.get();
+	}
 
 	// define the planet angular controller
 
@@ -30,6 +32,10 @@
 
 	function PlanetCtrl($scope, $http, $timeout, nbUploadSrv) {
 		console.log('PlanetCtrl');
+		
+		if (!window.require) {
+			return;
+		}
 
 		// set the scope in the window to signal to the planet_boot code
 		// that we are loaded and it can communicate with our scope.

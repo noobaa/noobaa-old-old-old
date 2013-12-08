@@ -8,18 +8,16 @@
 	var noobaa_app = angular.module('noobaa_app');
 
 	noobaa_app.service('nbUploadSrv', [
-		'$q', '$http', '$timeout', '$rootScope', '$templateCache', UploadSrv
+		'$q', '$http', '$timeout', '$rootScope', UploadSrv
 	]);
 
-	function UploadSrv($q, $http, $timeout, $rootScope, $templateCache) {
+	function UploadSrv($q, $http, $timeout, $rootScope) {
 		this.$q = $q;
 		this.$http = $http;
 		this.$timeout = $timeout;
 		this.$rootScope = $rootScope;
 
 		this.$cb = $rootScope.safe_callback.bind($rootScope);
-
-		setup_upload_node_template($templateCache);
 
 		// use node-webkit modules if available
 		this.$fs = window.require && window.require('fs');
@@ -466,8 +464,8 @@
 	}
 
 	function fill_existing_dirent(upload, ent) {
-		var ent_isdir = !!ent.isdir;
-		var item_isdir = !!upload.item.isDirectory;
+		var ent_isdir = !! ent.isdir;
+		var item_isdir = !! upload.item.isDirectory;
 		if (ent_isdir !== item_isdir) {
 			return false;
 		}
@@ -1205,152 +1203,21 @@
 	});
 
 
-	noobaa_app.directive('nbUploadTable', function() {
-		return {
-			controller: ['$scope', 'nbUploadSrv',
-				function($scope, nbUploadSrv) {
-					$scope.srv = nbUploadSrv;
-					$scope.upload = $scope.srv.root;
-				}
-			],
-			restrict: 'E',
-			replace: true,
-			template: [
-				'<div id="upload_table"',
-				'	ng-cloak class="fntthin"',
-				'	style="border: 1px solid #ccc;">',
-				'	<div class="row" style="margin-top: 20px; margin-bottom: 20px">',
-				'		<div class="col-sm-4 text-center" style="margin-bottom: 10px"><div class="btn-group">',
-				'			<button class="btn btn-success btn-sm"',
-				'				ng-click="srv.clear_completed()"',
-				'				title="Clear Completed">',
-				'				<i class="icon-eraser"></i>',
-				'			</button>',
-				'			<button class="btn btn-default btn-sm"',
-				'				ng-click="srv.toggle_select_all()"',
-				'				title="Select All / None">',
-				'				<i ng-hide="srv.selected_all" class="icon-check-empty icon-large icon-fixed-width"></i>',
-				'				<i ng-show="srv.selected_all" class="icon-check icon-large icon-fixed-width"></i>',
-				'			</button>',
-				'			<button class="btn btn-default btn-sm"',
-				'				ng-click="srv.pause_selected()"',
-				'				title="Pause Selected">',
-				'				<i class="icon-pause"></i>',
-				'			</button>',
-				'			<button class="btn btn-default btn-sm"',
-				'				ng-click="srv.resume_selected()"',
-				'				title="Resume Selected">',
-				'				<i class="icon-play"></i>',
-				'			</button>',
-				'			<button class="btn btn-default btn-sm"',
-				'				ng-click="srv.remove_selected()"',
-				'				title="Remove Selected">',
-				'				<i class="icon-remove"></i>',
-				'			</button>',
-				'			<button ng-show="false" class="btn btn-warning btn-sm"',
-				'				ng-click="srv.pin_selected()"',
-				'				title="Pin Selected">',
-				'				<i class="icon-pushpin"></i>',
-				'			</button>',
-				'		</div></div>',
-				'		<div class="col-sm-8 text-center" style="font-size: 12px; line-height: 12px">',
-				'			<div class="col-xs-4">',
-				'				<div><b>Total</b></div>',
-				'				<div>{{human_size(srv.root.total_size)}} {{srv.root.total_sons}} items</div>',
-				'			</div>',
-				'			<div class="col-xs-4">',
-				'				<div><b>Complete</b></div>',
-				'				<div>{{human_size(srv.root.total_upsize)}} {{srv.root.total_completed}} items</div>',
-				'			</div>',
-				'			<div class="col-xs-4">',
-				'				<div><b>Speed</b></div>',
-				'				<div>{{srv.speed.toFixed(1)}} KB/sec</div>',
-				'			</div>',
-				'		</div>',
-				// '		<button ng-show="false" class="btn btn-default btn-sm"',
-				// '			ng-click="srv.show_advanced = !srv.show_advanced"',
-				// '			title="Advanced Stats">',
-				// '			<i style="color: black" class="icon-bar-chart"></i>',
-				// '		</button>',
-				// '		<div ng-show="srv.show_advanced">',
-				// '			<canvas width=50 height=20 id="upload_speed_gauge"></canvas>',
-				// '			<p><b>Load queue</b> {{srv.jobq_load.length}}</p>',
-				// '			<p><b>Small queue</b> {{srv.jobq_upload_small.length}}</p>',
-				// '			<p><b>Medium queue</b> {{srv.jobq_upload_medium.length}}</p>',
-				// '			<p><b>Large queue</b> {{srv.jobq_upload_large.length}}</p>',
-				// '			<p><b>Loading</b> {{srv.list_loading.length}}</p>',
-				// '			<p><b>Uploading</b> {{srv.list_uploading.length}}</p>',
-				// '			<p><b>Retrying</b> {{srv.list_retrying.length}}</p>',
-				// '		</div>',
-				'	</div>',
-				'	<div ng-include="\'nb-upload-node.html\'"',
-				'		style="margin: 0; font-size: 16px; width: 100%;',
-				'			height: auto; overflow: auto; border-top: 1px solid #ccc;"></div>',
-				'</div>'
-			].join('\n')
-		};
-	});
+	noobaa_app.controller('UploadCtrl', ['$scope', 'nbUploadSrv',
+		function($scope, nbUploadSrv) {
+			$scope.srv = nbUploadSrv;
+			$scope.upload = $scope.srv.root;
+			$scope.show_upload_details = false;
+			$scope.has_uploads = function() {
+				return nbUploadSrv.has_uploads();
+			};
 
-	function setup_upload_node_template($templateCache) {
-		$templateCache.put('nb-upload-node.html', [
-			'<div ng-repeat="(id,upload) in upload|upload_sons_filter">',
-			'	<div class="row"',
-			'		style="margin: 0; border-bottom: 1px solid #ccc; position: relative;',
-			'			{{(upload.is_selected || srv.selected_all) && \'color: blue;\' || \'\'}} ',
-			'			{{!upload.parent.level && \'padding-top: 20px; padding-bottom: 20px;\' || \'\'}}">',
-			'		<div class="progress-bar progress-bar-{{upload.progress_class || \'success\'}}"',
-			'			role="progressbar"',
-			'			aria-valuemin="0" aria-valuemax="100"',
-			'			style="position: absolute; top:0; left:0; width: {{upload.progress}}%;">',
-			'		</div>',
-			'		<div class="col-sm-6">',
-			'			<span style="cursor: pointer" ng-click="srv.toggle_select(upload)">',
-			'				<i ng-hide="upload.is_selected || srv.selected_all"',
-			'					style="font-size: 13px" class="icon-check-empty icon-large icon-fixed-width"></i>',
-			'				<i ng-show="upload.is_selected || srv.selected_all"',
-			'					style="font-size: 13px" class="icon-check icon-large icon-fixed-width"></i>',
-			'			</span>',
-			'			<span style="padding-left: {{upload.parent.level*20}}px">',
-			'				<span style="cursor: pointer; min-height: 15px"',
-			'					ng-click="srv.toggle_expand(upload)"',
-			'					class="icon-stack icon-fixed-width">',
-			'					<span ng-show="upload.item.isDirectory && !upload.is_expanded">',
-			'						<i class="icon-folder-close icon-stack-base icon-fixed-width"',
-			'							style="font-size: 1em"></i>',
-			'						<i class="icon-plus icon-light icon-fixed-width"',
-			'							style="font-size: 0.5em"></i>',
-			'					</span>',
-			'					<i ng-show="upload.item.isDirectory && upload.is_expanded"',
-			'						style="font-size: 1em" class="icon-folder-open icon-fixed-width"></i>',
-			'					<i ng-show="!upload.item.isDirectory"',
-			'						style="font-size: 1em" class="icon-file icon-fixed-width"></i>',
-			'				</span>',
-			'				{{upload.item.name}}',
-			'			</span>',
-			'		</div>',
-			'		<div class="col-sm-6">',
-			'			<div class="col-xs-4" >',
-			'				<span ng-show="upload.item.isDirectory">',
-			'					{{ upload.total_sons }} items',
-			'				</span>',
-			'			</div>',
-			'			<div class="col-xs-4">',
-			'				{{ human_size(upload.item.isDirectory && upload.total_size || upload.item.size) }} ',
-			'			</div>',
-			'			<div class="col-xs-4" title="{{upload.error_text}}">',
-			'				<a ng-show="upload.is_pin" class="btn btn-warning btn-sm"><i class="icon-pushpin icon-fixed-width"></i></a>',
-			'				{{srv.get_status(upload)}}',
-			'			</div>',
-			'		</div>',
-			'	</div>',
-			'	<div ng-include="\'nb-upload-node.html\'"',
-			'		style="font-size: 13px"',
-			'		nb-effect-toggle="upload.is_expanded"',
-			'		nb-effect-options="{effect:\'blind\'}">',
-			'	</div>',
-			'</div>',
-		].join('\n'));
-	}
+			nbUploadSrv.setup_file_input($('#file_upload_input'));
+			nbUploadSrv.setup_file_input($('#dir_upload_input'));
+			nbUploadSrv.setup_drop($(document));
+		}
+	]);
+
 
 
 

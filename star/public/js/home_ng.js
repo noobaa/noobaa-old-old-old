@@ -24,14 +24,6 @@
 				'	<div nb-browse root_inode="mydata"></div>',
 				'</div>'
 			].join('\n')
-		}).when('/upload', {
-			templateUrl: '/public/html/upload_template.html',
-			controller: ['$scope', '$http', '$timeout', 'nbUploadSrv',
-				function($scope, $http, $timeout, nbUploadSrv) {
-					nbUploadSrv.setup_file_input($('#file_upload_input'));
-					nbUploadSrv.setup_file_input($('#dir_upload_input'));
-				}
-			]
 		}).when('/install', {
 			templateUrl: '/public/html/install_template.html',
 		// }).otherwise({
@@ -113,18 +105,11 @@
 			});
 
 
-			$scope.has_uploads = function() {
-				return nbUploadSrv.has_uploads();
-			};
-
-			nbUploadSrv.setup_drop($(document));
+			$scope.show_uploads = false;
 
 			nbUploadSrv.get_upload_target = function(event) {
 				// make sure the uploads view shows
-				if (!event.show_uploads_view) {
-					$location.path('/home/upload');
-					event.show_uploads_view = true;
-				}
+				$scope.show_uploads = true;
 
 				// see inode_upload()
 				var inode_upload = $(event.target).data('inode_upload');
@@ -264,14 +249,14 @@
 
 
 					function read_dir(dir_inode) {
-						console.log('READDIR', dir_inode);
+						console.log('READDIR', dir_inode.name);
 						dir_inode.is_loading = true;
 						return $http({
 							method: 'GET',
 							url: inode_source_url(dir_inode)
 						}).then(function(res) {
 							dir_inode.is_loading = false;
-							console.log('READDIR RES', res, dir_inode);
+							console.log('READDIR', dir_inode.name, res);
 							var entries = res.data.entries;
 							entries.sort(function(a, b) {
 								return a.isdir ? -1 : 1;
@@ -358,10 +343,9 @@
 						if (!inode) {
 							return;
 						}
-						var parents = new Array(inode.level + 1);
-						var p = inode;
-						// for (var i = inode.level; i >= 0; i--) {
-						for (var i = 0; i <= inode.level; i++) {
+						var parents = new Array(inode.level);
+						var p = inode.parent;
+						for (var i = 0; i < inode.level; i++) {
 							parents[i] = p;
 							p = p.parent;
 						}

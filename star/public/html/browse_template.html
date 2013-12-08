@@ -1,64 +1,62 @@
 <div class="browser">
-	<div class="panel panel-success">
-		<div class="panel-heading" Xstyle="padding: 0 10px 10px 10px">
-			<a class="btn btn-success" ng-click="go_up_level()" title="Up one folder" nb-tooltip>
-				<i class="fa fa-arrow-up fa-lg"></i>
-			</a>
+	<div class="panel panel-info">
+		<div class="panel-heading">
+			<div class="btn-group" style="margin-top: 10px">
+				<a class="btn btn-primary" ng-click="go_up_level()" title="Up one folder" nb-tooltip="{container: 'body'}">
+					<i class="fa fa-arrow-up fa-lg"></i>
+				</a>
+			</div>
 			&nbsp;
-			<div ng-repeat="parent in parents_path(dir_inode)" style="display: inline-block; margin-top: 10px">
-				<i ng-if="!$first" class="fa fa-angle-double-right fa-fw"></i>
-				<button ng-if="!$first" class="btn btn-default" ng-click="open_inode(parent)">
-					<div class="text-ellipses" style="max-width: 150px">
-						<span ng-if="parent.is_loading">
+			<div class="btn-group" style="margin-top: 10px">
+				<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+					<div class="text-ellipses" style="max-width: 200px">
+						<span class="caret"></span>
+						<span ng-if="dir_inode.is_loading">
 							<i class="fa fa-refresh fa-spin fa-fw"></i>
 						</span>
-						<i ng-if="!parent.is_loading" class="fa fa-{{$last && 'home' || 'folder'}} fa-fw"></i>
-						{{parent.name}}
+						<i ng-if="!dir_inode.is_loading" class="fa fa-{{!dir_inode.parent.parent && 'home' || 'folder'}} fa-fw"></i>
+						{{dir_inode.name}}
 					</div>
 				</button>
-				<div ng-if="$first" class="btn-group">
-					<button class="btn btn-default active" ng-click="open_inode(parent)">
-						<div class="text-ellipses" style="max-width: 150px">
-							<span ng-if="parent.is_loading">
-								<i class="fa fa-refresh fa-spin fa-fw"></i>
-							</span>
-							<i ng-if="!parent.is_loading" class="fa fa-{{$last && 'home' || 'folder'}} fa-fw"></i>
+				<ul class="dropdown-menu" role="menu">
+					<li>
+						<a ng-click="open_inode(dir_inode)">
+							<i class="fa fa-refresh fa-fw"></i>
+							Refresh...
+						</a>
+					</li>
+					<li class="divider"></li>
+					<li>
+						<a ng-click="new_folder(dir_inode)">
+							<i class="fa fa-plus fa-fw"></i>
+							New Folder...
+						</a>
+					</li>
+					<li>
+						<a ng-click="rename_inode(dir_inode)">
+							<i class="fa fa-pencil fa-fw"></i>
+							Rename...
+						</a>
+					</li>
+					<li class="divider"></li>
+					<li>
+						<a>Go back to:</a>
+					</li>
+					<li ng-repeat="parent in parents_path(dir_inode)">
+						<a ng-click="open_inode(parent)">
+							<i class="fa fa-{{$last && 'home' || 'folder'}} fa-fw"></i>
 							{{parent.name}}
-						</div>
-					</button>
-					<button class="btn btn-default active dropdown-toggle" data-toggle="dropdown">
-						<span class="caret"></span>
-					</button>
-					<ul class="dropdown-menu" role="menu">
-						<li>
-							<a ng-click="open_inode(parent)">
-								<i class="fa fa-refresh fa-fw"></i>
-								Refresh...
-							</a>
-						</li>
-						<li class="divider"></li>
-						<li>
-							<a ng-click="new_folder(parent)">
-								<i class="fa fa-plus fa-fw"></i>
-								New Folder...
-							</a>
-						</li>
-						<li>
-							<a ng-click="rename_inode(parent)">
-								<i class="fa fa-pencil fa-fw"></i>
-								Rename...
-							</a>
-						</li>
-					</ul>
-				</div>
+						</a>
+					</li>
+				</ul>
 			</div>
 		</div>
 
 		<div class="panel-body" style="padding: 0">
 			<div ng-repeat="inode in dir_inode.entries" class="file_line notextselect {{inode.is_selected && 'active' || ''}}" style="border-bottom-width: 1px; border-top-width: 1px">
 				<div style="margin-right: 30px; overflow: scroll" ng-click="select_inode(inode, $index, $event)">
-					<i ng-show="!!inode.isdir" class="fa fa-folder fa-fw fa-lg Xtext-info"></i>
-					<i ng-show="!inode.isdir" class="fa fa-file-o fa-fw fa-lg Xtext-muted"></i>
+					<i ng-show="!!inode.isdir" class="fa fa-folder fa-fw fa-lg text-info"></i>
+					<i ng-show="!inode.isdir" class="fa fa-file-o fa-fw fa-lg text-muted"></i>
 					<a class="btn btn-link" ng-click="open_inode(inode, $index, $event)" style="padding-left: 0; display: inline">
 						{{inode.name}}
 					</a>

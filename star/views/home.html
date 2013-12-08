@@ -3,7 +3,7 @@
 
 <head>
 	<?# def.include( 'common_head.html') ?>
-	<base href="/home/">
+		<base href="/home/">
 </head>
 
 <body ng-cloak ng-controller="HomeCtrl" ng-init="filter_file_name=''">
@@ -45,23 +45,22 @@
 				<div class="col-sm-8">
 					<small class="text-muted">Actions:</small>
 					<div>
+						<a class="btn btn-default" href="/home/">
+							Feed
+						</a>
 						<a class="btn btn-default" href="/home/mydata/">
 							My-Data
 						</a>
-						<a class="btn btn-default" href="/home/upload">
+						<a class="btn btn-default" ng-click="show_uploads = !show_uploads">
 							Upload
 						</a>
 						<a class="btn btn-default" href="/home/install">
 							Install
 						</a>
-						<a class="btn btn-default">
-							More
-							<span class="caret"></span>
-						</a>
 					</div>
 					<small class="text-muted">Friends in NooBaa</small>
 					<div>
-						<div ng-repeat="i in [1,2,3]" style="margin-right: 10px; display: inline-block">
+						<div ng-show="false" ng-repeat="i in [1,2,3]" style="margin-right: 10px; display: inline-block">
 							<img ng-src="https://graph.facebook.com/{{user.fbid}}/picture\" style="height: 40px" class="img-thumbnail"></img>
 						</div>
 						<a class="btn btn-default" href="https://www.facebook.com/dialog/send?app_id={{server_data.app_id}}&link=https://www.noobaa.com&redirect_uri=https://www.facebook.com" target="_blank">
@@ -76,6 +75,11 @@
 		</div>
 
 		<hr/>
+
+		<div nb-effect-toggle="show_uploads" nb-effect-options="{effect: 'blind'}">
+			<div ng-include="'/public/html/upload_template.html'"></div>
+			<br/>
+		</div>
 
 		<div Xstyle="position: relative">
 			<div ng-view Xclass="view-animate"></div>
@@ -614,6 +618,7 @@
 	</ul >
 		</script>
 
+		<div ng-controller="PlanetCtrl"></div>
 
 
 		<?# def.include( 'common_scripts.html') ?>
@@ -622,9 +627,10 @@
 			<script src="/vendor/async/lib/async.js" type="text/javascript"></script>
 			<script src="/vendor/bootstrap-growl/jquery.bootstrap-growl.min.js" type="text/javascript"></script>
 			<script src="/public/js/menu_ctrl.js" type="text/javascript"></script>
-			<script src="/public/js/guide_ctrl.js" type="text/javascript"></script>
+			<!-- <script src="/public/js/guide_ctrl.js" type="text/javascript"></script> -->
 			<script src="/public/js/upload_srv.js" type="text/javascript"></script>
 			<script src="/public/js/home_ng.js" type="text/javascript"></script>
+			<!-- <script src="/public/js/planet/planet_ctrl.js" type="text/javascript"></script> -->
 
 </body>
 

@@ -280,6 +280,7 @@ app.get('/planet', function(req, res) {
 app.get('/planet/window', function(req, res) {
 	// return res.render('home.html', common_api.page_context(req));
 	return res.render('planet.html', common_api.page_context(req));
+	// return res.render('home.html', common_api.page_context(req));
 });
 app.get('/planet/auth', function(req, res) {
 	return res.render('planet_auth.html', common_api.page_context(req));

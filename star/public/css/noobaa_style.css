@@ -141,7 +141,7 @@ html {
 /**/
 
 /* LAYOUTS */
- .btn, .form-group input, .form-group textarea, .Xpanel, .Xpanel-heading {
+ .btn, .form-group input, .form-group textarea, .panel, .panel-heading {
 	border-radius: 0 !important;
 }
 .thumbnail {
@@ -300,11 +300,11 @@ a[ng-click], a[role=button] {
 	color: hsl(0, 0%, 15%);
 }
 .browser i.fa-folder {
-	color: hsl(351, 68%, 44%);
+	/*color: hsl(351, 68%, 44%);*/
 	font-size: 1em;
 }
 .browser i.fa-file-o {
-	color: hsl(351, 68%, 44%);
+	/*color: hsl(351, 68%, 44%);*/
 	font-size: 1em;
 }
 /**/
