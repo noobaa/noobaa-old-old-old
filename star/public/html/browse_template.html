@@ -1,46 +1,50 @@
 <div class="browser">
 	<div class="panel panel-success">
 		<div class="panel-heading" Xstyle="padding: 0 10px 10px 10px">
-			<a class="btn btn-success btn-sm" ng-click="go_up_level()" title="Up one folder" nb-tooltip>
+			<a class="btn btn-success" ng-click="go_up_level()" title="Up one folder" nb-tooltip>
 				<i class="fa fa-arrow-up fa-lg"></i>
 			</a>
 			&nbsp;
 			<div ng-repeat="parent in parents_path(dir_inode)" style="display: inline-block; margin-top: 10px">
 				<i ng-if="!$first" class="fa fa-angle-double-right fa-fw"></i>
-				<button ng-if="!$first" class="btn btn-default btn-sm" ng-click="open_inode(parent)">
+				<button ng-if="!$first" class="btn btn-default" ng-click="open_inode(parent)">
 					<div class="text-ellipses" style="max-width: 150px">
-						<i ng-if="parent.is_loading" class="fa fa-refresh fa-spin fa-fw"></i>
+						<span ng-if="parent.is_loading">
+							<i class="fa fa-refresh fa-spin fa-fw"></i>
+						</span>
 						<i ng-if="!parent.is_loading" class="fa fa-{{$last && 'home' || 'folder'}} fa-fw"></i>
 						{{parent.name}}
 					</div>
 				</button>
 				<div ng-if="$first" class="btn-group">
-					<button class="btn btn-default btn-sm active" ng-click="open_inode(parent)">
+					<button class="btn btn-default active" ng-click="open_inode(parent)">
 						<div class="text-ellipses" style="max-width: 150px">
-							<i ng-if="parent.is_loading" class="fa fa-refresh fa-spin fa-fw"></i>
+							<span ng-if="parent.is_loading">
+								<i class="fa fa-refresh fa-spin fa-fw"></i>
+							</span>
 							<i ng-if="!parent.is_loading" class="fa fa-{{$last && 'home' || 'folder'}} fa-fw"></i>
 							{{parent.name}}
 						</div>
 					</button>
-					<button class="btn btn-default btn-sm active dropdown-toggle" data-toggle="dropdown">
+					<button class="btn btn-default active dropdown-toggle" data-toggle="dropdown">
 						<span class="caret"></span>
 					</button>
 					<ul class="dropdown-menu" role="menu">
 						<li>
-							<a href="#" ng-click="open_inode(parent)">
+							<a ng-click="open_inode(parent)">
 								<i class="fa fa-refresh fa-fw"></i>
 								Refresh...
 							</a>
 						</li>
 						<li class="divider"></li>
 						<li>
-							<a href="#" ng-click="new_folder(parent)">
+							<a ng-click="new_folder(parent)">
 								<i class="fa fa-plus fa-fw"></i>
 								New Folder...
 							</a>
 						</li>
 						<li>
-							<a href="#" ng-click="rename_inode(parent)">
+							<a ng-click="rename_inode(parent)">
 								<i class="fa fa-pencil fa-fw"></i>
 								Rename...
 							</a>
@@ -55,7 +59,7 @@
 				<div style="margin-right: 30px; overflow: scroll" ng-click="select_inode(inode, $index, $event)">
 					<i ng-show="!!inode.isdir" class="fa fa-folder fa-fw fa-lg Xtext-info"></i>
 					<i ng-show="!inode.isdir" class="fa fa-file-o fa-fw fa-lg Xtext-muted"></i>
-					<a class="btn btn-link btn-sm" ng-click="open_inode(inode, $index, $event)" style="padding-left: 0; display: inline">
+					<a class="btn btn-link" ng-click="open_inode(inode, $index, $event)" style="padding-left: 0; display: inline">
 						{{inode.name}}
 					</a>
 				</div>

@@ -27,7 +27,6 @@
 			<ul id="menu_right" class="nav navbar-nav navbar-right">
 				<li ng-controller="GuideCtrl" class="dropdown">
 					<a id="my_guides"
-						href="#"
 						class="dropdown-toggle"
 						role="button"
 						data-toggle="dropdown"
@@ -40,7 +39,7 @@
 						role="menu"
 						aria-labelledby="my_guides">
 						<li ng-repeat="guide in guides_list">
-							<a href="#" ng-click="guide.run()">
+							<a ng-click="guide.run()">
 								<span class="icon-li icon-stack">
 									<i class="icon-check-empty icon-stack-base"></i>
 									<i ng-show="guide.is_completed()" 
@@ -53,7 +52,6 @@
 				</li>
 				<li>
 					<a id="feedback_button"
-						href="#"
 						role="button"
 						ng-click="click_feedback()"
 						title="Give feedback"
@@ -65,7 +63,7 @@
 				<li ng-controller="UserCtrl"  class="dropdown">
 					<a class="dropdown-toggle"
 						id="user_label" role="button"
-						data-toggle="dropdown" href="#">
+						data-toggle="dropdown">
 						<div class="text-ellipses" style="max-width: 200px">
 							<span class="icon-user icon-white"></span>
 							<?! it.user.name ?>

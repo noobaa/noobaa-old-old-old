@@ -15,16 +15,16 @@
 
 	noobaa_app.config(function($routeProvider, $locationProvider) {
 		$locationProvider.html5Mode(true);
-		$routeProvider.when('/home', {
+		$routeProvider.when('/', {
 			templateUrl: '/public/html/feed_template.html',
 			controller: 'FeedCtrl'
-		}).when('/home/mydata/:path*?', {
+		}).when('/mydata/:path*?', {
 			template: [
 				'<div class="container">',
 				'	<div nb-browse root_inode="mydata"></div>',
 				'</div>'
 			].join('\n')
-		}).when('/home/upload', {
+		}).when('/upload', {
 			templateUrl: '/public/html/upload_template.html',
 			controller: ['$scope', '$http', '$timeout', 'nbUploadSrv',
 				function($scope, $http, $timeout, nbUploadSrv) {
@@ -32,10 +32,10 @@
 					nbUploadSrv.setup_file_input($('#dir_upload_input'));
 				}
 			]
-		}).when('/home/install', {
+		}).when('/install', {
 			templateUrl: '/public/html/install_template.html',
-		}).otherwise({
-			redirectTo: '/home'
+		// }).otherwise({
+			// redirectTo: '/'
 		});
 	});
 
@@ -264,13 +264,14 @@
 
 
 					function read_dir(dir_inode) {
+						console.log('READDIR', dir_inode);
 						dir_inode.is_loading = true;
 						return $http({
 							method: 'GET',
 							url: inode_source_url(dir_inode)
 						}).then(function(res) {
 							dir_inode.is_loading = false;
-							console.log('READDIR', res);
+							console.log('READDIR RES', res, dir_inode);
 							var entries = res.data.entries;
 							entries.sort(function(a, b) {
 								return a.isdir ? -1 : 1;

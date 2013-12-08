@@ -14,8 +14,13 @@
 						<img class="media-object img-thumbnail" ng-src="{{get_pic_url(feed.owner)}}" alt="...">
 					</a>
 					<div class="media-body">
-						<h4 class="media-heading">{{feed.name}}</h4>
-						CTIME={{feed.ctime_display}}, ISDIR={{feed.isdir}}, SIZE={{feed.size}}
+						<h4 class="media-heading">
+							<i ng-if="feed.isdir" class="fa fa-folder fa-fw"></i>
+							<i ng-if="!feed.isdir" class="fa fa-file-o fa-fw"></i>
+							{{feed.name}}
+						</h4>
+						<span class="text-muted">{{feed.ctime_display}}</span>
+						<span class="text-muted">{{human_size(feed.size)}}</span>
 					</div>
 				</div>
 			</div>

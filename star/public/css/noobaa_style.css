@@ -150,6 +150,9 @@ html {
 .panel-heading {
 	border: none !important;
 }
+a[ng-click], a[role=button] {
+	cursor: pointer;
+}
 .panel-heading .badge {
 	background-color: white;
 	color: black;
@@ -275,7 +278,7 @@ html {
 	padding: 0 10px 10px 10px !important;
 }
 .file_line {
-	line-height: 36px;
+	line-height: 40px;
 	vertical-align: middle;
 	border-color: hsla(212, 41%, 71%, 0.1);
 	border-style: solid;
