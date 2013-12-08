@@ -7,28 +7,104 @@
 
 	var noobaa_app = angular.module('noobaa_app');
 
+	noobaa_app.controller('HomeCtrl', ['$scope', '$http', '$timeout', 'nbUploadSrv',
+		function($scope, $http, $timeout, nbUploadSrv) {
+
+			var server_data_raw = $('#server_data').html();
+			$scope.server_data = server_data_raw ? JSON.parse(server_data_raw) : {};
+			$scope.user = $scope.server_data.user;
+			
+			$scope.user_quota = 0;
+			$scope.user_usage = 0;
+			$scope.usage_percents = 0;
+
+			function usage_refresh() {
+				reset_usage_refresh(true);
+				$http({
+					method: "GET",
+					url: "/api/user/",
+				}).then(function(res) {
+					$scope.user_quota = res.data.quota;
+					$scope.user_usage = res.data.usage;
+					$scope.usage_percents = Math.floor(100 * $scope.user_usage / $scope.user_quota);
+					reset_usage_refresh();
+				}, function(err) {
+					console.log("Error in querying user usage: ", err);
+					reset_usage_refresh();
+				});
+			}
+
+			function reset_usage_refresh(unset) {
+				$timeout.cancel($scope.usage_refresh_timeout);
+				$scope.usage_refresh_timeout = unset ? null : $timeout(usage_refresh, 60000);
+			}
+			usage_refresh();
+
+			if (false) {
+				setInterval(function() {
+					$scope.usage_percents += 10;
+					if ($scope.usage_percents > 100) {
+						$scope.usage_percents = Math.floor(100 * $scope.user_usage / $scope.user_quota);
+					}
+					$scope.$apply();
+				}, 2000);
+			}
+
+			$http({
+				method: 'GET',
+				url: '/api/inode/null'
+			}).then(function(res) {
+				for (var i = 0; i < res.data.entries; i++) {
+					var e = res.data.entries[i];
+					if (e.name === 'My Data') {
+						$scope.mydata = e;
+					} else if (e.name === 'Shared With Me') {
+						$scope.swm = e;
+					} else {
+						console.error('UNRECOGNIZED ROOT FOLDER', e);
+					}
+				}
+			}, function(err) {
+				console.error('GET ROOT FOLDERS FAILED', err);
+			});
+
+		}
+	]);
+
 	noobaa_app.directive('nbBrowse', function() {
 		return {
-			restrict: 'AE',
 			replace: true,
 			templateUrl: '/browse_template.html',
 			controller: ['$scope', '$http', '$timeout', 'nbUploadSrv',
 				function($scope, $http, $timeout, nbUploadSrv) {
+					$scope.show_files = false;
 
-					$scope.root_inode = {
-						id: null,
-						isdir: true,
-						level: -1,
-						name: 'Home',
-						parents: [],
-						entries: [],
-						entries_map: {}
-					};
+					if ($scope.root_inode) {
+						$scope.root_inode = {
+							id: $scope.root_inode.id,
+							isdir: $scope.root_inode.isdir,
+							name: $scope.root_inode.name,
+							level: 0,
+							parents: [],
+							entries: [],
+							entries_map: {}
+						};
+						open_inode($scope._root_inode);
+					} else {
+						$scope._root_inode = {
+							id: null,
+							isdir: true,
+							name: 'Home',
+							level: -1,
+							parents: [],
+							entries: [],
+							entries_map: {}
+						};
+						read_dir($scope._root_inode).then(function() {
+							open_inode($scope._root_inode.entries[0]);
+						});
+					}
 
-					// open_inode($scope.root_inode);
-					read_dir($scope.root_inode).then(function() {
-						open_inode($scope.root_inode.entries[0]);
-					});
 
 					function read_dir(dir_inode) {
 						dir_inode.is_loading = true;
@@ -127,6 +203,12 @@
 							p = p.parent;
 						}
 						return parents;
+					}
+
+					function go_up_level() {
+						if ($scope.dir_inode.level > 0) {
+							$scope.dir_inode = $scope.dir_inode.parent;
+						}
 					}
 
 					function stop_event(event) {
@@ -320,6 +402,7 @@
 					function move_inodes() {}
 
 					$scope.parents_path = parents_path;
+					$scope.go_up_level = go_up_level;
 					$scope.open_inode = open_inode;
 					$scope.select_inode = select_inode;
 					$scope.toggle_preview = toggle_preview;
@@ -329,6 +412,19 @@
 					$scope.delete_inodes = delete_inodes;
 					$scope.new_folder = new_folder;
 					$scope.move_inodes = move_inodes;
+				}
+			]
+		};
+	});
+
+
+	noobaa_app.directive('nbFeed', function() {
+		return {
+			replace: true,
+			templateUrl: '/feed_template.html',
+			controller: ['$scope', '$http', '$timeout', 'nbUploadSrv',
+				function($scope, $http, $timeout, nbUploadSrv) {
+					$scope.show_feeds = true;
 				}
 			]
 		};

@@ -80,6 +80,7 @@ html {
 }
 .panel-success .panel-heading {
 	background-color: hsl(166, 100%, 30%) !important;
+	color: white !important;
 }
 .progress-bar-success {
 	background-color: hsl(166, 100%, 30%) !important;
@@ -137,6 +138,7 @@ html {
 .label-danger {
 	background-color: hsl(351, 68%, 44%) !important;
 }
+
 /**/
 
 /* LAYOUTS */
@@ -145,6 +147,13 @@ html {
 }
 .thumbnail {
 	border: none !important;
+}
+.panel-heading {
+	border: none !important;
+}
+.panel-heading .badge {
+	background-color: white;
+	color: black;
 }
 .fnt, body, h1, h2, h3, h4, h5, h6, .ui-widget, button {
 	font-family:'Ubuntu', sans-serif !important;
@@ -202,7 +211,7 @@ html {
 	color: #fafafa;
 }
 .bggrey {
-	background-color: hsl(212, 20%, 90%);
+	background-color: hsl(212, 20%, 90%) !important;
 }
 .text-ellipses {
 	overflow: hidden;
@@ -238,8 +247,14 @@ html {
 /**/
 
 /* FILE BROWSER */
+.browser .panel-body {
+	background-color: hsl(212, 20%, 90%);
+}
+.browser .panel-heading {
+	padding: 0 10px 10px 10px !important;
+}
  .file_line {
-	line-height: 44px;
+	line-height: 36px;
 	vertical-align: middle;
 	border-color: hsla(212, 41%, 71%, 0.1);
 	border-style: solid;
@@ -262,18 +277,36 @@ html {
 }
 .browser i.fa-folder {
 	color: hsl(351, 68%, 44%);
+	font-size: 1em;
 }
 .browser i.fa-file-o {
 	color: hsl(351, 68%, 44%);
+	font-size: 1em;
 }
-.browser .panel-heading {
-	/*background-color: hsl(166, 100%, 30%) !important;*/
-}
-.browser .panel-heading .btn-link {
-	color: hsl(0, 0%, 30%) !important;
-}
-.browser .panel-body {
+/**/
+
+/* FEED */
+.feeder .panel-body {
 	background-color: hsl(212, 20%, 90%);
+}
+.feeder .panel-heading {
+	padding: 10px !important;
+}
+ .feed_line {
+	line-height: 36px;
+	vertical-align: middle;
+	border-color: hsla(212, 41%, 71%, 0.1);
+	border-style: solid;
+	border-width: 0;
+	padding-left: 7px;
+	padding-right: 7px;
+}
+.feed_line:hover {
+	border-left-width: 7px;
+	border-right-width: 7px;
+	padding-left: 0px;
+	padding-right: 0px;
+	border-color: hsl(212, 41%, 71%);
 }
 /**/
 

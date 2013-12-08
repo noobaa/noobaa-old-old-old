@@ -393,6 +393,14 @@
 			this.focus();
 			window.scrollTo(x, y);
 		};
+
+		$('body').tooltip({
+			selector: '[rel=tooltip]'
+		});
+
+		$('body').popover({
+			selector: '[rel=popover]'
+		});
 	});
 
 	// http wrapper to be used with async library
@@ -432,6 +440,28 @@
 			restrict: 'A', // use as attribute
 			link: function(scope, element, attr) {
 				element.resizable();
+			}
+		};
+	});
+
+	noobaa_app.directive('nbTooltip', function() {
+		return {
+			restrict: 'A', // use as attribute
+			link: function(scope, element, attr) {
+				scope.$watch(attr.nbTooltip, function(value) {
+					element.tooltip(value);
+				});
+			}
+		};
+	});
+
+	noobaa_app.directive('nbPopover', function() {
+		return {
+			restrict: 'A', // use as attribute
+			link: function(scope, element, attr) {
+				scope.$watch(attr.nbPopover, function(value) {
+					element.popover(value);
+				});
 			}
 		};
 	});

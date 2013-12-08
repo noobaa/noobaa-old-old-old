@@ -342,6 +342,9 @@ app.get('/settings', redirect_no_user, function(req, res) {
 app.get('/browse_template.html', redirect_no_user, function(req, res) {
 	return res.render('browse_template.html', common_api.page_context(req));
 });
+app.get('/feed_template.html', redirect_no_user, function(req, res) {
+	return res.render('feed_template.html', common_api.page_context(req));
+});
 app.get('/home*', redirect_no_user, function(req, res) {
 	return res.render('home.html', common_api.page_context(req));
 });
