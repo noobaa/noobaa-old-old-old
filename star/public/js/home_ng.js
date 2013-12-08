@@ -34,8 +34,8 @@
 		});
 	});
 
-	noobaa_app.controller('HomeCtrl', ['$scope', '$http', '$timeout', 'nbUploadSrv',
-		function($scope, $http, $timeout, nbUploadSrv) {
+	noobaa_app.controller('HomeCtrl', ['$scope', '$http', '$timeout', '$location', 'nbUploadSrv',
+		function($scope, $http, $timeout, $location, nbUploadSrv) {
 
 			var server_data_raw = $('#server_data').html();
 			$scope.server_data = server_data_raw ? JSON.parse(server_data_raw) : {};
@@ -109,14 +109,9 @@
 
 			nbUploadSrv.get_upload_target = function(event) {
 				// make sure the uploads view shows
-				if (!$scope.show_uploads_view && !event.show_uploads_view) {
-					// open the view with some delay to prevent flickering
-					// and let the file be added to the list first.
-					// also mark this on the event to prevent more than one timout submitted per event.
+				if (!event.show_uploads_view) {
+					$location.path('/home/upload');
 					event.show_uploads_view = true;
-					$timeout(function() {
-						$scope.show_uploads_view = true;
-					}, 500);
 				}
 
 				// see inode_upload()
