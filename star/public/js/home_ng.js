@@ -214,9 +214,9 @@
 		return {
 			replace: true,
 			templateUrl: '/public/html/browse_template.html',
-			scope: { // isolated scope
-				root_inode: '='
-			},
+			// scope: { // isolated scope
+			// 	root_inode: '='
+			// },
 			controller: ['$scope', '$http', '$timeout', '$q', '$compile', 'nbUploadSrv', 'JobQueue',
 				function($scope, $http, $timeout, $q, $compile, nbUploadSrv, JobQueue) {
 
@@ -404,6 +404,7 @@
 							console.log('SELECT TOGGLE', inode.name, inode.is_selected);
 							if (inode.is_selected) {
 								remove_selection(inode);
+								return false;
 							} else {
 								add_selection(inode, $index);
 							}
@@ -425,6 +426,7 @@
 							reset_selection();
 							add_selection(inode, $index);
 						}
+						return true;
 					}
 
 					function open_inode(inode, $index, $event) {
@@ -433,9 +435,12 @@
 							read_dir(inode);
 							$scope.dir_inode = inode;
 						} else {
-							select_inode(inode, $index, $event);
-							inode.is_previewing = true;
-							read_file_attr(inode);
+							if (select_inode(inode, $index, $event)) {							
+								inode.is_previewing = true;
+								read_file_attr(inode);
+							} else {
+								inode.is_previewing = false;
+							}
 							return stop_event($event);
 						}
 					}

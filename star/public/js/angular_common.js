@@ -754,9 +754,11 @@
 	};
 
 
-	noobaa_app.factory('JobQueue', ['$timeout', function($timeout) {
-		return JobQueue.bind(JobQueue, $timeout);
-	}]);
+	noobaa_app.factory('JobQueue', ['$timeout',
+		function($timeout) {
+			return JobQueue.bind(JobQueue, $timeout);
+		}
+	]);
 
 	// 'concurrency' with positive integer will do auto process with given concurrency level.
 	// use concurrency 0 for manual processing.
