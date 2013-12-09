@@ -664,6 +664,8 @@
 					}
 
 					function move_inodes() {}
+					function copy_inodes() {}
+					function share_inode(inode) {}
 
 					$scope.parents_path = parents_path;
 					$scope.go_up_level = go_up_level;
@@ -676,6 +678,8 @@
 					$scope.delete_inodes = delete_inodes;
 					$scope.new_folder = new_folder;
 					$scope.move_inodes = move_inodes;
+					$scope.copy_inodes = copy_inodes;
+					$scope.share_inode = share_inode;
 				}
 			]
 		};

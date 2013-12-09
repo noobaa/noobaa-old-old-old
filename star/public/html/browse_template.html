@@ -73,11 +73,15 @@
 					</span>
 
 				</div>
-				<div ng-if="selection[selection.length-1] === inode" style="border-top: 1px #bbb solid">
+				<div ng-if="selection[selection.length-1] === inode" style="border-top: 1px #bbb solid; padding: 5px 0">
 					<div class="text-right">
 						<span ng-if="selection.length > 1">
 							{{selection.length}} items:
 						</span>
+						<button ng-if="selection.length === 1" class="btn btn-primary disabled" ng-click="share_inode(inode)">
+							<i class="fa fa-share fa-fw"></i>
+							Share
+						</button>
 						<button ng-if="!inode.is_previewing && !inode.isdir && selection.length === 1" class="btn btn-link" ng-click="toggle_preview(inode)">
 							<i class="fa fa-eye fa-fw"></i>
 							Show Preview
@@ -94,9 +98,13 @@
 							<i class="fa fa-pencil fa-rotate-270 fa-fw"></i>
 							Rename
 						</button>
-						<button class="btn btn-link" ng-click="move_inodes()">
+						<button class="btn btn-link disabled" ng-click="move_inodes()">
 							<i class="fa fa-arrows fa-fw"></i>
 							Move {{selection.length>1 && 'all' || ''}}
+						</button>
+						<button class="btn btn-link disabled" ng-click="copy_inodes()">
+							<i class="fa fa-copy fa-fw"></i>
+							Copy {{selection.length>1 && 'all' || ''}}
 						</button>
 						<button class="btn btn-link" ng-click="delete_inodes()">
 							<i class="fa fa-trash-o fa-fw"></i>
@@ -104,7 +112,7 @@
 						</button>
 					</div>
 					<div class="row">
-						<div Xclass="col-sm-6" style="padding: 15px">
+						<div Xclass="col-sm-6" style="padding: 0 15px">
 							<div ng-if="inode.is_previewing && inode.content_kind" ng-switch="inode.content_kind">
 								<video ng-switch-when="video" controls ng-src="{{inode_source_url(inode)}}" class="img-responsive"></video>
 								<audio ng-switch-when="audio" controls ng-src="{{inode_source_url(inode)}}" class="img-responsive"></audio>
