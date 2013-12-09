@@ -21,7 +21,7 @@
 					</h3>
 
 					<div style="border: 1px #eee solid; max-width: 250px">
-						<div class="progress text-center" style="vertical-align: middle; margin: 0; border-radius: 0">
+						<div class="progress text-center bggrey" style="vertical-align: middle; margin: 0; Xborder-radius: 0; Xbackground-color: #f2f2f2">
 							<div class="progress-bar progress-bar-{{usage_percents < 70 && 'success' || usage_percents < 90 && 'warning' || 'danger'}}" role="progressbar" aria-valuenow="{{usage_percents}}" aria-valuemin="0" aria-valuemax="100" style="width: {{usage_percents}}%">
 								<span ng-show="usage_percents >= 15" style="height: 100%; vertical-align: middle">{{usage_percents}}% Used</span>
 							</div>

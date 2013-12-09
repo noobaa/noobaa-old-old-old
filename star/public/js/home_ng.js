@@ -57,7 +57,7 @@
 				}).then(function(res) {
 					$scope.user_quota = res.data.quota;
 					$scope.user_usage = res.data.usage;
-					$scope.usage_percents = Math.floor(100 * $scope.user_usage / $scope.user_quota);
+					$scope.usage_percents = Math.ceil(100 * $scope.user_usage / $scope.user_quota);
 					reset_usage_refresh();
 					return res;
 				}, function(err) {
@@ -77,7 +77,7 @@
 				setInterval(function() {
 					$scope.usage_percents += 10;
 					if ($scope.usage_percents > 100) {
-						$scope.usage_percents = Math.floor(100 * $scope.user_usage / $scope.user_quota);
+						$scope.usage_percents = Math.ceil(100 * $scope.user_usage / $scope.user_quota);
 					}
 					$scope.$apply();
 				}, 2000);
