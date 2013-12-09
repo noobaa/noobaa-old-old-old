@@ -658,4 +658,168 @@
 		};
 	});
 
+
+	noobaa_app.factory('LinkedList', function() {
+		return LinkedList;
+	});
+
+	function LinkedList(name) {
+		name = name || '';
+		this.next = '_lln_' + name;
+		this.prev = '_llp_' + name;
+		this.head = '_llh_' + name;
+		this.length = 0;
+		this[this.next] = this;
+		this[this.prev] = this;
+		this[this.head] = this;
+	}
+	LinkedList.prototype.get_next = function(item) {
+		var next = item[this.next];
+		return next === this ? null : next;
+	};
+	LinkedList.prototype.get_prev = function(item) {
+		var prev = item[this.prev];
+		return prev === this ? null : prev;
+	};
+	LinkedList.prototype.get_front = function() {
+		return this.get_next(this);
+	};
+	LinkedList.prototype.get_back = function() {
+		return this.get_prev(this);
+	};
+	LinkedList.prototype.is_empty = function() {
+		return !this.get_front();
+	};
+	LinkedList.prototype.insert_after = function(item, new_item) {
+		if (item[this.head] !== this) {
+			return false;
+		}
+		var next = item[this.next];
+		new_item[this.next] = next;
+		new_item[this.prev] = item;
+		next[this.prev] = new_item;
+		item[this.next] = new_item;
+		this.length++;
+		return true;
+	};
+	LinkedList.prototype.insert_before = function(item, new_item) {
+		if (item[this.head] !== this) {
+			return false;
+		}
+		var prev = item[this.prev];
+		new_item[this.next] = item;
+		new_item[this.prev] = prev;
+		new_item[this.head] = this;
+		prev[this.next] = new_item;
+		item[this.prev] = new_item;
+		this.length++;
+		return true;
+	};
+	LinkedList.prototype.remove = function(item) {
+		if (item[this.head] !== this) {
+			return false;
+		}
+		var next = item[this.next];
+		var prev = item[this.prev];
+		if (!next || !prev) {
+			return false; // already removed
+		}
+		next[this.prev] = prev;
+		prev[this.next] = next;
+		item[this.next] = null;
+		item[this.prev] = null;
+		item[this.head] = null;
+		this.length--;
+		return true;
+	};
+	LinkedList.prototype.push_front = function(item) {
+		return this.insert_after(this, item);
+	};
+	LinkedList.prototype.push_back = function(item) {
+		return this.insert_before(this, item);
+	};
+	LinkedList.prototype.pop_front = function() {
+		var item = this.get_front();
+		if (item) {
+			this.remove(item);
+			return item;
+		}
+	};
+	LinkedList.prototype.pop_back = function() {
+		var item = this.get_back();
+		if (item) {
+			this.remove(item);
+			return item;
+		}
+	};
+
+
+	noobaa_app.factory('JobQueue', ['$timeout', function($timeout) {
+		return JobQueue.bind(JobQueue, $timeout);
+	}]);
+
+	// 'concurrency' with positive integer will do auto process with given concurrency level.
+	// use concurrency 0 for manual processing.
+	// 'delay' is number of milli-seconds between auto processing.
+	// name is optional in case multiple job queues (or linked lists) 
+	// are used on the same elements.
+
+	function JobQueue(timeout, concurrency, delay, name, method) {
+		this.timeout = timeout || setTimeout;
+		this.concurrency = concurrency || (concurrency === 0 ? 0 : 1);
+		this.delay = delay || 0;
+		this.method = method || 'run';
+		this._queue = new LinkedList(name);
+		this._num_running = 0;
+		Object.defineProperty(this, 'length', {
+			enumerable: true,
+			get: function() {
+				return this._queue.length;
+			}
+		});
+	}
+
+	// add the given function to the jobs queue
+	// which will run it when time comes.
+	// job have its method property (by default 'run').
+	JobQueue.prototype.add = function(job) {
+		this._queue.push_back(job);
+		this.process(true);
+	};
+
+	JobQueue.prototype.remove = function(job) {
+		return this._queue.remove(job);
+	};
+
+	JobQueue.prototype.process = function(check_concurrency) {
+		var me = this;
+		if (check_concurrency && me._num_running >= me.concurrency) {
+			return;
+		}
+		if (me._queue.is_empty()) {
+			return;
+		}
+		var job = me._queue.pop_front();
+		me._num_running++;
+		var end = function() {
+			me._num_running--;
+			me.process(true);
+		};
+		// submit the job to run in background 
+		// to be able to return here immediately
+		me.timeout(function() {
+			try {
+				var promise = job[me.method]();
+				if (!promise || !promise.then) {
+					end();
+				} else {
+					promise.then(end, end);
+				}
+			} catch (err) {
+				console.error('UNCAUGHT EXCEPTION', err, err.stack);
+				end();
+			}
+		}, me.delay);
+	};
+
 })();

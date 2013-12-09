@@ -26,7 +26,7 @@
 			].join('\n')
 		}).when('/install', {
 			templateUrl: '/public/html/install_template.html',
-		// }).otherwise({
+			// }).otherwise({
 			// redirectTo: '/'
 		});
 	});
@@ -217,8 +217,8 @@
 			scope: { // isolated scope
 				root_inode: '='
 			},
-			controller: ['$scope', '$http', '$timeout', 'nbUploadSrv',
-				function($scope, $http, $timeout, nbUploadSrv) {
+			controller: ['$scope', '$http', '$timeout', '$q', '$compile', 'nbUploadSrv', 'JobQueue',
+				function($scope, $http, $timeout, $q, $compile, nbUploadSrv, JobQueue) {
 
 					if ($scope.root_inode) {
 						console.log('INITED WITH ROOT', $scope.root_inode);
@@ -343,9 +343,9 @@
 						if (!inode) {
 							return;
 						}
-						var parents = new Array(inode.level);
+						var parents = new Array(inode.level + 1);
 						var p = inode.parent;
-						for (var i = 0; i < inode.level; i++) {
+						for (var i = 0; i <= inode.level; i++) {
 							parents[i] = p;
 							p = p.parent;
 						}
@@ -410,12 +410,13 @@
 						} else if ($event.shiftKey && $scope.selection.length) {
 							var from = $scope.selection[$scope.selection.length - 1].select_index;
 							console.log('SELECT FROM', from, 'TO', $index);
+							var i;
 							if ($index >= from) {
-								for (var i = from; i <= $index; i++) {
+								for (i = from; i <= $index; i++) {
 									add_selection(inode.parent.entries[i], i);
 								}
 							} else {
-								for (var i = from; i >= $index; i--) {
+								for (i = from; i >= $index; i--) {
 									add_selection(inode.parent.entries[i], i);
 								}
 							}
@@ -544,7 +545,118 @@
 						});
 					}
 
-					function delete_inodes() {}
+					function delete_inodes() {
+						var selection = $scope.selection.slice(0); // make copy of array
+						var read_dir_promises = new Array(selection.length);
+						for (var i = 0; i < selection.length; i++) {
+							var inode = selection[i];
+							if (!inode) {
+								console.error('no selected inode, bailing');
+								return;
+							}
+							if (is_immutable_root(inode)) {
+								$.nbalert('Cannot delete root folder');
+								return;
+							}
+							if (is_not_mine(inode)) {
+								$.nbalert('Cannot delete someone else\'s file ' + inode.name);
+								return;
+							}
+							read_dir_promises[i] = inode.isdir ? read_dir(inode) : $q.when(null);
+						}
+						$q.all(read_dir_promises).then(function(read_dir_results) {
+							var all_empty = _.reduce(read_dir_results, function(memo, res) {
+								return memo && (!res || res.data.entries.length === 0);
+							}, true);
+							read_dir_results = null;
+							var dlg = $('#delete_dialog').clone();
+							if (!all_empty) {
+								//modify the display message in the dialog
+								dlg.find('#not_empty_msg').css('display', 'block');
+								dlg.find('#normal_msg').css('display', 'none');
+							}
+							var del_scope = $scope.$new();
+							del_scope.count = 0;
+							// TODO
+							// dlg.find('.inode_label').html(inode.make_inode_with_icon());
+							dlg.find('#dialog_ok').off('click').on('click', function() {
+								dlg.find('button.nbdialog_close').text('Hide');
+								dlg.find('a.nbdialog_close').attr('title', 'Hide');
+								dlg.find('#dialog_ok')
+									.addClass('disabled')
+									.empty()
+									.append($('<i class="icon-spinner icon-spin icon-large icon-fixed-width"></i>'))
+									.append($compile('<span style="padding-left: 20px">Deleted {{count}}</span>')(del_scope));
+								del_scope.$digest();
+
+								var jobq = new JobQueue(32);
+								var do_delete = function(inode_id, ctx) {
+									if (!inode_id) {
+										ctx.complete();
+										return;
+									}
+									return $http({
+										method: 'DELETE',
+										url: '/api/inode/' + inode_id
+									})['finally'](function() {
+										del_scope.count++;
+										ctx.count--;
+										if (ctx.count === 0) {
+											jobq.add({
+												run: do_delete.bind(null, ctx.inode_id, ctx.parent || ctx)
+											});
+										}
+									});
+								};
+								var add_recurse_job = function(inode, ctx) {
+									jobq.add({
+										run: delete_recurse.bind(null, {
+											entries: inode.entries,
+											count: inode.entries.length,
+											inode_id: inode.id,
+											parent: ctx
+										})
+									});
+								};
+								var delete_recurse = function(ctx) {
+									if (!ctx.entries.length) {
+										do_delete(ctx.inode_id, ctx.parent || ctx);
+									}
+									for (var i = 0; i < ctx.entries.length; i++) {
+										var inode = ctx.entries[i];
+										if (inode.isdir && !ctx.skip_read_dir) {
+											read_dir(inode).then(
+												add_recurse_job.bind(null, inode, ctx),
+												do_delete.bind(null, inode.id, ctx));
+										} else if (inode.isdir && inode.entries.length) {
+											add_recurse_job(inode, ctx);
+										} else {
+											jobq.add({
+												run: do_delete.bind(null, inode.id, ctx)
+											});
+										}
+									}
+								};
+								delete_recurse({
+									entries: selection,
+									count: selection.length,
+									skip_read_dir: true,
+									complete: function() {
+										read_dir($scope.dir_inode);
+										dlg.nbdialog('close');
+										del_scope.$destroy();
+									}
+								});
+							});
+							dlg.nbdialog('open', {
+								remove_on_close: true,
+								modal: true
+							});
+						}, function(err) {
+							console.error('FAILED TO CHECK DIR EMPTY', err);
+							throw err;
+						});
+					}
 
 					function move_inodes() {}
 

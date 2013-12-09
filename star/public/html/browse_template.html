@@ -54,12 +54,21 @@
 
 		<div class="panel-body" style="padding: 0">
 			<div ng-repeat="inode in dir_inode.entries" class="file_line notextselect {{inode.is_selected && 'active' || ''}}" style="border-bottom-width: 1px; border-top-width: 1px">
-				<div style="margin-right: 30px; overflow: scroll" ng-click="select_inode(inode, $index, $event)">
-					<i ng-show="!!inode.isdir" class="fa fa-folder fa-fw fa-lg text-info"></i>
-					<i ng-show="!inode.isdir" class="fa fa-file-o fa-fw fa-lg text-muted"></i>
-					<a class="btn btn-link" ng-click="open_inode(inode, $index, $event)" style="padding-left: 0; display: inline">
-						{{inode.name}}
-					</a>
+				<div class="clearfix" style="margin-right: 70px; overflow: scroll" ng-click="select_inode(inode, $index, $event)">
+					<span Xclass="pull-left">
+						<i ng-show="!!inode.isdir" class="fa fa-folder fa-fw fa-lg text-info"></i>
+						<i ng-show="!inode.isdir" class="fa fa-file-o fa-fw fa-lg text-muted"></i>
+						<a class="btn btn-link" ng-click="open_inode(inode, $index, $event)" style="padding-left: 0; display: inline">
+							{{inode.name}}
+						</a>
+					</span>
+					<span class="pull-right">
+						{{inode.ctime_display}}
+					</span>
+					<span class="pull-right">
+						{{inode.owner.name}}
+					</span>
+
 				</div>
 				<div ng-if="selection[selection.length-1] === inode" style="border-top: 1px #bbb solid">
 					<div class="text-right">
