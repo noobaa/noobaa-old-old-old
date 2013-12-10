@@ -4,21 +4,20 @@
 		<div ng-include="'/public/html/upload_template.html'"></div>
 	</div>
 
-	<div class="panel panel-info">
-		<div class="panel-heading clearfix" style="padding: 10px">
+	<div class="panel panel-default">
+		<div class="panel-heading clearfix" style="padding: 0px">
 			<div class="btn-group">
-				<a class="btn btn-primary" ng-click="go_up_level()" title="Back to parent folder" rel="tooltip" nb-tooltip="{container: 'body'}">
+				<a class="btn btn-primary" ng-click="go_up_level()" title="Back to previous folder" rel="tooltip" nb-tooltip="{container: 'body'}" ng-disabled="!current_dir.parent">
 					<i class="fa fa-arrow-left fa-lg"></i>
 				</a>
 			</div>
-			&nbsp;
 			<div class="btn-group">
 				<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" title="Click for folder actions" rel="tooltip" nb-tooltip="{container: 'body'}">
 					<div class="text-ellipses" style="max-width: 200px">
 						<span ng-if="current_dir.is_loading">
 							<i class="fa fa-refresh fa-spin fa-fw"></i>
 						</span>
-						<i ng-if="!current_dir.is_loading" class="fa fa-{{!current_dir.parent.parent && 'cloud' || 'folder'}} fa-fw"></i>
+						<i ng-if="!current_dir.is_loading" class="fa fa-{{!current_dir.parent && 'folder-open' || 'folder'}} fa-fw"></i>
 						{{current_dir.name}}
 					</div>
 				</button>
@@ -44,21 +43,19 @@
 					</li>
 					<li class="divider"></li>
 					<li>
-						<a>Back to parent folder:</a>
+						<a>Back to:</a>
 					</li>
 					<li ng-repeat="parent in parents_path(current_dir)">
 						<a ng-click="open_inode(parent)">
-							<i class="fa fa-{{!parent.parent.parent && 'cloud' || 'folder'}} fa-fw"></i>
+							<i class="fa fa-{{!parent.parent && 'folder-open' || 'folder'}} fa-fw"></i>
 							{{parent.name}}
 						</a>
 					</li>
 				</ul>
 			</div>
-			&nbsp;
 			<button class="btn btn-success" ng-click="nbUploadSrv.open_file_input()" title="Upload files" rel="tooltip" nb-tooltip="{container: 'body'}">
 				<i class="fa fa-cloud-upload fa-lg"></i>
 			</button>
-			&nbsp;
 			<div class="input-group pull-right" style="max-width: 170px">
 				<input type="text" class="form-control" maxlength="100" placeholder="Search in folder" ng-model="search_in_folder" ng-style="{backgroundColor: search_in_folder && 'yellow' || 'none'}" />
 				<span class="input-group-btn">
@@ -96,7 +93,7 @@
 							{{selection.length}} items:
 						</span>
 						<button ng-if="selection.length === 1" class="btn btn-link" ng-click="share_inode(inode)">
-							<i class="fa fa-share fa-fw"></i>
+							<i class="fa fa-share-square-o fa-fw"></i>
 							Share
 						</button>
 						<button ng-if="!inode.is_previewing && !inode.isdir && selection.length === 1" class="btn btn-link" ng-click="toggle_preview(inode)">

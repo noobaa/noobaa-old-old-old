@@ -674,7 +674,7 @@
 						}
 						if (is_shared_with_me(inode)) {
 							$.nbalert('Cannot share files in the "' + SWM + '" folder.<br/>' +
-								'Maybe you meant to use "Copy To My Data"...');
+								'Use "Copy"...');
 							return;
 						}
 						if (is_not_mine(inode)) {

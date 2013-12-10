@@ -153,6 +153,9 @@ html {
 a[ng-click], a[role=button] {
 	cursor: pointer;
 }
+a.btn-link, button.btn-link {
+	color: hsl(0, 0%, 15%);
+}
 .panel-heading .badge {
 	background-color: white;
 	color: black;
@@ -214,6 +217,9 @@ a[ng-click], a[role=button] {
 }
 .bggrey {
 	background-color: hsl(212, 20%, 90%) !important;
+}
+.progress-bar-grey {
+	background-color: hsl(212, 20%, 80%) !important;
 }
 .text-ellipses {
 	overflow: hidden;
@@ -294,9 +300,6 @@ a[ng-click], a[role=button] {
 .file_line.active {
 	background-color: hsl(42, 83%, 63%);
 }
-.file_line a.btn-link, .file_line button.btn-link {
-	color: hsl(0, 0%, 15%);
-}
 .file_line i.fa-folder {
 	/*color: hsl(351, 68%, 44%);*/
 	font-size: 1.1em;
@@ -317,7 +320,8 @@ a[ng-click], a[role=button] {
 .feed_line {
 	line-height: 36px;
 	vertical-align: middle;
-	border-color: transparent; /*hsla(212, 41%, 71%, 0.1);*/
+	border-color: transparent;
+	/*hsla(212, 41%, 71%, 0.1);*/
 	border-style: solid;
 	border-width: 0;
 	padding-left: 27px;
