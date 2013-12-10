@@ -18,7 +18,7 @@
 						<span ng-if="current_dir.is_loading">
 							<i class="fa fa-refresh fa-spin fa-fw"></i>
 						</span>
-						<i ng-if="!current_dir.is_loading" class="fa fa-{{!current_dir.parent.parent && 'star' || 'folder'}} fa-fw"></i>
+						<i ng-if="!current_dir.is_loading" class="fa fa-{{!current_dir.parent.parent && 'cloud' || 'folder'}} fa-fw"></i>
 						{{current_dir.name}}
 					</div>
 				</button>
@@ -48,7 +48,7 @@
 					</li>
 					<li ng-repeat="parent in parents_path(current_dir)">
 						<a ng-click="open_inode(parent)">
-							<i class="fa fa-{{!parent.parent.parent && 'star' || 'folder'}} fa-fw"></i>
+							<i class="fa fa-{{!parent.parent.parent && 'cloud' || 'folder'}} fa-fw"></i>
 							{{parent.name}}
 						</a>
 					</li>

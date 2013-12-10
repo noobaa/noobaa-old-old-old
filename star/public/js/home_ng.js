@@ -21,7 +21,7 @@
 		}).when('/mydata/:path*?', {
 			template: [
 				'<div class="container">',
-				'	<div nb-browse root_inode="mydata"></div>',
+				'	<div nb-browse ng-if="context" context="context"></div>',
 				'</div>'
 			].join('\n')
 		}).when('/install', {
@@ -83,25 +83,34 @@
 				}, 2000);
 			}
 
-			$http({
-				method: 'GET',
-				url: '/api/inode/null'
-			}).then(function(res) {
-				console.log('ROOT FOLDERS', res);
-				for (var i = 0; i < res.data.entries.length; i++) {
-					var e = res.data.entries[i];
-					if (e.name === 'My Data') {
-						$scope.mydata = e;
-					} else if (e.name === 'Shared With Me') {
-						$scope.swm = e;
-					} else {
-						console.error('UNRECOGNIZED ROOT FOLDER', e);
+			function read_root_dirs() {
+				return $http({
+					method: 'GET',
+					url: '/api/inode/null'
+				}).then(function(res) {
+					console.log('ROOT FOLDERS', res);
+					for (var i = 0; i < res.data.entries.length; i++) {
+						var e = res.data.entries[i];
+						e.level = 0;
+						if (e.name === 'My Data') {
+							$scope.mydata = e;
+						} else if (e.name === 'Shared With Me') {
+							$scope.swm = e;
+						} else {
+							console.error('UNRECOGNIZED ROOT FOLDER', e);
+						}
 					}
-				}
-				return res;
-			}, function(err) {
-				console.error('GET ROOT FOLDERS FAILED', err);
-				throw err;
+					return res;
+				}, function(err) {
+					console.error('GET ROOT FOLDERS FAILED', err);
+					return $timeout(read_root_dirs, 1000);
+				});
+			}
+
+			read_root_dirs().then(function() {
+				$scope.context = {
+					current_dir: $scope.mydata
+				};
 			});
 
 			$scope.nbUploadSrv = nbUploadSrv;
@@ -115,8 +124,8 @@
 					};
 				}
 
-				console.log('UP', $scope, $scope.mydata);
-				var dir_inode = $scope.mydata;
+				console.log('UP', $scope, $scope.context);
+				var dir_inode = $scope.context.current_dir;
 				if (!dir_inode) {
 					console.error('no selected dir, bailing');
 					return false;
@@ -210,39 +219,24 @@
 		return {
 			replace: true,
 			templateUrl: '/public/html/browse_template.html',
-			// scope: { // isolated scope
-			// 	root_inode: '='
-			// },
-			controller: ['$scope', '$http', '$timeout', '$q', '$compile', 'nbUploadSrv', 'JobQueue',
-				function($scope, $http, $timeout, $q, $compile, nbUploadSrv, JobQueue) {
+			scope: { // isolated scope
+				context: '='
+			},
+			controller: ['$scope', '$http', '$timeout', '$q', '$compile', '$rootScope', 'nbUploadSrv', 'JobQueue',
+				function($scope, $http, $timeout, $q, $compile, $rootScope, nbUploadSrv, JobQueue) {
+					$scope.human_size = $rootScope.human_size;
+					$scope.nbUploadSrv = nbUploadSrv;
+					
 
-					if ($scope.root_inode) {
-						console.log('INITED WITH ROOT', $scope.root_inode);
-						$scope.root_inode = {
-							id: $scope.root_inode.id,
-							isdir: $scope.root_inode.isdir,
-							name: $scope.root_inode.name,
-							level: 0,
-							parents: [],
-							entries: [],
-							entries_map: {}
-						};
-						open_inode($scope._root_inode);
-					} else {
-						$scope._root_inode = {
-							id: null,
-							isdir: true,
-							name: 'Home',
-							level: -1,
-							parents: [],
-							entries: [],
-							entries_map: {}
-						};
-						read_dir($scope._root_inode).then(function() {
-							open_inode($scope._root_inode.entries[0]);
-						});
-					}
+					console.log('BROWSER CONTEXT', $scope.context);
+					set_current_dir($scope.context.current_dir);
+					open_inode($scope.current_dir);
 
+					nbUploadSrv.notify_create_in_dir = function(dir_id) {
+						if ($scope.current_dir.id === dir_id) {
+							open_inode($scope.current_dir);
+						}
+					};
 
 					function read_dir(dir_inode) {
 						console.log('READDIR', dir_inode.name);
@@ -302,6 +296,7 @@
 					}
 
 					function set_current_dir(dir_inode) {
+						$scope.context.current_dir = dir_inode;
 						$scope.current_dir = dir_inode;
 						$scope.search_in_folder = '';
 					}

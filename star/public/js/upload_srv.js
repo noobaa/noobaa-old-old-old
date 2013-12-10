@@ -50,6 +50,8 @@
 		// multiple ui selection
 		this.selection = {};
 
+		this.notify_create_in_dir = function() {};
+
 		this.total_bytes = 0;
 
 		// calculate global upload speed
@@ -419,6 +421,9 @@
 				// fill the target inode id for retries
 				console.log('mkdir id', res.data.id);
 				upload.inode_id = res.data.id;
+				return res;
+			})['finally'](function() {
+				me.notify_create_in_dir(upload.dir_inode_id);
 			});
 		}
 
@@ -711,6 +716,8 @@
 					src_dev_id: upload.src_dev_id,
 					src_dev_path: item.path
 				}
+			})['finally'](function() {
+				me.notify_create_in_dir(upload.dir_inode_id);
 			});
 		}
 
@@ -1224,8 +1231,8 @@
 				return nbUploadSrv.has_uploads();
 			};
 
-			nbUploadSrv.setup_file_input($('#file_upload_input'));
-			nbUploadSrv.setup_file_input($('#dir_upload_input'));
+			// nbUploadSrv.setup_file_input($('#file_upload_input'));
+			// nbUploadSrv.setup_file_input($('#dir_upload_input'));
 			nbUploadSrv.setup_drop($(document));
 		}
 	]);
