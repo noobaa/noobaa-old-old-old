@@ -53,7 +53,7 @@
 					</li>
 				</ul>
 			</div>
-			<button class="btn btn-success" ng-click="nbUploadSrv.open_file_input()" title="Upload files" rel="tooltip" nb-tooltip="{container: 'body'}">
+			<button class="btn btn-primary" ng-click="nbUploadSrv.open_file_input()" title="Upload files" rel="tooltip" nb-tooltip="{container: 'body'}">
 				<i class="fa fa-cloud-upload fa-lg"></i>
 			</button>
 			<div class="input-group pull-right" style="max-width: 170px">
@@ -70,8 +70,8 @@
 			<div ng-repeat="inode in current_dir.entries | filter:{name: search_in_folder}" class="file_line notextselect {{inode.is_selected && 'active' || ''}}" style="border-bottom-width: 1px; border-top-width: 1px">
 				<div class="clearfix" style="margin-right: 20px; overflow: scroll" ng-click="select_inode(inode, $index, $event)">
 					<span class="Xpull-left">
-						<i ng-show="!!inode.isdir" class="fa fa-folder fa-fw fa-lg text-info"></i>
-						<i ng-show="!inode.isdir" class="fa fa-file-o fa-fw fa-lg text-muted"></i>
+						<i ng-show="!!inode.isdir" class="fa fa-folder fa-fw fa-lg text-danger"></i>
+						<i ng-show="!inode.isdir" class="fa fa-file-o fa-fw fa-lg text-danger"></i>
 						<a class="btn btn-link" ng-click="open_inode(inode, $index, $event)" style="padding-left: 0; display: inline">
 							{{inode.name}}
 						</a>
@@ -82,7 +82,7 @@
 					<span class="text-muted pull-right" style="margin-right: 20px">
 						{{inode.ctime_display}}
 					</span>
-					<span class="text-muted pull-right" style="margin-right: 20px">
+					<span ng-show="!inode.isdir" class="text-muted pull-right" style="margin-right: 20px">
 						{{human_size(inode.size)}}
 					</span>
 

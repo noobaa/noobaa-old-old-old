@@ -2,7 +2,7 @@
 	<div class="row" style="margin: 0; border-bottom: 1px solid #ccc; position: relative;
 			{{(upload.is_selected || srv.selected_all) && 'color: orange;' || ''}} 
 			{{!upload.parent.level && 'line-height: 36px;' || 'line-height: 24px'}}">
-		<div class="progress-bar progress-bar-{{upload.progress_class || 'success'}}" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="position: absolute; top:0; left:0; width: {{upload.progress}}%;">
+		<div class="progress-bar progress-bar-{{upload.progress_class || 'warning'}}" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="position: absolute; top:0; left:0; width: {{upload.progress}}%;">
 		</div>
 		<div class="col-sm-6">
 			<span style="cursor: pointer" ng-click="srv.toggle_select(upload)">

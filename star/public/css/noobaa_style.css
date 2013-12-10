@@ -39,28 +39,28 @@ html {
 }
 /* COLOR DARK BLUE */
  .bg-dark-blue {
-	background-color: hsl(238, 30%, 50%) !important;
+	background-color: hsl(238, 30%, 60%) !important;
 }
 .btn-primary {
-	background-color: hsl(238, 30%, 50%) !important;
+	background-color: hsl(238, 30%, 60%) !important;
 }
 .btn-primary:hover {
-	background-color: hsl(238, 30%, 45%) !important;
+	background-color: hsl(238, 30%, 55%) !important;
 }
 .text-primary {
-	color: hsl(238, 30%, 50%) !important;
+	color: hsl(238, 30%, 60%) !important;
 }
 .panel-primary {
-	border-color: hsl(238, 30%, 50%) !important;
+	border-color: hsl(238, 30%, 60%) !important;
 }
 .panel-primary .panel-heading {
-	background-color: hsl(238, 30%, 50%) !important;
+	background-color: hsl(238, 30%, 60%) !important;
 }
 .progress-bar-primary {
-	background-color: hsl(238, 30%, 50%) !important;
+	background-color: hsl(238, 30%, 60%) !important;
 }
 .label-primary {
-	background-color: hsl(238, 30%, 50%) !important;
+	background-color: hsl(238, 30%, 60%) !important;
 }
 /* COLOR GREEN */
  .bg-green {
