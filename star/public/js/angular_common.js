@@ -455,16 +455,22 @@
 		};
 	});
 
-	noobaa_app.directive('nbPopover', function() {
+	noobaa_app.directive('nbPopover', ['$compile', function($compile) {
 		return {
 			restrict: 'A', // use as attribute
 			link: function(scope, element, attr) {
 				scope.$watch(attr.nbPopover, function(value) {
+					if (value.element) {
+						value.content = $compile($(value.element)[0].outerHTML)(scope);
+						value.html = true;
+						delete value.element;
+					}
+					console.log('POPOVER', value);
 					element.popover(value);
 				});
 			}
 		};
-	});
+	}]);
 
 	noobaa_app.directive('nbKey', function($parse) {
 		return {

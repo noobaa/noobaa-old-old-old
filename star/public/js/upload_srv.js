@@ -125,6 +125,18 @@
 		});
 	};
 
+	UploadSrv.prototype.open_file_input = function() {
+		var e = $('<input type="file" name="file" multiple="multiple"></input>');
+		this.setup_file_input(e);
+		e.click();
+	};
+
+	UploadSrv.prototype.open_dir_input = function() {
+		var e = $('<input type="file" name="file" webkitdirectory="" mozdirectory="" directory=""></input>');
+		this.setup_file_input(e);
+		e.click();
+	};
+
 
 	// submit the upload event and start processing
 	UploadSrv.prototype.submit_upload = function(event) {

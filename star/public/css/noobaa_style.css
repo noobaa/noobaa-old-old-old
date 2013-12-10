@@ -141,7 +141,7 @@ html {
 /**/
 
 /* LAYOUTS */
- .btn, .form-group input, .form-group textarea, .panel, .panel-heading {
+ .btn, .form-group input, .form-group textarea, .form-control, .panel, .panel-heading {
 	border-radius: 0 !important;
 }
 .thumbnail {
@@ -193,7 +193,7 @@ a[ng-click], a[role=button] {
 	padding: 5px 0px 5px 10px;
 }
 .navbar .navbar-brand img {
-	height: 40px;
+	height: 36px;
 }
 @media all and (min-width: 992px) and (max-width: 1099px) {
 	.container {
@@ -274,9 +274,6 @@ a[ng-click], a[role=button] {
  .browser .panel-body {
 	background-color: hsl(212, 20%, 90%);
 }
-.browser .panel-heading {
-	padding: 0 10px 10px 10px !important;
-}
 .file_line {
 	line-height: 40px;
 	vertical-align: middle;
@@ -299,13 +296,13 @@ a[ng-click], a[role=button] {
 .file_line a.btn-link, .file_line button.btn-link {
 	color: hsl(0, 0%, 15%);
 }
-.browser i.fa-folder {
+.file_line i.fa-folder {
 	/*color: hsl(351, 68%, 44%);*/
-	font-size: 1em;
+	font-size: 1.1em;
 }
-.browser i.fa-file-o {
+.file_line i.fa-file-o {
 	/*color: hsl(351, 68%, 44%);*/
-	font-size: 1em;
+	font-size: 1.1em;
 }
 /**/
 

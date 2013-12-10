@@ -26,8 +26,8 @@
 			].join('\n')
 		}).when('/install', {
 			templateUrl: '/public/html/install_template.html',
-			// }).otherwise({
-			// redirectTo: '/'
+		}).otherwise({
+			redirectTo: '/'
 		});
 	});
 
@@ -104,13 +104,9 @@
 				throw err;
 			});
 
-
-			$scope.show_uploads = false;
+			$scope.nbUploadSrv = nbUploadSrv;
 
 			nbUploadSrv.get_upload_target = function(event) {
-				// make sure the uploads view shows
-				$scope.show_uploads = true;
-
 				// see inode_upload()
 				var inode_upload = $(event.target).data('inode_upload');
 				if (inode_upload) {
@@ -305,6 +301,11 @@
 						});
 					}
 
+					function set_current_dir(dir_inode) {
+						$scope.current_dir = dir_inode;
+						$scope.search_in_folder = '';
+					}
+
 					// return true for "My Data" and "Shared With Me"
 					// which are user root dirs and shouldn't be modified.
 
@@ -343,9 +344,9 @@
 						if (!inode) {
 							return;
 						}
-						var parents = new Array(inode.level + 1);
+						var parents = new Array(inode.level);
 						var p = inode.parent;
-						for (var i = 0; i <= inode.level; i++) {
+						for (var i = inode.level - 1; i >= 0; i--) {
 							parents[i] = p;
 							p = p.parent;
 						}
@@ -353,8 +354,8 @@
 					}
 
 					function go_up_level() {
-						if ($scope.dir_inode.level > 0) {
-							$scope.dir_inode = $scope.dir_inode.parent;
+						if ($scope.current_dir.level > 0) {
+							set_current_dir($scope.current_dir.parent);
 						}
 					}
 
@@ -433,9 +434,9 @@
 						if (inode.isdir) {
 							reset_selection();
 							read_dir(inode);
-							$scope.dir_inode = inode;
+							set_current_dir(inode);
 						} else {
-							if (select_inode(inode, $index, $event)) {							
+							if (select_inode(inode, $index, $event)) {
 								inode.is_previewing = true;
 								read_file_attr(inode);
 							} else {
@@ -647,7 +648,7 @@
 									count: selection.length,
 									skip_read_dir: true,
 									complete: function() {
-										read_dir($scope.dir_inode);
+										read_dir($scope.current_dir);
 										dlg.nbdialog('close');
 										del_scope.$destroy();
 									}
@@ -664,8 +665,30 @@
 					}
 
 					function move_inodes() {}
+
 					function copy_inodes() {}
-					function share_inode(inode) {}
+
+					function share_inode(inode) {
+						if (!inode) {
+							console.error('no selected inode, bailing');
+							return;
+						}
+						if (is_immutable_root(inode)) {
+							$.nbalert('Cannot share root folder');
+							return;
+						}
+						if (is_shared_with_me(inode)) {
+							$.nbalert('Cannot share files in the "' + SWM + '" folder.<br/>' +
+								'Maybe you meant to use "Copy To My Data"...');
+							return;
+						}
+						if (is_not_mine(inode)) {
+							$.nbalert('Cannot share someone else\'s file');
+							return;
+						}
+						$('#share_modal').scope().open(inode);
+
+					}
 
 					$scope.parents_path = parents_path;
 					$scope.go_up_level = go_up_level;
@@ -686,4 +709,130 @@
 	});
 
 
+
+
+	/////////////////////
+	// SHARE DIRECTIVE //
+	/////////////////////
+
+
+	noobaa_app.controller('ShareModalCtrl', ['$scope', '$http',
+		function($scope, $http) {
+			var dlg = $('#share_modal');
+
+			function get_share_list(inode) {
+				console.log('get_share_list', inode);
+				return $http({
+					method: 'GET',
+					url: '/api/inode/' + inode.id + '/share_list'
+				});
+			}
+
+			function set_share_list(inode, share_list) {
+				console.log('share', inode, 'with', share_list);
+				return $http({
+					method: 'PUT',
+					url: '/api/inode/' + inode.id + '/share_list',
+					data: {
+						share_list: share_list
+					}
+				});
+			}
+
+			function mklink(inode, link_options) {
+				console.log('mklink', inode, link_options);
+				return $http({
+					method: 'POST',
+					url: '/api/inode/' + inode.id + '/link',
+					data: {
+						link_options: link_options
+					}
+				});
+			}
+
+			function rmlinks(inode) {
+				console.log('revoke_links', inode);
+				return $http({
+					method: 'DELETE',
+					url: '/api/inode/' + inode.id + '/link'
+				});
+			}
+
+			$scope.open = function(inode) {
+				// TODO FIX ICON
+				dlg.find('.inode_label').html(inode.name /*make_inode_with_icon()*/ );
+				$scope.share_is_loading = true;
+				$scope.share_inode = inode;
+				get_share_list(inode).then(function(res) {
+					$scope.share_is_loading = false;
+					$scope.share_list = res.data.list;
+				}, function() {
+					$scope.share_is_loading = false;
+				});
+				dlg.nbdialog('open', {
+					modal: true,
+					css: {
+						height: "80%",
+						width: 350
+					}
+				});
+			};
+
+			$scope.submit = function() {
+				var inode = $scope.share_inode;
+				var share_list = $scope.share_list;
+				$scope.share_is_loading = true;
+				set_share_list(inode, share_list).then(function(res) {
+					$scope.share_is_loading = false;
+					$('#share_modal').nbdialog('close');
+					// TODO NEED TO READDIR AFTER SHARE?
+					// if (inode.parent) {
+					// 	inode.parent.read_dir();
+					// }
+				}, function() {
+					$scope.share_is_loading = false;
+				});
+			};
+
+			$scope.mklink = function() {
+				var inode = $scope.share_inode;
+				$scope.share_is_loading = true;
+				mklink(inode).then(function(res) {
+					$scope.share_is_loading = false;
+					$('#share_modal').nbdialog('close');
+					console.log('mklink', res.data);
+					var dlg = $('#getlink_dialog').clone();
+					// TODO FIX ICON
+					dlg.find('.inode_label').html(inode.name /*make_inode_with_icon()*/ );
+					dlg.find('.link_label').html(
+						'<div style="height: 100%; word-wrap: break-word; word-break: break-all">' +
+						window.location.host + res.data.url + '</div>');
+					dlg.nbdialog('open', {
+						remove_on_close: true,
+						modal: false,
+						css: {
+							width: 300,
+							height: 400
+						}
+					});
+				}, function() {
+					$scope.share_is_loading = false;
+				});
+			};
+
+			$scope.rmlinks = function() {
+				var inode = $scope.share_inode;
+				$scope.share_is_loading = true;
+				rmlinks(inode).then(function(res) {
+					$scope.share_is_loading = false;
+					$('#share_modal').nbdialog('close');
+					console.log('rmlinks', res.data);
+					$.nbalert('Revoked!');
+				}, function() {
+					$scope.share_is_loading = false;
+				});
+			};
+
+		}
+	]);
 })();

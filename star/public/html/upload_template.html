@@ -1,75 +1,54 @@
-<div class="container" ng-controller="UploadCtrl">
-	<div style="border: 1px #bbb dotted">
-		<div class="bggrey clearfix" style="padding-top: 10px">
-			<div class="pull-left" style="padding: 0 10px 10px 10px">
-				<span class="text-muted" style="margin-right: 10px">
-					<i class="fa fa-cloud-upload"></i>
-					Upload
-				</span>
-				<span Xstyle="margin: 10px 10px 0 0">
-					Drag &amp; Drop
-					<!-- <small>Drop entire folders (with chrome)</small> -->
-					<small class="text-muted">or</small>
-				</span>
-				<span id="choose_file_button" class="btn btn-success btn-xs fileinput-button">
-					Choose Files
-					<input id="file_upload_input" type="file" name="file" multiple="multiple"></input>
-				</span>
-				<span ng-show="false" id="choose_folder_button" class="btn btn-success btn-xs fileinput-button">
-					Choose Folder
-					<input id="dir_upload_input" type="file" name="file" webkitdirectory="" mozdirectory="" directory="">
-					</input>
-				</span>
+<div ng-controller="UploadCtrl">
+	<div class="panel panel-default">
+		<div class="panel-heading bggrey" style="padding: 10px">
+			<span class="text-muted" style="margin-right: 10px">
+				<i class="fa fa-cloud-upload"></i>
+				Uploading
+			</span>
+
+			<div class="progress text-center" style="vertical-align: middle; margin: 0; border-radius: 0; width: 80px; display: inline-block">
+				<div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{100 * srv.root.total_upsize / srv.root.total_size}}" aria-valuemin="0" aria-valuemax="100" style="width: {{100 * srv.root.total_upsize / srv.root.total_size}}%">
+					{{srv.root.total_completed}} / {{srv.root.total_sons}}
+				</div>
 			</div>
-			<div class="pull-left" style="padding: 0 10px 10px 10px" ng-show="srv.root.total_sons">
-				<span class="text-muted" style="margin-right: 10px">
-					<i class="fa fa-signal"></i>
-					Status
-				</span>
 
-				<div class="progress text-center" style="vertical-align: middle; margin: 0; border-radius: 0; width: 80px; display: inline-block">
-					<div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{100 * srv.root.total_upsize / srv.root.total_size}}" aria-valuemin="0" aria-valuemax="100" style="width: {{100 * srv.root.total_upsize / srv.root.total_size}}%">
-						{{(100 * srv.root.total_upsize / srv.root.total_size).toFixed(0)}}%
-					</div>
-				</div>
+			<button class="btn btn-success btn-xs" ng-click="srv.clear_completed()" title="Clear Completed" rel="tooltip" Xnb-tooltip="{container: 'body'}">
+				<i class="fa fa-eraser fa-fw"></i>
+			</button>
 
-				<button class="btn btn-success btn-xs" ng-click="srv.clear_completed()" title="Clear Completed" rel="tooltip" nb-tooltip="{container: 'body'}">
-					<i class="fa fa-eraser fa-fw"></i>
+			<div ng-show="show_upload_details" class="btn-group">
+				<button class="btn btn-default btn-xs" ng-click="srv.toggle_select_all()" title="Select All / None" rel="tooltip" nb-tooltip="{container: 'body'}">
+					<i ng-hide="srv.selected_all" class="fa fa-square-o fa-fw"></i>
+					<i ng-show="srv.selected_all" class="fa fa-check-square-o fa-fw"></i>
 				</button>
-
-				<div ng-show="show_upload_details" class="btn-group">
-					<button class="btn btn-default btn-xs" ng-click="srv.toggle_select_all()" title="Select All / None" rel="tooltip" nb-tooltip="{container: 'body'}">
-						<i ng-hide="srv.selected_all" class="fa fa-square-o fa-fw"></i>
-						<i ng-show="srv.selected_all" class="fa fa-check-square-o fa-fw"></i>
-					</button>
-					<button class="btn btn-default btn-xs" ng-click="srv.pause_selected()" title="Pause Selected" rel="tooltip" nb-tooltip="{container: 'body'}">
-						<i class="fa fa-pause fa-fw"></i>
-					</button>
-					<button class="btn btn-default btn-xs" ng-click="srv.resume_selected()" title="Resume Selected" rel="tooltip" nb-tooltip="{container: 'body'}">
-						<i class="fa fa-play fa-fw"></i>
-					</button>
-					<button class="btn btn-default btn-xs" ng-click="srv.remove_selected()" title="Remove Selected" rel="tooltip" nb-tooltip="{container: 'body'}">
-						<i class="fa fa-times fa-fw"></i>
-					</button>
-					<button ng-if="false" class="btn btn-warning btn-xs" ng-click="srv.pin_selected()" title="Pin Selected" rel="tooltip" nb-tooltip="{container: 'body'}">
-						<i class="fa fa-thumb-tack fa-fw"></i>
-					</button>
-				</div>
-				<div ng-show="show_upload_details" class="btn-group">
-					<button class="btn btn-default btn-xs" title="Items completed" rel="tooltip" nb-tooltip="{container: 'body'}">
-						{{srv.root.total_completed}} / {{srv.root.total_sons}}
-						<span class="text-muted">items</span>
-					</button>
-					<button class="btn btn-default btn-xs" title="Size completed" rel="tooltip" nb-tooltip="{container: 'body'}">
-						{{human_size(srv.root.total_upsize)}} / {{human_size(srv.root.total_size)}}
-						<span class="text-muted">size</span>
-					</button>
-					<button class="btn btn-default btn-xs" title="Total up speed" rel="tooltip" nb-tooltip="{container: 'body'}">
-						{{srv.speed.toFixed(1)}} KB/sec
-						<span class="text-muted">speed</span>
-					</button>
-				</div>
-				<!-- 
+				<button class="btn btn-default btn-xs" ng-click="srv.pause_selected()" title="Pause Selected" rel="tooltip" nb-tooltip="{container: 'body'}">
+					<i class="fa fa-pause fa-fw"></i>
+				</button>
+				<button class="btn btn-default btn-xs" ng-click="srv.resume_selected()" title="Resume Selected" rel="tooltip" nb-tooltip="{container: 'body'}">
+					<i class="fa fa-play fa-fw"></i>
+				</button>
+				<button class="btn btn-default btn-xs" ng-click="srv.remove_selected()" title="Remove Selected" rel="tooltip" nb-tooltip="{container: 'body'}">
+					<i class="fa fa-times fa-fw"></i>
+				</button>
+				<button ng-if="false" class="btn btn-warning btn-xs" ng-click="srv.pin_selected()" title="Pin Selected" rel="tooltip" nb-tooltip="{container: 'body'}">
+					<i class="fa fa-thumb-tack fa-fw"></i>
+				</button>
+			</div>
+			<div ng-show="show_upload_details" class="btn-group">
+				<button class="btn btn-default btn-xs" title="Items completed" rel="tooltip" nb-tooltip="{container: 'body'}">
+					{{srv.root.total_completed}} / {{srv.root.total_sons}}
+					<span class="text-muted">items</span>
+				</button>
+				<button class="btn btn-default btn-xs" title="Size completed" rel="tooltip" nb-tooltip="{container: 'body'}">
+					{{human_size(srv.root.total_upsize)}} / {{human_size(srv.root.total_size)}}
+					<span class="text-muted">size</span>
+				</button>
+				<button class="btn btn-default btn-xs" title="Total up speed" rel="tooltip" nb-tooltip="{container: 'body'}">
+					{{srv.speed.toFixed(1)}} KB/sec
+					<span class="text-muted">speed</span>
+				</button>
+			</div>
+			<!-- 
 				<button ng-show="false" class="btn btn-default btn-sm"
 					ng-click="srv.show_advanced = !srv.show_advanced"
 					title="Advanced Stats">
@@ -87,20 +66,19 @@
 				</div>
 				 -->
 
-				<button class="btn btn-info btn-xs" ng-click="show_upload_details = !show_upload_details">
-					<span ng-if="show_upload_details">
-						<i class="fa fa-angle-left"></i>
-						Hide
-					</span>
-					<span ng-if="!show_upload_details">
-						Advanced
-						<i class="fa fa-angle-right"></i>
-					</span>
-				</button>
-			</div>
+			<button class="btn btn-info btn-xs" ng-click="show_upload_details = !show_upload_details">
+				<span ng-if="show_upload_details">
+					<i class="fa fa-angle-left"></i>
+					Hide
+				</span>
+				<span ng-if="!show_upload_details">
+					Details
+					<i class="fa fa-angle-right"></i>
+				</span>
+			</button>
 		</div>
 
-		<div nb-effect-toggle="show_upload_details" nb-effect-options="{effect: 'blind'}">
+		<div class="panel-body" style="margin: 0; padding: 0" nb-effect-toggle="show_upload_details" nb-effect-options="{effect: 'blind'}">
 			<div id="upload_table" ng-cloak>
 				<div ng-include="'/public/html/upload_node_template.html'" style="margin: 0; font-size: 15px; width: 100%; height: auto; overflow: auto"></div>
 			</div>

@@ -1,20 +1,51 @@
-<nav class="navbar navbar-inverse navbar-static-top"
-	role="navigation"
-	ng-controller="MenuBarCtrl">
-	<div class="container">
-		<div class="navbar-header">
-			<button type="button" 
-				class="navbar-toggle" 
-				data-toggle="collapse" 
-				data-target=".navbar-ex1-collapse"
-				style="color: white">
-				Menu
-				<i class="fa fa-caret-down"></i>
-			</button>
+<nav class="navbar navbar-static-top navbar-inverse bg-light-blue" role="navigation" ng-controller="MenuBarCtrl">
+	<div class="container clearfix">
+		<div class="navbar-header pull-left">
 			<a id="logo_link" class="navbar-brand" href="/home/">
 				<img src="/public/images/noobaa_logo.png"></img>
 			</a>
 		</div>
+		<ul ng-controller="UserCtrl" class="nav navbar-nav navbar-right pull-right" style="margin-top: 0; margin-bottom: 0">
+			<li class="pull-left">
+				<a href="/home/" style="color: #222; padding-top: 15px; padding-bottom: 15px">Home</a>
+			</li>
+			<li class="pull-left">
+				<a href="/home/mydata/" style="color: #222; padding-top: 15px; padding-bottom: 15px">My-Data</a>
+			</li>
+			<li class="pull-left">
+				<a role="button" nb-popover="{element: '#user_menu', container: 'body', placement: 'bottom'}" style="padding-top: 9px; padding-bottom: 9px">
+					<img ng-if="user.fbid" ng-src="https://graph.facebook.com/{{user.fbid}}/picture\" style="height: 32px" class="img-rounded">
+					<!-- http://www.stasha.info/index.php?id=170 -->
+					<img ng-if="user.googleid" ng-src="https://plus.google.com/s2/photos/profile/{{user.googleid}}?sz=32" style="height: 32px" class="img-rounded">
+					<div class="text-ellipses" style="max-width: 200px; vertical-align: middle; height: 100%; display: inline-block; margin-left: 10px; color: #222">
+						{{user.name}}
+					</div>
+				</a>
+				<div style="display: none">
+					<div id="user_menu">
+						<!-- 
+						<div class="text-center">
+							<a href="/home/mydata/" class="btn btn-block btn-info" style="margin-bottom: 5px">
+								My-Data
+							</a>
+						</div>
+						 -->
+						<div class="text-center">
+							<small>
+								<span class="text-muted">Using</span>
+								{{human_size(user_usage)}} / {{human_size(user_quota)}}
+							</small>
+						</div>
+						<div class="progress text-center bggrey" style="vertical-align: middle; margin: 0">
+							<div class="progress-bar progress-bar-{{usage_percents < 70 && 'success' || usage_percents < 90 && 'warning' || 'danger'}}" role="progressbar" aria-valuenow="{{usage_percents}}" aria-valuemin="0" aria-valuemax="100" style="width: {{usage_percents}}%">
+								<!-- <span ng-show="usage_percents >= 15" style="height: 100%; vertical-align: middle">{{usage_percents}}% Used</span> -->
+							</div>
+							<!-- <small ng-show="usage_percents < 85" style="height: 100%; color: black">{{100-usage_percents}}% Free</small> -->
+						</div>
+						<hr style="margin: 10px 0 5px 0" />
+						<ul class="nav Xnav-pills Xnav-stacked" style="padding: 0; margin: 0">
+							<li class="divider"></li>
+							<!-- 
 		<div hidden class="nav navbar-nav navbar-left">
 			<button class="navbar-btn btn btn-danger" ng-click="open_local_planet()" id="space_button" style="margin-left: 30px; Xbackground-color: hsl(357, 100%, 45%)">
 				Install
@@ -23,131 +54,84 @@
 				Upload
 			</button>
 		</div>
-		<div class="collapse navbar-collapse navbar-ex1-collapse">
-			<ul id="menu_right" class="nav navbar-nav navbar-right">
-				<!-- 
-				<li ng-controller="GuideCtrl" class="dropdown">
-					<a id="my_guides"
-						class="dropdown-toggle"
-						role="button"
-						data-toggle="dropdown"
-						title="My Guides"
-						rel="tooltip"
-						nb-tooltip="{placement: 'bottom'}">
-						<i class="icon-info-sign icon-large text-info"></i>
-					</a>
-					<ul class="dropdown-menu"
-						role="menu"
-						aria-labelledby="my_guides">
-						<li ng-repeat="guide in guides_list">
-							<a ng-click="guide.run()">
-								<span class="icon-li icon-stack">
-									<i class="icon-check-empty icon-stack-base"></i>
-									<i ng-show="guide.is_completed()" 
-										class="icon-trophy"></i>
-								</span>
-								{{guide.title}}
-							</a>
-						</li>
-					</ul>
-				</li>
-				 -->
-				<li>
-					<a id="feedback_button"
-						role="button"
-						ng-click="click_feedback()"
-						title="Give feedback"
-						rel="tooltip"
-						nb-tooltip="{placement: 'bottom'}">
-						<i class="icon-comments icon-large text-info"></i>
-					</a>
-				</li>
-				<li ng-controller="UserCtrl"  class="dropdown">
-					<a class="dropdown-toggle"
-						id="user_label" role="button"
-						data-toggle="dropdown">
-						<div class="text-ellipses" style="max-width: 200px">
-							<span class="icon-user icon-white"></span>
-							<?! it.user.name ?>
-						</div>
-					</a>
-					<ul class="dropdown-menu"
-						role="menu"
-						aria-labelledby="user_label">
-						<?? it.user.fbid ?>
-							<li align="center">
-								<img src="https://graph.facebook.com/<?! it.user.fbid ?>/picture\" style="height: 40px"></img>
+		 -->
+							<li>
+								<a id="feedback_button" role="button" ng-click="click_feedback()" title="" rel="tooltip" nb-tooltip="{placement: 'bottom'}">
+									<i class="fa fa-comments fa-fw"></i>
+									Give feedback
+								</a>
 							</li>
-						<!-- http://www.stasha.info/index.php?id=170 -->
-						<??? it.user.googleid ?>
-							<li align="center">
-								<img src="https://plus.google.com/s2/photos/profile/<?! it.user.googleid ?>?sz=40" style="height: 40px"></img>
+							<!-- 
+							<li ng-controller="GuideCtrl" class="dropdown">
+								<a id="my_guides"
+									class="dropdown-toggle"
+									role="button"
+									data-toggle="dropdown"
+									title="My Guides"
+									rel="tooltip"
+									nb-tooltip="{placement: 'bottom'}">
+									<i class="icon-info-sign icon-large text-info"></i>
+								</a>
+								<ul class="dropdown-menu"
+									role="menu"
+									aria-labelledby="my_guides">
+									<li ng-repeat="guide in guides_list">
+										<a ng-click="guide.run()">
+											<span class="icon-li icon-stack">
+												<i class="icon-check-empty icon-stack-base"></i>
+												<i ng-show="guide.is_completed()" 
+													class="icon-trophy"></i>
+											</span>
+											{{guide.title}}
+										</a>
+									</li>
+								</ul>
 							</li>
-						<???>
-						<li class="divider"></li>
-						<li>
-							<a>
-								Quota: {{human_size(user_quota)}}
-							</a>
-						</li>
-						<li>
-							<a>
-								Used: {{human_size(user_usage)}}
-							</a>
-						</li>
-						<li class="divider"></li>
-						<li>
-							<a href="/settings" target="_self">
-								<i class="icon-li icon-fixed-width icon-cog"></i>
-								Account Settings
-							</a>
-						</li>
-						<li>
-							<a href="/help" target="_self">
-								<i class="icon-li icon-fixed-width icon-h-sign"></i>
-								Help (FAQ)
-							</a>
-						</li>
-						<li >
-							<a href="/auth/logout/" target="_self">
-								<i class="icon-li icon-fixed-width icon-signout"></i>
-								Logout
-							</a>
-						</li>
-					</ul>
-				</li>
-			</ul>
-		</div>
+							<li>
+								<a href="/settings" target="_self">
+									<i class="fa fa-cog fa-fw"></i>
+									Account Settings
+								</a>
+							</li>
+							 -->
+							<li>
+								<a href="/help" target="_self">
+									<i class="fa fa-question fa-fw"></i>
+									Help (FAQ)
+								</a>
+							</li>
+							<li>
+								<a href="/auth/logout/" target="_self">
+									<i class="fa fa-sign-out fa-fw"></i>
+									Logout
+								</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</li>
+		</ul>
 	</div>
 </nav>
 
-<div ng-controller="FeedbackCtrl"
-	id="feedback_dialog"
-	class="nbdialog fntmd">
+<div ng-controller="FeedbackCtrl" id="feedback_dialog" class="nbdialog fntmd">
 	<div class="nbdialog_header nbdialog_drag">
 		<i class="icon-comments icon-large text-info"></i>
 		"Talk To Me Goose"
-		<a class="pull-right nbdialog_close btn btn-default btn-xs"
-			title="Cancel">
+		<a class="pull-right nbdialog_close btn btn-default btn-xs" title="Cancel">
 			<i class="icon-remove"></i>
 		</a>
 	</div>
 	<div class="nbdialog_content">
-		<textarea ng-hide="send_done" 
-			ng-model="feedback"
-			class="form-control" autofocus
-			style="resize: none; height: 100%"></textarea>
+		<textarea ng-hide="send_done" ng-model="feedback" class="form-control" autofocus style="resize: none; height: 100%"></textarea>
 		<p ng-show="send_done" class="lead text-center">
-			My Precious...<br/>
-			Thanks you!
+			My Precious...
+			<br/>Thanks you!
 		</p>
 	</div>
 	<div class="nbdialog_footer">
-		<button ng-hide="send_done"
-			class="nbdialog_close btn btn-default">Cancel</button>
-		<button class="btn btn-primary pull-right"
-			ng-hide="send_done" ng-click="send()">Send</button>
-		<button class="nbdialog_close btn btn-success pull-right"
-			ng-show="send_done">Close</button>
+		<button ng-hide="send_done" class="nbdialog_close btn btn-default">Cancel</button>
+		<button class="btn btn-primary pull-right" ng-hide="send_done" ng-click="send()">Send</button>
+		<button class="nbdialog_close btn btn-success pull-right" ng-show="send_done">Close</button>
 	</div>
 </div>

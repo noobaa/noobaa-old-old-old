@@ -1,60 +1,77 @@
-<div class="browser">
+<div class="browser" ng-init="filter_file_name=''">
+
+	<div nb-effect-toggle="nbUploadSrv.has_uploads()" nb-effect-options="{effect: 'blind'}">
+		<div ng-include="'/public/html/upload_template.html'"></div>
+	</div>
+
 	<div class="panel panel-info">
-		<div class="panel-heading">
-			<div class="btn-group" style="margin-top: 10px">
-				<a class="btn btn-primary" ng-click="go_up_level()" title="Up one folder" nb-tooltip="{container: 'body'}">
-					<i class="fa fa-arrow-up fa-lg"></i>
+		<div class="panel-heading clearfix" style="padding: 10px">
+			<div class="btn-group">
+				<a class="btn btn-primary" ng-click="go_up_level()" title="Back to parent folder" rel="tooltip" nb-tooltip="{container: 'body'}">
+					<i class="fa fa-arrow-left fa-lg"></i>
 				</a>
 			</div>
 			&nbsp;
-			<div class="btn-group" style="margin-top: 10px">
-				<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+			<div class="btn-group">
+				<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" title="Click for folder actions" rel="tooltip" nb-tooltip="{container: 'body'}">
 					<div class="text-ellipses" style="max-width: 200px">
-						<span class="caret"></span>
-						<span ng-if="dir_inode.is_loading">
+						<span ng-if="current_dir.is_loading">
 							<i class="fa fa-refresh fa-spin fa-fw"></i>
 						</span>
-						<i ng-if="!dir_inode.is_loading" class="fa fa-{{!dir_inode.parent.parent && 'home' || 'folder'}} fa-fw"></i>
-						{{dir_inode.name}}
+						<i ng-if="!current_dir.is_loading" class="fa fa-{{!current_dir.parent.parent && 'star' || 'folder'}} fa-fw"></i>
+						{{current_dir.name}}
 					</div>
 				</button>
 				<ul class="dropdown-menu" role="menu">
 					<li>
-						<a ng-click="open_inode(dir_inode)">
+						<a ng-click="open_inode(current_dir)">
 							<i class="fa fa-refresh fa-fw"></i>
 							Refresh...
 						</a>
 					</li>
 					<li class="divider"></li>
 					<li>
-						<a ng-click="new_folder(dir_inode)">
+						<a ng-click="new_folder(current_dir)">
 							<i class="fa fa-plus fa-fw"></i>
 							New Folder...
 						</a>
 					</li>
 					<li>
-						<a ng-click="rename_inode(dir_inode)">
+						<a ng-click="rename_inode(current_dir)">
 							<i class="fa fa-pencil fa-fw"></i>
 							Rename...
 						</a>
 					</li>
 					<li class="divider"></li>
 					<li>
-						<a>Go back to:</a>
+						<a>Back to parent folder:</a>
 					</li>
-					<li ng-repeat="parent in parents_path(dir_inode)">
+					<li ng-repeat="parent in parents_path(current_dir)">
 						<a ng-click="open_inode(parent)">
-							<i class="fa fa-{{$last && 'home' || 'folder'}} fa-fw"></i>
+							<i class="fa fa-{{!parent.parent.parent && 'star' || 'folder'}} fa-fw"></i>
 							{{parent.name}}
 						</a>
 					</li>
 				</ul>
 			</div>
+			&nbsp;
+			<button class="btn btn-success" ng-click="nbUploadSrv.open_file_input()" title="Upload files" rel="tooltip" nb-tooltip="{container: 'body'}">
+				<i class="fa fa-cloud-upload fa-lg"></i>
+			</button>
+			&nbsp;
+			<div class="input-group pull-right" style="max-width: 170px">
+				<input type="text" class="form-control" maxlength="100" placeholder="Search in folder" ng-model="search_in_folder" ng-style="{backgroundColor: search_in_folder && 'yellow' || 'none'}" />
+				<span class="input-group-btn">
+					<button class="btn btn-default" type="button" ng-click="search_in_folder=''" title="Clear search" rel="tooltip" nb-tooltip="{container: 'body'}">
+						<i class="fa fa-times Xfa-lg"></i>
+					</button>
+				</span>
+			</div>
 		</div>
 
 		<div class="panel-body" style="padding: 0">
-			<div ng-repeat="inode in dir_inode.entries" class="file_line notextselect {{inode.is_selected && 'active' || ''}}" style="border-bottom-width: 1px; border-top-width: 1px">
-				<div class="clearfix" style="margin-right: 70px; overflow: scroll" ng-click="select_inode(inode, $index, $event)">
+			<div ng-repeat="inode in current_dir.entries | filter:{name: search_in_folder}" class="file_line notextselect {{inode.is_selected && 'active' || ''}}" style="border-bottom-width: 1px; border-top-width: 1px">
+				<div class="clearfix" style="margin-right: 20px; overflow: scroll" ng-click="select_inode(inode, $index, $event)">
 					<span class="Xpull-left">
 						<i ng-show="!!inode.isdir" class="fa fa-folder fa-fw fa-lg text-info"></i>
 						<i ng-show="!inode.isdir" class="fa fa-file-o fa-fw fa-lg text-muted"></i>
@@ -62,23 +79,23 @@
 							{{inode.name}}
 						</a>
 					</span>
-					<span class="text-muted">
+					<span class="text-muted pull-right">
+						{{inode.owner.name}}
+					</span>
+					<span class="text-muted pull-right" style="margin-right: 20px">
 						{{inode.ctime_display}}
 					</span>
-					<span class="text-muted" style="margin-left: 20px">
-						{{ human_size(inode.size) }}
-					</span>
-					<span class="text-muted" style="margin-left: 20px">
-						{{inode.owner.name}}
+					<span class="text-muted pull-right" style="margin-right: 20px">
+						{{human_size(inode.size)}}
 					</span>
 
 				</div>
-				<div ng-if="selection[selection.length-1] === inode" style="border-top: 1px #bbb solid; padding: 5px 0">
-					<div class="text-right">
+				<div ng-if="selection[selection.length-1] === inode" style="border-top: 1px #bbb solid; padding: 5px 10px">
+					<div Xclass="text-right">
 						<span ng-if="selection.length > 1">
 							{{selection.length}} items:
 						</span>
-						<button ng-if="selection.length === 1" class="btn btn-primary disabled" ng-click="share_inode(inode)">
+						<button ng-if="selection.length === 1" class="btn btn-link" ng-click="share_inode(inode)">
 							<i class="fa fa-share fa-fw"></i>
 							Share
 						</button>
@@ -111,32 +128,20 @@
 							Delete {{selection.length>1 && 'all' || ''}}
 						</button>
 					</div>
-					<div class="row">
-						<div Xclass="col-sm-6" style="padding: 0 15px">
-							<div ng-if="inode.is_previewing && inode.content_kind" ng-switch="inode.content_kind">
-								<video ng-switch-when="video" controls ng-src="{{inode_source_url(inode)}}" class="img-responsive"></video>
-								<audio ng-switch-when="audio" controls ng-src="{{inode_source_url(inode)}}" class="img-responsive"></audio>
-								<img ng-switch-when="image" ng-src="{{inode_source_url(inode)}}" class="img-responsive" />
-								<div ng-switch-default nb-resizable>
-									<object ng-attr-data="{{inode_source_url(inode)}}" ng-attr-type="{{inode.content_type}}" width="100%" height="100%"></object>
-								</div>
-							</div>
-							<div ng-if="inode.is_previewing && !inode.content_kind" class="text-center">
-								<i class="fa fa-spinner fa-spin fa-2x"></i>
-							</div>
+					<div ng-if="inode.is_previewing && inode.content_kind" ng-switch="inode.content_kind" style="padding: 10px 0">
+						<video ng-switch-when="video" controls ng-src="{{inode_source_url(inode)}}" class="img-responsive"></video>
+						<audio ng-switch-when="audio" controls ng-src="{{inode_source_url(inode)}}" class="img-responsive"></audio>
+						<img ng-switch-when="image" ng-src="{{inode_source_url(inode)}}" class="img-responsive" />
+						<div ng-switch-default nb-resizable>
+							<object ng-attr-data="{{inode_source_url(inode)}}" ng-attr-type="{{inode.content_type}}" width="100%" height="100%"></object>
 						</div>
-						<div class="col-sm-6" ng-if="false && selection.length === 1" style="padding: 0 10px">
-							<div>Friends who also collected this item:</div>
-							<div ng-repeat="i in [1,2,3]" style="display: inline-block; padding: 0 5px 5px 0">
-								<img ng-src="https://graph.facebook.com/{{user.fbid}}/picture\" style="height: 32px"></img>
-							</div>
-							<textarea class="form-control" rows="2" placeholder="Describe it..." style="resize: none"></textarea>
-							<button class="btn btn-success">Save</button>
-						</div>
+					</div>
+					<div ng-if="inode.is_previewing && !inode.content_kind" class="text-center" style="padding: 10px 0">
+						<i class="fa fa-spinner fa-spin fa-2x"></i>
 					</div>
 				</div>
 			</div>
-			<div ng-if="!dir_inode.entries.length">
+			<div ng-if="!current_dir.entries.length">
 				<div style="padding-left: 20px; line-height: 80px; vertical-align: middle">
 					- No files yet -
 				</div>

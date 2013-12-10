@@ -6,11 +6,11 @@
 		<base href="/home/">
 </head>
 
-<body ng-cloak ng-controller="HomeCtrl" ng-init="filter_file_name=''">
+<body ng-cloak ng-controller="HomeCtrl">
 
 	<?# def.include( 'common_menubar.html') ?>
 
-		<div class="container">
+		<div class="container" hidden>
 			<div class="row">
 				<div class="col-sm-4">
 					<h3 style="margin-top: 0">
@@ -74,12 +74,7 @@
 			</div>
 		</div>
 
-		<hr/>
-
-		<div nb-effect-toggle="show_uploads" nb-effect-options="{effect: 'blind'}">
-			<div ng-include="'/public/html/upload_template.html'"></div>
-			<br/>
-		</div>
+		<!-- <hr/> -->
 
 		<div Xstyle="position: relative">
 			<div ng-view Xclass="view-animate"></div>
@@ -264,7 +259,7 @@
 
 			<!-- SHARE MODAL -->
 
-			<div Xng-controller="ShareModalCtrl" id="share_modal" class="nbdialog fntmd" tabindex="-1" role="dialog" aria-labelledby="share_modal_label" aria-hidden="true">
+			<div ng-controller="ShareModalCtrl" id="share_modal" class="nbdialog fntmd" tabindex="-1" role="dialog" aria-labelledby="share_modal_label" aria-hidden="true">
 				<div class="nbdialog_header nbdialog_drag">
 					Share
 					<a class="pull-right nbdialog_close btn btn-default btn-xs" title="Cancel">
@@ -287,7 +282,7 @@
 						</p>
 						<form role="form">
 							<div class="input-group">
-								<input type="text" class="form-control input-sm" placeholder="filter friends by name" ng-model="filter_friend_name" />
+								<input type="text" class="form-control input-sm" placeholder="Search in friends" ng-model="filter_friend_name" />
 								<span class="input-group-btn">
 									<button class="btn btn-default btn-sm" type="button" ng-click="filter_friend_name=''">
 										<i class="icon-remove-sign icon-large"></i>
