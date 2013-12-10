@@ -288,7 +288,8 @@ a[ng-click], a[role=button] {
 	border-right-width: 7px;
 	padding-left: 0px;
 	padding-right: 0px;
-	border-color: hsl(212, 41%, 71%);
+	/*border-color: hsl(212, 41%, 71%);*/
+	border-color: hsl(238, 30%, 50%);
 }
 .file_line.active {
 	background-color: hsl(42, 83%, 63%);
@@ -316,14 +317,16 @@ a[ng-click], a[role=button] {
 .feed_line {
 	line-height: 36px;
 	vertical-align: middle;
-	border-color: hsla(212, 41%, 71%, 0.1);
+	border-color: transparent; /*hsla(212, 41%, 71%, 0.1);*/
 	border-style: solid;
 	border-width: 0;
 	padding-left: 27px;
 	padding-right: 27px;
-	border-top-width: 1px;
 	margin-top: 20px;
 	padding-top: 20px;
+	padding-bottom: 20px;
+	border-top-width: 1px;
+	border-bottom-width: 1px;
 }
 .feed_line:hover {
 	border-left-width: 7px;
@@ -331,6 +334,7 @@ a[ng-click], a[role=button] {
 	padding-left: 20px;
 	padding-right: 20px;
 	border-color: hsl(212, 41%, 71%);
+	/*border-color: hsl(238, 30%, 50%);*/
 }
 /**/
 
