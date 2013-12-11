@@ -290,6 +290,7 @@ a.btn-link, button.btn-link {
 	padding-right: 7px;
 }
 .file_line:hover {
+	border-radius: 10px;
 	border-left-width: 7px;
 	border-right-width: 7px;
 	padding-left: 0px;
@@ -298,7 +299,11 @@ a.btn-link, button.btn-link {
 	border-color: hsl(238, 30%, 50%);
 }
 .file_line.active {
+	border-radius: 10px;
 	background-color: hsl(42, 83%, 63%);
+}
+.file_actions {
+	border-top: 1px #eee solid;
 }
 .file_line i.fa-folder {
 	/*color: hsl(351, 68%, 44%);*/

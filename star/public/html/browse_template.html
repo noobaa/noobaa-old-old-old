@@ -68,7 +68,7 @@
 
 		<div class="panel-body" style="padding: 0">
 			<div ng-repeat="inode in current_dir.entries | filter:{name: search_in_folder}" class="file_line notextselect {{inode.is_selected && 'active' || ''}}" style="border-bottom-width: 1px; border-top-width: 1px">
-				<div class="clearfix" style="margin-right: 20px; overflow: scroll" ng-click="select_inode(inode, $index, $event)">
+				<div class="clearfix" style="overflow: scroll" ng-click="select_inode(inode, $index, $event)">
 					<span class="Xpull-left">
 						<i ng-show="!!inode.isdir" class="fa fa-folder fa-fw fa-lg text-danger"></i>
 						<i ng-show="!inode.isdir" class="fa fa-file-o fa-fw fa-lg text-danger"></i>
@@ -87,7 +87,7 @@
 					</span>
 
 				</div>
-				<div ng-if="selection[selection.length-1] === inode" style="border-top: 1px #bbb solid; padding: 5px 10px">
+				<div ng-if="selection[selection.length-1] === inode" class="file_actions">
 					<div Xclass="text-right">
 						<span ng-if="selection.length > 1">
 							{{selection.length}} items:
@@ -112,13 +112,13 @@
 							<i class="fa fa-pencil fa-rotate-270 fa-fw"></i>
 							Rename
 						</button>
+						<button ng-if="selection.length === 1" class="btn btn-link" ng-click="copy_inode(inode)">
+							<i class="fa fa-copy fa-fw"></i>
+							Copy {{selection.length>1 && 'all' || ''}}
+						</button>
 						<button class="btn btn-link disabled" ng-click="move_inodes()">
 							<i class="fa fa-arrows fa-fw"></i>
 							Move {{selection.length>1 && 'all' || ''}}
-						</button>
-						<button class="btn btn-link disabled" ng-click="copy_inodes()">
-							<i class="fa fa-copy fa-fw"></i>
-							Copy {{selection.length>1 && 'all' || ''}}
 						</button>
 						<button class="btn btn-link" ng-click="delete_inodes()">
 							<i class="fa fa-trash-o fa-fw"></i>
@@ -126,11 +126,11 @@
 						</button>
 					</div>
 					<div ng-if="inode.is_previewing && inode.content_kind" ng-switch="inode.content_kind" style="padding: 10px 0">
-						<video ng-switch-when="video" controls ng-src="{{inode_source_url(inode)}}" class="img-responsive"></video>
-						<audio ng-switch-when="audio" controls ng-src="{{inode_source_url(inode)}}" class="img-responsive"></audio>
-						<img ng-switch-when="image" ng-src="{{inode_source_url(inode)}}" class="img-responsive" />
+						<video ng-switch-when="video" controls ng-src="{{inode_source_url(inode)}}" class="img-responsive center-block"></video>
+						<audio ng-switch-when="audio" controls ng-src="{{inode_source_url(inode)}}" class="img-responsive center-block"></audio>
+						<img ng-switch-when="image" ng-src="{{inode_source_url(inode)}}" class="img-responsive center-block" />
 						<div ng-switch-default nb-resizable>
-							<object ng-attr-data="{{inode_source_url(inode)}}" ng-attr-type="{{inode.content_type}}" width="100%" height="100%"></object>
+							<object ng-attr-data="{{inode_source_url(inode)}}" ng-attr-type="{{inode.content_type}}" width="100%" height="100%" class="center-block"></object>
 						</div>
 					</div>
 					<div ng-if="inode.is_previewing && !inode.content_kind" class="text-center" style="padding: 10px 0">

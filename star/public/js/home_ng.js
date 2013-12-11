@@ -226,7 +226,7 @@
 				function($scope, $http, $timeout, $q, $compile, $rootScope, nbUploadSrv, JobQueue) {
 					$scope.human_size = $rootScope.human_size;
 					$scope.nbUploadSrv = nbUploadSrv;
-					
+
 
 					console.log('BROWSER CONTEXT', $scope.context);
 					set_current_dir($scope.context.current_dir);
@@ -661,7 +661,43 @@
 
 					function move_inodes() {}
 
-					function copy_inodes() {}
+					function copy_inode(inode) {
+						if (!inode) {
+							console.error('no selected inode, bailing');
+							return;
+						}
+						if (is_immutable_root(inode)) {
+							$.nbalert('Cannot copy root folder');
+							return;
+						}
+
+						var copy_scope = $scope.$new();
+						copy_scope.count = 0;
+						copy_scope.concurrency = 0;
+						copy_scope.max_concurrency = 32;
+
+						var on_copy = function() {
+							$(function() {
+
+								inode.is_dir_non_empty(function(is_dir_non_empty) {
+
+									var notify_message = 'Copy of ' + inode.name + ' is done.';
+									if (is_dir_non_empty) {
+										notify_message += ' Copied ' + copy_scope.count + ' items.';
+									}
+									setTimeout(function() {
+										$.bootstrapGrowl(notify_message, {
+											type: 'success',
+											align: 'center',
+											width: 'auto',
+										});
+									}, 10);
+								});
+								return;
+							});
+						};
+						return inode.copy(copy_scope, null, null, true).then(on_copy, on_copy);
+					}
 
 					function share_inode(inode) {
 						if (!inode) {
@@ -696,7 +732,7 @@
 					$scope.delete_inodes = delete_inodes;
 					$scope.new_folder = new_folder;
 					$scope.move_inodes = move_inodes;
-					$scope.copy_inodes = copy_inodes;
+					$scope.copy_inode = copy_inode;
 					$scope.share_inode = share_inode;
 				}
 			]
