@@ -260,12 +260,12 @@
 						}
 					}
 
-					function has_parent() {
-						return $scope.current_dir.level > 0;
+					function has_parent(dir_inode) {
+						return dir_inode.level > 0;
 					}
 
-					function folder_icon() {
-						return $scope.current_dir.level > 0 ? 'fa-folder' : 'fa-folder-open'; // TODO PICK AGAIN
+					function folder_icon(dir_inode) {
+						return dir_inode.level > 0 ? 'fa-folder' : 'fa-folder-open'; // TODO PICK BETTER
 					}
 
 					function is_selection_leader(inode) {

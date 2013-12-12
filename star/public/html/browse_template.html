@@ -7,7 +7,7 @@
 	<div class="panel panel-default">
 		<div class="panel-heading clearfix" style="padding: 0px">
 			<div class="btn-group">
-				<a class="btn btn-primary" ng-click="go_up_level()" title="Back to previous folder" rel="tooltip" nb-tooltip="{container: 'body'}" ng-disabled="!has_parent()">
+				<a class="btn btn-primary" ng-click="go_up_level()" title="Back to previous folder" rel="tooltip" nb-tooltip="{container: 'body'}" ng-disabled="!has_parent(current_dir)">
 					<i class="fa fa-arrow-left fa-lg"></i>
 				</a>
 			</div>
@@ -17,7 +17,7 @@
 						<span ng-if="current_dir.is_loading">
 							<i class="fa fa-refresh fa-spin fa-fw"></i>
 						</span>
-						<i ng-if="!current_dir.is_loading" class="fa {{folder_icon()}} fa-fw"></i>
+						<i ng-if="!current_dir.is_loading" class="fa {{folder_icon(current_dir)}} fa-fw"></i>
 						{{current_dir.name}}
 					</div>
 				</button>
@@ -47,7 +47,7 @@
 					</li>
 					<li ng-repeat="parent in nb.parents_path(current_dir)">
 						<a ng-click="open_inode(parent)">
-							<i class="fa {{folder_icon()}} fa-fw"></i>
+							<i class="fa {{folder_icon(parent)}} fa-fw"></i>
 							{{parent.name}}
 						</a>
 					</li>
