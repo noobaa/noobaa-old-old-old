@@ -43,12 +43,12 @@
 	function FeedbackCtrl($scope, $http, $timeout) {
 
 		var dlg = $('#feedback_dialog');
-		dlg.nbdialog({
-			modal: true,
-			css: {
-				width: 500
-			}
-		});
+		// dlg.nbdialog({
+		// 	modal: true,
+		// 	css: {
+		// 		width: 500
+		// 	}
+		// });
 
 		$scope.open = function() {
 			$scope.send_done = false;

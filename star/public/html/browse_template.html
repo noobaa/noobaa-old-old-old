@@ -7,7 +7,7 @@
 	<div class="panel panel-default">
 		<div class="panel-heading clearfix" style="padding: 0px">
 			<div class="btn-group">
-				<a class="btn btn-primary" ng-click="go_up_level()" title="Back to previous folder" rel="tooltip" nb-tooltip="{container: 'body'}" ng-disabled="!current_dir.parent">
+				<a class="btn btn-primary" ng-click="go_up_level()" title="Back to previous folder" rel="tooltip" nb-tooltip="{container: 'body'}" ng-disabled="!has_parent()">
 					<i class="fa fa-arrow-left fa-lg"></i>
 				</a>
 			</div>
@@ -17,7 +17,7 @@
 						<span ng-if="current_dir.is_loading">
 							<i class="fa fa-refresh fa-spin fa-fw"></i>
 						</span>
-						<i ng-if="!current_dir.is_loading" class="fa fa-{{!current_dir.parent && 'folder-open' || 'folder'}} fa-fw"></i>
+						<i ng-if="!current_dir.is_loading" class="fa {{folder_icon()}} fa-fw"></i>
 						{{current_dir.name}}
 					</div>
 				</button>
@@ -45,9 +45,9 @@
 					<li>
 						<a>Back to:</a>
 					</li>
-					<li ng-repeat="parent in parents_path(current_dir)">
+					<li ng-repeat="parent in nb.parents_path(current_dir)">
 						<a ng-click="open_inode(parent)">
-							<i class="fa fa-{{!parent.parent && 'folder-open' || 'folder'}} fa-fw"></i>
+							<i class="fa {{folder_icon()}} fa-fw"></i>
 							{{parent.name}}
 						</a>
 					</li>
@@ -87,53 +87,53 @@
 					</span>
 
 				</div>
-				<div ng-if="selection[selection.length-1] === inode" class="file_actions">
+				<div ng-if="is_selection_leader(inode)" class="file_actions">
 					<div Xclass="text-right">
-						<span ng-if="selection.length > 1">
-							{{selection.length}} items:
+						<span ng-if="num_selected()>1">
+							&nbsp;&nbsp;{{num_selected()}} items:
 						</span>
-						<button ng-if="selection.length === 1" class="btn btn-link" ng-click="share_inode(inode)">
+						<button ng-if="num_selected()==1" class="btn btn-link" ng-click="share_inode(inode)">
 							<i class="fa fa-share-square-o fa-fw"></i>
 							Share
 						</button>
-						<button ng-if="!inode.is_previewing && !inode.isdir && selection.length === 1" class="btn btn-link" ng-click="toggle_preview(inode)">
+						<button ng-if="!inode.is_previewing && !inode.isdir && num_selected()==1" class="btn btn-link" ng-click="toggle_preview(inode)">
 							<i class="fa fa-eye fa-fw"></i>
 							Show Preview
 						</button>
-						<button ng-if="inode.is_previewing && !inode.isdir && selection.length === 1" class="btn btn-link" ng-click="toggle_preview(inode)">
+						<button ng-if="inode.is_previewing && !inode.isdir && num_selected()==1" class="btn btn-link" ng-click="toggle_preview(inode)">
 							<i class="fa fa-eye-slash fa-fw"></i>
 							Hide Preview
 						</button>
-						<a ng-if="!inode.isdir && !inode.uploading && inode.size && selection.length === 1" class="btn btn-link" ng-click="download_inode(inode)" href="{{inode_source_url(inode)}}?is_download=true" target="_blank">
+						<a ng-if="!inode.isdir && !inode.uploading && inode.size && num_selected()==1" class="btn btn-link" ng-click="download_inode(inode)" href="{{nb.inode_api_url(inode)}}?is_download=true" target="_blank">
 							<i class="fa fa-cloud-download fa-fw"></i>
 							Download
 						</a>
-						<button ng-if="selection.length === 1" class="btn btn-link" ng-click="rename_inode(inode)">
+						<button ng-if="num_selected()==1" class="btn btn-link" ng-click="rename_inode(inode)">
 							<i class="fa fa-pencil fa-rotate-270 fa-fw"></i>
 							Rename
 						</button>
-						<button ng-if="selection.length === 1" class="btn btn-link" ng-click="copy_inode(inode)">
+						<button ng-if="num_selected()==1" class="btn btn-link" ng-click="copy_inode(inode)">
 							<i class="fa fa-copy fa-fw"></i>
-							Copy {{selection.length>1 && 'all' || ''}}
+							Copy {{num_selected()>1 && 'all' || ''}}
 						</button>
 						<button class="btn btn-link disabled" ng-click="move_inodes()">
 							<i class="fa fa-arrows fa-fw"></i>
-							Move {{selection.length>1 && 'all' || ''}}
+							Move {{num_selected()>1 && 'all' || ''}}
 						</button>
 						<button class="btn btn-link" ng-click="delete_inodes()">
 							<i class="fa fa-trash-o fa-fw"></i>
-							Delete {{selection.length>1 && 'all' || ''}}
+							Delete {{num_selected()>1 && 'all' || ''}}
 						</button>
 					</div>
-					<div ng-if="inode.is_previewing && inode.content_kind" ng-switch="inode.content_kind" style="padding: 10px 0">
-						<video ng-switch-when="video" controls ng-src="{{inode_source_url(inode)}}" class="img-responsive center-block"></video>
-						<audio ng-switch-when="audio" controls ng-src="{{inode_source_url(inode)}}" class="img-responsive center-block"></audio>
-						<img ng-switch-when="image" ng-src="{{inode_source_url(inode)}}" class="img-responsive center-block" />
+					<div ng-if="inode.is_previewing && inode.is_selected && inode.content_kind" ng-switch="inode.content_kind" style="padding: 10px 0">
+						<video ng-switch-when="video" controls ng-src="{{nb.inode_api_url(inode.id)}}" class="img-responsive center-block"></video>
+						<audio ng-switch-when="audio" controls ng-src="{{nb.inode_api_url(inode.id)}}" class="img-responsive center-block"></audio>
+						<img ng-switch-when="image" ng-src="{{nb.inode_api_url(inode.id)}}" class="img-responsive center-block" />
 						<div ng-switch-default nb-resizable>
-							<object ng-attr-data="{{inode_source_url(inode)}}" ng-attr-type="{{inode.content_type}}" width="100%" height="100%" class="center-block"></object>
+							<object ng-attr-data="{{nb.inode_api_url(inode.id)}}" ng-attr-type="{{inode.content_type}}" width="100%" height="100%" class="center-block"></object>
 						</div>
 					</div>
-					<div ng-if="inode.is_previewing && !inode.content_kind" class="text-center" style="padding: 10px 0">
+					<div ng-if="inode.is_previewing && inode.is_selected && !inode.content_kind" class="text-center" style="padding: 10px 0">
 						<i class="fa fa-spinner fa-spin fa-2x"></i>
 					</div>
 				</div>

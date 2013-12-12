@@ -8,6 +8,402 @@
 	// create our module
 	var noobaa_app = angular.module('noobaa_app', ['ngRoute', 'ngAnimate']);
 
+
+	noobaa_app.factory('nb', ['$http', '$timeout', '$interval', '$q', '$rootScope',
+		function($http, $timeout, $interval, $q, $rootScope) {
+			var nb = {};
+
+
+
+			///////////////
+			//// USER /////
+			///////////////
+
+
+			var server_data_raw = $('#server_data').html();
+			nb.server_data = server_data_raw ? JSON.parse(server_data_raw) : {};
+			nb.user = nb.server_data.user;
+
+			nb.user_quota = -1;
+			nb.user_usage = -1;
+			nb.usage_percents = -1;
+
+			nb.update_user_info = update_user_info;
+			nb.user_pic_url = user_pic_url;
+
+			function set_user_usage(quota, usage) {
+				nb.user_quota = quota;
+				nb.user_usage = usage;
+				nb.usage_percents = Math.ceil(100 * usage / quota);
+			}
+
+			function update_user_info() {
+				reset_update_user_info(true);
+				return $http({
+					method: "GET",
+					url: "/api/user/",
+				}).then(function(res) {
+					set_user_usage(res.data.quota, res.data.usage)
+					reset_update_user_info();
+					return res;
+				}, function(err) {
+					console.log('FAILED GET USER', err);
+					reset_update_user_info();
+					throw err;
+				});
+			}
+
+			function reset_update_user_info(unset) {
+				$timeout.cancel(nb.timeout_update_user_info);
+				nb.timeout_update_user_info = unset ? null : $timeout(update_user_info, 60000);
+			}
+
+			// testing code
+			if (false) {
+				var temp = 0;
+				$interval(function() {
+					if (temp > 100) {
+						temp = 0;
+					}
+					set_user_usage(100, temp);
+					temp += 10;
+				}, 2000);
+			}
+
+			function user_pic_url(user) {
+				if (!user) {
+					return;
+				}
+				if (user.fbid) {
+					return 'https://graph.facebook.com/' + user.fbid + '/picture';
+				}
+				if (user.googleid) {
+					return 'https://plus.google.com/s2/photos/profile/' + user.googleid + '?sz=50';
+				}
+			}
+
+
+
+
+			////////////////
+			//// INODE /////
+			////////////////
+
+
+			nb.inode_api_url = inode_api_url;
+			nb.is_immutable_root = is_immutable_root;
+			nb.is_shared_with_me = is_shared_with_me;
+			nb.is_not_mine = is_not_mine;
+			nb.init_root_dir = init_root_dir;
+			nb.read_dir = read_dir;
+			nb.read_file_attr = read_file_attr;
+			nb.is_dir_non_empty = is_dir_non_empty;
+			nb.parents_path = parents_path;
+			nb.recursive_delete = recursive_delete;
+
+			function inode_api_url(inode_id) {
+				return '/api/inode/' + inode_id;
+			}
+
+			function inode_call(method, inode_id) {
+				return {
+					method: method,
+					url: '/api/inode/' + inode_id
+				};
+			}
+
+			// return true for "My Data" and "Shared With Me"
+			// which are user root dirs and shouldn't be modified.
+
+			function is_immutable_root(inode) {
+				return inode.level <= 0;
+			}
+
+			function is_shared_with_me(inode) {
+				return inode.swm; // TODO NEED TO FILL THIS OR REMOVE
+			}
+
+			function is_not_mine(inode) {
+				return inode.not_mine;
+			}
+
+			function init_root_dir() {
+				return {
+					id: null,
+					parent: null,
+					level: -1,
+					name: 'Home',
+					entries: [],
+					entries_map: {}
+				};
+			}
+
+			function read_dir(dir_inode) {
+				console.log('READDIR', dir_inode.name);
+				dir_inode.is_loading = true;
+				return $http(inode_call('GET', dir_inode.id)).then(function(res) {
+					dir_inode.is_loading = false;
+					console.log('READDIR', dir_inode.name, res);
+					var entries = res.data.entries;
+					entries.sort(dir_inode.sorting_func || function(a, b) {
+						return a.isdir ? -1 : 1;
+					});
+					dir_inode.entries = entries;
+					dir_inode.entries_map = dir_inode.entries_map || {};
+					var entries_map = {};
+					for (var i = 0; i < entries.length; i++) {
+						var e = dir_inode.entries_map[entries[i].id];
+						if (!e) {
+							e = entries[i];
+						} else {
+							angular.extend(e, entries[i]);
+						}
+						e.parent = dir_inode;
+						e.level = dir_inode.level + 1;
+						if (e.ctime) {
+							e.ctime_date = new Date(e.ctime);
+							e.ctime_display = e.ctime_date.toLocaleDateString();
+						}
+						entries[i] = e;
+						entries_map[e.id] = e;
+					}
+					dir_inode.entries_map = entries_map;
+					return res;
+				}, function(err) {
+					dir_inode.is_loading = false;
+					console.error('FAILED READDIR', err);
+					return $timeout(function() {
+						read_dir(dir_inode);
+					}, 3000);
+				});
+			}
+
+			function read_file_attr(inode) {
+				return $http(inode_call('HEAD', inode.id)).then(function(res) {
+					inode.content_type = res.headers('Content-Type');
+					inode.content_kind = inode.content_type.split('/')[0];
+					console.log('HEAD', inode.content_type, inode.content_kind);
+				}, function(err) {
+					console.error('FAILED HEAD', err);
+					throw err;
+				});
+			}
+
+			function is_dir_non_empty(inode, callback) {
+				if (!inode.isdir) {
+					callback(false);
+					return;
+				}
+				var promise = read_dir(inode);
+				if (!promise) {
+					callback( !! inode.entries.length);
+				} else {
+					promise.then(function(res) {
+						callback( !! inode.entries.length);
+						return res;
+					}, function(err) {
+						callback( !! inode.entries.length);
+						throw err;
+					});
+				}
+			}
+
+			function parents_path(inode) {
+				if (!inode) {
+					return;
+				}
+				var parents = new Array(inode.level);
+				var p = inode.parent;
+				for (var i = inode.level - 1; i >= 0; i--) {
+					parents[i] = p;
+					p = p.parent;
+				}
+				return parents;
+			}
+
+			function recursive_delete(del_scope, inodes, complete) {
+				var jobq = new JobQueue($timeout, 32);
+				var do_delete = function(inode_id, ctx) {
+					if (!inode_id) {
+						ctx.complete();
+						return;
+					}
+					return $http({
+						method: 'DELETE',
+						url: '/api/inode/' + inode_id
+					})['finally'](function() {
+						del_scope.count++;
+						ctx.count--;
+						if (ctx.count === 0) {
+							jobq.add({
+								run: do_delete.bind(null, ctx.inode_id, ctx.parent || ctx)
+							});
+						}
+					});
+				};
+				var add_recurse_job = function(inode, ctx) {
+					jobq.add({
+						run: delete_recurse.bind(null, {
+							entries: inode.entries,
+							count: inode.entries.length,
+							inode_id: inode.id,
+							parent: ctx
+						})
+					});
+				};
+				var delete_recurse = function(ctx) {
+					if (!ctx.entries.length) {
+						do_delete(ctx.inode_id, ctx.parent || ctx);
+					}
+					for (var i = 0; i < ctx.entries.length; i++) {
+						var inode = ctx.entries[i];
+						if (inode.isdir && !ctx.skip_read_dir) {
+							read_dir(inode).then(
+								add_recurse_job.bind(null, inode, ctx),
+								do_delete.bind(null, inode.id, ctx));
+						} else if (inode.isdir && inode.entries.length) {
+							add_recurse_job(inode, ctx);
+						} else {
+							jobq.add({
+								run: do_delete.bind(null, inode.id, ctx)
+							});
+						}
+					}
+				};
+				delete_recurse({
+					entries: inodes,
+					count: inodes.length,
+					skip_read_dir: true,
+					complete: complete
+				});
+			}
+
+
+
+
+			///////////////////
+			//// SELECTION ////
+			///////////////////
+
+
+			nb.add_selection = add_selection;
+			nb.remove_selection = remove_selection;
+			nb.reset_selection = reset_selection;
+			nb.select_item = select_item;
+			nb.selection_items = selection_items;
+
+			function add_selection(selection, item, index) {
+				if (item.is_selected) {
+					return;
+				}
+				selection.items.push(item);
+				item.is_selected = true;
+				item.select_source_index = index;
+			}
+
+			function remove_selection(selection, item) {
+				if (!item.is_selected) {
+					return;
+				}
+				var pos = selection.items.indexOf(item);
+				if (pos >= 0) {
+					selection.items.splice(pos, 1);
+				}
+				item.is_selected = false;
+				item.select_source_index = null;
+			}
+
+			function reset_selection(selection) {
+				var items = selection.items;
+				selection.items = [];
+				if (!items) {
+					return;
+				}
+				for (var i = 0; i < items.length; i++) {
+					remove_selection(selection, items[i]);
+				}
+			}
+
+			function select_item(selection, item, index, event) {
+				if (event.ctrlKey || event.metaKey ||
+					(selection.items.length === 1 && selection.items[0] === item)) {
+					console.log('SELECT TOGGLE', item.name, item.is_selected);
+					if (item.is_selected) {
+						remove_selection(selection, item);
+						return false;
+					} else {
+						add_selection(selection, item, index);
+					}
+				} else if (event.shiftKey && selection.items.length) {
+					var from = selection.items[selection.items.length - 1].select_source_index;
+					console.log('SELECT FROM', from, 'TO', index);
+					var i;
+					if (index >= from) {
+						for (i = from; i <= index; i++) {
+							add_selection(selection, selection.source_index(i), i);
+						}
+					} else {
+						for (i = from; i >= index; i--) {
+							add_selection(selection, selection.source_index(i), i);
+						}
+					}
+				} else {
+					console.log('SELECT ONE', item.name);
+					reset_selection(selection);
+					add_selection(selection, item, index);
+				}
+				return true;
+			}
+
+			function selection_items(selection) {
+				return selection.items.slice(0); // make copy of array
+			}
+
+
+
+			return nb;
+		}
+	]);
+
+
+
+
+
+
+
+
+
+	// initializations - setup functions on globalScope
+	// which will be propagated to any other scope, and easily visible
+
+	noobaa_app.run(function($rootScope) {
+		$rootScope.safe_apply = safe_apply;
+		$rootScope.safe_callback = safe_callback;
+		$rootScope.human_size = human_size;
+		$rootScope.mobile_check = mobile_check;
+		// add nbdialog func per element as in - $('#dlg').nbdialog(...)
+		jQuery.fn.nbdialog = nbdialog;
+		// add nbalert as global jquery function - $.nbalert
+		jQuery.nbalert = nbalert;
+		jQuery.nbconfirm = nbconfirm;
+
+		jQuery.fn.focusWithoutScrolling = function() {
+			var x = window.scrollX;
+			var y = window.scrollY;
+			this.focus();
+			window.scrollTo(x, y);
+		};
+
+		$('body').tooltip({
+			selector: '[rel=tooltip]'
+		});
+
+		$('body').popover({
+			selector: '[rel=popover]'
+		});
+	});
+
+
 	// noobaa_app.config([
 	//	'$httpProvider', '$interpolateProvider',
 	//	function($httpProvider, $interpolateProvider) {
@@ -374,34 +770,6 @@
 		}, options));
 	}
 
-	// initializations - setup functions on globalScope
-	// which will be propagated to any other scope, and easily visible
-	noobaa_app.run(function($rootScope) {
-		$rootScope.safe_apply = safe_apply;
-		$rootScope.safe_callback = safe_callback;
-		$rootScope.human_size = human_size;
-		$rootScope.mobile_check = mobile_check;
-		// add nbdialog func per element as in - $('#dlg').nbdialog(...)
-		jQuery.fn.nbdialog = nbdialog;
-		// add nbalert as global jquery function - $.nbalert
-		jQuery.nbalert = nbalert;
-		jQuery.nbconfirm = nbconfirm;
-
-		jQuery.fn.focusWithoutScrolling = function() {
-			var x = window.scrollX;
-			var y = window.scrollY;
-			this.focus();
-			window.scrollTo(x, y);
-		};
-
-		$('body').tooltip({
-			selector: '[rel=tooltip]'
-		});
-
-		$('body').popover({
-			selector: '[rel=popover]'
-		});
-	});
 
 	// http wrapper to be used with async library
 	noobaa_app.factory('$http_async', [
@@ -455,22 +823,24 @@
 		};
 	});
 
-	noobaa_app.directive('nbPopover', ['$compile', function($compile) {
-		return {
-			restrict: 'A', // use as attribute
-			link: function(scope, element, attr) {
-				scope.$watch(attr.nbPopover, function(value) {
-					if (value.element) {
-						value.content = $compile($(value.element)[0].outerHTML)(scope);
-						value.html = true;
-						delete value.element;
-					}
-					console.log('POPOVER', value);
-					element.popover(value);
-				});
-			}
-		};
-	}]);
+	noobaa_app.directive('nbPopover', ['$compile',
+		function($compile) {
+			return {
+				restrict: 'A', // use as attribute
+				link: function(scope, element, attr) {
+					scope.$watch(attr.nbPopover, function(value) {
+						if (value.element) {
+							value.content = $compile($(value.element)[0].outerHTML)(scope);
+							value.html = true;
+							delete value.element;
+						}
+						console.log('POPOVER', value);
+						element.popover(value);
+					});
+				}
+			};
+		}
+	]);
 
 	noobaa_app.directive('nbKey', function($parse) {
 		return {

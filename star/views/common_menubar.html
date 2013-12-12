@@ -1,11 +1,11 @@
-<nav class="navbar navbar-static-top navbar-inverse bg-dark-blue" role="navigation" ng-controller="MenuBarCtrl">
+<nav class="navbar navbar-static-top navbar-inverse bg-dark-blue" role="navigation" Xng-controller="MenuBarCtrl">
 	<div class="container clearfix">
 		<div class="navbar-header pull-left">
 			<a id="logo_link" class="navbar-brand" href="/home/">
 				<img src="/public/images/noobaa_logo.png"></img>
 			</a>
 		</div>
-		<ul ng-controller="UserCtrl" class="nav navbar-nav navbar-right pull-right" style="margin-top: 0; margin-bottom: 0">
+		<ul Xng-controller="UserCtrl" class="nav navbar-nav navbar-right pull-right" style="margin-top: 0; margin-bottom: 0">
 			<li class="pull-left">
 				<a href="/home/" style="color: #222; padding-top: 15px; padding-bottom: 15px">Home</a>
 			</li>
@@ -14,11 +14,9 @@
 			</li>
 			<li class="pull-left">
 				<a role="button" nb-popover="{element: '#user_menu', container: 'body', placement: 'bottom'}" style="padding-top: 9px; padding-bottom: 9px">
-					<img ng-if="user.fbid" ng-src="https://graph.facebook.com/{{user.fbid}}/picture\" style="height: 32px" class="img-rounded">
-					<!-- http://www.stasha.info/index.php?id=170 -->
-					<img ng-if="user.googleid" ng-src="https://plus.google.com/s2/photos/profile/{{user.googleid}}?sz=32" style="height: 32px" class="img-rounded">
+					<img ng-src="{{nb.user_pic_url(nb.user)}}" style="height: 32px" class="img-rounded">
 					<div class="text-ellipses" style="max-width: 160px; vertical-align: middle; height: 100%; display: inline-block; margin-left: 10px; color: #222">
-						{{user.name}}
+						{{nb.user.name}}
 					</div>
 				</a>
 				<div style="display: none">
@@ -33,11 +31,11 @@
 						<div class="text-center">
 							<small>
 								<span class="text-muted">Using</span>
-								{{human_size(user_usage)}} / {{human_size(user_quota)}}
+								{{human_size(nb.user_usage)}} / {{human_size(nb.user_quota)}}
 							</small>
 						</div>
 						<div class="progress text-center bggrey" style="vertical-align: middle; margin: 0">
-							<div class="progress-bar progress-bar-{{usage_percents < 70 && 'success' || usage_percents < 90 && 'warning' || 'danger'}}" role="progressbar" aria-valuenow="{{usage_percents}}" aria-valuemin="0" aria-valuemax="100" style="width: {{usage_percents}}%">
+							<div class="progress-bar progress-bar-{{nb.usage_percents < 70 && 'success' || usage_percents < 90 && 'warning' || 'danger'}}" role="progressbar" aria-valuenow="{{nb.usage_percents}}" aria-valuemin="0" aria-valuemax="100" style="width: {{nb.usage_percents}}%">
 								<!-- <span ng-show="usage_percents >= 15" style="height: 100%; vertical-align: middle">{{usage_percents}}% Used</span> -->
 							</div>
 							<!-- <small ng-show="usage_percents < 85" style="height: 100%; color: black">{{100-usage_percents}}% Free</small> -->
@@ -114,7 +112,7 @@
 	</div>
 </nav>
 
-<div ng-controller="FeedbackCtrl" id="feedback_dialog" class="nbdialog fntmd">
+<div Xng-controller="FeedbackCtrl" id="feedback_dialog" class="nbdialog fntmd">
 	<div class="nbdialog_header nbdialog_drag">
 		<i class="icon-comments icon-large text-info"></i>
 		"Talk To Me Goose"
@@ -123,15 +121,15 @@
 		</a>
 	</div>
 	<div class="nbdialog_content">
-		<textarea ng-hide="send_done" ng-model="feedback" class="form-control" autofocus style="resize: none; height: 100%"></textarea>
-		<p ng-show="send_done" class="lead text-center">
+		<textarea ng-hide="feedback_send_done" ng-model="feedback_text" class="form-control" autofocus style="resize: none; height: 100%"></textarea>
+		<p ng-show="feedback_send_done" class="lead text-center">
 			My Precious...
 			<br/>Thanks you!
 		</p>
 	</div>
 	<div class="nbdialog_footer">
-		<button ng-hide="send_done" class="nbdialog_close btn btn-default">Cancel</button>
-		<button class="btn btn-primary pull-right" ng-hide="send_done" ng-click="send()">Send</button>
-		<button class="nbdialog_close btn btn-success pull-right" ng-show="send_done">Close</button>
+		<button ng-hide="feedback_send_done" class="nbdialog_close btn btn-default">Cancel</button>
+		<button class="btn btn-primary pull-right" ng-hide="feedback_send_done" ng-click="send_feedback()">Send</button>
+		<button class="nbdialog_close btn btn-success pull-right" ng-show="feedback_send_done">Close</button>
 	</div>
 </div>
