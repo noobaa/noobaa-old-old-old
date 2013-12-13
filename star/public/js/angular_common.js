@@ -100,6 +100,7 @@
 			nb.is_dir_non_empty = is_dir_non_empty;
 			nb.parents_path = parents_path;
 			nb.recursive_delete = recursive_delete;
+			nb.recursive_copy = recursive_copy;
 
 			function inode_api_url(inode_id) {
 				return '/api/inode/' + inode_id;
@@ -221,7 +222,7 @@
 				return parents;
 			}
 
-			function recursive_delete(del_scope, inodes, complete) {
+			function recursive_delete(inodes, del_scope, complete) {
 				var jobq = new JobQueue($timeout, 32);
 				var do_delete = function(inode_id, ctx) {
 					if (!inode_id) {
@@ -275,6 +276,44 @@
 					count: inodes.length,
 					skip_read_dir: true,
 					complete: complete
+				});
+			}
+
+			function recursive_copy(inode, copy_scope, new_parent_id, new_name) {
+				copy_scope.concurrency++;
+				return $http({
+					method: 'PUT',
+					url: '/api/inode/' + inode.id + '/copy',
+					data: {
+						new_parent_id: new_parent_id,
+						new_name: new_name,
+					}
+				}).then(function(results) {
+					copy_scope.concurrency--;
+					copy_scope.count++;
+					if (!inode.isdir) {
+						return $q.when();
+					}
+					var new_parent_id = results.data.id;
+					copy_scope.concurrency++;
+					return nb.read_dir(inode).then(function() {
+						copy_scope.concurrency--;
+						var sons = inode.entries.slice(0); // copy array
+						var copy_sons = function() {
+							if (!sons || !sons.length) {
+								return $q.when();
+							}
+							var promises = [];
+							while (copy_scope.concurrency < copy_scope.max_concurrency && sons.length) {
+								promises.push(recursive_copy(sons.pop(), copy_scope, new_parent_id, null).then(copy_sons));
+							}
+							return $q.all(promises);
+						};
+						return copy_sons();
+					});
+				}).catch(function(err) {
+					console.error('FAILED COPY', inode, err);
+					throw err;
 				});
 			}
 

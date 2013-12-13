@@ -444,7 +444,7 @@
 									.append($('<i class="icon-spinner icon-spin icon-large icon-fixed-width"></i>'))
 									.append($compile('<span style="padding-left: 20px">Deleted {{count}}</span>')(del_scope));
 								del_scope.$digest();
-								nb.recursive_delete(del_scope, $scope.selection.items, function() {
+								nb.recursive_delete($scope.selection.items, del_scope, function() {
 									nb.read_dir($scope.current_dir);
 									dlg.nbdialog('close');
 									del_scope.$destroy();
@@ -477,25 +477,23 @@
 						copy_scope.concurrency = 0;
 						copy_scope.max_concurrency = 32;
 
+						// TODO OPEN FOLDER CHOOSER
+
 						var on_copy = function() {
-							$(function() {
-								nb.is_dir_non_empty(inode, function(is_dir_non_empty) {
-									var notify_message = 'Copy of ' + inode.name + ' is done.';
-									if (is_dir_non_empty) {
-										notify_message += ' Copied ' + copy_scope.count + ' items.';
-									}
-									setTimeout(function() {
-										$.bootstrapGrowl(notify_message, {
-											type: 'success',
-											align: 'center',
-											width: 'auto',
-										});
-									}, 10);
+							nb.read_dir($scope.current_dir);
+							var notify_message = 'Copy of ' + inode.name + ' is done. ';
+							if (copy_scope.count !== 1) {
+								notify_message += 'Copied ' + copy_scope.count + ' items. ';
+							}
+							$timeout(function() {
+								$.bootstrapGrowl(notify_message, {
+									type: 'success',
+									align: 'right',
+									width: 'auto',
 								});
-								return;
-							});
+							}, 10);
 						};
-						return inode.copy(copy_scope, null, null, true).then(on_copy, on_copy);
+						return nb.recursive_copy(inode, copy_scope).then(on_copy, on_copy);
 					}
 
 					function share_inode(inode) {
