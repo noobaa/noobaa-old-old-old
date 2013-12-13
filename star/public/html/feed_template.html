@@ -7,18 +7,29 @@
 				<i class="fa fa-refresh {{refreshing_feeds && 'fa-spin' || ''}} Xfa-fw fa-lg"></i>
 			</button>
 		</div>
-		<div>
+		<div class="clearfix"></div>
+		<div class="feed_columns">
+			<div class="Xcol-lg-4 Xcol-md-6">
+				<div class="feed_item">
+					<button class="btn btn-default btn-block" style="padding: 10px; border: none; border-bottom-left-radius: 0; border-bottom-right-radius: 0">
+						Invite friends to NooBaa
+						<i class="fa fa-angle-right fa-lg fa-fw"></i>
+					</button>
+					<hr style="margin: 0; border-color: hsl(0, 0%, 80%)" />
+					<div>Name</div>
+					<div>Name</div>
+					<div>Name</div>
 
-			<div ng-repeat="feed in feeds" class="col-md-6">
-				<div class="bg-white" style="margin-top: 20px">
-					<p style="padding: 10px">
+				</div>
+			</div>
+			<div ng-repeat="feed in feeds" class="Xcol-lg-4 Xcol-md-6">
+				<div class="feed_item">
+					<div style="padding: 10px">
 						<img class="img-rounded" ng-src="{{nb.user_pic_url(feed.owner)}}" style="width: 32px" />
 						<span>{{feed.owner.name}}:</span>
-					</p>
-					<div Xstyle="padding: 10px">
-						<div ng-init="ctx={current_inode: feed}">
-							<div nb-browse context="ctx"></div>
-						</div>
+					</div>
+					<div ng-init="ctx={current_inode: feed}">
+						<div nb-browse context="ctx"></div>
 					</div>
 				</div>
 			</div>

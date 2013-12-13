@@ -23,7 +23,7 @@
 				<span ng-if="current_inode.is_loading">
 					<i class="fa fa-refresh fa-spin fa-fw"></i>
 				</span>
-				<span ng-if="!current_inode.owner" class="text-muted pull-right">
+				<span ng-if="false && !current_inode.owner" class="text-muted pull-right">
 					<span style="margin-right: 20px">
 						{{current_inode.ctime_display}}
 					</span>
@@ -49,14 +49,6 @@
 				</a>
 			</span>
 			<span ng-show="!current_inode.owner">
-				<button class="btn btn-link" ng-click="nbUploadSrv.open_file_input()">
-					<i class="fa fa-cloud-upload fa-lg"></i>
-					Upload
-				</button>
-				<button class="btn btn-link" ng-click="share_inode(current_inode)">
-					<i class="fa fa-share-square-o fa-fw"></i>
-					Share
-				</button>
 				<button class="btn btn-link" ng-click="open_inode(current_inode)">
 					<i class="fa fa-refresh fa-lg"></i>
 					Refresh
@@ -64,6 +56,14 @@
 				<button class="btn btn-link" ng-click="new_folder(current_inode)">
 					<i class="fa fa-plus fa-fw"></i>
 					New Folder
+				</button>
+				<button class="btn btn-link" ng-click="nbUploadSrv.open_file_input()">
+					<i class="fa fa-cloud-upload fa-lg"></i>
+					Upload
+				</button>
+				<button class="btn btn-link" ng-if="!nb.is_immutable_root(current_inode)" ng-click="share_inode(current_inode)">
+					<i class="fa fa-share-square-o fa-fw"></i>
+					Share
 				</button>
 				<div class="input-group pull-right" style="max-width: 170px">
 					<input type="text" class="form-control {{search_in_folder && 'bg-yellow' || ''}}" maxlength="100" placeholder="Search in folder" ng-model="search_in_folder" />
@@ -87,11 +87,11 @@
 						</a>
 					</span>
 					<span ng-if="!current_inode.owner" class="text-muted pull-right">
-						<span>
-							{{inode.ctime_display}}
-						</span>
 						<span ng-show="!inode.isdir" style="margin-right: 20px">
 							{{human_size(inode.size)}}
+						</span>
+						<span>
+							{{inode.ctime_display}}
 						</span>
 					</span>
 				</div>
@@ -113,11 +113,11 @@
 							Download
 						</a>
 						<button ng-if="!inode.is_previewing && !inode.isdir && num_selected()==1" class="btn btn-link" ng-click="toggle_preview(inode)">
-							<i class="fa fa-eye fa-fw"></i>
+							<i class="fa fa-search-plus fa-fw"></i>
 							Show Preview
 						</button>
 						<button ng-if="inode.is_previewing && !inode.isdir && num_selected()==1" class="btn btn-link" ng-click="toggle_preview(inode)">
-							<i class="fa fa-eye-slash fa-fw"></i>
+							<i class="fa fa-search-minus fa-fw"></i>
 							Hide Preview
 						</button>
 						<button ng-if="!current_inode.owner && num_selected()==1" class="btn btn-link" ng-click="rename_inode(inode)">

@@ -164,7 +164,7 @@ html {
 
 /* LAYOUTS */
  .btn, .form-group input, .form-group textarea, .form-control, .panel, .panel-heading {
-	border-radius: 1px;
+	/*border-radius: 3px;*/
 	/*border-radius: 3px !important;*/
 	/*border-radius: 0 !important;*/
 }
@@ -301,7 +301,10 @@ a.btn-link, button.btn-link {
 /**/
 
 /* FILE BROWSER */
- .browser .panel-body {
+ .browser .panel {
+	margin-bottom: 0;
+}
+.browser .panel-body {
 	/*background-color: hsl(212, 20%, 90%);*/
 	background-color: white;
 }
@@ -341,29 +344,26 @@ a.btn-link, button.btn-link {
 /**/
 
 /* FEED */
-.feed_line {
-	line-height: 36px;
-	vertical-align: middle;
-	border-color: transparent;
-	/*hsla(212, 41%, 71%, 0.1);*/
-	border-style: solid;
-	border-width: 0;
-	padding-left: 7px;
-	padding-right: 7px;
+.feed_columns {
+	-webkit-column-count: 3;
+	-webkit-column-gap: 20px;
+	-webkit-column-fill: auto;
+	-moz-column-count: 3;
+	-moz-column-gap: 20px;
+	-moz-column-fill: auto;
+	column-count: 3;
+	column-gap: 20px;
+	column-fill: auto;
 	margin-top: 20px;
-	border-top-width: 1px;
-	border-bottom-width: 1px;
-	background-color: white;
-	border-radius: 1px;
 }
-.feed_line:hover {
-	border-radius: 10px;
-	border-left-width: 7px;
-	border-right-width: 7px;
-	padding-left: 0px;
-	padding-right: 0px;
-	border-color: hsl(212, 41%, 71%);
-	/*border-color: hsl(238, 30%, 50%);*/
+ .feed_item {
+	-webkit-column-break-inside: avoid;
+	-moz-column-break-inside: avoid;
+	column-break-inside: avoid;
+	border: 1px hsl(0, 0%, 80%) solid;
+	margin-bottom: 20px;
+	background-color: white;
+	border-radius: 4px;
 }
 /**/
 

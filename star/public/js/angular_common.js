@@ -117,7 +117,7 @@
 			// which are user root dirs and shouldn't be modified.
 
 			function is_immutable_root(inode) {
-				return inode.level <= 0;
+				return !inode.parent || !inode.parent.parent;
 			}
 
 			function is_shared_with_me(inode) {
