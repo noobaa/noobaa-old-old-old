@@ -4,6 +4,9 @@ html, body {
 	width: 100%;
 	height: 100%;
 	min-height: 100%;
+	background-image: url('/public/images/bg_wall_tile.png');
+	background-repeat: repeat;
+	background-color: hsl(0, 0%, 89%);
 }
 html {
 	/* force scroll-y to show, to prevent flickery resizes */
@@ -138,11 +141,32 @@ html {
 .label-danger {
 	background-color: hsl(351, 68%, 44%) !important;
 }
+/* COLOR WHITE */
+ .bg-white {
+	background-color: hsl(0, 0%, 100%) !important;
+}
+.btn-white {
+	background-color: hsl(0, 0%, 100%) !important;
+}
+.btn-white:hover {
+	background-color: hsl(0, 0%, 95%) !important;
+}
+.text-white {
+	color: hsl(0, 0%, 100%) !important;
+}
+.panel-danger {
+	border-color: hsl(0, 0%, 100%) !important;
+}
+.panel-default .panel-heading {
+	background-color: hsl(0, 0%, 100%) !important;
+}
 /**/
 
 /* LAYOUTS */
  .btn, .form-group input, .form-group textarea, .form-control, .panel, .panel-heading {
-	border-radius: 0 !important;
+	border-radius: 1px;
+	/*border-radius: 3px !important;*/
+	/*border-radius: 0 !important;*/
 }
 .thumbnail {
 	border: none !important;
@@ -278,7 +302,8 @@ a.btn-link, button.btn-link {
 
 /* FILE BROWSER */
  .browser .panel-body {
-	background-color: hsl(212, 20%, 90%);
+	/*background-color: hsl(212, 20%, 90%);*/
+	background-color: white;
 }
 .file_line {
 	line-height: 40px;
@@ -316,12 +341,6 @@ a.btn-link, button.btn-link {
 /**/
 
 /* FEED */
- .feeder .panel-body {
-	background-color: hsl(212, 20%, 90%);
-}
-.feeder .panel-heading {
-	padding: 10px !important;
-}
 .feed_line {
 	line-height: 36px;
 	vertical-align: middle;
@@ -329,19 +348,20 @@ a.btn-link, button.btn-link {
 	/*hsla(212, 41%, 71%, 0.1);*/
 	border-style: solid;
 	border-width: 0;
-	padding-left: 27px;
-	padding-right: 27px;
+	padding-left: 7px;
+	padding-right: 7px;
 	margin-top: 20px;
-	padding-top: 20px;
-	padding-bottom: 20px;
 	border-top-width: 1px;
 	border-bottom-width: 1px;
+	background-color: white;
+	border-radius: 1px;
 }
 .feed_line:hover {
+	border-radius: 10px;
 	border-left-width: 7px;
 	border-right-width: 7px;
-	padding-left: 20px;
-	padding-right: 20px;
+	padding-left: 0px;
+	padding-right: 0px;
 	border-color: hsl(212, 41%, 71%);
 	/*border-color: hsl(238, 30%, 50%);*/
 }

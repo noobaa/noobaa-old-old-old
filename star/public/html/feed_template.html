@@ -8,28 +8,21 @@
 			</button>
 		</div>
 		<div>
-			
-			<div>
-				
-			</div>
 
-
-			<div ng-repeat="feed in feeds" class="feed_line">
-				<div class="media">
-					<a class="pull-left">
-						<img class="media-object img-thumbnail" ng-src="{{nb.user_pic_url(feed.owner)}}" alt="...">
-					</a>
-					<div class="media-body">
-						<h4 class="media-heading">
-							<i ng-if="feed.isdir" class="fa fa-folder fa-fw"></i>
-							<i ng-if="!feed.isdir" class="fa fa-file-o fa-fw"></i>
-							{{feed.name}}
-						</h4>
-						<span class="text-muted">{{feed.ctime_display}}</span>
-						<span class="text-muted">{{human_size(feed.size)}}</span>
+			<div ng-repeat="feed in feeds" class="col-md-6">
+				<div class="bg-white" style="margin-top: 20px">
+					<p style="padding: 10px">
+						<img class="img-rounded" ng-src="{{nb.user_pic_url(feed.owner)}}" style="width: 32px" />
+						<span>{{feed.owner.name}}:</span>
+					</p>
+					<div Xstyle="padding: 10px">
+						<div ng-init="ctx={current_inode: feed}">
+							<div nb-browse context="ctx"></div>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
+</div>
 </div>

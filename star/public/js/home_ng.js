@@ -55,17 +55,18 @@
 				console.log('ROOT FOLDERS', res);
 				for (var i = 0; i < res.data.entries.length; i++) {
 					var e = res.data.entries[i];
-					e.level = 0;
 					if (e.name === 'My Data') {
+						e.level = 0;
 						$scope.mydata = e;
 					} else if (e.name === 'Shared With Me') {
+						e.level = -1;
 						$scope.swm = e;
 					} else {
 						console.error('UNRECOGNIZED ROOT FOLDER', e);
 					}
 				}
 				$scope.context = {
-					current_dir: $scope.mydata
+					current_inode: $scope.mydata
 				};
 				refresh_feeds();
 				return res;
@@ -107,8 +108,8 @@
 				}
 
 				console.log('UP', $scope, $scope.context);
-				var dir_inode = $scope.context.current_dir;
-				if (!dir_inode) {
+				var dir_inode = $scope.context.current_inode;
+				if (!dir_inode || !dir_inode.isdir) {
 					console.error('no selected dir, bailing');
 					return false;
 				}
@@ -230,8 +231,9 @@
 					$scope.share_inode = share_inode;
 
 					$scope.selection = {
+						items: [],
 						source_index: function(i) {
-							return $scope.current_dir.entries[i];
+							return $scope.current_inode.entries[i];
 						}
 					};
 					$scope.select_inode = function(inode, $index, $event) {
@@ -239,24 +241,24 @@
 					};
 
 					console.log('BROWSER CONTEXT', $scope.context);
-					set_current_dir($scope.context.current_dir);
-					open_inode($scope.current_dir);
+					set_current_inode($scope.context.current_inode);
+					open_inode($scope.current_inode, 0, {});
 
 					nbUploadSrv.notify_create_in_dir = function(dir_id) {
-						if ($scope.current_dir.id === dir_id) {
-							open_inode($scope.current_dir);
+						if ($scope.current.id === dir_id) {
+							open_inode($scope.current);
 						}
 					};
 
-					function set_current_dir(dir_inode) {
-						$scope.context.current_dir = dir_inode;
-						$scope.current_dir = dir_inode;
+					function set_current_inode(dir_inode) {
+						$scope.context.current_inode = dir_inode;
+						$scope.current_inode = dir_inode;
 						$scope.search_in_folder = '';
 					}
 
 					function go_up_level() {
-						if ($scope.current_dir.level > 0) {
-							set_current_dir($scope.current_dir.parent);
+						if ($scope.current_inode.level > 0) {
+							set_current_inode($scope.current_inode.parent);
 						}
 					}
 
@@ -287,7 +289,7 @@
 						if (inode.isdir) {
 							nb.reset_selection($scope.selection);
 							nb.read_dir(inode);
-							set_current_dir(inode);
+							set_current_inode(inode);
 						} else {
 							if ((inode.is_selected && !inode.is_previewing) ||
 								nb.select_item($scope.selection, inode, $index, $event)) {
@@ -445,7 +447,7 @@
 									.append($compile('<span style="padding-left: 20px">Deleted {{count}}</span>')(del_scope));
 								del_scope.$digest();
 								nb.recursive_delete($scope.selection.items, del_scope, function() {
-									nb.read_dir($scope.current_dir);
+									nb.read_dir($scope.current_inode);
 									dlg.nbdialog('close');
 									del_scope.$destroy();
 								})
@@ -480,7 +482,7 @@
 						// TODO OPEN FOLDER CHOOSER
 
 						var on_copy = function() {
-							nb.read_dir($scope.current_dir);
+							nb.read_dir($scope.current_inode);
 							var notify_message = 'Copy of ' + inode.name + ' is done. ';
 							if (copy_scope.count !== 1) {
 								notify_message += 'Copied ' + copy_scope.count + ' items. ';

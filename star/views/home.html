@@ -10,6 +10,10 @@
 
 	<?# def.include( 'common_menubar.html') ?>
 
+		<div nb-effect-toggle="nbUploadSrv.has_uploads()" nb-effect-options="{effect: 'blind'}" class="container">
+			<div ng-include="'/public/html/upload_template.html'"></div>
+		</div>
+
 		<div Xstyle="position: relative">
 			<div ng-view Xclass="view-animate"></div>
 		</div>
