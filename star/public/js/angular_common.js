@@ -825,6 +825,49 @@
 		}
 	]);
 
+	noobaa_app.directive('nbContent', ['$parse', 'nb',
+		function($parse, nb) {
+			return {
+				replace: true,
+				link: function(scope, element, attr) {
+					scope.nb = nb;
+					scope.$watch(attr.nbContent, function(value) {
+						scope.inode = scope.$eval(attr.nbContent);
+						console.log('NBCONTENT', scope.inode);
+						if (scope.inode && !scope.inode.content_type) {
+							nb.read_file_attr(scope.inode);
+						}
+					});
+					scope.notifyLayout = scope.$eval(attr.notifyLayout);
+				},
+				template: [
+					'<div>',
+					'<div ng-if="inode && inode.content_type" ng-switch="inode.content_kind">',
+					'	<video ng-switch-when="video" controls="controls" preload="none" ng-src="{{nb.inode_api_url(inode.id)}}"',
+					'		class="img-responsive center-block" nb-on-load="notifyLayout()"></video>',
+					'	<audio ng-switch-when="audio" controls="controls" preload="none" ng-src="{{nb.inode_api_url(inode.id)}}"',
+					'		class="img-responsive center-block" nb-on-load="notifyLayout()"></audio>',
+					'	<img ng-switch-when="image" ng-src="{{nb.inode_api_url(inode.id)}}"',
+					'		class="img-responsive center-block" style="max-height: 60%" nb-on-load="notifyLayout()" />',
+					'	<div ng-switch-default Xnb-resizable class="text-center" style="background-color: #ccc; padding: 20px">',
+					'		<a class="btn btn-link" ng-show="!show_object" ng-click="show_object=true">',
+					'			<i class="fa fa-file-o fa-2x"></i> {{inode.content_type}}',
+					'		</a>',
+					'		<div ng-if="!!show_object">',
+					'			<object ng-attr-data="{{nb.inode_api_url(inode.id)}}" ng-attr-type="{{inode.content_type}}"',
+					'				width="100%" class="center-block" nb-on-load="notifyLayout()"></object>',
+					'		</div>',
+					'	</div>',
+					'</div>',
+					'<div ng-if="inode && !inode.content_kind" class="text-center" style="padding: 20px">',
+					'	<i class="fa fa-spinner fa-spin fa-lg"></i>',
+					'</div>',
+					'</div>'
+				].join('\n')
+			};
+		}
+	]);
+
 	noobaa_app.directive('nbOnLoad', ['$parse',
 		function($parse) {
 			return {

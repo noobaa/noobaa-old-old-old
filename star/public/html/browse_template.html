@@ -1,6 +1,6 @@
 <div class="browser" ng-init="search_in_folder=''">
 
-	<div class="panel panel-{{current_inode.owner && 'primary' || 'primary'}}">
+	<div class="panel panel-{{current_inode.owner && 'danger' || 'primary'}}">
 		<div class="panel-heading clearfix" style="padding: 0">
 			<div class="clearfix Xtext-ellipses" style="color: black; Xmax-width: 95%; Xpadding: 10px">
 				<div class="btn-group">
@@ -92,6 +92,7 @@
 						</a>
 					</span>
 					<span ng-if="!current_inode.owner" class="text-muted pull-right">
+						<i ng-show="!!inode.num_refs" class="icon-share icon-large d-icon" title="Shared with {{inode.num_refs}} friends" rel="tooltip" ng-click="share_inode(inode)"> </i>
 						<span ng-show="!inode.isdir" style="margin-right: 20px">
 							{{human_size(inode.size)}}
 						</span>
@@ -142,13 +143,8 @@
 							Delete {{num_selected()>1 && 'all' || ''}}
 						</button>
 					</div>
-					<div ng-if="inode.is_previewing && inode.is_selected && inode.content_kind" ng-switch="inode.content_kind" style="padding: 10px 0">
-						<video ng-switch-when="video" controls ng-src="{{nb.inode_api_url(inode.id)}}" class="img-responsive center-block" nb-on-load="notifyLayout()"></video>
-						<audio ng-switch-when="audio" controls ng-src="{{nb.inode_api_url(inode.id)}}" class="img-responsive center-block" nb-on-load="notifyLayout()"></audio>
-						<img ng-switch-when="image" ng-src="{{nb.inode_api_url(inode.id)}}" class="img-responsive center-block" style="max-height: 60%" nb-on-load="notifyLayout()"/>
-						<div ng-switch-default nb-resizable>
-							<object ng-attr-data="{{nb.inode_api_url(inode.id)}}" ng-attr-type="{{inode.content_type}}" width="100%" height="100%" class="center-block" nb-on-load="notifyLayout()"></object>
-						</div>
+					<div ng-if="inode.is_previewing && inode.is_selected && inode.content_kind" style="padding: 10px 0">
+						<div nb-content="inode" notify-layout="angular.noop"></div>
 					</div>
 					<div ng-if="inode.is_previewing && inode.is_selected && !inode.content_kind" class="text-center" style="padding: 10px 0">
 						<i class="fa fa-spinner fa-spin fa-2x"></i>

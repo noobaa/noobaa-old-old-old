@@ -88,16 +88,7 @@
 				nb.read_dir($scope.swm).then(function(res) {
 					console.log('SWM FOLDER', res);
 					$scope.refreshing_feeds = false;
-					var feeds = $scope.swm.entries;
-					feeds = feeds.concat(feeds);
-					feeds = feeds.concat(feeds);
-					var feeds_per_page = 9;
-					var num_feed_pages = Math.ceil(feeds.length / feeds_per_page);
-					$scope.feed_pages = new Array(num_feed_pages);
-					for (var i = 0; i < num_feed_pages; i++) {
-						$scope.feed_pages[i] = feeds.slice(i * feeds_per_page, (i + 1) * feeds_per_page);
-					}
-					$scope.feeds = feeds;
+					$scope.feeds = $scope.swm.entries;
 					$scope.notify_layout(true);
 					return res;
 				}, function(err) {
@@ -108,13 +99,15 @@
 			}
 
 			$scope.notify_layout = function(destroy) {
+				$scope.destroy_layout = $scope.destroy_layout || destroy;
 				$timeout.cancel($scope.do_layout_timeout);
 				$scope.do_layout_timeout = $timeout(function() {
 					console.log('LAYOUT');
-					if (destroy && $scope.masonry) {
+					if ($scope.destroy_layout && $scope.masonry) {
 						$scope.masonry.destroy();
 						$scope.masonry = null;
 					}
+					$scope.destroy_layout = false;
 					if ($scope.masonry) {
 						$scope.masonry.layout();
 					} else {
@@ -226,6 +219,20 @@
 
 
 
+	/////////////////////
+	// FEED CONTROLLER //
+	/////////////////////
+
+
+	noobaa_app.controller('FeedCtrl', ['$scope', '$http', '$timeout', '$interval', '$window', '$location', 'nb', 'nbUploadSrv',
+		function($scope, $http, $timeout, $interval, $window, $location, nb, nbUploadSrv) {
+			if ($scope.feed.isdir) {
+				nb.read_dir($scope.feed);
+			}
+		}
+	]);
+
+
 
 	//////////////////////
 	// BROWSE DIRECTIVE //
@@ -281,8 +288,8 @@
 					open_inode($scope.current_inode, 0, {});
 
 					nbUploadSrv.notify_create_in_dir = function(dir_id) {
-						if ($scope.current.id === dir_id) {
-							open_inode($scope.current);
+						if ($scope.current_inode.id === dir_id) {
+							open_inode($scope.current_inode);
 						}
 					};
 
