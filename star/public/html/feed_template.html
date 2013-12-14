@@ -30,16 +30,29 @@
 					</div>
 				</div>
 				<div ng-controller="FeedCtrl">
-					<div ng-if="!feed.isdir">
+					<div ng-if="!feed.isdir" style="position: relative" ng-mouseover="mouse_over=true" ng-mouseleave="mouse_over=false">
 						<div nb-content="feed" notify-layout="notify_layout"></div>
+						<button ng-show="mouse_over" class="btn btn-primary" style="position: absolute; top: 20px; left: 20px" ng-click="nb.copy_inode(feed)">
+							<i class="fa fa-paperclip fa-lg"></i>
+							Keep
+						</button>
 					</div>
 					<div ng-if="feed.isdir" ng-init="index=0">
 						<div class="text-center">
-							<button class="btn btn-link" ng-disabled="index<=0" ng-click="index=index-1">Prev</button>
-							<button class="btn btn-link" ng-disabled="index>=feed.entries.length" ng-click="index=index+1">Next</button>
+							<button class="btn btn-link btn-sm" ng-disabled="index<=0" ng-click="index=index-1">
+								<i class="fa fa-chevron-circle-left"></i>
+							</button>
+							<span>item {{index+1}} / {{feed.entries.length}}</span>
+							<button class="btn btn-link btn-sm" ng-disabled="index+1>=feed.entries.length" ng-click="index=index+1">
+								<i class="fa fa-chevron-circle-right"></i>
+							</button>
 						</div>
-						<div ng-if="!feed.entries[index].isdir">
-							<div nb-content="feed.entries[index]" notify-layout="notify_layout"></div>
+						<div ng-if="!feed.entries[index].isdir" style="position: relative" ng-mouseover="mouse_over=true" ng-mouseleave="mouse_over=false">
+							<div nb-content="feed.entries[index]" notify-layout="notify_layout" ng-mouseover="mouse_over=true" ng-mouseleave="mouse_over=false"></div>
+							<button ng-show="mouse_over" class="btn btn-primary" style="position: absolute; top: 20px; left: 20px" ng-click="nb.copy_inode(feed)">
+								<i class="fa fa-paperclip fa-lg"></i>
+								Keep
+							</button>
 						</div>
 						<div ng-if="feed.entries[index].isdir" class="text-center" style="background-color: #ccc; padding: 20px">
 							<i class="fa fa-folder-open fa-2x"></i>

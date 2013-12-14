@@ -102,6 +102,7 @@
 			nb.parents_path = parents_path;
 			nb.recursive_delete = recursive_delete;
 			nb.recursive_copy = recursive_copy;
+			nb.copy_inode = copy_inode;
 
 			function inode_api_url(inode_id) {
 				return '/api/inode/' + inode_id;
@@ -319,6 +320,44 @@
 				});
 			}
 
+			function copy_inode(inode) {
+				if (!inode) {
+					console.error('no selected inode, bailing');
+					return;
+				}
+				if (is_immutable_root(inode)) {
+					$.nbalert('Cannot copy root folder');
+					return;
+				}
+
+				var copy_scope = $rootScope.$new();
+				copy_scope.count = 0;
+				copy_scope.concurrency = 0;
+				copy_scope.max_concurrency = 32;
+
+				// TODO OPEN FOLDER CHOOSER
+
+				var on_copy = function() {
+					var notify_message = '"' + inode.name + '" was copied to My-Data';
+					if (copy_scope.count !== 1) {
+						notify_message += ' (' + copy_scope.count + ' items)';
+					}
+					$.bootstrapGrowl(notify_message, {
+						ele: 'body',
+						type: 'info',
+						offset: {
+							from: 'top',
+							amount: 60
+						},
+						align: 'right',
+						width: 'auto',
+						delay: 5000,
+						allow_dismiss: true,
+						stackup_spacing: 20
+					});
+				};
+				return nb.recursive_copy(inode, copy_scope).then(on_copy, on_copy);
+			}
 
 
 

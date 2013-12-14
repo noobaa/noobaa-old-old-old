@@ -512,37 +512,10 @@
 					function move_inodes() {}
 
 					function copy_inode(inode) {
-						if (!inode) {
-							console.error('no selected inode, bailing');
-							return;
-						}
-						if (nb.is_immutable_root(inode)) {
-							$.nbalert('Cannot copy root folder');
-							return;
-						}
-
-						var copy_scope = $scope.$new();
-						copy_scope.count = 0;
-						copy_scope.concurrency = 0;
-						copy_scope.max_concurrency = 32;
-
-						// TODO OPEN FOLDER CHOOSER
-
-						var on_copy = function() {
+						var refresh = function() {
 							nb.read_dir($scope.current_inode);
-							var notify_message = 'Copy of ' + inode.name + ' is done. ';
-							if (copy_scope.count !== 1) {
-								notify_message += 'Copied ' + copy_scope.count + ' items. ';
-							}
-							$timeout(function() {
-								$.bootstrapGrowl(notify_message, {
-									type: 'success',
-									align: 'right',
-									width: 'auto',
-								});
-							}, 10);
 						};
-						return nb.recursive_copy(inode, copy_scope).then(on_copy, on_copy);
+						return nb.copy_inode(inode).then(refresh, refresh);
 					}
 
 					function share_inode(inode) {
