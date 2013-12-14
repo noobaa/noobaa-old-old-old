@@ -2,6 +2,7 @@
 /* global angular:false */
 /* global _:false */
 /* global Backbone:false */
+/* jshint -W099 */
 (function() {
 	'use strict';
 
@@ -43,7 +44,7 @@
 					method: "GET",
 					url: "/api/user/",
 				}).then(function(res) {
-					set_user_usage(res.data.quota, res.data.usage)
+					set_user_usage(res.data.quota, res.data.usage);
 					reset_update_user_info();
 					return res;
 				}, function(err) {
@@ -311,7 +312,8 @@
 						};
 						return copy_sons();
 					});
-				}).catch(function(err) {
+				}).
+				catch (function(err) {
 					console.error('FAILED COPY', inode, err);
 					throw err;
 				});
@@ -366,7 +368,7 @@
 			function select_item(selection, item, index, event) {
 				if (event.ctrlKey || event.metaKey ||
 					(selection.items.length === 1 && selection.items[0] === item)) {
-					console.log('SELECT TOGGLE', item.name, item.is_selected);
+					// console.log('SELECT TOGGLE', item.name, item.is_selected);
 					if (item.is_selected) {
 						remove_selection(selection, item);
 						return false;
@@ -375,7 +377,7 @@
 					}
 				} else if (event.shiftKey && selection.items.length) {
 					var from = selection.items[selection.items.length - 1].select_source_index;
-					console.log('SELECT FROM', from, 'TO', index);
+					// console.log('SELECT FROM', from, 'TO', index);
 					var i;
 					if (index >= from) {
 						for (i = from; i <= index; i++) {
@@ -387,7 +389,7 @@
 						}
 					}
 				} else {
-					console.log('SELECT ONE', item.name);
+					// console.log('SELECT ONE', item.name);
 					reset_selection(selection);
 					add_selection(selection, item, index);
 				}
@@ -811,8 +813,7 @@
 
 
 	// http wrapper to be used with async library
-	noobaa_app.factory('$http_async', [
-		'$http',
+	noobaa_app.factory('$http_async', ['$http',
 		function($http) {
 			return function(req, callback) {
 				return $http(req).then(function(data) {
@@ -824,23 +825,38 @@
 		}
 	]);
 
-	noobaa_app.directive('nbRightClick', function($parse) {
-		return {
-			restrict: 'A', // use as attribute
-			link: function(scope, element, attr) {
-				var fn = $parse(attr.nbRightClick);
-				element.bind('contextmenu', function(event) {
-					event.preventDefault();
-					scope.$apply(function() {
-						fn(scope, {
-							$event: event
-						});
+	noobaa_app.directive('nbOnLoad', ['$parse',
+		function($parse) {
+			return {
+				link: function(scope, element, attr) {
+					var fn = $parse(attr.nbOnLoad);
+					element.bind('load', function(event) {
+						scope.$apply(fn);
 					});
-					return false;
-				});
-			}
-		};
-	});
+				}
+			};
+		}
+	]);
+
+	noobaa_app.directive('nbRightClick', ['$parse',
+		function($parse) {
+			return {
+				restrict: 'A', // use as attribute
+				link: function(scope, element, attr) {
+					var fn = $parse(attr.nbRightClick);
+					element.bind('contextmenu', function(event) {
+						event.preventDefault();
+						scope.$apply(function() {
+							fn(scope, {
+								$event: event
+							});
+						});
+						return false;
+					});
+				}
+			};
+		}
+	]);
 
 	noobaa_app.directive('nbResizable', function() {
 		return {
@@ -881,55 +897,59 @@
 		}
 	]);
 
-	noobaa_app.directive('nbKey', function($parse) {
-		return {
-			restrict: 'A', // use as attribute
-			link: function(scope, element, attr) {
-				var fn = $parse(attr.nbKey);
-				// element.bind('keydown', handler);
-				$(document).on('keydown', function(event) {
-					return scope.$apply(function() {
-						return fn(scope, {
-							$event: event
+	noobaa_app.directive('nbKey', ['$parse',
+		function($parse) {
+			return {
+				restrict: 'A', // use as attribute
+				link: function(scope, element, attr) {
+					var fn = $parse(attr.nbKey);
+					// element.bind('keydown', handler);
+					$(document).on('keydown', function(event) {
+						return scope.$apply(function() {
+							return fn(scope, {
+								$event: event
+							});
 						});
 					});
-				});
-			}
-		};
-	});
+				}
+			};
+		}
+	]);
 
-	noobaa_app.directive('nbDrop', function($parse, $rootScope) {
-		return {
-			restrict: 'A', // use as attribute
-			link: function(scope, element, attr) {
-				scope.$watch(attr.nbDrop, function(value) {
-					var obj = scope.$eval(attr.nbDrop);
-					if (!obj && element && element.data('droppable')) {
-						element.droppable("destroy");
-						return;
-					}
-					element.droppable({
-						greedy: true, //greedy and hoverclass combination seems a bit buggy
-						accept: '.nbdrag',
-						tolerance: 'pointer',
-						hoverClass: 'drop_hover_class',
-						drop: function(event, ui) {
-							var nbobj = $(ui.draggable).data('nbobj');
-							scope.$apply(function() {
-								obj.handle_drop(nbobj);
-							});
-						},
-						over: function(event, ui) {
-							scope.handle_drop_over(event, ui, obj);
-						},
-						out: function(event, ui) {
-							scope.handle_drop_out(event, ui, obj);
+	noobaa_app.directive('nbDrop', ['$parse', '$rootScope',
+		function($parse, $rootScope) {
+			return {
+				restrict: 'A', // use as attribute
+				link: function(scope, element, attr) {
+					scope.$watch(attr.nbDrop, function(value) {
+						var obj = scope.$eval(attr.nbDrop);
+						if (!obj && element && element.data('droppable')) {
+							element.droppable("destroy");
+							return;
 						}
+						element.droppable({
+							greedy: true, //greedy and hoverclass combination seems a bit buggy
+							accept: '.nbdrag',
+							tolerance: 'pointer',
+							hoverClass: 'drop_hover_class',
+							drop: function(event, ui) {
+								var nbobj = $(ui.draggable).data('nbobj');
+								scope.$apply(function() {
+									obj.handle_drop(nbobj);
+								});
+							},
+							over: function(event, ui) {
+								scope.handle_drop_over(event, ui, obj);
+							},
+							out: function(event, ui) {
+								scope.handle_drop_out(event, ui, obj);
+							}
+						});
 					});
-				});
-			}
-		};
-	});
+				}
+			};
+		}
+	]);
 
 	// TODO: how to cancel drag on escape ??
 	// var escape_count = 0;
@@ -940,29 +960,31 @@
 	// }
 	// });
 
-	noobaa_app.directive('nbDrag', function($parse, $rootScope) {
-		return {
-			restrict: 'A', // use as attribute
-			link: function(scope, element, attr) {
-				var obj = scope.$eval(attr.nbDrag);
-				element.draggable({
-					refreshPositions: true, // bad for perf but needed for expanding dirs
-					revert: "invalid",
-					cursor: "move",
-					cursorAt: {
-						top: 0,
-						left: 0
-					},
-					distance: 10,
-					helper: obj.get_drag_helper.bind(obj) || 'clone',
-					start: function(event) {
-						$(this).data('nbobj', obj);
-						// $(this).data('escape_count', escape_count);
-					}
-				});
-			}
-		};
-	});
+	noobaa_app.directive('nbDrag', ['$parse', '$rootScope',
+		function($parse, $rootScope) {
+			return {
+				restrict: 'A', // use as attribute
+				link: function(scope, element, attr) {
+					var obj = scope.$eval(attr.nbDrag);
+					element.draggable({
+						refreshPositions: true, // bad for perf but needed for expanding dirs
+						revert: "invalid",
+						cursor: "move",
+						cursorAt: {
+							top: 0,
+							left: 0
+						},
+						distance: 10,
+						helper: obj.get_drag_helper.bind(obj) || 'clone',
+						start: function(event) {
+							$(this).data('nbobj', obj);
+							// $(this).data('escape_count', escape_count);
+						}
+					});
+				}
+			};
+		}
+	]);
 
 	noobaa_app.directive('nbEffectToggle', ['$timeout',
 		function($timeout) {
@@ -994,84 +1016,88 @@
 		}
 	]);
 
-	noobaa_app.directive('nbEffectSwitchClass', function($parse) {
-		return {
-			restrict: 'A', // use as attribute
-			link: function(scope, element, attrs) {
-				var opt = scope.$eval(attrs.nbEffectOptions);
-				var jqelement = angular.element(element);
-				if (opt.complete) {
-					var complete_apply = function() {
-						scope.safe_apply(opt.complete);
-					};
+	noobaa_app.directive('nbEffectSwitchClass', ['$parse',
+		function($parse) {
+			return {
+				restrict: 'A', // use as attribute
+				link: function(scope, element, attrs) {
+					var opt = scope.$eval(attrs.nbEffectOptions);
+					var jqelement = angular.element(element);
+					if (opt.complete) {
+						var complete_apply = function() {
+							scope.safe_apply(opt.complete);
+						};
+					}
+					var first = true;
+					scope.$watch(attrs.nbEffectSwitchClass, function(value) {
+						var duration = opt.duration;
+						if (first) {
+							first = false;
+							duration = 0;
+						}
+						if (value) {
+							jqelement.switchClass(
+								opt.from, opt.to,
+								duration, opt.easing, complete_apply);
+						} else {
+							jqelement.switchClass(
+								opt.to, opt.from,
+								duration, opt.easing, complete_apply);
+						}
+					});
 				}
-				var first = true;
-				scope.$watch(attrs.nbEffectSwitchClass, function(value) {
-					var duration = opt.duration;
-					if (first) {
-						first = false;
-						duration = 0;
-					}
-					if (value) {
-						jqelement.switchClass(
-							opt.from, opt.to,
-							duration, opt.easing, complete_apply);
-					} else {
-						jqelement.switchClass(
-							opt.to, opt.from,
-							duration, opt.easing, complete_apply);
-					}
-				});
-			}
-		};
-	});
+			};
+		}
+	]);
 
-	noobaa_app.directive('nbShine', function($parse) {
-		return {
-			restrict: 'A', // use as attribute
-			link: function(scope, element, attr) {
-				var options = scope.$eval(attr.nbShine) || {};
-				var opt = angular.extend({
-					at: 'center', // position in the element, e.g. at: "25% 40%"
-					thick: 20, // pixels
-					color: 'rgba(255,255,255,0.85)',
-					start: 0, // pixel start radius
-					end: 100, // pixel end radius
-					step: 0.01, // step fraction (0-1)
-					step_time: 10, // milis between steps
-					delay: 10000 // milis between shines
-				}, options);
-				var pixel_step = opt.step * (opt.end - opt.start);
-				var pixel_thick = opt.thick / 2;
-				var R = opt.start;
-				var template = 'radial-gradient(' +
-					'circle at ' + opt.at +
-					', transparent XXXpx' +
-					', ' + opt.color + ' YYYpx' +
-					', transparent ZZZpx)';
-				var renderer = function() {
-					var z = R;
-					var y = z - pixel_thick;
-					var x = y - pixel_thick;
-					var s = template;
-					s = s.replace('XXX', x);
-					s = s.replace('YYY', y);
-					s = s.replace('ZZZ', z);
-					element.css('background-image', s);
-					R += pixel_step;
-					if ((pixel_step > 0 && R > opt.end) ||
-						(pixel_step < 0 && R < opt.end)) {
-						R = opt.start;
-						element.css('background-image', '');
-						setTimeout(renderer, opt.delay);
-					} else {
-						setTimeout(renderer, opt.step_time);
-					}
-				};
-				setTimeout(renderer, opt.delay);
-			}
-		};
-	});
+	noobaa_app.directive('nbShine', ['$parse',
+		function($parse) {
+			return {
+				restrict: 'A', // use as attribute
+				link: function(scope, element, attr) {
+					var options = scope.$eval(attr.nbShine) || {};
+					var opt = angular.extend({
+						at: 'center', // position in the element, e.g. at: "25% 40%"
+						thick: 20, // pixels
+						color: 'rgba(255,255,255,0.85)',
+						start: 0, // pixel start radius
+						end: 100, // pixel end radius
+						step: 0.01, // step fraction (0-1)
+						step_time: 10, // milis between steps
+						delay: 10000 // milis between shines
+					}, options);
+					var pixel_step = opt.step * (opt.end - opt.start);
+					var pixel_thick = opt.thick / 2;
+					var R = opt.start;
+					var template = 'radial-gradient(' +
+						'circle at ' + opt.at +
+						', transparent XXXpx' +
+						', ' + opt.color + ' YYYpx' +
+						', transparent ZZZpx)';
+					var renderer = function() {
+						var z = R;
+						var y = z - pixel_thick;
+						var x = y - pixel_thick;
+						var s = template;
+						s = s.replace('XXX', x);
+						s = s.replace('YYY', y);
+						s = s.replace('ZZZ', z);
+						element.css('background-image', s);
+						R += pixel_step;
+						if ((pixel_step > 0 && R > opt.end) ||
+							(pixel_step < 0 && R < opt.end)) {
+							R = opt.start;
+							element.css('background-image', '');
+							setTimeout(renderer, opt.delay);
+						} else {
+							setTimeout(renderer, opt.step_time);
+						}
+					};
+					setTimeout(renderer, opt.delay);
+				}
+			};
+		}
+	]);
 
 
 	noobaa_app.factory('LinkedList', function() {

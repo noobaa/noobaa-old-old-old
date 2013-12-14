@@ -2,6 +2,7 @@
 /* global angular:false */
 /* global _:false */
 /* global Backbone:false */
+/* jshint -W099 */
 (function() {
 	'use strict';
 
@@ -25,7 +26,7 @@
 		}).when('/mydata/:path*?', {
 			template: [
 				'<div class="container">',
-				'	<div nb-browse ng-if="context" context="context"></div>',
+				'	<div nb-browse ng-if="context" context="context" notify-layout="angular.noop"></div>',
 				'</div>'
 			].join('\n')
 		}).when('/install', {
@@ -42,8 +43,8 @@
 	/////////////////////
 
 
-	noobaa_app.controller('HomeCtrl', ['$scope', '$http', '$timeout', '$window', '$location', 'nb', 'nbUploadSrv',
-		function($scope, $http, $timeout, $window, $location, nb, nbUploadSrv) {
+	noobaa_app.controller('HomeCtrl', ['$scope', '$http', '$timeout', '$interval', '$window', '$location', 'nb', 'nbUploadSrv',
+		function($scope, $http, $timeout, $interval, $window, $location, nb, nbUploadSrv) {
 			$scope.nb = nb;
 			$scope.nbUploadSrv = nbUploadSrv;
 			$scope.refresh_feeds = refresh_feeds;
@@ -75,7 +76,6 @@
 				return $timeout(read_root_dirs, 1000);
 			});
 
-
 			function refresh_feeds() {
 				console.log('READ SWM', $scope.swm);
 				if (!$scope.swm) {
@@ -88,7 +88,17 @@
 				nb.read_dir($scope.swm).then(function(res) {
 					console.log('SWM FOLDER', res);
 					$scope.refreshing_feeds = false;
-					$scope.feeds = $scope.swm.entries;
+					var feeds = $scope.swm.entries;
+					feeds = feeds.concat(feeds);
+					feeds = feeds.concat(feeds);
+					var feeds_per_page = 9;
+					var num_feed_pages = Math.ceil(feeds.length / feeds_per_page);
+					$scope.feed_pages = new Array(num_feed_pages);
+					for (var i = 0; i < num_feed_pages; i++) {
+						$scope.feed_pages[i] = feeds.slice(i * feeds_per_page, (i + 1) * feeds_per_page);
+					}
+					$scope.feeds = feeds;
+					$scope.notify_layout(true);
 					return res;
 				}, function(err) {
 					console.error('GET SWM FOLDER FAILED', err);
@@ -96,6 +106,26 @@
 					throw err;
 				});
 			}
+
+			$scope.notify_layout = function(destroy) {
+				$timeout.cancel($scope.do_layout_timeout);
+				$scope.do_layout_timeout = $timeout(function() {
+					console.log('LAYOUT');
+					if (destroy && $scope.masonry) {
+						$scope.masonry.destroy();
+						$scope.masonry = null;
+					}
+					if ($scope.masonry) {
+						$scope.masonry.layout();
+					} else {
+						$scope.masonry = new Masonry($('.feeds_container')[0], {
+							itemSelector: '.feed_item',
+							columnWidth: 300,
+							gutter: 20
+						});
+					}
+				}, 50);
+			};
 
 
 			nbUploadSrv.get_upload_target = function(event) {
@@ -144,7 +174,7 @@
 						width: 500
 					}
 				});
-			}, 1)
+			}, 1);
 
 			$scope.click_feedback = function() {
 				$scope.feedback_send_done = false;
@@ -207,7 +237,8 @@
 			replace: true,
 			templateUrl: '/public/html/browse_template.html',
 			scope: { // isolated scope
-				context: '='
+				context: '=',
+				notifyLayout: '='
 			},
 			controller: ['$scope', '$http', '$timeout', '$q', '$compile', '$rootScope', 'nb', 'nbUploadSrv', 'JobQueue',
 				function($scope, $http, $timeout, $q, $compile, $rootScope, nb, nbUploadSrv, JobQueue) {
@@ -230,17 +261,22 @@
 					$scope.copy_inode = copy_inode;
 					$scope.share_inode = share_inode;
 
+					$scope.expanded = true;
+					$scope.notifyLayout = $scope.notifyLayout || angular.noop;
+
 					$scope.selection = {
 						items: [],
 						source_index: function(i) {
 							return $scope.current_inode.entries[i];
 						}
 					};
+
 					$scope.select_inode = function(inode, $index, $event) {
 						nb.select_item($scope.selection, inode, $index, $event);
+						$scope.notifyLayout();
 					};
 
-					console.log('BROWSER CONTEXT', $scope.context);
+					// console.log('BROWSER CONTEXT', $scope.context);
 					set_current_inode($scope.context.current_inode);
 					open_inode($scope.current_inode, 0, {});
 
@@ -288,21 +324,25 @@
 					function open_inode(inode, $index, $event) {
 						if (inode.isdir) {
 							nb.reset_selection($scope.selection);
-							nb.read_dir(inode);
+							nb.read_dir(inode).then($scope.notifyLayout);
 							set_current_inode(inode);
 						} else {
 							if ((inode.is_selected && !inode.is_previewing) ||
 								nb.select_item($scope.selection, inode, $index, $event)) {
 								inode.is_previewing = true;
-								nb.read_file_attr(inode);
+								if (!inode.content_type) {
+									nb.read_file_attr(inode).then($scope.notifyLayout);
+								}
 							} else {
 								inode.is_previewing = false;
 							}
+							$scope.notifyLayout();
 							return stop_event($event);
 						}
 					}
 
 					function toggle_preview(inode) {
+						$scope.notifyLayout();
 						inode.is_previewing = !inode.is_previewing;
 						if (inode.is_previewing && !inode.content_type) {
 							nb.read_file_attr(inode);
@@ -450,7 +490,7 @@
 									nb.read_dir($scope.current_inode);
 									dlg.nbdialog('close');
 									del_scope.$destroy();
-								})
+								});
 							});
 							dlg.nbdialog('open', {
 								remove_on_close: true,

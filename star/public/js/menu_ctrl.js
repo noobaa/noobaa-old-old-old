@@ -2,6 +2,7 @@
 /* global angular:false */
 /* global _:false */
 /* global Backbone:false */
+/* jshint -W099 */
 (function() {
 	'use strict';
 
