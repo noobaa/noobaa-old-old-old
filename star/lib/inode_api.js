@@ -134,6 +134,7 @@ function inode_to_entry(inode, opt) {
 	if (opt && opt.fobj) {
 		// when fobj is given add its info to the entry
 		ent.size = opt.fobj.size;
+		ent.content_type = opt.fobj.content_type;
 		if (opt.fobj.uploading) {
 			ent.uploading = opt.fobj.uploading;
 		}

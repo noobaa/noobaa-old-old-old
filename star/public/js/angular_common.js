@@ -146,7 +146,7 @@
 				dir_inode.is_loading = true;
 				return $http(inode_call('GET', dir_inode.id)).then(function(res) {
 					dir_inode.is_loading = false;
-					console.log('READDIR', dir_inode.name, res);
+					console.log('READDIR OK', dir_inode.name);
 					var entries = res.data.entries;
 					entries.sort(dir_inode.sorting_func || function(a, b) {
 						return a.isdir ? -1 : 1;
@@ -161,6 +161,7 @@
 						} else {
 							angular.extend(e, entries[i]);
 						}
+						e.content_kind = e.content_type ? e.content_type.split('/')[0] : '';
 						e.parent = dir_inode;
 						e.level = dir_inode.level + 1;
 						if (e.ctime) {
@@ -180,6 +181,8 @@
 					}, 3000);
 				});
 			}
+
+			// TODO UNNEEDED
 
 			function read_file_attr(inode) {
 				return $http(inode_call('HEAD', inode.id)).then(function(res) {
@@ -872,10 +875,7 @@
 					scope.nb = nb;
 					scope.$watch(attr.nbContent, function(value) {
 						scope.inode = scope.$eval(attr.nbContent);
-						console.log('NBCONTENT', scope.inode);
-						if (scope.inode && !scope.inode.content_type) {
-							nb.read_file_attr(scope.inode);
-						}
+						// console.log('NBCONTENT', scope.inode);
 					});
 					scope.notifyLayout = scope.$eval(attr.notifyLayout);
 				},
@@ -898,8 +898,8 @@
 					'		</div>',
 					'	</div>',
 					'</div>',
-					'<div ng-if="inode && !inode.content_kind" class="text-center" style="padding: 20px">',
-					'	<i class="fa fa-spinner fa-spin fa-lg"></i>',
+					'<div ng-if="!inode || !inode.content_kind" class="text-center" style="padding: 20px">',
+					'	<i class="fa fa-question fa-lg"></i>',
 					'</div>',
 					'</div>'
 				].join('\n')

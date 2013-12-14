@@ -244,8 +244,7 @@
 			replace: true,
 			templateUrl: '/public/html/browse_template.html',
 			scope: { // isolated scope
-				context: '=',
-				notifyLayout: '='
+				context: '='
 			},
 			controller: ['$scope', '$http', '$timeout', '$q', '$compile', '$rootScope', 'nb', 'nbUploadSrv', 'JobQueue',
 				function($scope, $http, $timeout, $q, $compile, $rootScope, nb, nbUploadSrv, JobQueue) {
@@ -268,9 +267,6 @@
 					$scope.copy_inode = copy_inode;
 					$scope.share_inode = share_inode;
 
-					$scope.expanded = true;
-					$scope.notifyLayout = $scope.notifyLayout || angular.noop;
-
 					$scope.selection = {
 						items: [],
 						source_index: function(i) {
@@ -280,7 +276,6 @@
 
 					$scope.select_inode = function(inode, $index, $event) {
 						nb.select_item($scope.selection, inode, $index, $event);
-						$scope.notifyLayout();
 					};
 
 					// console.log('BROWSER CONTEXT', $scope.context);
@@ -331,29 +326,21 @@
 					function open_inode(inode, $index, $event) {
 						if (inode.isdir) {
 							nb.reset_selection($scope.selection);
-							nb.read_dir(inode).then($scope.notifyLayout);
+							nb.read_dir(inode);
 							set_current_inode(inode);
 						} else {
 							if ((inode.is_selected && !inode.is_previewing) ||
 								nb.select_item($scope.selection, inode, $index, $event)) {
 								inode.is_previewing = true;
-								if (!inode.content_type) {
-									nb.read_file_attr(inode).then($scope.notifyLayout);
-								}
 							} else {
 								inode.is_previewing = false;
 							}
-							$scope.notifyLayout();
 							return stop_event($event);
 						}
 					}
 
 					function toggle_preview(inode) {
-						$scope.notifyLayout();
 						inode.is_previewing = !inode.is_previewing;
-						if (inode.is_previewing && !inode.content_type) {
-							nb.read_file_attr(inode);
-						}
 					}
 
 					function download_inode(inode) {

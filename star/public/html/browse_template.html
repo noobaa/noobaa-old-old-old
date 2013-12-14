@@ -75,13 +75,10 @@
 						</span>
 					</div>
 				</span>
-				<button class="btn btn-default pull-right" ng-show="false && current_inode.isdir" ng-click="expanded = !expanded">
-					<i class="fa fa-caret-{{expanded && 'up' || 'down'}} fa-lg fa-fw"></i>
-				</button>
 			</div>
 		</div>
 
-		<div class="panel-body" ng-if="expanded" style="padding: 0">
+		<div class="panel-body" style="padding: 0">
 			<div ng-repeat="inode in current_inode.entries | filter:{name: search_in_folder}" class="file_line notextselect {{inode.is_selected && 'active' || ''}}" style="border-bottom-width: 1px; border-top-width: 1px">
 				<div class="clearfix" style="overflow: scroll" ng-click="select_inode(inode, $index, $event)">
 					<span>
