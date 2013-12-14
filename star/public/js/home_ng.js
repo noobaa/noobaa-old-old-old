@@ -89,6 +89,7 @@
 					console.log('SWM FOLDER', res);
 					$scope.refreshing_feeds = false;
 					$scope.feeds = $scope.swm.entries;
+					$scope.feeds_limit = 20;
 					$scope.notify_layout(true);
 					return res;
 				}, function(err) {
@@ -97,6 +98,11 @@
 					throw err;
 				});
 			}
+
+			$scope.more_feeds = function() {
+				$scope.feeds_limit += 20;
+				$scope.notify_layout(true);
+			};
 
 			$scope.notify_layout = function(destroy) {
 				$scope.destroy_layout = $scope.destroy_layout || destroy;
@@ -111,11 +117,14 @@
 					if ($scope.masonry) {
 						$scope.masonry.layout();
 					} else {
+						var x = window.scrollX;
+						var y = window.scrollY;
 						$scope.masonry = new Masonry($('.feeds_container')[0], {
 							itemSelector: '.feed_item',
 							columnWidth: 300,
 							gutter: 20
 						});
+						window.scrollTo(x, y);
 					}
 				}, 50);
 			};

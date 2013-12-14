@@ -874,14 +874,18 @@
 				link: function(scope, element, attr) {
 					scope.nb = nb;
 					scope.$watch(attr.nbContent, function(value) {
-						scope.inode = scope.$eval(attr.nbContent);
+						scope.inode = scope.$eval(attr.nbContent) || {};
 						// console.log('NBCONTENT', scope.inode);
 					});
 					scope.notifyLayout = scope.$eval(attr.notifyLayout);
 				},
 				template: [
 					'<div>',
-					'<div ng-if="inode && inode.content_type" ng-switch="inode.content_kind">',
+					'<div ng-if="inode.isdir" class="text-center" style="padding: 20px">',
+					'	<i class="fa fa-folder-open fa-2x"></i> {{inode.name}}',
+					'</div>',
+					'<div ng-if="!inode.isdir">',
+					' <div ng-if="inode.content_type" ng-switch="inode.content_kind">',
 					'	<video ng-switch-when="video" controls="controls" preload="none" ng-src="{{nb.inode_api_url(inode.id)}}"',
 					'		class="img-responsive center-block" nb-on-load="notifyLayout()"></video>',
 					'	<audio ng-switch-when="audio" controls="controls" preload="none" ng-src="{{nb.inode_api_url(inode.id)}}"',
@@ -897,9 +901,10 @@
 					'				width="100%" class="center-block" nb-on-load="notifyLayout()"></object>',
 					'		</div>',
 					'	</div>',
-					'</div>',
-					'<div ng-if="!inode || !inode.content_kind" class="text-center" style="padding: 20px">',
-					'	<i class="fa fa-question fa-lg"></i>',
+					' </div>',
+					' <div ng-if="!inode.content_type" class="text-center" style="padding: 20px">',
+					'	<i class="fa fa-file-o fa-2x"></i> {{inode.name}}',
+					' </div>',
 					'</div>',
 					'</div>'
 				].join('\n')

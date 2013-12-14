@@ -9,6 +9,7 @@
 		<div class="clearfix"></div>
 
 		<div class="feeds_container">
+
 			<div class="feed_item">
 				<button class="btn btn-default btn-block" style="padding: 10px; border: none; border-bottom-left-radius: 0; border-bottom-right-radius: 0">
 					Invite friends to NooBaa
@@ -19,26 +20,33 @@
 				<div>Name</div>
 				<div>Name</div>
 			</div>
-			<div ng-repeat="feed in feeds track by $index" class="feed_item">
-				<div style="padding: 10px">
-					<img class="img-rounded" ng-src="{{nb.user_pic_url(feed.owner)}}" style="width: 32px" />
+
+			<div ng-repeat="feed in feeds | limitTo:feeds_limit track by $index" class="feed_item">
+				<div style="padding: 10px; border-bottom: 1px #eee solid">
+					<img class="img-rounded" ng-src="{{nb.user_pic_url(feed.owner)}}" style="width: 30px" />
 					<span>{{feed.owner.name}}:</span>
-					<!-- <span class="badge">{{$index}}</span> -->
-					<div class="text-center text-ellipses">
-						<i class="fa fa-{{feed.isdir && 'folder-open' || 'file-o'}} text-danger"></i>
-						{{feed.name}}
-					</div>
+					<span class="badge">{{$index}}</span>
 				</div>
 				<div ng-controller="FeedCtrl">
-					<div ng-if="!feed.isdir" style="position: relative" ng-mouseover="mouse_over=true" ng-mouseleave="mouse_over=false">
-						<div nb-content="feed" notify-layout="notify_layout"></div>
-						<button ng-show="mouse_over" class="btn btn-primary" style="position: absolute; top: 20px; left: 20px" ng-click="nb.copy_inode(feed)">
-							<i class="fa fa-paperclip fa-lg"></i>
-							Keep
-						</button>
+					<div ng-if="!feed.isdir">
+						<div class="text-center text-ellipses" style="border-bottom: 1px #eee solid">
+							<i class="fa fa-file-o text-danger"></i>
+							{{feed.name}}
+						</div>
+						<div style="position: relative" ng-mouseover="mouse_over=true" ng-mouseleave="mouse_over=false">
+							<div nb-content="feed" notify-layout="notify_layout"></div>
+							<button ng-show="mouse_over" class="btn btn-primary" style="position: absolute; top: 20px; left: 20px" ng-click="nb.copy_inode(feed)">
+								<i class="fa fa-paperclip fa-lg"></i>
+								Keep
+							</button>
+						</div>
 					</div>
 					<div ng-if="feed.isdir" ng-init="index=0">
-						<div class="text-center">
+						<div class="text-center text-ellipses">
+							<i class="fa fa-folder-open text-danger"></i>
+							{{feed.name}}
+						</div>
+						<div class="text-center" style="border-bottom: 1px #eee solid">
 							<button class="btn btn-link btn-sm" ng-disabled="index<=0" ng-click="index=index-1">
 								<i class="fa fa-chevron-circle-left"></i>
 							</button>
@@ -47,20 +55,22 @@
 								<i class="fa fa-chevron-circle-right"></i>
 							</button>
 						</div>
-						<div ng-if="!feed.entries[index].isdir" style="position: relative" ng-mouseover="mouse_over=true" ng-mouseleave="mouse_over=false">
+						<div style="position: relative; background-color: #ccc" ng-mouseover="mouse_over=true" ng-mouseleave="mouse_over=false">
 							<div nb-content="feed.entries[index]" notify-layout="notify_layout" ng-mouseover="mouse_over=true" ng-mouseleave="mouse_over=false"></div>
 							<button ng-show="mouse_over" class="btn btn-primary" style="position: absolute; top: 20px; left: 20px" ng-click="nb.copy_inode(feed)">
 								<i class="fa fa-paperclip fa-lg"></i>
 								Keep
 							</button>
 						</div>
-						<div ng-if="feed.entries[index].isdir" class="text-center" style="background-color: #ccc; padding: 20px">
-							<i class="fa fa-folder-open fa-2x"></i>
-							{{feed.entries[index].name}}
-						</div>
 					</div>
 				</div>
 			</div>
+		</div>
+
+		<div class="text-center" style="padding-bottom: 20px" ng-show="feeds_limit < feeds.length">
+			<button class="btn btn-default" ng-click="more_feeds()">
+				Load more...
+			</button>
 		</div>
 
 	</div>
