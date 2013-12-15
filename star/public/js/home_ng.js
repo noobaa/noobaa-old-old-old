@@ -90,7 +90,7 @@
 					$scope.refreshing_feeds = false;
 					$scope.feeds = $scope.swm.entries;
 					$scope.feeds_limit = 20;
-					$scope.notify_layout(true);
+					rebuild_layout();
 					return res;
 				}, function(err) {
 					console.error('GET SWM FOLDER FAILED', err);
@@ -101,32 +101,43 @@
 
 			$scope.more_feeds = function() {
 				$scope.feeds_limit += 20;
-				$scope.notify_layout(true);
+				rebuild_layout();
 			};
 
-			$scope.notify_layout = function(destroy) {
-				$scope.destroy_layout = $scope.destroy_layout || destroy;
+			function do_layout() {
+				console.log('LAYOUT');
 				$timeout.cancel($scope.do_layout_timeout);
-				$scope.do_layout_timeout = $timeout(function() {
-					console.log('LAYOUT');
-					if ($scope.destroy_layout && $scope.masonry) {
-						$scope.masonry.destroy();
-						$scope.masonry = null;
-					}
-					$scope.destroy_layout = false;
-					if ($scope.masonry) {
-						$scope.masonry.layout();
-					} else {
-						var x = window.scrollX;
-						var y = window.scrollY;
-						$scope.masonry = new Masonry($('.feeds_container')[0], {
-							itemSelector: '.feed_item',
-							columnWidth: 300,
-							gutter: 20
-						});
-						window.scrollTo(x, y);
-					}
-				}, 50);
+				$timeout.cancel($scope.do_layout_fast_timeout);
+				$scope.do_layout_timeout = null;
+				$scope.do_layout_fast_timeout = null;
+				if ($scope.masonry) {
+					$scope.masonry.layout();
+				} else {
+					var x = window.scrollX;
+					var y = window.scrollY;
+					$scope.masonry = new Masonry($('.feeds_container')[0], {
+						itemSelector: '.feed_item',
+						columnWidth: 300,
+						gutter: 20
+					});
+					window.scrollTo(x, y);
+				}
+			}
+
+			function rebuild_layout() {
+				if ($scope.masonry) {
+					$scope.masonry.destroy();
+					$scope.masonry = null;
+				}
+				if (!$scope.do_layout_fast_timeout) {
+					$scope.do_layout_fast_timeout = $timeout(do_layout, 0);
+				}
+			}
+
+			$scope.notify_layout = function() {
+				if (!$scope.do_layout_timeout) {
+					$scope.do_layout_timeout = $timeout(do_layout, 50);
+				}
 			};
 
 
