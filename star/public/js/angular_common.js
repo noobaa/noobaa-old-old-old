@@ -155,9 +155,6 @@
 					dir_inode.is_loading = false;
 					console.log('READDIR OK', dir_inode.name);
 					var entries = res.data.entries;
-					entries.sort(dir_inode.sorting_func || function(a, b) {
-						return a.isdir ? -1 : 1;
-					});
 					dir_inode.entries = entries;
 					dir_inode.entries_map = dir_inode.entries_map || {};
 					var entries_map = {};
@@ -180,6 +177,9 @@
 						entries[i] = e;
 						entries_map[e.id] = e;
 					}
+					entries.sort(dir_inode.sorting_func || function(a, b) {
+						return a.isdir ? -1 : 1;
+					});
 					dir_inode.entries_map = entries_map;
 					return res;
 				}, function(err) {
