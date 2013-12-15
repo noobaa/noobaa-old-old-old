@@ -25,7 +25,7 @@
 			]
 		}).when('/mydata/:path*?', {
 			template: [
-				'<div class="container">',
+				'<div class="container" style="padding-bottom: 20px">',
 				'	<div nb-browse ng-if="context" context="context" notify-layout="angular.noop"></div>',
 				'</div>'
 			].join('\n')
@@ -113,9 +113,13 @@
 				if ($scope.masonry) {
 					$scope.masonry.layout();
 				} else {
+					var elem = $('.feeds_container');
+					if (!elem.length) {
+						return;
+					}
 					var x = window.scrollX;
 					var y = window.scrollY;
-					$scope.masonry = new Masonry($('.feeds_container')[0], {
+					$scope.masonry = new Masonry(elem[0], {
 						itemSelector: '.feed_item',
 						columnWidth: 300,
 						gutter: 20

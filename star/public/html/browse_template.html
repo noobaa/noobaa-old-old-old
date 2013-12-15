@@ -1,12 +1,15 @@
 <div class="browser" ng-init="search_in_folder=''">
 
-	<div class="panel panel-{{current_inode.owner && 'danger' || 'primary'}}">
-		<div class="panel-heading clearfix" style="padding: 0">
+	<div class="panel panel-default">
+		<div class="panel-heading clearfix" style="padding: 0 10px 2px 10px">
 			<div class="clearfix Xtext-ellipses" style="color: black; Xmax-width: 95%; Xpadding: 10px">
 				<div class="btn-group">
-					<button class="btn btn-link dropdown-toggle" data-toggle="dropdown" style="padding-right: 0" ng-disabled="!has_parent(current_inode)">
-						<i ng-show="!!current_inode.isdir" class="fa fa-folder-open fa-fw fa-lg"></i>
-						<i ng-show="!current_inode.isdir" class="fa fa-file-o fa-fw fa-lg"></i>
+					<button ng-if="has_parent(current_inode) || !current_inode.owner" class="btn btn-default Xbtn-lg" ng-click="go_up_level()" ng-disabled="!has_parent(current_inode)" title="Back to previous folder" rel="tooltip" nb-tooltip="{container: 'body'}">
+						<i class="fa fa-chevron-left"></i>
+					</button>
+					<button class="btn btn-default Xbtn-lg dropdown-toggle" data-toggle="dropdown" ng-disabled="!has_parent(current_inode)" title="Back to folder..." rel="tooltip" nb-tooltip="{container: 'body'}">
+						<i ng-show="!!current_inode.isdir" class="fa fa-folder-open fa-fw"></i>
+						<i ng-show="!current_inode.isdir" class="fa fa-file-o fa-fw"></i>
 					</button>
 					<ul ng-if="has_parent(current_inode)" class="dropdown-menu" role="menu">
 						<li ng-repeat="parent in nb.parents_path(current_inode)">
@@ -35,10 +38,7 @@
 					</span>
 				</span>
 			</div>
-			<div>
-				<button ng-if="has_parent(current_inode) || !current_inode.owner" class="btn btn-link" ng-click="go_up_level()" ng-disabled="!has_parent(current_inode)" title="Back to previous folder" rel="tooltip">
-					<i class="fa fa-arrow-left fa-lg"></i>
-				</button>
+			<div class="file_actions bg-danger">
 				<span ng-show="current_inode.owner">
 					<button ng-if="current_inode.owner" class="btn btn-link" ng-click="copy_inode(current_inode)">
 						<i class="fa fa-heart-o fa-fw"></i>
@@ -51,7 +51,7 @@
 				</span>
 				<span ng-show="!current_inode.owner">
 					<button class="btn btn-link" ng-click="open_inode(current_inode)">
-						<i class="fa fa-refresh fa-lg"></i>
+						<i class="fa fa-refresh fa-fw"></i>
 						Refresh
 					</button>
 					<button class="btn btn-link" ng-click="new_folder(current_inode)">
@@ -59,7 +59,7 @@
 						New Folder
 					</button>
 					<button class="btn btn-link" ng-click="nbUploadSrv.open_file_input()">
-						<i class="fa fa-cloud-upload fa-lg"></i>
+						<i class="fa fa-cloud-upload fa-fw fa-lg"></i>
 						Upload
 					</button>
 					<button class="btn btn-link" ng-if="!nb.is_immutable_root(current_inode)" ng-click="share_inode(current_inode)">
@@ -67,7 +67,7 @@
 						Share
 					</button>
 					<div class="input-group pull-right" style="max-width: 170px">
-						<input type="text" class="form-control {{search_in_folder && 'bg-yellow' || ''}}" maxlength="100" placeholder="Search in folder" ng-model="search_in_folder" />
+						<input type="text" class="form-control {{search_in_folder && 'bg-warning' || ''}}" maxlength="100" placeholder="Search in folder" ng-model="search_in_folder" />
 						<span class="input-group-btn">
 							<button class="btn btn-default" type="button" ng-click="search_in_folder=''" title="Clear search" rel="tooltip" nb-tooltip="{container: 'body'}">
 								<i class="fa fa-times Xfa-lg"></i>
@@ -78,8 +78,8 @@
 			</div>
 		</div>
 
-		<div class="panel-body" style="padding: 0">
-			<div ng-repeat="inode in current_inode.entries | filter:{name: search_in_folder}" class="file_line notextselect {{inode.is_selected && 'active' || ''}}" style="border-bottom-width: 1px; border-top-width: 1px">
+		<div class="panel-body" style="padding: 0; border-top-width: 1px; border-top-style: solid">
+			<div ng-repeat="inode in current_inode.entries | filter:{name: search_in_folder}" class="file_line notextselect {{inode.is_selected && 'bggrey' || ''}}" style="border-bottom-width: 1px; border-top-width: 1px">
 				<div class="clearfix" style="overflow: scroll" ng-click="select_inode(inode, $index, $event)">
 					<span>
 						<i ng-show="!!inode.isdir" class="fa fa-folder-open fa-fw fa-lg text-danger"></i>
@@ -98,59 +98,58 @@
 						</span>
 					</span>
 				</div>
-				<div ng-if="is_selection_leader(inode)" class="file_actions">
-					<div Xclass="text-right">
-						<span ng-if="num_selected()>1">
-							&nbsp;&nbsp;{{num_selected()}} items:
-						</span>
-						<button ng-if="!current_inode.owner && num_selected()==1" class="btn btn-link" ng-click="share_inode(inode)">
+				<div ng-if="is_selection_leader(inode)" class="file_actions bg-warning">
+					<span ng-if="num_selected()>1">
+						&nbsp;&nbsp;{{num_selected()}} items:
+					</span>
+					<span ng-if="num_selected()==1">
+						<button ng-if="!current_inode.owner" class="btn btn-link" ng-click="share_inode(inode)">
 							<i class="fa fa-share-square-o fa-fw"></i>
 							Share
 						</button>
-						<button ng-if="current_inode.owner && num_selected()==1" class="btn btn-link" ng-click="copy_inode(inode)">
+						<button ng-if="current_inode.owner" class="btn btn-link" ng-click="copy_inode(inode)">
 							<i class="fa fa-heart-o fa-fw"></i>
 							Keep in My-Data
 						</button>
-						<a ng-if="!inode.isdir && !inode.uploading && inode.size && num_selected()==1" class="btn btn-link" ng-click="download_inode(inode)" href="{{nb.inode_api_url(inode.id)}}?is_download=true" target="_blank">
+						<a ng-if="!inode.isdir && !inode.uploading && inode.size" class="btn btn-link" ng-click="download_inode(inode)" href="{{nb.inode_api_url(inode.id)}}?is_download=true" target="_blank">
 							<i class="fa fa-cloud-download fa-fw"></i>
 							Download
 						</a>
-						<button ng-if="!inode.is_previewing && !inode.isdir && num_selected()==1" class="btn btn-link" ng-click="toggle_preview(inode)">
+						<button ng-if="!inode.is_previewing && !inode.isdir" class="btn btn-link" ng-click="toggle_preview(inode)">
 							<i class="fa fa-search-plus fa-fw"></i>
 							Show Preview
 						</button>
-						<button ng-if="inode.is_previewing && !inode.isdir && num_selected()==1" class="btn btn-link" ng-click="toggle_preview(inode)">
+						<button ng-if="inode.is_previewing && !inode.isdir" class="btn btn-link" ng-click="toggle_preview(inode)">
 							<i class="fa fa-search-minus fa-fw"></i>
 							Hide Preview
 						</button>
-						<button ng-if="!current_inode.owner && num_selected()==1" class="btn btn-link" ng-click="rename_inode(inode)">
+						<button ng-if="!current_inode.owner" class="btn btn-link" ng-click="rename_inode(inode)">
 							<i class="fa fa-pencil fa-rotate-270 fa-fw"></i>
 							Rename
 						</button>
-						<button ng-if="false && !current_inode.owner && num_selected()==1" class="btn btn-link" ng-click="copy_inode(inode)">
+					</span>
+					<span ng-if="!current_inode.owner">
+						<button ng-if="false && num_selected()==1" class="btn btn-link" ng-click="copy_inode(inode)">
 							<i class="fa fa-copy fa-fw"></i>
 							Copy {{num_selected()>1 && 'all' || ''}}
 						</button>
-						<button ng-if="false && !current_inode.owner" class="btn btn-link" ng-click="move_inodes()">
+						<button ng-if="false" class="btn btn-link" ng-click="move_inodes()">
 							<i class="fa fa-arrows fa-fw"></i>
 							Move {{num_selected()>1 && 'all' || ''}}
 						</button>
-						<button ng-if="!current_inode.owner" class="btn btn-link" ng-click="delete_inodes()">
+						<button class="btn btn-link" ng-click="delete_inodes()">
 							<i class="fa fa-trash-o fa-fw"></i>
 							Delete {{num_selected()>1 && 'all' || ''}}
 						</button>
-					</div>
-					<div ng-if="inode.is_previewing && inode.is_selected && inode.content_kind" style="padding: 10px 0">
-						<div nb-content="inode" notify-layout="angular.noop"></div>
-					</div>
-					<div ng-if="inode.is_previewing && inode.is_selected && !inode.content_kind" class="text-center" style="padding: 10px 0">
-						<i class="fa fa-spinner fa-spin fa-2x"></i>
-					</div>
+					</span>
+				</div>
+				<div ng-if="inode.is_previewing && inode.is_selected" style="padding: 5px 0">
+					<div nb-content="inode" notify-layout="angular.noop"></div>
 				</div>
 			</div>
 			<div ng-if="current_inode.isdir && !current_inode.entries.length">
 				<div style="padding-left: 20px; line-height: 80px; vertical-align: middle">
-					- No files yet -
+					No files yet ...
 				</div>
 			</div>
 		</div>
