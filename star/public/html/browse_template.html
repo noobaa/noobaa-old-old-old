@@ -2,7 +2,7 @@
 
 	<div class="panel panel-default">
 		<div class="panel-heading clearfix" style="padding: 0 10px 2px 10px">
-			<div class="clearfix Xtext-ellipses" style="color: black; Xmax-width: 95%; Xpadding: 10px">
+			<div class="clearfix" style="color: black; padding: 7px 0">
 				<div class="btn-group">
 					<button ng-if="has_parent(current_inode) || !current_inode.owner" class="btn btn-default Xbtn-lg" ng-click="go_up_level()" ng-disabled="!has_parent(current_inode)" title="Back to previous folder" rel="tooltip" nb-tooltip="{container: 'body'}">
 						<i class="fa fa-chevron-left"></i>
@@ -20,9 +20,9 @@
 						</li>
 					</ul>
 				</div>
-				<button class="btn btn-link btn-lg">
-					{{current_inode.name}}
-				</button>
+				<a class="btn btn-link btn-lg" style="display: inline; padding: 10px">
+					<span style="white-space: pre-wrap">{{current_inode.name}}</span>
+				</a>
 				<span ng-if="current_inode.is_loading">
 					<i class="fa fa-refresh fa-spin fa-fw"></i>
 				</span>
@@ -80,16 +80,16 @@
 
 		<div class="panel-body" style="padding: 0; border-top-width: 1px; border-top-style: solid">
 			<div ng-repeat="inode in current_inode.entries | filter:{name: search_in_folder}" class="file_line notextselect {{inode.is_selected && 'bggrey' || ''}}" style="border-bottom-width: 1px; border-top-width: 1px">
-				<div class="clearfix" style="overflow: scroll" ng-click="select_inode(inode, $index, $event)">
-					<span>
+				<div class="clearfix" ng-click="select_inode(inode, $index, $event)">
+					<span class="text-wrap">
 						<i ng-show="!!inode.isdir" class="fa fa-folder-open fa-fw fa-lg text-danger"></i>
 						<i ng-show="!inode.isdir" class="fa fa-file-o fa-fw fa-lg text-danger"></i>
 						<a class="btn btn-link" ng-click="open_inode(inode, $index, $event)" style="padding-left: 0; display: inline">
-							{{inode.name}}
+							<span style="white-space: pre-wrap">{{inode.name}}</span>
 						</a>
 					</span>
-					<span ng-if="!current_inode.owner" class="text-muted pull-right">
-						<i ng-show="!!inode.num_refs" class="icon-share icon-large d-icon" title="Shared with {{inode.num_refs}} friends" rel="tooltip" ng-click="share_inode(inode)"> </i>
+					<span class="text-muted pull-right">
+						<i ng-if="!current_inode.owner" ng-show="!!inode.num_refs" class="icon-share icon-large d-icon" title="Shared with {{inode.num_refs}} friends" rel="tooltip" ng-click="share_inode(inode)"></i>
 						<span ng-show="!inode.isdir" style="margin-right: 20px">
 							{{human_size(inode.size)}}
 						</span>

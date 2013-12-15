@@ -26,9 +26,9 @@
 				</div>
 				<div ng-controller="FeedCtrl">
 					<div ng-if="!feed.isdir">
-						<div class="text-center text-ellipses" style="border-bottom: 1px #eee solid; padding: 2px 5px">
+						<div class="text-center text-wrap" style="border-bottom: 1px #eee solid; padding: 2px 5px">
 							<i class="fa fa-file-o text-danger"></i>
-							<span class="text-muted">{{feed.name}}</span>
+							<span class="text-muted" style="white-space: pre-wrap">{{feed.name}}</span>
 						</div>
 						<div style="position: relative; min-height: 50px" class="bggrey" ng-mouseover="mouse_over=true" ng-mouseleave="mouse_over=false">
 							<div nb-content="feed" notify-layout="notify_layout"></div>

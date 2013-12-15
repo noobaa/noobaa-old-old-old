@@ -368,6 +368,11 @@ a.btn-link, button.btn-link {
 	white-space: nowrap;
 	text-overflow: ellipsis;
 }
+.text-wrap {
+	overflow: hidden;
+	word-break: break-all;
+	word-wrap: break-word;
+}
 .filling {
 	width: 100%;
 	height: 100%;
