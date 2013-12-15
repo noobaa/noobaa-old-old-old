@@ -10,26 +10,34 @@
 	// and avoid failures when console is null on fast refresh.
 	var console = window.console;
 	var localStorage = window.localStorage;
-	var os = require('os');
-	var path = require('path');
-	var http = require('http');
-	// load native node-webkit library
-	var gui = window.require('nw.gui');
-	// get the node-webkit native window of the planet
-	var win = gui.Window.get();
 
+	if (window.require) {
+		var os = require('os');
+		var path = require('path');
+		var http = require('http');
+		// load native node-webkit library
+		var gui = window.require('nw.gui');
+		// get the node-webkit native window of the planet
+		var win = gui.Window.get();
+	}
 
 	// define the planet angular controller
 
 	var noobaa_app = angular.module('noobaa_app');
 
 	noobaa_app.controller('PlanetCtrl', [
-		'$scope', '$http', '$timeout', 'nbUploadSrv',
+		'$scope', '$http', '$timeout', 'nb', 'nbUploadSrv',
 		PlanetCtrl
 	]);
 
-	function PlanetCtrl($scope, $http, $timeout, nbUploadSrv) {
+	function PlanetCtrl($scope, $http, $timeout, nb, nbUploadSrv) {
 		console.log('PlanetCtrl');
+		$scope.nb = nb;
+		$scope.nbUploadSrv = nbUploadSrv;
+
+		if (!window.require) {
+			return;
+		}
 
 		// set the scope in the window to signal to the planet_boot code
 		// that we are loaded and it can communicate with our scope.
@@ -379,7 +387,7 @@
 		function create_device() {
 			return $http({
 				method: 'POST',
-				url: '/star_api/device/',
+				url: '/api/device/',
 				data: {
 					host_info: get_host_info(),
 					srv_port: $scope.srv_port
@@ -407,7 +415,7 @@
 		function update_device(coshare_space) {
 			return $http({
 				method: 'PUT',
-				url: '/star_api/device/' + $scope.planet_device._id,
+				url: '/api/device/' + $scope.planet_device._id,
 				data: {
 					host_info: get_host_info(),
 					srv_port: $scope.srv_port,
@@ -498,7 +506,7 @@
 			}
 			return $http({
 				method: 'GET',
-				url: '/star_api/inode/null'
+				url: '/api/inode/null'
 			}).then(function(res) {
 				console.log('GOT USER FOLDERS', res);
 				for (var i = 0; i < res.data.entries.length; i++) {
@@ -514,14 +522,6 @@
 				throw err;
 			});
 		}
-
-		$scope.has_uploads = function() {
-			return nbUploadSrv.has_uploads();
-		};
-
-		nbUploadSrv.setup_drop($(document));
-		nbUploadSrv.setup_file_input($('#file_upload_input'));
-		nbUploadSrv.setup_file_input($('#dir_upload_input'));
 
 		nbUploadSrv.get_upload_target = function(event) {
 			if (!$scope.planet_user || !$scope.planet_user.mydata) {

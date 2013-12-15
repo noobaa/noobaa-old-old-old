@@ -15,7 +15,7 @@ var mime = require('mime');
 var Inode = require('../models/inode').Inode;
 var Fobj = require('../models/fobj').Fobj;
 var User = require('../models/user').User;
-var user_inodes = require('../providers/user_inodes');
+var user_inodes = require('./user_inodes');
 var email = require('./email');
 var common_api = require('./common_api');
 var filesize = require('filesize');
@@ -134,6 +134,7 @@ function inode_to_entry(inode, opt) {
 	if (opt && opt.fobj) {
 		// when fobj is given add its info to the entry
 		ent.size = opt.fobj.size;
+		ent.content_type = opt.fobj.content_type;
 		if (opt.fobj.uploading) {
 			ent.uploading = opt.fobj.uploading;
 		}
@@ -670,6 +671,21 @@ exports.inode_read = function(req, res) {
 				return next({
 					status: 404, // HTTP Not Found
 					data: 'Not Found'
+				});
+			}
+			// support head request
+			if (req.method === 'HEAD') {
+				var params = {
+					Bucket: process.env.S3_BUCKET,
+					Key: fobj_s3_key(inode.fobj)
+				};
+				return S3.headObject(params, function(err, data) {
+					if (err) {
+						return next(err);
+					}
+					res.setHeader('Content-Length', data.ContentLength);
+					res.setHeader('Content-Type', data.ContentType);
+					return next();
 				});
 			}
 			// redirect to the fobj location in S3
@@ -1294,7 +1310,7 @@ exports.inode_mklink = function(req, res) {
 			// signing the link_options with a secret to prevent tampering
 			var link = common_api.json_encode_sign(link_options, NBLINK_SECRET);
 			var url = URL.format({
-				pathname: '/star_api/inode/' + inode_id,
+				pathname: '/api/inode/' + inode_id,
 				query: {
 					nblink: JSON.stringify(link) // link object fields: data, sign.
 				}

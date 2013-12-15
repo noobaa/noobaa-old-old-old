@@ -23,7 +23,7 @@
 		$scope.load_devices = function() {
 			$http({
 				method: 'GET',
-				url: '/star_api/device/'
+				url: '/api/device/'
 			}).success(function(data, status, headers, config) {
 				console.log('[ok] got devices', data);
 				$scope.devices = data;

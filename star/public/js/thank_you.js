@@ -36,7 +36,7 @@
 
 			var ajax = $http({
 				method: 'PUT',
-				url: '/star_api/user/',
+				url: '/api/user/',
 				data: {
 					email: $scope.new_email
 				}

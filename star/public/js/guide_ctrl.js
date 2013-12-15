@@ -68,7 +68,7 @@ var global_menu_bar_last_guide;
 			this.tour = new Tour({
 				name: name,
 				debug: true,
-				path: '/mydata',
+				path: '/home',
 				backdrop: true,
 				orphan: true,
 				template: guide_template,

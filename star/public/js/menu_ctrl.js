@@ -2,6 +2,7 @@
 /* global angular:false */
 /* global _:false */
 /* global Backbone:false */
+/* jshint -W099 */
 (function() {
 	'use strict';
 
@@ -43,12 +44,12 @@
 	function FeedbackCtrl($scope, $http, $timeout) {
 
 		var dlg = $('#feedback_dialog');
-		dlg.nbdialog({
-			modal: true,
-			css: {
-				width: 500
-			}
-		});
+		// dlg.nbdialog({
+		// 	modal: true,
+		// 	css: {
+		// 		width: 500
+		// 	}
+		// });
 
 		$scope.open = function() {
 			$scope.send_done = false;
@@ -75,7 +76,7 @@
 			console.log('sending feedback.', 'queue:', $scope.feedbacks.length);
 			$scope.sending = $http({
 				method: 'POST',
-				url: '/star_api/user/feedback/',
+				url: '/api/user/feedback/',
 				data: {
 					feedback: $scope.feedbacks[0]
 				}
@@ -121,7 +122,7 @@
 			cancel_usage_refresh();
 			$http({
 				method: "GET",
-				url: "/star_api/user/",
+				url: "/api/user/",
 			}).success(function(data, status, headers, config) {
 				$scope.user_quota = data.quota;
 				$scope.user_usage = data.usage;

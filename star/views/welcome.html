@@ -78,7 +78,7 @@
 			height: 400px;
 		}
 		.bg_logo {
-			background-color: #f2f2f2;
+			/*background-color: #f2f2f2;*/
 			border-top-style: groove;
 			height: 200px;
 		}
@@ -215,7 +215,7 @@
 	<div id="nb_nav_marker"></div>
 
 	<nav id="nb_nav"
-		class="navbar navbar-inverse navbar-fixed-bottom"
+		class="navbar navbar-inverse navbar-fixed-bottom bg-primary"
 		role="navigation"
 		onresize="nb_nav_affix = undefined;">
 		<div class="container">
@@ -237,19 +237,19 @@
 				<ul class="nav navbar-nav navbar-right">
 					<li class="shining">
 						<div class="shiner"></div>
-						<a href="#whatis" class="scroller">
+						<a href="#whatis" class="scroller text-white">
 							<b>ABOUT</b>
 						</a>
 					</li>
 					<li class="shining">
 						<div class="shiner"></div>
-						<a href="#vision" class="scroller">
+						<a href="#vision" class="scroller text-white">
 							<b>VISION</b>
 						</a>
 					</li>
 					<li class="shining">
 						<div class="shiner"></div>
-						<a href="#join" class="join-btn scroller">
+						<a href="#join" class="join-btn scroller text-white">
 							<b>JOIN</b>
 						</a>
 					</li>
@@ -257,11 +257,11 @@
 						<div class="shiner"></div>
 
 					<?? it.user ?>
-						<a href="/mydata" class="scroller">
+						<a href="/home/" class="scroller text-white">
 							<b>LOGIN</b>
 						</a>
 					<????>
-						<a href="#join" class="scroller">
+						<a href="#join" class="scroller text-white">
 							<b>LOGIN</b>
 						</a>
 					<???>

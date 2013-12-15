@@ -14,7 +14,7 @@ var _ = require('underscore');
 
 var User = require('../models/user').User;
 var email = require('./email');
-var user_inodes = require('../providers/user_inodes');
+var user_inodes = require('./user_inodes');
 
 var AUTO_ACCEPT_ALPHA_USERS = true;
 

@@ -23,7 +23,7 @@ var mongoose = require('mongoose');
 var User = require('./models/user').User;
 
 // var fbapi = require('facebook-api');
-var common_api = require('./routes/common_api');
+var common_api = require('./lib/common_api');
 
 // connect to the database
 mongoose.connect(process.env.MONGOHQ_URL);
@@ -39,8 +39,8 @@ var dot_emc_app = dot_emc.init({
 	app: app
 });
 dot.templateSettings.strip = false;
-dot.templateSettings.cache = ('development' != app.get('env'));
-// replace dot regexp to use <% %> to avoid collision with angular {{ }}
+dot.templateSettings.cache = true; // ('development' != app.get('env'));
+// replace dot regexp to use <? ?> to avoid collision with angular {{ }}
 for (var i in dot.templateSettings) {
 	var reg = dot.templateSettings[i];
 	if (!(reg instanceof RegExp)) {
@@ -114,7 +114,7 @@ app.use(express.cookieSession({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
-app.use('/star_api/', function(req, res, next) {
+app.use('/api/', function(req, res, next) {
 	// general validations preceding all the star api functions
 	if (!req.user) {
 		return error_403(req, res, next);
@@ -140,6 +140,11 @@ app.use(app.router);
 
 // setup static files
 app.use(express.compress());
+app.use(function(req, res, next) {
+	res.setHeader("Cache-Control", "public, max-age=86400"); // 1 day
+	res.setHeader("Expires", new Date(Date.now() + 86400000).toUTCString());
+	return next();
+});
 app.use('/public/', express.static(path.join(__dirname, 'public')));
 app.use('/vendor/', express.static(path.join(__dirname, '..', 'vendor')));
 app.use('/vendor/', express.static(path.join(__dirname, '..', 'bower_components')));
@@ -169,8 +174,9 @@ app.use(function(err, req, res, next) {
 		return res.json(e);
 	} else if (req.accepts('html')) {
 		return res.render('error.html', {
-			err: e,
-			req: req
+			data: e.data,
+			status: e.status,
+			stack: e.stack
 		});
 	} else if (req.accepts('json')) {
 		return res.json(e);
@@ -217,7 +223,7 @@ function error_501(req, res, next) {
 
 // setup auth routes
 
-var auth = require('./routes/auth');
+var auth = require('./lib/auth');
 
 var facebook_auth_path = URL.parse(process.env.FACEBOOK_AUTHORIZED_URL).path;
 var google_auth_path = URL.parse(process.env.GOOGLE_AUTHORIZED_URL).path;
@@ -235,39 +241,39 @@ app.get('/auth/google/login/', auth.provider_login.bind(null, 'google'));
 
 // setup star API routes
 
-var inode_api = require('./routes/inode_api');
-app.post('/star_api/inode/', inode_api.inode_create);
-app.get('/star_api/inode/:inode_id', inode_api.inode_read);
-app.put('/star_api/inode/:inode_id', inode_api.inode_update);
-app.put('/star_api/inode/:inode_id/copy', inode_api.inode_copy);
-app.del('/star_api/inode/:inode_id', inode_api.inode_delete);
+var inode_api = require('./lib/inode_api');
+app.post('/api/inode/', inode_api.inode_create);
+app.get('/api/inode/:inode_id', inode_api.inode_read);
+app.put('/api/inode/:inode_id', inode_api.inode_update);
+app.put('/api/inode/:inode_id/copy', inode_api.inode_copy);
+app.del('/api/inode/:inode_id', inode_api.inode_delete);
 
-app.get('/star_api/inode/src_dev/:device_id', inode_api.inode_source_device);
-app.post('/star_api/inode/:inode_id/multipart/', inode_api.inode_multipart);
+app.get('/api/inode/src_dev/:device_id', inode_api.inode_source_device);
+app.post('/api/inode/:inode_id/multipart/', inode_api.inode_multipart);
 
-app.get('/star_api/inode/:inode_id/share_list', inode_api.inode_get_share_list);
-app.put('/star_api/inode/:inode_id/share_list', inode_api.inode_set_share_list);
+app.get('/api/inode/:inode_id/share_list', inode_api.inode_get_share_list);
+app.put('/api/inode/:inode_id/share_list', inode_api.inode_set_share_list);
 
-app.post('/star_api/inode/:inode_id/link', inode_api.inode_mklink);
-app.del('/star_api/inode/:inode_id/link', inode_api.inode_rmlinks);
+app.post('/api/inode/:inode_id/link', inode_api.inode_mklink);
+app.del('/api/inode/:inode_id/link', inode_api.inode_rmlinks);
 
-var user_api = require('./routes/user_api');
-app.get('/star_api/user/', user_api.user_read);
-app.put('/star_api/user/', user_api.user_update);
+var user_api = require('./lib/user_api');
+app.get('/api/user/', user_api.user_read);
+app.put('/api/user/', user_api.user_update);
 
-var email = require('./routes/email');
-app.post('/star_api/user/feedback/', email.user_feedback);
+var email = require('./lib/email');
+app.post('/api/user/feedback/', email.user_feedback);
 
-var device_api = require('./routes/device_api');
-app.post('/star_api/device/', device_api.device_create);
-app.get('/star_api/device/', device_api.device_list);
-app.put('/star_api/device/:device_id', device_api.device_update);
-app.get('/star_api/device/current/', device_api.device_current);
+var device_api = require('./lib/device_api');
+app.post('/api/device/', device_api.device_create);
+app.get('/api/device/', device_api.device_list);
+app.put('/api/device/:device_id', device_api.device_update);
+app.get('/api/device/current/', device_api.device_current);
 
 
 // setup admin pages
 
-var adminoobaa = require('./routes/adminoobaa');
+var adminoobaa = require('./lib/adminoobaa');
 app.get('/adminoobaa/', adminoobaa.admin_view);
 app.put('/adminoobaa/', adminoobaa.admin_update);
 
@@ -277,7 +283,9 @@ app.get('/planet', function(req, res) {
 	return res.render('planet_boot.html', common_api.page_context(req));
 });
 app.get('/planet/window', function(req, res) {
+	// return res.render('home.html', common_api.page_context(req));
 	return res.render('planet.html', common_api.page_context(req));
+	// return res.render('home.html', common_api.page_context(req));
 });
 app.get('/planet/auth', function(req, res) {
 	return res.render('planet_auth.html', common_api.page_context(req));
@@ -338,12 +346,14 @@ app.get('/settings', redirect_no_user, function(req, res) {
 	return res.render('settings.html', common_api.page_context(req));
 });
 
-app.get('/mydata', redirect_no_user, function(req, res) {
-	return res.render('mydata.html', common_api.page_context(req));
+app.get('/home/*', redirect_no_user, function(req, res) {
+	return res.render('home.html', common_api.page_context(req));
 });
-
+app.get('/home', redirect_no_user, function(req, res) {
+	return res.redirect('/home/');
+});
 app.get('/', redirect_no_user, function(req, res) {
-	return res.redirect('/mydata');
+	return res.redirect('/home/');
 });
 
 

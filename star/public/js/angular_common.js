@@ -2,11 +2,501 @@
 /* global angular:false */
 /* global _:false */
 /* global Backbone:false */
+/* jshint -W099 */
 (function() {
 	'use strict';
 
 	// create our module
-	var noobaa_app = angular.module('noobaa_app', []);
+	var noobaa_app = angular.module('noobaa_app', ['ngRoute', 'ngAnimate']);
+
+
+	noobaa_app.factory('nb', ['$http', '$timeout', '$interval', '$q', '$rootScope',
+		function($http, $timeout, $interval, $q, $rootScope) {
+			var nb = {};
+
+
+
+			///////////////
+			//// USER /////
+			///////////////
+
+
+			var server_data_raw = $('#server_data').html();
+			nb.server_data = server_data_raw ? JSON.parse(server_data_raw) : {};
+			nb.user = nb.server_data.user;
+
+			nb.user_quota = -1;
+			nb.user_usage = -1;
+			nb.usage_percents = -1;
+
+			nb.update_user_info = update_user_info;
+			nb.user_pic_url = user_pic_url;
+
+			function set_user_usage(quota, usage) {
+				nb.user_quota = quota;
+				nb.user_usage = usage;
+				nb.usage_percents = Math.ceil(100 * usage / quota);
+			}
+
+			function update_user_info() {
+				reset_update_user_info(true);
+				return $http({
+					method: "GET",
+					url: "/api/user/",
+				}).then(function(res) {
+					set_user_usage(res.data.quota, res.data.usage);
+					reset_update_user_info();
+					return res;
+				}, function(err) {
+					console.log('FAILED GET USER', err);
+					reset_update_user_info();
+					throw err;
+				});
+			}
+
+			function reset_update_user_info(unset) {
+				$timeout.cancel(nb.timeout_update_user_info);
+				nb.timeout_update_user_info = unset ? null : $timeout(update_user_info, 60000);
+			}
+
+			// testing code
+			if (false) {
+				var temp = 0;
+				$interval(function() {
+					if (temp > 100) {
+						temp = 0;
+					}
+					set_user_usage(100, temp);
+					temp += 10;
+				}, 2000);
+			}
+
+			function user_pic_url(user) {
+				if (!user) {
+					return;
+				}
+				if (user.fbid) {
+					return 'https://graph.facebook.com/' + user.fbid + '/picture';
+				}
+				if (user.googleid) {
+					return 'https://plus.google.com/s2/photos/profile/' + user.googleid + '?sz=50';
+				}
+			}
+
+
+
+
+			////////////////
+			//// INODE /////
+			////////////////
+
+
+			nb.inode_api_url = inode_api_url;
+			nb.is_immutable_root = is_immutable_root;
+			nb.is_shared_with_me = is_shared_with_me;
+			nb.is_not_mine = is_not_mine;
+			nb.init_root_dir = init_root_dir;
+			nb.read_dir = read_dir;
+			nb.read_file_attr = read_file_attr;
+			nb.is_dir_non_empty = is_dir_non_empty;
+			nb.parents_path = parents_path;
+			nb.recursive_delete = recursive_delete;
+			nb.recursive_copy = recursive_copy;
+			nb.copy_inode = copy_inode;
+
+			function inode_api_url(inode_id) {
+				return '/api/inode/' + inode_id;
+			}
+
+			function inode_call(method, inode_id) {
+				return {
+					method: method,
+					url: '/api/inode/' + inode_id
+				};
+			}
+
+			// return true for "My Data" and "Shared With Me"
+			// which are user root dirs and shouldn't be modified.
+
+			function is_immutable_root(inode) {
+				return !inode.parent || !inode.parent.parent;
+			}
+
+			function is_shared_with_me(inode) {
+				return inode.swm; // TODO NEED TO FILL THIS OR REMOVE
+			}
+
+			function is_not_mine(inode) {
+				return inode.not_mine;
+			}
+
+			function init_root_dir() {
+				return {
+					id: null,
+					parent: null,
+					level: -1,
+					name: 'Home',
+					entries: [],
+					entries_map: {}
+				};
+			}
+
+			var CONTENT_KINDS = {
+				'image': 'image',
+				'video': 'video',
+				'audio': 'audio',
+				'text': 'text',
+			};
+
+			function read_dir(dir_inode) {
+				console.log('READDIR', dir_inode.name);
+				dir_inode.is_loading = true;
+				return $http(inode_call('GET', dir_inode.id)).then(function(res) {
+					dir_inode.is_loading = false;
+					console.log('READDIR OK', dir_inode.name);
+					var entries = res.data.entries;
+					entries.sort(dir_inode.sorting_func || function(a, b) {
+						return a.isdir ? -1 : 1;
+					});
+					dir_inode.entries = entries;
+					dir_inode.entries_map = dir_inode.entries_map || {};
+					var entries_map = {};
+					for (var i = 0; i < entries.length; i++) {
+						var e = dir_inode.entries_map[entries[i].id];
+						if (!e) {
+							e = entries[i];
+						} else {
+							angular.extend(e, entries[i]);
+						}
+						if (e.content_type) {
+							e.content_kind = CONTENT_KINDS[e.content_type.split('/')[0]] || e.content_type;
+						}
+						e.parent = dir_inode;
+						e.level = dir_inode.level + 1;
+						if (e.ctime) {
+							e.ctime_date = new Date(e.ctime);
+							e.ctime_display = e.ctime_date.toLocaleDateString();
+						}
+						entries[i] = e;
+						entries_map[e.id] = e;
+					}
+					dir_inode.entries_map = entries_map;
+					return res;
+				}, function(err) {
+					dir_inode.is_loading = false;
+					console.error('FAILED READDIR', err);
+					return $timeout(function() {
+						read_dir(dir_inode);
+					}, 3000);
+				});
+			}
+
+			// TODO UNNEEDED
+
+			function read_file_attr(inode) {
+				return $http(inode_call('HEAD', inode.id)).then(function(res) {
+					inode.content_type = res.headers('Content-Type');
+					if (e.content_type) {
+						e.content_kind = CONTENT_KINDS[e.content_type.split('/')[0]] || e.content_type;
+					}
+					console.log('HEAD', inode.content_type, inode.content_kind);
+				}, function(err) {
+					console.error('FAILED HEAD', err);
+					throw err;
+				});
+			}
+
+			function is_dir_non_empty(inode, callback) {
+				if (!inode.isdir) {
+					callback(false);
+					return;
+				}
+				var promise = read_dir(inode);
+				if (!promise) {
+					callback( !! inode.entries.length);
+				} else {
+					promise.then(function(res) {
+						callback( !! inode.entries.length);
+						return res;
+					}, function(err) {
+						callback( !! inode.entries.length);
+						throw err;
+					});
+				}
+			}
+
+			function parents_path(inode) {
+				if (!inode) {
+					return;
+				}
+				var parents = new Array(inode.level);
+				var p = inode.parent;
+				for (var i = inode.level - 1; i >= 0; i--) {
+					parents[i] = p;
+					p = p.parent;
+				}
+				return parents;
+			}
+
+			function recursive_delete(inodes, del_scope, complete) {
+				var jobq = new JobQueue($timeout, 32);
+				var do_delete = function(inode_id, ctx) {
+					if (!inode_id) {
+						ctx.complete();
+						return;
+					}
+					return $http({
+						method: 'DELETE',
+						url: '/api/inode/' + inode_id
+					})['finally'](function() {
+						del_scope.count++;
+						ctx.count--;
+						if (ctx.count === 0) {
+							jobq.add({
+								run: do_delete.bind(null, ctx.inode_id, ctx.parent || ctx)
+							});
+						}
+					});
+				};
+				var add_recurse_job = function(inode, ctx) {
+					jobq.add({
+						run: delete_recurse.bind(null, {
+							entries: inode.entries,
+							count: inode.entries.length,
+							inode_id: inode.id,
+							parent: ctx
+						})
+					});
+				};
+				var delete_recurse = function(ctx) {
+					if (!ctx.entries.length) {
+						do_delete(ctx.inode_id, ctx.parent || ctx);
+					}
+					for (var i = 0; i < ctx.entries.length; i++) {
+						var inode = ctx.entries[i];
+						if (inode.isdir && !ctx.skip_read_dir) {
+							read_dir(inode).then(
+								add_recurse_job.bind(null, inode, ctx),
+								do_delete.bind(null, inode.id, ctx));
+						} else if (inode.isdir && inode.entries.length) {
+							add_recurse_job(inode, ctx);
+						} else {
+							jobq.add({
+								run: do_delete.bind(null, inode.id, ctx)
+							});
+						}
+					}
+				};
+				delete_recurse({
+					entries: inodes,
+					count: inodes.length,
+					skip_read_dir: true,
+					complete: complete
+				});
+			}
+
+			function recursive_copy(inode, copy_scope, new_parent_id, new_name) {
+				copy_scope.concurrency++;
+				return $http({
+					method: 'PUT',
+					url: '/api/inode/' + inode.id + '/copy',
+					data: {
+						new_parent_id: new_parent_id,
+						new_name: new_name,
+					}
+				}).then(function(results) {
+					copy_scope.concurrency--;
+					copy_scope.count++;
+					if (!inode.isdir) {
+						return $q.when();
+					}
+					var new_parent_id = results.data.id;
+					copy_scope.concurrency++;
+					return nb.read_dir(inode).then(function() {
+						copy_scope.concurrency--;
+						var sons = inode.entries.slice(0); // copy array
+						var copy_sons = function() {
+							if (!sons || !sons.length) {
+								return $q.when();
+							}
+							var promises = [];
+							while (copy_scope.concurrency < copy_scope.max_concurrency && sons.length) {
+								promises.push(recursive_copy(sons.pop(), copy_scope, new_parent_id, null).then(copy_sons));
+							}
+							return $q.all(promises);
+						};
+						return copy_sons();
+					});
+				}).
+				catch (function(err) {
+					console.error('FAILED COPY', inode, err);
+					throw err;
+				});
+			}
+
+			function copy_inode(inode) {
+				if (!inode) {
+					console.error('no selected inode, bailing');
+					return;
+				}
+				if (is_immutable_root(inode)) {
+					$.nbalert('Cannot copy root folder');
+					return;
+				}
+
+				var copy_scope = $rootScope.$new();
+				copy_scope.count = 0;
+				copy_scope.concurrency = 0;
+				copy_scope.max_concurrency = 32;
+
+				// TODO OPEN FOLDER CHOOSER
+
+				var on_copy = function() {
+					var notify_message = '"' + inode.name + '" was copied to My-Data';
+					if (copy_scope.count !== 1) {
+						notify_message += ' (' + copy_scope.count + ' items)';
+					}
+					$.bootstrapGrowl(notify_message, {
+						ele: 'body',
+						type: 'info',
+						offset: {
+							from: 'top',
+							amount: 60
+						},
+						align: 'right',
+						width: 'auto',
+						delay: 5000,
+						allow_dismiss: true,
+						stackup_spacing: 20
+					});
+				};
+				return nb.recursive_copy(inode, copy_scope).then(on_copy, on_copy);
+			}
+
+
+
+			///////////////////
+			//// SELECTION ////
+			///////////////////
+
+
+			nb.add_selection = add_selection;
+			nb.remove_selection = remove_selection;
+			nb.reset_selection = reset_selection;
+			nb.select_item = select_item;
+			nb.selection_items = selection_items;
+
+			function add_selection(selection, item, index) {
+				if (item.is_selected) {
+					return;
+				}
+				selection.items.push(item);
+				item.is_selected = true;
+				item.select_source_index = index;
+			}
+
+			function remove_selection(selection, item) {
+				if (!item.is_selected) {
+					return;
+				}
+				var pos = selection.items.indexOf(item);
+				if (pos >= 0) {
+					selection.items.splice(pos, 1);
+				}
+				item.is_selected = false;
+				item.select_source_index = null;
+			}
+
+			function reset_selection(selection) {
+				var items = selection.items;
+				selection.items = [];
+				if (!items) {
+					return;
+				}
+				for (var i = 0; i < items.length; i++) {
+					remove_selection(selection, items[i]);
+				}
+			}
+
+			function select_item(selection, item, index, event) {
+				if (event.ctrlKey || event.metaKey ||
+					(selection.items.length === 1 && selection.items[0] === item)) {
+					// console.log('SELECT TOGGLE', item.name, item.is_selected);
+					if (item.is_selected) {
+						remove_selection(selection, item);
+						return false;
+					} else {
+						add_selection(selection, item, index);
+					}
+				} else if (event.shiftKey && selection.items.length) {
+					var from = selection.items[selection.items.length - 1].select_source_index;
+					// console.log('SELECT FROM', from, 'TO', index);
+					var i;
+					if (index >= from) {
+						for (i = from; i <= index; i++) {
+							add_selection(selection, selection.source_index(i), i);
+						}
+					} else {
+						for (i = from; i >= index; i--) {
+							add_selection(selection, selection.source_index(i), i);
+						}
+					}
+				} else {
+					// console.log('SELECT ONE', item.name);
+					reset_selection(selection);
+					add_selection(selection, item, index);
+				}
+				return true;
+			}
+
+			function selection_items(selection) {
+				return selection.items.slice(0); // make copy of array
+			}
+
+
+
+			return nb;
+		}
+	]);
+
+
+
+
+
+
+
+
+
+	// initializations - setup functions on globalScope
+	// which will be propagated to any other scope, and easily visible
+
+	noobaa_app.run(function($rootScope) {
+		$rootScope.safe_apply = safe_apply;
+		$rootScope.safe_callback = safe_callback;
+		$rootScope.human_size = human_size;
+		$rootScope.mobile_check = mobile_check;
+		// add nbdialog func per element as in - $('#dlg').nbdialog(...)
+		jQuery.fn.nbdialog = nbdialog;
+		// add nbalert as global jquery function - $.nbalert
+		jQuery.nbalert = nbalert;
+		jQuery.nbconfirm = nbconfirm;
+
+		jQuery.fn.focusWithoutScrolling = function() {
+			var x = window.scrollX;
+			var y = window.scrollY;
+			this.focus();
+			window.scrollTo(x, y);
+		};
+
+		$('body').tooltip({
+			selector: '[rel=tooltip]'
+		});
+
+		$('body').popover({
+			selector: '[rel=popover]'
+		});
+	});
+
 
 	// noobaa_app.config([
 	//	'$httpProvider', '$interpolateProvider',
@@ -374,30 +864,9 @@
 		}, options));
 	}
 
-	// initializations - setup functions on globalScope
-	// which will be propagated to any other scope, and easily visible
-	noobaa_app.run(function($rootScope) {
-		$rootScope.safe_apply = safe_apply;
-		$rootScope.safe_callback = safe_callback;
-		$rootScope.human_size = human_size;
-		$rootScope.mobile_check = mobile_check;
-		// add nbdialog func per element as in - $('#dlg').nbdialog(...)
-		jQuery.fn.nbdialog = nbdialog;
-		// add nbalert as global jquery function - $.nbalert
-		jQuery.nbalert = nbalert;
-		jQuery.nbconfirm = nbconfirm;
-
-		jQuery.fn.focusWithoutScrolling = function() {
-			var x = window.scrollX;
-			var y = window.scrollY;
-			this.focus();
-			window.scrollTo(x, y);
-		};
-	});
 
 	// http wrapper to be used with async library
-	noobaa_app.factory('$http_async', [
-		'$http',
+	noobaa_app.factory('$http_async', ['$http',
 		function($http) {
 			return function(req, callback) {
 				return $http(req).then(function(data) {
@@ -409,73 +878,186 @@
 		}
 	]);
 
-	noobaa_app.directive('nbRightClick', function($parse) {
-		return {
-			restrict: 'A', // use as attribute
-			link: function(scope, element, attr) {
-				var fn = $parse(attr.nbRightClick);
-				element.bind('contextmenu', function(event) {
-					event.preventDefault();
-					scope.$apply(function() {
-						fn(scope, {
-							$event: event
-						});
+	noobaa_app.directive('nbContent', ['$parse', 'nb',
+		function($parse, nb) {
+			return {
+				replace: true,
+				link: function(scope, element, attr) {
+					scope.nb = nb;
+					scope.$watch(attr.nbContent, function(value) {
+						scope.inode = scope.$eval(attr.nbContent) || {};
+						// console.log('NBCONTENT', scope.inode);
 					});
-					return false;
-				});
-			}
-		};
-	});
+					scope.notifyLayout = scope.$eval(attr.notifyLayout);
+				},
+				template: [
+					'<div>',
+					'<div ng-if="inode.isdir" style="padding: 15px">',
+					'	<a class="btn btn-link" Xhref="/home/mydata/..." Xtarget="_self">',
+					'		<i class="fa fa-folder-open fa-2x pull-left"></i>',
+					'		<div>{{inode.name}}</div>',
+					'	</a>',
+					'</div>',
+					'<div ng-if="!inode.isdir">',
+					' <div ng-if="inode.content_type" ng-switch="inode.content_kind">',
+					'	<video ng-switch-when="video" controls="controls" preload="none" ng-src="{{nb.inode_api_url(inode.id)}}"',
+					'		style="background: transparent no-repeat url(\'/public/images/play_video.png\'); background-size: 80px; background-position: center 20px"',
+					'		class="img-responsive center-block" nb-on-load="notifyLayout()"></video>',
+					'	<audio ng-switch-when="audio" controls="controls" preload="none" ng-src="{{nb.inode_api_url(inode.id)}}"',
+					'		style="height: 100px; padding: 5px" class="img-responsive center-block" nb-on-load="notifyLayout()"></audio>',
+					'	<img ng-switch-when="image" ng-src="{{nb.inode_api_url(inode.id)}}"',
+					'		class="img-responsive center-block" style="max-height: 60%" nb-on-load="notifyLayout()" />',
+					'	<div ng-switch-when="text" class="text-center" style="padding: 15px">',
+					'		<object ng-attr-data="{{nb.inode_api_url(inode.id)}}" type="text/plain"',
+					'			width="100%" class="center-block" nb-on-load="notifyLayout()"></object>',
+					'	</div>',
+					'	<div ng-switch-default style="padding: 15px">',
+					'		<a class="btn btn-link" href="{{nb.inode_api_url(inode.id)}}" target="_blank">',
+					'			<i class="fa fa-file-o fa-2x pull-left"></i>',
+					'			<div class="text-left">{{inode.name}}',
+					'				<br/><span class="text-muted">{{inode.content_type}}</span>',
+					'			</div>',
+					'		</a>',
+					'	</div>',
+					' </div>',
+					' <div ng-if="!inode.content_type" style="padding: 15px">',
+					'	<a class="btn btn-link" href="{{nb.inode_api_url(inode.id)}}" target="_blank">',
+					'		<i class="fa fa-file-o fa-2x pull-left"></i>',
+					'		<div class="text-left">{{inode.name}}</div>',
+					'	</a>',
+					' </div>',
+					'</div>',
+					'</div>'
+				].join('\n')
+			};
+		}
+	]);
 
-	noobaa_app.directive('nbKey', function($parse) {
-		return {
-			restrict: 'A', // use as attribute
-			link: function(scope, element, attr) {
-				var fn = $parse(attr.nbKey);
-				// element.bind('keydown', handler);
-				$(document).on('keydown', function(event) {
-					return scope.$apply(function() {
-						return fn(scope, {
-							$event: event
-						});
+	noobaa_app.directive('nbOnLoad', ['$parse',
+		function($parse) {
+			return {
+				link: function(scope, element, attr) {
+					var fn = $parse(attr.nbOnLoad);
+					element.bind('load', function(event) {
+						scope.$apply(fn);
 					});
-				});
-			}
-		};
-	});
+				}
+			};
+		}
+	]);
 
-	noobaa_app.directive('nbDrop', function($parse, $rootScope) {
-		return {
-			restrict: 'A', // use as attribute
-			link: function(scope, element, attr) {
-				scope.$watch(attr.nbDrop, function(value) {
-					var obj = scope.$eval(attr.nbDrop);
-					if (!obj && element && element.data('droppable')) {
-						element.droppable("destroy");
-						return;
-					}
-					element.droppable({
-						greedy: true, //greedy and hoverclass combination seems a bit buggy
-						accept: '.nbdrag',
-						tolerance: 'pointer',
-						hoverClass: 'drop_hover_class',
-						drop: function(event, ui) {
-							var nbobj = $(ui.draggable).data('nbobj');
-							scope.$apply(function() {
-								obj.handle_drop(nbobj);
+	noobaa_app.directive('nbRightClick', ['$parse',
+		function($parse) {
+			return {
+				restrict: 'A', // use as attribute
+				link: function(scope, element, attr) {
+					var fn = $parse(attr.nbRightClick);
+					element.bind('contextmenu', function(event) {
+						event.preventDefault();
+						scope.$apply(function() {
+							fn(scope, {
+								$event: event
 							});
-						},
-						over: function(event, ui) {
-							scope.handle_drop_over(event, ui, obj);
-						},
-						out: function(event, ui) {
-							scope.handle_drop_out(event, ui, obj);
-						}
+						});
+						return false;
 					});
+				}
+			};
+		}
+	]);
+
+	noobaa_app.directive('nbResizable', function() {
+		return {
+			restrict: 'A', // use as attribute
+			link: function(scope, element, attr) {
+				element.resizable();
+			}
+		};
+	});
+
+	noobaa_app.directive('nbTooltip', function() {
+		return {
+			restrict: 'A', // use as attribute
+			link: function(scope, element, attr) {
+				scope.$watch(attr.nbTooltip, function(value) {
+					element.tooltip(value);
 				});
 			}
 		};
 	});
+
+	noobaa_app.directive('nbPopover', ['$compile',
+		function($compile) {
+			return {
+				restrict: 'A', // use as attribute
+				link: function(scope, element, attr) {
+					scope.$watch(attr.nbPopover, function(value) {
+						if (value.element) {
+							value.content = $compile($(value.element)[0].outerHTML)(scope);
+							value.html = true;
+							delete value.element;
+						}
+						console.log('POPOVER', value);
+						element.popover(value);
+					});
+				}
+			};
+		}
+	]);
+
+	noobaa_app.directive('nbKey', ['$parse',
+		function($parse) {
+			return {
+				restrict: 'A', // use as attribute
+				link: function(scope, element, attr) {
+					var fn = $parse(attr.nbKey);
+					// element.bind('keydown', handler);
+					$(document).on('keydown', function(event) {
+						return scope.$apply(function() {
+							return fn(scope, {
+								$event: event
+							});
+						});
+					});
+				}
+			};
+		}
+	]);
+
+	noobaa_app.directive('nbDrop', ['$parse', '$rootScope',
+		function($parse, $rootScope) {
+			return {
+				restrict: 'A', // use as attribute
+				link: function(scope, element, attr) {
+					scope.$watch(attr.nbDrop, function(value) {
+						var obj = scope.$eval(attr.nbDrop);
+						if (!obj && element && element.data('droppable')) {
+							element.droppable("destroy");
+							return;
+						}
+						element.droppable({
+							greedy: true, //greedy and hoverclass combination seems a bit buggy
+							accept: '.nbdrag',
+							tolerance: 'pointer',
+							hoverClass: 'drop_hover_class',
+							drop: function(event, ui) {
+								var nbobj = $(ui.draggable).data('nbobj');
+								scope.$apply(function() {
+									obj.handle_drop(nbobj);
+								});
+							},
+							over: function(event, ui) {
+								scope.handle_drop_over(event, ui, obj);
+							},
+							out: function(event, ui) {
+								scope.handle_drop_out(event, ui, obj);
+							}
+						});
+					});
+				}
+			};
+		}
+	]);
 
 	// TODO: how to cancel drag on escape ??
 	// var escape_count = 0;
@@ -486,29 +1068,31 @@
 	// }
 	// });
 
-	noobaa_app.directive('nbDrag', function($parse, $rootScope) {
-		return {
-			restrict: 'A', // use as attribute
-			link: function(scope, element, attr) {
-				var obj = scope.$eval(attr.nbDrag);
-				element.draggable({
-					refreshPositions: true, // bad for perf but needed for expanding dirs
-					revert: "invalid",
-					cursor: "move",
-					cursorAt: {
-						top: 0,
-						left: 0
-					},
-					distance: 10,
-					helper: obj.get_drag_helper.bind(obj) || 'clone',
-					start: function(event) {
-						$(this).data('nbobj', obj);
-						// $(this).data('escape_count', escape_count);
-					}
-				});
-			}
-		};
-	});
+	noobaa_app.directive('nbDrag', ['$parse', '$rootScope',
+		function($parse, $rootScope) {
+			return {
+				restrict: 'A', // use as attribute
+				link: function(scope, element, attr) {
+					var obj = scope.$eval(attr.nbDrag);
+					element.draggable({
+						refreshPositions: true, // bad for perf but needed for expanding dirs
+						revert: "invalid",
+						cursor: "move",
+						cursorAt: {
+							top: 0,
+							left: 0
+						},
+						distance: 10,
+						helper: obj.get_drag_helper.bind(obj) || 'clone',
+						start: function(event) {
+							$(this).data('nbobj', obj);
+							// $(this).data('escape_count', escape_count);
+						}
+					});
+				}
+			};
+		}
+	]);
 
 	noobaa_app.directive('nbEffectToggle', ['$timeout',
 		function($timeout) {
@@ -540,83 +1124,253 @@
 		}
 	]);
 
-	noobaa_app.directive('nbEffectSwitchClass', function($parse) {
-		return {
-			restrict: 'A', // use as attribute
-			link: function(scope, element, attrs) {
-				var opt = scope.$eval(attrs.nbEffectOptions);
-				var jqelement = angular.element(element);
-				if (opt.complete) {
-					var complete_apply = function() {
-						scope.safe_apply(opt.complete);
-					};
+	noobaa_app.directive('nbEffectSwitchClass', ['$parse',
+		function($parse) {
+			return {
+				restrict: 'A', // use as attribute
+				link: function(scope, element, attrs) {
+					var opt = scope.$eval(attrs.nbEffectOptions);
+					var jqelement = angular.element(element);
+					if (opt.complete) {
+						var complete_apply = function() {
+							scope.safe_apply(opt.complete);
+						};
+					}
+					var first = true;
+					scope.$watch(attrs.nbEffectSwitchClass, function(value) {
+						var duration = opt.duration;
+						if (first) {
+							first = false;
+							duration = 0;
+						}
+						if (value) {
+							jqelement.switchClass(
+								opt.from, opt.to,
+								duration, opt.easing, complete_apply);
+						} else {
+							jqelement.switchClass(
+								opt.to, opt.from,
+								duration, opt.easing, complete_apply);
+						}
+					});
 				}
-				var first = true;
-				scope.$watch(attrs.nbEffectSwitchClass, function(value) {
-					var duration = opt.duration;
-					if (first) {
-						first = false;
-						duration = 0;
-					}
-					if (value) {
-						jqelement.switchClass(
-							opt.from, opt.to,
-							duration, opt.easing, complete_apply);
-					} else {
-						jqelement.switchClass(
-							opt.to, opt.from,
-							duration, opt.easing, complete_apply);
-					}
-				});
-			}
-		};
+			};
+		}
+	]);
+
+	noobaa_app.directive('nbShine', ['$parse',
+		function($parse) {
+			return {
+				restrict: 'A', // use as attribute
+				link: function(scope, element, attr) {
+					var options = scope.$eval(attr.nbShine) || {};
+					var opt = angular.extend({
+						at: 'center', // position in the element, e.g. at: "25% 40%"
+						thick: 20, // pixels
+						color: 'rgba(255,255,255,0.85)',
+						start: 0, // pixel start radius
+						end: 100, // pixel end radius
+						step: 0.01, // step fraction (0-1)
+						step_time: 10, // milis between steps
+						delay: 10000 // milis between shines
+					}, options);
+					var pixel_step = opt.step * (opt.end - opt.start);
+					var pixel_thick = opt.thick / 2;
+					var R = opt.start;
+					var template = 'radial-gradient(' +
+						'circle at ' + opt.at +
+						', transparent XXXpx' +
+						', ' + opt.color + ' YYYpx' +
+						', transparent ZZZpx)';
+					var renderer = function() {
+						var z = R;
+						var y = z - pixel_thick;
+						var x = y - pixel_thick;
+						var s = template;
+						s = s.replace('XXX', x);
+						s = s.replace('YYY', y);
+						s = s.replace('ZZZ', z);
+						element.css('background-image', s);
+						R += pixel_step;
+						if ((pixel_step > 0 && R > opt.end) ||
+							(pixel_step < 0 && R < opt.end)) {
+							R = opt.start;
+							element.css('background-image', '');
+							setTimeout(renderer, opt.delay);
+						} else {
+							setTimeout(renderer, opt.step_time);
+						}
+					};
+					setTimeout(renderer, opt.delay);
+				}
+			};
+		}
+	]);
+
+
+	noobaa_app.factory('LinkedList', function() {
+		return LinkedList;
 	});
 
-	noobaa_app.directive('nbShine', function($parse) {
-		return {
-			restrict: 'A', // use as attribute
-			link: function(scope, element, attr) {
-				var options = scope.$eval(attr.nbShine) || {};
-				var opt = angular.extend({
-					at: 'center', // position in the element, e.g. at: "25% 40%"
-					thick: 20, // pixels
-					color: 'rgba(255,255,255,0.85)',
-					start: 0, // pixel start radius
-					end: 100, // pixel end radius
-					step: 0.01, // step fraction (0-1)
-					step_time: 10, // milis between steps
-					delay: 10000 // milis between shines
-				}, options);
-				var pixel_step = opt.step * (opt.end - opt.start);
-				var pixel_thick = opt.thick / 2;
-				var R = opt.start;
-				var template = 'radial-gradient(' +
-					'circle at ' + opt.at +
-					', transparent XXXpx' +
-					', ' + opt.color + ' YYYpx' +
-					', transparent ZZZpx)';
-				var renderer = function() {
-					var z = R;
-					var y = z - pixel_thick;
-					var x = y - pixel_thick;
-					var s = template;
-					s = s.replace('XXX', x);
-					s = s.replace('YYY', y);
-					s = s.replace('ZZZ', z);
-					element.css('background-image', s);
-					R += pixel_step;
-					if ((pixel_step > 0 && R > opt.end) ||
-						(pixel_step < 0 && R < opt.end)) {
-						R = opt.start;
-						element.css('background-image', '');
-						setTimeout(renderer, opt.delay);
-					} else {
-						setTimeout(renderer, opt.step_time);
-					}
-				};
-				setTimeout(renderer, opt.delay);
+	function LinkedList(name) {
+		name = name || '';
+		this.next = '_lln_' + name;
+		this.prev = '_llp_' + name;
+		this.head = '_llh_' + name;
+		this.length = 0;
+		this[this.next] = this;
+		this[this.prev] = this;
+		this[this.head] = this;
+	}
+	LinkedList.prototype.get_next = function(item) {
+		var next = item[this.next];
+		return next === this ? null : next;
+	};
+	LinkedList.prototype.get_prev = function(item) {
+		var prev = item[this.prev];
+		return prev === this ? null : prev;
+	};
+	LinkedList.prototype.get_front = function() {
+		return this.get_next(this);
+	};
+	LinkedList.prototype.get_back = function() {
+		return this.get_prev(this);
+	};
+	LinkedList.prototype.is_empty = function() {
+		return !this.get_front();
+	};
+	LinkedList.prototype.insert_after = function(item, new_item) {
+		if (item[this.head] !== this) {
+			return false;
+		}
+		var next = item[this.next];
+		new_item[this.next] = next;
+		new_item[this.prev] = item;
+		next[this.prev] = new_item;
+		item[this.next] = new_item;
+		this.length++;
+		return true;
+	};
+	LinkedList.prototype.insert_before = function(item, new_item) {
+		if (item[this.head] !== this) {
+			return false;
+		}
+		var prev = item[this.prev];
+		new_item[this.next] = item;
+		new_item[this.prev] = prev;
+		new_item[this.head] = this;
+		prev[this.next] = new_item;
+		item[this.prev] = new_item;
+		this.length++;
+		return true;
+	};
+	LinkedList.prototype.remove = function(item) {
+		if (item[this.head] !== this) {
+			return false;
+		}
+		var next = item[this.next];
+		var prev = item[this.prev];
+		if (!next || !prev) {
+			return false; // already removed
+		}
+		next[this.prev] = prev;
+		prev[this.next] = next;
+		item[this.next] = null;
+		item[this.prev] = null;
+		item[this.head] = null;
+		this.length--;
+		return true;
+	};
+	LinkedList.prototype.push_front = function(item) {
+		return this.insert_after(this, item);
+	};
+	LinkedList.prototype.push_back = function(item) {
+		return this.insert_before(this, item);
+	};
+	LinkedList.prototype.pop_front = function() {
+		var item = this.get_front();
+		if (item) {
+			this.remove(item);
+			return item;
+		}
+	};
+	LinkedList.prototype.pop_back = function() {
+		var item = this.get_back();
+		if (item) {
+			this.remove(item);
+			return item;
+		}
+	};
+
+
+	noobaa_app.factory('JobQueue', ['$timeout',
+		function($timeout) {
+			return JobQueue.bind(JobQueue, $timeout);
+		}
+	]);
+
+	// 'concurrency' with positive integer will do auto process with given concurrency level.
+	// use concurrency 0 for manual processing.
+	// 'delay' is number of milli-seconds between auto processing.
+	// name is optional in case multiple job queues (or linked lists) 
+	// are used on the same elements.
+
+	function JobQueue(timeout, concurrency, delay, name, method) {
+		this.timeout = timeout || setTimeout;
+		this.concurrency = concurrency || (concurrency === 0 ? 0 : 1);
+		this.delay = delay || 0;
+		this.method = method || 'run';
+		this._queue = new LinkedList(name);
+		this._num_running = 0;
+		Object.defineProperty(this, 'length', {
+			enumerable: true,
+			get: function() {
+				return this._queue.length;
 			}
+		});
+	}
+
+	// add the given function to the jobs queue
+	// which will run it when time comes.
+	// job have its method property (by default 'run').
+	JobQueue.prototype.add = function(job) {
+		this._queue.push_back(job);
+		this.process(true);
+	};
+
+	JobQueue.prototype.remove = function(job) {
+		return this._queue.remove(job);
+	};
+
+	JobQueue.prototype.process = function(check_concurrency) {
+		var me = this;
+		if (check_concurrency && me._num_running >= me.concurrency) {
+			return;
+		}
+		if (me._queue.is_empty()) {
+			return;
+		}
+		var job = me._queue.pop_front();
+		me._num_running++;
+		var end = function() {
+			me._num_running--;
+			me.process(true);
 		};
-	});
+		// submit the job to run in background 
+		// to be able to return here immediately
+		me.timeout(function() {
+			try {
+				var promise = job[me.method]();
+				if (!promise || !promise.then) {
+					end();
+				} else {
+					promise.then(end, end);
+				}
+			} catch (err) {
+				console.error('UNCAUGHT EXCEPTION', err, err.stack);
+				end();
+			}
+		}, me.delay);
+	};
 
 })();

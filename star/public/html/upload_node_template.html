@@ -1,0 +1,43 @@
+<div ng-repeat="(id,upload) in upload | upload_sons_filter">
+	<div class="row" style="margin: 0; border-bottom: 1px solid #ccc; position: relative;
+			{{(upload.is_selected || srv.selected_all) && 'color: orange;' || ''}} 
+			{{!upload.parent.level && 'line-height: 36px;' || 'line-height: 24px'}}">
+		<div class="progress-bar progress-bar-{{upload.progress_class || 'warning'}}" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="position: absolute; top:0; left:0; width: {{upload.progress}}%;">
+		</div>
+		<div class="col-sm-6">
+			<span style="cursor: pointer" ng-click="srv.toggle_select(upload)">
+				<i ng-hide="upload.is_selected || srv.selected_all" style="font-size: 14px" class="fa fa-square-o fa-fw"></i>
+				<i ng-show="upload.is_selected || srv.selected_all" style="font-size: 14px" class="fa fa-check-square-o fa-fw"></i>
+			</span>
+			<span style="padding-left: {{upload.parent.level*20}}px">
+				<span style="cursor: pointer; min-height: 15px" ng-click="srv.toggle_expand(upload)">
+					<span ng-if="upload.item.isDirectory && !upload.is_expanded" class="fa-stack" style="font-size: 0.55em">
+						<i class="fa fa-folder fa-stack-2x fa-fw"></i>
+						<i class="fa fa-plus fa-stack-1x fa-inverse fa-fw"></i>
+					</span>
+					<i ng-if="upload.item.isDirectory && upload.is_expanded" class="fa fa-folder-open fa-fw"></i>
+					<i ng-if="!upload.item.isDirectory" class="fa fa-file-o fa-fw"></i>
+				</span>
+				{{upload.item.name}}
+			</span>
+		</div>
+		<div class="col-sm-6">
+			<div class="col-xs-4">
+				<span ng-show="upload.item.isDirectory">
+					{{ upload.total_sons }} items
+				</span>
+			</div>
+			<div class="col-xs-4">
+				{{ human_size(upload.item.isDirectory && upload.total_size || upload.item.size) }}
+			</div>
+			<div class="col-xs-4" title="{{upload.error_text}}" rel="tooltip">
+				<a ng-show="upload.is_pin" class="btn btn-warning btn-sm">
+					<i class="fa fa-thumb-tack fa-fw"></i>
+				</a>
+				{{srv.get_status(upload)}}
+			</div>
+		</div>
+	</div>
+	<div ng-include="'/public/html/upload_node_template.html'" style="font-size: 13px" nb-effect-toggle="upload.is_expanded" nb-effect-options="{effect:'blind'}">
+	</div>
+</div>
