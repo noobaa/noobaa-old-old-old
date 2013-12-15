@@ -1,6 +1,6 @@
 <div class="feeder">
 	<div class="container">
-		<div class="text-center" style="margin-bottom: 20px">
+		<div class="text-center" style="margin-bottom: 10px">
 			<span class="text-muted">News Feed</span>
 			<button class="btn btn-link" ng-click="refresh_feeds()" title="Click to refresh" rel="tooltip">
 				<i class="fa fa-refresh {{refreshing_feeds && 'fa-spin' || ''}} Xfa-fw fa-lg"></i>
@@ -22,13 +22,13 @@
 				<div style="padding: 10px; border-bottom: 1px #eee solid" class="bg-primary">
 					<img class="img-rounded" ng-src="{{nb.user_pic_url(feed.owner)}}" style="width: 30px" />
 					<span>{{feed.owner.name}}:</span>
-					<span class="badge">{{$index}}</span>
+					<span class="text-primary">{{$index+1}}</span>
 				</div>
 				<div ng-controller="FeedCtrl">
 					<div ng-if="!feed.isdir">
-						<div class="text-center text-ellipses" style="border-bottom: 1px #eee solid">
+						<div class="text-center text-ellipses" style="border-bottom: 1px #eee solid; padding: 2px 5px">
 							<i class="fa fa-file-o text-danger"></i>
-							{{feed.name}}
+							<span class="text-muted">{{feed.name}}</span>
 						</div>
 						<div style="position: relative" ng-mouseover="mouse_over=true" ng-mouseleave="mouse_over=false">
 							<div nb-content="feed" notify-layout="notify_layout"></div>
@@ -39,9 +39,9 @@
 						</div>
 					</div>
 					<div ng-if="feed.isdir" ng-init="index=0">
-						<div class="text-center text-ellipses">
+						<div class="text-center text-ellipses" style="padding: 2px 5px">
 							<i class="fa fa-folder-open text-danger"></i>
-							{{feed.name}}
+							<span class="text-muted">{{feed.name}}</span>
 						</div>
 						<div class="text-center" style="border-bottom: 1px #eee solid">
 							<button class="btn btn-link btn-sm" ng-disabled="index<=0" ng-click="index=index-1">

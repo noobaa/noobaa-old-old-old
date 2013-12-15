@@ -881,7 +881,7 @@
 				},
 				template: [
 					'<div>',
-					'<div ng-if="inode.isdir" class="text-center" style="padding: 20px">',
+					'<div ng-if="inode.isdir" class="text-center" style="padding: 15px">',
 					'	<i class="fa fa-folder-open fa-2x"></i> {{inode.name}}',
 					'</div>',
 					'<div ng-if="!inode.isdir">',
@@ -892,7 +892,7 @@
 					'		class="img-responsive center-block" nb-on-load="notifyLayout()"></audio>',
 					'	<img ng-switch-when="image" ng-src="{{nb.inode_api_url(inode.id)}}"',
 					'		class="img-responsive center-block" style="max-height: 60%" nb-on-load="notifyLayout()" />',
-					'	<div ng-switch-default Xnb-resizable class="text-center bggrey" style="padding: 20px">',
+					'	<div ng-switch-default Xnb-resizable class="text-center bggrey" style="padding: 15px">',
 					'		<a class="btn btn-link" ng-show="!show_object" ng-click="show_object=true">',
 					'			<i class="fa fa-file-o fa-2x"></i> {{inode.content_type}}',
 					'		</a>',
