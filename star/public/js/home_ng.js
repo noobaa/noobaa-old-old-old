@@ -89,7 +89,7 @@
 					console.log('SWM FOLDER', res);
 					$scope.refreshing_feeds = false;
 					$scope.feeds = $scope.swm.entries;
-					$scope.feeds_limit = 20;
+					$scope.feeds_limit = 10;
 					rebuild_layout();
 					return res;
 				}, function(err) {
@@ -100,7 +100,7 @@
 			}
 
 			$scope.more_feeds = function() {
-				$scope.feeds_limit += 20;
+				$scope.feeds_limit += 10;
 				rebuild_layout();
 			};
 

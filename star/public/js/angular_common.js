@@ -141,6 +141,13 @@
 				};
 			}
 
+			var CONTENT_KINDS = {
+				'image': 'image',
+				'video': 'video',
+				'audio': 'audio',
+				'text': 'text',
+			};
+
 			function read_dir(dir_inode) {
 				console.log('READDIR', dir_inode.name);
 				dir_inode.is_loading = true;
@@ -161,7 +168,9 @@
 						} else {
 							angular.extend(e, entries[i]);
 						}
-						e.content_kind = e.content_type ? e.content_type.split('/')[0] : '';
+						if (e.content_type) {
+							e.content_kind = CONTENT_KINDS[e.content_type.split('/')[0]] || e.content_type;
+						}
 						e.parent = dir_inode;
 						e.level = dir_inode.level + 1;
 						if (e.ctime) {
@@ -187,7 +196,9 @@
 			function read_file_attr(inode) {
 				return $http(inode_call('HEAD', inode.id)).then(function(res) {
 					inode.content_type = res.headers('Content-Type');
-					inode.content_kind = inode.content_type.split('/')[0];
+					if (e.content_type) {
+						e.content_kind = CONTENT_KINDS[e.content_type.split('/')[0]] || e.content_type;
+					}
 					console.log('HEAD', inode.content_type, inode.content_kind);
 				}, function(err) {
 					console.error('FAILED HEAD', err);
@@ -881,29 +892,39 @@
 				},
 				template: [
 					'<div>',
-					'<div ng-if="inode.isdir" class="text-center" style="padding: 15px">',
-					'	<i class="fa fa-folder-open fa-2x"></i> {{inode.name}}',
+					'<div ng-if="inode.isdir" style="padding: 15px">',
+					'	<a class="btn btn-link" Xhref="/home/mydata/..." Xtarget="_self">',
+					'		<i class="fa fa-folder-open fa-2x pull-left"></i>',
+					'		<div>{{inode.name}}</div>',
+					'	</a>',
 					'</div>',
 					'<div ng-if="!inode.isdir">',
 					' <div ng-if="inode.content_type" ng-switch="inode.content_kind">',
 					'	<video ng-switch-when="video" controls="controls" preload="none" ng-src="{{nb.inode_api_url(inode.id)}}"',
+					'		style="background: transparent no-repeat url(\'/public/images/play_video.png\'); background-size: 80px; background-position: center 20px"',
 					'		class="img-responsive center-block" nb-on-load="notifyLayout()"></video>',
 					'	<audio ng-switch-when="audio" controls="controls" preload="none" ng-src="{{nb.inode_api_url(inode.id)}}"',
-					'		class="img-responsive center-block" nb-on-load="notifyLayout()"></audio>',
+					'		style="height: 100px; padding: 5px" class="img-responsive center-block" nb-on-load="notifyLayout()"></audio>',
 					'	<img ng-switch-when="image" ng-src="{{nb.inode_api_url(inode.id)}}"',
 					'		class="img-responsive center-block" style="max-height: 60%" nb-on-load="notifyLayout()" />',
-					'	<div ng-switch-default Xnb-resizable class="text-center bggrey" style="padding: 15px">',
-					'		<a class="btn btn-link" ng-show="!show_object" ng-click="show_object=true">',
-					'			<i class="fa fa-file-o fa-2x"></i> {{inode.content_type}}',
+					'	<div ng-switch-when="text" class="text-center" style="padding: 15px">',
+					'		<object ng-attr-data="{{nb.inode_api_url(inode.id)}}" type="text/plain"',
+					'			width="100%" class="center-block" nb-on-load="notifyLayout()"></object>',
+					'	</div>',
+					'	<div ng-switch-default style="padding: 15px">',
+					'		<a class="btn btn-link" href="{{nb.inode_api_url(inode.id)}}" target="_blank">',
+					'			<i class="fa fa-file-o fa-2x pull-left"></i>',
+					'			<div class="text-left">{{inode.name}}',
+					'				<br/><span class="text-muted">{{inode.content_type}}</span>',
+					'			</div>',
 					'		</a>',
-					'		<div ng-if="!!show_object">',
-					'			<object ng-attr-data="{{nb.inode_api_url(inode.id)}}" ng-attr-type="{{inode.content_type}}"',
-					'				width="100%" class="center-block" nb-on-load="notifyLayout()"></object>',
-					'		</div>',
 					'	</div>',
 					' </div>',
-					' <div ng-if="!inode.content_type" class="text-center" style="padding: 20px">',
-					'	<i class="fa fa-file-o fa-2x"></i> {{inode.name}}',
+					' <div ng-if="!inode.content_type" style="padding: 15px">',
+					'	<a class="btn btn-link" href="{{nb.inode_api_url(inode.id)}}" target="_blank">',
+					'		<i class="fa fa-file-o fa-2x pull-left"></i>',
+					'		<div class="text-left">{{inode.name}}</div>',
+					'	</a>',
 					' </div>',
 					'</div>',
 					'</div>'

@@ -26,13 +26,15 @@
 	var noobaa_app = angular.module('noobaa_app');
 
 	noobaa_app.controller('PlanetCtrl', [
-		'$scope', '$http', '$timeout', 'nbUploadSrv',
+		'$scope', '$http', '$timeout', 'nb', 'nbUploadSrv',
 		PlanetCtrl
 	]);
 
-	function PlanetCtrl($scope, $http, $timeout, nbUploadSrv) {
+	function PlanetCtrl($scope, $http, $timeout, nb, nbUploadSrv) {
 		console.log('PlanetCtrl');
-		
+		$scope.nb = nb;
+		$scope.nbUploadSrv = nbUploadSrv;
+
 		if (!window.require) {
 			return;
 		}
@@ -520,14 +522,6 @@
 				throw err;
 			});
 		}
-
-		$scope.has_uploads = function() {
-			return nbUploadSrv.has_uploads();
-		};
-
-		nbUploadSrv.setup_drop($(document));
-		nbUploadSrv.setup_file_input($('#file_upload_input'));
-		nbUploadSrv.setup_file_input($('#dir_upload_input'));
 
 		nbUploadSrv.get_upload_target = function(event) {
 			if (!$scope.planet_user || !$scope.planet_user.mydata) {
