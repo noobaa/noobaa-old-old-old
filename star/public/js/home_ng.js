@@ -23,10 +23,10 @@
 					$scope.refresh_feeds();
 				}
 			]
-		}).when('/mydata/:path*?', {
+		}).when('/collection/:path*?', {
 			template: [
 				'<div class="container" style="padding-bottom: 20px">',
-				'	<div nb-browse ng-if="context" context="context" notify-layout="angular.noop"></div>',
+				'	<div nb-browse ng-if="home_context" context="home_context" notify-layout="angular.noop"></div>',
 				'</div>'
 			].join('\n')
 		}).when('/install', {
@@ -52,23 +52,24 @@
 
 			nb.update_user_info();
 
+			$scope.home_context = {
+				current_inode: $scope.root_dir
+			};
+
 			nb.read_dir($scope.root_dir).then(function(res) {
 				console.log('ROOT FOLDERS', res);
 				for (var i = 0; i < res.data.entries.length; i++) {
 					var e = res.data.entries[i];
+					e.level = 1;
 					if (e.name === 'My Data') {
-						e.level = 0;
 						$scope.mydata = e;
 					} else if (e.name === 'Shared With Me') {
-						e.level = -1;
 						$scope.swm = e;
+						e.swm = true;
 					} else {
 						console.error('UNRECOGNIZED ROOT FOLDER', e);
 					}
 				}
-				$scope.context = {
-					current_inode: $scope.mydata
-				};
 				refresh_feeds();
 				return res;
 			}, function(err) {
@@ -154,8 +155,8 @@
 					};
 				}
 
-				console.log('UP', $scope, $scope.context);
-				var dir_inode = $scope.context.current_inode;
+				console.log('UP', $scope, $scope.home_context);
+				var dir_inode = $scope.home_context.current_inode;
 				if (!dir_inode || !dir_inode.isdir) {
 					console.error('no selected dir, bailing');
 					return false;
@@ -285,6 +286,10 @@
 					return $scope.feed;
 				};
 			}
+			$scope.open_feed_inode = function(feed) {
+				$scope.home_context.current_inode = feed;
+				$location.path('/collection/');
+			};
 		}
 	]);
 
@@ -315,7 +320,6 @@
 					$scope.num_selected = num_selected;
 					$scope.open_inode = open_inode;
 					$scope.toggle_preview = toggle_preview;
-					$scope.download_inode = download_inode;
 					$scope.rename_inode = rename_inode;
 					$scope.delete_inodes = delete_inodes;
 					$scope.new_folder = new_folder;
@@ -397,13 +401,6 @@
 
 					function toggle_preview(inode) {
 						inode.is_previewing = !inode.is_previewing;
-					}
-
-					function download_inode(inode) {
-						var url = nb.inode_api_url(inode) + '?is_download=true';
-						$('<iframe style="display: none">')[0].src = url;
-						// var win = window.open(url, '_blank');
-						// win.focus();
 					}
 
 					function rename_inode(inode) {

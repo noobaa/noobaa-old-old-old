@@ -92,9 +92,15 @@
 
 
 			nb.inode_api_url = inode_api_url;
+			nb.seamless_open_inode = seamless_open_inode;
+			nb.download_inode = download_inode;
 			nb.is_immutable_root = is_immutable_root;
 			nb.is_shared_with_me = is_shared_with_me;
 			nb.is_not_mine = is_not_mine;
+			nb.can_upload_to_dir = can_upload_to_dir;
+			nb.can_upload_file = can_upload_file;
+			nb.can_share_inode = can_share_inode;
+			nb.can_keep_inode = can_keep_inode;
 			nb.init_root_dir = init_root_dir;
 			nb.read_dir = read_dir;
 			nb.read_file_attr = read_file_attr;
@@ -115,6 +121,19 @@
 				};
 			}
 
+			function seamless_open_inode(inode) {
+				var url = nb.inode_api_url(inode.id) + '?seamless=1';
+				var win = window.open(url, '_blank');
+				win.focus();
+			}
+
+			function download_inode(inode) {
+				var url = nb.inode_api_url(inode) + '?is_download=true';
+				$('<iframe style="display: none">')[0].src = url;
+				// var win = window.open(url, '_blank');
+				// win.focus();
+			}
+
 			// return true for "My Data" and "Shared With Me"
 			// which are user root dirs and shouldn't be modified.
 
@@ -130,12 +149,29 @@
 				return inode.not_mine;
 			}
 
+			function can_upload_to_dir(inode) {
+				return inode && inode.isdir && !inode.swm && inode.level > 0;
+			}
+
+			function can_upload_file(inode) {
+				return inode && can_upload_to_dir(inode.parent) && !inode.isdir && inode.uploading;
+			}
+
+			function can_share_inode(inode) {
+				return inode && !inode.swm && inode.level > 1;
+			}
+
+			function can_keep_inode(inode) {
+				return inode && inode.swm && inode.level > 1;
+			}
+
 			function init_root_dir() {
 				return {
 					id: null,
 					parent: null,
-					level: -1,
-					name: 'Home',
+					level: 0,
+					isdir: true,
+					name: 'Collection',
 					entries: [],
 					entries_map: {}
 				};
@@ -167,6 +203,9 @@
 						}
 						if (e.content_type) {
 							e.content_kind = CONTENT_KINDS[e.content_type.split('/')[0]] || e.content_type;
+						}
+						if (dir_inode.swm) {
+							e.swm = dir_inode.swm;
 						}
 						e.parent = dir_inode;
 						e.level = dir_inode.level + 1;
@@ -886,13 +925,10 @@
 					scope.nb = nb;
 					scope.$watch(attr.nbContent, function(value) {
 						scope.inode = scope.$eval(attr.nbContent) || {};
-						if (scope.inode.is_previewing) {
-							scope.show_content = true;
-							scope.is_previewing = true;
-						}
 						// console.log('NBCONTENT', scope.inode);
 					});
 					scope.notifyLayout = scope.$eval(attr.notifyLayout);
+					scope.show_content = scope.is_previewing = scope.$eval(attr.showContent);
 					scope.toggle_content = function() {
 						scope.show_content = !scope.show_content;
 						$timeout(scope.notifyLayout, 0);
@@ -900,19 +936,19 @@
 				},
 				template: [
 					'<div>',
-					'<div ng-if="inode.isdir" style="padding: 15px">',
-					'	<a class="btn btn-link" Xhref="/home/mydata/..." Xtarget="_self">',
-					'		<i class="fa fa-folder-open fa-2x pull-left"></i>',
-					'		<div>{{inode.name}}</div>',
-					'	</a>',
+					'<div ng-if="inode.isdir">',
+					'	<div class="content-switcher text-center" style="padding: 5px; Xcursor: pointer" ng-show="!is_previewing">',
+					'		<span class="fa-stack fa-2x">',
+					'			<i class="fa fa-circle fa-stack-2x text-muted"></i>',
+					'			<i class="fa fa-folder-open fa-inverse fa-stack-1x text-white"></i></span></div>',
 					'</div>',
 					'<div ng-if="!inode.isdir">',
-					' <div ng-if="inode.content_type" ng-switch="inode.content_kind">',
+					' <div ng-switch="inode.content_kind">',
 					'	<div ng-switch-when="video" class="text-center">',
 					'		<div class="content-switcher text-center" style="padding: 5px; cursor: pointer" ng-click="toggle_content()" ng-show="!is_previewing">',
 					'			<span class="fa-stack fa-2x">',
 					'				<i class="fa fa-circle fa-stack-2x text-muted"></i>',
-					'				<i class="fa fa-video-camera fa-inverse fa-stack-1x text-danger"></i></span></div>',
+					'				<i class="fa fa-video-camera fa-inverse fa-stack-1x text-white"></i></span></div>',
 					'		<video ng-if="show_content" controls autoplay ng-src="{{nb.inode_api_url(inode.id)}}"',
 					'			class="content-item img-responsive center-block" nb-on-load="notifyLayout()"></video>',
 					'	</div>',
@@ -920,7 +956,7 @@
 					'		<div class="content-switcher text-center" style="padding: 5px; cursor: pointer" ng-click="toggle_content()" ng-show="!is_previewing">',
 					'			<span class="fa-stack fa-2x">',
 					'				<i class="fa fa-circle fa-stack-2x text-muted"></i>',
-					'				<i class="fa fa-music fa-inverse fa-stack-1x text-danger"></i></span></div>',
+					'				<i class="fa fa-music fa-inverse fa-stack-1x text-white"></i></span></div>',
 					'		<audio ng-if="show_content" controls autoplay ng-src="{{nb.inode_api_url(inode.id)}}"',
 					'			style="padding: 30px 5px 5px 5px; Xpadding: 5px" class="content-item img-responsive center-block" nb-on-load="notifyLayout()"></audio>',
 					'	</div>',
@@ -930,23 +966,16 @@
 					'		<div class="content-switcher text-center" style="padding: 5px; cursor: pointer" ng-click="toggle_content()" ng-show="!is_previewing">',
 					'			<span class="fa-stack fa-2x">',
 					'				<i class="fa fa-circle fa-stack-2x text-muted"></i>',
-					'				<i class="fa fa-font fa-inverse fa-stack-1x text-danger"></i></span></div>',
+					'				<i class="fa fa-font fa-inverse fa-stack-1x text-white"></i></span></div>',
 					'		<object ng-if="show_content" ng-attr-data="{{nb.inode_api_url(inode.id)}}" type="text/plain"',
 					'			width="100%" class="content-item center-block" nb-on-load="notifyLayout()"></object>',
 					'	</div>',
-					'	<div ng-switch-default style="padding: 15px">',
-					'		<a class="btn btn-link" href="{{nb.inode_api_url(inode.id)}}?seamless=1" target="_blank">',
-					'			<div><i class="fa fa-file-o fa-2x pull-left"></i>',
-					'			<div class="text-muted">{{inode.content_type}}</div></div>',
-					'			<div class="text-left" style="white-space: pre-wrap">{{inode.name}}</div>',
-					'		</a>',
+					'	<div ng-switch-default>',
+					'		<div class="content-switcher text-center" style="padding: 5px; cursor: pointer" ng-click="nb.seamless_open_inode(inode)">',
+					'			<span class="fa-stack fa-2x">',
+					'				<i class="fa fa-circle fa-stack-2x text-muted"></i>',
+					'				<i class="fa fa-file fa-inverse fa-stack-1x text-white"></i></span></div>',
 					'	</div>',
-					' </div>',
-					' <div ng-if="!inode.content_type" style="padding: 15px">',
-					'	<a class="btn btn-link" href="{{nb.inode_api_url(inode.id)}}?seamless=1" target="_blank">',
-					'		<i class="fa fa-file-o fa-2x pull-left"></i>',
-					'		<div class="text-left">{{inode.name}}</div>',
-					'	</a>',
 					' </div>',
 					'</div>',
 					'</div>'

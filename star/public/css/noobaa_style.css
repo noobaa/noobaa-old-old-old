@@ -275,7 +275,7 @@ a.btn-link.text-white:hover {
 .browser .content-item {
 	border-radius: 4px;
 }
-.content-switcher span {
+.content-switcher span, .content-switcher span .fa-stack-2x {
 	-webkit-transition: all 0.5s;
 	-moz-transition: all 0.5s;
 	-o-transition: all 0.5s;
@@ -284,6 +284,9 @@ a.btn-link.text-white:hover {
 .content-switcher:hover span {
 	transform: rotate(360deg);
 	-webkit-transform: rotate(360deg);
+}
+.content-switcher:hover span .fa-stack-2x {
+	color: black;
 }
 /*
 .feed_columns_4 {
