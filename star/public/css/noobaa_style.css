@@ -275,7 +275,7 @@ a.btn-link.text-white:hover {
 .browser .content-item {
 	border-radius: 4px;
 }
-.content-switcher span, .content-switcher span .fa-stack-2x {
+.content-switcher span, .content-switcher span .fa-stack-1x {
 	-webkit-transition: all 0.5s;
 	-moz-transition: all 0.5s;
 	-o-transition: all 0.5s;
@@ -285,8 +285,8 @@ a.btn-link.text-white:hover {
 	transform: rotate(360deg);
 	-webkit-transform: rotate(360deg);
 }
-.content-switcher:hover span .fa-stack-2x {
-	color: black;
+.content-switcher:hover span .fa-stack-1x {
+	color: hsl(338, 100%, 50%) !important;
 }
 /*
 .feed_columns_4 {
