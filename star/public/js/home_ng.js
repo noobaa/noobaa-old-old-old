@@ -287,7 +287,14 @@
 				};
 			}
 			$scope.open_feed_inode = function(feed) {
-				$scope.home_context.current_inode = feed;
+				if (feed.isdir) {
+					$scope.home_context.current_inode = feed;
+				} else {
+					$scope.home_context.current_inode = feed.parent;
+					// feed.is_previewing = true;
+					// feed.is_selected = true;
+					// TODO select item
+				}
 				$location.path('/collection/');
 			};
 		}
