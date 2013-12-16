@@ -41,7 +41,7 @@
 					Hide Preview
 				</a>
 				<a class="btn btn-link" ng-show="nb.can_keep_inode(current_inode)" ng-click="copy_inode(current_inode)">
-					<i class="fa fa-paperclip fa-fw"></i>
+					<i class="fa fa-plus fa-fw"></i>
 					Keep to My-Data
 				</a>
 				<a class="btn btn-link" ng-show="!current_inode.isdir && !current_inode.uploading && current_inode.size" ng-click="nb.download_inode(current_inode)" href="{{nb.inode_api_url(current_inode.id)}}?is_download=true" target="_blank">
@@ -112,7 +112,7 @@
 							Hide Preview
 						</a>
 						<a class="btn btn-link" ng-show="nb.can_keep_inode(inode)" ng-click="copy_inode(inode)">
-							<i class="fa fa-paperclip fa-fw"></i>
+							<i class="fa fa-plus fa-fw"></i>
 							Keep to My-Data
 						</a>
 						<a class="btn btn-link" ng-show="!inode.isdir && !inode.uploading && inode.size" ng-click="nb.download_inode(inode)" href="{{nb.inode_api_url(inode.id)}}?is_download=true" target="_blank">
