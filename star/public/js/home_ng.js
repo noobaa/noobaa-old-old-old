@@ -271,7 +271,7 @@
 				nb.read_dir($scope.feed);
 				$scope.current_item = function() {
 					return $scope.feed.entries ? $scope.feed.entries[$scope.index] : null;
-				}
+				};
 				$scope.next_index = function() {
 					$scope.index++;
 					$scope.notify_layout();
