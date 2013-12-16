@@ -31,22 +31,22 @@
 							<i class="fa fa-{{feed.isdir && 'folder-open' || 'file-o'}} fa-fw fa-lg text-danger"></i>
 							<span style="white-space: pre-wrap">{{feed.name}}</span>
 						</div>
-						<div ng-show="feed.isdir" style="color: black; padding: 10px 0">
+						<div ng-show="feed.isdir" class="text-wrap" style="color: black; padding: 10px 0">
 							<span class="text-muted">[{{index+1}} / {{feed.entries.length}}]&nbsp;&nbsp;</span>
 							<span style="white-space: pre-wrap">{{current_item().name}}</span>
 						</div>
 					</div>
 					<div style="position: absolute; top: 0; left: 0; width: 50px">
 						<img class="img-rounded" ng-src="{{nb.user_pic_url(feed.owner)}}" style="width: 30px; margin: 10px" ng-attr-title="{{feed.owner.name}}" rel="tooltip" />
-						<div class="text-center">
+						<div class="text-center" style="position: absolute; top: 50px; left: 0">
 							<button ng-show="feed.isdir" class="btn btn-link" ng-disabled="index<=0" ng-click="prev_index()">
-								<i class="fa fa-chevron-circle-left"></i>
+								<i class="fa fa-chevron-circle-left fa-lg"></i>
 							</button>
 						</div>
 					</div>
 					<div style="position: absolute; top: 50px; right: 0; width: 50px" class="text-center">
 						<button ng-show="feed.isdir" class="btn btn-link" ng-disabled="index+1>=feed.entries.length" ng-click="next_index()">
-							<i class="fa fa-chevron-circle-right"></i>
+							<i class="fa fa-chevron-circle-right fa-lg"></i>
 						</button>
 					</div>
 				</div>
