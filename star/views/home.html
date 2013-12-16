@@ -8,246 +8,250 @@
 
 <body ng-cloak ng-controller="HomeCtrl" class="bgdark bgdark-image">
 
-	<?# def.facebook_init_body ?>
-	<?# def.include( 'common_menubar.html') ?>
+	<div>
+		<?# def.facebook_init_body ?>
+	</div>
+	<div>
+		<?# def.include( 'common_menubar.html') ?>
+	</div>
 
-		<div nb-effect-toggle="nbUploadSrv.has_uploads()" nb-effect-options="{effect: 'blind'}" class="container">
-			<div ng-include="'/public/html/upload_template.html'"></div>
+	<div nb-effect-toggle="nbUploadSrv.has_uploads()" nb-effect-options="{effect: 'blind'}" class="container">
+		<div ng-include="'/public/html/upload_template.html'"></div>
+	</div>
+
+	<div Xstyle="position: relative">
+		<div ng-view Xclass="view-animate"></div>
+	</div>
+
+
+	<!-- SHARE MODAL -->
+
+	<div ng-controller="ShareModalCtrl" id="share_modal" class="nbdialog fntmd" tabindex="-1" role="dialog" aria-labelledby="share_modal_label" aria-hidden="true">
+		<div class="nbdialog_header nbdialog_drag">
+			Share
+			<a class="pull-right nbdialog_close btn btn-default btn-xs" title="Cancel">
+				<i class="icon-remove"></i>
+			</a>
 		</div>
-
-		<div Xstyle="position: relative">
-			<div ng-view Xclass="view-animate"></div>
+		<div class="nbdialog_content">
+			<div ng-show="share_is_loading" class="text-center" style="padding: 30px">
+				<i class="icon-spinner icon-spin icon-2x"></i>
+			</div>
+			<div ng-show="!share_is_loading && !share_list.length">
+				<p>No friends are availabe for sharing.</p>
+				<p>Currenlty sharing is only availalbe for NooBaa users who are your social network friends.</p>
+				<p>Invite your friends to NooBaa today.</p>
+			</div>
+			<div ng-show="!share_is_loading && share_list.length" ng-init="filter_friend_name=''">
+				<p>
+					Share this item with friends:
+					<div class="inode_label"></div>
+				</p>
+				<form role="form">
+					<div class="input-group">
+						<input type="text" class="form-control input-sm" placeholder="Search in friends" ng-model="filter_friend_name" />
+						<span class="input-group-btn">
+							<button class="btn btn-default btn-sm" type="button" ng-click="filter_friend_name=''">
+								<i class="icon-remove-sign icon-large"></i>
+							</button>
+						</span>
+					</div>
+				</form>
+				<table class="table">
+					<tr ng-repeat="friend in share_list | filter:{name: filter_friend_name} | orderBy:'name'" ng-class="{true: 'danger'}[friend.shared]" ng-click="friend.shared = !friend.shared">
+						<td>
+							<img ng-src="{{ nb.user_pic_url(friend) }}"></img>
+						</td>
+						<td>{{friend.name}}</td>
+						<td>
+							<i ng-show="friend.shared" class="icon-check icon-large icon-fixed-width"></i>
+							<i ng-hide="friend.shared" class="icon-check-empty icon-large icon-fixed-width"></i>
+						</td>
+					</tr>
+				</table>
+			</div>
 		</div>
-
-
-		<!-- SHARE MODAL -->
-
-		<div ng-controller="ShareModalCtrl" id="share_modal" class="nbdialog fntmd" tabindex="-1" role="dialog" aria-labelledby="share_modal_label" aria-hidden="true">
-			<div class="nbdialog_header nbdialog_drag">
-				Share
-				<a class="pull-right nbdialog_close btn btn-default btn-xs" title="Cancel">
-					<i class="icon-remove"></i>
-				</a>
-			</div>
-			<div class="nbdialog_content">
-				<div ng-show="share_is_loading" class="text-center" style="padding: 30px">
-					<i class="icon-spinner icon-spin icon-2x"></i>
-				</div>
-				<div ng-show="!share_is_loading && !share_list.length">
-					<p>No friends are availabe for sharing.</p>
-					<p>Currenlty sharing is only availalbe for NooBaa users who are your social network friends.</p>
-					<p>Invite your friends to NooBaa today.</p>
-				</div>
-				<div ng-show="!share_is_loading && share_list.length" ng-init="filter_friend_name=''">
-					<p>
-						Share this item with friends:
-						<div class="inode_label"></div>
-					</p>
-					<form role="form">
-						<div class="input-group">
-							<input type="text" class="form-control input-sm" placeholder="Search in friends" ng-model="filter_friend_name" />
-							<span class="input-group-btn">
-								<button class="btn btn-default btn-sm" type="button" ng-click="filter_friend_name=''">
-									<i class="icon-remove-sign icon-large"></i>
-								</button>
-							</span>
-						</div>
-					</form>
-					<table class="table">
-						<tr ng-repeat="friend in share_list | filter:{name: filter_friend_name} | orderBy:'name'" ng-class="{true: 'danger'}[friend.shared]" ng-click="friend.shared = !friend.shared">
-							<td>
-								<img ng-src="{{ nb.user_pic_url(friend) }}"></img>
-							</td>
-							<td>{{friend.name}}</td>
-							<td>
-								<i ng-show="friend.shared" class="icon-check icon-large icon-fixed-width"></i>
-								<i ng-hide="friend.shared" class="icon-check-empty icon-large icon-fixed-width"></i>
-							</td>
-						</tr>
-					</table>
-				</div>
-			</div>
-			<div class="nbdialog_footer">
-				<button class="nbdialog_close btn btn-default">Cancel</button>
-				<div class="pull-right">
-					<div class="btn-group dropup">
-						<button type="button" class="btn btn-default" ng-click="mklink()">
-							Get Link
-						</button>
-						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-							<span class="caret"></span>
-						</button>
-						<ul class="dropdown-menu pull-right" role="menu">
-							<li>
-								<a href="#" ng-click="rmlinks()">
+		<div class="nbdialog_footer">
+			<button class="nbdialog_close btn btn-default">Cancel</button>
+			<div class="pull-right">
+				<div class="btn-group dropup">
+					<button type="button" class="btn btn-default" ng-click="mklink()">
+						Get Link
+					</button>
+					<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+						<span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu pull-right" role="menu">
+						<li>
+							<a href="#" ng-click="rmlinks()">
 								Revoke Previous Links !
 							</a>
-							</li>
-						</ul>
-					</div>
-					<button class="btn btn-primary" ng-click="submit()">Save</button>
+						</li>
+					</ul>
 				</div>
+				<button class="btn btn-primary" ng-click="submit()">Save</button>
 			</div>
 		</div>
+	</div>
 
-		<!-- GET LINK DIALOG -->
+	<!-- GET LINK DIALOG -->
 
-		<div id="getlink_dialog" class="nbdialog fntmd">
-			<div class="nbdialog_header nbdialog_drag">
-				File Link
-				<a class="pull-right nbdialog_close btn btn-default btn-xs" title="Cancel">
-					<i class="icon-remove"></i>
-				</a>
-			</div>
-			<div class="nbdialog_content">
-				<p>Copy &amp; Paste this file link to send or post anywhere you want:</p>
+	<div id="getlink_dialog" class="nbdialog fntmd">
+		<div class="nbdialog_header nbdialog_drag">
+			File Link
+			<a class="pull-right nbdialog_close btn btn-default btn-xs" title="Cancel">
+				<i class="icon-remove"></i>
+			</a>
+		</div>
+		<div class="nbdialog_content">
+			<p>Copy &amp; Paste this file link to send or post anywhere you want:</p>
+			<div class="inode_label"></div>
+			<div class="link_label"></div>
+		</div>
+		<div class="nbdialog_footer text-center">
+			<button class="nbdialog_close btn btn-default">Close</button>
+		</div>
+	</div>
+
+
+	<!-- FILE/DIR WITH ICON -->
+
+	<div id="inode_with_icon">
+		<i id="inode_with_icon_dir" class="icon-folder-close icon-large d-icon" style="display: none"></i>
+		<i id="inode_with_icon_file" class="icon-file icon-large d-icon" style="display: none; color: grey"></i>
+		<span id="inode_with_icon_name" class="fntmd fntthin"></span>
+	</div>
+
+	<!-- MOVE DIALOG -->
+
+	<div id="move_dialog" class="nbdialog fntmd">
+		<div class="nbdialog_header nbdialog_drag">
+			Confirm Move
+			<a class="pull-right nbdialog_close btn btn-default btn-xs" title="Cancel">
+				<i class="icon-remove"></i>
+			</a>
+		</div>
+		<div class="nbdialog_content">
+			<p>Are you sure you want to move?</p>
+			<div class="inode_label"></div>
+			<p>into this folder:</p>
+			<div class="inode_label"></div>
+		</div>
+		<div class="nbdialog_footer">
+			<button class="nbdialog_close btn btn-default">Cancel</button>
+			<button id="dialog_ok" class="btn btn-primary pull-right">Move</button>
+		</div>
+	</div>
+
+	<!-- DELETE DIALOG -->
+
+	<div id="delete_dialog" class="nbdialog fntmd">
+		<div class="nbdialog_header nbdialog_drag">
+			Confirm Delete
+			<a class="pull-right nbdialog_close btn btn-default btn-xs" title="Cancel">
+				<i class="icon-remove"></i>
+			</a>
+		</div>
+		<div class="nbdialog_content">
+			<p id="not_empty_msg" style="display: none">
+				The selected folders are not empty.
+				<br/>Are you sure you want to delete all its content?
+			</p>
+			<p id="normal_msg">Are you sure you want to delete the selected items?</p>
+			<div class="inode_label"></div>
+		</div>
+		<div class="nbdialog_footer">
+			<button class="nbdialog_close btn btn-default">Cancel</button>
+			<button id="dialog_ok" class="btn btn-danger pull-right">Delete</button>
+		</div>
+	</div>
+
+	<!-- COPY DIALOG -->
+
+	<div id="copy_dialog" class="nbdialog fntmd">
+		<div class="nbdialog_header nbdialog_drag">
+			Files copied to "My Data"
+			<a class="pull-right nbdialog_close btn btn-default btn-xs" title="OK">
+				<i class="icon-remove"></i>
+			</a>
+		</div>
+		<div class="nbdialog_footer">
+			<button class="nbdialog_close btn btn-default">Ok</button>
+		</div>
+	</div>
+
+	<!-- MKDIR DIALOG -->
+
+	<div id="mkdir_dialog" class="nbdialog fntmd">
+		<div class="nbdialog_header nbdialog_drag">
+			New Folder...
+			<a class="pull-right nbdialog_close btn btn-default btn-xs" title="Cancel">
+				<i class="icon-remove"></i>
+			</a>
+		</div>
+		<div class="nbdialog_content">
+			<p>
+				Create new folder under:
 				<div class="inode_label"></div>
-				<div class="link_label"></div>
-			</div>
-			<div class="nbdialog_footer text-center">
-				<button class="nbdialog_close btn btn-default">Close</button>
-			</div>
+			</p>
+			<input id="dialog_input" class="form-control" type="text" />
 		</div>
-
-
-		<!-- FILE/DIR WITH ICON -->
-
-		<div id="inode_with_icon">
-			<i id="inode_with_icon_dir" class="icon-folder-close icon-large d-icon" style="display: none"></i>
-			<i id="inode_with_icon_file" class="icon-file icon-large d-icon" style="display: none; color: grey"></i>
-			<span id="inode_with_icon_name" class="fntmd fntthin"></span>
+		<div class="nbdialog_footer">
+			<button class="nbdialog_close btn btn-default">Cancel</button>
+			<button id="dialog_ok" class="btn btn-primary pull-right">Create</button>
 		</div>
+	</div>
 
-		<!-- MOVE DIALOG -->
+	<!-- RENAME DIALOG -->
 
-		<div id="move_dialog" class="nbdialog fntmd">
-			<div class="nbdialog_header nbdialog_drag">
-				Confirm Move
-				<a class="pull-right nbdialog_close btn btn-default btn-xs" title="Cancel">
-					<i class="icon-remove"></i>
-				</a>
-			</div>
-			<div class="nbdialog_content">
-				<p>Are you sure you want to move?</p>
+	<div id="rename_dialog" class="nbdialog fntmd">
+		<div class="nbdialog_header nbdialog_drag">
+			Rename...
+			<a class="pull-right nbdialog_close btn btn-default btn-xs" title="Cancel">
+				<i class="icon-remove"></i>
+			</a>
+		</div>
+		<div class="nbdialog_content">
+			<p>
+				New name for:
 				<div class="inode_label"></div>
-				<p>into this folder:</p>
-				<div class="inode_label"></div>
-			</div>
-			<div class="nbdialog_footer">
-				<button class="nbdialog_close btn btn-default">Cancel</button>
-				<button id="dialog_ok" class="btn btn-primary pull-right">Move</button>
-			</div>
+			</p>
+			<input id="dialog_input" class="form-control" type="text" />
 		</div>
-
-		<!-- DELETE DIALOG -->
-
-		<div id="delete_dialog" class="nbdialog fntmd">
-			<div class="nbdialog_header nbdialog_drag">
-				Confirm Delete
-				<a class="pull-right nbdialog_close btn btn-default btn-xs" title="Cancel">
-					<i class="icon-remove"></i>
-				</a>
-			</div>
-			<div class="nbdialog_content">
-				<p id="not_empty_msg" style="display: none">
-					The selected folders are not empty.
-					<br/>Are you sure you want to delete all its content?
-				</p>
-				<p id="normal_msg">Are you sure you want to delete the selected items?</p>
-				<div class="inode_label"></div>
-			</div>
-			<div class="nbdialog_footer">
-				<button class="nbdialog_close btn btn-default">Cancel</button>
-				<button id="dialog_ok" class="btn btn-danger pull-right">Delete</button>
-			</div>
+		<div class="nbdialog_footer">
+			<button class="nbdialog_close btn btn-default">Cancel</button>
+			<button id="dialog_ok" class="btn btn-primary pull-right">Rename</button>
 		</div>
-
-		<!-- COPY DIALOG -->
-
-		<div id="copy_dialog" class="nbdialog fntmd">
-			<div class="nbdialog_header nbdialog_drag">
-				Files copied to "My Data"
-				<a class="pull-right nbdialog_close btn btn-default btn-xs" title="OK">
-					<i class="icon-remove"></i>
-				</a>
-			</div>
-			<div class="nbdialog_footer">
-				<button class="nbdialog_close btn btn-default">Ok</button>
-			</div>
-		</div>
-
-		<!-- MKDIR DIALOG -->
-
-		<div id="mkdir_dialog" class="nbdialog fntmd">
-			<div class="nbdialog_header nbdialog_drag">
-				New Folder...
-				<a class="pull-right nbdialog_close btn btn-default btn-xs" title="Cancel">
-					<i class="icon-remove"></i>
-				</a>
-			</div>
-			<div class="nbdialog_content">
-				<p>
-					Create new folder under:
-					<div class="inode_label"></div>
-				</p>
-				<input id="dialog_input" class="form-control" type="text" />
-			</div>
-			<div class="nbdialog_footer">
-				<button class="nbdialog_close btn btn-default">Cancel</button>
-				<button id="dialog_ok" class="btn btn-primary pull-right">Create</button>
-			</div>
-		</div>
-
-		<!-- RENAME DIALOG -->
-
-		<div id="rename_dialog" class="nbdialog fntmd">
-			<div class="nbdialog_header nbdialog_drag">
-				Rename...
-				<a class="pull-right nbdialog_close btn btn-default btn-xs" title="Cancel">
-					<i class="icon-remove"></i>
-				</a>
-			</div>
-			<div class="nbdialog_content">
-				<p>
-					New name for:
-					<div class="inode_label"></div>
-				</p>
-				<input id="dialog_input" class="form-control" type="text" />
-			</div>
-			<div class="nbdialog_footer">
-				<button class="nbdialog_close btn btn-default">Cancel</button>
-				<button id="dialog_ok" class="btn btn-primary pull-right">Rename</button>
-			</div>
-		</div>
+	</div>
 
 
 
-		<!-- TREE TEMPLATE -->
+	<!-- TREE TEMPLATE -->
 
-		<script type="text/ng-template" id="tree_view_template.html">
-		< div > < div class = "d-row d-head btn-info fnt fntmd fntwht" > < div class = "d-cell"
-		style = "margin-left: 35px" > Folders Tree < /div>
+	<script type="text/ng-template" id="tree_view_template.html">
+	< div > < div class = "d-row d-head btn-info fnt fntmd fntwht" > < div class = "d-cell"
+	style = "margin-left: 35px" > Folders Tree < /div>
 		</div > < div class = "fntthin"
-		ng - include = "'tree_item_template.html'" > < /div>
+	ng - include = "'tree_item_template.html'" > < /div>
 	</div >
-		</script>
+	</script>
 
-		<!-- recursive html template to be loaded and compiled by angular per item -->
-		<script type="text/ng-template" id="tree_item_template.html">
-		< div ng - repeat = "dir_inode in dir_inode.dir_state.subdirs_list" > < div class = "d-row a-row text-ellipses nbdrag ng-class: dir_inode.dir_active;"
-		title - on - ellipsis = "{{dir_inode.name}}"
-		ng - click = "inode_click(dir_inode)"
-		nb - right - click = "inode_rclick(dir_inode, $event)"
-		ng - dblclick = "inode_dclick(dir_inode)"
-		nb - drag = "dir_inode"
-		nb - drop = "dir_inode" > < div style = "display: inline-block; width: {{20*(dir_inode.level-1)}}px" > < /div>
+	<!-- recursive html template to be loaded and compiled by angular per item -->
+	<script type="text/ng-template" id="tree_item_template.html">
+	< div ng - repeat = "dir_inode in dir_inode.dir_state.subdirs_list" > < div class = "d-row a-row text-ellipses nbdrag ng-class: dir_inode.dir_active;"
+	title - on - ellipsis = "{{dir_inode.name}}"
+	ng - click = "inode_click(dir_inode)"
+	nb - right - click = "inode_rclick(dir_inode, $event)"
+	ng - dblclick = "inode_dclick(dir_inode)"
+	nb - drag = "dir_inode"
+	nb - drop = "dir_inode" > < div style = "display: inline-block; width: {{20*(dir_inode.level-1)}}px" > < /div>
 			<span class="d-cell"
 				ng-click="inode_dclick(dir_inode)">
 				<i class="icon-refresh icon-large icon-fixed-width
 						ng-class: dir_inode.icon_class||'d-icon'"
 					ng-show="!!dir_inode.dir_state.refreshing"></i > < span class = "icon-stack"
-		style = "font-size: 11px"
-		ng - show = "!dir_inode.dir_state.refreshing
+	style = "font-size: 11px"
+	ng - show = "!dir_inode.dir_state.refreshing
 						&& !dir_inode.dir_state.expanded" > < i class = "icon-folder-close icon-stack-base icon-fixed-width
 						ng-class: dir_inode.icon_class||'d-icon'" > < /i>
 					<i class="icon-plus icon-light icon-fixed-width"
@@ -263,32 +267,32 @@
 			nb-effect-toggle="dir_inode.dir_state.expanded && dir_inode.dir_state.populated"
 		 	nb-effect-options="{effect:'blind', duration:150}">
 		</div > < /div>
-		</script>
+	</script>
 
 
 
-		<!-- LIST TEMPLATE -->
+	<!-- LIST TEMPLATE -->
 
-		<script type="text/ng-template" id="list_view_template.html">
-		< div class = "t-table" >
+	<script type="text/ng-template" id="list_view_template.html">
+	< div class = "t-table" >
 
-		 < div class = "t-icon-column" > < /div>
+	< div class = "t-icon-column" > < /div>
 		<div class="t-name-column"></div > < div class = "t-size-column" > < /div>
 		<div class="t-shared-column"></div > < div class = "t-ctime-column" > < /div>
 
 		<div class="t-row d-row d-head btn-info fnt fntmd fntwht">
 			<div class="t-cell"></div > < div class = "t-cell" > < a style = "color: white"
-		ng - click = "toggle_sort_by_name()"
-		href = "#" >
-			Name < i ng - class = "get_sort_by_name_class()" > < /i>
+	ng - click = "toggle_sort_by_name()"
+	href = "#" >
+		Name < i ng - class = "get_sort_by_name_class()" > < /i>
 				</a > < /div>
 			<div class="t-cell">
 				<a style="color: white" ng-click="toggle_sort_by_size()" href="#">
 					Size
 					<i ng-class="get_sort_by_size_class()"></i > < /a>
 			</div > < div class = "t-cell text-center" > < a style = "color: white"
-		ng - click = "toggle_sort_by_shared()"
-		href = "#" > < span ng - show = "dir_selection.inode.swm" > Shared By < /span>
+	ng - click = "toggle_sort_by_shared()"
+	href = "#" > < span ng - show = "dir_selection.inode.swm" > Shared By < /span>
 					<span ng-hide="dir_selection.inode.swm">Sharing</span > < i ng - class = "get_sort_by_shared_class()" > < /i>
 				</a > < /div>
 			<div class="t-cell text-center">
@@ -307,13 +311,13 @@
 			<div class="t-row d-row">
 				<div class="t-cell text-center">
 					<i ng-show="inode.isdir" class="icon-folder-close icon-large d-icon"></i > < i ng - hide = "inode.isdir"
-		class = "icon-file icon-large d-icon"
-		style = "color: grey" > < /i>
+	class = "icon-file icon-large d-icon"
+	style = "color: grey" > < /i>
 				</div > < div class = "t-cell" > {
-			{
-				inode.name
-			}
-		} < /div>
+		{
+			inode.name
+		}
+	} < /div>
 				<div class="t-cell">
 					<span ng-show="inode.uploading" title="Incomplete upload - Click to resume"
 						ng-click="inode_upload(inode)">
@@ -324,9 +328,9 @@
 				<div class="t-cell text-center">
 					<span ng-show="inode.owner">
 						{{inode.owner.name}}</span > < i ng - show = "!!inode.num_refs"
-		class = "icon-share icon-large d-icon"
-		title = "Shared with {{inode.num_refs}} friends"
-		ng - click = "click_share(inode)" > < /i>
+	class = "icon-share icon-large d-icon"
+	title = "Shared with {{inode.num_refs}} friends"
+	ng - click = "click_share(inode)" > < /i>
 					<img ng-show="!!inode.owner"
 						class="pull-right"
 						ng-src="{{get_pic_url(inode.owner)}}" 
@@ -336,30 +340,35 @@
 						{{inode.ctime_display}}
 					</span > < /div>
 			</div >
-		 <!-- div class="t-row"
-		ng - show = "inode.inode_active"
-		style = "height: 100px" > < div class = "t-cell text-center" > < /div>
+	<!-- div class="t-row"
+	ng - show = "inode.inode_active"
+	style = "height: 100px" > < div class = "t-cell text-center" > < /div>
 				<div class="t-cell">TODO: More details...</div > < div class = "t-cell" > < /div>
 				<div class="t-cell"></div > < /div -->
 		</div >
 
-		 < /div>
-		</script>
+	< /div>
+	</script>
 
 
-
+	<div>
 		<?# def.include( 'common_scripts.html') ?>
+	</div>
 
-			<script src="/vendor/bootstrap-tour/js/bootstrap-tour.js" type="text/javascript"></script>
-			<script src="/vendor/async/lib/async.js" type="text/javascript"></script>
-			<script src="/vendor/bootstrap-growl/jquery.bootstrap-growl.min.js" type="text/javascript"></script>
-			<script src="/vendor/masonry.pkgd.min.js" type="text/javascript"></script>
-			<!-- <script src="/public/js/menu_ctrl.js" type="text/javascript"></script> -->
-			<!-- <script src="/public/js/guide_ctrl.js" type="text/javascript"></script> -->
-			<script src="/public/js/upload_srv.js" type="text/javascript"></script>
-			<script src="/public/js/home_ng.js" type="text/javascript"></script>
-			<!-- <script src="/public/js/planet/planet_ctrl.js" type="text/javascript"></script> -->
-			<!-- <div ng-controller="PlanetCtrl"></div> -->
+	<script src="/vendor/bootstrap-tour/js/bootstrap-tour.js" type="text/javascript"></script>
+	<script src="/vendor/async/lib/async.js" type="text/javascript"></script>
+	<script src="/vendor/bootstrap-growl/jquery.bootstrap-growl.min.js" type="text/javascript"></script>
+	<script src="/vendor/masonry.pkgd.min.js" type="text/javascript"></script>
+	<!-- <script src="/public/js/menu_ctrl.js" type="text/javascript"></script> -->
+	<!-- <script src="/public/js/guide_ctrl.js" type="text/javascript"></script> -->
+	<script src="/public/js/upload_srv.js" type="text/javascript"></script>
+	<script src="/public/js/home_ng.js" type="text/javascript"></script>
+
+	<script src="/vendor/async/lib/async.js" type="text/javascript"></script>
+	<!-- <script src="/public/js/planet/planet_fs.js" type="text/javascript"></script> -->
+	<script src="/public/js/planet/planet_ctrl.js" type="text/javascript"></script>
+	<iframe id="auth_frame" hidden Xnwdisable Xnwfaketop></iframe>
+	<div ng-controller="PlanetCtrl"></div>
 
 </body>
 

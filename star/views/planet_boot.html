@@ -34,6 +34,9 @@ function PlanetBoot($scope) {
 
 	var gui = window.require("nw.gui");
 
+	// TODO when to clear?
+	gui.App.clearCache();
+
 	$scope.win = null;
 	$scope.tray = null;
 
@@ -106,7 +109,8 @@ function PlanetBoot($scope) {
 			return;
 		}
 		// create and open the planet window
-		$scope.win = gui.Window.open("planet/window", {
+		// $scope.win = gui.Window.open("planet/window", {
+		$scope.win = gui.Window.open("home/", {
 			icon: "noobaa_icon.ico",
 			title: "NooBaa",
 			show: false,
@@ -143,29 +147,29 @@ function PlanetBoot($scope) {
 
 	// create the tray icon and menu
 	var tray = $scope.tray = new gui.Tray({
-		title: 'NooBaa',
-		tooltip: 'Click to Go to NooBaa...',
+		// title: 'NooBaa',
+		// tooltip: 'Click to Go to NooBaa...',
 		icon: 'noobaa_icon16.ico',
 		menu: new gui.Menu()
 	});
 	tray.on('click', show_win);
 	tray.menu.append(new gui.MenuItem({
-		label: 'Go to NooBaa',
+		label: 'Open',
+		click: show_win
+	}));
+	tray.menu.append(new gui.MenuItem({
+		type: 'separator'
+	}));
+	tray.menu.append(new gui.MenuItem({
+		label: 'Goto noobaa.com',
 		click: open_noobaa
 	}));
 	tray.menu.append(new gui.MenuItem({
 		type: 'separator'
 	}));
 	tray.menu.append(new gui.MenuItem({
-		label: 'Manage this Device',
-		click: show_win
-	}));
-	tray.menu.append(new gui.MenuItem({
-		label: 'Check for updates',
+		label: 'Reload',
 		click: reload
-	}));
-	tray.menu.append(new gui.MenuItem({
-		type: 'separator'
 	}));
 	tray.menu.append(new gui.MenuItem({
 		label: 'Quit NooBaa',

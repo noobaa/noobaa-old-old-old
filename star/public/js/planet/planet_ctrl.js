@@ -36,8 +36,10 @@
 		$scope.nbUploadSrv = nbUploadSrv;
 
 		if (!window.require) {
+			console.log('NO REQUIRE');
 			return;
 		}
+		console.log('YES REQUIRE');
 
 		// set the scope in the window to signal to the planet_boot code
 		// that we are loaded and it can communicate with our scope.
@@ -59,7 +61,7 @@
 
 		function show_window(w) {
 			// using always on top to popup the window
-			w.setAlwaysOnTop(true);
+			// w.setAlwaysOnTop(true);
 			w.show();
 			w.restore();
 			w.blur();
@@ -74,7 +76,7 @@
 		// dont really be always on top,
 		// when the focus is dropped, remove it
 		win.on('blur', function() {
-			win.setAlwaysOnTop(false);
+			// win.setAlwaysOnTop(false);
 		});
 
 		// make window hide on close
@@ -326,6 +328,7 @@
 		// init the planet fs
 		// this will create chunk files in the app directory
 		// and make them available for co-sharing.
+		/*
 		$scope.planetfs = new global.PlanetFS(
 			gui.App.dataPath.toString(), // root_dir
 			1, // num_chunks
@@ -338,6 +341,7 @@
 				console.log('PLANET FS INIT DONE');
 			}
 		});
+		*/
 
 
 		////////////////////////////////////////////////////////////

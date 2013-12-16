@@ -191,6 +191,9 @@ hsl(338, 100%, 50%)
 .text-white {
 	color: hsl(0, 0%, 95%) !important;
 }
+.text-black {
+	color: hsl(0, 0%, 5%) !important;
+}
 a.btn-link.text-white {
 	color: hsl(0, 0%, 60%) !important;
 }
