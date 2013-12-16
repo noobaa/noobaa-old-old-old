@@ -690,7 +690,11 @@ exports.inode_read = function(req, res) {
 			}
 			// redirect to the fobj location in S3
 			var url = s3_get_url(inode.fobj, inode.name, req.query.is_download);
-			res.redirect(url);
+			if (req.query.seamless) {
+				res.end('<html><body><iframe width="100%" height="100%" seamless src="' + url + '"></body></html>');
+			} else {
+				res.redirect(url);
+			}
 			// var ctx = common_api.page_context(req);
 			// ctx.url = url;
 			// res.render('media.html', ctx);

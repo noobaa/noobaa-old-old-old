@@ -878,17 +878,25 @@
 		}
 	]);
 
-	noobaa_app.directive('nbContent', ['$parse', 'nb',
-		function($parse, nb) {
+	noobaa_app.directive('nbContent', ['$parse', '$timeout', 'nb',
+		function($parse, $timeout, nb) {
 			return {
 				replace: true,
 				link: function(scope, element, attr) {
 					scope.nb = nb;
 					scope.$watch(attr.nbContent, function(value) {
 						scope.inode = scope.$eval(attr.nbContent) || {};
+						if (scope.inode.is_previewing) {
+							scope.show_content = true;
+							scope.is_previewing = true;
+						}
 						// console.log('NBCONTENT', scope.inode);
 					});
 					scope.notifyLayout = scope.$eval(attr.notifyLayout);
+					scope.toggle_content = function() {
+						scope.show_content = !scope.show_content;
+						$timeout(scope.notifyLayout, 0);
+					};
 				},
 				template: [
 					'<div>',
@@ -900,28 +908,42 @@
 					'</div>',
 					'<div ng-if="!inode.isdir">',
 					' <div ng-if="inode.content_type" ng-switch="inode.content_kind">',
-					'	<video ng-switch-when="video" controls="controls" preload="none" ng-src="{{nb.inode_api_url(inode.id)}}"',
-					'		style="background: transparent no-repeat url(\'/public/images/play_video.png\'); background-size: 80px; background-position: center 20px"',
-					'		class="img-responsive center-block" nb-on-load="notifyLayout()"></video>',
-					'	<audio ng-switch-when="audio" controls="controls" preload="none" ng-src="{{nb.inode_api_url(inode.id)}}"',
-					'		style="height: 100px; padding: 5px" class="img-responsive center-block" nb-on-load="notifyLayout()"></audio>',
+					'	<div ng-switch-when="video" class="text-center">',
+					'		<div class="content-switcher text-center" style="padding: 5px; cursor: pointer" ng-click="toggle_content()" ng-show="!is_previewing">',
+					'			<span class="fa-stack fa-2x">',
+					'				<i class="fa fa-circle fa-stack-2x text-muted"></i>',
+					'				<i class="fa fa-video-camera fa-inverse fa-stack-1x text-danger"></i></span></div>',
+					'		<video ng-if="show_content" controls autoplay ng-src="{{nb.inode_api_url(inode.id)}}"',
+					'			class="content-item img-responsive center-block" nb-on-load="notifyLayout()"></video>',
+					'	</div>',
+					'	<div ng-switch-when="audio">',
+					'		<div class="content-switcher text-center" style="padding: 5px; cursor: pointer" ng-click="toggle_content()" ng-show="!is_previewing">',
+					'			<span class="fa-stack fa-2x">',
+					'				<i class="fa fa-circle fa-stack-2x text-muted"></i>',
+					'				<i class="fa fa-music fa-inverse fa-stack-1x text-danger"></i></span></div>',
+					'		<audio ng-if="show_content" controls autoplay ng-src="{{nb.inode_api_url(inode.id)}}"',
+					'			style="padding: 30px 5px 5px 5px; Xpadding: 5px" class="content-item img-responsive center-block" nb-on-load="notifyLayout()"></audio>',
+					'	</div>',
 					'	<img ng-switch-when="image" ng-src="{{nb.inode_api_url(inode.id)}}"',
-					'		class="img-responsive center-block" style="max-height: 60%" nb-on-load="notifyLayout()" />',
-					'	<div ng-switch-when="text" class="text-center" style="padding: 15px">',
-					'		<object ng-attr-data="{{nb.inode_api_url(inode.id)}}" type="text/plain"',
-					'			width="100%" class="center-block" nb-on-load="notifyLayout()"></object>',
+					'		class="content-item img-responsive center-block" style="max-height: 60%" nb-on-load="notifyLayout()" />',
+					'	<div ng-switch-when="text">',
+					'		<div class="content-switcher text-center" style="padding: 5px; cursor: pointer" ng-click="toggle_content()" ng-show="!is_previewing">',
+					'			<span class="fa-stack fa-2x">',
+					'				<i class="fa fa-circle fa-stack-2x text-muted"></i>',
+					'				<i class="fa fa-font fa-inverse fa-stack-1x text-danger"></i></span></div>',
+					'		<object ng-if="show_content" ng-attr-data="{{nb.inode_api_url(inode.id)}}" type="text/plain"',
+					'			width="100%" class="content-item center-block" nb-on-load="notifyLayout()"></object>',
 					'	</div>',
 					'	<div ng-switch-default style="padding: 15px">',
-					'		<a class="btn btn-link" href="{{nb.inode_api_url(inode.id)}}" target="_blank">',
-					'			<i class="fa fa-file-o fa-2x pull-left"></i>',
-					'			<div class="text-left">{{inode.name}}',
-					'				<br/><span class="text-muted">{{inode.content_type}}</span>',
-					'			</div>',
+					'		<a class="btn btn-link" href="{{nb.inode_api_url(inode.id)}}?seamless=1" target="_blank">',
+					'			<div><i class="fa fa-file-o fa-2x pull-left"></i>',
+					'			<div class="text-muted">{{inode.content_type}}</div></div>',
+					'			<div class="text-left" style="white-space: pre-wrap">{{inode.name}}</div>',
 					'		</a>',
 					'	</div>',
 					' </div>',
 					' <div ng-if="!inode.content_type" style="padding: 15px">',
-					'	<a class="btn btn-link" href="{{nb.inode_api_url(inode.id)}}" target="_blank">',
+					'	<a class="btn btn-link" href="{{nb.inode_api_url(inode.id)}}?seamless=1" target="_blank">',
 					'		<i class="fa fa-file-o fa-2x pull-left"></i>',
 					'		<div class="text-left">{{inode.name}}</div>',
 					'	</a>',

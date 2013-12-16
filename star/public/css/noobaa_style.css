@@ -1,20 +1,35 @@
+html {
+	/* force scroll-y to show, to prevent flickery resizes */
+	overflow-y: scroll;
+	overflow-x: auto;
+}
 html, body {
 	margin: 0 !important;
 	padding: 0 !important;
 	width: 100%;
 	height: 100%;
 	min-height: 100%;
-	background-image: url('/public/images/bg_wall_tile.png');
-	background-repeat: repeat;
-	background-color: hsl(0, 0%, 89%);
-}
-html {
-	/* force scroll-y to show, to prevent flickery resizes */
-	overflow-y: scroll;
-	overflow-x: auto;
+	/*background-image: url('/public/images/bg_wall_tile.png');*/
+	/*background-image: url('/public/images/grey_bg.jpg');*/
+	/*background-repeat: repeat-x;*/
+	/*background-color: hsl(40, 7%, 18%) !important;*/
+	/*color: hsl(0, 0%, 95%) !important;*/
 }
 /* COLOR SCHEME */
-
+ .bgdark {
+	background-color: hsl(40, 7%, 18%) !important;
+	color: hsl(0, 0%, 95%) !important;
+}
+ .bgdark-image {
+	background-image: url('/public/images/grey_bg.jpg');
+	background-repeat: repeat-x;
+}
+.bggrey {
+	background-color: hsl(192, 7%, 80%) !important;
+}
+.progress-bar-grey {
+	background-color: hsl(192, 7%, 80%) !important;
+}
 /* COLOR LIGHT BLUE:
 hsl(212, 41%, 71%)
 hsl(204, 70%, 53%)
@@ -131,30 +146,37 @@ hsl(50, 100%, 65%)
 /* COLOR RED:
 hsl(351, 68%, 44%)
 hsl(335, 38%, 55%)
+hsl(338, 100%, 50%)
 */
  .bg-danger {
-	background-color: hsl(335, 38%, 55%) !important;
+	background-color: hsl(338, 100%, 50%) !important;
+}
+ .border-danger {
+	border-color: hsl(338, 100%, 50%) !important;
 }
 .btn-danger {
-	background-color: hsl(335, 38%, 55%) !important;
+	background-color: hsl(338, 100%, 50%) !important;
 }
 .btn-danger:hover {
-	background-color: hsl(335, 38%, 50%) !important;
+	background-color: hsl(338, 100%, 45%) !important;
 }
 .text-danger {
-	color: hsl(335, 38%, 55%) !important;
+	color: hsl(338, 100%, 50%) !important;
+}
+.text-border-danger {
+	text-shadow: -2px 0 hsl(338, 100%, 50%), 0 2px hsl(338, 100%, 50%), 2px 0 hsl(338, 100%, 50%), 0 -2px hsl(338, 100%, 50%) !important;
 }
 .panel-danger {
-	border-color: hsl(335, 38%, 55%) !important;
+	border-color: hsl(338, 100%, 50%) !important;
 }
 .panel-danger .panel-heading {
-	background-color: hsl(335, 38%, 55%) !important;
+	background-color: hsl(338, 100%, 50%) !important;
 }
 .progress-bar-danger {
-	background-color: hsl(335, 38%, 55%) !important;
+	background-color: hsl(338, 100%, 50%) !important;
 }
 .label-danger {
-	background-color: hsl(335, 38%, 55%) !important;
+	background-color: hsl(338, 100%, 50%) !important;
 }
 /* COLOR BLACK & WHITE */
  .bg-white {
@@ -167,26 +189,19 @@ hsl(335, 38%, 55%)
 	background-color: hsl(0, 0%, 95%) !important;
 }
 .text-white {
-	color: hsl(0, 0%, 100%) !important;
+	color: hsl(0, 0%, 95%) !important;
+}
+a.btn-link.text-white {
+	color: hsl(0, 0%, 60%) !important;
+}
+a.btn-link.text-white:hover {
+	color: hsl(0, 0%, 95%) !important;
 }
 .panel-default, .panel-default .panel-body {
 	border-color: hsl(192, 20%, 70%) !important;
 }
 .panel-default, .panel-default .panel-heading {
 	background-color: hsla(0, 0%, 0%, 0) !important;
-}
-.bggrey {
-	background-color: hsl(192, 7%, 80%) !important;
-}
-.progress-bar-grey {
-	background-color: hsl(192, 7%, 80%) !important;
-}
-.bglight {
-	background-color: white;
-}
-.bgdark {
-	background-color: #222222;
-	color: #fafafa;
 }
 /**/
 
@@ -250,6 +265,23 @@ hsl(335, 38%, 55%)
 		width: 300px;
 	}
 }
+.feed_item .content-item {
+	border-bottom-left-radius: 4px;
+	border-bottom-right-radius: 4px;
+}
+.browser .content-item {
+	border-radius: 4px;
+}
+.content-switcher span {
+	-webkit-transition: all 0.5s;
+	-moz-transition: all 0.5s;
+	-o-transition: all 0.5s;
+	transition: all 0.5s;
+}
+.content-switcher:hover span {
+	transform: rotate(360deg);
+	-webkit-transform: rotate(360deg);
+}
 /*
 .feed_columns_4 {
 	-webkit-column-count: 4;
@@ -308,8 +340,20 @@ hsl(335, 38%, 55%)
 a[ng-click], a[role=button] {
 	cursor: pointer;
 }
+.btn-link, .navbar-link {
+	-webkit-transition: color 0.6s;
+	-moz-transition: color 0.6;
+	-o-transition: color 0.6;
+	transition: color 0.6;
+}
+.btn:not(.btn-link) {
+	-webkit-transition: background-color 0.6;
+	-moz-transition: background-color 0.6;
+	-o-transition: background-color 0.6;
+	transition: background-color 0.6;
+}
 a.btn-link, button.btn-link {
-	color: hsl(0, 0%, 15%);
+	color: hsl(0, 0%, 5%);
 }
 .panel-heading .badge {
 	background-color: white;
@@ -344,8 +388,17 @@ a.btn-link, button.btn-link {
 .fntwht {
 	color: white;
 }
+.welcome_navbar {
+	border-bottom: 5px solid hsl(338, 100%, 50%) !important;
+}
+.home_navbar {
+	border-top: 5px solid hsl(338, 100%, 50%) !important;
+}
 .navbar {
-	opacity: 0.95;
+	/*opacity: 0.95;*/
+	/*background-image: url('/public/images/bg_menu.jpg') !important;*/
+	/*background-repeat: repeat-x !important;*/
+	/*background-position: 0 0 !important;*/
 }
 .navbar .navbar-brand {
 	padding: 5px 0px 5px 10px;
@@ -429,6 +482,7 @@ a.btn-link, button.btn-link {
 	outline: none;
 	overflow: hidden;
 	background-color: white;
+	color: black;
 	/*border-radius: 10px/10px;*/
 	/*
 	-moz-box-shadow: 	0 0 3px 3px rgba(0, 0, 0, 0.4);

@@ -1,4 +1,4 @@
-<nav class="navbar navbar-static-top navbar-inverse bg-primary" role="navigation" Xng-controller="MenuBarCtrl">
+<nav class="navbar navbar-static-top navbar-inverse home_navbar" role="navigation" Xng-controller="MenuBarCtrl">
 	<div class="container clearfix">
 		<div class="navbar-header pull-left">
 			<a id="logo_link" class="navbar-brand" href="/home/">
@@ -7,15 +7,15 @@
 		</div>
 		<ul Xng-controller="UserCtrl" class="nav navbar-nav navbar-right pull-right" style="margin-top: 0; margin-bottom: 0">
 			<li class="pull-left">
-				<a href="/home/" style="color: #222; padding-top: 15px; padding-bottom: 15px">Home</a>
+				<a href="/home/" style="padding-top: 15px; padding-bottom: 15px">Home</a>
 			</li>
 			<li class="pull-left">
-				<a href="/home/mydata/" style="color: #222; padding-top: 15px; padding-bottom: 15px">My-Data</a>
+				<a href="/home/mydata/" style="padding-top: 15px; padding-bottom: 15px">My Data</a>
 			</li>
 			<li class="pull-left">
 				<a role="button" nb-popover="{element: '#user_menu', container: 'body', placement: 'bottom'}" style="padding-top: 9px; padding-bottom: 9px">
 					<img ng-src="{{nb.user_pic_url(nb.user)}}" style="height: 32px" class="img-rounded">
-					<div class="text-ellipses" style="max-width: 160px; vertical-align: middle; height: 100%; display: inline-block; margin-left: 10px; color: #222">
+					<div class="text-ellipses" style="max-width: 160px; vertical-align: middle; height: 100%; display: inline-block; margin-left: 10px">
 						{{nb.user.name}}
 					</div>
 				</a>

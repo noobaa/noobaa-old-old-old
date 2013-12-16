@@ -180,6 +180,22 @@
 				return link === $window.location.pathname ? 'active' : '';
 			};
 
+			$scope.invite_friends = function() {
+				if (FB) {
+					FB.ui({
+						method: 'send',
+						link: 'https://www.noobaa.com?invite_request=' + nb.user.id
+					}, function(res) {
+						console.log('FB SEND', res);
+					});
+				} else {
+					var url = 'https://www.facebook.com/dialog/send?app_id=' + nb.server_data.app_id +
+						'&link=https://www.noobaa.com%3Finvite_request%3D' + nb.user.id +
+						'&redirect_uri=https://www.facebook.com';
+					var win = window.open(url, '_blank');
+					win.focus();
+				}
+			};
 
 
 			var feedback_dialog = $('#feedback_dialog');
@@ -250,8 +266,24 @@
 
 	noobaa_app.controller('FeedCtrl', ['$scope', '$http', '$timeout', '$interval', '$window', '$location', 'nb', 'nbUploadSrv',
 		function($scope, $http, $timeout, $interval, $window, $location, nb, nbUploadSrv) {
+			$scope.index = 0;
 			if ($scope.feed.isdir) {
 				nb.read_dir($scope.feed);
+				$scope.current_item = function() {
+					return $scope.feed.entries ? $scope.feed.entries[$scope.index] : null;
+				}
+				$scope.next_index = function() {
+					$scope.index++;
+					$scope.notify_layout();
+				};
+				$scope.prev_index = function() {
+					$scope.index--;
+					$scope.notify_layout();
+				};
+			} else {
+				$scope.current_item = function() {
+					return $scope.feed;
+				};
 			}
 		}
 	]);

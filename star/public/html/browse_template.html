@@ -2,7 +2,7 @@
 
 	<div class="panel panel-default">
 		<div class="panel-heading clearfix" style="padding: 0 10px 2px 10px">
-			<div class="clearfix" style="color: black; padding: 7px 0">
+			<div class="clearfix" style="padding: 7px 0">
 				<div class="btn-group">
 					<button ng-if="has_parent(current_inode) || !current_inode.owner" class="btn btn-default Xbtn-lg" ng-click="go_up_level()" ng-disabled="!has_parent(current_inode)" title="Back to previous folder" rel="tooltip" nb-tooltip="{container: 'body'}">
 						<i class="fa fa-chevron-left"></i>
@@ -20,9 +20,9 @@
 						</li>
 					</ul>
 				</div>
-				<a class="btn btn-link btn-lg" style="display: inline; padding: 10px">
+				<span class="text-white" style="display: inline; padding: 10px; font-size: 1.5em; line-height: 1.5em; vertical-align: middle">
 					<span style="white-space: pre-wrap">{{current_inode.name}}</span>
-				</a>
+				</span>
 				<span ng-if="current_inode.is_loading">
 					<i class="fa fa-refresh fa-spin fa-fw"></i>
 				</span>
@@ -115,11 +115,11 @@
 							<i class="fa fa-cloud-download fa-fw"></i>
 							Download
 						</a>
-						<button ng-if="!inode.is_previewing && !inode.isdir" class="btn btn-link" ng-click="toggle_preview(inode)">
+						<button ng-show="!inode.is_previewing && !inode.isdir" class="btn btn-link" ng-click="toggle_preview(inode)">
 							<i class="fa fa-search-plus fa-fw"></i>
 							Show Preview
 						</button>
-						<button ng-if="inode.is_previewing && !inode.isdir" class="btn btn-link" ng-click="toggle_preview(inode)">
+						<button ng-show="inode.is_previewing && !inode.isdir" class="btn btn-link" ng-click="toggle_preview(inode)">
 							<i class="fa fa-search-minus fa-fw"></i>
 							Hide Preview
 						</button>
