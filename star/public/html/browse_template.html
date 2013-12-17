@@ -1,7 +1,7 @@
 <div class="browser" ng-init="search_in_folder=''">
 
 	<div class="panel panel-default">
-		<div class="panel-heading clearfix" style="padding: 0 10px 2px 10px">
+		<div class="panel-heading bggrey clearfix" style="padding: 0 10px 2px 10px">
 			<div class="clearfix" style="padding: 7px 0">
 				<div class="btn-group">
 					<button class="btn btn-default Xbtn-lg" ng-click="go_up_level()" ng-disabled="!has_parent(current_inode)" title="Back to previous folder" rel="tooltip" nb-tooltip="{container: 'body'}">
@@ -20,7 +20,7 @@
 						</li>
 					</ul>
 				</div>
-				<span class="text-white" style="display: inline; padding: 10px; font-size: 1.5em; line-height: 1.5em; vertical-align: middle">
+				<span style="display: inline; padding: 10px; font-size: 1.5em; line-height: 1.5em; vertical-align: middle">
 					<span style="white-space: pre-wrap">{{current_inode.name}}</span>
 				</span>
 				<span ng-if="current_inode.is_loading">
