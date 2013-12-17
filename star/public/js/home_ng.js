@@ -155,25 +155,21 @@
 					};
 				}
 
-				console.log('UP', $scope, $scope.home_context);
+				console.log('UP', $scope.home_context);
 				var dir_inode = $scope.home_context.current_inode;
-				if (!dir_inode || !dir_inode.isdir) {
-					console.error('no selected dir, bailing');
-					return false;
-				}
-				/* TODO FIX
-				if (dir_inode.is_shared_with_me()) {
-					$.nbalert('Cannot upload to a shared folder');
-					return false;
-				}
-				if (dir_inode.is_not_mine() || dir_inode.owner_name) {
-					$.nbalert('Cannot upload to someone else\'s folder');
-					return false;
-				}
-				*/
-				return {
-					dir_inode_id: dir_inode.id
+				if (nb.can_upload_to_dir(dir_inode)) {
+					return {
+						dir_inode_id: dir_inode.id
+					};
 				};
+				if (nb.can_upload_to_dir($scope.mydata)) {
+					console.log('upload to mydata - since current_inode is', dir_inode);
+					return {
+						dir_inode_id: $scope.mydata.id
+					};
+				}
+				console.error('bailing upload');
+				return false;
 			};
 
 

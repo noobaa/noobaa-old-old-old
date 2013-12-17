@@ -6,8 +6,8 @@
 				Uploading
 			</span>
 
-			<div class="progress text-center" style="vertical-align: middle; margin: 7px; border-radius: 0; width: 100px; display: inline-block">
-				<div class="progress-bar progress-bar-grey" role="progressbar" aria-valuenow="{{100 * srv.root.total_upsize / srv.root.total_size}}" aria-valuemin="0" aria-valuemax="100" style="width: {{100 * srv.root.total_upsize / srv.root.total_size}}%">
+			<div class="progress text-center" style="vertical-align: middle; margin: 7px; Xborder-radius: 0; border: 1px grey solid; width: 100px; display: inline-block">
+				<div class="progress-bar progress-bar-grey text-black" role="progressbar" aria-valuenow="{{100 * srv.root.total_upsize / srv.root.total_size}}" aria-valuemin="0" aria-valuemax="100" style="width: {{100 * srv.root.total_upsize / srv.root.total_size}}%">
 					{{srv.root.total_completed}} / {{srv.root.total_sons}}
 				</div>
 			</div>
@@ -20,11 +20,11 @@
 			 -->
 
 			<div class="pull-right">
-				<button class="btn btn-default" ng-click="srv.clear_completed()" style="color: hsl(0, 0%, 15%)">
+				<button class="btn btn-link" ng-click="srv.clear_completed()" style="color: hsl(0, 0%, 15%)">
 					<i class="fa fa-eraser fa-fw"></i>
 					Clear Completed
 				</button>
-				<button class="btn btn-default" ng-click="show_upload_details = !show_upload_details" style="color: hsl(0, 0%, 15%)">
+				<button class="btn btn-link" ng-click="show_upload_details = !show_upload_details" style="color: hsl(0, 0%, 15%)">
 					<span ng-if="show_upload_details">
 						Hide
 						<i class="fa fa-caret-up"></i>
@@ -37,7 +37,7 @@
 			</div>
 		</div>
 
-		<div class="panel-body" style="margin: 0; padding: 0" nb-effect-toggle="show_upload_details" nb-effect-options="{effect: 'blind'}">
+		<div class="panel-body" style="margin: 0; padding: 0; background-color: white" nb-effect-toggle="show_upload_details" nb-effect-options="{effect: 'blind'}">
 
 			<div style="margin-bottom: 5px">
 				<div class="btn-group">

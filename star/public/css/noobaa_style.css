@@ -209,12 +209,6 @@ a.btn-link.text-white {
 a.btn-link.text-white:hover {
 	color: hsl(0, 0%, 95%) !important;
 }
-.panel-default, .panel-default .panel-body {
-	border-color: hsl(192, 20%, 70%) !important;
-}
-.panel-default, .panel-default .panel-heading {
-	background-color: hsla(0, 0%, 0%, 0) !important;
-}
 /**/
 
 /* FILE BROWSER */
