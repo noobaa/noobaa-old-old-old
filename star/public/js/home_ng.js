@@ -161,7 +161,7 @@
 					return {
 						dir_inode_id: dir_inode.id
 					};
-				};
+				}
 				if (nb.can_upload_to_dir($scope.mydata)) {
 					console.log('upload to mydata - since current_inode is', dir_inode);
 					return {
