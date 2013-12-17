@@ -135,7 +135,7 @@
 					$scope.masonry = null;
 				}
 				if (!$scope.do_layout_fast_timeout) {
-					$scope.do_layout_fast_timeout = $timeout(do_layout, 0);
+					$scope.do_layout_fast_timeout = $timeout(do_layout, 1);
 				}
 			}
 
@@ -196,6 +196,12 @@
 					var win = window.open(url, '_blank');
 					win.focus();
 				}
+			};
+
+			$scope.show_install_feed = function() {
+				$scope.showing_install_feed = !$scope.showing_install_feed;
+				// rebuild_layout();
+				$scope.notify_layout();
 			};
 
 

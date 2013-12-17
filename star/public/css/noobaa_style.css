@@ -18,7 +18,6 @@ html, body {
 /* COLOR SCHEME */
  .bgdark {
 	background-color: hsl(40, 7%, 18%) !important;
-	color: hsl(0, 0%, 95%) !important;
 }
  .bgdark-image {
 	background-image: url('/public/images/grey_bg.jpg');
@@ -29,6 +28,16 @@ html, body {
 }
 .progress-bar-grey {
 	background-color: hsl(192, 7%, 80%) !important;
+}
+.btn-hover-only {
+	-webkit-transition: all 0.5s;
+	-moz-transition: all 0.5s;
+	-o-transition: all 0.5s;
+	transition: all 0.5s;
+}
+.btn-hover-only:not(:hover) { 
+	background-color: transparent !important;
+	border-color: hsl(192, 7%, 90%) !important;
 }
 /* COLOR LIGHT BLUE:
 hsl(212, 41%, 71%)

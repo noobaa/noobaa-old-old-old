@@ -1,7 +1,7 @@
 <div class="feeder">
 	<div class="container">
 		<div class="text-center" style="margin-bottom: 10px">
-			<span class="text-muted fntpaint" style="font-size: 1em; line-height: 0.9em">
+			<span class="text-muted fntpaint" style="font-size: 1.1em; line-height: 0.9em">
 				Friend's stuff shared with me</span>
 			<button class="btn btn-link" ng-click="refresh_feeds()" title="Click to refresh" rel="tooltip">
 				<i class="fa fa-refresh {{refreshing_feeds && 'fa-spin' || ''}} fa-lg text-muted"></i>
@@ -11,10 +11,13 @@
 
 		<div class="feeds_container">
 
-			<div class="feed_item">
-				<a class="btn btn-danger btn-block" style="padding: 10px; Xborder: none; Xborder-bottom-left-radius: 0; Xborder-bottom-right-radius: 0" Xhref="https://www.facebook.com/dialog/send?app_id={{nb.server_data.app_id}}&link=https://www.noobaa.com%253Fref%253D{{nb.user.id}}&redirect_uri=https://www.facebook.com" Xtarget="_blank" ng-click="invite_friends()">
-					Invite friends to NooBaa
-					<i class="fa fa-angle-right fa-lg fa-fw"></i>
+			<div class="feed_item bggrey">
+				<a class="btn btn-danger btn-block btn-hover-only" ng-click="invite_friends()" style="border-bottom-left-radius: 0; border-bottom-right-radius: 0">
+					<h4 class="text-left" style="margin: 0; padding: 10px 20px">
+						INVITE &nbsp;&nbsp;&nbsp;&nbsp;
+						<small style="color: grey">friends to NooBaa</small>
+						<i class="fa fa-angle-right fa-fw"></i>
+					</h4>
 				</a>
 				<!-- 
 				<hr style="margin: 0; border-color: hsl(0, 0%, 80%)" /> 
@@ -22,6 +25,40 @@
 					Tell your friends
 				</a>
 				-->
+				<a class="btn btn-success btn-block btn-hover-only" ng-click="nbUploadSrv.open_file_input()" style="border-radius: 0; margin: 0">
+					<h4 class="text-left" style="margin: 0; padding: 10px 20px">
+						UPLOAD &nbsp;
+						<small>to My Data</small>
+						<i class="fa fa-angle-right fa-fw"></i>
+					</h4>
+				</a>
+				<a class="btn btn-warning btn-block btn-hover-only" ng-click="show_install_feed()" style="border-top-left-radius: 0; border-top-right-radius: 0; margin: 0">
+					<h4 class="text-left" style="margin: 0; padding: 10px 20px">
+						INSTALL &nbsp;
+						<small>the NooBaa client</small>
+						<i class="fa fa-angle-right fa-fw"></i>
+					</h4>
+				</a>
+				<div ng-show="showing_install_feed" style="padding: 10px 20px">
+					<div>
+						<a href="https://noobaa-download.s3.amazonaws.com/noobaa-windows-setup-0.1.exe">
+							<img src="/public/images/windows_logo.png" style="margin: 10px; width: 40px; height: 40px"></img>
+							Download for Windows
+						</a>
+					</div>
+					<div>
+						<a href="https://noobaa-download.s3.amazonaws.com/noobaa-osx-0.1.zip">
+							<img src="/public/images/mac_logo_small.png" style="margin: 10px; width: 40px; height: 40px"></img>
+							Download for Mac
+						</a>
+					</div>
+					<div>
+						<a href="https://noobaa-download.s3.amazonaws.com/noobaa-linux-0.1.tar.gz">
+							<img src="/public/images/linux_logo.png" style="margin: 10px; width: 40px; height: 40px"></img>
+							Download for Linux
+						</a>
+					</div>
+				</div>
 			</div>
 
 			<div ng-repeat="feed in feeds | limitTo:feeds_limit track by $index" class="feed_item bggrey" ng-controller="FeedCtrl">
@@ -37,7 +74,7 @@
 						</div>
 					</div>
 					<div style="position: absolute; top: 0; left: 0; width: 50px">
-						<img class="img-rounded" ng-src="{{nb.user_pic_url(feed.owner)}}" style="width: 30px; margin: 10px" ng-attr-title="{{feed.owner.name}}" rel="tooltip" />
+						<img class="img-rounded" ng-src="{{nb.user_pic_url(feed.owner)}}" style="width: 40px; margin: 5px" ng-attr-title="{{feed.owner.name}}" rel="tooltip" />
 						<div class="text-center" style="position: absolute; top: 50px; left: 0">
 							<button ng-show="feed.isdir" class="btn btn-link" ng-disabled="index<=0" ng-click="prev_index()">
 								<i class="fa fa-chevron-circle-left fa-lg"></i>
