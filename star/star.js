@@ -140,13 +140,14 @@ app.use(app.router);
 
 // setup static files
 app.use(express.compress());
-/*
+
+// setup static files caching
 app.use(function(req, res, next) {
-	res.setHeader("Cache-Control", "public, max-age=86400"); // 1 day
-	res.setHeader("Expires", new Date(Date.now() + 86400000).toUTCString());
+	res.setHeader("Cache-Control", "public, max-age=600"); // 10 min
+	res.setHeader("Expires", new Date(Date.now() + 600000).toUTCString());
 	return next();
 });
-*/
+
 app.use('/public/', express.static(path.join(__dirname, 'public')));
 app.use('/vendor/', express.static(path.join(__dirname, '..', 'vendor')));
 app.use('/vendor/', express.static(path.join(__dirname, '..', 'bower_components')));

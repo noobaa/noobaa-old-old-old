@@ -125,6 +125,13 @@
 				$timeout.cancel($scope.do_layout_fast_timeout);
 				$scope.do_layout_timeout = null;
 				$scope.do_layout_fast_timeout = null;
+				if ($scope.should_rebuild_layout) {
+					$scope.should_rebuild_layout = false;
+					if ($scope.masonry) {
+						$scope.masonry.destroy();
+						$scope.masonry = null;
+					}
+				}
 				if ($scope.masonry) {
 					$scope.masonry.layout();
 				} else {
@@ -144,10 +151,7 @@
 			}
 
 			function rebuild_layout() {
-				if ($scope.masonry) {
-					$scope.masonry.destroy();
-					$scope.masonry = null;
-				}
+				$scope.should_rebuild_layout = true;
 				if (!$scope.do_layout_fast_timeout) {
 					$scope.do_layout_fast_timeout = $timeout(do_layout, 1);
 				}

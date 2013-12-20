@@ -26,11 +26,11 @@
 	var noobaa_app = angular.module('noobaa_app');
 
 	noobaa_app.factory('nbPlanet', [
-		'$http', '$timeout', 'nb', 'nbUploadSrv',
-		function($http, $timeout, nb, nbUploadSrv) {
+		'$http', '$timeout', 'nbUploadSrv',
+		function($http, $timeout, nbUploadSrv) {
 			console.log('nbPlanet');
-			nbPlanet = {};
-			$scope = nbPlanet;
+			var nbPlanet = {};
+			var $scope = nbPlanet;
 
 			if (!window.require) {
 				console.log('NO REQUIRE');
