@@ -5,43 +5,39 @@
 (function() {
 	'use strict';
 
-	// keep local refs here so that any callback functions
-	// defined here will resolve to the window.* members
-	// and avoid failures when console is null on fast refresh.
-	var console = window.console;
-	var localStorage = window.localStorage;
-
-	if (window.require) {
-		var os = require('os');
-		var path = require('path');
-		var http = require('http');
-		// load native node-webkit library
-		var gui = window.require('nw.gui');
-		// get the node-webkit native window of the planet
-		var win = gui.Window.get();
-	}
-
-	// define the planet angular controller
-
 	var noobaa_app = angular.module('noobaa_app');
 
 	noobaa_app.factory('nbPlanet', [
-		'$http', '$timeout', '$rootScope', 'nbUploadSrv',
-		function($http, $timeout, $rootScope, nbUploadSrv) {
-			console.log('nbPlanet');
-			var nbPlanet = {};
-			var $scope = nbPlanet;
+		'$http', '$timeout', '$rootScope', 'nbUser', 'nbUploadSrv',
+		function($http, $timeout, $rootScope, nbUser, nbUploadSrv) {
+			// keep local refs here so that any callback functions
+			// defined here will resolve to the window.* members
+			// and avoid failures when console is null on fast refresh.
+			var console = window.console;
+			var localStorage = window.localStorage;
 
 			if (!window.require) {
-				console.log('NO REQUIRE');
-				return nbPlanet;
+				console.log('nbPlanet NO REQUIRE');
+				return {};
 			}
-			console.log('YES REQUIRE');
+
+			console.log('nbPlanet REQUIRE');
+			
+			var $scope = {
+				on: true
+			};
+
+			var os = require('os');
+			var path = require('path');
+			var http = require('http');
+			// load native node-webkit library
+			var gui = window.require('nw.gui');
+			// get the node-webkit native window of the planet
+			var win = gui.Window.get();
 
 			// set the scope in the window to signal to the planet_boot code
 			// that we are loaded and it can communicate with our scope.
 			win.$scope = $scope;
-			win.nbPlanet = nbPlanet;
 
 			// keep original location as home location
 			// to be able to restore to it if we redirect
@@ -240,7 +236,7 @@
 
 
 			////////////////////////////////////////////////////////////
-
+/*
 
 			// init the planet authentication.
 			// user login state
@@ -318,7 +314,7 @@
 
 			// on init load the auth login page into the frame.
 			$scope.auth_frame_path('/planet/auth');
-
+*/
 
 			////////////////////////////////////////////////////////////
 
@@ -326,7 +322,7 @@
 			// init the planet fs
 			// this will create chunk files in the app directory
 			// and make them available for co-sharing.
-			/*
+/*
 		$scope.planetfs = new global.PlanetFS(
 			gui.App.dataPath.toString(), // root_dir
 			1, // num_chunks
@@ -339,7 +335,7 @@
 				console.log('PLANET FS INIT DONE');
 			}
 		});
-		*/
+*/
 
 
 			////////////////////////////////////////////////////////////
@@ -366,6 +362,13 @@
 				if (data && data.device) {
 					$scope.planet_device = data.device;
 					localStorage.planet_device = JSON.stringify(data.device);
+					var space = $scope.planet_device.coshare_space;
+					for (var i=0; i<$scope.coshare_options.length; i++) {
+						if (space === $scope.coshare_options[i].space) {
+							$scope.coshare_selection = i;
+							break;
+						}
+					}
 				}
 			}
 
@@ -375,7 +378,7 @@
 			}
 
 			function periodic_device() {
-				if (!$scope.planet_user) {
+				if (!nbUser.user) {
 					// no user connected, reschedule to check later
 					schedule_device(10000);
 				} else if (!$scope.planet_device) {
@@ -449,104 +452,27 @@
 			var GB = 1024 * 1024 * 1024;
 			$scope.coshare_options = [{
 				space: 10 * GB,
-				title: '10GB',
+				title: '10 GB',
 			}, {
 				space: 100 * GB,
-				title: '100GB',
+				title: '100 GB',
+			}, {
+				space: 200 * GB,
+				title: '200 GB',
 			}];
 
 			$scope.coshare_selection = -1;
 
-			$scope.coshare_options_select = function(index) {
-				$scope.coshare_selection = index;
+			$scope.coshare_options_class = function(index) {
+				return index === $scope.coshare_selection ? 'btn-primary' : '';
 			};
 
-			$scope.apply_coshare = function() {
-				var index = $scope.coshare_selection;
+			$scope.select_coshare_option = function(index) {
 				var opt = $scope.coshare_options[index];
 				update_device(opt.space);
-				$scope.coshare_view(false);
 			};
 
-			$scope.coshare_options_class = function(index) {
-				return index === $scope.coshare_selection ? 'btn-primary' : 'btn-default';
-			};
-
-			$scope.coshare_view = function(val) {
-				if ($scope.planet_loading || !$scope.planet_user) {
-					return;
-				}
-				$scope.coshare_selection = -1;
-				$scope.coshare_view_on = val;
-				if (val) {
-					if (win.height < win_inner_height_long + win_frame_height) {
-						win.resizeBy(0, win_inner_height_long + win_frame_height - win.height);
-					}
-				} else {
-					if (win.height > win_inner_height + win_frame_height) {
-						win.resizeBy(0, win_inner_height + win_frame_height - win.height);
-					}
-				}
-			};
-
-			$scope.current_view = function() {
-				if ($scope.planet_loading) {
-					return 'loading_view';
-				}
-				if (!$scope.planet_user) {
-					return 'login_view';
-				}
-				if ($scope.coshare_view_on) {
-					return 'coshare_view';
-				}
-				return 'info_view';
-			};
-
-			function get_user_folders() {
-				if (!$scope.planet_user) {
-					return;
-				}
-				return $http({
-					method: 'GET',
-					url: '/api/inode/null'
-				}).then(function(res) {
-					console.log('GOT USER FOLDERS', res);
-					for (var i = 0; i < res.data.entries.length; i++) {
-						var ent = res.data.entries[i];
-						if (ent.name === 'My Data') {
-							$scope.planet_user.mydata = ent;
-						}
-					}
-					return res;
-				}, function(err) {
-					console.error('FAILED GET USER FOLDERS', err);
-					$timeout(get_user_folders, 1000); // retry later
-					throw err;
-				});
-			}
-
-			nbUploadSrv.get_upload_target = function(event) {
-				if (!$scope.planet_user || !$scope.planet_user.mydata) {
-					return false;
-				}
-				console.log('DEV ID', $scope.planet_device, $scope.planet_device.id, $scope.planet_device._id);
-				return {
-					dir_inode_id: $scope.planet_user.mydata.id,
-					src_dev_id: $scope.planet_device._id
-				};
-			};
-
-			nbUploadSrv.on_file_upload = function(upload) {
-				// TODO save last upload path for next open
-				$scope.last_file_path = upload.file && upload.file.path || '';
-			};
-
-			$scope.click_upload = function() {
-				gui.Shell.showItemInFolder($scope.last_file_path);
-			};
-
-
-			return nbPlanet;
+			return $scope;
 		}
 	]);
 

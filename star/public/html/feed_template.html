@@ -39,7 +39,7 @@
 						<i class="fa fa-angle-right fa-fw"></i>
 					</h4>
 				</a>
-				<div ng-if="!nbUtil.is_planet">
+				<div ng-if="!nbPlanet.on">
 					<a class="btn btn-primary btn-block btn-hover-only" ng-click="show_install_feed()" style="border-top-left-radius: 0; border-top-right-radius: 0; margin: 0">
 						<h4 class="text-left" style="margin: 0; padding: 10px 20px">
 							INSTALL &nbsp;
@@ -68,7 +68,7 @@
 						</div>
 					</div>
 				</div>
-				<div ng-if="nbUtil.is_planet">
+				<div ng-if="nbPlanet.on">
 					<a class="btn btn-primary btn-block btn-hover-only" ng-click="show_install_feed()" style="border-top-left-radius: 0; border-top-right-radius: 0; margin: 0">
 						<h4 class="text-left" style="margin: 0; padding: 10px 20px">
 							EXPAND &nbsp;&nbsp;
