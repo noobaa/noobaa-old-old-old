@@ -447,14 +447,13 @@
 	</div>
 
 
-	<a id="chrome_link" ng-controller="BowserCtrl" ng-show="need_chrome_ref" href="https://www.google.com/intl/en_us/chrome/browser/" target="_blank" title="Best with Chrome">
+	<a id="chrome_link" ng-show="need_chrome_ref" href="https://www.google.com/intl/en_us/chrome/browser/" target="_blank" title="Best with Chrome">
 		<img alt="Chrome" src="/public/images/chrome_icon.png" />
 	</a>
 
 
 	<?# def.include( 'common_scripts.html') ?>
 		<script src="/vendor/chardin.js/chardinjs.min.js" type="text/javascript"></script>
-		<script src="/vendor/bowser/bowser.min.js" type="text/javascript"></script>
 		<script src="/public/js/help.js" type="text/javascript"></script>
 
 		<script type="text/javascript">
@@ -538,15 +537,10 @@
 		});
 
 
-		BowserCtrl.$inject = ['$scope'];
-
-		function BowserCtrl($scope) {
-			$scope.need_chrome_ref = !bowser.chrome;
-		}
-
 		WelcomeCtrl.$inject = ['$scope', '$location', '$anchorScroll'];
 
 		function WelcomeCtrl($scope, $location, $anchorScroll) {
+			$scope.need_chrome_ref = !bowser.chrome;
 			$anchorScroll();
 			$scope.scroll = function(hash) {
 				$location.hash(hash);

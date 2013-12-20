@@ -9,7 +9,7 @@
 	// create our module
 	var noobaa_app = angular.module('noobaa_app', ['ngRoute', 'ngAnimate']);
 
-
+/*
 	noobaa_app.factory('nb', ['$http', '$timeout', '$interval', '$q', '$rootScope',
 		function($http, $timeout, $interval, $q, $rootScope) {
 			var nb = {};
@@ -494,11 +494,76 @@
 
 
 
+			////////////
+			// PLANET //
+			////////////
+
+
+			if (window.require) {
+				try {
+					nb.require = require;
+					nb.os = nb.require('os');
+					nb.path = nb.require('path');
+					nb.http = nb.require('http');
+					// load native node-webkit library
+					nb.gui = nb.require('nw.gui');
+					// get the node-webkit native window of the planet
+					nb.win = nb.gui.Window.get();
+					nb.is_planet = true;
+
+					nb.win.nb = nb; // link back
+
+				} catch (err) {
+					console.error('PLANET INIT FAILED', err);
+					nb.is_planet = false;
+				}
+			}
+
+
+			var GB = 1024 * 1024 * 1024;
+			nb.coshare_options = [{
+				space: 10 * GB,
+				title: '10 GB',
+			}, {
+				space: 100 * GB,
+				title: '100 GB',
+			}, {
+				space: 200 * GB,
+				title: '200 GB',
+			}];
+			nb.coshare_selection = -1;
+			nb.select_coshare_option = function(index) {
+				nb.coshare_selection = index;
+			};
+			nb.apply_coshare = function() {
+				var index = nb.coshare_selection;
+				var opt = nb.coshare_options[index];
+				// update_device(opt.space);
+			};
+			nb.coshare_options_class = function(index) {
+				return index === nb.coshare_selection ? 'btn-primary' : '';
+			};
+
+
+			
+			///////////
+			// UTILS //
+			///////////
+
+			nb.bowser = bowser;
+			nb.nbalert = nbalert;
+			nb.nbconfirm = nbconfirm;
+
+			nb.coming_soon = function(feature) {
+				// TODO send event log
+				nbalert('Coming soon...');
+			};
+
 			return nb;
 		}
 	]);
 
-
+*/
 
 
 
@@ -535,6 +600,115 @@
 			selector: '[rel=popover]'
 		});
 	});
+
+
+
+	noobaa_app.factory('nbUtil', [
+		'$http', '$timeout', '$interval', '$q', '$rootScope',
+		function($http, $timeout, $interval, $q, $rootScope) {
+
+			var $scope = {
+				bowser: bowser,
+				nbalert: nbalert,
+				nbconfirm: nbconfirm,
+				coming_soon: function(feature) {
+					// TODO send event log
+					nbalert('Coming soon...');
+				},
+				is_planet: !!window.require
+			};
+
+			return $scope;
+
+		}
+	]);
+
+
+	noobaa_app.factory('nbMultiSelect', [
+		'$http', '$timeout', '$interval', '$q', '$rootScope',
+		function($http, $timeout, $interval, $q, $rootScope) {
+
+			var $scope = {
+				add_selection: add_selection,
+				remove_selection: remove_selection,
+				reset_selection: reset_selection,
+				select_item: select_item,
+				selection_items: selection_items,
+			};
+
+
+			function add_selection(selection, item, index) {
+				if (item.is_selected) {
+					return;
+				}
+				selection.items.push(item);
+				item.is_selected = true;
+				item.select_source_index = index;
+			}
+
+			function remove_selection(selection, item) {
+				if (!item.is_selected) {
+					return;
+				}
+				var pos = selection.items.indexOf(item);
+				if (pos >= 0) {
+					selection.items.splice(pos, 1);
+				}
+				item.is_selected = false;
+				item.select_source_index = null;
+			}
+
+			function reset_selection(selection) {
+				var items = selection.items;
+				selection.items = [];
+				if (!items) {
+					return;
+				}
+				for (var i = 0; i < items.length; i++) {
+					remove_selection(selection, items[i]);
+				}
+			}
+
+			function select_item(selection, item, index, event) {
+				if (event.ctrlKey || event.metaKey ||
+					(selection.items.length === 1 && selection.items[0] === item)) {
+					// console.log('SELECT TOGGLE', item.name, item.is_selected);
+					if (item.is_selected) {
+						remove_selection(selection, item);
+						return false;
+					} else {
+						add_selection(selection, item, index);
+					}
+				} else if (event.shiftKey && selection.items.length) {
+					var from = selection.items[selection.items.length - 1].select_source_index;
+					// console.log('SELECT FROM', from, 'TO', index);
+					var i;
+					if (index >= from) {
+						for (i = from; i <= index; i++) {
+							add_selection(selection, selection.source_index(i), i);
+						}
+					} else {
+						for (i = from; i >= index; i--) {
+							add_selection(selection, selection.source_index(i), i);
+						}
+					}
+				} else {
+					// console.log('SELECT ONE', item.name);
+					reset_selection(selection);
+					add_selection(selection, item, index);
+				}
+				return true;
+			}
+
+			function selection_items(selection) {
+				return selection.items.slice(0); // make copy of array
+			}
+
+
+			return $scope;
+
+		}
+	]);
 
 
 	// noobaa_app.config([
@@ -913,73 +1087,6 @@
 				}, function(err) {
 					callback(err);
 				});
-			};
-		}
-	]);
-
-	noobaa_app.directive('nbContent', ['$parse', '$timeout', 'nb',
-		function($parse, $timeout, nb) {
-			return {
-				replace: true,
-				link: function(scope, element, attr) {
-					scope.nb = nb;
-					scope.$watch(attr.nbContent, function(value) {
-						scope.inode = scope.$eval(attr.nbContent) || {};
-						// console.log('NBCONTENT', scope.inode);
-					});
-					scope.notifyLayout = scope.$eval(attr.notifyLayout);
-					scope.show_content = scope.is_previewing = scope.$eval(attr.showContent);
-					scope.toggle_content = function() {
-						scope.show_content = !scope.show_content;
-						$timeout(scope.notifyLayout, 0);
-					};
-				},
-				template: [
-					'<div>',
-					'<div ng-if="inode.isdir">',
-					'	<div class="content-switcher text-center" style="padding: 5px; Xcursor: pointer" ng-show="!is_previewing">',
-					'		<span class="fa-stack fa-2x" title="An awesome folder" rel="tooltip">',
-					'			<i class="fa fa-circle fa-stack-2x text-muted"></i>',
-					'			<i class="fa fa-folder-open fa-inverse fa-stack-1x text-white"></i></span></div>',
-					'</div>',
-					'<div ng-if="!inode.isdir">',
-					' <div ng-switch="inode.content_kind">',
-					'	<div ng-switch-when="video" class="text-center">',
-					'		<div class="content-switcher text-center" style="padding: 5px; cursor: pointer" ng-click="toggle_content()" ng-show="!is_previewing">',
-					'			<span class="fa-stack fa-2x" title="Play video" rel="tooltip">',
-					'				<i class="fa fa-circle fa-stack-2x text-muted"></i>',
-					'				<i class="fa fa-video-camera fa-inverse fa-stack-1x text-white"></i></span></div>',
-					'		<video ng-if="show_content" controls autoplay ng-src="{{nb.inode_api_url(inode.id)}}"',
-					'			class="content-item img-responsive center-block" nb-on-load="notifyLayout()"></video>',
-					'	</div>',
-					'	<div ng-switch-when="audio">',
-					'		<div class="content-switcher text-center" style="padding: 5px; cursor: pointer" ng-click="toggle_content()" ng-show="!is_previewing">',
-					'			<span class="fa-stack fa-2x" title="Play audio" rel="tooltip">',
-					'				<i class="fa fa-circle fa-stack-2x text-muted"></i>',
-					'				<i class="fa fa-music fa-inverse fa-stack-1x text-white"></i></span></div>',
-					'		<audio ng-if="show_content" controls autoplay ng-src="{{nb.inode_api_url(inode.id)}}"',
-					'			style="padding: 30px 5px 5px 5px; Xpadding: 5px" class="content-item img-responsive center-block" nb-on-load="notifyLayout()"></audio>',
-					'	</div>',
-					'	<img ng-switch-when="image" ng-src="{{nb.inode_api_url(inode.id)}}"',
-					'		class="content-item img-responsive center-block" style="max-height: 60%" nb-on-load="notifyLayout()" />',
-					'	<div ng-switch-when="text">',
-					'		<div class="content-switcher text-center" style="padding: 5px; cursor: pointer" ng-click="toggle_content()" ng-show="!is_previewing">',
-					'			<span class="fa-stack fa-2x" title="Open text file" rel="tooltip">',
-					'				<i class="fa fa-circle fa-stack-2x text-muted"></i>',
-					'				<i class="fa fa-font fa-inverse fa-stack-1x text-white"></i></span></div>',
-					'		<object ng-if="show_content" ng-attr-data="{{nb.inode_api_url(inode.id)}}" type="text/plain"',
-					'			width="100%" class="content-item center-block" nb-on-load="notifyLayout()"></object>',
-					'	</div>',
-					'	<div ng-switch-default>',
-					'		<div class="content-switcher text-center" style="padding: 5px; cursor: pointer" ng-click="nb.seamless_open_inode(inode)">',
-					'			<span class="fa-stack fa-2x" title="Open file" rel="tooltip">',
-					'				<i class="fa fa-circle fa-stack-2x text-muted"></i>',
-					'				<i class="fa fa-file fa-inverse fa-stack-1x text-white"></i></span></div>',
-					'	</div>',
-					' </div>',
-					'</div>',
-					'</div>'
-				].join('\n')
 			};
 		}
 	]);

@@ -12,7 +12,7 @@
 						<i ng-show="!current_inode.isdir" class="fa fa-file-o fa-fw"></i>
 					</button>
 					<ul ng-if="has_parent(current_inode)" class="dropdown-menu" role="menu">
-						<li ng-repeat="parent in nb.parents_path(current_inode)">
+						<li ng-repeat="parent in nbInode.parents_path(current_inode)">
 							<a ng-click="open_inode(parent)" style="padding-left: {{10+($index * 10)}}px">
 								<i class="fa fa-folder-open-o fa-fw"></i>
 								{{parent.name}}
@@ -40,27 +40,27 @@
 					<i class="fa fa-search-minus fa-fw"></i>
 					Hide Preview
 				</a>
-				<a class="btn btn-link" ng-show="nb.can_keep_inode(current_inode)" ng-click="copy_inode(current_inode)">
+				<a class="btn btn-link" ng-show="nbInode.can_keep_inode(current_inode)" ng-click="copy_inode(current_inode)">
 					<i class="fa fa-plus fa-fw"></i>
 					Add to My Data
 				</a>
-				<a class="btn btn-link" ng-show="!current_inode.isdir && !current_inode.uploading && current_inode.size" ng-click="nb.download_inode(current_inode)" href="{{nb.inode_api_url(current_inode.id)}}?is_download=true" target="_blank">
+				<a class="btn btn-link" ng-show="!current_inode.isdir && !current_inode.uploading && current_inode.size" ng-click="nbInode.download_inode(current_inode)" href="{{nbInode.inode_api_url(current_inode.id)}}?is_download=true" target="_blank">
 					<i class="fa fa-cloud-download fa-fw"></i>
 					Download
 				</a>
-				<a class="btn btn-link" ng-show="nb.can_upload_to_dir(current_inode)" ng-click="new_folder(current_inode)">
+				<a class="btn btn-link" ng-show="nbInode.can_upload_to_dir(current_inode)" ng-click="new_folder(current_inode)">
 					<i class="fa fa-plus fa-fw"></i>
 					New Folder
 				</a>
-				<a class="btn btn-link" ng-show="nb.can_upload_to_dir(current_inode)" ng-click="nbUploadSrv.open_file_input()">
+				<a class="btn btn-link" ng-show="nbInode.can_upload_to_dir(current_inode)" ng-click="nbUploadSrv.open_file_input()">
 					<i class="fa fa-cloud-upload fa-fw fa-lg"></i>
 					Upload
 				</a>
-				<a class="btn btn-link" ng-show="nb.can_upload_file(current_inode)" ng-click="resume_upload(current_inode)">
+				<a class="btn btn-link" ng-show="nbInode.can_upload_file(current_inode)" ng-click="resume_upload(current_inode)">
 					<i class="fa fa-cloud-upload fa-fw"></i>
 					Resume Upload
 				</a>
-				<a class="btn btn-link" ng-show="nb.can_share_inode(current_inode)" ng-click="share_inode(current_inode)">
+				<a class="btn btn-link" ng-show="nbInode.can_share_inode(current_inode)" ng-click="share_inode(current_inode)">
 					<i class="fa fa-share-square-o fa-fw"></i>
 					Share
 				</a>
@@ -74,7 +74,7 @@
 				</div>
 			</div>
 			<div ng-if="current_inode.is_previewing" style="padding: 5px 0">
-				<div nb-content="current_inode" notify-layout="angular.noop" show-content="false"></div>
+				<div nb-media="current_inode" notify-layout="angular.noop" show-content="false"></div>
 			</div>
 		</div>
 
@@ -111,15 +111,15 @@
 							<i class="fa fa-search-minus fa-fw"></i>
 							Hide Preview
 						</a>
-						<a class="btn btn-link" ng-show="nb.can_keep_inode(inode)" ng-click="copy_inode(inode)">
+						<a class="btn btn-link" ng-show="nbInode.can_keep_inode(inode)" ng-click="copy_inode(inode)">
 							<i class="fa fa-plus fa-fw"></i>
 							Add to My Data
 						</a>
-						<a class="btn btn-link" ng-show="!inode.isdir && !inode.uploading && inode.size" ng-click="nb.download_inode(inode)" href="{{nb.inode_api_url(inode.id)}}?is_download=true" target="_blank">
+						<a class="btn btn-link" ng-show="!inode.isdir && !inode.uploading && inode.size" ng-click="nbInode.download_inode(inode)" href="{{nbInode.inode_api_url(inode.id)}}?is_download=true" target="_blank">
 							<i class="fa fa-cloud-download fa-fw"></i>
 							Download
 						</a>
-						<a class="btn btn-link" ng-show="nb.can_share_inode(inode)" ng-click="share_inode(inode)">
+						<a class="btn btn-link" ng-show="nbInode.can_share_inode(inode)" ng-click="share_inode(inode)">
 							<i class="fa fa-share-square-o fa-fw"></i>
 							Share
 						</a>
@@ -140,7 +140,7 @@
 					</span>
 				</div>
 				<div ng-if="inode.is_previewing && inode.is_selected" style="padding: 5px 0">
-					<div nb-content="inode" notify-layout="angular.noop" show-content="true"></div>
+					<div nb-media="inode" notify-layout="angular.noop" show-content="true"></div>
 				</div>
 			</div>
 			<div ng-if="current_inode.isdir && !current_inode.entries.length">

@@ -1,0 +1,50 @@
+<div>
+	<div ng-if="inode.isdir">
+		<div class="content-switcher text-center" style="padding: 5px; Xcursor: pointer" ng-show="!is_previewing">
+			<span class="fa-stack fa-2x" title="An awesome folder" rel="tooltip">
+				<i class="fa fa-circle fa-stack-2x text-muted"></i>
+				<i class="fa fa-folder-open fa-inverse fa-stack-1x text-white"></i>
+			</span>
+		</div>
+	</div>
+	<div ng-if="!inode.isdir">
+		<div ng-switch="inode.content_kind">
+			<div ng-switch-when="video" class="text-center">
+				<div class="content-switcher text-center" style="padding: 5px; cursor: pointer" ng-click="toggle_content()" ng-show="!is_previewing">
+					<span class="fa-stack fa-2x" title="Play video" rel="tooltip">
+						<i class="fa fa-circle fa-stack-2x text-muted"></i>
+						<i class="fa fa-video-camera fa-inverse fa-stack-1x text-white"></i>
+					</span>
+				</div>
+				<video ng-if="show_content" controls autoplay ng-src="{{nbInode.inode_api_url(inode.id)}}" class="content-item img-responsive center-block" nb-on-load="notifyLayout()"></video>
+			</div>
+			<div ng-switch-when="audio">
+				<div class="content-switcher text-center" style="padding: 5px; cursor: pointer" ng-click="toggle_content()" ng-show="!is_previewing">
+					<span class="fa-stack fa-2x" title="Play audio" rel="tooltip">
+						<i class="fa fa-circle fa-stack-2x text-muted"></i>
+						<i class="fa fa-music fa-inverse fa-stack-1x text-white"></i>
+					</span>
+				</div>
+				<audio ng-if="show_content" controls autoplay ng-src="{{nbInode.inode_api_url(inode.id)}}" style="padding: 30px 5px 5px 5px; Xpadding: 5px" class="content-item img-responsive center-block" nb-on-load="notifyLayout()"></audio>
+			</div>
+			<img ng-switch-when="image" ng-src="{{nbInode.inode_api_url(inode.id)}}" class="content-item img-responsive center-block" style="max-height: 60%" nb-on-load="notifyLayout()" />
+			<div ng-switch-when="text">
+				<div class="content-switcher text-center" style="padding: 5px; cursor: pointer" ng-click="toggle_content()" ng-show="!is_previewing">
+					<span class="fa-stack fa-2x" title="Open text file" rel="tooltip">
+						<i class="fa fa-circle fa-stack-2x text-muted"></i>
+						<i class="fa fa-font fa-inverse fa-stack-1x text-white"></i>
+					</span>
+				</div>
+				<object ng-if="show_content" ng-attr-data="{{nbInode.inode_api_url(inode.id)}}" type="text/plain" width="100%" class="content-item center-block" nb-on-load="notifyLayout()"></object>
+			</div>
+			<div ng-switch-default>
+				<div class="content-switcher text-center" style="padding: 5px; cursor: pointer" ng-click="nbInode.seamless_open_inode(inode)">
+					<span class="fa-stack fa-2x" title="Open file" rel="tooltip">
+						<i class="fa fa-circle fa-stack-2x text-muted"></i>
+						<i class="fa fa-file fa-inverse fa-stack-1x text-white"></i>
+					</span>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

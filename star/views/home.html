@@ -60,7 +60,7 @@
 				<table class="table">
 					<tr ng-repeat="friend in share_list | filter:{name: filter_friend_name} | orderBy:'name'" ng-class="{true: 'danger'}[friend.shared]" ng-click="friend.shared = !friend.shared">
 						<td>
-							<img ng-src="{{ nb.user_pic_url(friend) }}"></img>
+							<img ng-src="{{ nbUser.user_pic_url(friend) }}"></img>
 						</td>
 						<td>{{friend.name}}</td>
 						<td>
@@ -361,14 +361,17 @@
 	<script src="/vendor/masonry.pkgd.min.js" type="text/javascript"></script>
 	<!-- <script src="/public/js/menu_ctrl.js" type="text/javascript"></script> -->
 	<!-- <script src="/public/js/guide_ctrl.js" type="text/javascript"></script> -->
-	<script src="/public/js/upload_srv.js" type="text/javascript"></script>
-	<script src="/public/js/home_ng.js" type="text/javascript"></script>
+	<script src="/public/js/nb_user.js" type="text/javascript"></script>
+	<script src="/public/js/nb_inode.js" type="text/javascript"></script>
+	<script src="/public/js/nb_upload.js" type="text/javascript"></script>
+	<script src="/public/js/nb_planet.js" type="text/javascript"></script>
+	<script src="/public/js/nb_home.js" type="text/javascript"></script>
 
 	<script src="/vendor/async/lib/async.js" type="text/javascript"></script>
 	<!-- <script src="/public/js/planet/planet_fs.js" type="text/javascript"></script> -->
-	<script src="/public/js/planet/planet_ctrl.js" type="text/javascript"></script>
+	<!-- // <script src="/public/js/planet/planet_ctrl.js" type="text/javascript"></script> -->
 	<iframe id="auth_frame" hidden Xnwdisable Xnwfaketop></iframe>
-	<div ng-controller="PlanetCtrl"></div>
+	<!-- <div ng-controller="PlanetCtrl"></div> -->
 
 </body>
 
