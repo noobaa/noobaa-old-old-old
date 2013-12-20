@@ -1,5 +1,1 @@
-echo
-echo "copy-paste:          use app16920415"
-echo
-
-mongo dharma.mongohq.com:10008/app16920415 -u heroku -p 261bd2ef194dbac663f1c214dd2af2bb 
+mongo -u heroku -p P6b_jijck7ES7p8qUtpIfJfgU_m8Yt9PHWpsSmHhOBna0CJeUFx9oEVSTBfCfwpCD7e95q0LMIvhr-9wYXqPQw dharma.mongohq.com:10008/app16920415
