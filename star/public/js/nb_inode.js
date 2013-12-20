@@ -25,7 +25,6 @@
 				can_keep_inode: can_keep_inode,
 				init_root_dir: init_root_dir,
 				read_dir: read_dir,
-				read_file_attr: read_file_attr,
 				is_dir_non_empty: is_dir_non_empty,
 				parents_path: parents_path,
 				recursive_delete: recursive_delete,
@@ -124,7 +123,9 @@
 						} else {
 							angular.extend(e, entries[i]);
 						}
-						if (e.content_type) {
+						if (e.isdir) {
+							e.content_kind = 'dir';
+						} else if (e.content_type) {
 							e.content_kind = CONTENT_KINDS[e.content_type.split('/')[0]] || e.content_type;
 						}
 						if (dir_inode.swm) {
@@ -153,20 +154,6 @@
 				});
 			}
 
-			// TODO UNNEEDED
-
-			function read_file_attr(inode) {
-				return $http(inode_call('HEAD', inode.id)).then(function(res) {
-					inode.content_type = res.headers('Content-Type');
-					if (e.content_type) {
-						e.content_kind = CONTENT_KINDS[e.content_type.split('/')[0]] || e.content_type;
-					}
-					console.log('HEAD', inode.content_type, inode.content_kind);
-				}, function(err) {
-					console.error('FAILED HEAD', err);
-					throw err;
-				});
-			}
 
 			function is_dir_non_empty(inode, callback) {
 				if (!inode.isdir) {

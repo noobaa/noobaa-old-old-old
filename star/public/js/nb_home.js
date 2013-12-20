@@ -114,6 +114,8 @@
 				});
 			}
 
+			$scope.filter_content_kind = '';
+
 			$scope.more_feeds = function() {
 				$scope.feeds_limit += 10;
 				rebuild_layout();
@@ -302,9 +304,22 @@
 					$scope.index--;
 					$scope.notify_layout();
 				};
+				$scope.media_events = {
+					load: $scope.notify_layout,
+					ended: function() {
+						console.log('MEDIA ENDED', $scope.feed.entries[$scope.index]);
+						$scope.next_index();
+					},
+				};
 			} else {
 				$scope.current_item = function() {
 					return $scope.feed;
+				};
+				$scope.media_events = {
+					load: $scope.notify_layout,
+					ended: function() {
+						console.log('MEDIA ENDED', $scope.feed);
+					},
 				};
 			}
 			$scope.open_feed_inode = function(feed) {
@@ -630,11 +645,14 @@
 					scope.$watch(attr.nbMedia, function(value) {
 						scope.inode = scope.$eval(attr.nbMedia) || {};
 					});
-					scope.notifyLayout = scope.$eval(attr.notifyLayout);
+					scope.media_events = scope.$eval(attr.mediaEvents) || {};
 					scope.show_content = scope.is_previewing = scope.$eval(attr.showContent);
 					scope.toggle_content = function() {
 						scope.show_content = !scope.show_content;
-						$timeout(scope.notifyLayout, 0);
+						// TODO a little bit hacky way to call notify_layout...
+						if (scope.media_events.load) {
+							scope.media_events.load();
+						}
 					};
 				},
 				templateUrl: '/public/html/media_template.html'

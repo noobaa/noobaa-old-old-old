@@ -74,7 +74,7 @@
 				</div>
 			</div>
 			<div ng-if="current_inode.is_previewing" style="padding: 5px 0">
-				<div nb-media="current_inode" notify-layout="angular.noop" show-content="false"></div>
+				<div nb-media="current_inode" show-content="false"></div>
 			</div>
 		</div>
 
@@ -140,7 +140,7 @@
 					</span>
 				</div>
 				<div ng-if="inode.is_previewing && inode.is_selected" style="padding: 5px 0">
-					<div nb-media="inode" notify-layout="angular.noop" show-content="true"></div>
+					<div nb-media="inode" media-events="media_events" show-content="true"></div>
 				</div>
 			</div>
 			<div ng-if="current_inode.isdir && !current_inode.entries.length">

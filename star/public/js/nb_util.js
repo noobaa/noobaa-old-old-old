@@ -528,14 +528,15 @@
 		}
 	]);
 
-	noobaa_app.directive('nbOnLoad', ['$parse',
+	noobaa_app.directive('nbEvents', ['$parse',
 		function($parse) {
 			return {
+				restrict: 'A', // use as attribute
 				link: function(scope, element, attr) {
-					var fn = $parse(attr.nbOnLoad);
-					element.bind('load', function(event) {
-						scope.$apply(fn);
-					});
+					var events = scope.$eval(attr.nbEvents) || {};
+					for (var e in events) {
+						$(element).on(e, events[e]);
+					}
 				}
 			};
 		}

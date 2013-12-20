@@ -91,7 +91,7 @@
 				</div>
 			</div>
 
-			<div ng-repeat="feed in feeds | limitTo:feeds_limit track by $index" class="feed_item bggrey" ng-controller="FeedCtrl">
+			<div ng-repeat="feed in feeds | filter:{content_kind: filter_content_kind} | limitTo:feeds_limit track by $index" class="feed_item bggrey" ng-controller="FeedCtrl">
 				<div style="position: relative; padding: 5px 50px; min-height: 50px">
 					<div>
 						<div class="text-wrap" style="color: black; padding: 10px 0">
@@ -119,7 +119,7 @@
 				</div>
 				<div style="border-top: 1px solid hsl(0,0%,90%)">
 					<div style="position: relative; min-height: 70px" ng-mouseover="mouse_over=true" ng-mouseleave="mouse_over=false">
-						<div nb-media="current_item()" notify-layout="notify_layout" show-content="false"></div>
+						<div nb-media="current_item()" media-events="media_events" show-content="false"></div>
 						<button ng-show="mouse_over" class="btn btn-danger" style="position: absolute; top: 15px; right: 15px" ng-click="nbInode.copy_inode(feed)" title="Add to My Data" rel="tooltip">
 							<i class="fa fa-plus fa-lg"></i> 
 						</button>
