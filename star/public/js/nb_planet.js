@@ -164,26 +164,6 @@
 				win.showDevTools();
 			}
 
-			// since our window has a frame and win.width/height include it
-			// then we need to consider it
-			var win_inner_width = 500;
-			var win_inner_height = 400;
-			var win_inner_height_long = 500;
-			var win_frame_width = win.width - win_inner_width;
-			var win_frame_height = win.height - win_inner_height;
-
-			$scope.get_pic_url = function(user) {
-				if (!user) {
-					return;
-				}
-				if (user.fbid) {
-					return 'https://graph.facebook.com/' + user.fbid + '/picture';
-				}
-				if (user.googleid) {
-					return 'https://plus.google.com/s2/photos/profile/' + user.googleid + '?sz=50';
-				}
-			};
-
 
 			////////////////////////////////////////////////////////////
 			// local http server to open the app window
