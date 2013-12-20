@@ -26,8 +26,8 @@
 	var noobaa_app = angular.module('noobaa_app');
 
 	noobaa_app.factory('nbPlanet', [
-		'$http', '$timeout', 'nbUploadSrv',
-		function($http, $timeout, nbUploadSrv) {
+		'$http', '$timeout', '$rootScope', 'nbUploadSrv',
+		function($http, $timeout, $rootScope, nbUploadSrv) {
 			console.log('nbPlanet');
 			var nbPlanet = {};
 			var $scope = nbPlanet;
@@ -152,7 +152,7 @@
 				event.originalEvent = event;
 				nbUploadSrv.submit_upload(event);
 				$scope.show();
-				$scope.safe_apply();
+				$rootScope.safe_apply();
 			};
 
 			gui.App.on('open', $scope.on_open_cmd);
@@ -210,7 +210,7 @@
 						res.end('NBOK\n');
 						$scope.show();
 						// $('#file_upload_input').trigger('click');
-						$scope.safe_apply();
+						$rootScope.safe_apply();
 					});
 					$scope.srv.on('error', function(err) {
 						if (err.code == 'EADDRINUSE') {
@@ -225,9 +225,9 @@
 				$scope.srv.listen($scope.srv_port_preferred, function() {
 					$scope.srv_port = $scope.srv.address().port;
 					console.log('SRV listening on port', $scope.srv_port);
-					$scope.safe_apply();
+					$rootScope.safe_apply();
 				});
-				$scope.safe_apply();
+				$rootScope.safe_apply();
 			}
 
 			function srv_stop() {
@@ -257,7 +257,7 @@
 			$scope.auth_frame_path = function(path) {
 				auth_frame.src = path;
 				$scope.planet_loading = true;
-				$scope.safe_apply();
+				$rootScope.safe_apply();
 			};
 
 			// pull info from the frame once it loads
@@ -268,7 +268,7 @@
 				$scope.planet_user = auth_frame_window.noobaa_user;
 				schedule_device(1);
 				get_user_folders();
-				$scope.safe_apply();
+				$rootScope.safe_apply();
 			};
 
 			var login_window;

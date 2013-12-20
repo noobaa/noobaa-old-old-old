@@ -285,13 +285,6 @@ app.put('/adminoobaa/', adminoobaa.admin_update);
 app.get('/planet', function(req, res) {
 	return res.render('planet_boot.html', common_api.page_context(req));
 });
-app.get('/planet/window', function(req, res) {
-	// return res.render('planet.html', common_api.page_context(req));
-	return res.render('home.html', common_api.page_context(req));
-});
-app.get('/planet/auth', function(req, res) {
-	return res.render('planet_auth.html', common_api.page_context(req));
-});
 
 
 // setup user pages
@@ -341,19 +334,15 @@ app.get('/thankyou', function(req, res) {
 
 app.get('/help', function(req, res) {
 	return res.redirect('/welcome#faq');
-	// return res.render('help.html', common_api.page_context(req));
 });
 
-app.get('/settings', redirect_no_user, function(req, res) {
-	return res.render('settings.html', common_api.page_context(req));
-});
-
-app.get('/home/*', redirect_no_user, function(req, res) {
+app.get('/home/*', function(req, res) {
 	return res.render('home.html', common_api.page_context(req));
 });
-app.get('/home', redirect_no_user, function(req, res) {
+app.get('/home', function(req, res) {
 	return res.redirect('/home/');
 });
+
 app.get('/', redirect_no_user, function(req, res) {
 	return res.redirect('/home/');
 });

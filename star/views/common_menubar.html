@@ -5,7 +5,7 @@
 				<img src="/public/images/noobaa_logo.png"></img>
 			</a>
 		</div>
-		<ul Xng-controller="UserCtrl" class="nav navbar-nav navbar-right pull-right" style="margin-top: 0; margin-bottom: 0">
+		<ul ng-if="nbUser.user" class="nav navbar-nav navbar-right pull-right" style="margin-top: 0; margin-bottom: 0">
 			<li class="pull-left">
 				<a href="/home/" style="padding-top: 15px; padding-bottom: 15px">Home</a>
 			</li>
@@ -99,7 +99,7 @@
 								</a>
 							</li>
 							<li>
-								<a href="/auth/logout/" target="_self">
+								<a href="/auth/logout/?state=/home/" target="_self">
 									<i class="fa fa-sign-out fa-fw"></i>
 									Logout
 								</a>
