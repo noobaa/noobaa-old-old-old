@@ -195,6 +195,9 @@
 
 		// submit each of the items
 		for (i = 0; i < items.length; i++) {
+			if (!items[i]) {
+				continue;
+			}
 			me.submit_item(items[i], upload_target, me.root);
 		}
 
