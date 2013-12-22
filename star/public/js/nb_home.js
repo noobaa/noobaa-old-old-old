@@ -93,6 +93,7 @@
 
 			function refresh_feeds() {
 				console.log('READ SWM', $scope.swm);
+				// console.log('READ SWM', $scope.home_context.current_inode);
 				if (!$scope.swm) {
 					return;
 				}
@@ -101,9 +102,11 @@
 				};
 				$scope.refreshing_feeds = true;
 				nbInode.read_dir($scope.swm).then(function(res) {
+				// nbInode.read_dir($scope.home_context.current_inode).then(function(res) {
 					console.log('SWM FOLDER', res);
 					$scope.refreshing_feeds = false;
 					$scope.feeds = $scope.swm.entries;
+					// $scope.feeds = $scope.home_context.current_inode.entries;
 					$scope.feeds_limit = 10;
 					rebuild_layout();
 					return res;
@@ -310,6 +313,10 @@
 						console.log('MEDIA ENDED', $scope.feed.entries[$scope.index]);
 						$scope.next_index();
 					},
+					open_dir: function() {
+						console.log('OPEN DIR');
+						// $scope.home_context.current_inode = $scope.feed.entries[$scope.index];
+					},
 				};
 			} else {
 				$scope.current_item = function() {
@@ -319,6 +326,10 @@
 					load: $scope.notify_layout,
 					ended: function() {
 						console.log('MEDIA ENDED', $scope.feed);
+					},
+					open_dir: function() {
+						console.log('OPEN DIR');
+						// $scope.home_context.current_inode = $scope.feed;
 					},
 				};
 			}
