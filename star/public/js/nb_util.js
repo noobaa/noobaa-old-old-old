@@ -69,13 +69,13 @@
 					return false;
 				}
 				_has_global_modal = true;
-				var modal = $('<div class="modal fade">')
+				var m = $('<div class="modal fade">')
 					.append($('<div class="modal-dialog">')
 						.append($('<div class="modal-content">')
 							.append(hdr)
 							.append(body)
 							.append(foot)));
-				var e = modal_scope ? $compile(modal)(modal_scope) : modal;
+				var e = modal_scope ? $compile(m)(modal_scope) : m;
 				e.on('hidden.bs.modal', function() {
 					_has_global_modal = false;
 				});
@@ -83,10 +83,10 @@
 				return e;
 			}
 
-			function content_modal(content, modal_scope) {
+			function content_modal(headline, content, modal_scope) {
 				var hdr = $('<div class="modal-header">')
 					.append($('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">').html('&times;'))
-					.append($('<h4>').text('Download client...'));
+					.append($('<h4>').text(headline));
 				var body = $('<div class="modal-body">').css('padding', 0).append(content);
 				var foot = $('<div class="modal-footer">').css('margin-top', 0)
 					.append($('<button type="button" class="btn btn-default" data-dismiss="modal">').text('Close'));
@@ -630,19 +630,30 @@
 		};
 	});
 
-	noobaa_app.directive('nbPopover', ['$compile',
-		function($compile) {
+	noobaa_app.directive('nbPopover', [
+		'$compile', '$rootScope',
+		function($compile, $rootScope) {
 			return {
 				restrict: 'A', // use as attribute
 				link: function(scope, element, attr) {
-					scope.$watch(attr.nbPopover, function(value) {
-						if (value.element) {
-							value.content = $compile($(value.element)[0].outerHTML)(scope);
-							value.html = true;
-							delete value.element;
+					var opt = scope.$eval(attr.nbPopover);
+					var opt_element = opt.element;
+					delete opt.element;
+					opt.trigger = 'manual';
+					var state = false;
+					element.on('click', function() {
+						state = !state;
+						if (state) {
+							if (opt_element) {
+								opt.content = $compile($(opt_element).html())(scope);
+								opt.html = true;
+							}
+							element.popover(opt);
+							element.popover('show');
+							$rootScope.safe_apply();
+						} else {
+							element.popover('destroy');
 						}
-						console.log('POPOVER', value);
-						element.popover(value);
 					});
 				}
 			};

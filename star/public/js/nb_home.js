@@ -44,9 +44,9 @@
 
 
 	noobaa_app.controller('HomeCtrl', [
-		'$scope', '$http', '$timeout', '$interval', '$window', '$location',
+		'$scope', '$http', '$timeout', '$interval', '$window', '$location', '$compile',
 		'nbUtil', 'nbMultiSelect', 'nbUser', 'nbInode', 'nbUploadSrv', 'nbPlanet',
-		function($scope, $http, $timeout, $interval, $window, $location,
+		function($scope, $http, $timeout, $interval, $window, $location, $compile,
 			nbUtil, nbMultiSelect, nbUser, nbInode, nbUploadSrv, nbPlanet) {
 			$scope.nbUtil = nbUtil;
 			$scope.nbMultiSelect = nbMultiSelect;
@@ -224,28 +224,19 @@
 			};
 
 			$scope.show_client_installation = function() {
-				nbUtil.content_modal($('#client_installation').html(), $scope);
+				nbUtil.content_modal('Install Client', $('#client_installation').html(), $scope);
 			};
 
 			$scope.show_client_expansion = function() {
-				nbUtil.content_modal($('#client_expansion').html(), $scope);
+				nbUtil.content_modal('Choose Space Plan', $('#client_expansion').html(), $scope);
 			};
 
-
 			var feedback_dialog = $('#feedback_dialog');
-			// TODO FIX THIS ISSUE
-			$timeout(function() {
-				feedback_dialog.nbdialog({
-					modal: true,
-					css: {
-						width: 500
-					}
-				});
-			}, 1);
 
 			$scope.click_feedback = function() {
 				$scope.feedback_send_done = false;
-				feedback_dialog.nbdialog('open');
+				// feedback_dialog.nbdialog('open');
+				feedback_dialog.modal('show');
 			};
 
 			$scope.send_feedback = function() {

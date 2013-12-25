@@ -19,7 +19,7 @@
 						{{nbUser.user.name}}
 					</div>
 				</a>
-				<div style="display: none">
+				<div style="display: none" ng-non-bindable>
 					<div id="user_menu">
 						<!-- 
 						<div class="text-center">
@@ -54,7 +54,7 @@
 		</div>
 		 -->
 							<li>
-								<a id="feedback_button" role="button" ng-click="click_feedback()" title="" rel="tooltip" nb-tooltip="{placement: 'bottom'}">
+								<a id="feedback_button" role="button" ng-click="click_feedback()">
 									<i class="fa fa-comments fa-fw"></i>
 									Give feedback
 								</a>
@@ -112,24 +112,26 @@
 	</div>
 </nav>
 
-<div Xng-controller="FeedbackCtrl" id="feedback_dialog" class="nbdialog fntmd">
-	<div class="nbdialog_header nbdialog_drag">
-		<i class="icon-comments icon-large text-info"></i>
-		"Talk To Me Goose"
-		<a class="pull-right nbdialog_close btn btn-default btn-xs" title="Cancel">
-			<i class="icon-remove"></i>
-		</a>
-	</div>
-	<div class="nbdialog_content">
-		<textarea ng-hide="feedback_send_done" ng-model="feedback_text" class="form-control" autofocus style="resize: none; height: 100%"></textarea>
-		<p ng-show="feedback_send_done" class="lead text-center">
-			My Precious...
-			<br/>Thanks you!
-		</p>
-	</div>
-	<div class="nbdialog_footer">
-		<button ng-hide="feedback_send_done" class="nbdialog_close btn btn-default">Cancel</button>
-		<button class="btn btn-primary pull-right" ng-hide="feedback_send_done" ng-click="send_feedback()">Send</button>
-		<button class="nbdialog_close btn btn-success pull-right" ng-show="feedback_send_done">Close</button>
+<div Xng-controller="FeedbackCtrl" id="feedback_dialog" class="modal fade Xnbdialog fntmd">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header Xnbdialog_header Xnbdialog_drag">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<i class="icon-comments icon-large text-info"></i>
+				"Talk To Me Goose"
+			</div>
+			<div class="modal-body Xnbdialog_content">
+				<textarea ng-hide="feedback_send_done" ng-model="feedback_text" class="form-control" autofocus style="resize: none; height: 100%" rows="5"></textarea>
+				<p ng-show="feedback_send_done" class="lead text-center">
+					My Precious...
+					<br/>Thanks you!
+				</p>
+			</div>
+			<div class="modal-footer Xnbdialog_footer">
+				<button data-dismiss="modal" ng-hide="feedback_send_done" class="Xnbdialog_close btn btn-default">Cancel</button>
+				<button class="btn btn-primary pull-right" ng-hide="feedback_send_done" ng-click="send_feedback()">Send</button>
+				<button data-dismiss="modal" class="Xnbdialog_close btn btn-success pull-right" ng-show="feedback_send_done">Close</button>
+			</div>
+		</div>
 	</div>
 </div>
