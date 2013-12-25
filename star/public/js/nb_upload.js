@@ -130,13 +130,14 @@
 	};
 
 	UploadSrv.prototype.open_file_input = function() {
-		var e = $('<input type="file" name="file" multiple="multiple"></input>');
+		var e = $('<input type="file" name="file" multiple>');
 		this.setup_file_input(e);
 		e.click();
 	};
 
 	UploadSrv.prototype.open_dir_input = function() {
-		var e = $('<input type="file" name="file" webkitdirectory="" mozdirectory="" directory=""></input>');
+		var properties = this.$fs ? 'nwdirectory' : 'webkitdirectory mozdirectory directory';
+		var e = $('<input type="file" name="file" ' + properties + ' >');
 		this.setup_file_input(e);
 		e.click();
 	};
@@ -717,7 +718,7 @@
 					name: item.name,
 					size: item.size,
 					content_type: item.type,
-					relative_path: item.webkitRelativePath,
+					// relative_path: item.path ? undefined : item.webkitRelativePath,
 					src_dev_id: upload.src_dev_id,
 					src_dev_path: item.path
 				}
@@ -1120,6 +1121,7 @@
 			method: 'GET',
 			url: '/api/inode/src_dev/' + device_id,
 		}).then(function(res) {
+			console.log('RELOAD SOURCE', device_id, res);
 			var ents = res.data.entries;
 			for (var i = 0; i < ents.length; i++) {
 				var ent = ents[i];

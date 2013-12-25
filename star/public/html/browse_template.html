@@ -79,7 +79,7 @@
 		</div>
 
 		<div class="panel-body" style="padding: 0; border-top-width: 1px; border-top-style: solid">
-			<div ng-repeat="inode in current_inode.entries | filter:{name: search_in_folder}" class="file_line notextselect {{inode.is_selected && 'bggrey' || ''}}" style="border-bottom-width: 1px; border-top-width: 1px">
+			<div ng-repeat="inode in filter_entries = ( current_inode.entries | filter:{name: search_in_folder} )" class="file_line notextselect {{inode.is_selected && 'bggrey' || ''}}" style="border-bottom-width: 1px; border-top-width: 1px">
 				<div class="clearfix" ng-click="select_inode(inode, $index, $event)">
 					<span class="text-wrap">
 						<i ng-show="!!inode.isdir" class="fa fa-folder-open fa-fw fa-lg text-danger"></i>
@@ -124,12 +124,12 @@
 							Share
 						</a>
 					</span>
-					<span ng-if="!current_inode.owner">
+					<span ng-if="!current_inode.owner && nbInode.can_change_inode(inode)">
 						<a class="btn btn-link" ng-show="num_selected()==1" ng-click="rename_inode(inode)">
 							<i class="fa fa-pencil fa-rotate-270 fa-fw"></i>
 							Rename
 						</a>
-						<a class="btn btn-link" ng-if="false" ng-click="move_inodes()">
+						<a class="btn btn-link" ng-click="move_inodes()">
 							<i class="fa fa-arrows fa-fw"></i>
 							Move {{num_selected()>1 && 'all' || ''}}
 						</a>
@@ -143,10 +143,16 @@
 					<div nb-media="inode" media-events="media_events" show-content="true"></div>
 				</div>
 			</div>
-			<div ng-if="current_inode.isdir && !current_inode.entries.length">
-				<div style="padding-left: 20px; line-height: 80px; vertical-align: middle">
-					No files yet ...
-				</div>
+			<div ng-if="!filter_entries.length" style="padding-left: 20px; line-height: 60px; vertical-align: middle">
+				<span ng-if="current_inode.is_loading">
+					Loading ...
+				</span>
+				<span ng-if="!current_inode.is_loading && !current_inode.entries.length">
+					( Empty )
+				</span>
+				<span ng-if="!current_inode.is_loading && current_inode.entries.length">
+					( Filtered items exist )
+				</span>
 			</div>
 		</div>
 	</div>

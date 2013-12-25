@@ -384,7 +384,7 @@
 				}).then(function() {
 					if (!$scope.loaded_source_dev) {
 						console.log('RELOAD SOURCE DEVICE', $scope.planet_device);
-						return nbUploadSrv.reload_source($scope.planet_device.id).then(function() {
+						return nbUploadSrv.reload_source($scope.planet_device._id).then(function() {
 							$scope.loaded_source_dev = true;
 						});
 					}
@@ -426,6 +426,10 @@
 					platform: os.platform()
 				};
 			}
+
+			$scope.get_source_device_id = function() {
+				return $scope.planet_device ? $scope.planet_device._id : undefined;
+			};
 
 			periodic_device();
 

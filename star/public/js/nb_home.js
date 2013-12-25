@@ -70,26 +70,28 @@
 				}
 			};
 
-			nbInode.read_dir($scope.root_dir).then(function(res) {
-				console.log('ROOT FOLDERS', res);
-				for (var i = 0; i < res.data.entries.length; i++) {
-					var e = res.data.entries[i];
-					e.level = 1;
-					if (e.name === 'My Data') {
-						$scope.mydata = e;
-					} else if (e.name === 'Shared With Me') {
-						$scope.swm = e;
-						e.swm = true;
-					} else {
-						console.error('UNRECOGNIZED ROOT FOLDER', e);
+			if (nbUser.user) {
+				nbInode.read_dir($scope.root_dir).then(function(res) {
+					console.log('ROOT FOLDERS', res);
+					for (var i = 0; i < res.data.entries.length; i++) {
+						var e = res.data.entries[i];
+						e.level = 1;
+						if (e.name === 'My Data') {
+							$scope.mydata = e;
+						} else if (e.name === 'Shared With Me') {
+							$scope.swm = e;
+							e.swm = true;
+						} else {
+							console.error('UNRECOGNIZED ROOT FOLDER', e);
+						}
 					}
-				}
-				refresh_feeds();
-				return res;
-			}, function(err) {
-				console.error('GET ROOT FOLDERS FAILED', err);
-				return $timeout(read_root_dirs, 1000);
-			});
+					refresh_feeds();
+					return res;
+				}, function(err) {
+					console.error('GET ROOT FOLDERS FAILED', err);
+					return $timeout(read_root_dirs, 1000);
+				});
+			}
 
 			function refresh_feeds() {
 				console.log('READ SWM', $scope.swm);
@@ -102,7 +104,7 @@
 				};
 				$scope.refreshing_feeds = true;
 				nbInode.read_dir($scope.swm).then(function(res) {
-				// nbInode.read_dir($scope.home_context.current_inode).then(function(res) {
+					// nbInode.read_dir($scope.home_context.current_inode).then(function(res) {
 					console.log('SWM FOLDER', res);
 					$scope.refreshing_feeds = false;
 					$scope.feeds = $scope.swm.entries;
@@ -170,11 +172,13 @@
 
 
 			nbUploadSrv.get_upload_target = function(event) {
+				var src_dev_id = nbPlanet.on ? nbPlanet.get_source_device_id() : undefined;
 				// see inode_upload()
 				var inode_upload = $(event.target).data('inode_upload');
 				if (inode_upload) {
 					return {
-						inode_id: inode_upload.id
+						inode_id: inode_upload.id,
+						src_dev_id: src_dev_id
 					};
 				}
 
@@ -182,13 +186,15 @@
 				var dir_inode = $scope.home_context.current_inode;
 				if (nbInode.can_upload_to_dir(dir_inode)) {
 					return {
-						dir_inode_id: dir_inode.id
+						dir_inode_id: dir_inode.id,
+						src_dev_id: src_dev_id
 					};
 				}
 				if (nbInode.can_upload_to_dir($scope.mydata)) {
 					console.log('upload to mydata - since current_inode is', dir_inode);
 					return {
-						dir_inode_id: $scope.mydata.id
+						dir_inode_id: $scope.mydata.id,
+						src_dev_id: src_dev_id
 					};
 				}
 				console.error('bailing upload');
@@ -217,10 +223,12 @@
 				}
 			};
 
-			$scope.show_install_feed = function() {
-				$scope.showing_install_feed = !$scope.showing_install_feed;
-				// rebuild_layout();
-				$scope.notify_layout();
+			$scope.show_client_installation = function() {
+				nbUtil.content_modal($('#client_installation').html(), $scope);
+			};
+
+			$scope.show_client_expansion = function() {
+				nbUtil.content_modal($('#client_expansion').html(), $scope);
 			};
 
 
@@ -410,7 +418,7 @@
 
 					function go_up_level() {
 						if ($scope.current_inode.level > 0) {
-							set_current_inode($scope.current_inode.parent);
+							open_inode($scope.current_inode.parent);
 						}
 					}
 
@@ -470,6 +478,7 @@
 							$.nbalert('Cannot rename someone else\'s file');
 							return;
 						}
+
 						var dlg = $('#rename_dialog').clone();
 						var input = dlg.find('#dialog_input');
 						input.val(inode.name);
@@ -603,7 +612,45 @@
 						});
 					}
 
-					function move_inodes() {}
+					function move_inodes() {
+						var modal;
+						var selected = nbMultiSelect.selection_items(selection);
+						if (!selected.length) {
+							return;
+						}
+						if (!nbInode.can_change_inode(selected[0])) {
+							$.nbalert('Cannot move item');
+						}
+						var mv_scope = $scope.$new();
+						mv_scope.count = 0;
+						mv_scope.context = {
+							current_inode: $scope.current_inode,
+							dir_only: true
+						};
+						mv_scope.run_disabled = function() {
+							return mv_scope.running || !nbInode.can_move_to_dir(mv_scope.context.current_inode);
+						};
+						mv_scope.run = function() {
+							console.log('RUN', selected);
+							mv_scope.running = true;
+							var promises = new Array(selected.length);
+							for (var i = 0; i < selected.length; i++) {
+								promises[i] = nbInode.move_inode(selected[i], mv_scope.context.current_inode);
+							}
+							$q.all(promises).then(function() {
+								modal.modal('hide');
+								return open_inode($scope.current_inode);
+							});
+						};
+						var hdr = $('<div class="modal-header">')
+							.append($('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">').html('&times;'))
+							.append($('<h4>').text('Move to ...'));
+						var body = $('<div class="modal-body" nb-chooser context="context">').css('padding', 0);
+						var foot = $('<div class="modal-footer">').css('margin-top', 0)
+							.append($('<button type="button" class="btn btn-default" data-dismiss="modal">').text('Close'))
+							.append($('<button type="button" class="btn btn-primary" ng-click="run()" ng-disabled="run_disabled()">').text('OK'));
+						modal = nbUtil.modal(hdr, body, foot, mv_scope);
+					}
 
 					function copy_inode(inode) {
 						var refresh = function() {
@@ -671,6 +718,54 @@
 		}
 	]);
 
+	///////////////////////
+	// CHOOSER DIRECTIVE //
+	///////////////////////
+
+
+	noobaa_app.directive('nbChooser', ['$parse', '$timeout', 'nbInode',
+		function($parse, $timeout, nbInode) {
+			return {
+				replace: true,
+				templateUrl: '/public/html/chooser_template.html',
+				scope: { // isolated scope
+					context: '='
+				},
+				controller: [
+					'$scope', '$http', '$timeout', '$q', '$compile', '$rootScope', 'nbUtil', 'nbInode',
+					function($scope, $http, $timeout, $q, $compile, $rootScope, nbUtil, nbInode) {
+						$scope.human_size = $rootScope.human_size;
+						$scope.nbUtil = nbUtil;
+						$scope.nbInode = nbInode;
+
+						set_current_inode($scope.context.current_inode);
+
+						function set_current_inode(inode) {
+							$scope.context.current_inode = inode;
+							$scope.current_inode = inode;
+						}
+
+						$scope.open_inode = function(inode) {
+							set_current_inode(inode);
+							if (inode.isdir) {
+								nbInode.read_dir(inode);
+							}
+						};
+
+						$scope.has_parent = function(inode) {
+							return inode.level > 0;
+						};
+
+						$scope.go_up_level = function() {
+							if ($scope.current_inode.level > 0) {
+								set_current_inode($scope.current_inode.parent);
+							}
+						};
+					}
+				]
+			};
+		}
+	]);
 
 
 	/////////////////////

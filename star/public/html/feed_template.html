@@ -32,61 +32,67 @@
 						<i class="fa fa-angle-right fa-fw"></i>
 					</h4>
 				</a>
-				<a ng-if="nbUtil.bowser.chrome" class="btn btn-warning btn-block btn-hover-only" ng-click="nbUploadSrv.open_dir_input()" style="border-radius: 0; margin: 0">
-					<h4 class="text-left" style="margin: 0; padding: 10px 20px">
-						UPLOAD &nbsp;
-						<small class="text-black">entire folder</small>
-						<i class="fa fa-angle-right fa-fw"></i>
-					</h4>
-				</a>
 				<div ng-if="!nbPlanet.on">
-					<a class="btn btn-primary btn-block btn-hover-only" ng-click="show_install_feed()" style="border-top-left-radius: 0; border-top-right-radius: 0; margin: 0">
+					<a class="btn btn-primary btn-block btn-hover-only" ng-click="show_client_installation()" style="border-top-left-radius: 0; border-top-right-radius: 0; margin: 0">
 						<h4 class="text-left" style="margin: 0; padding: 10px 20px">
 							INSTALL &nbsp;
 							<small class="text-black">the NooBaa client</small>
 							<i class="fa fa-angle-right fa-fw"></i>
 						</h4>
 					</a>
-					<div ng-show="showing_install_feed">
-						<div>
-							<a class="btn btn-link" href="https://noobaa-download.s3.amazonaws.com/noobaa-windows-setup-0.1.exe">
-								<img src="/public/images/windows_logo.png" style="margin: 5px; width: 40px; height: 40px"></img>
-								Download for Windows
-							</a>
-						</div>
-						<div>
-							<a class="btn btn-link" href="https://noobaa-download.s3.amazonaws.com/noobaa-osx-0.1.zip">
-								<img src="/public/images/mac_logo_small.png" style="margin: 5px; width: 40px; height: 40px"></img>
-								Download for Mac
-							</a>
-						</div>
-						<div>
-							<a class="btn btn-link" href="https://noobaa-download.s3.amazonaws.com/noobaa-linux-0.1.tar.gz">
-								<img src="/public/images/linux_logo.png" style="margin: 5px; width: 40px; height: 40px"></img>
-								Download for Linux
-							</a>
+					<div style="display: none" ng-non-bindable>
+						<div id="client_installation">
+							<div style="padding: 10px">
+								<div>
+									<a class="btn btn-link" href="https://noobaa-download.s3.amazonaws.com/noobaa-windows-setup-0.1.exe">
+										<img src="/public/images/windows_logo.png" style="margin: 5px; width: 40px; height: 40px"></img>
+										Download for Windows
+									</a>
+								</div>
+								<div>
+									<a class="btn btn-link" href="https://noobaa-download.s3.amazonaws.com/noobaa-osx-0.1.zip" style="border-radius: 0; margin: 0">
+										<img src="/public/images/mac_logo_small.png" style="margin: 5px; width: 40px; height: 40px"></img>
+										Download for Mac
+									</a>
+								</div>
+								<div>
+									<a class="btn btn-link" href="https://noobaa-download.s3.amazonaws.com/noobaa-linux-0.1.tar.gz">
+										<img src="/public/images/linux_logo.png" style="margin: 5px; width: 40px; height: 40px"></img>
+										Download for Linux
+									</a>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
 				<div ng-if="nbPlanet.on">
-					<a class="btn btn-primary btn-block btn-hover-only" ng-click="show_install_feed()" style="border-top-left-radius: 0; border-top-right-radius: 0; margin: 0">
+					<a class="btn btn-warning btn-block btn-hover-only" ng-click="nbUploadSrv.open_dir_input()" style="border-radius: 0; margin: 0">
+						<h4 class="text-left" style="margin: 0; padding: 10px 20px">
+							UPLOAD &nbsp;
+							<small class="text-black">entire folder</small>
+							<i class="fa fa-angle-right fa-fw"></i>
+						</h4>
+					</a>
+					<a class="btn btn-primary btn-block btn-hover-only" ng-click="show_client_expansion()" style="border-top-left-radius: 0; border-top-right-radius: 0; margin: 0">
 						<h4 class="text-left" style="margin: 0; padding: 10px 20px">
 							EXPAND &nbsp;&nbsp;
 							<small class="text-black">all space plans are free</small>
 							<i class="fa fa-angle-right fa-fw"></i>
 						</h4>
 					</a>
-					<div ng-show="showing_install_feed">
-						<div ng-repeat="plan in nbPlanet.coshare_options">
-							<button href="#" class="btn btn-link btn-lg btn-block" ng-click="nbPlanet.select_coshare_option($index)" ng-class="nbPlanet.coshare_options_class($index)">
-								{{plan.title}}
+					<div style="display: none" ng-non-bindable>
+						<div id="client_expansion">
+							<div ng-repeat="plan in nbPlanet.coshare_options">
+								<button href="#" class="btn btn-link btn-lg btn-block" ng-click="nbPlanet.select_coshare_option($index)" ng-class="nbPlanet.coshare_options_class($index)">
+									{{plan.title}}
+								</button>
+							</div>
+							<button ng-if="false" class="btn btn-link btn-block" ng-click="nbUtil.coming_soon()" Xonclick="$('#coshare_path').trigger('click')">
+								Advanced...
 							</button>
+							<input id="coshare_path" style="display: none" type="file" name="file" nwdirectory>
+							</input>
 						</div>
-						<button ng-if="false" class="btn btn-link btn-block" ng-click="nbUtil.coming_soon()" Xonclick="$('#coshare_path').trigger('click')">
-							Advanced...
-						</button>
-						<input id="coshare_path" style="display: none" type="file" name="file" nwdirectory>
-						</input>
 					</div>
 				</div>
 			</div>

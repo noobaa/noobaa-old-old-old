@@ -507,12 +507,14 @@ function inode_create_action(inode, fobj, user, relative_path, callback) {
 			return validate_inode_creation_conditions(inode, fobj, user, next);
 		},
 
+		/* TODO THIS RELATIVE PATH HADNLING IS BROKEN AND SEEMS UNNEEDED FOR NOW
 		// create relative path if needed
 		// and update the created dir as the new inode parent
 		function(next) {
 			if (!relative_path) {
 				return next();
 			}
+
 			// make an array out of the relative path names
 			// and compact it to remove any empty strings
 			var paths = _.compact(relative_path.split('/'));
@@ -546,6 +548,7 @@ function inode_create_action(inode, fobj, user, relative_path, callback) {
 				next(err);
 			});
 		},
+		*/
 
 		// create the new fobj
 		function(next) {

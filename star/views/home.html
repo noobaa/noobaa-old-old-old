@@ -90,7 +90,7 @@
 		<div class="nbdialog_footer">
 			<button class="nbdialog_close btn btn-default">Cancel</button>
 			<div class="pull-right">
-				<div class="btn-group dropup">
+				<div ng-if="false" class="btn-group dropup">
 					<button type="button" class="btn btn-default" ng-click="mklink()">
 						Get Link
 					</button>
@@ -138,26 +138,6 @@
 		<span id="inode_with_icon_name" class="fntmd fntthin"></span>
 	</div>
 
-	<!-- MOVE DIALOG -->
-
-	<div id="move_dialog" class="nbdialog fntmd">
-		<div class="nbdialog_header nbdialog_drag">
-			Confirm Move
-			<a class="pull-right nbdialog_close btn btn-default btn-xs" title="Cancel">
-				<i class="icon-remove"></i>
-			</a>
-		</div>
-		<div class="nbdialog_content">
-			<p>Are you sure you want to move?</p>
-			<div class="inode_label"></div>
-			<p>into this folder:</p>
-			<div class="inode_label"></div>
-		</div>
-		<div class="nbdialog_footer">
-			<button class="nbdialog_close btn btn-default">Cancel</button>
-			<button id="dialog_ok" class="btn btn-primary pull-right">Move</button>
-		</div>
-	</div>
 
 	<!-- DELETE DIALOG -->
 
@@ -182,19 +162,6 @@
 		</div>
 	</div>
 
-	<!-- COPY DIALOG -->
-
-	<div id="copy_dialog" class="nbdialog fntmd">
-		<div class="nbdialog_header nbdialog_drag">
-			Files copied to "My Data"
-			<a class="pull-right nbdialog_close btn btn-default btn-xs" title="OK">
-				<i class="icon-remove"></i>
-			</a>
-		</div>
-		<div class="nbdialog_footer">
-			<button class="nbdialog_close btn btn-default">Ok</button>
-		</div>
-	</div>
 
 	<!-- MKDIR DIALOG -->
 

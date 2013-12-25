@@ -42,8 +42,10 @@
 
 
 	noobaa_app.factory('nbUtil', [
-		'$http', '$timeout', '$interval', '$q', '$rootScope',
-		function($http, $timeout, $interval, $q, $rootScope) {
+		'$http', '$timeout', '$interval', '$q', '$rootScope', '$compile',
+		function($http, $timeout, $interval, $q, $rootScope, $compile) {
+
+			var _has_global_modal = false;
 
 			var $scope = {
 				bowser: bowser,
@@ -52,8 +54,44 @@
 				coming_soon: function(feature) {
 					// TODO send event log
 					nbalert('Coming soon...');
-				}
+				},
+				has_global_modal: function() {
+					return _has_global_modal;
+				},
+				modal: modal,
+				content_modal: content_modal,
 			};
+
+
+			function modal(hdr, body, foot, modal_scope) {
+				if (_has_global_modal) {
+					console.error('RECURSIVE MODAL');
+					return false;
+				}
+				_has_global_modal = true;
+				var modal = $('<div class="modal fade">')
+					.append($('<div class="modal-dialog">')
+						.append($('<div class="modal-content">')
+							.append(hdr)
+							.append(body)
+							.append(foot)));
+				var e = modal_scope ? $compile(modal)(modal_scope) : modal;
+				e.on('hidden.bs.modal', function() {
+					_has_global_modal = false;
+				});
+				e.modal();
+				return e;
+			}
+
+			function content_modal(content, modal_scope) {
+				var hdr = $('<div class="modal-header">')
+					.append($('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">').html('&times;'))
+					.append($('<h4>').text('Download client...'));
+				var body = $('<div class="modal-body">').css('padding', 0).append(content);
+				var foot = $('<div class="modal-footer">').css('margin-top', 0)
+					.append($('<button type="button" class="btn btn-default" data-dismiss="modal">').text('Close'));
+				return modal(hdr, body, foot, modal_scope);
+			}
 
 			return $scope;
 
@@ -372,12 +410,13 @@
 			// compute the element location in center of viewport
 			var width = e.outerWidth();
 			var height = e.outerHeight();
-			var top = (($(window).innerHeight() - height) / 2);
-			top = top > 100 ? top : 100;
-			top += $(document).scrollTop();
-			var left = (($(window).innerWidth() - width) / 2);
-			left = left > 100 ? left : 100;
-			left += $(document).scrollLeft();
+			// var top = (($(window).innerHeight() - height) / 2);
+			// top = top > 100 ? top : 100;
+			// top += $(document).scrollTop();
+			// var left = (($(window).innerWidth() - width) / 2);
+			// left = left > 100 ? left : 100;
+			// left += $(document).scrollLeft();
+
 			// compute inner elements dimentions
 			// to make constant size header and footer,
 			// but dynamic content with scroll (if needed).
@@ -413,8 +452,17 @@
 				overflow: 'auto'
 			});
 			e.css(_.extend({
-				top: top,
-				left: left,
+				position: 'fixed',
+				left: 0,
+				right: 0,
+				top: 0,
+				bottom: 0,
+				marginLeft: 'auto',
+				marginRight: 'auto',
+				marginTop: 'auto',
+				marginBottom: 'auto',
+				// top: top,
+				// left: left,
 				width: width,
 				height: height,
 			}, opt.css, {
@@ -428,7 +476,7 @@
 				minHeight: 100,
 				minWidth: 200,
 				handles: 'all',
-				autoHide: true
+				autoHide: false
 			});
 			e.draggable({
 				containment: opt.containment || 'document',

@@ -23,6 +23,8 @@
 				can_upload_file: can_upload_file,
 				can_share_inode: can_share_inode,
 				can_keep_inode: can_keep_inode,
+				can_change_inode: can_change_inode,
+				can_move_to_dir: can_move_to_dir,
 				init_root_dir: init_root_dir,
 				read_dir: read_dir,
 				is_dir_non_empty: is_dir_non_empty,
@@ -30,6 +32,7 @@
 				recursive_delete: recursive_delete,
 				recursive_copy: recursive_copy,
 				copy_inode: copy_inode,
+				move_inode: move_inode,
 			};
 
 			function inode_api_url(inode_id) {
@@ -64,7 +67,7 @@
 			}
 
 			function is_shared_with_me(inode) {
-				return inode.swm; // TODO NEED TO FILL THIS OR REMOVE
+				return inode.swm;
 			}
 
 			function is_not_mine(inode) {
@@ -85,6 +88,14 @@
 
 			function can_keep_inode(inode) {
 				return inode && inode.swm && inode.level > 1;
+			}
+
+			function can_change_inode(inode) {
+				return inode && !inode.not_mine && inode.level > 1;
+			}
+
+			function can_move_to_dir(inode) {
+				return inode && !inode.not_mine && !inode.owner && inode.level > 0;
 			}
 
 			function init_root_dir() {
@@ -322,6 +333,41 @@
 				return recursive_copy(inode, copy_scope).then(on_copy, on_copy);
 			}
 
+			function move_inode(inode, dir_inode) {
+				console.log('MOVE', inode.name, dir_inode.name);
+				if (!can_change_inode(inode)) {
+					$.nbalert('Cannot move item');
+					return;
+				}
+				if (!can_move_to_dir(dir_inode)) {
+					$.nbalert('Cannot move into someone else\'s folder');
+					return;
+				}
+				if (is_shared_with_me(inode) !== is_shared_with_me(dir_inode)) {
+					$.nbalert('Cannot move in or out of the "Shared With Me" folder.<br/>' +
+						'Maybe you meant to use "Add To My Data"...');
+					return;
+				}
+				var p = dir_inode;
+				while (p) {
+					if (p.id === inode.id) {
+						$.nbalert('Cannot create circular folders.<br/>It\'s just wrong...');
+						return;
+					}
+					p = p.parent;
+				}
+				if (inode.parent.id === dir_inode.id) {
+					console.log('move into same parent. nothing to do.');
+					return;
+				}
+				return $http({
+					method: 'PUT',
+					url: '/api/inode/' + inode.id,
+					data: {
+						parent: dir_inode.id,
+					}
+				});
+			}
 
 			return $scope;
 
