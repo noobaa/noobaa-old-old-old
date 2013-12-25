@@ -89,6 +89,7 @@
 						</a>
 					</span>
 					<span class="text-muted pull-right">
+						<i ng-show="inode.uploading" title="Incomplete upload..." rel="tooltip" ng-click="inode_resume_upload(inode)" class="icon-cloud-upload icon-fixed-width"></i>
 						<i ng-if="!current_inode.owner" ng-show="!!inode.num_refs" class="icon-share icon-large d-icon" title="Shared with {{inode.num_refs}} friends" rel="tooltip" ng-click="share_inode(inode)"></i>
 						<span ng-show="!inode.isdir" style="margin-right: 20px">
 							{{human_size(inode.size)}}
