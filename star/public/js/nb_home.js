@@ -58,7 +58,6 @@
 			$scope.refresh_feeds = refresh_feeds;
 			$scope.root_dir = nbInode.init_root_dir();
 
-			nbUser.update_user_info();
 
 			$scope.home_context = {
 				current_inode: $scope.root_dir,
@@ -71,6 +70,9 @@
 			};
 
 			if (nbUser.user) {
+				
+				nbUser.update_user_info();
+				
 				nbInode.read_dir($scope.root_dir).then(function(res) {
 					console.log('ROOT FOLDERS', res);
 					for (var i = 0; i < res.data.entries.length; i++) {

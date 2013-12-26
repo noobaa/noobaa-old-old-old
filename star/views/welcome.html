@@ -119,6 +119,10 @@
 
 <body ng-cloak ng-controller="WelcomeCtrl">
 
+	<div>
+		<?# def.facebook_init_body ?>
+	</div>
+
 	<a id="_"></a>
 
 	<div id="nb_carousel" class="carousel slide filling">
@@ -404,13 +408,13 @@
 			<br/>
 			<div class="text-center" style="border: 1px solid #ccc; width: 380px; padding: 20px;
 				border-radius: 7px/7px;	margin-left: auto; margin-right: auto;">
-				<a href="/auth/facebook/login/">
+				<a ng-click="nbUser.login_facebook()" Xhref="/auth/facebook/login/">
 					<img onmouseover="$('body').chardinJs('start')" onmouseout="$('body').chardinJs('stop')" data-intro="Easily share with your Facebook friends" data-position="left" src="/public/images/facebook_signup_button_big.png" style="width: 100%"></img>
 				</a>
 				<div style="height: 1px; background-color: #ccc; text-align: center; margin: 30px 0 30px 0">
 					<span class="bgdark text-white" style="Xbackground-color: inherit; position: relative; top: -0.75em; padding: 10px">OR</span>
 				</div>
-				<a href="/auth/google/login/">
+				<a ng-click="nbUser.login_google()" Xhref="/auth/google/login/">
 					<img onmouseover="$('body').chardinJs('start')" onmouseout="$('body').chardinJs('stop')" data-intro="Easily share with your Google Plus friends" data-position="right" src="/public/images/google_login_buttin_big.jpg" style="width: 100%"></img>
 
 				</a>
@@ -451,15 +455,23 @@
 		<img alt="Chrome" src="/public/images/chrome_icon.png" />
 	</a>
 
+	<div>
+		<?# def.include( 'common_scripts.html') ?>
+	</div>
 
-	<?# def.include( 'common_scripts.html') ?>
-		<script src="/vendor/chardin.js/chardinjs.min.js" type="text/javascript"></script>
-		<script src="/public/js/help.js" type="text/javascript"></script>
+	<script src="/vendor/chardin.js/chardinjs.min.js" type="text/javascript"></script>
+	<script src="/public/js/help.js" type="text/javascript"></script>
+	<script src="/public/js/nb_user.js" type="text/javascript"></script>
 
-		<script type="text/javascript">
+	<script type="text/javascript">
+	(function() {
+		'use strict';
+
+		var noobaa_app = angular.module('noobaa_app');
+
 		var nb_nav_affix = undefined;
 
-		 // jquery init
+		// jquery init
 		$(function() {
 
 			var nb_carousel = $('#nb_carousel');
@@ -536,18 +548,21 @@
 			});
 		});
 
+		noobaa_app.controller('WelcomeCtrl', [
+			'$scope', '$location', '$anchorScroll', 'nbUser',
 
-		WelcomeCtrl.$inject = ['$scope', '$location', '$anchorScroll'];
-
-		function WelcomeCtrl($scope, $location, $anchorScroll) {
-			$scope.need_chrome_ref = !bowser.chrome;
-			$anchorScroll();
-			$scope.scroll = function(hash) {
-				$location.hash(hash);
+			function($scope, $location, $anchorScroll, nbUser) {
+				$scope.nbUser = nbUser;
+				$scope.need_chrome_ref = !bowser.chrome;
 				$anchorScroll();
-			};
-		}
-		</script>
+				$scope.scroll = function(hash) {
+					$location.hash(hash);
+					$anchorScroll();
+				};
+			}
+		]);
+	})();
+	</script>
 
 </body>
 

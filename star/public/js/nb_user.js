@@ -9,11 +9,11 @@
 	var noobaa_app = angular.module('noobaa_app');
 
 	noobaa_app.factory('nbUser', [
-		'$http', '$timeout', '$interval', '$q', '$rootScope',
-		function($http, $timeout, $interval, $q, $rootScope) {
+		'$http', '$timeout', '$interval', '$q', '$rootScope', '$window', '$location',
+		function($http, $timeout, $interval, $q, $rootScope, $window, $location) {
 
 			var $scope = {};
-			
+
 
 			var server_data_raw = $('#server_data').html();
 			$scope.server_data = server_data_raw ? JSON.parse(server_data_raw) : {};
@@ -76,6 +76,30 @@
 					return 'https://plus.google.com/s2/photos/profile/' + user.googleid + '?sz=50';
 				}
 			}
+
+			$scope.login_facebook = function() {
+				if (false && FB) {
+					FB.login();
+				} else {
+					$window.location.href = '/auth/facebook/login/';
+				}
+			};
+
+			$scope.login_google = function() {
+				$window.location.href = '/auth/google/login/';
+			};
+
+			$scope.logout = function() {
+				var redirect_logout = function() {
+					$window.location.href = '/auth/logout/?state=/home/';
+				};
+				if (FB) {
+					// FB.logout(redirect_logout);
+					redirect_logout();
+				} else {
+					redirect_logout();
+				}
+			};
 
 			return $scope;
 

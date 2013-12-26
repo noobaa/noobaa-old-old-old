@@ -143,6 +143,9 @@ mixpanel.init("3d665008b89e33420b7bf831b5fbd694");
 		// });
 		// this one is causing some errors, so removing for now
 		// FB.Canvas.setAutoGrow();
+		FB.getLoginStatus(function(res) {
+			console.log('FB', res);
+		});
 	};
 
 	// Load the SDK Asynchronously
