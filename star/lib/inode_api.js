@@ -107,6 +107,7 @@ function inode_to_entry(inode, opt) {
 	var ent = {
 		id: inode._id,
 		name: inode.name,
+		parent_id: inode.parent,
 		ctime: inode._id.getTimestamp(),
 		size: 0 // fobj will override, but needed for 0 size files without fobj
 	};
@@ -582,6 +583,42 @@ function inode_create_action(inode, fobj, user, relative_path, callback) {
 }
 
 // INODE CRUD - READ
+
+exports.inode_read_all = function(req, res) {
+	// start the read waterfall
+	async.waterfall([
+
+		// find the inodes
+		function(next) {
+			var selector = {
+				owner: req.user.id,
+			};
+			return Inode.find(selector, next);
+		},
+
+		// query the fobjs for all the inodes found
+		find_fobjs_for_inodes,
+
+		function(inodes_list, fobj_map, next) {
+			// for each inode return an entry with both inode and fobj info
+			var entries = _.map(inodes_list, function(inode) {
+				var ent = inode_to_entry(inode, {
+					user: req.user,
+					fobj: fobj_map[inode.fobj]
+				});
+				// ent.src_dev_id = inode.src_dev_id;
+				// ent.src_dev_path = inode.src_dev_path;
+				// console.log('INODE_SRC_DEV', inode, ent);
+				return ent;
+			});
+			return next(null, {
+				entries: entries
+			});
+		}
+
+		// waterfall end
+	], common_api.reply_callback(req, res, 'INODE READ ALL'));
+};
 
 exports.inode_read = function(req, res) {
 

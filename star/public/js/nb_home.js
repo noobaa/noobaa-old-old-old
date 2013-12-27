@@ -70,13 +70,19 @@
 			};
 
 			if (nbUser.user) {
-				
+
 				nbUser.update_user_info();
-				
+
+				init_read_dir();
+			}
+
+			function init_read_dir() {
+				// nbInode.read_all($scope.root_dir).then(function(res) {
 				nbInode.read_dir($scope.root_dir).then(function(res) {
 					console.log('ROOT FOLDERS', res);
-					for (var i = 0; i < res.data.entries.length; i++) {
-						var e = res.data.entries[i];
+					var entries = $scope.root_dir.entries;
+					for (var i = 0; i < entries.length; i++) {
+						var e = entries[i];
 						e.level = 1;
 						if (e.name === 'My Data') {
 							$scope.mydata = e;
@@ -91,7 +97,7 @@
 					return res;
 				}, function(err) {
 					console.error('GET ROOT FOLDERS FAILED', err);
-					return $timeout(read_root_dirs, 1000);
+					return $timeout(init_read_dir, 3000);
 				});
 			}
 
@@ -296,7 +302,15 @@
 		function($scope, $location, nbInode) {
 			$scope.index = 0;
 			if ($scope.feed.isdir) {
-				nbInode.read_dir($scope.feed);
+				nbInode.read_dir($scope.feed).then(function() {
+					for (var i = 0; i < $scope.feed.entries.length; i++) {
+						var e = $scope.feed.entries[i];
+						if (e.content_kind === 'image') {
+							$scope.index = i;
+							break;
+						}
+					}
+				});
 				$scope.current_item = function() {
 					return $scope.feed.entries ? $scope.feed.entries[$scope.index] : null;
 				};
@@ -441,8 +455,8 @@
 					function open_inode(inode, $index, $event) {
 						if (inode.isdir) {
 							nbMultiSelect.reset_selection(selection);
-							nbInode.read_dir(inode);
 							set_current_inode(inode);
+							nbInode.read_dir(inode);
 						} else {
 							if ((inode.is_selected && !inode.is_previewing) ||
 								nbMultiSelect.select_item(selection, inode, $index, $event)) {

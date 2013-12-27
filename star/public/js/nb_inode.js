@@ -26,6 +26,7 @@
 				can_change_inode: can_change_inode,
 				can_move_to_dir: can_move_to_dir,
 				init_root_dir: init_root_dir,
+				read_all: read_all,
 				read_dir: read_dir,
 				is_dir_non_empty: is_dir_non_empty,
 				parents_path: parents_path,
@@ -117,6 +118,61 @@
 				'text': 'text',
 			};
 
+			function read_all(root_dir) {
+				root_dir.is_loading = true;
+				return $http({
+					method: 'GET',
+					url: '/api/inode/'
+				}).then(function(res) {
+					root_dir.is_loading = false;
+					var entries = res.data.entries;
+					var inodes_map = _.groupBy(entries, 'id');
+					var parents_map = _.groupBy(entries, 'parent_id');
+
+					function set_dir_entries(dir_inode) {
+						var ents = parents_map[dir_inode.id || null] || [];
+						ents.sort(dir_inode.sorting_func || function(a, b) {
+							return a.isdir ? -1 : 1;
+						});
+						dir_inode.entries = ents;
+						dir_inode.entries_map = _.groupBy(ents, 'id');
+						console.log('SET READ ALL ENTRIES', dir_inode, ents);
+						for (var i = 0; i < ents.length; i++) {
+							ents[i].parent = dir_inode;
+							ents[i].level = dir_inode.level + 1;
+						}
+					}
+					set_dir_entries(root_dir);
+					root_dir.inodes_map = root_dir.inodes_map || {};
+					for (var i = 0; i < entries.length; i++) {
+						var e = root_dir.inodes_map[entries[i].id];
+						if (!e) {
+							e = entries[i];
+						} else {
+							angular.extend(e, entries[i]);
+						}
+						if (e.isdir) {
+							e.content_kind = 'dir';
+						} else if (e.content_type) {
+							e.content_kind = CONTENT_KINDS[e.content_type.split('/')[0]] || e.content_type;
+						}
+						if (e.ctime) {
+							e.ctime_date = new Date(e.ctime);
+							e.ctime_display = e.ctime_date.toLocaleDateString();
+						}
+						if (e.isdir) {
+							set_dir_entries(e);
+						}
+					}
+					root_dir.inodes_map = inodes_map;
+					return res;
+				}, function(err) {
+					root_dir.is_loading = false;
+					console.error('FAILED READ ALL', err);
+					throw err;
+				});
+			}
+
 			function read_dir(dir_inode) {
 				console.log('READDIR', dir_inode.name);
 				dir_inode.is_loading = true;
@@ -139,15 +195,15 @@
 						} else if (e.content_type) {
 							e.content_kind = CONTENT_KINDS[e.content_type.split('/')[0]] || e.content_type;
 						}
+						if (e.ctime) {
+							e.ctime_date = new Date(e.ctime);
+							e.ctime_display = e.ctime_date.toLocaleDateString();
+						}
 						if (dir_inode.swm) {
 							e.swm = dir_inode.swm;
 						}
 						e.parent = dir_inode;
 						e.level = dir_inode.level + 1;
-						if (e.ctime) {
-							e.ctime_date = new Date(e.ctime);
-							e.ctime_display = e.ctime_date.toLocaleDateString();
-						}
 						entries[i] = e;
 						entries_map[e.id] = e;
 					}
