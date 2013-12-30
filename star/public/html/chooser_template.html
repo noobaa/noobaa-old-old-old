@@ -13,7 +13,7 @@
 					<ul ng-if="has_parent(current_inode)" class="dropdown-menu" role="menu">
 						<li ng-repeat="parent in nbInode.parents_path(current_inode)">
 							<a ng-click="open_inode(parent)" style="padding-left: {{10+($index * 10)}}px">
-								<i class="fa fa-folder-open-o fa-fw"></i>
+								<i class="fa fa-folder-open fa-fw"></i>
 								{{parent.name}}
 							</a>
 						</li>

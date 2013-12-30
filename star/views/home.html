@@ -11,11 +11,194 @@
 	<div>
 		<?# def.facebook_init_body ?>
 	</div>
-	<div>
-		<?# def.include( 'common_menubar.html') ?>
-	</div>
+
+	<nav class="navbar navbar-static-top navbar-inverse home_navbar" role="navigation" style="margin: 0">
+		<div class="container clearfix">
+			<div class="navbar-header pull-left">
+				<a id="logo_link" class="navbar-brand" href="/home/">
+					<img src="/public/images/noobaa_logo.png"></img>
+				</a>
+			</div>
+			<ul ng-if="nbUser.user" class="nav navbar-nav navbar-right pull-right" style="margin-top: 0; margin-bottom: 0">
+				<!-- 
+				<li class="pull-left">
+					<a href="/home/" style="padding-top: 15px; padding-bottom: 15px">Home</a>
+				</li>
+				<li class="pull-left">
+					<a href="/home/collection/" style="padding-top: 15px; padding-bottom: 15px">Collection</a>
+				</li>
+				 -->
+				<li class="pull-left">
+					<a role="button" nb-popover="{element: '#user_menu', container: 'body', placement: 'bottom'}" style="padding-top: 9px; padding-bottom: 9px">
+						<img ng-src="{{nbUser.user_pic_url(nbUser.user)}}" style="height: 32px" class="img-rounded">
+						<div class="text-ellipses" style="max-width: 160px; vertical-align: middle; height: 100%; display: inline-block; margin-left: 10px">
+							{{nbUser.user.name}}
+						</div>
+					</a>
+					<div style="display: none" ng-non-bindable>
+						<div id="user_menu">
+							<!-- 
+							<div class="text-center">
+								<a href="/home/mydata/" class="btn btn-block btn-info" style="margin-bottom: 5px">
+									My-Data
+								</a>
+							</div>
+							 -->
+							<div class="text-center text-black">
+								<small>
+									<span class="text-muted">Using</span>
+									{{human_size(nbUser.user_usage)}} / {{human_size(nbUser.user_quota)}}
+								</small>
+							</div>
+							<div class="progress text-center bggrey" style="vertical-align: middle; margin: 0">
+								<div class="progress-bar progress-bar-{{nbUser.usage_percents < 70 && 'success' || usage_percents < 90 && 'warning' || 'danger'}}" role="progressbar" aria-valuenow="{{nbUser.usage_percents}}" aria-valuemin="0" aria-valuemax="100" style="width: {{nbUser.usage_percents}}%">
+									<!-- <span ng-show="usage_percents >= 15" style="height: 100%; vertical-align: middle">{{usage_percents}}% Used</span> -->
+								</div>
+								<!-- <small ng-show="usage_percents < 85" style="height: 100%; color: black">{{100-usage_percents}}% Free</small> -->
+							</div>
+							<hr style="margin: 10px 0 5px 0" />
+							<ul class="nav Xnav-pills Xnav-stacked" style="padding: 0; margin: 0">
+								<li class="divider"></li>
+								<!-- 
+									<div hidden class="nav navbar-nav navbar-left">
+										<button class="navbar-btn btn btn-danger" ng-click="open_local_planet()" id="space_button" style="margin-left: 30px; Xbackground-color: hsl(357, 100%, 45%)">
+											Install
+										</button>
+										<button class="navbar-btn btn btn-success" ng-click="toggle_uploads_view()" id="upload_button" style="margin-left: 15px; Xbackground-color: hsl(193, 76%, 67%)">
+											Upload
+										</button>
+									</div>
+									 -->
+								<li>
+									<a id="feedback_button" role="button" ng-click="click_feedback()">
+										<i class="fa fa-comments fa-fw"></i>
+										Give feedback
+									</a>
+								</li>
+								<!-- 
+								<li ng-controller="GuideCtrl" class="dropdown">
+									<a id="my_guides"
+										class="dropdown-toggle"
+										role="button"
+										data-toggle="dropdown"
+										title="My Guides"
+										rel="tooltip"
+										nb-tooltip="{placement: 'bottom'}">
+										<i class="icon-info-sign icon-large text-info"></i>
+									</a>
+									<ul class="dropdown-menu"
+										role="menu"
+										aria-labelledby="my_guides">
+										<li ng-repeat="guide in guides_list">
+											<a ng-click="guide.run()">
+												<span class="icon-li icon-stack">
+													<i class="icon-check-empty icon-stack-base"></i>
+													<i ng-show="guide.is_completed()" 
+														class="icon-trophy"></i>
+												</span>
+												{{guide.title}}
+											</a>
+										</li>
+									</ul>
+								</li>
+								<li>
+									<a href="/settings" target="_self">
+										<i class="fa fa-cog fa-fw"></i>
+										Account Settings
+									</a>
+								</li>
+								 -->
+								<li>
+									<a href="/help" target="_blank">
+										<i class="fa fa-question fa-fw"></i>
+										Help (FAQ)
+									</a>
+								</li>
+								<li>
+									<a ng-click="nbUser.logout()" Xhref="/auth/logout/?state=/home/" Xtarget="_self">
+										<i class="fa fa-sign-out fa-fw"></i>
+										Logout
+									</a>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</li>
+			</ul>
+		</div>
+	</nav>
 
 	<div ng-if="nbUser.user">
+
+		<div id="nb-menu" class="text-center" style="margin: 0 10px">
+			<div style="display: inline-block; border-radius: 10px; margin-top: 10px" class="bggrey">
+				<a class="nb-menu-item content-switcher" style="padding: 5px; cursor: pointer" href="/home/">
+					<span class="fa-stack" title="Feed" rel="tooltip">
+						<i class="fa fa-circle fa-stack-2x text-muted"></i>
+						<i class="fa fa-rss fa-inverse fa-stack-1x text-white"></i>
+					</span>
+				</a>
+				<a class="nb-menu-item content-switcher" style="padding: 5px; cursor: pointer" href="/home/friends/" ng-click="invite_friends()">
+					<span class="fa-stack" title="Invite Friends" rel="tooltip">
+						<i class="fa fa-circle fa-stack-2x text-muted"></i>
+						<i class="fa fa-users fa-inverse fa-stack-1x text-white"></i>
+					</span>
+				</a>
+				<a class="nb-menu-item content-switcher" style="padding: 5px; cursor: pointer" ng-click="nbUploadSrv.open_file_input()">
+					<span class="fa-stack" title="Upload files" rel="tooltip">
+						<i class="fa fa-circle fa-stack-2x text-muted"></i>
+						<i class="fa fa-cloud-upload fa-inverse fa-stack-1x text-white"></i>
+					</span>
+				</a>
+				<a ng-if="nbPlanet.on" class="nb-menu-item content-switcher" style="padding: 5px; cursor: pointer" ng-click="nbUploadSrv.open_dir_input()">
+					<span class="fa-stack" title="Upload folder" rel="tooltip">
+						<i class="fa fa-circle fa-stack-2x text-muted"></i>
+						<i class="fa fa-folder fa-inverse fa-stack-1x text-white"></i>
+					</span>
+				</a>
+				<a ng-if="nbPlanet.on" class="nb-menu-item content-switcher" style="padding: 5px; cursor: pointer" ng-click="show_client_expansion()">
+					<span class="fa-stack" title="Expand Space" rel="tooltip">
+						<i class="fa fa-circle fa-stack-2x text-muted"></i>
+						<i class="fa fa-rocket fa-inverse fa-stack-1x text-white"></i>
+					</span>
+				</a>
+				<a ng-if="!nbPlanet.on" class="nb-menu-item content-switcher" style="padding: 5px; cursor: pointer" ng-click="show_client_installation()">
+					<span class="fa-stack" title="Install" rel="tooltip">
+						<i class="fa fa-circle fa-stack-2x text-muted"></i>
+						<i class="fa fa-thumb-tack fa-inverse fa-stack-1x text-white"></i>
+					</span>
+				</a>
+			</div>
+			<div style="display: inline-block; margin: 0 5px"></div>
+			<div style="display: inline-block; border-radius: 10px; margin-top: 10px" class="bggrey">
+				<a class="nb-menu-item content-switcher" style="padding: 5px; cursor: pointer" href="/home/files/">
+					<span class="fa-stack" title="Files" rel="tooltip">
+						<i class="fa fa-circle fa-stack-2x text-muted"></i>
+						<i class="fa fa-file fa-inverse fa-stack-1x text-white"></i>
+					</span>
+				</a>
+				<a class="nb-menu-item content-switcher" style="padding: 5px; cursor: pointer" href="/home/videos/" ng-click="nbUtil.coming_soon()">
+					<span class="fa-stack" title="Videos" rel="tooltip">
+						<i class="fa fa-circle fa-stack-2x text-muted"></i>
+						<i class="fa fa-video-camera fa-inverse fa-stack-1x text-white"></i>
+					</span>
+				</a>
+				<a class="nb-menu-item content-switcher" style="padding: 5px; cursor: pointer" href="/home/photos/" ng-click="nbUtil.coming_soon()">
+					<span class="fa-stack" title="Photos" rel="tooltip">
+						<i class="fa fa-circle fa-stack-2x text-muted"></i>
+						<i class="fa fa-picture-o fa-inverse fa-stack-1x text-white"></i>
+					</span>
+				</a>
+				<a class="nb-menu-item content-switcher" style="padding: 5px; cursor: pointer" href="/home/music/" ng-click="nbUtil.coming_soon()">
+					<span class="fa-stack" title="Music" rel="tooltip">
+						<i class="fa fa-circle fa-stack-2x text-muted"></i>
+						<i class="fa fa-music fa-inverse fa-stack-1x text-white"></i>
+					</span>
+				</a>
+			</div>
+			<div style="margin-bottom: 10px"></div>
+		</div>
+
 		<div nb-effect-toggle="nbUploadSrv.has_uploads()" nb-effect-options="{effect: 'blind'}" class="container">
 			<div ng-include="'/public/html/upload_template.html'"></div>
 		</div>
@@ -37,6 +220,86 @@
 			<a ng-click="nbUser.login_google()" Xhref="/auth/google/login/">
 				<img src="/public/images/google_login_buttin_big.jpg" style="width: 100%"></img>
 			</a>
+		</div>
+	</div>
+
+
+	<!-- FEEDBACK -->
+
+	<div id="feedback_dialog" class="modal fade Xnbdialog fntmd">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header Xnbdialog_header Xnbdialog_drag">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<i class="icon-comments icon-large text-info"></i>
+					"Talk To Me Goose"
+				</div>
+				<div class="modal-body Xnbdialog_content">
+					<textarea ng-hide="feedback_send_done" ng-model="feedback_text" class="form-control" autofocus style="resize: none; height: 100%" rows="5"></textarea>
+					<p ng-show="feedback_send_done" class="lead text-center">
+						My Precious...
+						<br/>Thanks you!
+					</p>
+				</div>
+				<div class="modal-footer Xnbdialog_footer">
+					<button data-dismiss="modal" ng-hide="feedback_send_done" class="Xnbdialog_close btn btn-default">Cancel</button>
+					<button class="btn btn-primary pull-right" ng-hide="feedback_send_done" ng-click="send_feedback()">Send</button>
+					<button data-dismiss="modal" class="Xnbdialog_close btn btn-success pull-right" ng-show="feedback_send_done">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- INSTALL  -->
+
+	<div style="display: none" ng-non-bindable>
+		<div id="client_installation">
+			<div style="padding: 10px">
+				<p class="text-left">
+					Experience with the NooBaa client:
+					<ul class="fa-ul">
+						<li><i class="fa fa-li fa-rocket"></i>
+							Expand yor account space as much as you want!</li>
+						<li><i class="fa fa-li fa-refresh"></i>
+							Automatic resume of uploads (even on disconnection or reboot)</li>
+						<li><i class="fa fa-li fa-folder-open"></i>
+							Upload / Download entire folders</li>
+					</ul>
+				</p>
+				<div class="text-center">
+					<a class="btn btn-link" href="https://noobaa-download.s3.amazonaws.com/noobaa-windows-setup-0.1.exe">
+						<img src="/public/images/windows_logo.png" style="margin: 5px; width: 60px; height: 60px"></img>
+						<div>Download for Windows</div>
+					</a>
+					<a class="btn btn-link" href="https://noobaa-download.s3.amazonaws.com/noobaa-osx-0.1.zip" style="border-radius: 0; margin: 0">
+						<img src="/public/images/mac_logo_small.png" style="margin: 5px; width: 60px; height: 60px"></img>
+						<div>Download for Mac</div>
+					</a>
+					<a class="btn btn-link" href="https://noobaa-download.s3.amazonaws.com/noobaa-linux-0.1.tar.gz">
+						<img src="/public/images/linux_logo.png" style="margin: 5px; width: 60px; height: 60px"></img>
+						<div>Download for Linux</div>
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- EXPAND -->
+
+	<div style="display: none" ng-non-bindable>
+		<div id="client_expansion">
+			<div class="text-center" style="padding: 10px">
+				<span ng-repeat="plan in nbPlanet.coshare_options">
+					<button href="#" class="btn btn-link btn-lg Xbtn-block" ng-click="nbPlanet.select_coshare_option($index)" ng-class="nbPlanet.coshare_options_class($index)">
+						{{plan.title}}
+					</button>
+				</span>
+			</div>
+			<button ng-if="false" class="btn btn-link btn-block" ng-click="nbUtil.coming_soon()" Xonclick="$('#coshare_path').trigger('click')">
+				Advanced...
+			</button>
+			<input id="coshare_path" style="display: none" type="file" name="file" nwdirectory>
+			</input>
 		</div>
 	</div>
 

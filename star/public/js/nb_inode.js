@@ -105,7 +105,7 @@
 					parent: null,
 					level: 0,
 					isdir: true,
-					name: 'Collection',
+					name: 'Files',
 					entries: [],
 					entries_map: {}
 				};

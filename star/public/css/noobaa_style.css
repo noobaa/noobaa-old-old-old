@@ -19,7 +19,7 @@ html, body {
  .bgdark {
 	background-color: hsl(40, 7%, 18%) !important;
 }
- .bgdark-image {
+.bgdark-image {
 	background-image: url('/public/images/grey_bg.jpg');
 	background-repeat: repeat-x;
 }
@@ -35,7 +35,7 @@ html, body {
 	-o-transition: all 0.5s;
 	transition: all 0.5s;
 }
-.btn-hover-only:not(:hover) { 
+.btn-hover-only:not(:hover) {
 	background-color: transparent !important;
 	border-color: hsl(192, 7%, 90%) !important;
 }
@@ -160,7 +160,7 @@ hsl(338, 100%, 50%)
  .bg-danger {
 	background-color: hsl(338, 100%, 50%) !important;
 }
- .border-danger {
+.border-danger {
 	border-color: hsl(338, 100%, 50%) !important;
 }
 .btn-danger {
@@ -208,6 +208,13 @@ a.btn-link.text-white {
 }
 a.btn-link.text-white:hover {
 	color: hsl(0, 0%, 95%) !important;
+}
+/**/
+
+/* MENU */
+ .nb-menu-item {
+	text-decoration: none !important;
+	font-size: 36px;
 }
 /**/
 
@@ -292,9 +299,9 @@ a.btn-link.text-white:hover {
 	color: hsl(338, 100%, 50%) !important;
 }
 .feed_item:hover {
-	-moz-box-shadow: 	0 0 5px 5px white;
+	-moz-box-shadow: 0 0 5px 5px white;
 	-webkit-box-shadow: 0 0 5px 5px white;
-	box-shadow: 		0 0 5px 5px white;
+	box-shadow: 0 0 5px 5px white;
 }
 /*
 .feed_columns_4 {

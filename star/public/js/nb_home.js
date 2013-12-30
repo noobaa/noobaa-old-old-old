@@ -23,12 +23,18 @@
 					$scope.refresh_feeds();
 				}
 			]
-		}).when('/collection/:path*?', {
+		}).when('/files/:path*?', {
 			template: [
 				'<div class="container" style="padding-bottom: 20px">',
 				'	<div nb-browse ng-if="home_context" context="home_context" notify-layout="angular.noop"></div>',
 				'</div>'
 			].join('\n')
+		}).when('/videos/', {
+			redirectTo: '/files/'
+		}).when('/photos/', {
+			redirectTo: '/files/'
+		}).when('/music/', {
+			redirectTo: '/files/'
 		}).when('/install', {
 			templateUrl: '/public/html/install_template.html',
 		}).otherwise({
@@ -357,7 +363,7 @@
 					// feed.is_selected = true;
 					// TODO select item
 				}
-				$location.path('/collection/');
+				$location.path('/files/');
 			};
 		}
 	]);
