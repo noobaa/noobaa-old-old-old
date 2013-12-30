@@ -11,7 +11,7 @@
 
 		<div class="feeds_container">
 
-			<div ng-if="!feeds.length" class="feed_item text-center" style="width: 100%; padding: 20px; background-color: transparent; color: white">
+			<div ng-show="feeds && !feeds.length" class="feed_item text-center" style="width: 100%; padding: 20px; background-color: transparent; color: white">
 				<h2>Invite some friends to share media with you</h2>
 				<a class="nb-menu-item content-switcher" style="padding: 5px; cursor: pointer" href="/home/friends/" ng-click="invite_friends()">
 					<span class="fa-stack" title="Invite Friends" rel="tooltip">
