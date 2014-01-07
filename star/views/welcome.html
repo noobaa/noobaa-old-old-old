@@ -5,35 +5,6 @@
 	<?# def.include( 'common_head.html') ?>
 		<link href="/vendor/chardin.js/chardinjs.css" type="text/css" rel="stylesheet" />
 		<style>
-		#nb_nav_marker {
-			position: absolute;
-			bottom: 0;
-		}
-		#nb_nav {
-			/*position: absolute;*/
-			/*bottom: 0;*/
-		}
-		#nb_nav.affix {
-			position: fixed;
-			bottom: auto;
-			top: 0px;
-			width: 100%;
-		}
-		.nb_nav_link {
-			padding-top: 50px;
-		}
-		.btn.join-btn {
-			width: 140px !important;
-		}
-		#chrome_link {
-			position: absolute;
-			top: 10px;
-			right: 10px;
-		}
-		#chrome_link img {
-			width: 30px;
-			height: 30px;
-		}
 		.bg_item1, .bg_item2, .bg_item3, .bg_clouds, .bg_bike, .bg_fall {
 			background-repeat: no-repeat;
 			background-attachment: fixed;
@@ -92,18 +63,23 @@
 		}
 		.tipex {
 			color: white;
-			text-shadow: -2px 0 black, 0 2px black, 2px 0 black, 0 -2px black;
+			/*text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;*/
+			text-shadow: -2px 0 #888, 0 2px #888, 2px 0 #888, 0 -2px #888;
+			/*text-shadow: -2px 0 black, 0 2px black, 2px 0 black, 0 -2px black;*/
 		}
 		.W1 {
 			font-size: 160px;
 			line-height: 1em;
 		}
 		.W2 {
-			font-size: 80px;
+			font-size: 60px;
 		}
 		@media all and (min-width: 480px) and (max-width: 768px) {
 			.W1 {
 				font-size: 100px;
+			}
+			.W2 {
+				font-size: 50px;
 			}
 		}
 		@media all and (max-width: 480px) {
@@ -111,7 +87,7 @@
 				font-size: 70px;
 			}
 			.W2 {
-				font-size: 50px;
+				font-size: 40px;
 			}
 		}
 		</style>
@@ -123,132 +99,108 @@
 		<?# def.facebook_init_body ?>
 	</div>
 
-	<a id="_"></a>
-
-	<div id="nb_carousel" class="carousel slide filling">
-		<div class="carousel-inner filling">
-
-			<div class="active item filling bg_item1">
-				<div class="container text-left fntblk">
-					<h1 class="fntpaint tipex">
-						Cloud
-						<br class="visible-xs" />storage
-						<br class="visible-xs" />made
-					</h1>
-					<p class="W1 fntpaint tipex">SIMPLE</p>
-					<br/>
-					<h3>Terabytes of cloud storage</h3>
-					<h3>In under 60 seconds</h3>
-				</div>
+	<nav id="nb_nav" class="navbar navbar-static-top welcome_navbar" role="navigation" style="position: absolute; top: 0; left: 0; right: 0">
+		<div class="container">
+			<div Xclass="navbar-header">
+				<a class="navbar-brand" href="/">
+					<img src="/public/images/noobaa_logo.png"></img>
+					<small style="color: white">BETA</small>
+				</a>
 			</div>
-
-			<div class="item filling bg_item2">
-				<div class="container text-left fntwht">
-					<h1 class="fntpaint tipex">
-						Cloud
-						<br class="visible-xs" />storage
-						<br class="visible-xs" />made
-					</h1>
-					<p class="W1 fntpaint tipex">FAST</p>
-					<br/>
-					<h3>Stream HD movies</h3>
-					<h3>Directly from the cloud</h3>
-				</div>
+			<div class="pull-right">
+				<a style="margin-right: 10px" ng-show="need_chrome_ref" href="https://www.google.com/intl/en_us/chrome/browser/" target="_blank" title="Best with Chrome" rel="tooltip" nb-tooltip="{placement: 'bottom'}">
+					<img alt="Chrome" src="/public/images/chrome_icon.png" width="30px" height="30px" />
+				</a>
+				<a href="#join" class="scroller btn btn-default btn-transparent navbar-btn" style="margin-right: 10px">
+					Sign Up
+				</a>
+				<a class="btn btn-default btn-transparent navbar-btn" href="/home/">
+					Log In
+				</a>
 			</div>
-
-			<div class="item filling bg_item3">
-				<div class="container text-left fntwht">
-					<h1 class="fntpaint tipex">
-						Cloud
-						<br class="visible-xs" />storage
-						<br class="visible-xs" />made
-					</h1>
-					<p class="W1 fntpaint tipex">FREE</p>
-					<br/>
-					<h3>Free at any capacity</h3>
-					<h3>Try us</h3>
-				</div>
-			</div>
-
 		</div>
-		<ol class="carousel-indicators" style="top: 10px; bottom: auto">
-			<li data-target="#nb_carousel" data-slide-to="0" class="active"></li>
-			<li data-target="#nb_carousel" data-slide-to="1"></li>
-			<li data-target="#nb_carousel" data-slide-to="2"></li>
-		</ol>
-		<a class="carousel-control left" href="#nb_carousel" data-slide="prev">
-			<span class="icon-prev"></span>
-		</a>
-		<a class="carousel-control right" href="#nb_carousel" data-slide="next">
-			<span class="icon-next"></span>
-		</a>
-		<div style="position: absolute; bottom: 0; height: 140px; width: 100%">
-			<div class="container">
-				<a href="#join" nb-shine="{end: 200, step: 0.01, delay: 11000}" class="join-btn btn btn-danger btn-lg scroller">
-					<b>JOIN !</b>
-				</a>
-				&nbsp;
-				<a href="#whatis" class="scroller btn btn-default btn-lg">
-					Learn more <i class="fa fa-caret-down"></i>
-				</a>
+	</nav>
+
+
+	<div id="landing" class="filling" style="min-height: 600px; position: relative">
+		<div class="filling bg_item1" style="position: absolute"></div>
+		<div class="filling bg_item2" style="position: absolute; display: none"></div>
+		<div class="filling bg_item3" style="position: absolute; display: none"></div>
+		<div class="filling" style="background-color: hsla(0,0%,0%,0.25)">
+			<div class="container text-left fntblk">
+				<div class="row">
+					<div class="col-md-9">
+						<div class="W2 fntpaint tipex text-white" style="padding-top: 100px">
+							Enjoy your
+							<br/>home media
+						</div>
+						<h2 class="fntpaint tipex text-white" style="padding-top: 30px">
+							Click and start
+							<div Xclass="text-center" style="display: inline-block; Xwidth: 180px">
+								<span id="verb">sharing</span>
+							</div>
+						</h2>
+						<h2 class="fntpaint tipex text-white">
+							It's free!
+						</h2>
+						<div style="margin-top: 30px">
+							<div class="hidden-xs">
+								<a href="#join" class="scroller btn btn-primary btn-lg" style="margin: 0 20px 20px 0">
+									<b>Get Started</b>&nbsp;
+									<i class="fntpaint">free</i>
+								</a>
+								<a href="#starting" class="scroller btn btn-default btn-transparent btn-lg" style="margin: 0 0 20px 0">
+									Tell Me More
+								</a>
+							</div>
+							<div class="visible-xs">
+								<a href="#join" class="scroller btn btn-primary btn-lg" style="margin: 0 20px 20px 0">
+									<b>Get Started</b>&nbsp;
+									<i class="fntpaint">free</i>
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
+		</div>
+		<div style="position: absolute; bottom: 0; left: 0; right: 0; height: 70px" class="text-center">
+			<a href="#starting" class="scroller btn btn-default btn-transparent" style="border-radius: 70px">
+				<i class="fa fa-caret-down fa-2x"></i>
+			</a>
 		</div>
 	</div>
 
-	<div id="nb_nav_marker"></div>
 
-	<nav id="nb_nav" class="navbar navbar-inverse navbar-fixed-bottom welcome_navbar" role="navigation" onresize="nb_nav_affix = undefined;">
-		<div class="container">
-			<div class="navbar-header">
-				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
-					<span class="sr-only">Toggle navigation</span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-				</button>
-				<a class="navbar-brand scroller" href="#_">
-					<img src="/public/images/noobaa_logo.png"></img>
+	<div id="starting"></div>
+
+	<div class="container">
+		<h1 class="W2 fntpaint tipex">Go on the ride</h1>
+
+		<div>
+			<h2>
+				<span class="text-muted" style="font-size: 3em">1</span>
+				Sign Up
+			</h2>
+			<p>Sign up with facebook to share media with your facebook friends.</p>
+			<p>We will never post in your name unless you request.</p>
+			<p>Same goes for Google+ - use it if you want to share in your G+ circles.</p>
+			<div Xclass="text-center" style="border: 1px solid #ccc; width: 340px; padding: 20px;
+				border-radius: 7px/7px;	Xmargin-left: auto; Xmargin-right: auto;">
+				<a ng-click="nbUser.login_facebook()" Xhref="/auth/facebook/login/">
+					<img src="/public/images/facebook_signup_button_big.png" style="width: 100%"></img>
 				</a>
-			</div>
-			<div class="collapse navbar-collapse navbar-ex1-collapse">
-				<ul class="nav navbar-nav navbar-right">
-					<li class="shining">
-						<div class="shiner"></div>
-						<a href="#whatis" class="scroller navbar-link">
-							<b>ABOUT</b>
-						</a>
-					</li>
-					<li class="shining">
-						<div class="shiner"></div>
-						<a href="#vision" class="scroller navbar-link">
-							<b>VISION</b>
-						</a>
-					</li>
-					<li class="shining">
-						<div class="shiner"></div>
-						<a href="#join" class="join-btn scroller navbar-link">
-							<b>JOIN</b>
-						</a>
-					</li>
-					<li class="shining">
-						<div class="shiner"></div>
-
-						<?? it.user ?>
-							<a href="/home/" class="scroller navbar-link">
-								<b>LOGIN</b>
-							</a>
-							<????>
-								<a href="#join" class="scroller">
-									<b>LOGIN</b>
-								</a>
-								<???>
-
-					</li>
-				</ul>
+				<div style="height: 1px; background-color: #ccc; text-align: center; margin: 30px 0 30px 0">
+					<span style="background-color: white; position: relative; top: -0.75em; padding: 10px">OR</span>
+				</div>
+				<a ng-click="nbUser.login_google()" Xhref="/auth/google/login/">
+					<img src="/public/images/google_login_buttin_big.jpg" style="width: 100%"></img>
+				</a>
 			</div>
 		</div>
 
-	</nav>
+	</div>
+
 
 	<div id="whatis" class="nb_nav_link bgdark bgdark-image border-danger text-white" style="border-top: 5px solid; border-bottom: 5px solid">
 		<div class="container">
@@ -347,7 +299,7 @@
 			<div ng-controller="HelpCtrl">
 				<div id="faq" ng-repeat="(sec_idx, curr_faq_section) in faq">
 					<div class="text-center">
-						<a class="btn btn-default" data-toggle="collapse" href="#curr_faq_section_content{{sec_idx}}" style="width: 380px">
+						<a class="btn btn-default" data-toggle="collapse" href="#curr_faq_section_content{{sec_idx}}" style="width: 340px">
 							<b>{{curr_faq_section.title}}</b>
 							<i class="caret"></i>
 						</a>
@@ -406,7 +358,7 @@
 		<div class="container text-center" style="margin-bottom: 40px">
 			<div class="W2 fntpaint text-center tipex">JOIN US !</div>
 			<br/>
-			<div class="text-center" style="border: 1px solid #ccc; width: 380px; padding: 20px;
+			<div class="text-center" style="border: 1px solid #ccc; width: 340px; padding: 20px;
 				border-radius: 7px/7px;	margin-left: auto; margin-right: auto;">
 				<a ng-click="nbUser.login_facebook()" Xhref="/auth/facebook/login/">
 					<img onmouseover="$('body').chardinJs('start')" onmouseout="$('body').chardinJs('stop')" data-intro="Easily share with your Facebook friends" data-position="left" src="/public/images/facebook_signup_button_big.png" style="width: 100%"></img>
@@ -451,9 +403,6 @@
 	</div>
 
 
-	<a id="chrome_link" ng-show="need_chrome_ref" href="https://www.google.com/intl/en_us/chrome/browser/" target="_blank" title="Best with Chrome">
-		<img alt="Chrome" src="/public/images/chrome_icon.png" />
-	</a>
 
 	<div>
 		<?# def.include( 'common_scripts.html') ?>
@@ -469,96 +418,68 @@
 
 		var noobaa_app = angular.module('noobaa_app');
 
-		var nb_nav_affix = undefined;
-
-		// jquery init
-		$(function() {
-
-			var nb_carousel = $('#nb_carousel');
-			var nb_nav = $('#nb_nav');
-			var nb_nav_marker = $('#nb_nav_marker');
-			var nb_nav_links = $('.nb_nav_link');
-
-			var refresh_nav = function() {
-				// invalidate the cached value of the nav affix
-				nb_nav_affix = undefined;
-				// when the nav resizes we need to make room for it
-				// at the top of each nav link.
-				// so set the top padding according to the nav size.
-				nb_nav_links.css({
-					"padding-top": (nb_nav.height() + 30) + 'px'
-				});
-			};
-
-			// returns the affix top of the nav which indicates 
-			// at which scroll point to fixate the nav to the top.
-			// we cache the value because during scrolling it will ask many times.
-			var get_nav_affix = function() {
-				if (nb_nav_affix === undefined) {
-					nb_nav_affix = nb_nav_marker.offset().top - nb_nav.height();
-				}
-				return nb_nav_affix;
-			};
-
-			// refresh now - onload
-			// refresh_nav();
-			// refresh on window resize
-			// $(window).resize(refresh_nav);
-			// refresh every second
-			// setInterval(refresh_nav, 1000);
-			// setup the bootstrap affix plugin on the nav
-			// nb_nav.affix({offset: {top: get_nav_affix} });
-
-			// start spinning the carousel
-			nb_carousel.carousel({
-				interval: 10000,
-				pause: false
-			});
-
-			// do smooth scrolling to anchors with href
-			var $root = $('html, body');
-			$('.scroller').click(function() {
-				var href = $.attr(this, 'href');
-				$root.animate({
-					scrollTop: $(href).offset().top
-				}, 400, function() {
-					window.location.hash = href;
-				});
-				return false;
-			});
-
-			/*
-			$('.shining').hover(function() {
-				var s = $(this).find('.shiner');
-				var w = $(this).outerWidth();
-				s.stop();
-				s.css({
-					'background-position-x': '-40px'
-				});
-				s.animate({
-					'background-position-x': w + 100 + 'px'
-				}, 800);
-			}, function() {
-				// nop
-			});
-			*/
-
-			$('.join-btn').click(function() {
-				$('body').chardinJs('start');
-			});
-		});
-
 		noobaa_app.controller('WelcomeCtrl', [
-			'$scope', '$location', '$anchorScroll', 'nbUser',
+			'$scope', '$location', '$anchorScroll', '$timeout', '$interval', 'nbUser',
 
-			function($scope, $location, $anchorScroll, nbUser) {
+			function($scope, $location, $anchorScroll, $timeout, $interval, nbUser) {
 				$scope.nbUser = nbUser;
 				$scope.need_chrome_ref = !bowser.chrome;
 				$anchorScroll();
 				$scope.scroll = function(hash) {
+					console.log('SCROLL', hash);
 					$location.hash(hash);
 					$anchorScroll();
 				};
+
+				var landing_element = $('#landing');
+				var verb_element = landing_element.find('#verb');
+				var states = [{
+					verb: 'sharing',
+					bg: landing_element.find('.bg_item1'),
+					btn: 'btn-primary',
+				}, {
+					verb: 'streaming',
+					bg: landing_element.find('.bg_item3'),
+					btn: 'btn-warning',
+				}, {
+					verb: 'protecting',
+					bg: landing_element.find('.bg_item2'),
+					btn: 'btn-danger',
+				}];
+				var state_num = 0;
+
+				function switch_verb() {
+					var curr = state_num;
+					var next = (state_num + 1) % states.length;
+					state_num = next;
+					$.when(verb_element.fadeOut(1000)).then(function() {
+						verb_element.text(states[next].verb);
+						return verb_element.fadeIn(1000);
+					});
+					states[curr].bg.fadeOut(2000);
+					states[next].bg.fadeIn(2000);
+					landing_element.find('.' + states[curr].btn).switchClass(states[curr].btn, states[next].btn, 2000);
+				}
+				$timeout(function() {
+					$interval(switch_verb, 10000);
+				}, 0);
+
+				$('.join-btn').click(function() {
+					$('body').chardinJs('start');
+				});
+
+				// do smooth scrolling to anchors with href
+				var html_body = $('html, body');
+				$('.scroller').click(function() {
+					var href = $.attr(this, 'href');
+					console.log('SCROLL', href);
+					html_body.animate({
+						scrollTop: $(href).offset().top
+					}, 400, function() {
+						window.location.hash = href;
+					});
+					return false;
+				});
 			}
 		]);
 	})();

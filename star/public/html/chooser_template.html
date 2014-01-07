@@ -2,17 +2,19 @@
 	<div class="panel panel-default" style="margin: 0; padding: 0">
 		<div class="panel-heading bggrey clearfix" style="padding: 0 10px 2px 10px">
 			<div class="clearfix" style="padding: 7px 0">
+				<button class="btn btn-default btn-sm" ng-click="go_up_level()" ng-disabled="!has_parent(current_inode)" title="Back to previous folder" rel="tooltip">
+					<i class="fa fa-caret-left fa-lg"></i>
+				</button>
 				<div class="btn-group">
-					<button class="btn btn-default Xbtn-lg" ng-click="go_up_level()" ng-disabled="!has_parent(current_inode)" title="Back to previous folder" rel="tooltip" nb-tooltip="{container: 'body'}">
-						<i class="fa fa-chevron-left"></i>
-					</button>
-					<button class="btn btn-default Xbtn-lg dropdown-toggle" data-toggle="dropdown" ng-disabled="!has_parent(current_inode)" title="Back to folder..." rel="tooltip" nb-tooltip="{container: 'body'}">
-						<i ng-show="!!current_inode.isdir" class="fa fa-folder-open fa-fw"></i>
-						<i ng-show="!current_inode.isdir" class="fa fa-file-o fa-fw"></i>
-					</button>
+					<a class="btn btn-link dropdown-toggle" data-toggle="dropdown" title="Back to folder..." rel="tooltip" nb-tooltip="{container: 'body'}" ng-disabled="!has_parent(current_inode)">
+						<span style="font-size: 1.2em; line-height: 1.2em; vertical-align: middle">
+							<span ng-show="has_parent(current_inode)">. . . /</span>
+							<span ng-hide="has_parent(current_inode)" class="text-muted">(top)</span>
+						</span>
+					</a>
 					<ul ng-if="has_parent(current_inode)" class="dropdown-menu" role="menu">
-						<li ng-repeat="parent in nbInode.parents_path(current_inode)">
-							<a ng-click="open_inode(parent)" style="padding-left: {{10+($index * 10)}}px">
+						<li ng-repeat="parent in path = (nbInode.parents_path(current_inode)).reverse()">
+							<a ng-click="open_inode(parent)" style="padding-left: {{10+((path.length-1-$index) * 10)}}px">
 								<i class="fa fa-folder-open fa-fw"></i>
 								{{parent.name}}
 							</a>

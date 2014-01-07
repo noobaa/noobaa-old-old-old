@@ -3,32 +3,34 @@
 	<div class="panel panel-default">
 		<div class="panel-heading bggrey clearfix" style="padding: 0 10px 2px 10px">
 			<div class="clearfix" style="padding: 7px 0">
+				<button class="btn btn-default btn-sm" ng-click="go_up_level()" ng-disabled="!has_parent(current_inode)" title="Back to previous folder" rel="tooltip" nb-tooltip="{container: 'body'}">
+					<i class="fa fa-caret-left fa-lg"></i>
+				</button>
 				<div class="btn-group">
-					<button class="btn btn-default Xbtn-lg" ng-click="go_up_level()" ng-disabled="!has_parent(current_inode)" title="Back to previous folder" rel="tooltip" nb-tooltip="{container: 'body'}">
-						<i class="fa fa-chevron-left"></i>
-					</button>
-					<button class="btn btn-default Xbtn-lg dropdown-toggle" data-toggle="dropdown" ng-disabled="!has_parent(current_inode)" title="Back to folder..." rel="tooltip" nb-tooltip="{container: 'body'}">
-						<i ng-show="!!current_inode.isdir" class="fa fa-folder-open fa-fw"></i>
-						<i ng-show="!current_inode.isdir" class="fa fa-file-o fa-fw"></i>
-					</button>
+					<a class="btn btn-link dropdown-toggle" data-toggle="dropdown" title="Back to folder..." rel="tooltip" nb-tooltip="{container: 'body'}" ng-disabled="!has_parent(current_inode)">
+						<span style="font-size: 1.2em; line-height: 1.2em; vertical-align: middle">
+							<span ng-show="has_parent(current_inode)">. . . /</span>
+							<span ng-hide="has_parent(current_inode)" class="text-muted">(top)</span>
+						</span>
+					</a>
 					<ul ng-if="has_parent(current_inode)" class="dropdown-menu" role="menu">
-						<li ng-repeat="parent in nbInode.parents_path(current_inode)">
-							<a ng-click="open_inode(parent)" style="padding-left: {{10+($index * 10)}}px">
+						<li ng-repeat="parent in path = (nbInode.parents_path(current_inode)).reverse()">
+							<a ng-click="open_inode(parent)" style="padding-left: {{10+((path.length-1-$index) * 10)}}px">
 								<i class="fa fa-folder-open fa-fw"></i>
 								{{parent.name}}
 							</a>
 						</li>
 					</ul>
 				</div>
-				<span style="display: inline; padding: 10px; font-size: 1.5em; line-height: 1.5em; vertical-align: middle">
+				<span style="display: inline; padding: 10px 5px; font-size: 1.5em; line-height: 1.5em; vertical-align: middle">
 					<span style="white-space: pre-wrap">{{current_inode.name}}</span>
 				</span>
 				<span ng-if="current_inode.is_loading">
 					<i class="fa fa-refresh fa-spin fa-fw"></i>
 				</span>
 			</div>
-			<div class="file_actions bg-danger">
-				<a class="btn btn-link" ng-show="current_inode.isdir" ng-click="open_inode(current_inode)">
+			<div class="file_actions">
+				<a ng-show="has_parent(current_inode)" class="btn btn-link" ng-show="current_inode.isdir" ng-click="open_inode(current_inode)">
 					<i class="fa fa-refresh fa-fw"></i>
 					Refresh
 				</a>
@@ -64,8 +66,8 @@
 					<i class="fa fa-share-square-o fa-fw"></i>
 					Share
 				</a>
-				<div ng-show="current_inode.isdir" class="input-group pull-right" style="max-width: 170px">
-					<input type="text" class="form-control {{search_in_folder && 'bg-warning' || ''}}" maxlength="100" placeholder="Search in folder" ng-model="search_in_folder" />
+				<div ng-show="current_inode.isdir" class="input-group Xinput-group-sm pull-right" style="max-width: 200px">
+					<input type="text" class="form-control {{search_in_folder && 'label-warning' || ''}}" maxlength="100" placeholder="Search in folder" ng-model="search_in_folder" />
 					<span class="input-group-btn">
 						<button class="btn btn-default" type="button" ng-click="search_in_folder=''" title="Clear search" rel="tooltip" nb-tooltip="{container: 'body'}">
 							<i class="fa fa-times Xfa-lg"></i>
