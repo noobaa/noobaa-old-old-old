@@ -135,13 +135,16 @@
 							<br/>home media
 						</div>
 						<h2 class="fntpaint tipex text-white" style="padding-top: 30px">
-							Click and start
-							<div Xclass="text-center" style="display: inline-block; Xwidth: 180px">
-								<span id="verb">sharing</span>
-							</div>
+							It's free!
 						</h2>
 						<h2 class="fntpaint tipex text-white">
-							It's free!
+							You have everything you need,
+						</h2>
+						<h2 class="fntpaint tipex text-white">
+							so click and start
+							<div style="display: inline-block">
+								<span id="verb">sharing</span>
+							</div>
 						</h2>
 						<div style="margin-top: 30px">
 							<div class="hidden-xs">
@@ -435,16 +438,19 @@
 				var verb_element = landing_element.find('#verb');
 				var states = [{
 					verb: 'sharing',
-					bg: landing_element.find('.bg_item1'),
+					verb_class: 'text-primary',
 					btn: 'btn-primary',
+					bg: landing_element.find('.bg_item1'),
 				}, {
 					verb: 'streaming',
-					bg: landing_element.find('.bg_item3'),
+					verb_class: 'text-warning',
 					btn: 'btn-warning',
+					bg: landing_element.find('.bg_item3'),
 				}, {
 					verb: 'protecting',
-					bg: landing_element.find('.bg_item2'),
+					verb_class: 'text-danger',
 					btn: 'btn-danger',
+					bg: landing_element.find('.bg_item2'),
 				}];
 				var state_num = 0;
 
@@ -452,8 +458,9 @@
 					var curr = state_num;
 					var next = (state_num + 1) % states.length;
 					state_num = next;
-					$.when(verb_element.fadeOut(1000)).then(function() {
+					$.when(verb_element.fadeOut(400)).then(function() {
 						verb_element.text(states[next].verb);
+						verb_element.switchClass(states[curr].verb_class, states[next].verb_class);
 						return verb_element.fadeIn(1000);
 					});
 					states[curr].bg.fadeOut(2000);
