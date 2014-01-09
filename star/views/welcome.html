@@ -90,6 +90,18 @@
 				font-size: 40px;
 			}
 		}
+		img.gopro {
+			width: 300px;
+			position: absolute;
+			right: 0;
+			bottom: -14px;
+		}
+		@media all and (max-width: 768px) {
+			img.gopro {
+				width: 170px;
+				bottom: -7px;
+			}
+		}
 		</style>
 </head>
 
@@ -99,7 +111,7 @@
 		<?# def.facebook_init_body ?>
 	</div>
 
-	<nav id="nb_nav" class="navbar navbar-static-top welcome_navbar" role="navigation" style="position: absolute; top: 0; left: 0; right: 0">
+	<nav id="nb_nav" class="navbar navbar-static-top welcome_navbar" role="navigation" style="position: absolute; top: 0; left: 0; right: 0; border-bottom: none">
 		<div class="container">
 			<div Xclass="navbar-header">
 				<a class="navbar-brand" href="/">
@@ -122,31 +134,25 @@
 	</nav>
 
 
-	<div id="landing" class="filling" style="min-height: 600px; position: relative">
+	<div id="landing" class="filling" style="min-height: 700px; position: relative">
 		<div class="filling bg_item1" style="position: absolute"></div>
 		<div class="filling bg_item2" style="position: absolute; display: none"></div>
 		<div class="filling bg_item3" style="position: absolute; display: none"></div>
 		<div class="filling" style="background-color: hsla(0,0%,0%,0.25)">
 			<div class="container text-left fntblk">
 				<div class="row">
-					<div class="col-md-9">
-						<div class="W2 fntpaint tipex text-white" style="padding-top: 100px">
-							Enjoy your
-							<br/>home media
-						</div>
-						<h2 class="fntpaint tipex text-white" style="padding-top: 30px">
-							It's free!
-						</h2>
-						<h2 class="fntpaint tipex text-white">
-							You have everything you need,
-						</h2>
-						<h2 class="fntpaint tipex text-white">
-							so click and start
-							<div style="display: inline-block">
-								<span id="verb">sharing</span>
+					<div class="col-md-7">
+						<div class="W2 fntpaint tipex text-white" style="padding-top: 140px">
+							It's a once in a
+							<div style="display: inline-block; cursor: pointer" ng-click="switch_state()">
+								lifetime
+								<span id="verb">ride</span>
 							</div>
+						</div>
+						<h2 class="fntpaint tipex text-white" style="padding-top: 10px; line-height: 1.5em">
+							Keep your GoPro memories safe
 						</h2>
-						<div style="margin-top: 30px">
+						<div style="margin-top: 50px">
 							<div class="hidden-xs">
 								<a href="#join" class="scroller btn btn-primary btn-lg" style="margin: 0 20px 20px 0">
 									<b>Get Started</b>&nbsp;
@@ -167,8 +173,9 @@
 				</div>
 			</div>
 		</div>
-		<div style="position: absolute; bottom: 0; left: 0; right: 0; height: 70px" class="text-center">
-			<a href="#starting" class="scroller btn btn-default btn-transparent" style="border-radius: 70px">
+		<div style="position: absolute; bottom: 0; left: 0; right: 0; vertical-align: bottom" class="container text-center">
+			<img src="/public/images/gopro.png" class="gopro" /><br/>
+			<a href="#starting" class="scroller btn btn-default btn-transparent" style="border-radius: 70px; margin: 10px">
 				<i class="fa fa-caret-down fa-2x"></i>
 			</a>
 		</div>
@@ -178,30 +185,57 @@
 	<div id="starting"></div>
 
 	<div class="container">
-		<h1 class="W2 fntpaint tipex">Go on the ride</h1>
 
-		<div>
-			<h2>
-				<span class="text-muted" style="font-size: 3em">1</span>
-				Sign Up
-			</h2>
-			<p>Sign up with facebook to share media with your facebook friends.</p>
-			<p>We will never post in your name unless you request.</p>
-			<p>Same goes for Google+ - use it if you want to share in your G+ circles.</p>
-			<div Xclass="text-center" style="border: 1px solid #ccc; width: 340px; padding: 20px;
-				border-radius: 7px/7px;	Xmargin-left: auto; Xmargin-right: auto;">
-				<a ng-click="nbUser.login_facebook()" Xhref="/auth/facebook/login/">
-					<img src="/public/images/facebook_signup_button_big.png" style="width: 100%"></img>
-				</a>
-				<div style="height: 1px; background-color: #ccc; text-align: center; margin: 30px 0 30px 0">
-					<span style="background-color: white; position: relative; top: -0.75em; padding: 10px">OR</span>
-				</div>
-				<a ng-click="nbUser.login_google()" Xhref="/auth/google/login/">
-					<img src="/public/images/google_login_buttin_big.jpg" style="width: 100%"></img>
-				</a>
+		<div class="row" style="padding-top: 130px">
+			<div class="col-sm-6">
+				<h3>Protect your memories</h3>
+				<p class="fntmd">
+					Get more space anytime you want using free space on your existing hard drive. With so much free capacity in hand, you can fit all your data in one location. NooBaa is perfect for media files which no other cloud can handle.
+				</p>
+			</div>
+			<div class="col-sm-6 text-center">
+				<img src="/public/images/bg_fall.jpg" class="img-circle" width="300px" height="200px"/>
 			</div>
 		</div>
 
+		<div class="row" style="padding-top: 130px">
+			<div class="col-sm-6 col-sm-push-6">
+				<h3>Share with friends</h3>
+				<p class="fntmd">
+					Get more space anytime you want using free space on your existing hard drive. With so much free capacity in hand, you can fit all your data in one location. NooBaa is perfect for media files which no other cloud can handle.
+				</p>
+			</div>
+			<div class="col-sm-6 col-sm-pull-6 text-center">
+				<img src="/public/images/bg_bike.jpg" class="img-circle" width="300px" height="200px"/>
+			</div>
+		</div>
+
+		<div class="row" style="padding-top: 130px">
+			<div class="col-sm-6">
+				<h3>Access your friends movies</h3>
+				<p class="fntmd">
+					Get more space anytime you want using free space on your existing hard drive. With so much free capacity in hand, you can fit all your data in one location. NooBaa is perfect for media files which no other cloud can handle.
+				</p>
+			</div>
+			<div class="col-sm-6 text-center">
+				<img src="/public/images/bg_clouds.jpg" class="img-circle" width="300px" height="200px"/>
+			</div>
+		</div>
+
+		<div class="row" style="padding-top: 130px">
+			<div class="col-sm-6 col-sm-push-6">
+				<h3>Watch from any device</h3>
+				<p class="fntmd">
+					Get more space anytime you want using free space on your existing hard drive. With so much free capacity in hand, you can fit all your data in one location. NooBaa is perfect for media files which no other cloud can handle.
+				</p>
+			</div>
+			<div class="col-sm-6 col-sm-pull-6 text-center">
+				<img src="/public/images/bg_bike.jpg" class="img-circle" width="300px" height="200px"/>
+			</div>
+		</div>
+
+		<div class="row" style="padding-top: 130px">
+		</div>
 	</div>
 
 
@@ -437,39 +471,42 @@
 				var landing_element = $('#landing');
 				var verb_element = landing_element.find('#verb');
 				var states = [{
-					verb: 'sharing',
+					verb: 'ride',
 					verb_class: 'text-primary',
 					btn: 'btn-primary',
 					bg: landing_element.find('.bg_item1'),
 				}, {
-					verb: 'streaming',
-					verb_class: 'text-warning',
-					btn: 'btn-warning',
-					bg: landing_element.find('.bg_item3'),
-				}, {
-					verb: 'protecting',
+					verb: 'jump',
 					verb_class: 'text-danger',
 					btn: 'btn-danger',
 					bg: landing_element.find('.bg_item2'),
+				}, {
+					verb: 'wave',
+					verb_class: 'text-warning',
+					btn: 'btn-warning',
+					bg: landing_element.find('.bg_item3'),
 				}];
 				var state_num = 0;
 
-				function switch_verb() {
+				function switch_state() {
+					if ($scope.switch_state_timeout) {
+						$timeout.cancel($scope.switch_state_timeout);
+					}
+					$scope.switch_state_timeout = $timeout(switch_state, 10000);
 					var curr = state_num;
 					var next = (state_num + 1) % states.length;
 					state_num = next;
 					$.when(verb_element.fadeOut(400)).then(function() {
 						verb_element.text(states[next].verb);
-						verb_element.switchClass(states[curr].verb_class, states[next].verb_class);
+						// verb_element.switchClass(states[curr].verb_class, states[next].verb_class);
 						return verb_element.fadeIn(1000);
 					});
 					states[curr].bg.fadeOut(2000);
 					states[next].bg.fadeIn(2000);
 					landing_element.find('.' + states[curr].btn).switchClass(states[curr].btn, states[next].btn, 2000);
 				}
-				$timeout(function() {
-					$interval(switch_verb, 10000);
-				}, 0);
+				$scope.switch_state_timeout = $timeout(switch_state, 10000);
+				$scope.switch_state = switch_state;
 
 				$('.join-btn').click(function() {
 					$('body').chardinJs('start');
@@ -483,7 +520,7 @@
 					html_body.animate({
 						scrollTop: $(href).offset().top
 					}, 400, function() {
-						window.location.hash = href;
+						// window.location.hash = href;
 					});
 					return false;
 				});
