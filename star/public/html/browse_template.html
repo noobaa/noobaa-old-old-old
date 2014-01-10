@@ -1,15 +1,15 @@
 <div class="browser" ng-init="search_in_folder=''">
 
 	<div class="panel panel-default">
-		<div class="panel-heading bggrey clearfix" style="padding: 0 10px 2px 10px">
+		<div class="panel-heading Xbggrey clearfix" style="padding: 0 10px 2px 10px">
 			<div class="clearfix" style="padding: 7px 0">
-				<button class="btn btn-default btn-sm" ng-click="go_up_level()" ng-disabled="!has_parent(current_inode)" title="Back to previous folder" rel="tooltip" nb-tooltip="{container: 'body'}">
-					<i class="fa fa-caret-left fa-lg"></i>
+				<button class="btn btn-default Xbtn-sm" ng-click="go_up_level()" ng-disabled="!has_parent(current_inode)" title="Back to previous folder" rel="tooltip" nb-tooltip="{container: 'body'}">
+					<i class="fa fa-caret-left fa-fw fa-lg"></i>
 				</button>
 				<div class="btn-group">
 					<a class="btn btn-link dropdown-toggle" data-toggle="dropdown" title="Back to folder..." rel="tooltip" nb-tooltip="{container: 'body'}" ng-disabled="!has_parent(current_inode)">
 						<span style="font-size: 1.2em; line-height: 1.2em; vertical-align: middle">
-							<span ng-show="has_parent(current_inode)">. . . /</span>
+							<span ng-show="has_parent(current_inode)">. . . &nbsp; /</span>
 							<span ng-hide="has_parent(current_inode)" class="text-muted">(top)</span>
 						</span>
 					</a>
@@ -22,48 +22,48 @@
 						</li>
 					</ul>
 				</div>
-				<span style="display: inline; padding: 10px 5px; font-size: 1.5em; line-height: 1.5em; vertical-align: middle">
+				<span style="display: inline; padding: 10px 5px; font-size: 1.5em; line-height: 1.5em; vertical-align: middle" class="text-primary">
 					<span style="white-space: pre-wrap">{{current_inode.name}}</span>
 				</span>
 				<span ng-if="current_inode.is_loading">
 					<i class="fa fa-refresh fa-spin fa-fw"></i>
 				</span>
 			</div>
-			<div class="file_actions">
-				<a ng-show="has_parent(current_inode)" class="btn btn-link" ng-show="current_inode.isdir" ng-click="open_inode(current_inode)">
-					<i class="fa fa-refresh fa-fw"></i>
+			<div class="file_actions" ng-show="has_parent(current_inode)">
+				<a ng-show="has_parent(current_inode)" class="btn btn-default" ng-show="current_inode.isdir" ng-click="open_inode(current_inode)">
+					<i class="fa fa-refresh fa-fw fa-lg"></i>
 					<!-- Refresh -->
 				</a>
-				<a ng-show="!current_inode.is_previewing && !current_inode.isdir" class="btn btn-link" ng-click="toggle_preview(current_inode)">
-					<i class="fa fa-search-plus fa-fw"></i>
+				<a ng-show="!current_inode.is_previewing && !current_inode.isdir" class="btn btn-default" ng-click="toggle_preview(current_inode)">
+					<i class="fa fa-search-plus fa-fw fa-lg"></i>
 					<!-- Show Preview -->
 				</a>
-				<a ng-show="current_inode.is_previewing && !current_inode.isdir" class="btn btn-link" ng-click="toggle_preview(current_inode)">
-					<i class="fa fa-search-minus fa-fw"></i>
+				<a ng-show="current_inode.is_previewing && !current_inode.isdir" class="btn btn-default" ng-click="toggle_preview(current_inode)">
+					<i class="fa fa-search-minus fa-fw fa-lg"></i>
 					<!-- Hide Preview -->
 				</a>
-				<a class="btn btn-link" ng-show="nbInode.can_keep_inode(current_inode)" ng-click="copy_inode(current_inode)">
-					<i class="fa fa-plus fa-fw"></i>
+				<a class="btn btn-danger" ng-show="nbInode.can_keep_inode(current_inode)" ng-click="copy_inode(current_inode)">
+					<i class="fa fa-plus fa-fw fa-lg"></i>
 					<!-- Add to My Data -->
 				</a>
-				<a class="btn btn-link" ng-show="!current_inode.isdir && !current_inode.uploading && current_inode.size" ng-click="nbInode.download_inode(current_inode)" href="{{nbInode.inode_api_url(current_inode.id)}}?is_download=true" target="_blank">
-					<i class="fa fa-cloud-download fa-fw"></i>
+				<a class="btn btn-primary" ng-show="!current_inode.isdir && !current_inode.uploading && current_inode.size" ng-click="nbInode.download_inode(current_inode)" href="{{nbInode.inode_api_url(current_inode.id)}}?is_download=true" target="_blank">
+					<i class="fa fa-cloud-download fa-fw fa-lg"></i>
 					<!-- Download -->
 				</a>
-				<a class="btn btn-link" ng-show="nbInode.can_upload_to_dir(current_inode)" ng-click="new_folder(current_inode)">
-					<i class="fa fa-plus fa-fw"></i>
+				<a class="btn btn-default" ng-show="nbInode.can_upload_to_dir(current_inode)" ng-click="new_folder(current_inode)">
+					<i class="fa fa-plus fa-fw fa-lg"></i>
 					<!-- New Folder -->
 				</a>
-				<a class="btn btn-link" ng-show="nbInode.can_upload_to_dir(current_inode)" ng-click="nbUploadSrv.open_file_input()">
+				<a class="btn btn-success" ng-show="nbInode.can_upload_to_dir(current_inode)" ng-click="nbUploadSrv.open_file_input()">
 					<i class="fa fa-cloud-upload fa-fw fa-lg"></i>
 					<!-- Upload -->
 				</a>
-				<a class="btn btn-link" ng-show="nbInode.can_upload_file(current_inode)" ng-click="resume_upload(current_inode)">
-					<i class="fa fa-cloud-upload fa-fw"></i>
+				<a class="btn btn-default" ng-show="nbInode.can_upload_file(current_inode)" ng-click="resume_upload(current_inode)">
+					<i class="fa fa-cloud-upload fa-fw fa-lg"></i>
 					<!-- Resume Upload -->
 				</a>
-				<a class="btn btn-link" ng-show="nbInode.can_share_inode(current_inode)" ng-click="share_inode(current_inode)">
-					<i class="fa fa-share-square-o fa-fw"></i>
+				<a class="btn btn-info" ng-show="nbInode.can_share_inode(current_inode)" ng-click="share_inode(current_inode)">
+					<i class="fa fa-share-square-o fa-fw fa-lg"></i>
 					<!-- Share -->
 				</a>
 				<div ng-show="current_inode.isdir" class="input-group Xinput-group-sm pull-right" style="max-width: 200px">
@@ -81,12 +81,12 @@
 		</div>
 
 		<div class="panel-body" style="padding: 0; border-top-width: 1px; border-top-style: solid">
-			<div ng-repeat="inode in filter_entries = ( current_inode.entries | filter:{name: search_in_folder} )" class="file_line notextselect {{inode.is_selected && 'bggrey' || ''}}" style="border-bottom-width: 1px; border-top-width: 1px">
+			<div ng-repeat="inode in filter_entries = ( current_inode.entries | filter:{name: search_in_folder} )" class="file_line notextselect {{inode.is_selected && 'bgdark' || ''}}" style="border-bottom-width: 1px; border-top-width: 1px">
 				<div class="clearfix" ng-click="select_inode(inode, $index, $event)">
 					<span class="text-wrap">
 						<i ng-show="!!inode.isdir" class="fa fa-folder-open fa-fw fa-lg text-muted"></i>
 						<i ng-show="!inode.isdir" class="fa fa-file-o fa-fw fa-lg text-muted"></i>
-						<a class="btn btn-link" ng-click="open_inode(inode, $index, $event)" style="padding-left: 0; display: inline">
+						<a class="btn btn-link btn-lg" ng-click="open_inode(inode, $index, $event)" style="padding-left: 0; display: inline">
 							<span style="white-space: pre-wrap">{{inode.name}}</span>
 						</a>
 					</span>
@@ -105,10 +105,28 @@
 					<span ng-if="num_selected()>1">
 						&nbsp;&nbsp;{{num_selected()}} items:
 					</span>
+					<span ng-if="!current_inode.owner && nbInode.can_change_inode(inode)" class="btn-group">
+						<a class="btn btn-default" ng-click="move_inodes()">
+							<i class="fa fa-arrows fa-fw fa-lg"></i>
+							<!-- Move {{num_selected()>1 && 'all' || ''}} -->
+						</a>
+						<a class="btn btn-default" ng-show="num_selected()==1" ng-click="rename_inode(inode)">
+							<i class="fa fa-pencil fa-rotate-270 fa-fw fa-lg"></i>
+							<!-- Rename -->
+						</a>
+						<a class="btn btn-default" ng-click="delete_inodes()">
+							<i class="fa fa-trash-o fa-fw fa-lg"></i>
+							<!-- Delete {{num_selected()>1 && 'all' || ''}} -->
+						</a>
+					</span>
 					<span ng-if="num_selected()==1">
-						<a class="btn btn-info" ng-show="nbInode.can_share_inode(inode)" ng-click="share_inode(inode)">
-							<i class="fa fa-share-square-o fa-fw fa-lg"></i>
-							<!-- Share -->
+						<a class="btn btn-default" ng-show="!inode.isdir && !inode.uploading && inode.size" ng-click="nbInode.download_inode(inode)" href="{{nbInode.inode_api_url(inode.id)}}?is_download=true" target="_blank">
+							<i class="fa fa-cloud-download fa-fw fa-lg"></i>
+							<!-- Download -->
+						</a>
+						<a class="btn btn-danger" ng-show="nbInode.can_keep_inode(inode)" ng-click="copy_inode(inode)">
+							<i class="fa fa-plus fa-fw fa-lg"></i>
+							<!-- Add to My Data -->
 						</a>
 						<a ng-show="!inode.is_previewing && !inode.isdir" class="btn btn-primary" ng-click="toggle_preview(inode)">
 							<i class="fa fa-search-plus fa-fw fa-lg"></i>
@@ -118,27 +136,9 @@
 							<i class="fa fa-search-minus fa-fw fa-lg"></i>
 							<!-- Hide Preview -->
 						</a>
-						<a class="btn btn-danger" ng-show="nbInode.can_keep_inode(inode)" ng-click="copy_inode(inode)">
-							<i class="fa fa-plus fa-fw fa-lg"></i>
-							<!-- Add to My Data -->
-						</a>
-						<a class="btn btn-default" ng-show="!inode.isdir && !inode.uploading && inode.size" ng-click="nbInode.download_inode(inode)" href="{{nbInode.inode_api_url(inode.id)}}?is_download=true" target="_blank">
-							<i class="fa fa-cloud-download fa-fw fa-lg"></i>
-							<!-- Download -->
-						</a>
-					</span>
-					<span ng-if="!current_inode.owner && nbInode.can_change_inode(inode)" class="btn-group">
-						<a class="btn btn-default" ng-show="num_selected()==1" ng-click="rename_inode(inode)">
-							<i class="fa fa-pencil fa-rotate-270 fa-fw fa-lg"></i>
-							<!-- Rename -->
-						</a>
-						<a class="btn btn-default" ng-click="move_inodes()">
-							<i class="fa fa-arrows fa-fw fa-lg"></i>
-							<!-- Move {{num_selected()>1 && 'all' || ''}} -->
-						</a>
-						<a class="btn btn-default" ng-click="delete_inodes()">
-							<i class="fa fa-trash-o fa-fw fa-lg"></i>
-							<!-- Delete {{num_selected()>1 && 'all' || ''}} -->
+						<a class="btn btn-info" ng-show="nbInode.can_share_inode(inode)" ng-click="share_inode(inode)">
+							<i class="fa fa-share-square-o fa-fw fa-lg"></i>
+							<!-- Share -->
 						</a>
 					</span>
 				</div>

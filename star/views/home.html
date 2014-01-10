@@ -6,7 +6,7 @@
 		<base href="/home/">
 </head>
 
-<body ng-cloak ng-controller="HomeCtrl" class="Xbgdark Xbgdark-image">
+<body ng-cloak ng-controller="HomeCtrl">
 
 	<div>
 		<?# def.facebook_init_body ?>
@@ -214,7 +214,7 @@
 				<img src="/public/images/facebook_signup_button_big.png" style="width: 100%"></img>
 			</a>
 			<div style="height: 1px; background-color: #ccc; text-align: center; margin: 30px 0 30px 0">
-				<span class="bgdark text-white" style="Xbackground-color: inherit; position: relative; top: -0.75em; padding: 10px">OR</span>
+				<span class="text-white" style="background-color: black; position: relative; top: -0.75em; padding: 10px">OR</span>
 			</div>
 			<a ng-click="nbUser.login_google()" Xhref="/auth/google/login/">
 				<img src="/public/images/google_login_buttin_big.jpg" style="width: 100%"></img>
@@ -237,7 +237,7 @@
 					<textarea ng-hide="feedback_send_done" ng-model="feedback_text" class="form-control" autofocus style="resize: none; height: 100%" rows="5"></textarea>
 					<p ng-show="feedback_send_done" class="lead text-center">
 						My Precious...
-						<br/>Thanks you!
+						<br/>Thank you!
 					</p>
 				</div>
 				<div class="modal-footer Xnbdialog_footer">
@@ -258,7 +258,7 @@
 					Experience with the NooBaa client:
 					<ul class="fa-ul">
 						<li><i class="fa fa-li fa-rocket"></i>
-							Expand yor account space as much as you want!</li>
+							Expand your account space as much as you want!</li>
 						<li><i class="fa fa-li fa-refresh"></i>
 							Automatic resume of uploads (even on disconnection or reboot)</li>
 						<li><i class="fa fa-li fa-folder-open"></i>

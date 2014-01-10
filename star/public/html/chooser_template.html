@@ -1,8 +1,8 @@
 <div class="chooser">
 	<div class="panel panel-default" style="margin: 0; padding: 0">
-		<div class="panel-heading bggrey clearfix" style="padding: 0 10px 2px 10px">
+		<div class="panel-heading Xbggrey clearfix" style="padding: 0 10px 2px 10px">
 			<div class="clearfix" style="padding: 7px 0">
-				<button class="btn btn-default btn-sm" ng-click="go_up_level()" ng-disabled="!has_parent(current_inode)" title="Back to previous folder" rel="tooltip">
+				<button class="btn btn-default Xbtn-sm" ng-click="go_up_level()" ng-disabled="!has_parent(current_inode)" title="Back to previous folder" rel="tooltip">
 					<i class="fa fa-caret-left fa-lg"></i>
 				</button>
 				<div class="btn-group">
@@ -21,7 +21,7 @@
 						</li>
 					</ul>
 				</div>
-				<span style="display: inline; padding: 10px; font-size: 1.5em; line-height: 1.5em; vertical-align: middle">
+				<span style="display: inline; padding: 10px; font-size: 1.5em; line-height: 1.5em; vertical-align: middle" class="text-primary">
 					<span style="white-space: pre-wrap">{{current_inode.name}}</span>
 				</span>
 				<span ng-if="current_inode.is_loading">
@@ -34,8 +34,8 @@
 			<div ng-repeat="inode in filter_entries = (current_inode.entries | filter:{isdir: context.dir_only || undefined} )" class="file_line notextselect" style="border-bottom-width: 1px; border-top-width: 1px">
 				<div class="clearfix" ng-click="open_inode(inode, $index, $event)" style="cursor: pointer">
 					<span class="text-wrap">
-						<i ng-show="!!inode.isdir" class="fa fa-folder-open fa-fw fa-lg text-danger"></i>
-						<i ng-show="!inode.isdir" class="fa fa-file-o fa-fw fa-lg text-danger"></i>
+						<i ng-show="!!inode.isdir" class="fa fa-folder-open fa-fw fa-lg text-muted"></i>
+						<i ng-show="!inode.isdir" class="fa fa-file-o fa-fw fa-lg text-muted"></i>
 						<span class="btn btn-link" style="padding-left: 0; display: inline">
 							<span style="white-space: pre-wrap">{{inode.name}}</span>
 						</span>
