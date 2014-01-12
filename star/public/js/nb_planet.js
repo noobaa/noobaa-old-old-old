@@ -448,7 +448,7 @@
 			$scope.coshare_selection = -1;
 
 			$scope.coshare_options_class = function(index) {
-				return index === $scope.coshare_selection ? 'btn-primary' : '';
+				return index === $scope.coshare_selection ? 'btn-primary' : 'btn-link';
 			};
 
 			$scope.select_coshare_option = function(index) {

@@ -105,7 +105,7 @@
 					parent: null,
 					level: 0,
 					isdir: true,
-					name: 'Files',
+					name: 'My Home',
 					entries: [],
 					entries_map: {}
 				};

@@ -2,24 +2,23 @@
 <html ng-app="noobaa_app" xmlns:fb="http://ogp.me/ns/fb#" lang="en">
 
 <head>
-	<?# def.include('common_head.html') ?>
-	<style>
-		#sketch {
+	<?# def.include( 'common_head.html') ?>
+		<style>
+		.sketch {
 			background-image: url('/public/images/sketch_skate.png');
 			background-repeat: no-repeat;
 			background-attachment: scroll;
-			background-size: cover;
-			background-position: 0 0;
-			height: 300px;
-			margin-bottom: 50px
+			background-size: 800px 250px;
+			background-position: center center;
+			opacity: 0.08;
+			height: 250px;
 		}
-	</style>
+		</style>
 </head>
 
 <body>
 
-	<div class="navbar navbar-inverse navbar-static-top bgdark"
-		role="navigation">
+	<div class="navbar navbar-inverse navbar-static-top" role="navigation">
 		<div class="container">
 			<div class="navbar-header">
 				<a class="navbar-brand" href="/">
@@ -30,26 +29,27 @@
 	</div>
 
 	<div class="container text-center">
-		<div id="pic">
-			<div id="sketch"></div>
-		</div>
 		<h1>
 			<?! it.data ?>
 		</h1>
-		<div class="H1 fntpaint">
-			&lt;<?! it.status ?>&gt;
+		<div style="padding: 20px">
+			<a class="btn btn-primary btn-lg" href="/">
+				Back to NooBaa
+			</a>
 		</div>
+		<div class="sketch"></div>
+		<p class="lead">
+			( Status
+			<?! it.status ?>)
+		</p>
 		<div>
 			<?! it.stack ?>
 		</div>
 	</div>
 
-	<?# def.include('common_scripts.html') ?>
-
-	<script type="text/javascript">
-		function ErrorCtrl($scope) {
-		}
-	</script>
+	<div>
+		<?# def.include( 'common_scripts.html') ?>
+	</div>
 
 </body>
 

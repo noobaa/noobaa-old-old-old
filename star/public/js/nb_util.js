@@ -505,11 +505,11 @@
 		var content = $('<div class="nbdialog_content"></div>').appendTo(dlg);
 		var foot = $('<div class="nbdialog_footer text-center"></div>').appendTo(dlg);
 		$('<span class="alert_icon"></span>')
-			.append($('<i class="icon-warning-sign"></i>'))
+			.append($('<i class="fa fa-warning"></i>'))
 			.appendTo(head);
-		$('<span>Hmmm...</span>')
-			.css('padding', '20px')
-			.appendTo(head);
+		// $('<span>Hmmm...</span>')
+		//	.css('padding', '20px')
+		//	.appendTo(head);
 		$('<p></p>')
 			.append($('<b></b>').html(str))
 			.css('padding', '20px 20px 0 20px')
@@ -528,11 +528,11 @@
 		var content = $('<div class="nbdialog_content"></div>').appendTo(dlg);
 		var foot = $('<div class="nbdialog_footer"></div>').appendTo(dlg);
 		$('<span class="confirm_icon"></span>')
-			.append($('<i class="icon-question-sign"></i>'))
+			.append($('<i class="fa fa-question-circle"></i>'))
 			.appendTo(head);
-		$('<span>Hmmm?</span>')
-			.css('padding', '20px')
-			.appendTo(head);
+		// $('<span>Hmmm?</span>')
+		//	.css('padding', '20px')
+		//	.appendTo(head);
 		content.css('padding', '20px').append(msg);
 		$('<button class="nbdialog_close"></button>')
 			.text(options.noButtonCaption || 'No')

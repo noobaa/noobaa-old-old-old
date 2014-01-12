@@ -24,7 +24,7 @@ html, body {
 	background-repeat: repeat-x;
 }
 .bggrey {
-	background-color: hsl(192, 7%, 80%) !important;
+	background-color: hsl(192, 7%, 87%) !important;
 }
 .progress-bar-grey {
 	background-color: hsl(192, 7%, 80%) !important;
@@ -39,10 +39,30 @@ html, body {
 	background-color: transparent !important;
 	border-color: hsl(192, 7%, 90%) !important;
 }
+.btn.btn-default.btn-transparent {
+	background-color: hsla(0, 0%, 0%, 0.2) !important;
+	color: #eee !important;
+	border: white solid 2px !important;
+}
+.btn.btn-default.btn-transparent:hover {
+	background-color: hsla(0, 0%, 40%, 0.2) !important;
+	color: white !important;
+	border: white solid 2px !important;
+}
+.panel-default .panel-heading {
+	background-color: hsl(0, 0%, 33%);
+}
+.btn {
+	border-radius: 20px;
+}
+.btn-lg {
+	border-radius: 30px;
+}
 /* COLOR LIGHT BLUE:
 hsl(212, 41%, 71%)
 hsl(204, 70%, 53%)
- */
+ * /
+
  .bg-info {
 	background-color: hsl(204, 70%, 53%) !important;
 }
@@ -70,7 +90,7 @@ hsl(204, 70%, 53%)
 /* COLOR BLUE:
 hsl(238, 30%, 60%)
 hsl(192, 50%, 54%)
-*/
+* /
  .bg-primary {
 	background-color: hsl(192, 50%, 54%) !important;
 }
@@ -98,7 +118,7 @@ hsl(192, 50%, 54%)
 /* COLOR GREEN:
 hsl(166, 100%, 30%)
 hsl(80, 61%, 50%)
-*/
+* /
  .bg-success {
 	background-color: hsl(80, 61%, 50%) !important;
 }
@@ -127,7 +147,7 @@ hsl(80, 61%, 50%)
 /* COLOR YELLOW:
 hsl(42, 83%, 63%)
 hsl(50, 100%, 65%)
-*/
+* /
  .bg-warning {
 	background-color: hsl(50, 100%, 65%) !important;
 }
@@ -156,7 +176,7 @@ hsl(50, 100%, 65%)
 hsl(351, 68%, 44%)
 hsl(335, 38%, 55%)
 hsl(338, 100%, 50%)
-*/
+* /
  .bg-danger {
 	background-color: hsl(338, 100%, 50%) !important;
 }
@@ -203,6 +223,7 @@ hsl(338, 100%, 50%)
 .text-black {
 	color: hsl(0, 0%, 5%) !important;
 }
+/*
 a.btn-link.text-white {
 	color: hsl(0, 0%, 60%) !important;
 }
@@ -224,10 +245,10 @@ a.btn-link.text-white:hover {
 }
 .browser .panel-body {
 	/*background-color: hsl(192, 20%, 90%);*/
-	background-color: white;
+	/*background-color: white;*/
 }
 .file_line {
-	line-height: 40px;
+	line-height: 44px;
 	vertical-align: middle;
 	border-color: hsla(192, 50%, 54%, 0.1);
 	border-style: solid;
@@ -353,10 +374,10 @@ a.btn-link.text-white:hover {
 	/*border-radius: 0 !important;*/
 }
 .thumbnail {
-	border: none !important;
+	/*border: none !important;*/
 }
 .panel-heading {
-	border: none !important;
+	/*border: none !important;*/
 }
 a[ng-click], a[role=button] {
 	cursor: pointer;
@@ -374,11 +395,11 @@ a[ng-click], a[role=button] {
 	transition: background-color 0.6;
 }
 a.btn-link, button.btn-link {
-	color: hsl(0, 0%, 5%);
+	/*color: hsl(0, 0%, 5%);*/
 }
 .panel-heading .badge {
-	background-color: white;
-	color: black;
+	/*background-color: white;*/
+	/*color: black;*/
 }
 .fnt, body, h1, h2, h3, h4, h5, h6, .ui-widget, button {
 	font-family:'Ubuntu', sans-serif !important;
@@ -409,11 +430,19 @@ a.btn-link, button.btn-link {
 .fntwht {
 	color: white;
 }
+.welcome_navbar, .home_navbar {
+	/*border-color: hsl(338, 100%, 50%) !important;*/
+	/*border-style: solid !important;*/
+	/*border-left: none !important;*/
+	/*border-right: none !important;*/
+}
 .welcome_navbar {
-	border-bottom: 5px solid hsl(338, 100%, 50%) !important;
+	/*border-top: none !important;*/
+	/*border-bottom-width: 5px !important;*/
 }
 .home_navbar {
-	border-top: 5px solid hsl(338, 100%, 50%) !important;
+	/*border-bottom: none !important;*/
+	/*border-top-width: 5px !important;*/
 }
 .navbar {
 	/*opacity: 0.95;*/
@@ -427,6 +456,7 @@ a.btn-link, button.btn-link {
 .navbar .navbar-brand img {
 	height: 36px;
 }
+/*
 @media all and (min-width: 992px) and (max-width: 1099px) {
 	.container {
 		width: 750px !important;
@@ -436,6 +466,26 @@ a.btn-link, button.btn-link {
 	.container {
 		width: 1000px !important;
 	}
+}
+*/
+
+/**/
+
+/* GENERAL */
+ .bgpattern {
+	background-image: url('/public/images/pattern.png');
+	position: absolute;
+	width: 100%;
+	height: 100%;
+}
+.notextselect {
+	/* begin disable text selection highlight */
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 }
 .text-ellipses {
 	overflow: hidden;
@@ -460,18 +510,6 @@ a.btn-link, button.btn-link {
 .wfill {
 	width: 100%;
 	min-width: 100%;
-}
-.roundbord {
-	/*border-radius: 7px/7px;*/
-	/*padding: 5px;*/
-	border-style: solid;
-	border-width: 1px;
-	border-color: #777;
-	/*
-	-moz-box-shadow: 	0 0 5px 5px rgba(0, 0, 0, 0.3);
-	-webkit-box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.3);
-	box-shadow: 		0 0 5px 5px rgba(0, 0, 0, 0.3);
-	*/
 }
 .view-animate.ng-enter {
 	opacity: 0;
@@ -579,22 +617,7 @@ a.btn-link, button.btn-link {
 .tour-step-background {
 	display: none !important;
 }
-.bgpattern {
-	background-image: url('/public/images/pattern.png');
-	position: absolute;
-	width: 100%;
-	height: 100%;
-}
-.notextselect {
-	/* begin disable text selection highlight */
-	-webkit-touch-callout: none;
-	-webkit-user-select: none;
-	-khtml-user-select: none;
-	-moz-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
-}
-.selectable .ui-selecting {
+/*.selectable .ui-selecting {
 	background: #FECA40;
 }
 .selectable .ui-selected {
@@ -603,14 +626,6 @@ a.btn-link, button.btn-link {
 }
 .selectable {
 	list-style-type: none;
-}
-/*
-	Allow angular.js to be loaded in body, hiding cloaked elements until 
-	templates compile.  The !important is important given that there may be 
-	other selectors that are more specific or come later and might alter display.  
-*/
-[ng\:cloak], [ng-cloak], .ng-cloak {
-	display: none !important;
 }
 .t-table {
 	display: table;
@@ -641,6 +656,18 @@ a.btn-link, button.btn-link {
 	-webkit-border-bottom-right-radius: 100px !important;
 	-moz-border-radius-bottomright: 100px !important;
 	border-bottom-right-radius: 100px !important;
+}
+*/
+
+/**/
+
+/*
+	Allow angular.js to be loaded in body, hiding cloaked elements until 
+	templates compile.  The !important is important given that there may be 
+	other selectors that are more specific or come later and might alter display.  
+*/
+[ng\:cloak], [ng-cloak], .ng-cloak {
+	display: none !important;
 }
 /**/
 
@@ -709,7 +736,10 @@ a.btn-link, button.btn-link {
 	color: #999 !important;
 	background-color: transparent !important;
 }
-.fileinput-button {
+/**/
+
+/**/
+ .fileinput-button {
 	position: relative;
 	overflow: hidden;
 }

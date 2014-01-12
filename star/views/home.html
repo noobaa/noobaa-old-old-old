@@ -6,17 +6,18 @@
 		<base href="/home/">
 </head>
 
-<body ng-cloak ng-controller="HomeCtrl" class="bgdark bgdark-image">
+<body ng-cloak ng-controller="HomeCtrl">
 
 	<div>
 		<?# def.facebook_init_body ?>
 	</div>
 
-	<nav class="navbar navbar-static-top navbar-inverse home_navbar" role="navigation" style="margin: 0">
+	<nav class="navbar navbar-static-top Xnavbar-default navbar-inverse home_navbar" role="navigation" style="margin: 0">
 		<div class="container clearfix">
 			<div class="navbar-header pull-left">
-				<a id="logo_link" class="navbar-brand" href="/home/">
+				<a id="logo_link" class="navbar-brand" href="/">
 					<img src="/public/images/noobaa_logo.png"></img>
+					<small>BETA</small>
 				</a>
 			</div>
 			<ul ng-if="nbUser.user" class="nav navbar-nav navbar-right pull-right" style="margin-top: 0; margin-bottom: 0">
@@ -44,10 +45,10 @@
 								</a>
 							</div>
 							 -->
-							<div class="text-center text-black">
+							<div class="text-center">
 								<small>
 									<span class="text-muted">Using</span>
-									{{human_size(nbUser.user_usage)}} / {{human_size(nbUser.user_quota)}}
+									<span class="text-white">{{human_size(nbUser.user_usage)}} / {{human_size(nbUser.user_quota)}}</span>
 								</small>
 							</div>
 							<div class="progress text-center bggrey" style="vertical-align: middle; margin: 0">
@@ -107,13 +108,13 @@
 										Account Settings
 									</a>
 								</li>
-								 -->
 								<li>
 									<a href="/help" target="_blank">
 										<i class="fa fa-question fa-fw"></i>
 										Help (FAQ)
 									</a>
 								</li>
+								 -->
 								<li>
 									<a ng-click="nbUser.logout()" Xhref="/auth/logout/?state=/home/" Xtarget="_self">
 										<i class="fa fa-sign-out fa-fw"></i>
@@ -213,7 +214,7 @@
 				<img src="/public/images/facebook_signup_button_big.png" style="width: 100%"></img>
 			</a>
 			<div style="height: 1px; background-color: #ccc; text-align: center; margin: 30px 0 30px 0">
-				<span class="bgdark text-white" style="Xbackground-color: inherit; position: relative; top: -0.75em; padding: 10px">OR</span>
+				<span class="text-white" style="background-color: black; position: relative; top: -0.75em; padding: 10px">OR</span>
 			</div>
 			<a ng-click="nbUser.login_google()" Xhref="/auth/google/login/">
 				<img src="/public/images/google_login_buttin_big.jpg" style="width: 100%"></img>
@@ -224,22 +225,22 @@
 
 	<!-- FEEDBACK -->
 
-	<div id="feedback_dialog" class="modal fade Xnbdialog fntmd">
+	<div id="feedback_dialog" class="modal fade fntmd">
 		<div class="modal-dialog">
 			<div class="modal-content">
-				<div class="modal-header Xnbdialog_header Xnbdialog_drag">
+				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-					<i class="icon-comments icon-large text-info"></i>
+					<i class="fa fa-comments fa-lg text-primary"></i>
 					"Talk To Me Goose"
 				</div>
-				<div class="modal-body Xnbdialog_content">
+				<div class="modal-body">
 					<textarea ng-hide="feedback_send_done" ng-model="feedback_text" class="form-control" autofocus style="resize: none; height: 100%" rows="5"></textarea>
 					<p ng-show="feedback_send_done" class="lead text-center">
 						My Precious...
-						<br/>Thanks you!
+						<br/>Thank you!
 					</p>
 				</div>
-				<div class="modal-footer Xnbdialog_footer">
+				<div class="modal-footer">
 					<button data-dismiss="modal" ng-hide="feedback_send_done" class="Xnbdialog_close btn btn-default">Cancel</button>
 					<button class="btn btn-primary pull-right" ng-hide="feedback_send_done" ng-click="send_feedback()">Send</button>
 					<button data-dismiss="modal" class="Xnbdialog_close btn btn-success pull-right" ng-show="feedback_send_done">Close</button>
@@ -257,7 +258,7 @@
 					Experience with the NooBaa client:
 					<ul class="fa-ul">
 						<li><i class="fa fa-li fa-rocket"></i>
-							Expand yor account space as much as you want!</li>
+							Expand your account space as much as you want!</li>
 						<li><i class="fa fa-li fa-refresh"></i>
 							Automatic resume of uploads (even on disconnection or reboot)</li>
 						<li><i class="fa fa-li fa-folder-open"></i>
@@ -288,7 +289,7 @@
 		<div id="client_expansion">
 			<div class="text-center" style="padding: 10px">
 				<span ng-repeat="plan in nbPlanet.coshare_options">
-					<button href="#" class="btn btn-link btn-lg Xbtn-block" ng-click="nbPlanet.select_coshare_option($index)" ng-class="nbPlanet.coshare_options_class($index)">
+					<button href="#" class="btn btn-lg Xbtn-block" ng-click="nbPlanet.select_coshare_option($index)" ng-class="nbPlanet.coshare_options_class($index)">
 						{{plan.title}}
 					</button>
 				</span>
@@ -303,16 +304,10 @@
 
 	<!-- SHARE MODAL -->
 
-	<div ng-controller="ShareModalCtrl" id="share_modal" class="nbdialog fntmd" tabindex="-1" role="dialog" aria-labelledby="share_modal_label" aria-hidden="true">
-		<div class="nbdialog_header nbdialog_drag">
-			Share
-			<a class="pull-right nbdialog_close btn btn-default btn-xs" title="Cancel">
-				<i class="icon-remove"></i>
-			</a>
-		</div>
-		<div class="nbdialog_content">
+	<div style="display: none" ng-non-bindable>
+		<div id="share_modal" style="padding: 20px">
 			<div ng-show="share_is_loading" class="text-center" style="padding: 30px">
-				<i class="icon-spinner icon-spin icon-2x"></i>
+				<i class="fa fa-spinner fa-spin fa-2x"></i>
 			</div>
 			<div ng-show="!share_is_loading && !share_list.length">
 				<p>No friends are availabe for sharing.</p>
@@ -320,53 +315,29 @@
 				<p>Invite your friends to NooBaa today.</p>
 			</div>
 			<div ng-show="!share_is_loading && share_list.length" ng-init="filter_friend_name=''">
-				<p>
-					Share this item with friends:
-					<div class="inode_label"></div>
-				</p>
 				<form role="form">
 					<div class="input-group">
 						<input type="text" class="form-control input-sm" placeholder="Search in friends" ng-model="filter_friend_name" />
 						<span class="input-group-btn">
 							<button class="btn btn-default btn-sm" type="button" ng-click="filter_friend_name=''">
-								<i class="icon-remove-sign icon-large"></i>
+								<i class="fa fa-times fa-lg"></i>
 							</button>
 						</span>
 					</div>
 				</form>
+				<br/>
 				<table class="table">
-					<tr ng-repeat="friend in share_list | filter:{name: filter_friend_name} | orderBy:'name'" ng-class="{true: 'danger'}[friend.shared]" ng-click="friend.shared = !friend.shared">
+					<tr ng-repeat="friend in share_list | filter:{name: filter_friend_name} | orderBy:'name'" ng-class="{true: 'warning'}[friend.shared]" ng-click="friend.shared = !friend.shared" style="cursor: pointer">
 						<td>
-							<img ng-src="{{ nbUser.user_pic_url(friend) }}"></img>
+							<img ng-src="{{ nbUser.user_pic_url(friend) }}" width="40px" height="40px"></img>
 						</td>
 						<td>{{friend.name}}</td>
 						<td>
-							<i ng-show="friend.shared" class="icon-check icon-large icon-fixed-width"></i>
-							<i ng-hide="friend.shared" class="icon-check-empty icon-large icon-fixed-width"></i>
+							<i ng-show="friend.shared" class="fa fa-check-square-o fa-fw fa-lg"></i>
+							<i ng-hide="friend.shared" class="fa fa-square-o fa-fw fa-lg"></i>
 						</td>
 					</tr>
 				</table>
-			</div>
-		</div>
-		<div class="nbdialog_footer">
-			<button class="nbdialog_close btn btn-default">Cancel</button>
-			<div class="pull-right">
-				<div ng-if="false" class="btn-group dropup">
-					<button type="button" class="btn btn-default" ng-click="mklink()">
-						Get Link
-					</button>
-					<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-						<span class="caret"></span>
-					</button>
-					<ul class="dropdown-menu pull-right" role="menu">
-						<li>
-							<a href="#" ng-click="rmlinks()">
-								Revoke Previous Links !
-							</a>
-						</li>
-					</ul>
-				</div>
-				<button class="btn btn-primary" ng-click="submit()">Save</button>
 			</div>
 		</div>
 	</div>
@@ -377,7 +348,7 @@
 		<div class="nbdialog_header nbdialog_drag">
 			File Link
 			<a class="pull-right nbdialog_close btn btn-default btn-xs" title="Cancel">
-				<i class="icon-remove"></i>
+				<i class="fa fa-times"></i>
 			</a>
 		</div>
 		<div class="nbdialog_content">
@@ -406,7 +377,7 @@
 		<div class="nbdialog_header nbdialog_drag">
 			Confirm Delete
 			<a class="pull-right nbdialog_close btn btn-default btn-xs" title="Cancel">
-				<i class="icon-remove"></i>
+				<i class="fa fa-times"></i>
 			</a>
 		</div>
 		<div class="nbdialog_content">
@@ -430,7 +401,7 @@
 		<div class="nbdialog_header nbdialog_drag">
 			New Folder...
 			<a class="pull-right nbdialog_close btn btn-default btn-xs" title="Cancel">
-				<i class="icon-remove"></i>
+				<i class="fa fa-times"></i>
 			</a>
 		</div>
 		<div class="nbdialog_content">
@@ -452,7 +423,7 @@
 		<div class="nbdialog_header nbdialog_drag">
 			Rename...
 			<a class="pull-right nbdialog_close btn btn-default btn-xs" title="Cancel">
-				<i class="icon-remove"></i>
+				<i class="fa fa-times"></i>
 			</a>
 		</div>
 		<div class="nbdialog_content">

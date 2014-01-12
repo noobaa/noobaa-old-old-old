@@ -3,107 +3,97 @@
 
 <head>
 	<?# def.include( 'common_head.html') ?>
-		<link href="/vendor/chardin.js/chardinjs.css" type="text/css" rel="stylesheet" />
 		<style>
-		#nb_nav_marker {
+		#landing {
+			margin-bottom: 50px;
+			min-height: 100%;
+		}
+		#landing #poster {
+			height: 450px;
+			max-width: 1400px;
+			margin-right: auto;
+			margin-left: auto;
+		}
+		@media all and (max-height: 700px) {
+			#landing #poster {
+				height: 320px;
+			}
+		}
+		#starting {
+			padding: 20px 0 100px 0;
+			border-top: hsl(0, 0%, 15%) 1px solid;
+		}
+		#join-page {
+			min-height: 100%;
+		}
+		#join {
+			padding: 50px 0 100px 0;
+		}
+		#links {
+			padding: 20px 0 20px 0;
+			border-top: hsl(0, 0%, 15%) 1px solid;
+		}
+		#starting .starting-section > div {
+			padding-top: 30px;
+		}
+		img.gopro {
+			width: 350px;
 			position: absolute;
-			bottom: 0;
+			left: -30px;
+			bottom: -17px;
 		}
-		#nb_nav {
-			/*position: absolute;*/
-			/*bottom: 0;*/
+		.poster {
+			overflow: hidden;
+			position: absolute;
 		}
-		#nb_nav.affix {
-			position: fixed;
-			bottom: auto;
-			top: 0px;
+		.poster img {
 			width: 100%;
-		}
-		.nb_nav_link {
-			padding-top: 50px;
-		}
-		.btn.join-btn {
-			width: 140px !important;
-		}
-		#chrome_link {
+			min-height: 100%;
 			position: absolute;
-			top: 10px;
-			right: 10px;
-		}
-		#chrome_link img {
-			width: 30px;
-			height: 30px;
-		}
-		.bg_item1, .bg_item2, .bg_item3, .bg_clouds, .bg_bike, .bg_fall {
-			background-repeat: no-repeat;
-			background-attachment: fixed;
-			background-size: cover;
-		}
-		.bg_item1 {
-			background-image: url('/public/images/bg_skate.jpg');
-		}
-		.bg_item2 {
-			background-image: url('/public/images/bg_snow.jpg');
-		}
-		.bg_item3 {
-			background-image: url('/public/images/bg_wave.jpg');
-		}
-		@media all and (max-width: 600px) {
-			.bg_item1 {
-				background-position: 60% 0;
-			}
-			.bg_item2 {
-				background-position: 40% 0;
-			}
-			.bg_item3 {
-				background-position: 40% 0;
-			}
-		}
-		.bg_clouds {
-			background-image: url('/public/images/bg_clouds.jpg');
-			height: 400px;
-		}
-		.bg_fall {
-			background-image: url('/public/images/bg_fall.jpg');
-			height: 400px;
-		}
-		.bg_bike {
-			background-image: url('/public/images/bg_bike.jpg');
-			height: 400px;
-		}
-		#whatis > .container > .row {
-			min-height: 150px;
-			padding: 60px 0 30px 0;
-		}
-		#whatis i.W1 {
-			color: #e2e2f2;
-			text-shadow: -2px 0 black, 0 2px black, 2px 0 black, 0 -2px black;
-		}
-		.shiner {
-			position: absolute;
-			top: 10%;
-			bottom: 10%;
 			left: 0;
 			right: 0;
-			background-size: 40px 100%;
-			background-position: -1000px 0;
-			background-image: url('/public/images/bigshine.png');
-			background-repeat: no-repeat;
+			top: 0;
+			top: auto;
 		}
-		.tipex {
-			color: white;
-			text-shadow: -2px 0 black, 0 2px black, 2px 0 black, 0 -2px black;
+		.poster2 img {
+			top: -100px;
+		}
+		.poster3 img {
+			top: -250px;
 		}
 		.W1 {
 			font-size: 160px;
 			line-height: 1em;
 		}
 		.W2 {
-			font-size: 80px;
+			font-size: 60px;
+		}
+		@media all and (min-width: 767px) and (max-width: 970px) {
+			.poster2 img {
+				top: -50px;
+			}
+			.poster3 img {
+				top: -150px;
+			}
+		}
+		@media all and (max-width: 768px) {
+			img.gopro {
+				width: 250px;
+				bottom: -14px;
+			}
+			.poster2 img {
+				top: 0;
+			}
+			.poster3 img {
+				top: 0;
+			}
 		}
 		@media all and (min-width: 480px) and (max-width: 768px) {
 			.W1 {
 				font-size: 100px;
+			}
+			.W2 {
+				font-size: 50px;
 			}
 		}
 		@media all and (max-width: 480px) {
@@ -111,7 +101,7 @@
 				font-size: 70px;
 			}
 			.W2 {
-				font-size: 50px;
+				font-size: 40px;
 			}
 		}
 		</style>
@@ -123,344 +113,166 @@
 		<?# def.facebook_init_body ?>
 	</div>
 
-	<a id="_"></a>
+	<div id="landing">
+		<div id="poster" style="position: relative">
 
-	<div id="nb_carousel" class="carousel slide filling">
-		<div class="carousel-inner filling">
-
-			<div class="active item filling bg_item1">
-				<div class="container text-left fntblk">
-					<h1 class="fntpaint tipex">
-						Cloud
-						<br class="visible-xs" />storage
-						<br class="visible-xs" />made
-					</h1>
-					<p class="W1 fntpaint tipex">SIMPLE</p>
-					<br/>
-					<h3>Terabytes of cloud storage</h3>
-					<h3>In under 60 seconds</h3>
-				</div>
+			<div class="poster1 poster filling text-center">
+				<img src="/public/images/bg_skate.jpg" />
+			</div>
+			<div class="poster2 poster filling text-center" style="display: none">
+				<img src="/public/images/bg_snow.jpg" />
+			</div>
+			<div class="poster3 poster filling text-center" style="display: none">
+				<img src="/public/images/bg_wave.jpg" />
 			</div>
 
-			<div class="item filling bg_item2">
-				<div class="container text-left fntwht">
-					<h1 class="fntpaint tipex">
-						Cloud
-						<br class="visible-xs" />storage
-						<br class="visible-xs" />made
-					</h1>
-					<p class="W1 fntpaint tipex">FAST</p>
-					<br/>
-					<h3>Stream HD movies</h3>
-					<h3>Directly from the cloud</h3>
+			<img src="/public/images/gopro.png" class="gopro" />
+
+			<div style="padding: 20px" class="text-center">
+				<div class="btn-group">
+					<a class="btn btn-primary" href="/">
+						<img src="/public/images/noobaa_logo.png" Xwidth="50px" height="18px"></img>
+						<small style="color: white">BETA</small>
+					</a>
+					<a href="#join" class="scroller btn btn-primary">
+						Sign In
+					</a>
 				</div>
 			</div>
-
-			<div class="item filling bg_item3">
-				<div class="container text-left fntwht">
-					<h1 class="fntpaint tipex">
-						Cloud
-						<br class="visible-xs" />storage
-						<br class="visible-xs" />made
-					</h1>
-					<p class="W1 fntpaint tipex">FREE</p>
-					<br/>
-					<h3>Free at any capacity</h3>
-					<h3>Try us</h3>
-				</div>
-			</div>
-
 		</div>
-		<ol class="carousel-indicators" style="top: 10px; bottom: auto">
-			<li data-target="#nb_carousel" data-slide-to="0" class="active"></li>
-			<li data-target="#nb_carousel" data-slide-to="1"></li>
-			<li data-target="#nb_carousel" data-slide-to="2"></li>
-		</ol>
-		<a class="carousel-control left" href="#nb_carousel" data-slide="prev">
-			<span class="icon-prev"></span>
-		</a>
-		<a class="carousel-control right" href="#nb_carousel" data-slide="next">
-			<span class="icon-next"></span>
-		</a>
-		<div style="position: absolute; bottom: 0; height: 140px; width: 100%">
-			<div class="container">
-				<a href="#join" nb-shine="{end: 200, step: 0.01, delay: 11000}" class="join-btn btn btn-danger btn-lg scroller">
-					<b>JOIN !</b>
+
+		<div class="text-center" style="padding: 30px 0">
+			<h1 class="fntpaint">
+				It's a once in a
+				<div style="display: inline-block; cursor: pointer" ng-click="switch_state()">
+					lifetime
+					<span id="verb" style="padding: 0 7px">ride</span>
+				</div>
+			</h1>
+			<p class="lead" style="padding-top: 20px">
+				Keep your GoPro memories safe
+			</p>
+			<div style="margin-top: 40px">
+				<a href="#join" class="scroller btn btn-primary btn-lg" style="margin: 0 20px 20px 0">
+					<b>Get started</b>&nbsp;
+					<i class="fntpaint">free</i>
 				</a>
-				&nbsp;
-				<a href="#whatis" class="scroller btn btn-default btn-lg">
-					Learn more <i class="fa fa-caret-down"></i>
+				<a href="#starting" class="scroller btn btn-default btn-transparent btn-lg" style="margin: 0 0 20px 0">
+					Show me more
 				</a>
 			</div>
 		</div>
 	</div>
 
-	<div id="nb_nav_marker"></div>
 
-	<nav id="nb_nav" class="navbar navbar-inverse navbar-fixed-bottom welcome_navbar" role="navigation" onresize="nb_nav_affix = undefined;">
+	<div id="starting">
 		<div class="container">
-			<div class="navbar-header">
-				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
-					<span class="sr-only">Toggle navigation</span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-				</button>
-				<a class="navbar-brand scroller" href="#_">
-					<img src="/public/images/noobaa_logo.png"></img>
-				</a>
+			<div class="starting-section">
+				<div class="text-left">
+					<h2 class="fntpaint">Protect your memories</h2>
+					<p>Backup everything, space is not an issue</p>
+				</div>
+				<div class="center-block" style="max-width: 1000px">
+					<img src="/public/images/bg_fall.jpg" class="img-circle img-responsive" />
+				</div>
 			</div>
-			<div class="collapse navbar-collapse navbar-ex1-collapse">
-				<ul class="nav navbar-nav navbar-right">
-					<li class="shining">
-						<div class="shiner"></div>
-						<a href="#whatis" class="scroller navbar-link">
-							<b>ABOUT</b>
-						</a>
-					</li>
-					<li class="shining">
-						<div class="shiner"></div>
-						<a href="#vision" class="scroller navbar-link">
-							<b>VISION</b>
-						</a>
-					</li>
-					<li class="shining">
-						<div class="shiner"></div>
-						<a href="#join" class="join-btn scroller navbar-link">
-							<b>JOIN</b>
-						</a>
-					</li>
-					<li class="shining">
-						<div class="shiner"></div>
-
-						<?? it.user ?>
-							<a href="/home/" class="scroller navbar-link">
-								<b>LOGIN</b>
-							</a>
-							<????>
-								<a href="#join" class="scroller">
-									<b>LOGIN</b>
-								</a>
-								<???>
-
-					</li>
-				</ul>
+			<div class="starting-section">
+				<div class="text-left">
+					<h2 class="fntpaint">Share with your friends</h2>
+					<p>Showoff to your Facebook / Google+ friends</p>
+				</div>
+				<div class="center-block" style="max-width: 1000px">
+					<img src="/public/images/bg_bike.jpg" class="img-circle img-responsive" />
+				</div>
+			</div>
+			<div class="starting-section">
+				<div class="text-left">
+					<h2 class="fntpaint">Shared with me</h2>
+					<p>Your friends can give you awesome things</p>
+				</div>
+				<div class="center-block" style="max-width: 1000px">
+					<img src="/public/images/bg_rock.jpg" class="img-circle img-responsive" />
+				</div>
+			</div>
+			<div class="starting-section">
+				<div class="text-left">
+					<h2 class="fntpaint">Watch from any device</h2>
+					<p>HD streaming, 4K ready</p>
+				</div>
+				<div class="center-block text-center" style="max-width: 1000px">
+					<img src="/public/images/ultrahd.jpg" class="img-rounded img-responsive" />
+				</div>
 			</div>
 		</div>
+	</div>
 
-	</nav>
-
-	<div id="whatis" class="nb_nav_link bgdark bgdark-image border-danger text-white" style="border-top: 5px solid; border-bottom: 5px solid">
-		<div class="container">
-			<div>
-				<p class="W2 fntpaint tipex">WHAT IS NOOBAA?</p>
-			</div>
-
-			<div class="row">
-				<div class="col-sm-6">
-					<h3>
-						Regular cloud services are good for storing documents. NooBaa is for all the rest.
-					</h3>
-					<p class="fntmd">
-						Get more space anytime you want using free space on your existing hard drive. With so much free capacity in hand, you can fit all your data in one location. NooBaa is perfect for media files which no other cloud can handle.
-					</p>
-				</div>
-				<div class="col-sm-6 text-center">
-					<br/>
-					<i class="W1 icon-cloud-upload text-border-danger"></i>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-sm-6 text-center">
-					<br/>
-					<i class="W1 icon-camera-retro text-border-danger"></i>
-				</div>
-				<div class="col-sm-6">
-					<h3>Who should use NooBaa?</h3>
-					<p class="fntmd">
-						Anyone who has lots of extreme digital data like pictures and movies, and can't afford spending $100 a month on storage.
-					</p>
-					<p class="fntmd">
-						Your files can be accesible from anywhere, protected from disk failures, and easily shared with your friends, and it's free!
-					</p>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-sm-6">
-					<h3>What can I store on NooBaa?</h3>
-					<p class="fntmd">
-						You can store all your files on NooBaa.
-					</p>
-					<p class="fntmd">
-						Your files stay private in your account and since it's free you don't need to think if you should store it on the cloud or not.
-					</p>
-					<p class="fntmd">
-						You don't need to worry about backups - your data is already protected by data redundancy and accesible directly from the cloud.
-					</p>
-				</div>
-				<div class="col-sm-6 text-center">
-					<br/>
-					<i class="W1 icon-music text-border-danger"></i>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-sm-6 text-center">
-					<br/>
-					<i class="W1 icon-magic text-border-danger"></i>
-				</div>
-				<div class="col-sm-6">
-					<h3>How does NooBaa work?</h3>
-					<p class="fntmd">
-						It's really simple:
-						<br/>Allocate 100GB on your local hard drive.
-						<br/>Get 100GB of protected, fast, always accessible cloud storage for free.
-					</p>
-					<p class="fntmd">
-						The more you allocate, the more space you get and better performance.
-					</p>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-sm-6">
-					<h3>Under the hood</h3>
-					<p class="fntmd">
-						NooBaa is a computer resources co-sharing solution.
-					</p>
-					<p class="fntmd">
-						It uses the hard disk space allocated on its members computers' to store encrypted chunks of binary data which composes a very big pool of storage. Trying to access the local allocation is equivalent to trying to read a document from a pile of shredded paper in a waste disposal site.
-					</p>
-					<p class="fntmd">
-						When users add files to their account, NooBaa stores the file data using the entire pool of storage by encrypting and spreading the data chunks.
-					</p>
-					<p class="fntmd">
-						When users access a file, NooBaa reconstructs the file and send it to the user over a secure connection. As each file is spread across many locations, it is protected against hardware failure, theft, etc. and the performance is not bounded by a single stream to the Internet.
-					</p>
-				</div>
-				<div class="col-sm-6 text-center">
-					<br/>
-					<i class="W1 icon-cogs text-border-danger"></i>
-				</div>
-			</div>
-			<br/>
-
-			<!-- FAQ section -->
-			<div ng-controller="HelpCtrl">
-				<div id="faq" ng-repeat="(sec_idx, curr_faq_section) in faq">
-					<div class="text-center">
-						<a class="btn btn-default" data-toggle="collapse" href="#curr_faq_section_content{{sec_idx}}" style="width: 380px">
-							<b>{{curr_faq_section.title}}</b>
-							<i class="caret"></i>
-						</a>
-					</div>
-					<br/>
-					<div id="curr_faq_section_content{{sec_idx}}" class="collapse text-left">
-						<div ng-repeat="(idx, question) in curr_faq_section.questions" style="border-radius: 10px/10px; 
-						border: 1px solid #eeeeee; 
-						margin: 10px;
-						padding: 0 20px 0 20px">
-							<a data-toggle="collapse" href="#curr_faq_section_question{{idx}}{{sec_idx}}">
-								<p>
-									<!-- for border alignment -->
-								</p>
-								<p class="fnt fntmd">
-									<i class="icon-plus icon-fixed-width"></i>
-									{{question.q}}
-								</p>
+	<div id="join-page">
+		<div id="join" class="label-primary">
+			<div class="container">
+				<h1 class="fntpaint text-center" style="padding-bottom: 30px">Sign In</h1>
+				<p class="text-center text-white">Where are your friends - Facebook or Google+?</p>
+				<p class="text-center text-white">
+					<small>(We ask for minimal permissions and will not post anything in your name unless you request)</small>
+				</p>
+				<div class="row" style="padding: 30px; 0">
+					<div class="col-sm-6" style="padding: 20px 0">
+						<div class="text-center">
+							<a ng-click="nbUser.login_facebook()" Xhref="/auth/facebook/login/">
+								<img src="/public/images/facebook_signup_button_big.png" style="width: 300px"></img>
 							</a>
-							<div class="collapse" id="curr_faq_section_question{{idx}}{{sec_idx}}">
-								<p class="fnt fntmd">{{question.a}}</p>
-							</div>
+							<br/>
+							<div class="fb-login-button" data-show-faces="true" data-max-rows="1"></div>
+						</div>
+					</div>
+					<div class="col-sm-6" style="padding: 20px 0">
+						<div class="text-center">
+							<a ng-click="nbUser.login_google()" Xhref="/auth/google/login/">
+								<img src="/public/images/google_login_buttin_big.jpg" style="width: 300px"></img>
+							</a>
 						</div>
 					</div>
 				</div>
 			</div>
-			<!-- End of FAQ section -->
-			<br/>
 		</div>
-	</div>
 
-	<div class="wfill bg_bike"></div>
-
-	<div id="vision" class="nb_nav_link bgdark bgdark-image border-danger text-white" style="border-top: 5px solid; border-bottom: 5px solid">
-		<div class="container">
-			<div>
-				<p class="W2 fntpaint tipex">NOOBAA'S VISION</p>
-			</div>
-			<h2>In a world of connected devices, the crowd is the strongest force!</h2>
-			<p class="fntmd">
-				<br/>Joining our devices together will create a network that can make an impact on every aspect of our life - health, science, engineering, etc. We believe that such a world should be controlled by the people.
-				<br/>
-				<br/>Noobaa aims to democratize the cloud.
-				<br/>What might seem improbable, will soon become inevitable.
-				<br/>
-				<br/>
-				<br/>
-				<br/>
-			</p>
-		</div>
-	</div>
-
-	<div class="wfill bg_fall"></div>
-
-	<div id="join" class="nb_nav_link bgdark bgdark-image border-danger fnt" style="border-top: 5px solid; border-bottom: 5px solid">
-		<div class="container text-center" style="margin-bottom: 40px">
-			<div class="W2 fntpaint text-center tipex">JOIN US !</div>
-			<br/>
-			<div class="text-center" style="border: 1px solid #ccc; width: 380px; padding: 20px;
-				border-radius: 7px/7px;	margin-left: auto; margin-right: auto;">
-				<a ng-click="nbUser.login_facebook()" Xhref="/auth/facebook/login/">
-					<img onmouseover="$('body').chardinJs('start')" onmouseout="$('body').chardinJs('stop')" data-intro="Easily share with your Facebook friends" data-position="left" src="/public/images/facebook_signup_button_big.png" style="width: 100%"></img>
-				</a>
-				<div style="height: 1px; background-color: #ccc; text-align: center; margin: 30px 0 30px 0">
-					<span class="bgdark text-white" style="Xbackground-color: inherit; position: relative; top: -0.75em; padding: 10px">OR</span>
+		<div id="links">
+			<div class="container">
+				<div class="col-sm-3">
+					<a href="https://www.facebook.com/NoobaaTeam" target="_blank" class="btn btn-link">
+						Facebook
+					</a>
+					<br/>
+					<a href="https://twitter.com/TheNooBaa" target="_blank" class="btn btn-link">
+						Twitter
+					</a>
 				</div>
-				<a ng-click="nbUser.login_google()" Xhref="/auth/google/login/">
-					<img onmouseover="$('body').chardinJs('start')" onmouseout="$('body').chardinJs('stop')" data-intro="Easily share with your Google Plus friends" data-position="right" src="/public/images/google_login_buttin_big.jpg" style="width: 100%"></img>
-
-				</a>
+				<div class="col-sm-3">
+					<a href="https://www.google.com/+Noobaa" target="_blank" class="btn btn-link">
+						Google+
+					</a>
+					<br/>
+					<a href="https://www.youtube.com/user/TheNoobaa" target="_blank" class="btn btn-link">
+						Youtube
+					</a>
+				</div>
+				<div class="col-sm-3">
+					<a href="/blog/" class="btn btn-link">
+						Blog
+					</a>
+					<br/>
+					<a href="/about/" class="btn btn-link">
+						About
+					</a>
+				</div>
 			</div>
-			<br/>
-		</div>
-
-		<div class="wfill text-center" style="padding: 20px; margin-bottom: 100px">
-			<a href="https://www.facebook.com/NoobaaTeam" target="_blank" class="btn btn-link">
-				<span class="fa-stack fa-2x">
-					<i class="fa fa-circle fa-stack-2x"></i>
-					<i class="fa fa-facebook fa-stack-1x" style="color: hsl(222, 37%, 47%)"></i>
-				</span>
-			</a>
-			<a href="https://twitter.com/TheNooBaa" target="_blank" class="btn btn-link">
-				<span class="fa-stack fa-2x">
-					<i class="fa fa-circle fa-stack-2x"></i>
-					<i class="fa fa-twitter fa-stack-1x" style="color: hsl(212, 100%, 63%)"></i>
-				</span>
-			</a>
-			<a href="https://www.google.com/+Noobaa" target="_blank" class="btn btn-link">
-				<span class="fa-stack fa-2x">
-					<i class="fa fa-circle fa-stack-2x"></i>
-					<i class="fa fa-google-plus fa-stack-1x" style="color: hsl(7, 64%, 52%)"></i>
-				</span>
-			</a>
-			<a href="https://www.youtube.com/user/TheNoobaa" target="_blank" class="btn btn-link">
-				<span class="fa-stack fa-2x">
-					<i class="fa fa-circle fa-stack-2x"></i>
-					<i class="fa fa-youtube fa-stack-1x" style="color: hsl(358, 79%, 45%)"></i>
-				</span>
-			</a>
 		</div>
 	</div>
 
-
-	<a id="chrome_link" ng-show="need_chrome_ref" href="https://www.google.com/intl/en_us/chrome/browser/" target="_blank" title="Best with Chrome">
-		<img alt="Chrome" src="/public/images/chrome_icon.png" />
-	</a>
 
 	<div>
 		<?# def.include( 'common_scripts.html') ?>
 	</div>
 
-	<script src="/vendor/chardin.js/chardinjs.min.js" type="text/javascript"></script>
-	<script src="/public/js/help.js" type="text/javascript"></script>
 	<script src="/public/js/nb_user.js" type="text/javascript"></script>
 
 	<script type="text/javascript">
@@ -469,96 +281,73 @@
 
 		var noobaa_app = angular.module('noobaa_app');
 
-		var nb_nav_affix = undefined;
-
-		// jquery init
-		$(function() {
-
-			var nb_carousel = $('#nb_carousel');
-			var nb_nav = $('#nb_nav');
-			var nb_nav_marker = $('#nb_nav_marker');
-			var nb_nav_links = $('.nb_nav_link');
-
-			var refresh_nav = function() {
-				// invalidate the cached value of the nav affix
-				nb_nav_affix = undefined;
-				// when the nav resizes we need to make room for it
-				// at the top of each nav link.
-				// so set the top padding according to the nav size.
-				nb_nav_links.css({
-					"padding-top": (nb_nav.height() + 30) + 'px'
-				});
-			};
-
-			// returns the affix top of the nav which indicates 
-			// at which scroll point to fixate the nav to the top.
-			// we cache the value because during scrolling it will ask many times.
-			var get_nav_affix = function() {
-				if (nb_nav_affix === undefined) {
-					nb_nav_affix = nb_nav_marker.offset().top - nb_nav.height();
-				}
-				return nb_nav_affix;
-			};
-
-			// refresh now - onload
-			// refresh_nav();
-			// refresh on window resize
-			// $(window).resize(refresh_nav);
-			// refresh every second
-			// setInterval(refresh_nav, 1000);
-			// setup the bootstrap affix plugin on the nav
-			// nb_nav.affix({offset: {top: get_nav_affix} });
-
-			// start spinning the carousel
-			nb_carousel.carousel({
-				interval: 10000,
-				pause: false
-			});
-
-			// do smooth scrolling to anchors with href
-			var $root = $('html, body');
-			$('.scroller').click(function() {
-				var href = $.attr(this, 'href');
-				$root.animate({
-					scrollTop: $(href).offset().top
-				}, 400, function() {
-					window.location.hash = href;
-				});
-				return false;
-			});
-
-			/*
-			$('.shining').hover(function() {
-				var s = $(this).find('.shiner');
-				var w = $(this).outerWidth();
-				s.stop();
-				s.css({
-					'background-position-x': '-40px'
-				});
-				s.animate({
-					'background-position-x': w + 100 + 'px'
-				}, 800);
-			}, function() {
-				// nop
-			});
-			*/
-
-			$('.join-btn').click(function() {
-				$('body').chardinJs('start');
-			});
-		});
-
 		noobaa_app.controller('WelcomeCtrl', [
-			'$scope', '$location', '$anchorScroll', 'nbUser',
+			'$scope', '$location', '$anchorScroll', '$timeout', '$interval', 'nbUser',
 
-			function($scope, $location, $anchorScroll, nbUser) {
+			function($scope, $location, $anchorScroll, $timeout, $interval, nbUser) {
 				$scope.nbUser = nbUser;
 				$scope.need_chrome_ref = !bowser.chrome;
 				$anchorScroll();
 				$scope.scroll = function(hash) {
+					console.log('SCROLL', hash);
 					$location.hash(hash);
 					$anchorScroll();
 				};
+
+				var landing_element = $('#landing');
+				var verb_element = landing_element.find('#verb');
+				var states = [{
+					verb: 'ride',
+					verb_class: 'text-primary',
+					btn: 'btn-primary',
+					bg: landing_element.find('.poster1'),
+				}, {
+					verb: 'jump',
+					verb_class: 'text-danger',
+					btn: 'btn-danger',
+					bg: landing_element.find('.poster2'),
+				}, {
+					verb: 'wave',
+					verb_class: 'text-warning',
+					btn: 'btn-warning',
+					bg: landing_element.find('.poster3'),
+				}];
+				var state_num = 0;
+
+				function switch_state() {
+					if ($scope.switch_state_timeout) {
+						$timeout.cancel($scope.switch_state_timeout);
+					}
+					$scope.switch_state_timeout = $timeout(switch_state, 15000);
+					var curr = state_num;
+					var next = (state_num + 1) % states.length;
+					state_num = next;
+					$.when(verb_element.fadeOut(400)).then(function() {
+						verb_element.text(states[next].verb);
+						// verb_element.switchClass(states[curr].verb_class, states[next].verb_class);
+						return verb_element.fadeIn(1000);
+					});
+					states[curr].bg.fadeOut(2000);
+					states[next].bg.fadeIn(2000);
+					landing_element.find('.' + states[curr].btn).switchClass(states[curr].btn, states[next].btn, 2000);
+				}
+				$scope.switch_state_timeout = $timeout(switch_state, 20000);
+				$scope.switch_state = switch_state;
+
+				// do smooth scrolling to anchors with href
+				var html_body = $('html, body');
+				$('.scroller').click(function() {
+					var href = $.attr(this, 'href');
+					console.log('SCROLL', href);
+					html_body.animate({
+						scrollTop: $(href).offset().top
+					}, 500, function() {
+						// window.location.hash = href;
+					});
+					return false;
+				});
+
+				$('body').children().hide().fadeIn(3000);
 			}
 		]);
 	})();
