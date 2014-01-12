@@ -8,8 +8,10 @@
 				<div class="btn-group">
 					<a class="btn btn-link dropdown-toggle" data-toggle="dropdown" title="Back to folder..." rel="tooltip" nb-tooltip="{container: 'body'}" ng-disabled="!has_parent(current_inode)">
 						<span style="font-size: 1.2em; line-height: 1.2em; vertical-align: middle">
-							<span ng-show="has_parent(current_inode)">. . . /</span>
-							<span ng-hide="has_parent(current_inode)" class="text-muted">(top)</span>
+							<span ng-show="has_parent(current_inode)">. . . &nbsp; /</span>
+							<span ng-hide="has_parent(current_inode)" class="text-muted">
+								<i class="fa fa-home fa-lg"></i>
+							</span>
 						</span>
 					</a>
 					<ul ng-if="has_parent(current_inode)" class="dropdown-menu" role="menu">

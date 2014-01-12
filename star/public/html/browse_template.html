@@ -3,37 +3,45 @@
 	<div class="panel panel-default">
 		<div class="panel-heading Xbggrey clearfix" style="padding: 0 10px 2px 10px">
 			<div class="clearfix" style="padding: 7px 0">
-				<button class="btn btn-default Xbtn-sm" ng-click="go_up_level()" ng-disabled="!has_parent(current_inode)" title="Back to previous folder" rel="tooltip" nb-tooltip="{container: 'body'}">
-					<i class="fa fa-caret-left fa-fw fa-lg"></i>
-				</button>
 				<div class="btn-group">
 					<a class="btn btn-link dropdown-toggle" data-toggle="dropdown" title="Back to folder..." rel="tooltip" nb-tooltip="{container: 'body'}" ng-disabled="!has_parent(current_inode)">
 						<span style="font-size: 1.2em; line-height: 1.2em; vertical-align: middle">
 							<span ng-show="has_parent(current_inode)">. . . &nbsp; /</span>
-							<span ng-hide="has_parent(current_inode)" class="text-muted">(top)</span>
+							<span ng-hide="has_parent(current_inode)" class="text-muted">
+								<i class="fa fa-home fa-lg"></i>
+							</span>
 						</span>
 					</a>
 					<ul ng-if="has_parent(current_inode)" class="dropdown-menu" role="menu">
 						<li ng-repeat="parent in path = (nbInode.parents_path(current_inode)).reverse()">
 							<a ng-click="open_inode(parent)" style="padding-left: {{10+((path.length-1-$index) * 10)}}px">
-								<i class="fa fa-folder-open fa-fw"></i>
+								<i class="fa fa-{{$last && 'home' || 'folder-open'}} fa-fw"></i>
 								{{parent.name}}
 							</a>
 						</li>
 					</ul>
 				</div>
-				<span style="display: inline; padding: 10px 5px; font-size: 1.5em; line-height: 1.5em; vertical-align: middle" class="text-primary">
+				<h2 style="display: inline; padding: 10px 5px; font-size: 1.5em; line-height: 1.5em; vertical-align: middle" Xclass="text-primary">
 					<span style="white-space: pre-wrap">{{current_inode.name}}</span>
-				</span>
+				</h2>
 				<span ng-if="current_inode.is_loading">
 					<i class="fa fa-refresh fa-spin fa-fw"></i>
 				</span>
 			</div>
 			<div class="file_actions" ng-show="has_parent(current_inode)">
+				<div class="btn-group">
+				<a class="btn btn-default" ng-click="go_up_level()" title="Back to previous folder" rel="tooltip" nb-tooltip="{container: 'body'}">
+					<i class="fa fa-caret-left fa-fw fa-lg"></i>
+				</a>
 				<a ng-show="has_parent(current_inode)" class="btn btn-default" ng-show="current_inode.isdir" ng-click="open_inode(current_inode)">
 					<i class="fa fa-refresh fa-fw fa-lg"></i>
 					<!-- Refresh -->
 				</a>
+				<a class="btn btn-default" ng-if="nbInode.can_upload_to_dir(current_inode)" ng-click="new_folder(current_inode)">
+					<i class="fa fa-plus fa-fw fa-lg"></i>
+					<!-- New Folder -->
+				</a>
+				</div>
 				<a ng-show="!current_inode.is_previewing && !current_inode.isdir" class="btn btn-default" ng-click="toggle_preview(current_inode)">
 					<i class="fa fa-search-plus fa-fw fa-lg"></i>
 					<!-- Show Preview -->
@@ -49,10 +57,6 @@
 				<a class="btn btn-primary" ng-show="!current_inode.isdir && !current_inode.uploading && current_inode.size" ng-click="nbInode.download_inode(current_inode)" href="{{nbInode.inode_api_url(current_inode.id)}}?is_download=true" target="_blank">
 					<i class="fa fa-cloud-download fa-fw fa-lg"></i>
 					<!-- Download -->
-				</a>
-				<a class="btn btn-default" ng-show="nbInode.can_upload_to_dir(current_inode)" ng-click="new_folder(current_inode)">
-					<i class="fa fa-plus fa-fw fa-lg"></i>
-					<!-- New Folder -->
 				</a>
 				<a class="btn btn-success" ng-show="nbInode.can_upload_to_dir(current_inode)" ng-click="nbUploadSrv.open_file_input()">
 					<i class="fa fa-cloud-upload fa-fw fa-lg"></i>

@@ -42,18 +42,21 @@ html, body {
 .btn.btn-default.btn-transparent {
 	background-color: hsla(0, 0%, 0%, 0.2) !important;
 	color: #eee !important;
-	border: white solid 2px;
+	border: white solid 2px !important;
 }
 .btn.btn-default.btn-transparent:hover {
 	background-color: hsla(0, 0%, 40%, 0.2) !important;
 	color: white !important;
-	border: white solid 2px;
+	border: white solid 2px !important;
 }
-.btn.btn-default {
-	background-color: hsl(0, 0%, 70%) !important;
+.panel-default .panel-heading {
+	background-color: hsl(0, 0%, 33%);
 }
-.btn.btn-default:hover {
-	background-color: hsl(0, 0%, 60%) !important;
+.btn {
+	border-radius: 20px;
+}
+.btn-lg {
+	border-radius: 30px;
 }
 /* COLOR LIGHT BLUE:
 hsl(212, 41%, 71%)
