@@ -23,6 +23,16 @@
 			padding: 20px 0 100px 0;
 			border-top: hsl(0, 0%, 15%) 1px solid;
 		}
+		#join-page {
+			min-height: 100%;
+		}
+		#join {
+			padding: 50px 0 100px 0;
+		}
+		#links {
+			padding: 20px 0 20px 0;
+			border-top: hsl(0, 0%, 15%) 1px solid;
+		}
 		#starting .starting-section > div {
 			padding-top: 30px;
 		}
@@ -50,12 +60,6 @@
 		}
 		.poster3 img {
 			top: -250px;
-		}
-		.tipex {
-			color: white;
-			/*text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;*/
-			/*text-shadow: -2px 0 #888, 0 2px #888, 2px 0 #888, 0 -2px #888;*/
-			/*text-shadow: -2px 0 black, 0 2px black, 2px 0 black, 0 -2px black;*/
 		}
 		.W1 {
 			font-size: 160px;
@@ -131,17 +135,14 @@
 						<small style="color: white">BETA</small>
 					</a>
 					<a href="#join" class="scroller btn btn-primary">
-						Sign Up
-					</a>
-					<a class="btn btn-primary" href="/home/">
-						Log In
+						Sign In
 					</a>
 				</div>
 			</div>
 		</div>
 
 		<div class="text-center" style="padding: 30px 0">
-			<h1 class="fntpaint tipex">
+			<h1 class="fntpaint">
 				It's a once in a
 				<div style="display: inline-block; cursor: pointer" ng-click="switch_state()">
 					lifetime
@@ -199,62 +200,73 @@
 					<p>HD streaming, 4K ready</p>
 				</div>
 				<div class="center-block text-center" style="max-width: 1000px">
-					<img src="/public/images/play_video.png" class="img-circle img-responsive" />
+					<img src="/public/images/ultrahd.jpg" class="img-rounded img-responsive" />
 				</div>
 			</div>
 		</div>
 	</div>
 
-
-
-	<div id="join" class="nb_nav_link bgdark bgdark-image border-danger fnt" style="border-top: 5px solid; border-bottom: 5px solid">
-		<div class="container text-center" style="margin-bottom: 40px">
-			<div class="W2 fntpaint text-center tipex">JOIN US !</div>
-			<br/>
-			<div class="text-center" style="border: 1px solid #ccc; width: 340px; padding: 20px;
-				border-radius: 7px/7px;	margin-left: auto; margin-right: auto;">
-				<a ng-click="nbUser.login_facebook()" Xhref="/auth/facebook/login/">
-					<img onmouseover="$('body').chardinJs('start')" onmouseout="$('body').chardinJs('stop')" data-intro="Easily share with your Facebook friends" data-position="left" src="/public/images/facebook_signup_button_big.png" style="width: 100%"></img>
-				</a>
-				<div style="height: 1px; background-color: #ccc; text-align: center; margin: 30px 0 30px 0">
-					<span class="bgdark text-white" style="Xbackground-color: inherit; position: relative; top: -0.75em; padding: 10px">OR</span>
+	<div id="join-page">
+		<div id="join" class="label-primary">
+			<div class="container">
+				<h1 class="fntpaint text-center" style="padding-bottom: 30px">Sign In</h1>
+				<p class="text-center text-white">Where are your friends - Facebook or Google+?</p>
+				<p class="text-center text-white">
+					<small>(We ask for minimal permissions and will not post anything in your name unless you request)</small>
+				</p>
+				<div class="row" style="padding: 30px; 0">
+					<div class="col-sm-6" style="padding: 20px 0">
+						<div class="text-center">
+							<a ng-click="nbUser.login_facebook()" Xhref="/auth/facebook/login/">
+								<img src="/public/images/facebook_signup_button_big.png" style="width: 300px"></img>
+							</a>
+							<br/>
+							<div class="fb-login-button" data-show-faces="true" data-max-rows="1"></div>
+						</div>
+					</div>
+					<div class="col-sm-6" style="padding: 20px 0">
+						<div class="text-center">
+							<a ng-click="nbUser.login_google()" Xhref="/auth/google/login/">
+								<img src="/public/images/google_login_buttin_big.jpg" style="width: 300px"></img>
+							</a>
+						</div>
+					</div>
 				</div>
-				<a ng-click="nbUser.login_google()" Xhref="/auth/google/login/">
-					<img onmouseover="$('body').chardinJs('start')" onmouseout="$('body').chardinJs('stop')" data-intro="Easily share with your Google Plus friends" data-position="right" src="/public/images/google_login_buttin_big.jpg" style="width: 100%"></img>
-
-				</a>
 			</div>
-			<br/>
 		</div>
 
-		<div class="wfill text-center" style="padding: 20px; margin-bottom: 100px">
-			<a href="https://www.facebook.com/NoobaaTeam" target="_blank" class="btn btn-link">
-				<span class="fa-stack fa-2x">
-					<i class="fa fa-circle fa-stack-2x"></i>
-					<i class="fa fa-facebook fa-stack-1x" style="color: hsl(222, 37%, 47%)"></i>
-				</span>
-			</a>
-			<a href="https://twitter.com/TheNooBaa" target="_blank" class="btn btn-link">
-				<span class="fa-stack fa-2x">
-					<i class="fa fa-circle fa-stack-2x"></i>
-					<i class="fa fa-twitter fa-stack-1x" style="color: hsl(212, 100%, 63%)"></i>
-				</span>
-			</a>
-			<a href="https://www.google.com/+Noobaa" target="_blank" class="btn btn-link">
-				<span class="fa-stack fa-2x">
-					<i class="fa fa-circle fa-stack-2x"></i>
-					<i class="fa fa-google-plus fa-stack-1x" style="color: hsl(7, 64%, 52%)"></i>
-				</span>
-			</a>
-			<a href="https://www.youtube.com/user/TheNoobaa" target="_blank" class="btn btn-link">
-				<span class="fa-stack fa-2x">
-					<i class="fa fa-circle fa-stack-2x"></i>
-					<i class="fa fa-youtube fa-stack-1x" style="color: hsl(358, 79%, 45%)"></i>
-				</span>
-			</a>
+		<div id="links">
+			<div class="container">
+				<div class="col-sm-3">
+					<a href="https://www.facebook.com/NoobaaTeam" target="_blank" class="btn btn-link">
+						Facebook
+					</a>
+					<br/>
+					<a href="https://twitter.com/TheNooBaa" target="_blank" class="btn btn-link">
+						Twitter
+					</a>
+				</div>
+				<div class="col-sm-3">
+					<a href="https://www.google.com/+Noobaa" target="_blank" class="btn btn-link">
+						Google+
+					</a>
+					<br/>
+					<a href="https://www.youtube.com/user/TheNoobaa" target="_blank" class="btn btn-link">
+						Youtube
+					</a>
+				</div>
+				<div class="col-sm-3">
+					<a href="/blog/" class="btn btn-link">
+						Blog
+					</a>
+					<br/>
+					<a href="/about/" class="btn btn-link">
+						About
+					</a>
+				</div>
+			</div>
 		</div>
 	</div>
-
 
 
 	<div>
@@ -319,7 +331,7 @@
 					states[next].bg.fadeIn(2000);
 					landing_element.find('.' + states[curr].btn).switchClass(states[curr].btn, states[next].btn, 2000);
 				}
-				$scope.switch_state_timeout = $timeout(switch_state, 15000);
+				$scope.switch_state_timeout = $timeout(switch_state, 20000);
 				$scope.switch_state = switch_state;
 
 				// do smooth scrolling to anchors with href
@@ -329,11 +341,13 @@
 					console.log('SCROLL', href);
 					html_body.animate({
 						scrollTop: $(href).offset().top
-					}, 400, function() {
+					}, 500, function() {
 						// window.location.hash = href;
 					});
 					return false;
 				});
+
+				$('body').children().hide().fadeIn(3000);
 			}
 		]);
 	})();
