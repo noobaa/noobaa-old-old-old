@@ -85,7 +85,7 @@
 		</div>
 
 		<div class="panel-body" style="padding: 0; border-top-width: 1px; border-top-style: solid">
-			<div ng-repeat="inode in filter_entries = ( current_inode.entries | filter:{name: search_in_folder} )" class="file_line notextselect {{inode.is_selected && 'bgdark' || ''}}" style="border-bottom-width: 1px; border-top-width: 1px">
+			<div ng-repeat="inode in filter_entries = ( current_inode.entries | filter:{name: search_in_folder} )" class="file_line notextselect {{inode.is_selected && 'bggrey' || ''}}" style="border-bottom-width: 1px; border-top-width: 1px">
 				<div class="clearfix" ng-click="select_inode(inode, $index, $event)">
 					<span class="text-wrap">
 						<i ng-show="!!inode.isdir" class="fa fa-folder-open fa-fw fa-lg text-muted"></i>
