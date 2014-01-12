@@ -4,37 +4,31 @@
 <head>
 	<?# def.include( 'common_head.html') ?>
 		<style>
-		#landing {
-			margin-bottom: 50px;
-			min-height: 100%;
+		.full-page {
+			position: relative;
 		}
-		#landing #poster {
-			height: 450px;
+		.poster {
+			z-index: -10;
+			overflow: hidden;
+			position: absolute;
+			top: 0;
+			bottom: 0;
+			left: 0;
+			right: 0;
+		}
+		.poster img {
+			z-index: -10;
+			position: absolute;
+			right: 0;
+			top: 0;
+			left: auto;
+			bottom: auto;
+			min-width: 500px;
+			min-width: 100%;
+			min-height: 500px;
+			min-height: 100%;
 			max-width: 1400px;
-			margin-right: auto;
-			margin-left: auto;
-		}
-		@media all and (max-height: 700px) {
-			#landing #poster {
-				height: 320px;
-			}
-		}
-		#starting {
-			padding: 20px 0 100px 0;
-			border-top: hsl(0, 0%, 15%) 1px solid;
-		}
-		#join-page {
-			min-height: 100%;
-		}
-		#join {
-			padding: 50px 0 100px 0;
-		}
-		#links {
-			padding: 20px 0 20px 0;
-			border-top: hsl(0, 0%, 15%) 1px solid;
-		}
-		#starting .starting-section > div {
-			padding-top: 30px;
+			max-width: 120%;
 		}
 		img.gopro {
 			width: 350px;
@@ -42,67 +36,19 @@
 			left: -30px;
 			bottom: -17px;
 		}
-		.poster {
-			overflow: hidden;
-			position: absolute;
-		}
-		.poster img {
-			width: 100%;
-			min-height: 100%;
-			position: absolute;
-			left: 0;
-			right: 0;
-			top: 0;
-			top: auto;
-		}
-		.poster2 img {
-			top: -100px;
-		}
-		.poster3 img {
-			top: -250px;
-		}
-		.W1 {
-			font-size: 160px;
-			line-height: 1em;
-		}
-		.W2 {
-			font-size: 60px;
-		}
 		@media all and (min-width: 767px) and (max-width: 970px) {
-			.poster2 img {
-				top: -50px;
-			}
-			.poster3 img {
-				top: -150px;
-			}
 		}
 		@media all and (max-width: 768px) {
 			img.gopro {
 				width: 250px;
 				bottom: -14px;
 			}
-			.poster2 img {
-				top: 0;
-			}
-			.poster3 img {
-				top: 0;
-			}
 		}
-		@media all and (min-width: 480px) and (max-width: 768px) {
-			.W1 {
-				font-size: 100px;
-			}
-			.W2 {
-				font-size: 50px;
-			}
+		.W1 {
+			font-size: 5em;
 		}
-		@media all and (max-width: 480px) {
-			.W1 {
-				font-size: 70px;
-			}
-			.W2 {
-				font-size: 40px;
-			}
+		.shades {
+			text-shadow: 1px 3px 3px black
 		}
 		</style>
 </head>
@@ -113,110 +59,153 @@
 		<?# def.facebook_init_body ?>
 	</div>
 
-	<div id="landing">
-		<div id="poster" style="position: relative">
-
-			<div class="poster1 poster filling text-center">
-				<img src="/public/images/bg_skate.jpg" />
-			</div>
-			<div class="poster2 poster filling text-center" style="display: none">
-				<img src="/public/images/bg_snow.jpg" />
-			</div>
-			<div class="poster3 poster filling text-center" style="display: none">
-				<img src="/public/images/bg_wave.jpg" />
-			</div>
-
-			<img src="/public/images/gopro.png" class="gopro" />
-
-			<div style="padding: 20px" class="text-center">
-				<div class="btn-group">
-					<a class="btn btn-primary" href="/">
-						<img src="/public/images/noobaa_logo.png" Xwidth="50px" height="18px"></img>
-						<small style="color: white">BETA</small>
-					</a>
-					<a href="#join" class="scroller btn btn-primary">
-						Sign In
-					</a>
-				</div>
-			</div>
+	<div class="filling full-page" id="page0">
+		<div class="container" style="padding-top: 20px; padding-bottom: 20px">
+			<a href="/">
+				<img src="/public/images/noobaa_logo.png" height="50px"></img>
+				<small style="color: white">BETA</small>
+			</a>
+			<a href="#join" class="scroller btn btn-default btn-transparent pull-right">							Sign In
+			</a>
 		</div>
 
-		<div class="text-center" style="padding: 30px 0">
-			<h1 class="fntpaint">
-				It's a once in a
-				<div style="display: inline-block; cursor: pointer" ng-click="switch_state()">
-					lifetime
-					<span id="verb" style="padding: 0 7px">ride</span>
-				</div>
-			</h1>
-			<p class="lead" style="padding-top: 20px">
-				Keep your GoPro memories safe
-			</p>
-			<div style="margin-top: 40px">
-				<a href="#join" class="scroller btn btn-primary btn-lg" style="margin: 0 20px 20px 0">
-					<b>Get started</b>&nbsp;
-					<i class="fntpaint">free</i>
-				</a>
-				<a href="#starting" class="scroller btn btn-default btn-transparent btn-lg" style="margin: 0 0 20px 0">
-					Show me more
-				</a>
-			</div>
-		</div>
-	</div>
-
-
-	<div id="starting">
-		<div class="container">
-			<div class="starting-section">
-				<div class="text-left">
-					<h2 class="fntpaint">Protect your memories</h2>
-					<p>Backup everything, space is not an issue</p>
-				</div>
-				<div class="center-block" style="max-width: 1000px">
-					<img src="/public/images/bg_fall.jpg" class="img-circle img-responsive" />
-				</div>
-			</div>
-			<div class="starting-section">
-				<div class="text-left">
-					<h2 class="fntpaint">Share with your friends</h2>
-					<p>Showoff to your Facebook / Google+ friends</p>
-				</div>
-				<div class="center-block" style="max-width: 1000px">
-					<img src="/public/images/bg_bike.jpg" class="img-circle img-responsive" />
-				</div>
-			</div>
-			<div class="starting-section">
-				<div class="text-left">
-					<h2 class="fntpaint">Shared with me</h2>
-					<p>Your friends can give you awesome things</p>
-				</div>
-				<div class="center-block" style="max-width: 1000px">
-					<img src="/public/images/bg_rock.jpg" class="img-circle img-responsive" />
-				</div>
-			</div>
-			<div class="starting-section">
-				<div class="text-left">
-					<h2 class="fntpaint">Watch from any device</h2>
-					<p>HD streaming, 4K ready</p>
-				</div>
-				<div class="center-block text-center" style="max-width: 1000px">
-					<img src="/public/images/ultrahd.jpg" class="img-rounded img-responsive" />
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<div id="join-page">
-		<div id="join" class="label-primary">
+		<div style="background-color: rgba(0,0,0,0.3)">
 			<div class="container">
-				<h1 class="fntpaint text-center" style="padding-bottom: 30px">Sign In</h1>
-				<p class="text-center text-white">Where are your friends - Facebook or Google+?</p>
-				<p class="text-center text-white">
+				<h1 class="fntpaint W1 shades col-sm-8">
+					A new era of video on the cloud
+				</h1>
+				<div class="clearfix"></div>
+				<p class="lead text-white shades col-sm-8" style="padding-top: 10px">
+				Your videos privately served by friends computers
+				</p>
+				<div style="margin-top: 20px">
+				<!-- 
+					<a href="#join" class="scroller btn btn-info btn-lg" style="margin: 0 20px 20px 0; min-width: 300px">
+						<b>Get started</b>&nbsp;
+						<i class="fntpaint">free</i>
+					</a>
+				 -->
+				</div>
+			</div>
+		</div>
+
+		<div class="bottom-abs text-center" style="padding: 10px">
+			<a href="#page1" class="scroller btn btn-default btn-transparent btn-lg">
+				<i class="fa fa-caret-down fa-fw fa-lg"></i>
+			</a>
+		</div>
+		<div class="poster text-center">
+			<img src="/public/images/bg_wave.jpg" />
+		</div>
+		<!-- <img src="/public/images/gopro.png" class="gopro" /> -->
+	</div>
+
+
+	<div class="filling full-page" id="page1">
+		<div style="height: 100px"></div>
+		<div style="background-color: rgba(0,0,0,0.3)">
+			<div class="container">
+				<div class="starting-section">
+					<h2 class="fntpaint W1 shades">Share videos with your friends</h2>
+					<p class="lead text-white shades col-sm-6">
+						You connect with your social account so sharing is simply done by clicking your friend’s faces!</p>
+				</div>
+			</div>
+		</div>
+		<div class="bottom-abs text-center" style="padding: 10px">
+			<a href="#page2" class="scroller btn btn-default btn-transparent btn-lg">
+				<i class="fa fa-caret-down fa-fw fa-lg"></i>
+			</a>
+		</div>
+		<div class="poster text-center">
+			<img src="/public/images/bg_bike.jpg" style="bottom: 0; top: auto" />
+		</div>
+	</div>
+
+
+	<div class="filling full-page" id="page2">
+		<div style="height: 100px"></div>
+		<div style="background-color: rgba(0,0,0,0.2)">
+			<div class="container">
+				<div class="starting-section">
+					<h2 class="fntpaint W1 shades">Watch friends videos</h2>
+					<p class="lead text-white shades col-sm-6">
+						Watching your stuff is always fun, but let’s admit it – most of us are more interested in what our friends share. NooBaa makes it easy and fun to watch friend's videos shared with you.
+					</p>
+				</div>
+			</div>
+		</div>
+		<div class="bottom-abs text-center" style="padding: 10px">
+			<a href="#page3" class="scroller btn btn-default btn-transparent btn-lg">
+				<i class="fa fa-caret-down fa-fw fa-lg"></i>
+			</a>
+		</div>
+		<div class="poster text-center">
+			<!-- <img src="/public/images/bg_rock.jpg" /> -->
+			<img src="/public/images/bg_skate.jpg" />
+		</div>
+	</div>
+
+
+	<div class="filling full-page" id="page3">
+		<div style="height: 100px"></div>
+		<div style="background-color: rgba(0,0,0,0.3)">
+			<div class="container">
+				<div class="starting-section">
+					<h2 class="fntpaint W1 shades col-sm-5">Watch from any device</h2>
+					<div class="clearfix"></div>
+					<p class="lead text-white shades col-sm-5">
+						Watch from anywhere, anytime, any device, any mood, anywho... You can stream directly from the cloud.
+					</p>
+				</div>
+			</div>
+		</div>
+		<div class="bottom-abs text-center" style="padding: 10px">
+			<a href="#page4" class="scroller btn btn-default btn-transparent btn-lg">
+				<i class="fa fa-caret-down fa-fw fa-lg"></i>
+			</a>
+		</div>
+		<div class="poster text-center">
+			<img src="/public/images/bg_snow.jpg" />
+		</div>
+	</div>
+
+
+	<div class="filling full-page" id="page4">
+		<div style="height: 100px"></div>
+		<div style="background-color: rgba(0,0,0,0.3)">
+			<div class="container">
+				<div class="starting-section">
+					<h2 class="fntpaint W1 shades">Protect your memories</h2>
+					<p class="lead text-white shades col-sm-6">
+						Copying your GoPro videos to an external hard drive is no longer needed. Keep a copy on the cloud for serenity and peace of mind.</p>
+				</div>
+			</div>
+		</div>
+		<div class="bottom-abs text-center" style="padding: 10px">
+			<a href="#join" class="scroller btn btn-default btn-transparent btn-lg">
+				<i class="fa fa-caret-down fa-fw fa-lg"></i>
+			</a>
+		</div>
+		<div class="poster text-center">
+			<img src="/public/images/bg_fall.jpg" />
+		</div>
+	</div>
+
+
+	<div class="filling full-page" id="join">
+		<div class="label-info">
+			<div class="container">
+				<h1 class="fntpaint W1 shades">
+					Sign In
+				</h1>
+				<p class="lead text-black">Where are your friends - Facebook or Google+?</p>
+				<p class="lead text-black">
 					<small>(We ask for minimal permissions and will not post anything in your name unless you request)</small>
 				</p>
-				<div class="row" style="padding: 30px; 0">
+				<div class="row" style="padding: 10px 0">
 					<div class="col-sm-6" style="padding: 20px 0">
-						<div class="text-center">
+						<div class="Xtext-center">
 							<a ng-click="nbUser.login_facebook()" Xhref="/auth/facebook/login/">
 								<img src="/public/images/facebook_signup_button_big.png" style="width: 300px"></img>
 							</a>
@@ -225,7 +214,7 @@
 						</div>
 					</div>
 					<div class="col-sm-6" style="padding: 20px 0">
-						<div class="text-center">
+						<div class="Xtext-center">
 							<a ng-click="nbUser.login_google()" Xhref="/auth/google/login/">
 								<img src="/public/images/google_login_buttin_big.jpg" style="width: 300px"></img>
 							</a>
@@ -235,8 +224,8 @@
 			</div>
 		</div>
 
-		<div id="links">
-			<div class="container">
+		<div style="height: 50px">
+			<div class="container" style="padding: 20px 0">
 				<div class="col-sm-3">
 					<a href="https://www.facebook.com/NoobaaTeam" target="_blank" class="btn btn-link">
 						Facebook
@@ -255,6 +244,7 @@
 						Youtube
 					</a>
 				</div>
+				<!-- 
 				<div class="col-sm-3">
 					<a href="/blog/" class="btn btn-link">
 						Blog
@@ -264,6 +254,7 @@
 						About
 					</a>
 				</div>
+				 -->
 			</div>
 		</div>
 	</div>
@@ -287,52 +278,13 @@
 			function($scope, $location, $anchorScroll, $timeout, $interval, nbUser) {
 				$scope.nbUser = nbUser;
 				$scope.need_chrome_ref = !bowser.chrome;
-				$anchorScroll();
+				
+				// $anchorScroll();
 				$scope.scroll = function(hash) {
 					console.log('SCROLL', hash);
 					$location.hash(hash);
 					$anchorScroll();
 				};
-
-				var landing_element = $('#landing');
-				var verb_element = landing_element.find('#verb');
-				var states = [{
-					verb: 'ride',
-					verb_class: 'text-primary',
-					btn: 'btn-primary',
-					bg: landing_element.find('.poster1'),
-				}, {
-					verb: 'jump',
-					verb_class: 'text-danger',
-					btn: 'btn-danger',
-					bg: landing_element.find('.poster2'),
-				}, {
-					verb: 'wave',
-					verb_class: 'text-warning',
-					btn: 'btn-warning',
-					bg: landing_element.find('.poster3'),
-				}];
-				var state_num = 0;
-
-				function switch_state() {
-					if ($scope.switch_state_timeout) {
-						$timeout.cancel($scope.switch_state_timeout);
-					}
-					$scope.switch_state_timeout = $timeout(switch_state, 15000);
-					var curr = state_num;
-					var next = (state_num + 1) % states.length;
-					state_num = next;
-					$.when(verb_element.fadeOut(400)).then(function() {
-						verb_element.text(states[next].verb);
-						// verb_element.switchClass(states[curr].verb_class, states[next].verb_class);
-						return verb_element.fadeIn(1000);
-					});
-					states[curr].bg.fadeOut(2000);
-					states[next].bg.fadeIn(2000);
-					landing_element.find('.' + states[curr].btn).switchClass(states[curr].btn, states[next].btn, 2000);
-				}
-				$scope.switch_state_timeout = $timeout(switch_state, 20000);
-				$scope.switch_state = switch_state;
 
 				// do smooth scrolling to anchors with href
 				var html_body = $('html, body');
@@ -347,7 +299,7 @@
 					return false;
 				});
 
-				$('body').children().hide().fadeIn(3000);
+				$('body').children().hide().fadeIn(2000);
 			}
 		]);
 	})();
