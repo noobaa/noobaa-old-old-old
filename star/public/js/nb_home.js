@@ -606,7 +606,7 @@
 								dlg.find('#dialog_ok')
 									.addClass('disabled')
 									.empty()
-									.append($('<i class="icon-spinner icon-spin icon-large icon-fixed-width"></i>'))
+									.append($('<i class="fa fa-spinner fa-spin fa-lg fa-fw"></i>'))
 									.append($compile('<span style="padding-left: 20px">Deleted {{count}}</span>')(del_scope));
 								del_scope.$digest();
 								nbInode.recursive_delete(selection.items, del_scope, function() {
@@ -672,6 +672,44 @@
 						return nbInode.copy_inode(inode).then(refresh, refresh);
 					}
 
+					function get_share_list(inode) {
+						console.log('get_share_list', inode);
+						return $http({
+							method: 'GET',
+							url: '/api/inode/' + inode.id + '/share_list'
+						});
+					}
+
+					function set_share_list(inode, share_list) {
+						console.log('share', inode, 'with', share_list);
+						return $http({
+							method: 'PUT',
+							url: '/api/inode/' + inode.id + '/share_list',
+							data: {
+								share_list: share_list
+							}
+						});
+					}
+
+					function mklink(inode, link_options) {
+						console.log('mklink', inode, link_options);
+						return $http({
+							method: 'POST',
+							url: '/api/inode/' + inode.id + '/link',
+							data: {
+								link_options: link_options
+							}
+						});
+					}
+
+					function rmlinks(inode) {
+						console.log('revoke_links', inode);
+						return $http({
+							method: 'DELETE',
+							url: '/api/inode/' + inode.id + '/link'
+						});
+					}
+
 					function share_inode(inode) {
 						if (!inode) {
 							console.error('no selected inode, bailing');
@@ -690,7 +728,36 @@
 							$.nbalert('Cannot share someone else\'s file');
 							return;
 						}
-						$('#share_modal').scope().open(inode);
+
+						var modal;
+						var share_scope = $scope.$new();
+						share_scope.run = function() {
+							share_scope.share_is_loading = true;
+							set_share_list(inode, share_scope.share_list).then(function(res) {
+								share_scope.share_is_loading = false;
+								modal.modal('hide');
+								// TODO NEED TO READDIR AFTER SHARE?
+								return open_inode($scope.current_inode);
+							}, function() {
+								share_scope.share_is_loading = false;
+							});
+						};
+						share_scope.share_is_loading = true;
+						share_scope.share_inode = inode;
+						get_share_list(inode).then(function(res) {
+							share_scope.share_is_loading = false;
+							share_scope.share_list = res.data.list;
+						}, function() {
+							share_scope.share_is_loading = false;
+						});
+						var hdr = $('<div class="modal-header">')
+							.append($('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">').html('&times;'))
+							.append($('<h4>').text('Share ' + inode.name));
+						var body = $('<div class="modal-body">').css('padding', 0).append($('#share_modal'));
+						var foot = $('<div class="modal-footer">').css('margin-top', 0)
+							.append($('<button type="button" class="btn btn-default" data-dismiss="modal">').text('Cancel'))
+							.append($('<button type="button" class="btn btn-primary" ng-click="run()" ng-disabled="share_scope.share_is_loading">').text('Share'));
+						modal = nbUtil.modal(hdr, body, foot, share_scope);
 
 					}
 
@@ -790,43 +857,6 @@
 		function($scope, $http) {
 			var dlg = $('#share_modal');
 
-			function get_share_list(inode) {
-				console.log('get_share_list', inode);
-				return $http({
-					method: 'GET',
-					url: '/api/inode/' + inode.id + '/share_list'
-				});
-			}
-
-			function set_share_list(inode, share_list) {
-				console.log('share', inode, 'with', share_list);
-				return $http({
-					method: 'PUT',
-					url: '/api/inode/' + inode.id + '/share_list',
-					data: {
-						share_list: share_list
-					}
-				});
-			}
-
-			function mklink(inode, link_options) {
-				console.log('mklink', inode, link_options);
-				return $http({
-					method: 'POST',
-					url: '/api/inode/' + inode.id + '/link',
-					data: {
-						link_options: link_options
-					}
-				});
-			}
-
-			function rmlinks(inode) {
-				console.log('revoke_links', inode);
-				return $http({
-					method: 'DELETE',
-					url: '/api/inode/' + inode.id + '/link'
-				});
-			}
 
 			$scope.open = function(inode) {
 				// TODO FIX ICON
