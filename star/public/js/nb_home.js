@@ -753,7 +753,7 @@
 						var hdr = $('<div class="modal-header">')
 							.append($('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">').html('&times;'))
 							.append($('<h4>').text('Share ' + inode.name));
-						var body = $('<div class="modal-body">').css('padding', 0).append($('#share_modal'));
+						var body = $('<div class="modal-body">').css('padding', 0).append($('#share_modal').html());
 						var foot = $('<div class="modal-footer">').css('margin-top', 0)
 							.append($('<button type="button" class="btn btn-default" data-dismiss="modal">').text('Cancel'))
 							.append($('<button type="button" class="btn btn-primary" ng-click="run()" ng-disabled="share_scope.share_is_loading">').text('Share'));
