@@ -86,6 +86,7 @@
 					// login status of the person. In this case, we're handling the situation where they 
 					// have logged in to the app.
 					// testAPI();
+					$scope.fb_show_app_friends = true;
 					FB.api('/me', function(me) {
 						console.log('FBME', me);
 						$scope.fbme = me;
