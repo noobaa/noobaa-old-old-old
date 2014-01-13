@@ -90,6 +90,7 @@
 					FB.api('/me', function(me) {
 						console.log('FBME', me);
 						$scope.fbme = me;
+						$rootScope.safe_apply();
 					});
 				} else if (res.status === 'not_authorized') {
 					// In this case, the person is logged into Facebook, but not into the app, so we call
@@ -109,6 +110,7 @@
 					// FB.login();
 					$scope.fbme = null;
 				}
+				$rootScope.safe_apply();
 			}
 
 			function on_fb_init() {
