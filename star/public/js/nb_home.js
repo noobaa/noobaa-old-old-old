@@ -221,7 +221,7 @@
 			};
 
 			$scope.invite_friends = function() {
-				if (FB) {
+				if (window.fb_init_complete) {
 					FB.ui({
 						method: 'send',
 						link: 'https://www.noobaa.com?invite_request=' + nbUser.user.id
