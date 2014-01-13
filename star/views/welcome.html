@@ -6,6 +6,8 @@
 		<style>
 		.full-page {
 			position: relative;
+			padding-bottom: 80px;
+			margin-bottom: 1px;
 		}
 		.poster {
 			z-index: -10;
@@ -23,12 +25,9 @@
 			top: 0;
 			left: auto;
 			bottom: auto;
-			min-width: 500px;
 			min-width: 100%;
-			min-height: 500px;
 			min-height: 100%;
-			max-width: 1400px;
-			max-width: 120%;
+			max-width: 150%;
 		}
 		img.gopro {
 			width: 350px;
@@ -38,22 +37,82 @@
 		}
 		@media all and (min-width: 767px) and (max-width: 970px) {
 		}
+		.W1 {
+			font-size: 5em;
+		}
 		@media all and (max-width: 768px) {
 			img.gopro {
 				width: 250px;
 				bottom: -14px;
 			}
+			.W1 {
+				font-size: 3em;
+			}
 		}
-		.W1 {
-			font-size: 5em;
+		.scroll-anima {
+			visibility: hidden;
 		}
-		.shades {
-			text-shadow: 1px 3px 3px black
+		#viewport {
+			z-index: -10;
+			position: absolute;
+			top: 0;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			overflow: hidden;
+			-webkit-perspective: 1000px;
+			-moz-perspective: 1000px;
+			-o-perspective: 1000px;
+			perspective: 1000px;
+		}
+		#world {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			height: 512px;
+			width: 512px;
+			margin-left: -256px;
+			margin-top: -256px;
+			-webkit-transform-style: preserve-3d;
+			-moz-transform-style: preserve-3d;
+			-o-transform-style: preserve-3d;
+			transform-style: preserve-3d;
+		}
+		.cloudBase {
+			position: absolute;
+			top: 256px;
+			left: 256px;
+			height: 20px;
+			width: 20px;
+			margin-left: -10px;
+			margin-top: -10px;
+			-webkit-transform-style: preserve-3d;
+			-moz-transform-style: preserve-3d;
+			-o-transform-style: preserve-3d;
+			transform-style: preserve-3d;
+		}
+		.cloudLayer {
+			position: absolute;
+			left: 50%;
+			top: 50%;
+			width: 256px;
+			height: 256px;
+			margin-left: -128px;
+			margin-top: -128px;
+			-webkit-transition: opacity .5s ease-out;
+			-moz-transition: opacity .5s ease-out;
+			-o-transition: opacity .5s ease-out;
+			transition: opacity .5s ease-out;
+			opacity: 0.5;
+			-webkit-transform-style: preserve-3d;
+			-moz-transform-style: preserve-3d;
+			-o-transform-style: preserve-3d;
+			transform-style: preserve-3d;
 		}
 		</style>
 </head>
 
-<body ng-cloak ng-controller="WelcomeCtrl">
+<body ng-cloak ng-controller="WelcomeCtrl" Xclass="slideUp" Xstyle="visibility: hidden">
 
 	<div>
 		<?# def.facebook_init_body ?>
@@ -65,8 +124,6 @@
 				<img src="/public/images/noobaa_logo.png" height="50px"></img>
 				<small style="color: white">BETA</small>
 			</a>
-			<a href="#join" class="scroller btn btn-default btn-transparent pull-right">							Sign In
-			</a>
 		</div>
 
 		<div style="background-color: rgba(0,0,0,0.3)">
@@ -76,15 +133,29 @@
 				</h1>
 				<div class="clearfix"></div>
 				<p class="lead text-white shades col-sm-8" style="padding-top: 10px">
-				Your videos privately served by friends computers
+					Your videos privately served by friends' computers
 				</p>
-				<div style="margin-top: 20px">
-				<!-- 
-					<a href="#join" class="scroller btn btn-info btn-lg" style="margin: 0 20px 20px 0; min-width: 300px">
-						<b>Get started</b>&nbsp;
-						<i class="fntpaint">free</i>
+			</div>
+		</div>
+
+		<div class="container stretchRight" style="padding-top: 30px">
+			<div style="display: inline-block; background-color: hsla(0,0%,0%,0.4); border-radius: 10px; padding: 5px 10px 10px 10px" class="text-center">
+				<h4 class="fntpaint shades" style="margin-bottom: 15px">
+					Join your friends. It's free.
+				</h4>
+				<div style="margin-top: 10px" ng-if="nbUser.fbme">
+					<div class="fb-login-button text-center center-block" data-show-faces="true" data-max-rows="1" data-width="245" style="width: 245px"></div>
+				</div>
+				<div style="margin-top: 10px">
+					<a ng-click="nbUser.login_facebook()" Xhref="/auth/facebook/login/">
+						<img src="/public/images/facebook_sign_in.png" class="img-rounded img-responsive center-block" style="width: 250px" />
 					</a>
-				 -->
+				</div>
+				<h4 class="fntpaint shades">or</h4>
+				<div style="margin-top: 10px">
+					<a ng-click="nbUser.login_google()" Xhref="/auth/google/login/">
+						<img src="/public/images/google_sign_in.png" class="img-rounded img-responsive center-block" style="width: 250px" />
+					</a>
 				</div>
 			</div>
 		</div>
@@ -107,6 +178,7 @@
 			<div class="container">
 				<div class="starting-section">
 					<h2 class="fntpaint W1 shades">Share videos with your friends</h2>
+					<div class="clearfix"></div>
 					<p class="lead text-white shades col-sm-6">
 						You connect with your social account so sharing is simply done by clicking your friend’s faces!</p>
 				</div>
@@ -128,8 +200,9 @@
 		<div style="background-color: rgba(0,0,0,0.2)">
 			<div class="container">
 				<div class="starting-section">
-					<h2 class="fntpaint W1 shades">Watch friends videos</h2>
-					<p class="lead text-white shades col-sm-6">
+					<h2 class="fntpaint W1 shades col-sm-5">Watch friends' videos</h2>
+					<div class="clearfix"></div>
+					<p class="lead text-white shades col-sm-5">
 						Watching your stuff is always fun, but let’s admit it – most of us are more interested in what our friends share. NooBaa makes it easy and fun to watch friend's videos shared with you.
 					</p>
 				</div>
@@ -142,7 +215,7 @@
 		</div>
 		<div class="poster text-center">
 			<!-- <img src="/public/images/bg_rock.jpg" /> -->
-			<img src="/public/images/bg_skate.jpg" />
+			<img src="/public/images/bg_snow.jpg" />
 		</div>
 	</div>
 
@@ -152,9 +225,9 @@
 		<div style="background-color: rgba(0,0,0,0.3)">
 			<div class="container">
 				<div class="starting-section">
-					<h2 class="fntpaint W1 shades col-sm-5">Watch from any device</h2>
+					<h2 class="fntpaint W1 shades">Watch from any device</h2>
 					<div class="clearfix"></div>
-					<p class="lead text-white shades col-sm-5">
+					<p class="lead text-white shades col-sm-6">
 						Watch from anywhere, anytime, any device, any mood, anywho... You can stream directly from the cloud.
 					</p>
 				</div>
@@ -166,7 +239,7 @@
 			</a>
 		</div>
 		<div class="poster text-center">
-			<img src="/public/images/bg_snow.jpg" />
+			<img src="/public/images/bg_skate.jpg" />
 		</div>
 	</div>
 
@@ -177,13 +250,14 @@
 			<div class="container">
 				<div class="starting-section">
 					<h2 class="fntpaint W1 shades">Protect your memories</h2>
+					<div class="clearfix"></div>
 					<p class="lead text-white shades col-sm-6">
 						Copying your GoPro videos to an external hard drive is no longer needed. Keep a copy on the cloud for serenity and peace of mind.</p>
 				</div>
 			</div>
 		</div>
 		<div class="bottom-abs text-center" style="padding: 10px">
-			<a href="#join" class="scroller btn btn-default btn-transparent btn-lg">
+			<a href="#page5" class="scroller btn btn-default btn-transparent btn-lg">
 				<i class="fa fa-caret-down fa-fw fa-lg"></i>
 			</a>
 		</div>
@@ -193,72 +267,83 @@
 	</div>
 
 
-	<div class="filling full-page" id="join">
-		<div class="label-info">
+	<div class="filling full-page" id="page5">
+		<!-- 
+		<div class="container" style="padding-top: 20px; padding-bottom: 20px">
+			<a>
+				<img src="/public/images/noobaa_logo.png" height="50px"></img>
+				<small style="color: white">BETA</small>
+			</a>
+		</div>
+		 -->
+		<div style="height: 100px"></div>
+		<div style="Xbackground-color: hsla(0,0%,50%,0.3)">
 			<div class="container">
 				<h1 class="fntpaint W1 shades">
 					Sign In
 				</h1>
-				<p class="lead text-black">Where are your friends - Facebook or Google+?</p>
-				<p class="lead text-black">
-					<small>(We ask for minimal permissions and will not post anything in your name unless you request)</small>
+				<div class="clearfix"></div>
+				<p class="lead text-white shades">
+					Your account is ready for you.
 				</p>
-				<div class="row" style="padding: 10px 0">
-					<div class="col-sm-6" style="padding: 20px 0">
-						<div class="Xtext-center">
-							<a ng-click="nbUser.login_facebook()" Xhref="/auth/facebook/login/">
-								<img src="/public/images/facebook_signup_button_big.png" style="width: 300px"></img>
-							</a>
-							<br/>
-							<div class="fb-login-button" data-show-faces="true" data-max-rows="1"></div>
-						</div>
-					</div>
-					<div class="col-sm-6" style="padding: 20px 0">
-						<div class="Xtext-center">
-							<a ng-click="nbUser.login_google()" Xhref="/auth/google/login/">
-								<img src="/public/images/google_login_buttin_big.jpg" style="width: 300px"></img>
-							</a>
-						</div>
-					</div>
+			</div>
+		</div>
+		<div class="container stretchRight" style="padding-top: 30px">
+			<div style="display: inline-block; background-color: hsla(0,0%,90%,0.4); border-radius: 10px; padding: 5px 10px 10px 10px" class="text-center">
+				<h4 class="fntpaint shades" style="margin-bottom: 15px">
+					Join your friends. It's free.
+				</h4>
+				<div style="margin-top: 10px" ng-if="nbUser.fbme">
+					<div class="fb-login-button text-center center-block" data-show-faces="true" data-max-rows="1" data-width="245" style="width: 245px"></div>
+				</div>
+				<div style="margin-top: 10px">
+					<a ng-click="nbUser.login_facebook()" Xhref="/auth/facebook/login/">
+						<img src="/public/images/facebook_sign_in.png" class="img-rounded img-responsive center-block" style="width: 250px" />
+					</a>
+				</div>
+				<h4 class="fntpaint shades">or</h4>
+				<div style="margin-top: 10px">
+					<a ng-click="nbUser.login_google()" Xhref="/auth/google/login/">
+						<img src="/public/images/google_sign_in.png" class="img-rounded img-responsive center-block" style="width: 250px" />
+					</a>
 				</div>
 			</div>
 		</div>
-
-		<div style="height: 50px">
-			<div class="container" style="padding: 20px 0">
-				<div class="col-sm-3">
-					<a href="https://www.facebook.com/NoobaaTeam" target="_blank" class="btn btn-link">
-						Facebook
-					</a>
-					<br/>
-					<a href="https://twitter.com/TheNooBaa" target="_blank" class="btn btn-link">
-						Twitter
-					</a>
-				</div>
-				<div class="col-sm-3">
-					<a href="https://www.google.com/+Noobaa" target="_blank" class="btn btn-link">
-						Google+
-					</a>
-					<br/>
-					<a href="https://www.youtube.com/user/TheNoobaa" target="_blank" class="btn btn-link">
-						Youtube
-					</a>
-				</div>
-				<!-- 
-				<div class="col-sm-3">
-					<a href="/blog/" class="btn btn-link">
-						Blog
-					</a>
-					<br/>
-					<a href="/about/" class="btn btn-link">
-						About
-					</a>
-				</div>
-				 -->
+		<div class="bottom-abs text-center" style="padding: 10px">
+			<div class="text-center" style="padding: 10px">
+				<a href="https://www.facebook.com/NoobaaTeam" target="_blank" class="btn btn-link btn-sm" style="text-decoration: none">
+					<span class="fa-stack fa-2x">
+						<i class="fa fa-circle fa-stack-2x" style="color: hsl(0,0%,20%)"></i>
+						<i class="fa fa-facebook fa-stack-1x" style="color: hsl(222, 37%, 47%)"></i>
+					</span>
+				</a>
+				<a href="https://twitter.com/TheNooBaa" target="_blank" class="btn btn-link btn-sm" style="text-decoration: none">
+					<span class="fa-stack fa-2x">
+						<i class="fa fa-circle fa-stack-2x" style="color: hsl(0,0%,20%)"></i>
+						<i class="fa fa-twitter fa-stack-1x" style="color: hsl(212, 100%, 63%)"></i>
+					</span>
+				</a>
+				<a href="https://www.google.com/+Noobaa" target="_blank" class="btn btn-link btn-sm" style="text-decoration: none">
+					<span class="fa-stack fa-2x">
+						<i class="fa fa-circle fa-stack-2x" style="color: hsl(0,0%,20%)"></i>
+						<i class="fa fa-google-plus fa-stack-1x" style="color: hsl(7, 64%, 52%)"></i>
+					</span>
+				</a>
+				<a href="https://www.youtube.com/user/TheNoobaa" target="_blank" class="btn btn-link btn-sm" style="text-decoration: none">
+					<span class="fa-stack fa-2x">
+						<i class="fa fa-circle fa-stack-2x" style="color: hsl(0,0%,20%)"></i>
+						<i class="fa fa-youtube fa-stack-1x" style="color: hsl(358, 79%, 45%)"></i>
+					</span>
+				</a>
 			</div>
+			<a href="#page0" class="scroller btn btn-default btn-transparent btn-lg">
+				top
+			</a>
+		</div>
+		<div id="viewport">
+			<div id="world"></div>
 		</div>
 	</div>
-
 
 	<div>
 		<?# def.include( 'common_scripts.html') ?>
@@ -278,7 +363,7 @@
 			function($scope, $location, $anchorScroll, $timeout, $interval, nbUser) {
 				$scope.nbUser = nbUser;
 				$scope.need_chrome_ref = !bowser.chrome;
-				
+
 				// $anchorScroll();
 				$scope.scroll = function(hash) {
 					console.log('SCROLL', hash);
@@ -287,7 +372,7 @@
 				};
 
 				// do smooth scrolling to anchors with href
-				var html_body = $('html, body');
+				var html_body = $('body');
 				$('.scroller').click(function() {
 					var href = $.attr(this, 'href');
 					console.log('SCROLL', href);
@@ -299,7 +384,135 @@
 					return false;
 				});
 
-				$('body').children().hide().fadeIn(2000);
+				/*
+				$(window).scroll(function() {
+					$('.scroll-anima').each(function() {
+						var imagePos = $(this).offset().top;
+						var topOfWindow = $(window).scrollTop();
+						if (imagePos < topOfWindow + 400) {
+							$(this).addClass("hatch");
+						}
+					});
+				});*/
+
+				// $('body').children().hide().fadeIn(2000);
+
+				function clouds() {
+					// Defining our variables
+					// world and viewport are DOM elements,
+					// worldXAngle and worldYAngle are floats that hold the world rotations,
+					// d is an int that defines the distance of the world from the camera 
+					var world = document.getElementById('world'),
+						viewport = document.getElementById('viewport'),
+						worldXAngle = 0,
+						worldYAngle = 0,
+						d = 0;
+					// objects is an array of cloud bases
+					// layers is an array of cloud layers
+					var objects = [],
+						layers = [];
+
+					// Event listener to transform mouse position into angles 
+					// from -180 to 180 degress, both vertically and horizontally
+					window.addEventListener('mousemove', function(e) {
+						worldYAngle = -(.5 - (e.clientX / window.innerWidth)) * 180;
+						worldXAngle = (.5 - (e.clientY / window.innerHeight)) * 180;
+						updateView();
+					});
+
+					generate();
+					requestAnimationFrame(update);
+
+					function random_range(from, to) {
+						return from + (Math.random() * (to - from));
+					}
+
+					// Changes the transform property of world to be
+					// translated in the Z axis by d pixels,
+					// rotated in the X axis by worldXAngle degrees and
+					// rotated in the Y axis by worldYAngle degrees.
+
+					function updateView() {
+						var t = 'translateZ( ' + d + 'px ) ' +
+							'rotateX( ' + worldXAngle + 'deg ) ' +
+							'rotateY( ' + worldYAngle + 'deg )';
+						world.style.transform = t;
+						world.style['-webkit-transform'] = t;
+					}
+
+					// Iterate layers[], update the rotation and apply the
+					// inverse transformation currently applied to the world.
+					// Notice the order in which rotations are applied.
+
+					function update() {             
+						for (var j = 0; j < layers.length; j++) {
+							var layer = layers[j];
+							layer.data.a += layer.data.speed;
+							var t = 'translateX( ' + layer.data.x + 'px ) ' +
+								'translateY( ' + layer.data.y + 'px ) ' +
+								'translateZ( ' + layer.data.z + 'px ) ' +
+								'rotateY( ' + (-worldYAngle) + 'deg ) ' +
+								'rotateX( ' + (-worldXAngle) + 'deg ) ' +
+								'rotateZ( ' + layer.data.a + 'deg ) ' +
+								'scale( ' + layer.data.s + ' )';
+							layer.style.transform = t;
+							layer.style['-webkit-transform'] = t;
+						}
+						requestAnimationFrame(update);
+					}
+
+					// Creates a single cloud base: a div in world
+					// that is translated randomly into world space.
+					// Each axis goes from -256 to 256 pixels.
+
+					function createCloud() {
+						var l = 150;
+						var cloud = document.createElement('div' );
+						cloud.className = 'cloudBase';
+						var t = 'translateX( ' + random_range(-l, l) + 'px ) ' +
+							'translateY( ' + random_range(-l, l) + 'px ) ' +
+							'translateZ( ' + random_range(-l, l) + 'px )';
+						// cloud.style.backgroundColor = 'hsla(180, 100%, 50%, 1)';
+						cloud.style.transform = t;
+						cloud.style['-webkit-transform'] = t;
+						world.appendChild(cloud);
+						for (var j = 0; j < 10; j++) {
+							var layer = document.createElement('img');
+							layer.src = '/public/images/cloud.png';
+							// layer.style.backgroundColor = 'hsla(180, 100%, 50%, 0.1)';
+							layer.className = 'cloudLayer';
+							layer.data = {
+								x: random_range(-l, l),
+								y: random_range(-l, l),
+								z: random_range(-l, l),
+								a: random_range(-180, 180),
+								s: random_range(0.7, 1.3),
+								speed: random_range(0.01, 0.05)
+							};
+							layers.push(layer);
+							cloud.appendChild(layer);
+						}
+						return cloud;
+					}
+
+					// Clears the DOM of previous clouds bases 
+					// and generates a new set of cloud bases
+
+					function generate() {
+						objects = [];
+						layers = [];
+						if (world.hasChildNodes()) {
+							while (world.childNodes.length >= 1) {
+								world.removeChild(world.firstChild);
+							}
+						}
+						for (var j = 0; j < 5; j++) {
+							objects.push(createCloud());
+						}
+					}
+
+				}
+				clouds();
 			}
 		]);
 	})();

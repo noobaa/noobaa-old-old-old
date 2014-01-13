@@ -416,6 +416,9 @@ a.btn-link, button.btn-link {
 	font-size: 16px;
 	line-height: 1.5em;
 }
+.shades {
+	text-shadow: 1px 3px 3px black;
+}
 .H1 {
 	font-size: 60px;
 }

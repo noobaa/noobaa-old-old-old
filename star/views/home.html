@@ -208,17 +208,26 @@
 	</div>
 
 	<div ng-if="!nbUser.user">
-		<div class="text-center" style="border: 1px solid #ccc; width: 380px; padding: 20px;
-				border-radius: 7px/7px;	margin-left: auto; margin-right: auto;">
-			<a ng-click="nbUser.login_facebook()" Xhref="/auth/facebook/login/">
-				<img src="/public/images/facebook_signup_button_big.png" style="width: 100%"></img>
-			</a>
-			<div style="height: 1px; background-color: #ccc; text-align: center; margin: 30px 0 30px 0">
-				<span class="text-white" style="background-color: black; position: relative; top: -0.75em; padding: 10px">OR</span>
+		<div class="text-center" style="padding: 20px">
+			<div style="display: inline-block; background-color: hsla(0,0%,100%,0.3); border-radius: 10px; padding: 5px 10px 10px 10px" class="center-block text-center">
+				<h4 class="fntpaint shades" style="margin-bottom: 15px">
+					Join your friends. It's free.
+				</h4>
+				<div style="margin-top: 10px" ng-if="nbUser.fbme">
+					<div class="fb-login-button text-center center-block" data-show-faces="true" data-max-rows="1" data-width="245" style="width: 245px"></div>
+				</div>
+				<div style="margin-top: 10px">
+					<a ng-click="nbUser.login_facebook()" Xhref="/auth/facebook/login/">
+						<img src="/public/images/facebook_sign_in.png" class="img-rounded img-responsive center-block" style="width: 250px" />
+					</a>
+				</div>
+				<h4 class="fntpaint shades">or</h4>
+				<div style="margin-top: 10px">
+					<a ng-click="nbUser.login_google()" Xhref="/auth/google/login/">
+						<img src="/public/images/google_sign_in.png" class="img-rounded img-responsive center-block" style="width: 250px" />
+					</a>
+				</div>
 			</div>
-			<a ng-click="nbUser.login_google()" Xhref="/auth/google/login/">
-				<img src="/public/images/google_login_buttin_big.jpg" style="width: 100%"></img>
-			</a>
 		</div>
 	</div>
 
