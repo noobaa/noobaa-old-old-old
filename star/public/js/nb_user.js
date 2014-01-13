@@ -81,7 +81,6 @@
 
 			function on_fb_state_change(res) {
 				console.log('on_fb_state_change', res);
-				// Here we specify what we do with the response anytime this event occurs. 
 				if (res.status === 'connected') {
 					// The response object is returned with a status field that lets the app know the current
 					// login status of the person. In this case, we're handling the situation where they 
@@ -120,7 +119,6 @@
 				// will be handled.
 				console.log('on_fb_init');
 				FB.Event.subscribe('auth.authResponseChange', on_fb_state_change);
-				FB.getLoginStatus(on_fb_state_change);
 			}
 
 			if (window.fb_init_complete) {
@@ -130,11 +128,7 @@
 			}
 
 			$scope.login_facebook = function() {
-				if (false && FB) {
-					FB.login();
-				} else {
-					$window.location.href = '/auth/facebook/login/';
-				}
+				$window.location.href = '/auth/facebook/login/';
 			};
 
 			$scope.login_google = function() {
@@ -142,15 +136,7 @@
 			};
 
 			$scope.logout = function() {
-				var redirect_logout = function() {
-					$window.location.href = '/auth/logout/?state=/home/';
-				};
-				if (FB) {
-					// FB.logout(redirect_logout);
-					redirect_logout();
-				} else {
-					redirect_logout();
-				}
+				$window.location.href = '/auth/logout/?state=/home/';
 			};
 
 			return $scope;
