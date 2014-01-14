@@ -79,14 +79,12 @@
 
 			function on_fb_state_change(res) {
 				$scope.fbme = null;
-				$scope.fb_show_app_friends = false;
 				console.log('on_fb_state_change', res);
 				if (res.status === 'connected') {
 					// The response object is returned with a status field that lets the app know the current
 					// login status of the person. In this case, we're handling the situation where they 
 					// have logged in to the app.
 					// testAPI();
-					$scope.fb_show_app_friends = true;
 					FB.api('/me', function(me) {
 						console.log('FBME', me);
 						$scope.fbme = me;
@@ -101,7 +99,6 @@
 					// result from direct interaction from people using the app (such as a mouse click)
 					// (2) it is a bad experience to be continually prompted to login upon page load.
 					// FB.login();
-					$scope.fb_show_app_friends = true;
 				} else {
 					// In this case, the person is not logged into Facebook, so we call the login() 
 					// function to prompt them to do so. Note that at this stage there is no indication
