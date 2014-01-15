@@ -9,8 +9,8 @@
 	var noobaa_app = angular.module('noobaa_app');
 
 	noobaa_app.factory('nbInode', [
-		'$http', '$timeout', '$interval', '$q', '$rootScope', 'JobQueue',
-		function($http, $timeout, $interval, $q, $rootScope, JobQueue) {
+		'$http', '$timeout', '$interval', '$q', '$rootScope', 'JobQueue', 'nbUtil', 'nbUser',
+		function($http, $timeout, $interval, $q, $rootScope, JobQueue, nbUtil, nbUser) {
 
 			var $scope = {
 				inode_api_url: inode_api_url,
@@ -34,6 +34,12 @@
 				recursive_copy: recursive_copy,
 				copy_inode: copy_inode,
 				move_inode: move_inode,
+				get_share_list: get_share_list,
+				set_share_list: set_share_list,
+				mklink: mklink,
+				rmlinks: rmlinks,
+				share_inode: share_inode,
+				keep_and_share_all: keep_and_share_all,
 			};
 
 			function inode_api_url(inode_id) {
@@ -311,8 +317,7 @@
 				});
 			}
 
-			function recursive_copy(inode, copy_scope, new_parent_id, new_name) {
-				copy_scope.concurrency++;
+			function single_copy(inode, new_parent_id, new_name) {
 				return $http({
 					method: 'PUT',
 					url: '/api/inode/' + inode.id + '/copy',
@@ -320,37 +325,49 @@
 						new_parent_id: new_parent_id,
 						new_name: new_name,
 					}
-				}).then(function(results) {
+				});
+			}
+
+			function recurse_dir_copy(dir_inode, new_dir_id, copy_scope) {
+				copy_scope.concurrency++;
+				return read_dir(dir_inode).then(function() {
 					copy_scope.concurrency--;
-					copy_scope.count++;
-					if (!inode.isdir) {
-						return $q.when();
-					}
-					var new_parent_id = results.data.id;
-					copy_scope.concurrency++;
-					return read_dir(inode).then(function() {
-						copy_scope.concurrency--;
-						var sons = inode.entries.slice(0); // copy array
-						var copy_sons = function() {
-							if (!sons || !sons.length) {
-								return $q.when();
-							}
-							var promises = [];
-							while (copy_scope.concurrency < copy_scope.max_concurrency && sons.length) {
-								promises.push(recursive_copy(sons.pop(), copy_scope, new_parent_id, null).then(copy_sons));
-							}
-							return $q.all(promises);
-						};
-						return copy_sons();
-					});
-				}).
-				catch (function(err) {
-					console.error('FAILED COPY', inode, err);
+					var sons = dir_inode.entries.slice(0); // copy array
+					var copy_sons = function() {
+						if (!sons || !sons.length) {
+							return $q.when();
+						}
+						var promises = [];
+						while (copy_scope.concurrency < copy_scope.max_concurrency && sons.length) {
+							promises.push(recursive_copy(sons.pop(), copy_scope, new_dir_id, null).then(copy_sons));
+						}
+						return $q.all(promises);
+					};
+					return copy_sons();
+				}, function(err) {
+					copy_scope.concurrency--;
+					console.error('FAILED DIR COPY', dir_inode, err);
 					throw err;
 				});
 			}
 
-			function copy_inode(inode) {
+			function recursive_copy(inode, copy_scope, new_parent_id, new_name) {
+				copy_scope.concurrency++;
+				return single_copy(inode, new_parent_id, new_name).then(function(res) {
+					copy_scope.concurrency--;
+					copy_scope.count++;
+					var new_inode_id = res.data.id;
+					if (inode.isdir) {
+						return recurse_dir_copy(inode, new_inode_id, copy_scope);
+					}
+				}, function(err) {
+					copy_scope.concurrency--;
+					console.error('FAILED RECURSE COPY', inode, err);
+					throw err;
+				});
+			}
+
+			function copy_inode(inode, on_top_copy) {
 				if (!inode) {
 					console.error('no selected inode, bailing');
 					return;
@@ -386,7 +403,19 @@
 						stackup_spacing: 20
 					});
 				};
-				return recursive_copy(inode, copy_scope).then(on_copy, on_copy);
+				return single_copy(inode).then(function(res) {
+					copy_scope.count++;
+					var new_inode_id = res.data.id;
+					if (on_top_copy) {
+						on_top_copy(new_inode_id);
+					}
+					if (inode.isdir) {
+						return recurse_dir_copy(inode, new_inode_id, copy_scope);
+					}
+				}, function(err) {
+					console.error('FAILED COPY', inode, err);
+					throw err;
+				});
 			}
 
 			function move_inode(inode, dir_inode) {
@@ -422,6 +451,137 @@
 					data: {
 						parent: dir_inode.id,
 					}
+				});
+			}
+
+
+			function get_share_list(inode_id) {
+				console.log('get_share_list', inode_id);
+				return $http({
+					method: 'GET',
+					url: '/api/inode/' + inode_id + '/share_list'
+				});
+			}
+
+			function set_share_list(inode_id, share_list) {
+				console.log('share', inode_id, 'with', share_list);
+				return $http({
+					method: 'PUT',
+					url: '/api/inode/' + inode_id + '/share_list',
+					data: {
+						share_list: share_list
+					}
+				});
+			}
+
+			function mklink(inode, link_options) {
+				console.log('mklink', inode, link_options);
+				return $http({
+					method: 'POST',
+					url: '/api/inode/' + inode.id + '/link',
+					data: {
+						link_options: link_options
+					}
+				});
+			}
+
+			function rmlinks(inode) {
+				console.log('revoke_links', inode);
+				return $http({
+					method: 'DELETE',
+					url: '/api/inode/' + inode.id + '/link'
+				});
+			}
+
+			function mark_all_share_list(share_list, value) {
+				for (var i = 0; i < share_list.length; i++) {
+					share_list[i].shared = value;
+				}
+			}
+
+			function share_inode(inode) {
+				if (!inode) {
+					console.error('no selected inode, bailing');
+					return;
+				}
+				if (is_immutable_root(inode)) {
+					$.nbalert('Cannot share root folder');
+					return;
+				}
+				if (is_shared_with_me(inode)) {
+					$.nbalert('Cannot share files not in My Data. Use "Add to My Data" first');
+					return;
+				}
+				if (is_not_mine(inode)) {
+					$.nbalert('Cannot share someone else\'s file');
+					return;
+				}
+
+				var modal;
+				var share_scope = $rootScope.$new();
+				share_scope.nbUtil = nbUtil;
+				share_scope.nbUser = nbUser;
+				share_scope.share_is_loading = true;
+				share_scope.share_inode = inode;
+				share_scope.run = function() {
+					share_scope.share_is_loading = true;
+					set_share_list(inode.id, share_scope.share_list).then(function(res) {
+						share_scope.share_is_loading = false;
+						modal.modal('hide');
+						// TODO NEED TO READDIR AFTER SHARE?
+						return open_inode($scope.current_inode);
+					}, function() {
+						share_scope.share_is_loading = false;
+					});
+				};
+				share_scope.mark_all = function(value) {
+					mark_all_share_list(share_scope.share_list, value);
+				};
+				get_share_list(inode.id).then(function(res) {
+					share_scope.share_is_loading = false;
+					share_scope.share_list = res.data.list;
+				}, function() {
+					share_scope.share_is_loading = false;
+				});
+				var hdr = $('<div class="modal-header">')
+					.append($('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">').html('&times;'))
+					.append($('<h4>').text('Share ' + inode.name));
+				var body = $('<div class="modal-body">').css('padding', 0).append($('#share_modal').html());
+				var foot = $('<div class="modal-footer">').css('margin-top', 0)
+					.append($('<button type="button" class="btn btn-default" data-dismiss="modal">').text('Cancel'))
+					.append($('<button type="button" class="btn btn-primary" ' +
+						'ng-click="run()" ng-disabled="share_is_loading || !share_list.length">').text('Share'));
+				modal = nbUtil.modal(hdr, body, foot, share_scope);
+			}
+
+			function keep_and_share_all(inode) {
+				return copy_inode(inode, function(new_inode_id) {
+					// run this immediately after top inode is copied
+					var share_list;
+					return get_share_list(new_inode_id).then(function(res) {
+						share_list = res.data.list;
+						mark_all_share_list(share_list, true);
+						return set_share_list(new_inode_id, share_list);
+					}).then(function() {
+						var notify_message = '"' + inode.name + '" was shared to ' +
+							share_list.length + (share_list.length === 1 ? ' friend' : ' friends');
+						$.bootstrapGrowl(notify_message, {
+							ele: 'body',
+							type: 'info',
+							offset: {
+								from: 'top',
+								amount: 60
+							},
+							align: 'right',
+							width: 'auto',
+							delay: 5000,
+							allow_dismiss: true,
+							stackup_spacing: 20
+						});
+					}, function(err) {
+						console.error('FAILED SHARE ALL', err);
+						throw err;
+					});
 				});
 			}
 

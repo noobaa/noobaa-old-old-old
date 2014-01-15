@@ -2,36 +2,7 @@
 
 	<div class="panel panel-default">
 		<div class="panel-heading Xbggrey clearfix" style="padding: 0 10px 2px 10px">
-			<div class="clearfix" style="padding: 7px 0">
-				<a class="btn btn-default" ng-click="go_up_level()" ng-disabled="!has_parent(current_inode)" title="Back to previous folder" rel="tooltip" nb-tooltip="{container: 'body'}">
-					<i class="fa fa-caret-left fa-fw fa-lg"></i>
-				</a>
-				<div class="btn-group">
-					<a class="btn btn-link dropdown-toggle" data-toggle="dropdown" title="Back to folder..." rel="tooltip" nb-tooltip="{container: 'body'}" ng-disabled="!has_parent(current_inode)">
-						<span style="font-size: 1.2em; line-height: 1.2em; vertical-align: middle">
-							<span ng-show="has_parent(current_inode)">. . . &nbsp; /</span>
-							<span ng-hide="has_parent(current_inode)" class="text-muted">
-								<i class="fa fa-home fa-lg"></i>
-							</span>
-						</span>
-					</a>
-					<ul ng-if="has_parent(current_inode)" class="dropdown-menu" role="menu">
-						<li ng-repeat="parent in path = (nbInode.parents_path(current_inode)).reverse()">
-							<a ng-click="open_inode(parent)" style="padding-left: {{10+((path.length-1-$index) * 10)}}px">
-								<i class="fa fa-{{$last && 'home' || 'folder-open'}} fa-fw"></i>
-								{{parent.name}}
-							</a>
-						</li>
-					</ul>
-				</div>
-				<h2 style="display: inline; padding: 10px 5px; font-size: 1.5em; line-height: 1.5em; vertical-align: middle" Xclass="text-primary">
-					<span style="white-space: pre-wrap">{{current_inode.name}}</span>
-				</h2>
-				<span ng-if="current_inode.is_loading">
-					<i class="fa fa-refresh fa-spin fa-fw"></i>
-				</span>
-			</div>
-			<div class="file_actions" ng-show="has_parent(current_inode)">
+			<div class="file_actions" ng-show="has_parent(current_inode)" style="padding-top: 7px">
 				<div class="btn-group">
 					<a ng-show="has_parent(current_inode)" class="btn btn-default" ng-show="current_inode.isdir" ng-click="open_inode(current_inode)" title="Refresh" rel="tooltip" nb-tooltip="{container: 'body'}">
 						<i class="fa fa-refresh fa-fw fa-lg"></i>
@@ -72,13 +43,42 @@
 					</a>
 				</span>
 				<div ng-show="current_inode.isdir" class="input-group Xinput-group-sm pull-right" style="max-width: 200px">
-					<input type="text" class="form-control {{search_in_folder && 'label-warning' || ''}}" maxlength="100" placeholder="Search in folder" ng-model="search_in_folder" />
+					<input type="text" class="form-control {{search_in_folder && 'label-warning' || ''}}" maxlength="100" placeholder="Search in folder" ng-model="search_in_folder" style="border-top-left-radius: 20px; border-bottom-left-radius: 20px"/>
 					<span class="input-group-btn">
 						<button class="btn btn-default" type="button" ng-click="search_in_folder=''" title="Clear search" rel="tooltip" nb-tooltip="{container: 'body'}">
 							<i class="fa fa-times Xfa-lg"></i>
 						</button>
 					</span>
 				</div>
+			</div>
+			<div class="clearfix" style="padding: 7px 0">
+				<a class="btn btn-default" ng-click="go_up_level()" ng-disabled="!has_parent(current_inode)" title="Back to previous folder" rel="tooltip" nb-tooltip="{container: 'body'}">
+					<i class="fa fa-caret-left fa-fw fa-lg"></i>
+				</a>
+				<div class="btn-group">
+					<a class="btn btn-link dropdown-toggle" data-toggle="dropdown" title="Back to folder..." rel="tooltip" nb-tooltip="{container: 'body'}" ng-disabled="!has_parent(current_inode)">
+						<span style="font-size: 1.2em; line-height: 1.2em; vertical-align: middle">
+							<span ng-show="has_parent(current_inode)">. . . &nbsp; /</span>
+							<span ng-hide="has_parent(current_inode)" class="text-muted">
+								<i class="fa fa-home fa-lg"></i>
+							</span>
+						</span>
+					</a>
+					<ul ng-if="has_parent(current_inode)" class="dropdown-menu" role="menu">
+						<li ng-repeat="parent in path = (nbInode.parents_path(current_inode)).reverse()">
+							<a ng-click="open_inode(parent)" style="padding-left: {{10+((path.length-1-$index) * 10)}}px">
+								<i class="fa fa-{{$last && 'home' || 'folder-open'}} fa-fw"></i>
+								{{parent.name}}
+							</a>
+						</li>
+					</ul>
+				</div>
+				<h2 style="display: inline; padding: 10px 5px; font-size: 1.5em; line-height: 1.5em; vertical-align: middle" Xclass="text-primary">
+					<span style="white-space: pre-wrap">{{current_inode.name}}</span>
+				</h2>
+				<span ng-if="current_inode.is_loading">
+					<i class="fa fa-refresh fa-spin fa-fw"></i>
+				</span>
 			</div>
 			<div ng-if="current_inode.is_previewing" style="padding: 5px 0">
 				<div nb-media="current_inode" show-content="false"></div>

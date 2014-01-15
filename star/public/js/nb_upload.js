@@ -905,6 +905,7 @@
 			upload.progress_class = 'warning';
 			upload.progress = 100;
 			upload.error_text = 'Out of space';
+			this.pause_all();
 			return false; // TODO maybe retry with long delay?
 		}
 		// http internal error
@@ -965,6 +966,10 @@
 				this.do_remove(upload);
 			}
 		}
+	};
+
+	UploadSrv.prototype.pause_all = function() {
+		this.foreach_collection(this.root.sons, this.do_stop.bind(this));
 	};
 
 	UploadSrv.prototype.pause_selected = function() {
@@ -1182,6 +1187,10 @@
 
 	UploadSrv.prototype.foreach_selected = function(func) {
 		var col = this.selected_all ? this.root.sons : this.selection;
+		return this.foreach_collection(col, func);
+	};
+
+	UploadSrv.prototype.foreach_collection = function(col, func) {
 		for (var id in col) {
 			var upload = col[id];
 			var ignore_selection = false;

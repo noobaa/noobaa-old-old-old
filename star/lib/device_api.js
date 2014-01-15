@@ -172,7 +172,7 @@ exports.device_update = function(req, res) {
 			_.extend(dev, updates); // TODO: not deep!
 			dev.updates_stats = null; // dont return all the stats
 			return next(null, {
-				reload: false,
+				reload: true,
 				device: dev
 			});
 		}

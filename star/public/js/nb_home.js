@@ -457,6 +457,14 @@
 						}
 					}
 
+					function refresh_current() {
+						if ($scope.current_inode.isdir) {
+							nbMultiSelect.reset_selection(selection);
+							set_current_inode($scope.current_inode);
+							return nbInode.read_dir($scope.current_inode);
+						}
+					}
+
 					function toggle_preview(inode) {
 						inode.is_previewing = !inode.is_previewing;
 					}
@@ -635,7 +643,7 @@
 							}
 							$q.all(promises).then(function() {
 								modal.modal('hide');
-								return open_inode($scope.current_inode);
+								refresh_current();
 							});
 						};
 						var hdr = $('<div class="modal-header">')
@@ -649,108 +657,12 @@
 					}
 
 					function copy_inode(inode) {
-						var refresh = function() {
-							nbInode.read_dir($scope.current_inode);
-						};
-						return nbInode.copy_inode(inode).then(refresh, refresh);
-					}
-
-					function get_share_list(inode) {
-						console.log('get_share_list', inode);
-						return $http({
-							method: 'GET',
-							url: '/api/inode/' + inode.id + '/share_list'
-						});
-					}
-
-					function set_share_list(inode, share_list) {
-						console.log('share', inode, 'with', share_list);
-						return $http({
-							method: 'PUT',
-							url: '/api/inode/' + inode.id + '/share_list',
-							data: {
-								share_list: share_list
-							}
-						});
-					}
-
-					function mklink(inode, link_options) {
-						console.log('mklink', inode, link_options);
-						return $http({
-							method: 'POST',
-							url: '/api/inode/' + inode.id + '/link',
-							data: {
-								link_options: link_options
-							}
-						});
-					}
-
-					function rmlinks(inode) {
-						console.log('revoke_links', inode);
-						return $http({
-							method: 'DELETE',
-							url: '/api/inode/' + inode.id + '/link'
-						});
+						return nbInode.copy_inode(inode).then(refresh_current, refresh_current);
 					}
 
 					function share_inode(inode) {
-						if (!inode) {
-							console.error('no selected inode, bailing');
-							return;
-						}
-						if (nbInode.is_immutable_root(inode)) {
-							$.nbalert('Cannot share root folder');
-							return;
-						}
-						if (nbInode.is_shared_with_me(inode)) {
-							$.nbalert('Cannot share files in the "' + SWM + '" folder.<br/>' +
-								'Use "Copy"...');
-							return;
-						}
-						if (nbInode.is_not_mine(inode)) {
-							$.nbalert('Cannot share someone else\'s file');
-							return;
-						}
-
-						var modal;
-						var share_scope = $scope.$new();
-						share_scope.run = function() {
-							share_scope.share_is_loading = true;
-							set_share_list(inode, share_scope.share_list).then(function(res) {
-								share_scope.share_is_loading = false;
-								modal.modal('hide');
-								// TODO NEED TO READDIR AFTER SHARE?
-								return open_inode($scope.current_inode);
-							}, function() {
-								share_scope.share_is_loading = false;
-							});
-						};
-						share_scope.mark_all = function(value) {
-							var friends = share_scope.share_list;
-							for (var i = 0; i < friends.length; i++) {
-								friends[i].shared = value;
-							}
-						};
-						share_scope.share_is_loading = true;
-						share_scope.share_inode = inode;
-						get_share_list(inode).then(function(res) {
-							share_scope.share_is_loading = false;
-							share_scope.share_list = res.data.list;
-						}, function() {
-							share_scope.share_is_loading = false;
-						});
-						var hdr = $('<div class="modal-header">')
-							.append($('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">').html('&times;'))
-							.append($('<h4>').text('Share ' + inode.name));
-						var body = $('<div class="modal-body">').css('padding', 0).append($('#share_modal').html());
-						var foot = $('<div class="modal-footer">').css('margin-top', 0)
-							.append($('<button type="button" class="btn btn-default" data-dismiss="modal">').text('Cancel'))
-							.append($('<button type="button" class="btn btn-primary" ' +
-								'ng-click="run()" ng-disabled="share_is_loading || !share_list.length">').text('Share'));
-						modal = nbUtil.modal(hdr, body, foot, share_scope);
-
+						return nbInode.share_inode(inode).then(refresh_current, refresh_current);
 					}
-
 				}
 			]
 		};
