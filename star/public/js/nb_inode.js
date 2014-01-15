@@ -499,7 +499,7 @@
 				}
 			}
 
-			function share_inode(inode) {
+			function share_inode(inode, on_share_done) {
 				if (!inode) {
 					console.error('no selected inode, bailing');
 					return;
@@ -528,8 +528,9 @@
 					set_share_list(inode.id, share_scope.share_list).then(function(res) {
 						share_scope.share_is_loading = false;
 						modal.modal('hide');
-						// TODO NEED TO READDIR AFTER SHARE?
-						return open_inode($scope.current_inode);
+						if (on_share_done) {
+							on_share_done();
+						}
 					}, function() {
 						share_scope.share_is_loading = false;
 					});

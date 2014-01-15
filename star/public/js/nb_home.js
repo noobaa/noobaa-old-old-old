@@ -661,7 +661,7 @@
 					}
 
 					function share_inode(inode) {
-						return nbInode.share_inode(inode).then(refresh_current, refresh_current);
+						return nbInode.share_inode(inode, refresh_current);
 					}
 				}
 			]
