@@ -726,7 +726,7 @@
 							});
 						};
 						share_scope.mark_all = function(value) {
-							var friends = share_scope.share_list
+							var friends = share_scope.share_list;
 							for (var i = 0; i < friends.length; i++) {
 								friends[i].shared = value;
 							}
