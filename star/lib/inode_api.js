@@ -4,7 +4,9 @@
 var _ = require('underscore');
 var AWS = require('aws-sdk');
 var URL = require('url');
+var cloudfront_signer = require('cloudfront-private-url-creator');
 var path = require('path');
+var fs = require('fs');
 var moment = require('moment');
 var auth = require('./auth');
 var async = require('async');
@@ -31,6 +33,13 @@ AWS.config.update({
 });
 var S3 = new AWS.S3();
 
+var CF_DOMAIN = 'd3mqcgvn18z8e9.cloudfront.net';
+var CF_KEY_PAIR_ID = 'APKAITLQGNC5OYPIAU3A';
+var CF_PK_PATH = path.join(__dirname, '..', 'cloudfront-keypairs', 'pk-' + CF_KEY_PAIR_ID + '.pem');
+var CF_PK = fs.readFileSync(CF_PK_PATH, {
+	encoding: 'utf8'
+});
+
 // return the S3 path of the fobj
 
 function fobj_s3_key(fobj_id) {
@@ -38,7 +47,7 @@ function fobj_s3_key(fobj_id) {
 }
 
 function name_to_content_dispos(name, is_download) {
-	return (is_download ? 'attachment;' : '') + 'filename="' + querystring.escape(name) + '"';
+	return (is_download ? 'attachment;' : 'inline;') + 'filename="' + querystring.escape(name) + '"';
 }
 
 function detect_content_type(type, name) {
@@ -48,9 +57,22 @@ function detect_content_type(type, name) {
 	return mime.lookup(name);
 }
 
-// return a signed GET url for the fobj in S3
+// return a signed GET url for the fobj in Cloudfront (origin from S3)
 
 function s3_get_url(fobj_id, name, is_download) {
+	var dateLessThan = new Date();
+	dateLessThan.setHours(dateLessThan.getHours() + 12);
+	var cloudfront_config = {
+		privateKey: CF_PK,
+		keyPairId: CF_KEY_PAIR_ID,
+		dateLessThan: dateLessThan
+	};
+	var cloudfront_url = 'https://' + CF_DOMAIN + '/' + fobj_s3_key(fobj_id) +
+		'?response-content-disposition=' + querystring.escape(name_to_content_dispos(name, is_download));
+	var signed_url = cloudfront_signer.signUrl(cloudfront_url, cloudfront_config);
+	console.log('CF URL', signed_url);
+	return signed_url;
+	/*
 	var params = {
 		Bucket: process.env.S3_BUCKET,
 		Key: fobj_s3_key(fobj_id),
@@ -58,6 +80,7 @@ function s3_get_url(fobj_id, name, is_download) {
 		ResponseContentDisposition: name_to_content_dispos(name, is_download)
 	};
 	return S3.getSignedUrl('getObject', params);
+	*/
 }
 
 // return a signed POST form and url for the fobj in S3
