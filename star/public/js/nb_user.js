@@ -137,6 +137,30 @@
 				$window.location.href = '/auth/logout/?state=/home/';
 			};
 
+			$scope.invite_friends = function() {
+				if (window.fb_init_complete) {
+					// return FB.ui({
+					// 	method: 'apprequests',
+					// 	message: 'Invite to share videos with friends on NooBaa'
+					// }, function(res) {
+					// 	console.log('FB REQUEST', res);
+					// });
+					FB.ui({
+						method: 'send',
+						link: 'https://www.noobaa.com?invite_request=' + $scope.user.id
+					}, function(res) {
+						console.log('FB SEND', res);
+					});
+				} else {
+					var url = 'https://www.facebook.com/dialog/send?app_id=' + $scope.server_data.app_id +
+						'&link=https://www.noobaa.com%3Finvite_request%3D' + $scope.user.id +
+						'&redirect_uri=https://www.facebook.com';
+					var win = window.open(url, '_blank');
+					win.focus();
+				}
+			};
+
+
 			return $scope;
 
 		}

@@ -139,7 +139,7 @@
 						<i class="fa fa-rss fa-inverse fa-stack-1x text-white"></i>
 					</span>
 				</a>
-				<a class="nb-menu-item content-switcher" style="padding: 5px; cursor: pointer" Xhref="/home/friends/" ng-click="invite_friends()">
+				<a class="nb-menu-item content-switcher" style="padding: 5px; cursor: pointer" Xhref="/home/friends/" ng-click="nbUser.invite_friends()">
 					<span class="fa-stack" title="Invite Friends" rel="tooltip">
 						<i class="fa fa-circle fa-stack-2x text-muted"></i>
 						<i class="fa fa-users fa-inverse fa-stack-1x text-white"></i>
@@ -314,27 +314,48 @@
 	<!-- SHARE MODAL -->
 
 	<div style="display: none" ng-non-bindable>
-		<div id="share_modal" style="padding: 20px">
+		<div id="share_modal">
 			<div ng-show="share_is_loading" class="text-center" style="padding: 30px">
 				<i class="fa fa-spinner fa-spin fa-2x"></i>
 			</div>
-			<div ng-show="!share_is_loading && !share_list.length">
+			<div ng-show="!share_is_loading && !share_list.length" style="padding: 20px">
 				<p>No friends are availabe for sharing.</p>
-				<p>Currenlty sharing is only availalbe for NooBaa users who are your social network friends.</p>
-				<p>Invite your friends to NooBaa today.</p>
+				<p>Sharing is only availalbe with NooBaa users who are your social network friends.</p>
+				<p>Invite your friends to NooBaa</p>
+				<div class="text-center">
+					<a class="nb-menu-item content-switcher" style="padding: 5px; cursor: pointer" Xhref="/home/friends/" ng-click="nbUser.invite_friends()">
+						<span class="fa-stack" title="Invite Friends" rel="tooltip">
+							<i class="fa fa-circle fa-stack-2x text-muted"></i>
+							<i class="fa fa-users fa-inverse fa-stack-1x text-white"></i>
+						</span>
+					</a>
+				</div>
 			</div>
 			<div ng-show="!share_is_loading && share_list.length" ng-init="filter_friend_name=''">
-				<form role="form">
-					<div class="input-group">
-						<input type="text" class="form-control input-sm" placeholder="Search in friends" ng-model="filter_friend_name" />
-						<span class="input-group-btn">
-							<button class="btn btn-default btn-sm" type="button" ng-click="filter_friend_name=''">
-								<i class="fa fa-times fa-lg"></i>
-							</button>
-						</span>
+				<div style="padding: 20px">
+					<div class="text-center" style="padding-bottom: 10px">
+						<button class="btn btn-default" ng-click="mark_all(false)">
+							Select None
+						</button>
+						<button class="btn btn-warning" ng-click="mark_all(true)">
+							<ng-pluralize count="share_list.length" when="{
+								'0': 'Select All',
+                           		'one': 'Select All (1 friend)',
+                           		'other': 'Select All ({} friends)'}">
+                           	</ng-pluralize>
+						</button>
 					</div>
-				</form>
-				<br/>
+					<form role="form">
+						<div class="input-group">
+							<input type="text" class="form-control input-sm" placeholder="Search in friends" ng-model="filter_friend_name" />
+							<span class="input-group-btn">
+								<button class="btn btn-default btn-sm" type="button" ng-click="filter_friend_name=''">
+									<i class="fa fa-times fa-lg"></i>
+								</button>
+							</span>
+						</div>
+					</form>
+				</div>
 				<table class="table">
 					<tr ng-repeat="friend in share_list | filter:{name: filter_friend_name} | orderBy:'name'" ng-class="{true: 'warning'}[friend.shared]" ng-click="friend.shared = !friend.shared" style="cursor: pointer">
 						<td>

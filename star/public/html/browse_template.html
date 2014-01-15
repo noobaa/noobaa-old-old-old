@@ -3,6 +3,9 @@
 	<div class="panel panel-default">
 		<div class="panel-heading Xbggrey clearfix" style="padding: 0 10px 2px 10px">
 			<div class="clearfix" style="padding: 7px 0">
+				<a class="btn btn-default" ng-click="go_up_level()" ng-disabled="!has_parent(current_inode)" title="Back to previous folder" rel="tooltip" nb-tooltip="{container: 'body'}">
+					<i class="fa fa-caret-left fa-fw fa-lg"></i>
+				</a>
 				<div class="btn-group">
 					<a class="btn btn-link dropdown-toggle" data-toggle="dropdown" title="Back to folder..." rel="tooltip" nb-tooltip="{container: 'body'}" ng-disabled="!has_parent(current_inode)">
 						<span style="font-size: 1.2em; line-height: 1.2em; vertical-align: middle">
@@ -30,9 +33,6 @@
 			</div>
 			<div class="file_actions" ng-show="has_parent(current_inode)">
 				<div class="btn-group">
-					<a class="btn btn-default" ng-click="go_up_level()" title="Back to previous folder" rel="tooltip" nb-tooltip="{container: 'body'}">
-						<i class="fa fa-caret-left fa-fw fa-lg"></i>
-					</a>
 					<a ng-show="has_parent(current_inode)" class="btn btn-default" ng-show="current_inode.isdir" ng-click="open_inode(current_inode)" title="Refresh" rel="tooltip" nb-tooltip="{container: 'body'}">
 						<i class="fa fa-refresh fa-fw fa-lg"></i>
 						<!-- Refresh -->
@@ -45,10 +45,10 @@
 						<!-- New Folder -->
 					</a>
 				</div>
-				<div class="btn-group">
-					<a class="btn btn-info" ng-if="nbInode.can_upload_to_dir(current_inode)" ng-click="nbUploadSrv.open_file_input()" title="Upload" rel="tooltip" nb-tooltip="{container: 'body'}">
+				<span Xclass="btn-group">
+					<a class="btn btn-info" ng-if="nbInode.can_upload_to_dir(current_inode)" ng-click="nbUploadSrv.open_file_input()" Xtitle="Upload" rel="tooltip" nb-tooltip="{container: 'body'}">
 						<i class="fa fa-cloud-upload fa-fw fa-lg"></i>
-						<!-- Upload -->
+						Upload
 					</a>
 					<a class="btn btn-default" ng-if="nbInode.can_upload_file(current_inode)" ng-click="resume_upload(current_inode)" title="Resume Upload" rel="tooltip" nb-tooltip="{container: 'body'}">
 						<i class="fa fa-cloud-upload fa-fw fa-lg"></i>
@@ -68,9 +68,9 @@
 					</a>
 					<a class="btn btn-warning" ng-if="nbInode.can_share_inode(current_inode)" ng-click="share_inode(current_inode)" title="Share" rel="tooltip" nb-tooltip="{container: 'body'}">
 						<i class="fa fa-share-square-o fa-fw fa-lg"></i>
-						<!-- Share -->
+						Share
 					</a>
-				</div>
+				</span>
 				<div ng-show="current_inode.isdir" class="input-group Xinput-group-sm pull-right" style="max-width: 200px">
 					<input type="text" class="form-control {{search_in_folder && 'label-warning' || ''}}" maxlength="100" placeholder="Search in folder" ng-model="search_in_folder" />
 					<span class="input-group-btn">
@@ -124,7 +124,7 @@
 							<!-- Delete {{num_selected()>1 && 'all' || ''}} -->
 						</a>
 					</span>
-					<span ng-if="num_selected()==1" class="btn-group">
+					<span ng-if="num_selected()==1" Xclass="btn-group">
 						<a class="btn btn-default" ng-if="!inode.isdir && !inode.uploading && inode.size" ng-click="nbInode.download_inode(inode)" href="{{nbInode.inode_api_url(inode.id)}}?is_download=true" target="_blank" title="Download" rel="tooltip" nb-tooltip="{container: 'body'}">
 							<i class="fa fa-cloud-download fa-fw fa-lg"></i>
 							<!-- Download -->

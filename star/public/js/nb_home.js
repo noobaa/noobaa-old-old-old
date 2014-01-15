@@ -220,23 +220,6 @@
 				return link === $window.location.pathname ? 'active' : '';
 			};
 
-			$scope.invite_friends = function() {
-				if (window.fb_init_complete) {
-					FB.ui({
-						method: 'send',
-						link: 'https://www.noobaa.com?invite_request=' + nbUser.user.id
-					}, function(res) {
-						console.log('FB SEND', res);
-					});
-				} else {
-					var url = 'https://www.facebook.com/dialog/send?app_id=' + nbUser.server_data.app_id +
-						'&link=https://www.noobaa.com%3Finvite_request%3D' + nbUser.user.id +
-						'&redirect_uri=https://www.facebook.com';
-					var win = window.open(url, '_blank');
-					win.focus();
-				}
-			};
-
 			$scope.show_client_installation = function() {
 				nbUtil.content_modal('Install Client', $('#client_installation').html(), $scope);
 			};
@@ -742,6 +725,12 @@
 								share_scope.share_is_loading = false;
 							});
 						};
+						share_scope.mark_all = function(value) {
+							var friends = share_scope.share_list
+							for (var i = 0; i < friends.length; i++) {
+								friends[i].shared = value;
+							}
+						};
 						share_scope.share_is_loading = true;
 						share_scope.share_inode = inode;
 						get_share_list(inode).then(function(res) {
@@ -756,7 +745,8 @@
 						var body = $('<div class="modal-body">').css('padding', 0).append($('#share_modal').html());
 						var foot = $('<div class="modal-footer">').css('margin-top', 0)
 							.append($('<button type="button" class="btn btn-default" data-dismiss="modal">').text('Cancel'))
-							.append($('<button type="button" class="btn btn-primary" ng-click="run()" ng-disabled="share_scope.share_is_loading">').text('Share'));
+							.append($('<button type="button" class="btn btn-primary" ' +
+								'ng-click="run()" ng-disabled="share_is_loading || !share_list.length">').text('Share'));
 						modal = nbUtil.modal(hdr, body, foot, share_scope);
 
 					}
