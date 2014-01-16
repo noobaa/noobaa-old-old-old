@@ -403,16 +403,18 @@
 						stackup_spacing: 20
 					});
 				};
+				var new_inode_id;
 				return single_copy(inode).then(function(res) {
 					copy_scope.count++;
-					var new_inode_id = res.data.id;
+					new_inode_id = res.data.id;
 					if (on_top_copy) {
-						on_top_copy(new_inode_id);
+						return on_top_copy(new_inode_id);
 					}
+				}).then(function() {
 					if (inode.isdir) {
 						return recurse_dir_copy(inode, new_inode_id, copy_scope);
 					}
-				}, function(err) {
+				}).then(null, function(err) {
 					console.error('FAILED COPY', inode, err);
 					throw err;
 				});

@@ -337,6 +337,7 @@
 					},
 				};
 			}
+			
 			$scope.open_feed_inode = function(feed) {
 				if (feed.isdir) {
 					$scope.home_context.current_inode = feed;
@@ -347,6 +348,17 @@
 					// TODO select item
 				}
 				$location.path('/files/');
+			};
+			
+			$scope.keep_and_share_feed = function() {
+				$scope.running_kns = true;
+				nbInode.keep_and_share_all($scope.feed).then(function() {
+					$scope.running_kns = false;
+					$scope.done_kns = true;
+				}, function(err) {
+					console.error('FAILED KEEP AND SHARE FEED', err);
+					$scope.running_kns = false;
+				});
 			};
 		}
 	]);
