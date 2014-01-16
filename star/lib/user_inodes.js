@@ -193,6 +193,10 @@ function send_notification_on_new_swm(notified_user_id, sharing_user, live_inode
 
 		//send the email notification via the email module. currently not ignoring failurs.  
 		function(notified_user, custom_message, next) {
+			if (notified_user.email_policy === 'silent') {
+				console.log('silent email for user', notified_user.get_email());
+				return next();
+			}
 			return email.send_swm_notification(notified_user, sharing_user, live_inode.name, custom_message, next);
 		}
 

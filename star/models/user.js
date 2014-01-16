@@ -12,6 +12,7 @@ var user_schema = new mongoose.Schema({
 	google: {},
 	local: {},
 	email: String, //this is used when the user updates a different email than the one in FB.
+	email_policy: String,
 	quota: {
 		type: Number,
 		default: Math.pow(1024, 3)
