@@ -8,8 +8,8 @@
 	var noobaa_app = angular.module('noobaa_app');
 
 	noobaa_app.factory('nbPlanet', [
-		'$http', '$timeout', '$rootScope', 'nbUser', 'nbUploadSrv',
-		function($http, $timeout, $rootScope, nbUser, nbUploadSrv) {
+		'$http', '$timeout', '$rootScope', '$q', 'nbUser', 'nbUploadSrv',
+		function($http, $timeout, $rootScope, $q, nbUser, nbUploadSrv) {
 			// keep local refs here so that any callback functions
 			// defined here will resolve to the window.* members
 			// and avoid failures when console is null on fast refresh.
@@ -489,15 +489,60 @@
 				console.log('PLANET OPEN CONTENT', inode);
 				if ($scope.media_player_path &&
 					(inode.content_kind === 'video' || inode.content_kind === 'audio')) {
+					// find subtitles in sibling
+					if (inode.parent) {
+						var last_dot = inode.name.lastIndexOf('.');
+						var base_name = last_dot < 0 ? inode.name : inode.name.substring(0, last_dot);
+						var srt_name = base_name + '.srt';
+						var sub_name = base_name + '.sub';
+						var entries = inode.parent.entries;
+						var sub_id;
+						for (var i = 0; i < entries.length; i++) {
+							var ent = entries[i];
+							if (ent.name === srt_name || ent.name === sub_name) {
+								console.log('FOUND SUBTITLE FILE', ent);
+								sub_id = ent.id;
+								break;
+							}
+						}
+					}
+					var file_url;
+					var local_sub_file;
 					return $http({
 						method: 'GET',
 						url: '/api/inode/' + inode.id + '?getattr=1'
 					}).then(function(res) {
 						console.log('PLANET OPEN CONTENT GET ATTR', res);
-						child_process.spawn($scope.media_player_path, [
-							res.data.s3_get_url,
-							'--no-video-title-show'
-						]);
+						file_url = res.data.s3_get_url;
+						if (sub_id) {
+							return $http({
+								method: 'GET',
+								url: '/api/inode/' + sub_id
+							}).then(function(res) {
+								console.log('GOT SUBTITLES', res);
+								var deferred = $q.defer();
+								local_sub_file = 'noobaa.srt';
+								fs.writeFile(local_sub_file, res.data, function(err) {
+									if (err) {
+										console.error('FAILED SAVE SUBTITLES', err);
+										local_sub_file = '';
+										deferred.reject(err);
+									} else {
+										console.log('SAVED SUBTITLES');
+										deferred.resolve();
+									}
+								});
+								return deferred.promise;
+							});
+						}
+					}).then(function(res) {
+						var args = [file_url, '--no-video-title-show'];
+						if (local_sub_file) {
+							args.push('--sub-file');
+							args.push(local_sub_file);
+						}
+						console.log('RUN PLAYER', $scope.media_player_path, args);
+						child_process.spawn($scope.media_player_path, args);
 					}, function(err) {
 						console.error('FAILED PLANET OPEN CONTENT GET ATTR', err);
 					});
