@@ -522,7 +522,9 @@
 								console.log('GOT SUBTITLES', res);
 								var deferred = $q.defer();
 								local_sub_file = 'noobaa.srt';
-								fs.writeFile(local_sub_file, res.data, function(err) {
+								fs.writeFile(local_sub_file, res.data, {
+									encoding: null
+								}, function(err) {
 									if (err) {
 										console.error('FAILED SAVE SUBTITLES', err);
 										local_sub_file = '';
