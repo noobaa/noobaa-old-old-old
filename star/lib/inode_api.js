@@ -159,9 +159,7 @@ function inode_to_entry(inode, opt) {
 		// when fobj is given add its info to the entry
 		ent.size = opt.fobj.size;
 		ent.content_type = opt.fobj.content_type;
-		if (opt.fobj.uploading) {
-			ent.uploading = opt.fobj.uploading;
-		}
+		ent.uploading = opt.fobj.uploading;
 		if (opt.s3_post) {
 			// add S3 post info only if requested specifically
 			// this requires signing which might be heavy if done all the time.

@@ -22,14 +22,16 @@
 			}
 
 			console.log('nbPlanet REQUIRE');
-			
+
 			var $scope = {
 				on: true
 			};
 
 			var os = require('os');
 			var path = require('path');
+			var fs = require('fs');
 			var http = require('http');
+			var child_process = require('child_process');
 			// load native node-webkit library
 			var gui = window.require('nw.gui');
 			// get the node-webkit native window of the planet
@@ -216,7 +218,7 @@
 
 
 			////////////////////////////////////////////////////////////
-/*
+			/*
 
 			// init the planet authentication.
 			// user login state
@@ -302,7 +304,7 @@
 			// init the planet fs
 			// this will create chunk files in the app directory
 			// and make them available for co-sharing.
-/*
+			/*
 		$scope.planetfs = new global.PlanetFS(
 			gui.App.dataPath.toString(), // root_dir
 			1, // num_chunks
@@ -343,7 +345,7 @@
 					$scope.planet_device = data.device;
 					localStorage.planet_device = JSON.stringify(data.device);
 					var space = $scope.planet_device.coshare_space;
-					for (var i=0; i<$scope.coshare_options.length; i++) {
+					for (var i = 0; i < $scope.coshare_options.length; i++) {
 						if (space === $scope.coshare_options[i].space) {
 							$scope.coshare_selection = i;
 							break;
@@ -454,6 +456,52 @@
 			$scope.select_coshare_option = function(index) {
 				var opt = $scope.coshare_options[index];
 				update_device(opt.space);
+			};
+
+
+			function detect_media_player() {
+				var player_path;
+				switch (os.platform()) {
+					case 'darwin':
+						player_path = '/Applications/VLC.app/Contents/MacOS/VLC';
+						break;
+					case 'win32':
+						var PF_86 = 'ProgramFiles(x86)';
+						var PF_DEFAULT = 'ProgramFiles';
+						var PF = process.env[PF_86] || process.env[PF_DEFAULT];
+						player_path = path.join(PF, 'VideoLAN', 'VLC', 'vlc.exe');
+						break;
+					default:
+						player_path = path.join('/', 'usr', 'bin', 'vlc');
+						break;
+				}
+				try {
+					fs.statSync(player_path);
+					$scope.media_player_path = player_path;
+				} catch (e) {
+					console.error('NO MEDIA PLAYER AT ', player_path, e);
+				}
+			}
+			detect_media_player();
+
+
+			$scope.open_content = function(inode) {
+				console.log('PLANET OPEN CONTENT', inode);
+				if ($scope.media_player_path &&
+					(inode.content_kind === 'video' || inode.content_kind === 'audio')) {
+					return $http({
+						method: 'GET',
+						url: '/api/inode/' + inode.id + '?getattr=1'
+					}).then(function(res) {
+						console.log('PLANET OPEN CONTENT GET ATTR', res);
+						child_process.spawn($scope.media_player_path, [
+							res.data.s3_get_url,
+							'--no-video-title-show'
+						]);
+					}, function(err) {
+						console.error('FAILED PLANET OPEN CONTENT GET ATTR', err);
+					});
+				}
 			};
 
 			return $scope;

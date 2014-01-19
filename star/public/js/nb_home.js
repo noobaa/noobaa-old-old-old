@@ -688,8 +688,8 @@
 	/////////////////////
 
 
-	noobaa_app.directive('nbMedia', ['$parse', '$timeout', 'nbInode',
-		function($parse, $timeout, nbInode) {
+	noobaa_app.directive('nbMedia', ['$parse', '$timeout', 'nbInode', 'nbPlanet',
+		function($parse, $timeout, nbInode, nbPlanet) {
 			return {
 				replace: true,
 				link: function(scope, element, attr) {
@@ -698,14 +698,22 @@
 						scope.inode = scope.$eval(attr.nbMedia) || {};
 					});
 					scope.media_events = scope.$eval(attr.mediaEvents) || {};
-					scope.show_content = scope.is_previewing = scope.$eval(attr.showContent);
+					scope.is_previewing = scope.$eval(attr.showContent);
 					scope.toggle_content = function() {
+						if (nbPlanet.on) {
+							if (nbPlanet.open_content(scope.inode)) {
+								return;
+							}
+						}
 						scope.show_content = !scope.show_content;
 						// TODO a little bit hacky way to call notify_layout...
 						if (scope.media_events.load) {
 							scope.media_events.load();
 						}
 					};
+					if (scope.is_previewing) {
+						scope.toggle_content();
+					}
 				},
 				templateUrl: '/public/html/media_template.html'
 			};
