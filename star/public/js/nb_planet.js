@@ -484,6 +484,14 @@
 			}
 			detect_media_player();
 
+			function array_buffer_to_buffer(ab) {
+				var buffer = new Buffer(ab.byteLength);
+				var view = new Uint8Array(ab);
+				for (var i = 0; i < buffer.length; ++i) {
+					buffer[i] = view[i];
+				}
+				return buffer;
+			}
 
 			$scope.open_content = function(inode) {
 				console.log('PLANET OPEN CONTENT', inode);
@@ -499,7 +507,8 @@
 						var sub_id;
 						for (var i = 0; i < entries.length; i++) {
 							var ent = entries[i];
-							if (ent.name === srt_name || ent.name === sub_name) {
+							if (ent.size > 0 && ent.size <= 1048576 &&
+								(ent.name === srt_name || ent.name === sub_name)) {
 								console.log('FOUND SUBTITLE FILE', ent);
 								sub_id = ent.id;
 								break;
@@ -517,14 +526,14 @@
 						if (sub_id) {
 							return $http({
 								method: 'GET',
-								url: '/api/inode/' + sub_id
+								url: '/api/inode/' + sub_id,
+								responseType: 'arraybuffer'
 							}).then(function(res) {
 								console.log('GOT SUBTITLES', res);
 								var deferred = $q.defer();
-								local_sub_file = 'noobaa.srt';
-								fs.writeFile(local_sub_file, res.data, {
-									encoding: null
-								}, function(err) {
+								local_sub_file = 'noobaa_subs.srt';
+								var buf = array_buffer_to_buffer(res.data);
+								fs.writeFile(local_sub_file, buf, function(err) {
 									if (err) {
 										console.error('FAILED SAVE SUBTITLES', err);
 										local_sub_file = '';
