@@ -1095,7 +1095,7 @@ function list_upload_parts(fobj, part_number_marker, callback) {
 					// TODO best move here the part validity instead in find_missing_parts()
 					upsize += p.Size;
 				}
-				console.log('PART', p);
+				// console.log('PART', p);
 			}
 			// advance marker if not done
 			if (data.IsTruncated) {

@@ -30,7 +30,7 @@
 			<div class="col-xs-4">
 				{{ human_size(upload.item.isDirectory && upload.total_size || upload.item.size) }}
 			</div>
-			<div class="col-xs-4" title="{{upload.error_text}}" rel="tooltip">
+			<div class="col-xs-4" ng-attr-title="{{upload.error_text}}" rel="tooltip">
 				<a ng-show="upload.is_pin" class="btn btn-warning btn-sm">
 					<i class="fa fa-thumb-tack fa-fw"></i>
 				</a>
