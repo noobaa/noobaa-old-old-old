@@ -335,7 +335,7 @@
 					// feed.is_selected = true;
 					// TODO select item
 				}
-				$location.path('/files/');
+				$location.path('/items/');
 			};
 
 			$scope.keep_and_share_feed = function() {
