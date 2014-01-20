@@ -42,12 +42,13 @@
 
 
 	noobaa_app.factory('nbUtil', [
-		'$http', '$timeout', '$interval', '$q', '$rootScope', '$compile',
-		function($http, $timeout, $interval, $q, $rootScope, $compile) {
+		'$http', '$timeout', '$interval', '$window', '$q', '$rootScope', '$compile',
+		function($http, $timeout, $interval,$window, $q, $rootScope, $compile) {
 
 			var _has_global_modal = false;
 
 			var $scope = {
+				active_link: active_link,
 				bowser: bowser,
 				nbalert: nbalert,
 				nbconfirm: nbconfirm,
@@ -62,6 +63,10 @@
 				content_modal: content_modal,
 			};
 
+
+			function active_link(link) {
+				return link === $window.location.pathname ? 'active' : '';
+			}
 
 			function modal(hdr, body, foot, modal_scope) {
 				if (_has_global_modal) {

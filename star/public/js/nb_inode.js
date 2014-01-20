@@ -111,7 +111,7 @@
 					parent: null,
 					level: 0,
 					isdir: true,
-					name: 'My Home',
+					name: 'My Items',
 					entries: [],
 					entries_map: {}
 				};

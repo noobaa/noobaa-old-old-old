@@ -16,29 +16,21 @@
 
 	noobaa_app.config(function($routeProvider, $locationProvider) {
 		$locationProvider.html5Mode(true);
-		$routeProvider.when('/', {
+		$routeProvider.when('/feed/', {
 			templateUrl: '/public/html/feed_template.html',
 			controller: ['$scope',
 				function($scope) {
 					$scope.refresh_feeds();
 				}
 			]
-		}).when('/files/:path*?', {
+		}).when('/items/:path*?', {
 			template: [
 				'<div class="container" style="padding-bottom: 20px">',
 				'	<div nb-browse ng-if="home_context" context="home_context" notify-layout="angular.noop"></div>',
 				'</div>'
 			].join('\n')
-		}).when('/videos/', {
-			redirectTo: '/files/'
-		}).when('/photos/', {
-			redirectTo: '/files/'
-		}).when('/music/', {
-			redirectTo: '/files/'
-		}).when('/install', {
-			templateUrl: '/public/html/install_template.html',
 		}).otherwise({
-			redirectTo: '/'
+			redirectTo: '/feed/'
 		});
 	});
 
@@ -216,10 +208,6 @@
 			};
 
 
-			$scope.active_link = function(link) {
-				return link === $window.location.pathname ? 'active' : '';
-			};
-
 			$scope.show_client_installation = function() {
 				nbUtil.content_modal('Install Client', $('#client_installation').html(), $scope);
 			};
@@ -337,7 +325,7 @@
 					},
 				};
 			}
-			
+
 			$scope.open_feed_inode = function(feed) {
 				if (feed.isdir) {
 					$scope.home_context.current_inode = feed;
@@ -349,7 +337,7 @@
 				}
 				$location.path('/files/');
 			};
-			
+
 			$scope.keep_and_share_feed = function() {
 				$scope.running_kns = true;
 				nbInode.keep_and_share_all($scope.feed).then(function() {

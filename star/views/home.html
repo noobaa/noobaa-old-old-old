@@ -131,70 +131,79 @@
 
 	<div ng-if="nbUser.user">
 
-		<div id="nb-menu" class="text-center" style="margin: 0 0 10px 10px">
-			<div style="display: inline-block; border-radius: 10px; margin: 10px 10px 0 0" class="bggrey">
-				<a class="nb-menu-item content-switcher" style="padding: 5px; cursor: pointer" href="/home/">
-					<span class="fa-stack" title="Feed" rel="tooltip">
-						<i class="fa fa-circle fa-stack-2x text-muted"></i>
-						<i class="fa fa-rss fa-inverse fa-stack-1x text-white"></i>
-					</span>
-				</a>
-				<a class="nb-menu-item content-switcher" style="padding: 5px; cursor: pointer" Xhref="/home/friends/" ng-click="nbUser.invite_friends()">
-					<span class="fa-stack" title="Invite Friends" rel="tooltip">
-						<i class="fa fa-circle fa-stack-2x text-muted"></i>
-						<i class="fa fa-users fa-inverse fa-stack-1x text-white"></i>
-					</span>
-				</a>
-				<a class="nb-menu-item content-switcher" style="padding: 5px; cursor: pointer" ng-click="nbUploadSrv.open_file_input()">
-					<span class="fa-stack" title="Upload files" rel="tooltip">
-						<i class="fa fa-circle fa-stack-2x text-muted"></i>
-						<i class="fa fa-cloud-upload fa-inverse fa-stack-1x text-white"></i>
-					</span>
-				</a>
-				<a ng-if="nbPlanet.on" class="nb-menu-item content-switcher" style="padding: 5px; cursor: pointer" ng-click="nbUploadSrv.open_dir_input()">
-					<span class="fa-stack" title="Upload folder" rel="tooltip">
-						<i class="fa fa-circle fa-stack-2x text-muted"></i>
-						<i class="fa fa-folder fa-inverse fa-stack-1x text-white"></i>
-					</span>
-				</a>
-				<a ng-if="nbPlanet.on" class="nb-menu-item content-switcher" style="padding: 5px; cursor: pointer" ng-click="show_client_expansion()">
-					<span class="fa-stack" title="Expand Space" rel="tooltip">
-						<i class="fa fa-circle fa-stack-2x text-muted"></i>
-						<i class="fa fa-rocket fa-inverse fa-stack-1x text-white"></i>
-					</span>
-				</a>
-				<a ng-if="!nbPlanet.on" class="nb-menu-item content-switcher" style="padding: 5px; cursor: pointer" ng-click="show_client_installation()">
-					<span class="fa-stack" title="Install" rel="tooltip">
-						<i class="fa fa-circle fa-stack-2x text-muted"></i>
-						<i class="fa fa-thumb-tack fa-inverse fa-stack-1x text-white"></i>
-					</span>
-				</a>
-			</div>
-			<div style="display: inline-block; border-radius: 10px; margin: 10px 10px 0 0">
-				<a class="nb-menu-item content-switcher" style="padding: 5px; cursor: pointer" href="/home/files/">
-					<span class="fa-stack" title="Files" rel="tooltip">
-						<i class="fa fa-circle fa-stack-2x text-muted"></i>
-						<i class="fa fa-file fa-inverse fa-stack-1x text-white"></i>
-					</span>
-				</a>
-				<a class="nb-menu-item content-switcher" style="padding: 5px; cursor: pointer" href="/home/videos/" ng-click="nbUtil.coming_soon()">
-					<span class="fa-stack" title="Videos" rel="tooltip">
-						<i class="fa fa-circle fa-stack-2x text-muted"></i>
-						<i class="fa fa-video-camera fa-inverse fa-stack-1x text-white"></i>
-					</span>
-				</a>
-				<a class="nb-menu-item content-switcher" style="padding: 5px; cursor: pointer" href="/home/photos/" ng-click="nbUtil.coming_soon()">
-					<span class="fa-stack" title="Photos" rel="tooltip">
-						<i class="fa fa-circle fa-stack-2x text-muted"></i>
-						<i class="fa fa-picture-o fa-inverse fa-stack-1x text-white"></i>
-					</span>
-				</a>
-				<a class="nb-menu-item content-switcher" style="padding: 5px; cursor: pointer" href="/home/music/" ng-click="nbUtil.coming_soon()">
-					<span class="fa-stack" title="Music" rel="tooltip">
-						<i class="fa fa-circle fa-stack-2x text-muted"></i>
-						<i class="fa fa-music fa-inverse fa-stack-1x text-white"></i>
-					</span>
-				</a>
+		<div id="nb-menu" class="text-center" style="margin: 10px 0 10px 10px">
+			<div class="container">
+				<ul class="nav nav-tabs center-block">
+					<li ng-class="nbUtil.active_link('/home/feed/')">
+						<a class="btn btn-link btn-lg" style="padding: 5px; cursor: pointer" href="/home/feed/">
+							<span class="fa-stack" rel="tooltip">
+								<i class="fa fa-circle fa-stack-2x text-muted"></i>
+								<i class="fa fa-rss fa-inverse fa-stack-1x text-white"></i>
+							</span>
+							<span>My Feed</span>
+						</a>
+					</li>
+					<li ng-class="nbUtil.active_link('/home/items/')">
+						<a class="btn btn-link btn-lg" style="padding: 5px; cursor: pointer" href="/home/items/">
+							<span class="fa-stack" rel="tooltip">
+								<i class="fa fa-circle fa-stack-2x text-muted"></i>
+								<i class="fa fa-file fa-inverse fa-stack-1x text-white"></i>
+							</span>
+							<span>My Items</span>
+						</a>
+					</li>
+					<li ng-class="nbUtil.active_link('/home/upload/')">
+						<a class="btn btn-link btn-lg" style="padding: 5px; cursor: pointer" Xhref="/home/upload/" ng-click="nbUploadSrv.open_file_input()">
+							<span class="fa-stack" rel="tooltip">
+								<i class="fa fa-circle fa-stack-2x text-muted"></i>
+								<i class="fa fa-cloud-upload fa-inverse fa-stack-1x text-white"></i>
+							</span>
+							<span>
+								Upload
+								<span class="badge" ng-show="nbUploadSrv.root.total_sons - nbUploadSrv.root.total_completed">
+									{{nbUploadSrv.root.total_sons - nbUploadSrv.root.total_completed}}
+									<i class="fa fa-cog fa-spin"></i>
+								</span>
+							</span>
+						</a>
+					</li>
+					<li ng-if="nbPlanet.on" ng-class="nbUtil.active_link('/home/upload/')">
+						<a class="btn btn-link btn-lg" style="padding: 5px; cursor: pointer" ng-click="nbUploadSrv.open_dir_input()">
+							<span class="fa-stack" rel="tooltip">
+								<i class="fa fa-circle fa-stack-2x text-muted"></i>
+								<i class="fa fa-folder fa-inverse fa-stack-1x text-white"></i>
+							</span>
+							<span>Upload Folder</span>
+						</a>
+					</li>
+					<li ng-if="!nbPlanet.on" ng-class="nbUtil.active_link('/home/install/')">
+						<a class="btn btn-link btn-lg" style="padding: 5px; cursor: pointer" Xhref="/home/install/" ng-click="show_client_installation()">
+							<span class="fa-stack" rel="tooltip">
+								<i class="fa fa-circle fa-stack-2x text-muted"></i>
+								<i class="fa fa-anchor fa-inverse fa-stack-1x text-white"></i>
+							</span>
+							<span>Install</span>
+						</a>
+					</li>
+					<li ng-if="nbPlanet.on" ng-class="nbUtil.active_link('/home/expand/')">
+						<a class="btn btn-link btn-lg" style="padding: 5px; cursor: pointer" ng-click="show_client_expansion()">
+							<span class="fa-stack" rel="tooltip">
+								<i class="fa fa-circle fa-stack-2x text-muted"></i>
+								<i class="fa fa-rocket fa-inverse fa-stack-1x text-white"></i>
+							</span>
+							Expand Space
+						</a>
+					</li>
+					<li ng-class="nbUtil.active_link('/home/friends/')">
+						<a class="btn btn-link btn-lg" style="padding: 5px; cursor: pointer" Xhref="/home/friends/" ng-click="nbUser.invite_friends()">
+							<span class="fa-stack" Xtitle="Files" rel="tooltip">
+								<i class="fa fa-circle fa-stack-2x text-muted"></i>
+								<i class="fa fa-users fa-inverse fa-stack-1x text-white"></i>
+							</span>
+							<span>Invite</span>
+						</a>
+					</li>
+				</ul>
 			</div>
 		</div>
 
@@ -342,7 +351,7 @@
 								'0': 'Select All',
                            		'one': 'Select All (1 friend)',
                            		'other': 'Select All ({} friends)'}">
-                           	</ng-pluralize>
+							</ng-pluralize>
 						</button>
 					</div>
 					<form role="form">
