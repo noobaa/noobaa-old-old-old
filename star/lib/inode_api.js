@@ -33,7 +33,10 @@ AWS.config.update({
 });
 var S3 = new AWS.S3();
 
-var CF_DOMAIN = 'd3mqcgvn18z8e9.cloudfront.net';
+var CF_PROTO = 'https://',
+	CF_DOMAIN = 'd3mqcgvn18z8e9.cloudfront.net'; // WEB
+// var CF_PROTO = 'rtmp://',
+// 	CF_DOMAIN = 's2eqm7dj8vji1h.cloudfront.net'; // RTMP
 var CF_KEY_PAIR_ID = 'APKAITLQGNC5OYPIAU3A';
 var CF_PK_PATH = path.join(__dirname, '..', 'cloudfront-keypairs', 'pk-' + CF_KEY_PAIR_ID + '.pem');
 var CF_PK = fs.readFileSync(CF_PK_PATH, {
@@ -67,7 +70,7 @@ function s3_get_url(fobj_id, name, is_download) {
 		keyPairId: CF_KEY_PAIR_ID,
 		dateLessThan: dateLessThan
 	};
-	var cloudfront_url = 'https://' + CF_DOMAIN + '/' + fobj_s3_key(fobj_id) +
+	var cloudfront_url = CF_PROTO + CF_DOMAIN + '/' + fobj_s3_key(fobj_id) +
 		'?response-content-disposition=' + querystring.escape(name_to_content_dispos(name, is_download));
 	var signed_url = cloudfront_signer.signUrl(cloudfront_url, cloudfront_config);
 	console.log('CF URL', signed_url);
