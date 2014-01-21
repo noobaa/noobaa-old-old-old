@@ -1,4 +1,5 @@
 /* jshint node:true */
+/* jshint -W099 */
 'use strict';
 
 var _ = require('underscore');
@@ -35,8 +36,7 @@ var S3 = new AWS.S3();
 
 var CF_PROTO = 'https://',
 	CF_DOMAIN = 'd3mqcgvn18z8e9.cloudfront.net'; // WEB
-// var CF_PROTO = 'rtmp://',
-// 	CF_DOMAIN = 's2eqm7dj8vji1h.cloudfront.net'; // RTMP
+// var CF_PROTO = 'rtmp://', CF_DOMAIN = 's2eqm7dj8vji1h.cloudfront.net'; // RTMP
 var CF_KEY_PAIR_ID = 'APKAITLQGNC5OYPIAU3A';
 var CF_PK_PATH = path.join(__dirname, '..', 'cloudfront-keypairs', 'pk-' + CF_KEY_PAIR_ID + '.pem');
 var CF_PK = fs.readFileSync(CF_PK_PATH, {
