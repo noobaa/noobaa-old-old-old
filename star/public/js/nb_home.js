@@ -25,7 +25,7 @@
 			]
 		}).when('/items/:path*?', {
 			template: [
-				'<div class="container" style="padding-bottom: 20px">',
+				'<div class="container">',
 				'	<div nb-browse ng-if="home_context" context="home_context" notify-layout="angular.noop"></div>',
 				'</div>'
 			].join('\n')
