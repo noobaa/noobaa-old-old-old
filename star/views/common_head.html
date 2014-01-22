@@ -57,6 +57,16 @@ ga('send', 'pageview');
 </script>
 
 
+<!-- break out from iframe -->
+<script type="text/javascript">
+<!--
+if (top.location != self.location) {
+	top.location = self.location.href
+}
+//-->
+</script>
+
+
 <!--[if IE]>
 <script type="text/javascript">
 	var tags = ['header', 'section'];
