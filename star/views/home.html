@@ -133,7 +133,7 @@
 
 		<div id="nb-menu" class="text-center" style="margin: 10px 0 10px 10px">
 			<div class="container">
-				<ul class="nav nav-tabs center-block">
+				<ul class="nav nav-pills center-block">
 					<li ng-class="nbUtil.active_link('/home/feed/')">
 						<a class="btn btn-link btn-lg" style="padding: 5px; cursor: pointer" href="/home/feed/">
 							<span class="fa-stack" rel="tooltip">
@@ -195,12 +195,12 @@
 						</a>
 					</li>
 					<li ng-class="nbUtil.active_link('/home/friends/')">
-						<a class="btn btn-link btn-lg" style="padding: 5px; cursor: pointer" Xhref="/home/friends/" ng-click="nbUser.invite_friends()">
-							<span class="fa-stack" Xtitle="Files" rel="tooltip">
+						<a class="btn btn-link btn-lg" style="padding: 5px; cursor: pointer" href="/home/friends/">
+							<span class="fa-stack" rel="tooltip">
 								<i class="fa fa-circle fa-stack-2x text-muted"></i>
 								<i class="fa fa-users fa-inverse fa-stack-1x text-white"></i>
 							</span>
-							<span>Invite</span>
+							<span>Friends</span>
 						</a>
 					</li>
 				</ul>
@@ -328,42 +328,37 @@
 				<i class="fa fa-spinner fa-spin fa-2x"></i>
 			</div>
 			<div ng-show="!share_is_loading && !share_list.length" style="padding: 20px">
-				<p>No friends are availabe for sharing.</p>
-				<p>Sharing is only availalbe with NooBaa users who are your social network friends.</p>
-				<p>Invite your friends to NooBaa</p>
+				<h3>Invite your friends to share media with them</h3>
 				<div class="text-center">
-					<a class="nb-menu-item content-switcher" style="padding: 5px; cursor: pointer" Xhref="/home/friends/" ng-click="nbUser.invite_friends()">
-						<span class="fa-stack" title="Invite Friends" rel="tooltip">
+					<a class="btn btn-link btn-lg" style="padding: 5px; cursor: pointer" href="/home/friends/">
+						<span class="fa-stack" rel="tooltip">
 							<i class="fa fa-circle fa-stack-2x text-muted"></i>
 							<i class="fa fa-users fa-inverse fa-stack-1x text-white"></i>
 						</span>
+						<span>Find Your Friends</span>
 					</a>
 				</div>
 			</div>
 			<div ng-show="!share_is_loading && share_list.length" ng-init="filter_friend_name=''">
-				<div style="padding: 20px">
-					<div class="text-center" style="padding-bottom: 10px">
-						<button class="btn btn-default" ng-click="mark_all(false)">
-							Select None
-						</button>
-						<button class="btn btn-warning" ng-click="mark_all(true)">
-							<ng-pluralize count="share_list.length" when="{
+				<div style="padding: 10px" class="Xtext-center clearfix">
+					<div class="input-group pull-left" style="max-width: 180px; margin-right: 5px">
+						<input type="text" class="form-control {{filter_friend_name && 'label-warning' || ''}}" maxlength="100" placeholder="Search in friends" ng-model="filter_friend_name" style="border-top-left-radius: 20px; border-bottom-left-radius: 20px" />
+						<span class="input-group-btn">
+							<button class="btn btn-default" type="button" ng-click="filter_friend_name=''" title="Clear search" rel="tooltip" nb-tooltip="{container: 'body'}">
+								<i class="fa fa-times Xfa-lg"></i>
+							</button>
+						</span>
+					</div>
+					<button class="btn btn-default pull-left" ng-click="mark_all(false)" style="margin-right: 5px">
+						Select None
+					</button>
+					<button class="btn btn-warning pull-left" ng-click="mark_all(true)">
+						<ng-pluralize count="share_list.length" when="{
 								'0': 'Select All',
                            		'one': 'Select All (1 friend)',
                            		'other': 'Select All ({} friends)'}">
-							</ng-pluralize>
-						</button>
-					</div>
-					<form role="form">
-						<div class="input-group">
-							<input type="text" class="form-control input-sm" placeholder="Search in friends" ng-model="filter_friend_name" />
-							<span class="input-group-btn">
-								<button class="btn btn-default btn-sm" type="button" ng-click="filter_friend_name=''">
-									<i class="fa fa-times fa-lg"></i>
-								</button>
-							</span>
-						</div>
-					</form>
+						</ng-pluralize>
+					</button>
 				</div>
 				<table class="table">
 					<tr ng-repeat="friend in share_list | filter:{name: filter_friend_name} | orderBy:'name'" ng-class="{true: 'warning'}[friend.shared]" ng-click="friend.shared = !friend.shared" style="cursor: pointer">

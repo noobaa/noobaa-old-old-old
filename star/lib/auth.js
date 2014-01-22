@@ -251,14 +251,14 @@ exports.get_friends_list = get_friends_list;
 
 function get_friends_list(tokens, callback) {
 	async.parallel({
-		fb_friends_list: function(cb) {
+		fb: function(cb) {
 			if (!tokens.facebook) {
 				return cb(null, []);
 			}
 			var client = fbapi.user(tokens.facebook.access_token);
 			client.me.friends(cb);
 		},
-		google_friends_list: function(cb) {
+		google: function(cb) {
 			if (!tokens.google) {
 				return cb(null, []);
 			}
@@ -282,6 +282,24 @@ function get_friends_list(tokens, callback) {
 	}, callback);
 }
 
+exports.find_users_from_friends = find_users_from_friends;
+
+function find_users_from_friends(friends, callback) {
+	var fb_friends_id_list = _.pluck(friends.fb, 'id');
+	var google_friends_id_list = _.pluck(friends.google, 'id');
+	return User.find({
+		$or: [{
+			"fb.id": {
+				"$in": fb_friends_id_list
+			}
+		}, {
+			"google.id": {
+				"$in": google_friends_id_list
+			}
+		}]
+	}, callback);
+}
+
 exports.get_noobaa_friends_list = get_noobaa_friends_list;
 
 function get_noobaa_friends_list(tokens, callback) {
@@ -292,24 +310,9 @@ function get_noobaa_friends_list(tokens, callback) {
 
 	async.waterfall([
 
-		// get_friends_list.bind(null, accessToken),
 		get_friends_list.bind(null, tokens),
 
-		function(friends, next) {
-			var fb_friends_id_list = _.pluck(friends.fb_friends_list, 'id');
-			var google_friends_id_list = _.pluck(friends.google_friends_list, 'id');
-			User.find({
-					$or: [{
-						"fb.id": {
-							"$in": fb_friends_id_list
-						}
-					}, {
-						"google.id": {
-							"$in": google_friends_id_list
-						}
-					}]
-				},
-				next);
-		},
+		find_users_from_friends
+
 	], callback);
 }

@@ -264,6 +264,7 @@ app.del('/api/inode/:inode_id/link', inode_api.inode_rmlinks);
 var user_api = require('./lib/user_api');
 app.get('/api/user/', user_api.user_read);
 app.put('/api/user/', user_api.user_update);
+app.get('/api/user/friends/', user_api.user_get_friends);
 
 var email = require('./lib/email');
 app.post('/api/user/feedback/', email.user_feedback);

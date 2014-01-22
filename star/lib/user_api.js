@@ -7,6 +7,7 @@ var common_api = require('./common_api');
 var user_inodes = require('./user_inodes');
 var User = require('../models/user').User;
 var email = require('./email');
+var auth = require('./auth');
 
 // USER CRUD - READ
 
@@ -63,4 +64,64 @@ exports.user_update = function(req, res) {
 		email.send_mail_changed,
 
 	], common_api.reply_callback(req, res, 'USER UPDATE ' + user_id));
+};
+
+
+exports.user_get_friends = function(req, res) {
+	var user_id = req.user.id;
+
+	return async.waterfall([
+
+		auth.get_friends_list.bind(null, req.session.tokens),
+
+		function(friends, next) {
+			return auth.find_users_from_friends(friends, function(err, users) {
+				return next(err, friends, users);
+			});
+		},
+
+		function(friends, users, next) {
+			var res_users = new Array(users.length);
+			var users_fbids = {};
+			var users_googleids = {};
+			for (var i = 0; i < users.length; i++) {
+				var u = users[i];
+				res_users[i] = {
+					id: u.id
+				};
+				if (u.google) {
+					res_users[i].googleid = u.google.id;
+					res_users[i].name = u.google.name;
+					users_googleids[u.google.id] = true;
+				}
+				if (u.fb) {
+					res_users[i].fbid = u.fb.id;
+					res_users[i].name = u.fb.name;
+					users_fbids[u.fb.id] = true;
+				}
+			}
+			var res_fb = _.map(_.filter(friends.fb, function(friend) {
+				return !users_fbids[friend.id];
+			}), function(friend) {
+				return {
+					name: friend.name,
+					fbid: friend.id
+				};
+			});
+			var res_google = _.map(_.filter(friends.google, function(friend) {
+				return !users_googleids[friend.id];
+			}), function(friend) {
+				return {
+					name: friend.name,
+					googleid: friend.id
+				};
+			});
+			return next(null, {
+				users: res_users,
+				fb: res_fb,
+				google: res_google
+			});
+		}
+
+	], common_api.reply_callback(req, res, 'USER FRIENDS ' + user_id));
 };

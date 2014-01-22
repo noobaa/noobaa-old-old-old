@@ -29,6 +29,13 @@
 				'	<div nb-browse ng-if="home_context" context="home_context" notify-layout="angular.noop"></div>',
 				'</div>'
 			].join('\n')
+		}).when('/friends/', {
+			templateUrl: '/public/html/friends_template.html',
+			controller: ['$scope',
+				function($scope) {
+					$scope.refresh_friends();
+				}
+			]
 		}).otherwise({
 			redirectTo: '/feed/'
 		});
@@ -56,6 +63,13 @@
 			$scope.refresh_feeds = refresh_feeds;
 			$scope.root_dir = nbInode.init_root_dir();
 
+			$scope.refresh_friends = refresh_friends;
+			$scope.present_map = present_map;
+			$scope.set_fb_invites = set_fb_invites;
+			$scope.send_fb_invites = send_fb_invites;
+			$scope.set_google_invites = set_google_invites;
+			$scope.send_google_invites = send_google_invites;
+			$scope.send_friend_message = send_friend_message;
 
 			$scope.home_context = {
 				current_inode: $scope.root_dir,
@@ -264,6 +278,92 @@
 			$scope.feedbacks = localStorage.feedbacks ?
 				JSON.parse(localStorage.feedbacks) : [];
 			$scope.feedback_worker();
+
+
+			function refresh_friends() {
+				$scope.fb_invites = {};
+				$scope.google_invites = {};
+				$http({
+					method: 'GET',
+					url: '/api/user/friends/'
+				}).then(function(res) {
+					console.log('GOT FRIENDS', res);
+					$scope.friends = res.data;
+				}, function(err) {
+					console.error('FAILED GET FRIENDS', err);
+				});
+			}
+
+			function present_map(list, key) {
+				var map = {};
+				for (var i = 0; i < list.length; i++) {
+					map[list[i][key]] = true;
+				}
+				return map;
+			}
+
+			function set_fb_invites(arg) {
+				if (arg === true) {
+					$scope.fb_invites = present_map($scope.friends.fb, 'fbid');
+				} else if (arg === false) {
+					$scope.fb_invites = {};
+				} else {
+					if ($scope.fb_invites[arg]) {
+						delete $scope.fb_invites[arg];
+					} else {
+						$scope.fb_invites[arg] = true;
+					}
+				}
+			}
+
+			function set_google_invites(arg) {
+				if (arg === true) {
+					$scope.google_invites = present_map($scope.friends.google, 'googleid');
+				} else if (arg === false) {
+					$scope.google_invites = {};
+				} else {
+					if ($scope.google_invites[arg]) {
+						delete $scope.google_invites[arg];
+					} else {
+						$scope.google_invites[arg] = true;
+					}
+
+				}
+			}
+
+			function send_fb_invites() {
+				var fbids = _.keys($scope.fb_invites);
+				$scope.sending_fb_invites = true;
+				FB.ui({
+					method: 'apprequests',
+					to: fbids,
+					title: 'NooBaa',
+					message: 'Lets share videos on NooBaa!',
+					data: nbUser.user.id
+				}, function(res) {
+					$scope.sending_fb_invites = false;
+					console.log('FB APP REQUESTS', res);
+				});
+			}
+
+			function send_google_invites() {
+				console.log('TODO send_google_invites');
+			}
+
+			function send_friend_message(friend) {
+				console.log(ga);
+				if (friend.fbid) {
+					FB.ui({
+						method: 'send',
+						to: friend.fbid, // only single target is possible
+						link: 'https://www.noobaa.com?fbsender=' + nbUser.user.id
+					}, function(res) {
+						console.log('FB SEND', res);
+					});
+				} else {
+					console.log('TODO send_friend_message to googleid');
+				}
+			}
 		}
 	]);
 

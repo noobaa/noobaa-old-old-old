@@ -1,0 +1,66 @@
+<div class="container">
+
+	<div ng-show="!friends" style="padding: 20px" class="text-center">
+		<i class="fa fa-spinner fa-spin fa-3x"></i>
+	</div>
+
+	<div class="panel panel-primary" ng-show="friends.users.length">
+		<div class="panel-heading">
+			<div class="text-center">
+				<h3>Your NooBaa Friends</h3>
+			</div>
+			<div>
+				<div ng-repeat="friend in friends.users" class="text-ellipses" style="display: inline-block; width: 260px; margin: 0 2px; padding: 5px; cursor: pointer" ng-click="send_friend_message(friend)">
+					<img ng-src="{{nbUser.user_pic_url(friend)}}" />&nbsp;
+					<span>{{friend.name}}</span>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="panel panel-default" ng-show="friends.fb.length">
+		<div class="panel-heading text-center">
+			<h3>Select and Invite your Facebook friends</h3>
+			<div>
+				<a class="btn btn-default btn-sm" ng-click="set_fb_invites(false)">Select None</a>
+				<a class="btn btn-primary btn-lg" ng-click="send_fb_invites()" ng-disabled="sending_fb_invites">
+					<span ng-show="sending_fb_invites">
+						<i class="fa fa-spinner fa-spin"></i>
+					</span>
+					Invite
+				</a>
+				<a class="btn btn-warning btn-sm" ng-click="set_fb_invites(true)">Select All</a>
+			</div>
+		</div>
+		<div class="panel-body">
+			<div ng-repeat="friend in friends.fb" class="text-ellipses {{fb_invites[friend.fbid] && 'label-warning'}}" style="display: inline-block; width: 260px; margin: 0 2px; padding: 5px; cursor: pointer" ng-click="set_fb_invites(friend.fbid)">
+				<i class="fa fa-{{fb_invites[friend.fbid] && 'check' || 'plus-square'}} fa-fw"></i>&nbsp;
+				<img width="32" height="32" ng-src="{{nbUser.user_pic_url(friend)}}" />&nbsp;
+				<span>{{friend.name}}</span>
+			</div>
+		</div>
+	</div>
+
+	<div class="panel panel-default" ng-show="friends.google.length">
+		<div class="panel-heading text-center">
+			<h3>Select and Invite your Google+ friends</h3>
+			<div>
+				<a class="btn btn-default btn-sm" ng-click="set_google_invites(false)">Select None</a>
+				<a class="btn btn-primary btn-lg" ng-click="send_google_invites()" ng-disabled="sending_google_invites">
+					<span ng-show="sending_google_invites">
+						<i class="fa fa-spinner fa-spin"></i>
+					</span>
+					Invite
+				</a>
+				<a class="btn btn-warning btn-sm" ng-click="set_google_invites(true)">Select All</a>
+			</div>
+		</div>
+		<div class="panel-body">
+			<div ng-repeat="friend in friends.google" class="text-ellipses {{google_invites[friend.googleid] && 'label-warning'}}" style="display: inline-block; width: 260px; margin: 0 2px; padding: 5px; cursor: pointer" ng-click="set_google_invites(friend.googleid)">
+				<i class="fa fa-{{google_invites[friend.googleid] && 'check' || 'plus-square'}} fa-fw"></i>&nbsp;
+				<img width="32" height="32" ng-src="{{nbUser.user_pic_url(friend)}}" />&nbsp;
+				<span>{{friend.name}}</span>
+			</div>
+		</div>
+	</div>
+</div>
