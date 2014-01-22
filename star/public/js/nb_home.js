@@ -283,6 +283,7 @@
 			function refresh_friends() {
 				$scope.fb_invites = {};
 				$scope.google_invites = {};
+				$scope.sending_fb_invites = false;
 				$http({
 					method: 'GET',
 					url: '/api/user/friends/'
@@ -334,16 +335,26 @@
 			function send_fb_invites() {
 				var fbids = _.keys($scope.fb_invites);
 				$scope.sending_fb_invites = true;
-				FB.ui({
-					method: 'apprequests',
-					to: fbids,
-					title: 'NooBaa',
-					message: 'Lets share videos on NooBaa!',
-					data: nbUser.user.id
-				}, function(res) {
-					$scope.sending_fb_invites = false;
-					console.log('FB APP REQUESTS', res);
-				});
+				snd();
+
+				function snd() {
+					var now = _.first(fbids, 50);
+					fbids = _.rest(fbids, 50);
+					FB.ui({
+						method: 'apprequests',
+						to: now,
+						title: 'NooBaa',
+						message: 'Lets share videos on NooBaa!',
+						data: nbUser.user.id
+					}, function(res) {
+						console.log('FB APP REQUESTS', res);
+						if (!fbids.length || res.error_code) {
+							$scope.sending_fb_invites = false;
+						} else {
+							snd(); // async loop
+						}
+					});
+				}
 			}
 
 			function send_google_invites() {
