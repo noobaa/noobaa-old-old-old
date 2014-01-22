@@ -112,7 +112,7 @@ exports.user_get_friends = function(req, res) {
 				return !users_googleids[friend.id];
 			}), function(friend) {
 				return {
-					name: friend.name,
+					name: friend.displayName,
 					googleid: friend.id
 				};
 			});
