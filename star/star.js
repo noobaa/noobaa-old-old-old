@@ -345,7 +345,7 @@ app.get('/home', function(req, res) {
 	return res.redirect('/home/');
 });
 
-app.get('/', redirect_no_user, function(req, res) {
+app.all('/', redirect_no_user, function(req, res) {
 	return res.redirect('/home/');
 });
 
