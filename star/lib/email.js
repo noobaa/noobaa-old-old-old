@@ -9,6 +9,7 @@ var emailTemplates = require('email-templates');
 var nodemailer = require('nodemailer');
 var common_api = require('./common_api');
 var track = require('./track');
+var dot = require('dot');
 
 // to see how to add dynamic info:
 // help.mandrill.com/entries/21678522-how-do-i-use-merge-tags-to-add-dynamic-content
@@ -186,6 +187,7 @@ exports.get_templates = function() {
 };
 
 exports.send_swm_notification = send_swm_notification;
+
 // I looked at this to get some insipration: 
 // http://blog.mandrill.com/an-awesome-plain-text-email.html
 // I didn't think the notification should be HTML since it's prefered it will 
@@ -196,6 +198,33 @@ exports.send_swm_notification = send_swm_notification;
 // "Of all people, X wanted YOU to check it out" if shared with a small number of users. 
 // It is not part of the email module logic 
 // to losen the coupling with the inodes and FS structure. 
+
+var SWM_TEMAPLATE = dot.template([
+	'<div style="background-color: #e2e2e2; color: #282828">',
+	' <div style="background-color: #282828; text-align: center; padding: 10px">',
+	'  <img src="https://www.noobaa.com/public/images/noobaa_logo.png" height="44px" />',
+	' </div>',
+	' <div style="padding: 0 40px">',
+	// '  <h2>Hi <?! it.notified_user_first_name ?></h2>',
+	'  <h3 style="margin: 20px 0">',
+	'   <img src="<?! it.sharing_user_pic_url ?>" style="vertical-align: middle; height: 40px; width: 40px" />',
+	'   <span><?! it.sharing_user_full_name ?></span>',
+	'  </h3>',
+	'  <div style="margin: 40px 0 20px 44px">',
+	// '   <div><small style="color: #888888">shared with you</small></div>',
+	'   <h2>',
+	'    <a href="https://www.noobaa.com/home/"><?! it.file_name ?></a>',
+	'   </h2>',
+	'  </div>',
+	'  <div style="margin: 40px 0 0 0">',
+	'   <p>Check it out on your NooBaa account</p>',
+	'   <p><a href="https://www.noobaa.com">www.noobaa.com</a></p>',
+	'   <p>Connecting the dots</p>',
+	'  </div>',
+	' </div>',
+	' <img src="<?! it.tracking_pixel_url ?>" />',
+	'</div>'
+].join('\n'));
 
 function send_swm_notification(notified_user, sharing_user, file_name, custom_message, callback) {
 	var localemail = notified_user.get_email();
@@ -217,11 +246,39 @@ function send_swm_notification(notified_user, sharing_user, file_name, custom_me
 		custom_message = '';
 	}
 
+	function user_pic_url(user) {
+		if (!user) {
+			return;
+		}
+		if (user.fb.id) {
+			return 'https://graph.facebook.com/' + user.fb.id + '/picture';
+		}
+		if (user.google.id) {
+			return 'https://plus.google.com/s2/photos/profile/' + user.google.id + '?sz=50';
+		}
+	}
+
 	var mailJson = {
 		"message": {
-			// "html": "<p>Example HTML content</p>",
-			"text": "Hi " + notified_user_first_name + ",\n\n" + sharing_user_first_name + " has shared a file with you:" + "\n" + file_name + "\n\n" + "Just checkout the \'Shared With Me\' folder on your main dashboard." + "\n" + "http://www.noobaa.com" + "\n" + custom_message + "\n\t\t\t\t\t\t\t\t The NooBaa Team" + "\n" + "p.s." + "\n" + "As long as the file is shared with you, you can access it and it doesn\'t take any of your capacity. " + "\n",
-			"subject": sharing_user_first_name + " has shared a file with you on NooBaa.",
+			"html": SWM_TEMAPLATE({
+				notified_user_first_name: notified_user_first_name,
+				sharing_user_pic_url: user_pic_url(sharing_user),
+				sharing_user_full_name: sharing_user_full_name,
+				file_name: file_name,
+				tracking_pixel_url: track.tracking_pixel_url('email.shared.open', notified_user.id),
+			}),
+			/*
+			"text": [
+				"Hi " + notified_user_first_name + ",\n\n" + sharing_user_first_name,
+				" has shared a file with you:" + "\n" + file_name + "\n\n",
+				"Just checkout the \'Shared With Me\' folder on your main dashboard." + "\n",
+				"http://www.noobaa.com" + "\n" + custom_message,
+				"\n\t\t\t\t\t\t\t\t The NooBaa Team" + "\n",
+				"p.s." + "\n" + "As long as the file is shared with you, ",
+				"you can access it and it doesn\'t take any of your capacity. " + "\n"
+			].join(''),
+			*/
+			"subject": file_name + ' was shared with you by ' + sharing_user_first_name + ' on NooBaa',
 			"from_email": "info@noobaa.com",
 			"from_name": "NooBaa Team",
 			"to": [{

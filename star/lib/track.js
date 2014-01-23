@@ -6,7 +6,7 @@
 // var Mixpanel = require('mixpanel');
 // var mixpanel = Mixpanel.init(process.env.MIXPANEL_TOKEN);
 
-function tracking_pixel(event_name, disinct_id) {
+function tracking_pixel_url(event_name, disinct_id) {
 	var data = {
 		"event": event_name,
 		"properties": {
@@ -19,4 +19,4 @@ function tracking_pixel(event_name, disinct_id) {
 	return pixel_url;
 }
 
-exports.tracking_pixel = tracking_pixel;
+exports.tracking_pixel_url = tracking_pixel_url;
