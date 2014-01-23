@@ -925,8 +925,8 @@
 		console.error('~~~~~ UNDETECTED ERROR ~~~~~~', err, typeof err, err.stack);
 		upload.progress_class = 'danger';
 		upload.progress = 100;
-		upload.error_text = err;
-		return false; // TODO maybe retry on unknown error? not sure what is better
+		upload.error_text = (err && err.toString) ? err.toString() : 'unidentified error';
+		return true; // TODO maybe retry on unknown error? not sure what is better
 	};
 
 	UploadSrv.prototype.is_completed = function(upload) {
