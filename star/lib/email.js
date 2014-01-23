@@ -1,5 +1,4 @@
-/*jslint node: true */
-
+/* jshint node:true */
 'use strict';
 
 
@@ -9,6 +8,7 @@ var templatesDir = path.resolve(__dirname, '..', 'email_templates');
 var emailTemplates = require('email-templates');
 var nodemailer = require('nodemailer');
 var common_api = require('./common_api');
+var track = require('./track');
 
 // to see how to add dynamic info:
 // help.mandrill.com/entries/21678522-how-do-i-use-merge-tags-to-add-dynamic-content
@@ -217,7 +217,6 @@ function send_swm_notification(notified_user, sharing_user, file_name, custom_me
 		custom_message = '';
 	}
 
-
 	var mailJson = {
 		"message": {
 			// "html": "<p>Example HTML content</p>",
@@ -291,6 +290,7 @@ function send_swm_notification(notified_user, sharing_user, file_name, custom_me
 }
 
 exports.send_alpha_approved_notification = send_alpha_approved_notification;
+
 function send_alpha_approved_notification(notified_user, callback) {
 	var localemail = notified_user.get_email();
 	var notified_user_full_name = notified_user.get_name();
@@ -313,7 +313,7 @@ function send_alpha_approved_notification(notified_user, callback) {
 				'\n',
 				'As an approved user you can use your facebook/google login again at http://www.noobaa.com. ',
 				'This time you\'ll get to the NooBaa dashboard, where you can upload, share and see files',
-				'shared with you by your friends.', 
+				'shared with you by your friends.',
 				'\n\t\t\t\t\t\t The NooBaa Team'
 			].join('\n'),
 			"subject": notified_user_full_name + ". You are the chosen one.",

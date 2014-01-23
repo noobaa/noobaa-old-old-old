@@ -143,7 +143,8 @@ function page_context(req) {
 		user: req.user,
 		app_id: process.env.FACEBOOK_APP_ID,
 		// TODO: channel_url expects absolute/relative/even needed?
-		channel_url: '/auth/facebook/channel.html'
+		channel_url: '/auth/facebook/channel.html',
+		mixpanel_token: process.env.MIXPANEL_TOKEN
 	};
 }
 

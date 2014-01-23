@@ -118,10 +118,11 @@ if (top.location != self.location) {
 		b.__SV = 1.2
 	}
 })(document, window.mixpanel || []);
-if (window.location.hostname === 'www.noobaa.com') {
-	mixpanel.init("dd11919c726ae3ef9c0bdf920085d522");
+if ( <?= !! it.mixpanel_token ?> ) {
+	mixpanel.init("<?= it.mixpanel_token ?>");
 } else {
-	mixpanel.init("3d665008b89e33420b7bf831b5fbd694");
+	mixpanel.identify = function() {};
+	mixpanel.track = function() {};
 }
 </script>
 <!-- end Mixpanel -->
