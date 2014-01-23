@@ -81,6 +81,10 @@
 				}
 			};
 
+			mixpanel.track('home.load', {
+				client: !! nbPlanet.on
+			});
+
 			if (nbUser.user) {
 
 				nbUser.update_user_info();

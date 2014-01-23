@@ -187,8 +187,7 @@
 					<h2 class="fntpaint W1 shades">Share videos</h2>
 					<div class="clearfix"></div>
 					<p class="lead text-white shades col-sm-6">
-						Sharing videos with your friends has never been so easy. 
-						Connect using your Facebook or Google+ account and click on their faces!
+						Sharing videos with your friends has never been so easy. Connect using your Facebook or Google+ account and click on their faces!
 					</p>
 				</div>
 			</div>
@@ -212,8 +211,7 @@
 					<h2 class="fntpaint W1 shades">Watch videos</h2>
 					<div class="clearfix"></div>
 					<p class="lead text-white shades col-sm-4">
-						Watching your own videos is always fun, but let’s face it – most of us are more interested in what our friends have been up to. 
-						NooBaa makes it easy and fun to watch videos shared by your friends.
+						Watching your own videos is always fun, but let’s face it – most of us are more interested in what our friends have been up to. NooBaa makes it easy and fun to watch videos shared by your friends.
 					</p>
 				</div>
 			</div>
@@ -238,8 +236,7 @@
 					<h2 class="fntpaint W1 shades">Access anywhere</h2>
 					<div class="clearfix"></div>
 					<p class="lead text-white shades col-sm-6">
-						Videos are accessible from any device, anywhere, anytime.
-						Stream directly from the cloud.
+						Videos are accessible from any device, anywhere, anytime. Stream directly from the cloud.
 					</p>
 				</div>
 			</div>
@@ -263,8 +260,7 @@
 					<h2 class="fntpaint W1 shades">Protect your memories</h2>
 					<div class="clearfix"></div>
 					<p class="lead text-white shades col-sm-6">
-						No need for an external hard drive. 
-						Keep a copy on the cloud for safekeeping and peace of mind.
+						No need for an external hard drive. Keep a copy on the cloud for safekeeping and peace of mind.
 					</p>
 				</div>
 			</div>
@@ -339,6 +335,11 @@
 					</span>
 				</a>
 			</div>
+			<div>
+			<a href="https://mixpanel.com/f/partner" target="_blank" class="btn btn-link btn-sm" style="text-decoration: none; position: absolute; bottom: 5px; right: 0">
+				<img src="//cdn.mxpnl.com/site_media/images/partner/badge_blue.png" alt="Mobile Analytics" />
+			</a>
+			</div>
 			<a href="#page0" class="scroller btn btn-default btn-transparent btn-lg">
 				top
 			</a>
@@ -366,6 +367,8 @@
 			function($scope, $location, $anchorScroll, $timeout, $interval, nbUser) {
 				$scope.nbUser = nbUser;
 				$scope.need_chrome_ref = !bowser.chrome;
+
+				mixpanel.track('welcome.load');
 
 				// $anchorScroll();
 				$scope.scroll = function(hash) {

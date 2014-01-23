@@ -18,6 +18,9 @@
 			var server_data_raw = $('#server_data').html();
 			$scope.server_data = server_data_raw ? JSON.parse(server_data_raw) : {};
 			$scope.user = $scope.server_data.user;
+			if ($scope.user && $scope.user.id) {
+				mixpanel.identify($scope.user.id);
+			}
 
 			$scope.user_quota = -1;
 			$scope.user_usage = -1;

@@ -69,15 +69,15 @@ if (top.location != self.location) {
 
 <!--[if IE]>
 <script type="text/javascript">
-	var tags = ['header', 'section'];
-	while(tags.length)
-		document.createElement(tags.pop());
+    var tags = ['header', 'section'];
+    while(tags.length)
+        document.createElement(tags.pop());
 </script>
 <![endif]-->
 
 
 
-<!-- start Mixpanel - - >
+<!-- start Mixpanel -->
 <script type="text/javascript">
 (function(e, b) {
 	if (!b.__SV) {
@@ -118,9 +118,13 @@ if (top.location != self.location) {
 		b.__SV = 1.2
 	}
 })(document, window.mixpanel || []);
-mixpanel.init("3d665008b89e33420b7bf831b5fbd694");
+if (window.location.hostname === 'www.noobaa.com') {
+	mixpanel.init("dd11919c726ae3ef9c0bdf920085d522");
+} else {
+	mixpanel.init("3d665008b89e33420b7bf831b5fbd694");
+}
 </script>
-< ! - - end Mixpanel -->
+<!-- end Mixpanel -->
 
 
 <?## def.facebook_init_body: <!-- facebook init - best be included right after body tag -->
