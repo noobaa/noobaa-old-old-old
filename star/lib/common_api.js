@@ -61,9 +61,11 @@ function submit_starlog(err, req) {
 
 function reply_callback(req, res, debug_info, skip_starlog) {
 	return function(err, reply) {
+		/* unused for now
 		if (skip_starlog !== 'skip_starlog') {
 			submit_starlog(err, req);
 		}
+		*/
 		if (err) {
 			var status = err.status || err.statusCode;
 			var data = err.data || err.message;
