@@ -166,16 +166,16 @@
 					Minute
 				</button>
 				 -->
-				<button class="btn btn-default" ng-click="refresh_tracks('hour')">
+				<button class="btn btn-default {{track_resolution=='hour' && 'active' || ''}}" ng-click="refresh_tracks('hour')">
 					Hour
 				</button>
-				<button class="btn btn-default" ng-click="refresh_tracks('day')">
+				<button class="btn btn-default {{track_resolution=='day' && 'active' || ''}}" ng-click="refresh_tracks('day')">
 					Day
 				</button>
-				<button class="btn btn-default" ng-click="refresh_tracks('week')">
+				<button class="btn btn-default {{track_resolution=='week' && 'active' || ''}}" ng-click="refresh_tracks('week')">
 					Week
 				</button>
-				<button class="btn btn-default" ng-click="refresh_tracks('month')">
+				<button class="btn btn-default {{track_resolution=='month' && 'active' || ''}}" ng-click="refresh_tracks('month')">
 					Month
 				</button>
 			</div>
@@ -330,75 +330,80 @@
 					}).then(function(res) {
 						$scope.loading--;
 						$scope.tracks = res.data;
-
-						var i;
-						var restime = RESTIMES[resolution] || RESTIMES.day;
-						var events_map = {};
-						_.each($scope.tracks, function(tr) {
-							tr.date = new Date(tr._id.time);
-							tr.time = tr.date.getTime();
-							tr.ev = tr._id.event;
-							delete tr._id;
-							events_map[tr.ev] = true;
-						});
-						var tracks_sorted_by_time = _.sortBy($scope.tracks, 'time');
-						var events = _.keys(events_map).sort();
-
-						var data = new google.visualization.DataTable();
-						data.addColumn('datetime', 'Time');
-						for (i = 0; i < events.length; i++) {
-							data.addColumn('number', events[i]);
-						}
-						var ticks = [];
-						var last_time;
-						var last_row = -1;
-						_.each(tracks_sorted_by_time, function(tr) {
-							var k = _.indexOf(events, tr.ev, true /*sorted*/ ) + 1;
-							if (tr.time !== last_time) {
-								while (last_time + restime < tr.time) {
-									last_row++;
-									last_time += restime;
-									var row = new Array(events.length + 1);
-									row[0] = new Date(last_time);
-									for (i = 1; i <= events.length; i++) {
-										row[i] = 0;
-									}
-									data.addRow(row);
-								}
-								// add new time row
-								last_row++;
-								last_time = tr.time;
-								var row = new Array(events.length + 1);
-								row[0] = tr.date;
-								for (i = 1; i <= events.length; i++) {
-									row[i] = 0;
-								}
-								data.addRow(row);
-								// console.log('DATA', last_row, 0, tr.date);
-							}
-							data.setCell(last_row, k, tr.count);
-							// console.log('DATA', last_row, k, tr.count, tr.ev);
-						});
-						var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
-						chart.draw(data, {
-							pointSize: 5,
-							height: 400,
-							vAxis: {
-								title: '#events'
-							},
-							hAxis: {
-								title: 'Time',
-							},
-							// legend: {
-							// position: 'top'
-							// }
-						});
-
+						$scope.track_resolution = resolution;
+						draw_tracks_chart(resolution);
 					}, function(err) {
 						$scope.loading--;
 						handle_error('GET TRACKS', err);
 					});
 				}
+
+
+				function draw_tracks_chart() {
+					var i;
+					var restime = RESTIMES[$scope.track_resolution] || RESTIMES.day;
+					var events_map = {};
+					_.each($scope.tracks, function(tr) {
+						tr.date = new Date(tr._id.time);
+						tr.time = tr.date.getTime();
+						tr.ev = tr._id.event;
+						delete tr._id;
+						events_map[tr.ev] = true;
+					});
+					var tracks_sorted_by_time = _.sortBy($scope.tracks, 'time');
+					var events = _.keys(events_map).sort();
+
+					var data = new google.visualization.DataTable();
+					data.addColumn('datetime', 'Time');
+					for (i = 0; i < events.length; i++) {
+						data.addColumn('number', events[i]);
+					}
+					var ticks = [];
+					var last_time;
+					var last_row = -1;
+					_.each(tracks_sorted_by_time, function(tr) {
+						var k = _.indexOf(events, tr.ev, true /*sorted*/ ) + 1;
+						if (tr.time !== last_time) {
+							while (last_time + restime < tr.time) {
+								last_row++;
+								last_time += restime;
+								var row = new Array(events.length + 1);
+								row[0] = new Date(last_time);
+								for (i = 1; i <= events.length; i++) {
+									row[i] = 0;
+								}
+								data.addRow(row);
+							}
+							// add new time row
+							last_row++;
+							last_time = tr.time;
+							var row = new Array(events.length + 1);
+							row[0] = tr.date;
+							for (i = 1; i <= events.length; i++) {
+								row[i] = 0;
+							}
+							data.addRow(row);
+							// console.log('DATA', last_row, 0, tr.date);
+						}
+						data.setCell(last_row, k, tr.count);
+						// console.log('DATA', last_row, k, tr.count, tr.ev);
+					});
+					var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+					chart.draw(data, {
+						pointSize: 5,
+						height: 400,
+						vAxis: {
+							title: '#events'
+						},
+						hAxis: {
+							title: 'Time',
+						},
+						// legend: {
+						// position: 'top'
+						// }
+					});
+				}
+
 
 				function handle_error(action, err) {
 					if (!err) {
