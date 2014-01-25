@@ -81,9 +81,6 @@
 				}
 			};
 
-			mixpanel.track('home.load', {
-				client: !! nbPlanet.on
-			});
 			nbUtil.track_event('home.load', {
 				client: !! nbPlanet.on
 			});

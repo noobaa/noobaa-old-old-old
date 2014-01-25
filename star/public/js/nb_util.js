@@ -99,8 +99,16 @@
 				return modal(hdr, body, foot, modal_scope);
 			}
 
+
 			function track_event(event, data, prev, top) {
-				return $http({
+				var p1 = $q.when().then(function() {
+					var deferred = $q.defer();
+					mixpanel.track(event, data, function() {
+						deferred.resolve();
+					});
+					return deferred.promise;
+				});
+				var p2 = $http({
 					method: 'POST',
 					url: '/track/',
 					data: {
@@ -109,6 +117,10 @@
 						prev: prev,
 						top: top
 					}
+				});
+				return $q.all([p1, p2]).then(null, function(err) {
+					console.error('FAILED TRACK EVENT', err);
+					// don't propagate
 				});
 			}
 

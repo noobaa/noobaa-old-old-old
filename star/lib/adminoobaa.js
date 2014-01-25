@@ -225,3 +225,53 @@ exports.admin_get_tracks = function(req, res) {
 		}
 	], common_api.reply_callback(req, res, 'ADMIN GET TRACKS'));
 };
+
+function escape_csv_string(str) {
+	if (!str) {
+		return '';
+	}
+	str = str.replace('"', '""');
+	if (/[,"\n]/.test(str)) {
+		return '"' + str + '"';
+	} else {
+		return str;
+	}
+}
+
+exports.admin_get_tracks_csv = function(req, res) {
+	return async.waterfall([
+		function(next) {
+			res.set('Content-Type', 'text/csv');
+			res.set('Content-Disposition', 'inline;filename=nbtracks.csv');
+			res.write([
+				'track_id',
+				'event',
+				'time',
+				'user_id',
+				'user_name',
+				'fbid',
+				'googleid',
+				'ip'
+			].join(',') + '\n');
+			var stream = TrackEvent.find().stream();
+			stream.on('error', function(err) {
+				return next(err);
+			});
+			stream.on('close', function() {
+				res.end();
+			});
+			stream.on('data', function(t) {
+				res.write([
+					t.id,
+					t.event,
+					t.time,
+					t.user.id,
+					escape_csv_string(t.user.name),
+					t.user.fbid,
+					t.user.googleid,
+					t.req.ip
+				].join(',') + '\n');
+			});
+		}
+	], common_api.reply_callback(req, res, 'ADMIN GET TRACKS CSV'));
+};

@@ -9,8 +9,8 @@
 	var noobaa_app = angular.module('noobaa_app');
 
 	noobaa_app.factory('nbUser', [
-		'$http', '$timeout', '$interval', '$q', '$rootScope', '$window', '$location',
-		function($http, $timeout, $interval, $q, $rootScope, $window, $location) {
+		'$http', '$timeout', '$interval', '$q', '$rootScope', '$window', '$location', 'nbUtil',
+		function($http, $timeout, $interval, $q, $rootScope, $window, $location, nbUtil) {
 
 			var $scope = {};
 
@@ -18,6 +18,8 @@
 			var server_data_raw = $('#server_data').html();
 			$scope.server_data = server_data_raw ? JSON.parse(server_data_raw) : {};
 			$scope.user = $scope.server_data.user;
+
+			// set the mixpanel identity with our user id
 			if ($scope.user && $scope.user.id) {
 				mixpanel.identify($scope.user.id);
 			}
@@ -129,15 +131,21 @@
 			}
 
 			$scope.login_facebook = function() {
-				$window.location.href = '/auth/facebook/login/';
+				nbUtil.track_event('login.fb').then(function() {
+					$window.location.href = '/auth/facebook/login/';
+				});
 			};
 
 			$scope.login_google = function() {
-				$window.location.href = '/auth/google/login/';
+				nbUtil.track_event('login.google').then(function() {
+					$window.location.href = '/auth/google/login/';
+				});
 			};
 
 			$scope.logout = function() {
-				$window.location.href = '/auth/logout/?state=/home/';
+				nbUtil.track_event('logout').then(function() {
+					$window.location.href = '/auth/logout/?state=/home/';
+				});
 			};
 
 			$scope.invite_friends = function() {

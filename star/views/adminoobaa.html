@@ -45,6 +45,7 @@
 					<span>Charts</span>
 				</a>
 			</li>
+			<!-- 
 			<li ng-class="active_tab('funnels')">
 				<a class="btn-link btn-lg" style="padding: 5px 10px; cursor: pointer" ng-click="activate_tab('funnels')">
 					<span class="fa-stack" rel="tooltip">
@@ -54,6 +55,7 @@
 					<span>Funnels</span>
 				</a>
 			</li>
+			 -->
 		</ul>
 	</div>
 
@@ -162,7 +164,7 @@
 		<div class="text-center" style="padding: 10px 0">
 			<div class="btn-group">
 				<!-- 
-				<button class="btn btn-default" ng-click="refresh_tracks('minute')">
+				<button class="btn btn-default {{track_resolution=='minute' && 'active' || ''}}" ng-click="refresh_tracks('minute')">
 					Minute
 				</button>
 				 -->
@@ -179,6 +181,9 @@
 					Month
 				</button>
 			</div>
+			<button class="btn btn-default" ng-click="export_tracks()">
+				Export CSV
+			</button>
 		</div>
 		<div id="chart_div"></div>
 	</div>
@@ -220,6 +225,7 @@
 				$scope.refresh_users = refresh_users;
 				$scope.calculate_user_usage = calculate_user_usage;
 				$scope.calculate_users_usage = calculate_users_usage;
+				$scope.export_tracks = export_tracks;
 				$scope.refresh_tracks = refresh_tracks;
 
 				$scope.current_tab = 'users';
@@ -402,6 +408,11 @@
 						// position: 'top'
 						// }
 					});
+				}
+
+
+				function export_tracks() {
+					window.open('/adminoobaa/track/csv/', '_blank');
 				}
 
 
