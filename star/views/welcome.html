@@ -336,9 +336,9 @@
 				</a>
 			</div>
 			<div>
-			<a href="https://mixpanel.com/f/partner" target="_blank" class="btn btn-link btn-sm" style="text-decoration: none; position: absolute; bottom: 5px; right: 0">
-				<img src="//cdn.mxpnl.com/site_media/images/partner/badge_blue.png" alt="Mobile Analytics" />
-			</a>
+				<a href="https://mixpanel.com/f/partner" target="_blank" class="btn btn-link btn-sm" style="text-decoration: none; position: absolute; bottom: 5px; right: 0">
+					<img src="//cdn.mxpnl.com/site_media/images/partner/badge_blue.png" alt="Mobile Analytics" />
+				</a>
 			</div>
 			<a href="#page0" class="scroller btn btn-default btn-transparent btn-lg">
 				top
@@ -362,13 +362,14 @@
 		var noobaa_app = angular.module('noobaa_app');
 
 		noobaa_app.controller('WelcomeCtrl', [
-			'$scope', '$location', '$anchorScroll', '$timeout', '$interval', 'nbUser',
+			'$scope', '$location', '$anchorScroll', '$timeout', '$interval', 'nbUser', 'nbUtil',
 
-			function($scope, $location, $anchorScroll, $timeout, $interval, nbUser) {
+			function($scope, $location, $anchorScroll, $timeout, $interval, nbUser, nbUtil) {
 				$scope.nbUser = nbUser;
 				$scope.need_chrome_ref = !bowser.chrome;
 
 				mixpanel.track('welcome.load');
+				nbUtil.track_event('welcome.load');
 
 				// $anchorScroll();
 				$scope.scroll = function(hash) {

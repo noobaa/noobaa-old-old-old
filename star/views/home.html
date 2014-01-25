@@ -135,7 +135,7 @@
 			<div class="container">
 				<ul class="nav nav-pills center-block">
 					<li ng-class="nbUtil.active_link('/home/feed/')">
-						<a class="btn btn-link btn-lg" style="padding: 5px; cursor: pointer" href="/home/feed/">
+						<a class="btn-link btn-lg" style="padding: 5px 10px; cursor: pointer" href="/home/feed/">
 							<span class="fa-stack" rel="tooltip">
 								<i class="fa fa-circle fa-stack-2x text-muted"></i>
 								<i class="fa fa-rss fa-inverse fa-stack-1x text-white"></i>
@@ -144,7 +144,7 @@
 						</a>
 					</li>
 					<li ng-class="nbUtil.active_link('/home/items/')">
-						<a class="btn btn-link btn-lg" style="padding: 5px; cursor: pointer" href="/home/items/">
+						<a class="btn-link btn-lg" style="padding: 5px 10px; cursor: pointer" href="/home/items/">
 							<span class="fa-stack" rel="tooltip">
 								<i class="fa fa-circle fa-stack-2x text-muted"></i>
 								<i class="fa fa-file fa-inverse fa-stack-1x text-white"></i>
@@ -153,7 +153,7 @@
 						</a>
 					</li>
 					<li ng-class="nbUtil.active_link('/home/upload/')">
-						<a class="btn btn-link btn-lg" style="padding: 5px; cursor: pointer" Xhref="/home/upload/" ng-click="nbUploadSrv.open_file_input()">
+						<a class="btn-link btn-lg" style="padding: 5px 10px; cursor: pointer" Xhref="/home/upload/" ng-click="nbUploadSrv.open_file_input()">
 							<span class="fa-stack" rel="tooltip">
 								<i class="fa fa-circle fa-stack-2x text-muted"></i>
 								<i class="fa fa-cloud-upload fa-inverse fa-stack-1x text-white"></i>
@@ -168,7 +168,7 @@
 						</a>
 					</li>
 					<li ng-if="nbPlanet.on" ng-class="nbUtil.active_link('/home/upload/')">
-						<a class="btn btn-link btn-lg" style="padding: 5px; cursor: pointer" ng-click="nbUploadSrv.open_dir_input()">
+						<a class="btn-link btn-lg" style="padding: 5px 10px; cursor: pointer" ng-click="nbUploadSrv.open_dir_input()">
 							<span class="fa-stack" rel="tooltip">
 								<i class="fa fa-circle fa-stack-2x text-muted"></i>
 								<i class="fa fa-folder fa-inverse fa-stack-1x text-white"></i>
@@ -177,7 +177,7 @@
 						</a>
 					</li>
 					<li ng-if="!nbPlanet.on" ng-class="nbUtil.active_link('/home/install/')">
-						<a class="btn btn-link btn-lg" style="padding: 5px; cursor: pointer" Xhref="/home/install/" ng-click="show_client_installation()">
+						<a class="btn-link btn-lg" style="padding: 5px 10px; cursor: pointer" Xhref="/home/install/" ng-click="show_client_installation()">
 							<span class="fa-stack" rel="tooltip">
 								<i class="fa fa-circle fa-stack-2x text-muted"></i>
 								<i class="fa fa-anchor fa-inverse fa-stack-1x text-white"></i>
@@ -186,7 +186,7 @@
 						</a>
 					</li>
 					<li ng-if="nbPlanet.on" ng-class="nbUtil.active_link('/home/expand/')">
-						<a class="btn btn-link btn-lg" style="padding: 5px; cursor: pointer" ng-click="show_client_expansion()">
+						<a class="btn-link btn-lg" style="padding: 5px 10px; cursor: pointer" ng-click="show_client_expansion()">
 							<span class="fa-stack" rel="tooltip">
 								<i class="fa fa-circle fa-stack-2x text-muted"></i>
 								<i class="fa fa-rocket fa-inverse fa-stack-1x text-white"></i>
@@ -195,7 +195,7 @@
 						</a>
 					</li>
 					<li ng-class="nbUtil.active_link('/home/friends/')">
-						<a class="btn btn-link btn-lg" style="padding: 5px; cursor: pointer" href="/home/friends/">
+						<a class="btn-link btn-lg" style="padding: 5px 10px; cursor: pointer" href="/home/friends/">
 							<span class="fa-stack" rel="tooltip">
 								<i class="fa fa-circle fa-stack-2x text-muted"></i>
 								<i class="fa fa-users fa-inverse fa-stack-1x text-white"></i>
@@ -604,7 +604,6 @@
 	</div>
 
 	<!-- <script src="/vendor/bootstrap-tour/js/bootstrap-tour.js" type="text/javascript"></script> -->
-	<script src="/vendor/bootstrap-growl/jquery.bootstrap-growl.min.js" type="text/javascript"></script>
 	<script src="/vendor/masonry.pkgd.min.js" type="text/javascript"></script>
 
 	<!-- <script src="/public/js/guide_ctrl.js" type="text/javascript"></script> -->

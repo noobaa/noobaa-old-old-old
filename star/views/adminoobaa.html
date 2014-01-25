@@ -7,7 +7,67 @@
 
 <body ng-cloak ng-controller="AdminoobaaCtrl">
 
+	<nav class="navbar navbar-static-top navbar-inverse home_navbar" role="navigation" style="margin: 0">
+		<div class="container clearfix">
+			<div class="navbar-header pull-left">
+				<a id="logo_link" class="navbar-brand" href="/adminoobaa/">
+					<span class="lead text-success fntpaint" style="vertical-align: middle">Admi</span>
+					<img src="/public/images/noobaa_logo.png" style="vertical-align: middle"></img>
+					<small>BETA</small>
+				</a>
+			</div>
+			<p class="navbar-text pull-right" ng-show="!!loading">
+				<span class="text-warning">
+					Loading
+					<i class="fa fa-spinner fa-spin fa-fw fa-lg"></i>
+				</span>
+			</p>
+		</div>
+	</nav>
+
 	<div class="container">
+		<ul class="nav nav-pills" style="margin: 15px 0">
+			<li ng-class="active_tab('users')">
+				<a class="btn-link btn-lg" style="padding: 5px 10px; cursor: pointer" ng-click="activate_tab('users')">
+					<span class="fa-stack" rel="tooltip">
+						<i class="fa fa-circle fa-stack-2x text-muted"></i>
+						<i class="fa fa-user fa-inverse fa-stack-1x text-white"></i>
+					</span>
+					<span>Users</span>
+				</a>
+			</li>
+			<li ng-class="active_tab('tracks')">
+				<a class="btn-link btn-lg" style="padding: 5px 10px; cursor: pointer" ng-click="activate_tab('tracks')">
+					<span class="fa-stack" rel="tooltip">
+						<i class="fa fa-circle fa-stack-2x text-muted"></i>
+						<i class="fa fa-bar-chart-o fa-inverse fa-stack-1x text-white"></i>
+					</span>
+					<span>Charts</span>
+				</a>
+			</li>
+			<li ng-class="active_tab('funnels')">
+				<a class="btn-link btn-lg" style="padding: 5px 10px; cursor: pointer" ng-click="activate_tab('funnels')">
+					<span class="fa-stack" rel="tooltip">
+						<i class="fa fa-circle fa-stack-2x text-muted"></i>
+						<i class="fa fa-filter fa-inverse fa-stack-1x text-white"></i>
+					</span>
+					<span>Funnels</span>
+				</a>
+			</li>
+		</ul>
+	</div>
+
+	<div class="container" ng-show="current_tab=='users'">
+		<div class="text-center" style="padding: 10px 0">
+			<button class="btn btn-default" ng-click="refresh_users()">
+				<i class="fa fa-refresh fa-fw fa-lg"></i>
+				Refresh Users
+			</button>
+			<button class="btn btn-default" ng-click="calculate_users_usage()">
+				<i class="fa fa-tachometer fa-fw fa-lg"></i>
+				Calculate Usage
+			</button>
+		</div>
 		<table class="table">
 			<thead>
 				<th>#</th>
@@ -18,7 +78,7 @@
 					<span class="badge">{{totals.num_files}}</span>
 				</th>
 				<th>
-					Consumption
+					Usage
 					<span class="badge">{{human_size(totals.usage)}}</span>
 				</th>
 				<th>
@@ -54,7 +114,8 @@
 					 -->
 					<td>{{user.files}}</td>
 					<td ng-style="style_usage(user)">
-						{{human_size(user.consumption)}}
+						<a ng-click="calculate_user_usage(user)"><i class="fa fa-tachometer fa-fw text-muted"></i></a>
+						{{human_size(user.usage)}}
 					</td>
 					<td ng-style="style_quota(user)">
 						{{human_size(user.quota)}}
@@ -96,148 +157,379 @@
 		</table>
 	</div>
 
+
+	<div class="container" ng-show="current_tab=='tracks'">
+		<div class="text-center" style="padding: 10px 0">
+			<div class="btn-group">
+				<!-- 
+				<button class="btn btn-default" ng-click="refresh_tracks('minute')">
+					Minute
+				</button>
+				 -->
+				<button class="btn btn-default" ng-click="refresh_tracks('hour')">
+					Hour
+				</button>
+				<button class="btn btn-default" ng-click="refresh_tracks('day')">
+					Day
+				</button>
+				<button class="btn btn-default" ng-click="refresh_tracks('week')">
+					Week
+				</button>
+				<button class="btn btn-default" ng-click="refresh_tracks('month')">
+					Month
+				</button>
+			</div>
+		</div>
+		<div id="chart_div"></div>
+	</div>
+
+
+	<div class="container" ng-show="current_tab=='funnels'">
+		<div class="text-center" style="padding: 10px 0">
+			<button class="btn btn-default" ng-click="refresh_funnels()">
+				<i class="fa fa-refresh fa-fw fa-lg"></i>
+				Refresh Funnels
+			</button>
+		</div>
+	</div>
+
+
 	<div>
 		<?# def.include( 'common_scripts.html') ?>
 	</div>
 
-	<!-- server data is safely embedded in a JSON type script -->
-	<script id="users_data" type="application/json">
-	<?= JSON.stringify(it.users) ?>
-	</script>
+	<!-- // <script src="/vendor/d3.v3.min.js" type="text/javascript"></script> -->
+	<script src="//www.google.com/jsapi" type="text/javascript"></script>
+
 
 	<script type="text/javascript">
-	AdminoobaaCtrl.$inject = ['$scope', '$http', '$window', '$timeout'];
+	(function() {
+		'use strict';
 
-	function AdminoobaaCtrl($scope, $http, $window, $timeout) {
-		// parse user data from safe json in html
-		$scope.users = JSON.parse($('#users_data').html());
-		$scope.users_array = _.values($scope.users);
-		$scope.totals = {
-			num_devices: 0,
-			quota: 0,
-			usage: 0,
-			num_files: 0
-		};
-		for (var user_id in $scope.users) {
-			var user = $scope.users[user_id];
-			user.email_addr = user.email || (user.google && user.google.email) || (user.fb && user.fb.email);
-			for (var dev_id in user.devices) {
-				$scope.totals.num_devices++;
-			}
-			if (user.quota > 1024 * 1024 * 1024) {
-				$scope.totals.quota += user.quota;
-			}
-			if (user.consumption) {
-				$scope.totals.usage += user.consumption;
-			}
-			if (user.files) {
-				$scope.totals.num_files += user.files;
-			}
-		}
-		console.log('USERS AND DEVICES DATA:', $scope.users, $scope.totals);
+		google.load("visualization", "1", {
+			packages: ["corechart"]
+		});
 
-		$scope.style_usage = function(user) {
-			if (user.consumption >= 1024 * 1024 * 1024) {
-				return {
-					'background-color': 'red'
+		var noobaa_app = angular.module('noobaa_app');
+
+		noobaa_app.controller('AdminoobaaCtrl', [
+			'$scope', '$http', '$window', '$timeout', 'JobQueue',
+			function AdminoobaaCtrl($scope, $http, $window, $timeout, JobQueue) {
+
+				$scope.loading = 0;
+				$scope.refresh_users = refresh_users;
+				$scope.calculate_user_usage = calculate_user_usage;
+				$scope.calculate_users_usage = calculate_users_usage;
+				$scope.refresh_tracks = refresh_tracks;
+
+				$scope.current_tab = 'users';
+				$scope.active_tab = function(name) {
+					if ($scope.current_tab === name) {
+						return 'active';
+					}
 				};
-			}
-			if (user.consumption >= 1024 * 1024) {
-				return {
-					'background-color': 'yellow'
+				$scope.activate_tab = function(name) {
+					$scope.current_tab = name;
 				};
-			}
-		};
-		$scope.style_quota = function(user) {
-			if (user.quota >= 100 * 1024 * 1024 * 1024) {
-				return {
-					'background-color': 'red'
+
+				refresh_users();
+
+				function refresh_users() {
+					$scope.loading++;
+					return $http({
+						method: 'GET',
+						url: '/adminoobaa/user/'
+					}).then(function(res) {
+						$scope.loading--;
+						var old_users = $scope.users || {};
+						$scope.users = res.data;
+						$scope.users_array = _.values($scope.users);
+						$scope.totals = {
+							num_devices: 0,
+							quota: 0,
+							usage: 0,
+							num_files: 0
+						};
+						for (var user_id in $scope.users) {
+							var user = $scope.users[user_id];
+							var old_user = old_users[user_id];
+							if (old_user) {
+								user.usage = old_user.usage;
+							}
+							user.email_addr = user.email ||
+								(user.google && user.google.email) ||
+								(user.fb && user.fb.email);
+							for (var dev_id in user.devices) {
+								$scope.totals.num_devices++;
+							}
+							if (user.quota > 1024 * 1024 * 1024) {
+								$scope.totals.quota += user.quota;
+							}
+							if (user.usage) {
+								$scope.totals.usage += user.usage;
+							}
+							if (user.files) {
+								$scope.totals.num_files += user.files;
+							}
+						}
+						console.log('USERS AND DEVICES DATA:', $scope.users, $scope.totals);
+					}, function(err) {
+						$scope.loading--;
+						handle_error('GET USERS', err);
+					});
+				}
+
+				function calculate_user_usage(user) {
+					if (!user._id) {
+						return;
+					}
+					$scope.loading++;
+					return $http({
+						method: 'GET',
+						url: '/adminoobaa/user/' + user._id + '/usage/'
+					}).then(function(res) {
+						$scope.loading--;
+						// console.log('USAGE', res.data);
+						if (user.usage) {
+							$scope.totals.usage -= user.usage;
+						}
+						user.usage = res.data.usage;
+						$scope.totals.usage += user.usage;
+					}, function(err) {
+						$scope.loading--;
+						handle_error('GET USAGE', err);
+					});
+				}
+
+				function calculate_users_usage() {
+					var jobq = new JobQueue(10);
+					for (var user_id in $scope.users) {
+						var user = $scope.users[user_id];
+						jobq.add({
+							run: calculate_user_usage.bind(null, user)
+						});
+					}
+				}
+
+				var RESTIMES = {
+					minute: 60000,
+					hour: 3600000
 				};
-			}
-			if (user.quota >= 10 * 1024 * 1024 * 1024) {
-				return {
-					'background-color': 'yellow'
-				};
-			}
-		};
-		$scope.style_dev_time = function(user) {
-			var now = (new Date()).getTime();
-			for (var dev_id in user.devices) {
-				var dev = user.devices[dev_id];
-				if (dev.last_update) {
-					var time = (new Date(dev.last_update)).getTime();
-					if (now - time <= 3600000 * 24) { // 24 hours
+				RESTIMES.day = 24 * RESTIMES.hour;
+				RESTIMES.week = 7 * RESTIMES.day;
+				RESTIMES.month = 30 * RESTIMES.day;
+
+				function refresh_tracks(resolution) {
+					$scope.loading++;
+					$http({
+						method: 'GET',
+						url: '/adminoobaa/track/',
+						params: {
+							resolution: resolution
+						}
+					}).then(function(res) {
+						$scope.loading--;
+						$scope.tracks = res.data;
+
+						var i;
+						var restime = RESTIMES[resolution] || RESTIMES.day;
+						var events_map = {};
+						_.each($scope.tracks, function(tr) {
+							tr.date = new Date(tr._id.time);
+							tr.time = tr.date.getTime();
+							tr.ev = tr._id.event;
+							delete tr._id;
+							events_map[tr.ev] = true;
+						});
+						var tracks_sorted_by_time = _.sortBy($scope.tracks, 'time');
+						var events = _.keys(events_map).sort();
+
+						var data = new google.visualization.DataTable();
+						data.addColumn('datetime', 'Time');
+						for (i = 0; i < events.length; i++) {
+							data.addColumn('number', events[i]);
+						}
+						var ticks = [];
+						var last_time;
+						var last_row = -1;
+						_.each(tracks_sorted_by_time, function(tr) {
+							var k = _.indexOf(events, tr.ev, true /*sorted*/ ) + 1;
+							if (tr.time !== last_time) {
+								while (last_time + restime < tr.time) {
+									last_row++;
+									last_time += restime;
+									var row = new Array(events.length + 1);
+									row[0] = new Date(last_time);
+									for (i = 1; i <= events.length; i++) {
+										row[i] = 0;
+									}
+									data.addRow(row);
+								}
+								// add new time row
+								last_row++;
+								last_time = tr.time;
+								var row = new Array(events.length + 1);
+								row[0] = tr.date;
+								for (i = 1; i <= events.length; i++) {
+									row[i] = 0;
+								}
+								data.addRow(row);
+								// console.log('DATA', last_row, 0, tr.date);
+							}
+							data.setCell(last_row, k, tr.count);
+							// console.log('DATA', last_row, k, tr.count, tr.ev);
+						});
+						var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+						chart.draw(data, {
+							pointSize: 5,
+							height: 400,
+							vAxis: {
+								title: '#events'
+							},
+							hAxis: {
+								title: 'Time',
+							},
+							// legend: {
+							// position: 'top'
+							// }
+						});
+
+					}, function(err) {
+						$scope.loading--;
+						handle_error('GET TRACKS', err);
+					});
+				}
+
+				function handle_error(action, err) {
+					if (!err) {
+						return;
+					}
+					console.error(action, err);
+					var msg = action + err.toString();
+					$.bootstrapGrowl(msg, {
+						ele: 'body',
+						type: 'error',
+						offset: {
+							from: 'top',
+							amount: 60
+						},
+						align: 'right',
+						width: 'auto',
+						delay: 5000,
+						allow_dismiss: true,
+						stackup_spacing: 20
+					});
+				}
+
+				$scope.style_usage = function(user) {
+					if (user.usage >= 1024 * 1024 * 1024) {
 						return {
 							'background-color': 'red'
 						};
 					}
-					if (now - time <= 3600000 * 24 * 7) { // 1 week
+					if (user.usage >= 1024 * 1024) {
 						return {
 							'background-color': 'yellow'
 						};
 					}
+				};
+				$scope.style_quota = function(user) {
+					if (user.quota >= 100 * 1024 * 1024 * 1024) {
+						return {
+							'background-color': 'red'
+						};
+					}
+					if (user.quota >= 10 * 1024 * 1024 * 1024) {
+						return {
+							'background-color': 'yellow'
+						};
+					}
+				};
+				$scope.style_dev_time = function(user) {
+					var now = (new Date()).getTime();
+					for (var dev_id in user.devices) {
+						var dev = user.devices[dev_id];
+						if (dev.last_update) {
+							var time = (new Date(dev.last_update)).getTime();
+							if (now - time <= 3600000 * 24) { // 24 hours
+								return {
+									'background-color': 'red'
+								};
+							}
+							if (now - time <= 3600000 * 24 * 7) { // 1 week
+								return {
+									'background-color': 'yellow'
+								};
+							}
+						}
+					}
 				}
-			}
-		}
 
-		$scope.locale_date = function(date) {
-			if (!date) {
-				return '';
-			}
-			// convert using Locale to have proper timezone displayed
-			date = new Date(date);
-			return date.toLocaleString();
-		}
-		$scope.toggle_alpha = function(user) {
-			var question = 'Change alpha to ' + !user.alpha_tester + ' ?';
-			if (!$window.confirm(question)) {
-				return;
-			}
-			$http({
-				method: 'PUT',
-				url: '/adminoobaa/',
-				data: {
-					updates: [{
-						user_id: user._id,
-						args: {
-							alpha_tester: !user.alpha_tester
-						}
-					}]
+				$scope.locale_date = function(date) {
+					if (!date) {
+						return '';
+					}
+					// convert using Locale to have proper timezone displayed
+					date = new Date(date);
+					return date.toLocaleString();
 				}
-			}).success(function(data, status, headers, config) {
-				console.log('[ok] toggle_alpha', data);
-				$window.location.reload();
-			}).error(function(data, status, headers, config) {
-				console.error('[ERR] toggle_alpha failed', data, status);
-				$window.alert(JSON.stringify(data));
-			});
-		}
-		$scope.toggle_email_silent = function(user) {
-			var policy = user.email_policy === 'silent' ? '' : 'silent';
-			var question = 'Change email_policy to ' + (policy || 'loud') + ' ?';
-			if (!$window.confirm(question)) {
-				return;
-			}
-			$http({
-				method: 'PUT',
-				url: '/adminoobaa/',
-				data: {
-					updates: [{
-						user_id: user._id,
-						args: {
-							email_policy: policy
+
+				$scope.toggle_alpha = function(user) {
+					var question = 'Change alpha to ' + !user.alpha_tester + ' ?';
+					if (!$window.confirm(question)) {
+						return;
+					}
+					$http({
+						method: 'PUT',
+						url: '/adminoobaa/',
+						data: {
+							updates: [{
+								user_id: user._id,
+								args: {
+									alpha_tester: !user.alpha_tester
+								}
+							}]
 						}
-					}]
+					}).success(function(data, status, headers, config) {
+						console.log('[ok] toggle_alpha', data);
+						// $window.location.reload();
+						refresh_users();
+					}).error(function(data, status, headers, config) {
+						console.error('[ERR] toggle_alpha failed', data, status);
+						$window.alert(JSON.stringify(data));
+					});
 				}
-			}).then(function(res) {
-				console.log('[ok] toggle_email_silent', res);
-				$window.location.reload();
-			}, function(err) {
-				console.error('[ERR] toggle_email_silent failed', err);
-				$window.alert(JSON.stringify(err));
-			});
-		}
-	}
+
+				$scope.toggle_email_silent = function(user) {
+					var policy = user.email_policy === 'silent' ? '' : 'silent';
+					var question = 'Change email_policy to ' + (policy || 'loud') + ' ?';
+					if (!$window.confirm(question)) {
+						return;
+					}
+					$http({
+						method: 'PUT',
+						url: '/adminoobaa/',
+						data: {
+							updates: [{
+								user_id: user._id,
+								args: {
+									email_policy: policy
+								}
+							}]
+						}
+					}).then(function(res) {
+						console.log('[ok] toggle_email_silent', res);
+						// $window.location.reload();
+						refresh_users();
+					}, function(err) {
+						console.error('[ERR] toggle_email_silent failed', err);
+						$window.alert(JSON.stringify(err));
+					});
+				}
+			}
+
+		])
+	})();
 	</script>
 
 </body>

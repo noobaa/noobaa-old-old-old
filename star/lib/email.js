@@ -8,7 +8,7 @@ var templatesDir = path.resolve(__dirname, '..', 'email_templates');
 var emailTemplates = require('email-templates');
 var nodemailer = require('nodemailer');
 var common_api = require('./common_api');
-var track = require('./track');
+var track_api = require('./track_api');
 var dot = require('dot');
 
 // to see how to add dynamic info:
@@ -265,7 +265,7 @@ function send_swm_notification(notified_user, sharing_user, file_name, custom_me
 				sharing_user_pic_url: user_pic_url(sharing_user),
 				sharing_user_full_name: sharing_user_full_name,
 				file_name: file_name,
-				tracking_pixel_url: track.tracking_pixel_url('email.shared.open', notified_user.id),
+				tracking_pixel_url: track_api.tracking_pixel_url('email.shared.open', notified_user.id),
 			}),
 			/*
 			"text": [

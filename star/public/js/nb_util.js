@@ -43,7 +43,7 @@
 
 	noobaa_app.factory('nbUtil', [
 		'$http', '$timeout', '$interval', '$window', '$q', '$rootScope', '$compile',
-		function($http, $timeout, $interval,$window, $q, $rootScope, $compile) {
+		function($http, $timeout, $interval, $window, $q, $rootScope, $compile) {
 
 			var _has_global_modal = false;
 
@@ -61,6 +61,7 @@
 				},
 				modal: modal,
 				content_modal: content_modal,
+				track_event: track_event
 			};
 
 
@@ -96,6 +97,19 @@
 				var foot = $('<div class="modal-footer">').css('margin-top', 0)
 					.append($('<button type="button" class="btn btn-default" data-dismiss="modal">').text('Close'));
 				return modal(hdr, body, foot, modal_scope);
+			}
+
+			function track_event(event, data, prev, top) {
+				return $http({
+					method: 'POST',
+					url: '/track/',
+					data: {
+						event: event,
+						data: data,
+						prev: prev,
+						top: top
+					}
+				});
 			}
 
 			return $scope;

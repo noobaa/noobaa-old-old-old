@@ -275,11 +275,19 @@ app.get('/api/device/', device_api.device_list);
 app.put('/api/device/:device_id', device_api.device_update);
 app.get('/api/device/current/', device_api.device_current);
 
+var track_api = require('./lib/track_api');
+app.all('/track/', track_api.track_event_api);
+app.all('/track/pixel/', track_api.track_event_pixel);
 
 // setup admin pages
 
 var adminoobaa = require('./lib/adminoobaa');
-app.get('/adminoobaa/', adminoobaa.admin_view);
+app.get('/adminoobaa/', function(req, res) {
+	return res.render('adminoobaa.html', common_api.page_context(req));
+});
+app.get('/adminoobaa/user/', adminoobaa.admin_get_users);
+app.get('/adminoobaa/user/:user_id/usage/', adminoobaa.admin_get_user_usage);
+app.get('/adminoobaa/track/', adminoobaa.admin_get_tracks);
 app.put('/adminoobaa/', adminoobaa.admin_update);
 
 // setup planet pages

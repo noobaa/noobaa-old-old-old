@@ -58,6 +58,9 @@ html, body {
 .btn-lg {
 	border-radius: 30px;
 }
+.nav-pills > li > a {
+	border-radius: 30px;
+}
 /* COLOR BLACK & WHITE */
  .bg-white {
 	background-color: hsl(0, 0%, 100%) !important;
