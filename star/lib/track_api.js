@@ -23,9 +23,11 @@ function tracking_pixel_url(event_name, disinct_id) {
 }
 
 function track_event_api(req, res) {
-	track_event(req.body.event, req.body.data, req.body.prev, req.body.top, req.user, {
+	track_event(req.body.event, req.body.data, req.user, {
 		ip: req.headers['x-forwarded-for'] || req.ip
-	});
+	}, req.body.trackref);
+	// not waiting for the callback, worst case we loose an event, 
+	// and we prefer not to hold the ui here for that
 	res.end();
 }
 
@@ -35,15 +37,12 @@ function track_event_pixel(req, res) {
 	res.sendfile('../public/images/transparent_pixel.gif');
 }
 
-function track_event(event, data, prev, top, user, req, callback) {
+function track_event(event, data, user, req, trackref, callback) {
 	var e = new TrackEvent();
 	e.event = event;
 	e.data = data;
-	if (prev) {
-		e.prev = prev;
-	}
-	if (top) {
-		e.top = top;
+	if (trackref) {
+		e.trackref = trackref;
 	}
 	if (user) {
 		e.user.id = user.id;

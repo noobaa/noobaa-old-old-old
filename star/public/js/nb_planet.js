@@ -8,8 +8,8 @@
 	var noobaa_app = angular.module('noobaa_app');
 
 	noobaa_app.factory('nbPlanet', [
-		'$http', '$timeout', '$rootScope', '$q', 'nbUser', 'nbUploadSrv',
-		function($http, $timeout, $rootScope, $q, nbUser, nbUploadSrv) {
+		'$http', '$timeout', '$rootScope', '$q', 'nbUtil', 'nbUser', 'nbUploadSrv',
+		function($http, $timeout, $rootScope, $q, nbUtil, nbUser, nbUploadSrv) {
 			// keep local refs here so that any callback functions
 			// defined here will resolve to the window.* members
 			// and avoid failures when console is null on fast refresh.
@@ -112,6 +112,7 @@
 
 			// terminate the entire application
 			$scope.quit_app = function() {
+				nbUtil.track_event('planet.quit');
 				var q = 'Quitting will stop co-sharing.<br/>' +
 					'This will affect your account quota and performance.<br/>' +
 					'Click "No" to keep co-sharing:';
@@ -456,6 +457,9 @@
 			$scope.select_coshare_option = function(index) {
 				var opt = $scope.coshare_options[index];
 				update_device(opt.space);
+				nbUtil.track_event('planet.space.update', {
+					space: opt.space
+				});
 			};
 
 
@@ -554,6 +558,10 @@
 						}
 						console.log('RUN PLAYER', $scope.media_player_path, args);
 						child_process.spawn($scope.media_player_path, args);
+						nbUtil.track_event('planet.media_player.run', {
+							name: inode.name,
+							subs: !! local_sub_file
+						});
 					}, function(err) {
 						console.error('FAILED PLANET OPEN CONTENT GET ATTR', err);
 					});

@@ -100,7 +100,7 @@
 			}
 
 
-			function track_event(event, data, prev, top) {
+			function track_event(event, data, trackref) {
 				var p1 = $q.when().then(function() {
 					var deferred = $q.defer();
 					mixpanel.track(event, data, function() {
@@ -114,8 +114,7 @@
 					data: {
 						event: event,
 						data: data,
-						prev: prev,
-						top: top
+						trackref: trackref
 					}
 				});
 				return $q.all([p1, p2]).then(null, function(err) {

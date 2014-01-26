@@ -148,6 +148,9 @@
 			$scope.more_feeds = function() {
 				$scope.feeds_limit += 10;
 				rebuild_layout();
+				nbUtil.track_event('home.feed.scroll', {
+					count: $scope.feeds_limit
+				});
 			};
 
 			function do_layout() {
@@ -227,10 +230,12 @@
 
 
 			$scope.show_client_installation = function() {
+				nbUtil.track_event('home.install.show');
 				nbUtil.content_modal('Install Client', $('#client_installation').html(), $scope);
 			};
 
 			$scope.show_client_expansion = function() {
+				nbUtil.track_event('home.space.show');
 				nbUtil.content_modal('Choose Space Plan', $('#client_expansion').html(), $scope);
 			};
 
@@ -285,6 +290,7 @@
 
 
 			function refresh_friends() {
+				nbUtil.track_event('home.friends.show');
 				$scope.fb_invites = {};
 				$scope.google_invites = {};
 				$scope.sending_fb_invites = false;
@@ -337,6 +343,7 @@
 			}
 
 			function send_fb_invites() {
+				nbUtil.track_event('home.friends.fb_invite');
 				var fbids = _.keys($scope.fb_invites);
 				$scope.sending_fb_invites = true;
 				snd();
