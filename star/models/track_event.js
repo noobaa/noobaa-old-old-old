@@ -23,4 +23,16 @@ var track_event_schema = new mongoose.Schema({
 	}
 });
 
+track_event_schema.index({
+	event: 1
+}, {
+	unique: false,
+});
+
+track_event_schema.index({
+	time: 1
+}, {
+	unique: false,
+});
+
 exports.TrackEvent = mongoose.model('TrackEvent', track_event_schema);
