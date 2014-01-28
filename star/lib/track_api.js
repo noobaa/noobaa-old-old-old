@@ -25,7 +25,7 @@ function mixpanel_pixel_url(event_name, user_id, ctx) {
 }
 
 var TRANSPARENT_PIXEL_PATH = path.resolve(__dirname, '../public/images/transparent_pixel.gif');
-var TRACKING_SECRET = 'CxUOs6NajK8oFU2p';
+var TRACKING_SECRET = 'CxUOs6NajK8oFU2pdxXiMyOlR72r0m1E';
 
 function tracking_pixel_url(event_name, data, user, ctx) {
 	var e = {

@@ -264,7 +264,17 @@ function send_swm_notification(notified_user, sharing_user, file_name, custom_me
 		time: Date.now(),
 		rand: Math.random()
 	};
-	var tracking_pixel_url = track_api.tracking_pixel_url('email.shared.open', null, notified_user, ctx);
+	var notified_user_info = {
+		id: notified_user.id,
+		name: notified_user_full_name
+	};
+	if (notified_user.fb) {
+		notified_user_info.fbid = notified_user.fb.id;
+	}
+	if (notified_user.google) {
+		notified_user_info.googleid = notified_user.google.id;
+	}
+	var tracking_pixel_url = track_api.tracking_pixel_url('email.shared.open', null, notified_user_info, ctx);
 	var mixpanel_pixel_url = track_api.mixpanel_pixel_url('email.shared.open', notified_user.id, ctx);
 
 	var mailJson = {
