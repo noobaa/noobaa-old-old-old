@@ -343,8 +343,8 @@ app.get('/thankyou', function(req, res) {
 	return res.render('thankyou.html', common_api.page_context(req));
 });
 
-app.get('/help', function(req, res) {
-	return res.redirect('/welcome#faq');
+app.get('/info', function(req, res) {
+	return res.render('info.html', common_api.page_context(req));
 });
 
 app.get('/home/*', function(req, res) {

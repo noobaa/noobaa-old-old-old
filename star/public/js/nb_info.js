@@ -8,7 +8,7 @@
 
 	var noobaa_app = angular.module('noobaa_app');
 
-	noobaa_app.controller('HelpCtrl', ['$scope', '$http',
+	noobaa_app.controller('InfoCtrl', ['$scope', '$http',
 
 		function($scope, $http) {
 			$scope.str2id = function(str) {
