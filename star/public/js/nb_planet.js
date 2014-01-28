@@ -446,6 +446,9 @@
 			}, {
 				space: 200 * GB,
 				title: '200 GB',
+			}, {
+				space: 400 * GB,
+				title: '400 GB',
 			}];
 
 			$scope.coshare_selection = -1;
@@ -456,7 +459,11 @@
 
 			$scope.select_coshare_option = function(index) {
 				var opt = $scope.coshare_options[index];
-				update_device(opt.space);
+				update_device(opt.space).then(function() {
+					return nbUser.update_user_info();
+				}).then(function() {
+					console.log('USER SPACE UPDATED');
+				});
 				nbUtil.track_event('planet.space.update', {
 					space: opt.space
 				});
