@@ -568,6 +568,33 @@
 				}
 			};
 
+			/*
+			function reset_notify_win() {
+				var win;
+				if ($scope.notify_win) {
+					win = $scope.notify_win;
+					$scope.notify_win = null;
+					win.close(true);
+				}
+				win = gui.Window.open('planet_notify.html', {
+					show: false,
+					toolbar: false,
+					resizable: false,
+					frame: false,
+					'always-on-top': true,
+					width: 200,
+					height: 200,
+					position: 'center'
+				});
+				win.x = win.y = 20;
+				var d = win.document;
+				d.write('<h1>HAHA</h1>');
+				win.show();
+				$scope.notify_win = win;
+			}
+			reset_notify_win();
+			*/
+
 			return $scope;
 		}
 	]);

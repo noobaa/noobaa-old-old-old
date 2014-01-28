@@ -251,8 +251,7 @@ exports.admin_get_tracks_csv = function(req, res) {
 				'user_name',
 				'fbid',
 				'googleid',
-				'ip',
-				'trackref'
+				'ip'
 			].join(',') + '\n');
 			var stream = TrackEvent.find().stream();
 			stream.on('error', function(err) {
@@ -270,8 +269,7 @@ exports.admin_get_tracks_csv = function(req, res) {
 					escape_csv_string(t.user.name),
 					t.user.fbid,
 					t.user.googleid,
-					t.req.ip,
-					t.trackref
+					t.req.ip
 				].join(',') + '\n');
 			});
 		}

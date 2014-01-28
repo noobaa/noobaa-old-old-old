@@ -7,7 +7,6 @@ var types = mongoose.Schema.Types;
 var track_event_schema = new mongoose.Schema({
 	event: String,
 	data: {}, // custom info about the event
-	trackref: String, // ref to the flow
 	time: {
 		type: Date,
 		default: Date.now

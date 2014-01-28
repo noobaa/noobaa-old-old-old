@@ -120,9 +120,7 @@ if (top.location != self.location) {
 })(document, window.mixpanel || []);
 if ( <?= !! it.mixpanel_token ?> ) {
 	mixpanel.init("<?= it.mixpanel_token ?>");
-} else {
-	mixpanel.identify = function() {};
-	mixpanel.track = function() {};
+	window.nb_mixpanel = mixpanel;
 }
 </script>
 <!-- end Mixpanel -->

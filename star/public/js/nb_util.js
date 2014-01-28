@@ -100,10 +100,10 @@
 			}
 
 
-			function track_event(event, data, trackref) {
-				var p1 = $q.when().then(function() {
+			function track_event(event, data) {
+				var p1 = !window.nb_mixpanel ? null : $q.when().then(function() {
 					var deferred = $q.defer();
-					mixpanel.track(event, data, function() {
+					window.nb_mixpanel.track(event, data, function() {
 						deferred.resolve();
 					});
 					return deferred.promise;
@@ -113,11 +113,12 @@
 					url: '/track/',
 					data: {
 						event: event,
-						data: data,
-						trackref: trackref
+						data: data
 					}
 				});
-				return $q.all([p1, p2]).then(null, function(err) {
+				return $q.all([p1, p2]).then(function() {
+					console.log('TRACK', event);
+				}, function(err) {
 					console.error('FAILED TRACK EVENT', err);
 					// don't propagate
 				});

@@ -222,7 +222,8 @@ var SWM_TEMAPLATE = dot.template([
 	'   <p>Connecting the dots</p>',
 	'  </div>',
 	' </div>',
-	' <img src="<?! it.tracking_pixel_url ?>" />',
+	' <img src="<?! it.tracking_pixel_url ?>" width="1" height="1" />',
+	' <img src="<?! it.mixpanel_pixel_url ?>" width="1" height="1" />',
 	'</div>'
 ].join('\n'));
 
@@ -258,6 +259,14 @@ function send_swm_notification(notified_user, sharing_user, file_name, custom_me
 		}
 	}
 
+	var ctx = {
+		// make the url unique with miliseconds timestamp and random number
+		time: Date.now(),
+		rand: Math.random()
+	};
+	var tracking_pixel_url = track_api.tracking_pixel_url('email.shared.open', null, notified_user, ctx);
+	var mixpanel_pixel_url = track_api.mixpanel_pixel_url('email.shared.open', notified_user.id, ctx);
+
 	var mailJson = {
 		"message": {
 			"html": SWM_TEMAPLATE({
@@ -265,7 +274,8 @@ function send_swm_notification(notified_user, sharing_user, file_name, custom_me
 				sharing_user_pic_url: user_pic_url(sharing_user),
 				sharing_user_full_name: sharing_user_full_name,
 				file_name: file_name,
-				tracking_pixel_url: track_api.tracking_pixel_url('email.shared.open', notified_user.id),
+				tracking_pixel_url: tracking_pixel_url,
+				mixpanel_pixel_url: mixpanel_pixel_url,
 			}),
 			/*
 			"text": [
