@@ -25,7 +25,7 @@ function mixpanel_pixel_url(event_name, user_id, ctx) {
 }
 
 var TRANSPARENT_PIXEL_PATH = path.resolve(__dirname, '../public/images/transparent_pixel.gif');
-var TRACKING_SECRET = 'CxUOs6NajK8oFU2pdxXiMyOlR72r0m1E';
+var TRACKING_SECRET = 'CxUOs6NajK8oFU2p';
 
 function tracking_pixel_url(event_name, data, user, ctx) {
 	var e = {
@@ -41,7 +41,7 @@ function tracking_pixel_url(event_name, data, user, ctx) {
 		e.ctx = ctx;
 	}
 	var code = common_api.json_encode_sign(e, TRACKING_SECRET);
-	var pixel_url = process.env.NB_BASE_URL + '/track/pixel/?data=' + code.data + '&sign=' + code.sign;
+	var pixel_url = process.env.NB_BASE_URL + '/track/pixel/?d=' + code.data + '&s=' + code.sign;
 	console.log('TRACKING PIXEL URL', pixel_url);
 	return pixel_url;
 }
@@ -53,7 +53,7 @@ console.log('TEST TRACKING URL', tracking_pixel_url('testing', null, {
 */
 
 function track_event_pixel(req, res) {
-	var e = common_api.json_decode_sign(req.query.data, req.query.sign, TRACKING_SECRET);
+	var e = common_api.json_decode_sign(req.query.d, req.query.s, TRACKING_SECRET);
 	if (e) {
 		console.log('TRACKING PIXEL EVENT', e.event);
 		track_event(e.event, e.data, e.user, req);
