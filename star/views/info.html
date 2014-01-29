@@ -18,12 +18,13 @@
 			border-radius: 10px;
 			padding: 10px;
 			margin: 0;
+			line-height: 1.5em;
 		}
 		.question:hover {
 			/*text-indent: 50px;*/
 		}
 		.question:hover .answer {
-			background-color: hsl(0, 0%, 20%) !important;
+			color: white !important;
 		}
 		.animated {
 			visibility: hidden;
@@ -40,13 +41,13 @@
 	<nav class="navbar navbar-static-top navbar-inverse home_navbar" role="navigation">
 		<div class="container clearfix">
 			<div class="navbar-header pull-left">
-				<a id="logo_link" class="navbar-brand" href="/">
+				<a id="logo_link" class="navbar-brand" href="/welcome">
 					<img src="/public/images/noobaa_logo.png"></img>
 					<small>BETA</small>
 				</a>
 			</div>
 			<div class="pull-right">
-				<a class="navbar-btn btn btn-default" href="/">
+				<a class="navbar-btn btn btn-default" href="/welcome">
 					<i class="fa fa-hand-o-left"></i>
 					Back
 				</a>
@@ -56,7 +57,7 @@
 
 	<div class="container">
 
-		<h1 class="text-muted fntpaint">
+		<h1 class="Xtext-muted Xfntpaint">
 			<span class="text-danger" style="font-size: 1.2em">F</span>requently
 			<span class="text-danger" style="font-size: 1.2em">A</span>sked
 			<span class="text-danger" style="font-size: 1.2em">Q</span>uestions
@@ -76,12 +77,12 @@
 			<div id="curr_faq_section_content{{sec_idx}}">
 				<div ng-repeat="(idx, question) in curr_faq_section.questions" class="question animated">
 					<!-- <a data-toggle="collapse" href="#curr_faq_section_question{{idx}}{{sec_idx}}"> -->
-					<p class="lead">
+					<p class="lead text-warning">
 						{{question.q}}
 					</p>
 					<!-- </a> -->
 					<div id="curr_faq_section_question{{idx}}{{sec_idx}}">
-						<p class="lead text-white answer" style="margin-left: 50px; text-align: justify; text-indent: 0">{{question.a}}</p>
+						<p class="lead answer" style="margin-left: 50px; text-align: justify; text-indent: 0">{{question.a}}</p>
 					</div>
 				</div>
 			</div>
@@ -89,12 +90,15 @@
 
 
 		<div class="text-center" style="padding: 50px 0">
-			<a class="btn btn-default btn-lg" href="/">
+			<a class="btn btn-default btn-lg" href="/welcome">
 				<i class="fa fa-hand-o-left"></i>
 				Back
 			</a>
 		</div>
+
 	</div>
+	
+	<div ng-include="'/public/html/site_foot_template.html'"></div>
 
 
 	<div>
