@@ -16,7 +16,7 @@
 			};
 
 			$scope.client_faq = {
-				title: 'NooBaa Client FAQ',
+				title: 'NooBaa Client',
 				questions: [{
 					q: 'Must I download and install the client to use NooBaa?',
 					a: [
@@ -55,7 +55,7 @@
 			};
 
 			$scope.login_faq = {
-				title: 'Login FAQ',
+				title: 'Login',
 				questions: [{
 					q: 'Why do you require a Facebook/Google login?',
 					a: [
@@ -92,7 +92,7 @@
 			};
 
 			$scope.general_faq = {
-				title: 'General FAQ',
+				title: 'General',
 				questions: [{
 					q: 'What makes you different from the rest of the cloud storage offerings out there?',
 					a: [
@@ -102,13 +102,13 @@
 				}, {
 					q: 'Nothing is ever really free. Where is the catch?',
 					a: [
-						'There is not catch. There is only co sharing. ',
+						'There is not catch. There is only co-sharing. ',
 						'The deal is simple: allocate some amount of local HD to be used by NooBaa,',
 						'and get the same amount of cloud storage.',
-						'Whether you need 100GB or 10TB, as long as you are co sharing the same capacity, it IS free.',
+						'Whether you need 100GB or 10TB, as long as you are co-sharing the same capacity, it IS free.',
 					].join('\n')
 				}, {
-					q: 'What do you mean by co sharing?',
+					q: 'What do you mean by co-sharing?',
 					a: [
 						'It\'s easiest to explain with an example: ',
 						'Let\'s say you have a PC with 1TB hard drive, and you have 300GB worth of data on it.',
@@ -148,7 +148,7 @@
 						'managing it all manually. Now think of the following: One protected always accessible fast location. '
 					].join('\n')
 				}, {
-					q: 'How do I avoid from being exposed to pirated and illegal content?',
+					q: 'How do I avoid being exposed to pirated and illegal content?',
 					a: [
 						'You own and control all the files under your account.',
 						'People can only share owned files with people on their social network. This guarantees knowledge  ',
@@ -158,7 +158,7 @@
 						'Therefore, as long a you stick to the right side of the law, you\'re safe'
 					].join('\n')
 				}, {
-					q: 'What limits me from reading the content on my co shared device?',
+					q: 'What limits me from reading the content on my co-shared device?',
 					a: [
 						'Encryption, chunking and distribution. Picture a book library.',
 						'Now imagine that all the books were marked with a black marker (encryption), went through a shredding machine (chunking) and ended in a huge pile that is',
@@ -167,10 +167,10 @@
 						'Does it enable you to read a library book? No. '
 					].join('\n')
 				}, {
-					q: 'Must my co shred device be connected to the Internet 24/7? Can\'t I use my laptop?',
+					q: 'Must my co-shared device be connected to the Internet 24/7? Can\'t I use my laptop?',
 					a: [
 						'No. NooBaa will monitor your connectivity and will learn your sharing pattern.',
-						'As long as you co share most of the time, you can enjoy the service for free.'
+						'As long as you co-share most of the time, you can enjoy the service for free.'
 					].join('\n')
 				}],
 			};

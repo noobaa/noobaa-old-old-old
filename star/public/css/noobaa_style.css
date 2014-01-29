@@ -246,26 +246,6 @@ a.btn-link, button.btn-link {
 .fntwht {
 	color: white;
 }
-.welcome_navbar, .home_navbar {
-	/*border-color: hsl(338, 100%, 50%) !important;*/
-	/*border-style: solid !important;*/
-	/*border-left: none !important;*/
-	/*border-right: none !important;*/
-}
-.welcome_navbar {
-	/*border-top: none !important;*/
-	/*border-bottom-width: 5px !important;*/
-}
-.home_navbar {
-	/*border-bottom: none !important;*/
-	/*border-top-width: 5px !important;*/
-}
-.navbar {
-	/*opacity: 0.95;*/
-	/*background-image: url('/public/images/bg_menu.jpg') !important;*/
-	/*background-repeat: repeat-x !important;*/
-	/*background-position: 0 0 !important;*/
-}
 .navbar .navbar-brand {
 	padding: 5px 0px 5px 10px;
 }
