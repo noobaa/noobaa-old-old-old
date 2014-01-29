@@ -21,7 +21,7 @@
 
 			// set the mixpanel identity with our user id
 			if (window.nb_mixpanel && $scope.user && $scope.user.id) {
-				window.nb_mixpanel.identify($scope.user.id);
+				mixpanel.identify($scope.user.id);
 			}
 
 			$scope.user_quota = -1;

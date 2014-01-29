@@ -73,7 +73,7 @@ function s3_get_url(fobj_id, name, is_download) {
 	var cloudfront_url = CF_PROTO + CF_DOMAIN + '/' + fobj_s3_key(fobj_id) +
 		'?response-content-disposition=' + querystring.escape(name_to_content_dispos(name, is_download));
 	var signed_url = cloudfront_signer.signUrl(cloudfront_url, cloudfront_config);
-	console.log('CF URL', signed_url);
+	// console.log('CF URL', signed_url);
 	return signed_url;
 	/*
 	var params = {

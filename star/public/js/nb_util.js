@@ -107,7 +107,7 @@
 					}
 					var deferred = $q.defer();
 					var done = false;
-					window.nb_mixpanel.track(event, data, function() {
+					mixpanel.track(event, data, function() {
 						if (!done) {
 							deferred.resolve();
 							done = true;
@@ -115,10 +115,11 @@
 					});
 					$timeout(function() {
 						if (!done) {
+							console.error('MIXPANEL TIMEOUT');
 							deferred.reject();
 							done = true;
 						}
-					}, 3000);
+					}, 5000);
 					return deferred.promise;
 				});
 				var p2 = $http({
