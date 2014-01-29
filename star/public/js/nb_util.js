@@ -101,11 +101,24 @@
 
 
 			function track_event(event, data) {
-				var p1 = !window.nb_mixpanel ? null : $q.when().then(function() {
+				var p1 = $q.when().then(function() {
+					if (!window.nb_mixpanel) {
+						return;
+					}
 					var deferred = $q.defer();
+					var done = false;
 					window.nb_mixpanel.track(event, data, function() {
-						deferred.resolve();
+						if (!done) {
+							deferred.resolve();
+							done = true;
+						}
 					});
+					$timeout(function() {
+						if (!done) {
+							deferred.reject();
+							done = true;
+						}
+					}, 3000);
 					return deferred.promise;
 				});
 				var p2 = $http({
