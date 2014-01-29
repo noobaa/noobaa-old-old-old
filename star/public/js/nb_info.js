@@ -8,9 +8,11 @@
 
 	var noobaa_app = angular.module('noobaa_app');
 
-	noobaa_app.controller('InfoCtrl', ['$scope', '$http',
+	noobaa_app.controller('InfoCtrl', ['$scope', '$http', 'nbUtil',
+		function($scope, $http, nbUtil) {
 
-		function($scope, $http) {
+			nbUtil.track_event('info.load');
+
 			$scope.str2id = function(str) {
 				return str.split(' ').join('');
 			};
