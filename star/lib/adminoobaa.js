@@ -126,16 +126,7 @@ exports.admin_update = function(req, res) {
 
 
 exports.admin_get_tracks = function(req, res) {
-	var match1 = {};
-	if (req.body.from) {
-		match1.time = {
-			$gte: new Date(req.body.from)
-		};
-	}
-	if (req.body.till) {
-		match1.time = match1.time || {};
-		match1.time.$lt = new Date(req.body.till);
-	}
+	var match1;
 
 	var project1 = {
 		_id: 0,
@@ -145,6 +136,7 @@ exports.admin_get_tracks = function(req, res) {
 			$millisecond: '$time'
 		}
 	};
+
 	var project2 = {
 		event: 1,
 		time: {
@@ -153,7 +145,10 @@ exports.admin_get_tracks = function(req, res) {
 			}]
 		}
 	};
-	var group1 = {
+
+	var group1;
+
+	var group2 = {
 		_id: {
 			event: '$event',
 			time: '$time',
@@ -162,15 +157,46 @@ exports.admin_get_tracks = function(req, res) {
 			$sum: 1
 		}
 	};
+
+	if (req.body.from) {
+		match1 = {
+			time: {
+				$gte: new Date(req.body.from)
+			}
+		};
+	}
+	if (req.body.till) {
+		match1 = match1 || {
+			time: {}
+		};
+		match1.time.$lt = new Date(req.body.till);
+	}
+
 	if (req.body.uniq_user) {
 		project1.user = '$user.id';
 		project2.user = 1;
-		group1._id.user = '$user';
+		group1 = {
+			_id: {
+				event: '$event',
+				time: '$time',
+				user: '$user'
+			}
+		}
 	}
 	if (req.body.uniq_ip) {
 		project1.ip = '$req.ip';
 		project2.ip = 1;
+		group1 = group1 || {
+			_id: {
+				event: '$event',
+				time: '$time'
+			}
+		}
 		group1._id.ip = '$ip';
+	}
+	if (group1) {
+		group2._id.event = '$_id.event';
+		group2._id.time = '$_id.time';
 	}
 
 	var resolutions = {
@@ -239,10 +265,15 @@ exports.admin_get_tracks = function(req, res) {
 	return async.waterfall([
 		function(next) {
 			var agg = TrackEvent.aggregate();
-			agg.match(match1);
+			if (match1) {
+				agg.match(match1);
+			}
 			agg.project(project1);
 			agg.project(project2);
-			agg.group(group1);
+			if (group1) {
+				agg.group(group1);
+			}
+			agg.group(group2);
 			agg.exec(next);
 		}
 	], common_api.reply_callback(req, res, 'ADMIN GET TRACKS'));
