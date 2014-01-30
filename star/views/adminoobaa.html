@@ -189,6 +189,10 @@
 					<input type="checkbox" ng-model="track_params.uniq_ip" ng-change="refresh_tracks()" />
 					<span>Uniq IP</span>
 				</label>
+				<label class="btn btn-default">
+					<input type="checkbox" ng-model="track_params.mgmt" ng-change="refresh_tracks()" />
+					<span>Mgmt</span>
+				</label>
 			</div>
 			<button class="btn btn-default" ng-click="export_tracks()">
 				Export CSV
@@ -342,7 +346,8 @@
 				$scope.track_params = {
 					resolution: 'day',
 					uniq_user: true,
-					uniq_ip: true
+					uniq_ip: true,
+					mgmt: false,
 				};
 
 				function refresh_tracks() {
@@ -420,6 +425,26 @@
 						// console.log('DATA', last_row, k, tr.count, tr.ev);
 					});
 					var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+					google.visualization.events.addListener(chart, 'select', function() {
+						var selection = chart.getSelection();
+						if (!selection) {
+							return;
+						}
+						var selected = selection[0];
+						if (!selected) {
+							return;
+						}
+						console.log('CHART SELECTION', selected);
+						/*
+						if (!selected.column) {
+						}
+						if (!selected.row) {
+						}
+						if (selected.column && selected.row) {
+							var value = data.getValue(selected.row, selected.column);
+						}
+						*/
+					});
 					chart.draw(data, {
 						pointSize: 5,
 						height: 500,

@@ -10,6 +10,7 @@ var Device = require('../models/device.js').Device;
 var TrackEvent = require('../models/track_event').TrackEvent;
 var user_inodes = require('./user_inodes');
 var email = require('./email');
+var auth = require('./auth');
 var mongoose = require('mongoose');
 
 
@@ -159,17 +160,22 @@ exports.admin_get_tracks = function(req, res) {
 	};
 
 	if (req.body.from) {
-		match1 = {
-			time: {
-				$gte: new Date(req.body.from)
-			}
-		};
+		match1 = match1 || {};
+		match1.time = match1.time || {};
+		match1.time.$gte = new Date(req.body.from);
 	}
 	if (req.body.till) {
-		match1 = match1 || {
-			time: {}
-		};
+		match1 = match1 || {};
+		match1.time = match1.time || {};
 		match1.time.$lt = new Date(req.body.till);
+	}
+	if (!req.body.mgmt) {
+		match1 = match1 || {};
+		match1.user = {
+			fbid: {
+				$nin: auth.adminoobaa_fbid_list
+			}
+		};
 	}
 
 	if (req.body.uniq_user) {

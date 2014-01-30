@@ -149,6 +149,8 @@ var adminoobaa_fbid_list = [
 	'100000601353304' // yuval
 ];
 
+exports.adminoobaa_fbid_list = adminoobaa_fbid_list;
+
 // define what kind of info will be saved in the session.
 // this info will be encoded inside a cookie,
 // but can't keep the entire facebook info because 
