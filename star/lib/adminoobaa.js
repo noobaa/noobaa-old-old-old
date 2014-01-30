@@ -181,7 +181,7 @@ exports.admin_get_tracks = function(req, res) {
 				time: '$time',
 				user: '$user'
 			}
-		}
+		};
 	}
 	if (req.body.uniq_ip) {
 		project1.ip = '$req.ip';
@@ -191,7 +191,7 @@ exports.admin_get_tracks = function(req, res) {
 				event: '$event',
 				time: '$time'
 			}
-		}
+		};
 		group1._id.ip = '$ip';
 	}
 	if (group1) {
