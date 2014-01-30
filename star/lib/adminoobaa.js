@@ -171,10 +171,8 @@ exports.admin_get_tracks = function(req, res) {
 	}
 	if (!req.body.mgmt) {
 		match1 = match1 || {};
-		match1.user = {
-			fbid: {
-				$nin: auth.adminoobaa_fbid_list
-			}
+		match1['user.fbid'] = {
+			$nin: auth.adminoobaa_fbid_list
 		};
 	}
 
