@@ -3,7 +3,6 @@ var async = require('async');
 var Inode = require('../models/inode').Inode;
 var User = require('../models/user').User;
 var Fobj = require('../models/fobj').Fobj;
-var wnst = require('winston');
 var email = require('./email');
 var common_api = require('./common_api');
 
@@ -94,7 +93,7 @@ function get_user_basic_folder(folder_name, user_id, next) {
 		parent: null,
 	}, function(err, inode) {
 		if (err) {
-			wnst.error('Failed while searching for user basic folder', err,
+			console.error('Failed while searching for user basic folder', err,
 				'user id', user._id, 'folder', folder_name);
 			return next(err, null);
 		}
@@ -231,7 +230,7 @@ function create_ref_ghost_per_user(live_inode, user_id, cb) {
 			});
 			inode.save(function(err, inode) {
 				if (err) return next(err);
-				wnst.info("Cretead ghost inode: ", inode);
+				console.log("Cretead ghost inode: ", inode);
 				next(null);
 			});
 		}

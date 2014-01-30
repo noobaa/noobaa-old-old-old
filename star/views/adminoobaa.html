@@ -163,27 +163,46 @@
 	<div class="container" ng-show="current_tab=='tracks'">
 		<div class="text-center" style="padding: 10px 0">
 			<div class="btn-group">
-				<!-- 
-				<button class="btn btn-default {{track_resolution=='minute' && 'active' || ''}}" ng-click="refresh_tracks('minute')">
-					Minute
-				</button>
-				 -->
-				<button class="btn btn-default {{track_resolution=='hour' && 'active' || ''}}" ng-click="refresh_tracks('hour')">
-					Hour
-				</button>
-				<button class="btn btn-default {{track_resolution=='day' && 'active' || ''}}" ng-click="refresh_tracks('day')">
-					Day
-				</button>
-				<button class="btn btn-default {{track_resolution=='week' && 'active' || ''}}" ng-click="refresh_tracks('week')">
-					Week
-				</button>
-				<button class="btn btn-default {{track_resolution=='month' && 'active' || ''}}" ng-click="refresh_tracks('month')">
-					Month
-				</button>
+				<label class="btn btn-default">
+					<input type="radio" ng-model="track_params.resolution" value="hour" ng-change="refresh_tracks()" />
+					<span>Hour</span>
+				</label>
+				<label class="btn btn-default">
+					<input type="radio" ng-model="track_params.resolution" value="day" ng-change="refresh_tracks()" />
+					<span>Day</span>
+				</label>
+				<label class="btn btn-default">
+					<input type="radio" ng-model="track_params.resolution" value="week" ng-change="refresh_tracks()" />
+					<span>Week</span>
+				</label>
+				<label class="btn btn-default">
+					<input type="radio" ng-model="track_params.resolution" value="month" ng-change="refresh_tracks()" />
+					<span>Month</span>
+				</label>
+			</div>
+			<div class="btn-group">
+				<label class="btn btn-default">
+					<input type="checkbox" ng-model="track_params.uniq_user" ng-change="refresh_tracks()" />
+					<span>Uniq User</span>
+				</label>
+				<label class="btn btn-default">
+					<input type="checkbox" ng-model="track_params.uniq_ip" ng-change="refresh_tracks()" />
+					<span>Uniq IP</span>
+				</label>
 			</div>
 			<button class="btn btn-default" ng-click="export_tracks()">
 				Export CSV
 			</button>
+			<div style="padding: 10px 0">
+				<label>
+					<span>From</span>
+					<input type="datetime-local" ng-model="track_params.from" ng-change="refresh_tracks()">
+				</label>
+				<label>
+					<span>To</span>
+					<input type="datetime-local" ng-model="track_params.till" ng-change="refresh_tracks()">
+				</label>
+			</div>
 		</div>
 		<div id="chart_div"></div>
 	</div>
@@ -236,6 +255,9 @@
 				};
 				$scope.activate_tab = function(name) {
 					$scope.current_tab = name;
+					if (name === 'tracks') {
+						refresh_tracks();
+					}
 				};
 
 				refresh_users();
@@ -317,6 +339,29 @@
 					}
 				}
 
+				$scope.track_params = {
+					resolution: 'day',
+					uniq_user: true,
+					uniq_ip: true
+				};
+
+				function refresh_tracks() {
+					console.log('REFRESH TRACKS', $scope.track_params);
+					$scope.loading++;
+					$http({
+						method: 'POST',
+						url: '/adminoobaa/track/',
+						data: $scope.track_params
+					}).then(function(res) {
+						$scope.loading--;
+						$scope.tracks = res.data;
+						draw_tracks_chart();
+					}, function(err) {
+						$scope.loading--;
+						handle_error('GET TRACKS', err);
+					});
+				}
+
 				var RESTIMES = {
 					minute: 60000,
 					hour: 3600000
@@ -325,29 +370,9 @@
 				RESTIMES.week = 7 * RESTIMES.day;
 				RESTIMES.month = 30 * RESTIMES.day;
 
-				function refresh_tracks(resolution) {
-					$scope.loading++;
-					$http({
-						method: 'GET',
-						url: '/adminoobaa/track/',
-						params: {
-							resolution: resolution
-						}
-					}).then(function(res) {
-						$scope.loading--;
-						$scope.tracks = res.data;
-						$scope.track_resolution = resolution;
-						draw_tracks_chart(resolution);
-					}, function(err) {
-						$scope.loading--;
-						handle_error('GET TRACKS', err);
-					});
-				}
-
-
 				function draw_tracks_chart() {
 					var i;
-					var restime = RESTIMES[$scope.track_resolution] || RESTIMES.day;
+					var restime = RESTIMES[$scope.track_params.resolution] || RESTIMES.day;
 					var events_map = {};
 					_.each($scope.tracks, function(tr) {
 						tr.date = new Date(tr._id.time);
@@ -397,16 +422,16 @@
 					var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
 					chart.draw(data, {
 						pointSize: 5,
-						height: 400,
+						height: 500,
 						vAxis: {
 							title: '#events'
 						},
 						hAxis: {
 							title: 'Time',
 						},
-						// legend: {
-						// position: 'top'
-						// }
+						legend: {
+							position: 'top'
+						}
 					});
 				}
 

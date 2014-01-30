@@ -21,7 +21,6 @@ var User = require('../models/user').User;
 var user_inodes = require('./user_inodes');
 var email = require('./email');
 var common_api = require('./common_api');
-var filesize = require('filesize');
 
 
 var NBLINK_SECRET = 'try-da-link'; // TODO: do something with the secret

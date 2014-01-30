@@ -1,17 +1,16 @@
 var mongoose = require('mongoose');
-
-var Backbone = require('backbone');
+var events = require('events');
 var _ = require('underscore');
 
-var ev = _.clone(Backbone.Events);
+var ev = new events.EventsEmitter();
 
 process.env.MONGOHQ_URL = 'mongodb://admin:admin@localhost/test';
 
 mongoose.connection.on('open', function() {
-	ev.trigger('open');
+	ev.emit('open');
 });
 mongoose.connection.on('close', function() {
-	ev.trigger('close');
+	ev.emit('close');
 });
 
 var db;
@@ -19,12 +18,10 @@ var db;
 exports.setup = function(callback) {
 	// return callback();
 	try {
-		var cb = function() {
+		ev.once('open', function() {
 			console.log('connection open');
-			ev.off('open', cb);
 			callback();
-		};
-		ev.on('open', cb);
+		});
 
 		db = mongoose.connect(process.env.MONGOHQ_URL);
 		console.log('Started connection, waiting for it to open');
@@ -38,12 +35,10 @@ exports.setup = function(callback) {
 exports.teardown = function(callback) {
 	console.log('In tearDown');
 	try {
-		var cb = function() {
+		ev.once('close', function() {
 			console.log('connection closed');
-			ev.off('close', cb);
 			callback();
-		};
-		ev.on('close', cb);
+		});
 		console.log('Closing connection');
 
 		// Disconnects all connections.

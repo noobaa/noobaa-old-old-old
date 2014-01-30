@@ -126,6 +126,17 @@ exports.admin_update = function(req, res) {
 
 
 exports.admin_get_tracks = function(req, res) {
+	var match1 = {};
+	if (req.body.from) {
+		match1.time = {
+			$gte: new Date(req.body.from)
+		};
+	}
+	if (req.body.till) {
+		match1.time = match1.time || {};
+		match1.time.$lt = new Date(req.body.till);
+	}
+
 	var project1 = {
 		_id: 0,
 		event: 1,
@@ -142,6 +153,26 @@ exports.admin_get_tracks = function(req, res) {
 			}]
 		}
 	};
+	var group1 = {
+		_id: {
+			event: '$event',
+			time: '$time',
+		},
+		count: {
+			$sum: 1
+		}
+	};
+	if (req.body.uniq_user) {
+		project1.user = '$user.id';
+		project2.user = 1;
+		group1._id.user = '$user';
+	}
+	if (req.body.uniq_ip) {
+		project1.ip = '$req.ip';
+		project2.ip = 1;
+		group1._id.ip = '$ip';
+	}
+
 	var resolutions = {
 		second: 1,
 		minute: 2,
@@ -150,7 +181,7 @@ exports.admin_get_tracks = function(req, res) {
 		week: 5,
 		month: 6
 	};
-	var resolution = resolutions[req.query.resolution] || 4; // days by default
+	var resolution = resolutions[req.body.resolution] || 4; // days by default
 	if (resolution > 1) {
 		// truncate seconds
 		project1.s = {
@@ -207,21 +238,12 @@ exports.admin_get_tracks = function(req, res) {
 
 	return async.waterfall([
 		function(next) {
-			return TrackEvent.aggregate([{
-				$project: project1
-			}, {
-				$project: project2
-			}, {
-				$group: {
-					_id: {
-						event: '$event',
-						time: '$time'
-					},
-					count: {
-						$sum: 1
-					}
-				}
-			}], next);
+			var agg = TrackEvent.aggregate();
+			agg.match(match1);
+			agg.project(project1);
+			agg.project(project2);
+			agg.group(group1);
+			agg.exec(next);
 		}
 	], common_api.reply_callback(req, res, 'ADMIN GET TRACKS'));
 };
