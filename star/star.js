@@ -287,7 +287,7 @@ app.get('/adminoobaa/', function(req, res) {
 });
 app.get('/adminoobaa/user/', adminoobaa.admin_get_users);
 app.get('/adminoobaa/user/:user_id/usage/', adminoobaa.admin_get_user_usage);
-app.post('/adminoobaa/user/:user_id/recent_swm/', adminoobaa.admin_send_user_recent_swm);
+app.all('/adminoobaa/user/:user_id/recent_swm/', adminoobaa.admin_send_user_recent_swm);
 app.all('/adminoobaa/track/', adminoobaa.admin_get_tracks);
 app.all('/adminoobaa/track/csv/', adminoobaa.admin_get_tracks_csv);
 app.put('/adminoobaa/', adminoobaa.admin_update);

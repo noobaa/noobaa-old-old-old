@@ -240,11 +240,11 @@ function find_recent_swm(user_id, count_limit, from_time, callback) {
 				var shared_inode = inode.toObject();
 				var live_inode = live_inodes_by_id[inode.ghost_ref];
 				if (live_inode) {
+					shared_inode.live_inode = live_inode;
 					var owner = live_owners_by_id[live_inode.owner];
 					if (owner) {
-						shared_inode.live_owner = owner.get_user_identity_info();
+						shared_inode.live_owner = owner;
 					}
-					shared_inode.live_name = live_inode.name;
 				}
 				return shared_inode;
 			});
@@ -277,7 +277,11 @@ function send_notification_on_recent_swm(user_id, count_limit, from_time, callba
 			return find_recent_swm(user_id, count_limit, from_time, next);
 		},
 		function(shares, next) {
-			if (!user || !shares || !shares.length) {
+			if (!shares) {
+				return next();
+			}
+			if (!shares.length) {
+				console.log('NO NEW SWM', user.get_name());
 				return next();
 			}
 			return email.send_recent_swm_notification(user, shares, next);

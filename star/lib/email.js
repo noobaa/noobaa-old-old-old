@@ -243,7 +243,10 @@ function send_swm_notification(user, sharing_user, inode, callback) {
 	msg.bcc_address = null;
 
 	var bcc_msg = _.clone(msg);
-	bcc_msg.to[0].email = 'info@noobaa.com';
+	bcc_msg.to = [{
+		name: msg.to[0].name,
+		email: 'info@noobaa.com'
+	}];
 	bcc_msg.track_opens = false;
 	bcc_msg.track_clicks = false;
 	bcc_msg.html = SWM_TEMAPLATE({
@@ -277,15 +280,17 @@ var RECENT_SWM_TEMAPLATE = dot.template([
 	' </div>',
 	' <div style="padding: 0 40px">',
 	'  <h2>Hi <?! it.user.get_first_name() ?></h2>',
-	'  <h3 style="margin: 20px 0">',
-	'   <img src="<?! it.sharing_user.get_pic_url() ?>" style="vertical-align: middle; height: 40px; width: 40px" />',
-	'   <span><?! it.sharing_user.get_name() ?></span>',
-	'  </h3>',
-	'  <div style="margin: 40px 0 20px 44px">',
-	'   <h2>',
-	'    <a href="https://www.noobaa.com/home/"><?! it.file_name ?></a>',
-	'   </h2>',
-	'  </div>',
+	'  <?~ it.shares :inode:index ?>',
+	'   <h3 style="margin: 40px 0 0 0">',
+	'    <img src="<?! inode.live_owner.get_pic_url() ?>" style="vertical-align: middle; height: 40px; width: 40px" />',
+	'    <span><?! inode.live_owner.get_name() ?></span>',
+	'   </h3>',
+	'   <div style="margin: 40px 0 0 44px">',
+	'    <h2>',
+	'     <a href="https://www.noobaa.com/home/"><?! inode.live_inode.name ?></a>',
+	'    </h2>',
+	'   </div>',
+	'  <?~?>',
 	'  <div style="margin: 40px 0 0 0">',
 	'   <p>Check it out on your NooBaa account</p>',
 	'   <p><a href="https://www.noobaa.com">www.noobaa.com</a></p>',
@@ -302,12 +307,6 @@ exports.send_recent_swm_notification = send_recent_swm_notification;
 
 function send_recent_swm_notification(user, shares, callback) {
 	console.log('RECENT SWM', user, shares);
-	if (true) {
-		return callback();
-	}
-	// TODO
-	var inode;
-	var sharing_user;
 
 	var msg = prepare_email_message(user);
 	if (!msg) {
@@ -319,39 +318,43 @@ function send_recent_swm_notification(user, shares, callback) {
 		rand: Math.random()
 	};
 	var user_info = user.get_user_identity_info();
-	var tracking_pixel_url = track_api.tracking_pixel_url('email.shared_recent.open', null, user_info, ctx);
-	var mixpanel_pixel_url = track_api.mixpanel_pixel_url('email.shared_recent.open', user.id, ctx);
-	var sharers_names = _.pluck(_.first(shares, 3), 'live_owner.first_name').join(', ');
-	msg.subject = sharers_names + ' shared new stuff with you on NooBaa';
+	var tracking_pixel_url = track_api.tracking_pixel_url('email.recent_swm.open', null, user_info, ctx);
+	var mixpanel_pixel_url = track_api.mixpanel_pixel_url('email.recent_swm.open', user.id, ctx);
+	var sharers_names = _.map(shares, function(inode) {
+		return inode.live_owner.get_first_name();
+	});
+	var sharers_for_subject = _.first(_.uniq(sharers_names), 3).join(', ');
+	msg.subject = sharers_for_subject + ' shared new stuff with you on NooBaa';
 	msg.html = RECENT_SWM_TEMAPLATE({
 		user: user,
-		sharing_user: sharing_user,
-		inode: inode,
+		shares: shares,
 		tracking_pixel_urls: [tracking_pixel_url, mixpanel_pixel_url],
 	});
 	// don't send bcc with tracking urls
 	msg.bcc_address = null;
 
 	var bcc_msg = _.clone(msg);
-	bcc_msg.to[0].email = 'info@noobaa.com';
+	bcc_msg.to = [{
+		name: msg.to[0].name,
+		email: 'info@noobaa.com'
+	}];
 	bcc_msg.track_opens = false;
 	bcc_msg.track_clicks = false;
-	bcc_msg.html = SWM_TEMAPLATE({
+	bcc_msg.html = RECENT_SWM_TEMAPLATE({
 		user: user,
-		sharing_user: sharing_user,
-		inode: inode,
+		shares: shares,
 		tracking_pixel_urls: [],
 	});
 
 	return async.parallel([
 		function(next) {
-			console.log('SEND SHARE MSG', user.get_name());
+			console.log('SEND RECENT SWM MSG', user.get_name());
 			return mandrill('/messages/send', {
 				message: msg
 			}, email_callback(next));
 		},
 		function(next) {
-			console.log('SEND SHARE BCC', user.get_name());
+			console.log('SEND RECENT SWM BCC', user.get_name());
 			return mandrill('/messages/send', {
 				message: bcc_msg
 			}, email_callback(next));
