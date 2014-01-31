@@ -10,6 +10,98 @@ var track_api = require('./track_api');
 var dot = require('dot');
 var _ = require('underscore');
 
+var EMAIL_STYLES = [
+	'<style>',
+	'.nbcapsule {',
+	'  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;',
+	'  border-radius:100px;',
+	'  background-color:hsl(0,0%,10%);',
+	'  border:1px solid hsl(0,0%,0%);',
+	'  color:hsl(0,0%,90%);',
+	'}',
+	'.nbcapsule .text-muted {',
+	'  color: hsl(0,0%,35%);',
+	'}',
+	'.nbcapsule a {',
+	'  color: hsl(210,50%,50%);',
+	'}',
+	'</style>'
+].join('\n');
+
+var SWM_TEMAPLATE = dot.template([
+	'<div>',
+	EMAIL_STYLES,
+	' <div class="nbcapsule">',
+	'  <div style="padding: 30px 60px 10px 100px">',
+	'   <h3 style="margin:0 0 10px 0; text-align: center" class="text-muted">',
+	'    Hi <?! it.user.get_first_name() ?>!',
+	'   </h3>',
+	'   <div style="float: left">',
+	'    <img src="<?! it.sharing_user.get_pic_url() ?>" style="height: 40px; width: 40px" />',
+	'   </div>',
+	'   <div style="padding-left: 10px; overflow: hidden">',
+	'    <h4 style="margin: 0">',
+	'     <span><?! it.sharing_user.get_name() ?></span>',
+	'     <br/><small class="text-muted">shared with you</small>',
+	'    </h4>',
+	'    <a href="https://www.noobaa.com/home/"><h2><?! it.inode.name ?></h2></a>',
+	'   </div>',
+	'  </div>',
+	'  <div style="padding: 10px 60px 20px 100px; border-top:1px solid hsl(0,0%,0%); text-align: center">',
+	'   <a href="https://www.noobaa.com">',
+	'    <img src="https://www.noobaa.com/public/images/noobaa_logo.png" height="44px" />',
+	'    <div Xstyle="padding-left: 10px"><small>Connecting the dots</small></div>',
+	'   </a>',
+	'  </div>',
+	' </div>',
+	' <?~ it.tracking_pixel_urls :pixel_url:index ?>',
+	'  <img src="<?! pixel_url ?>" width="1" height="1" />',
+	' <?~?>',
+	'</div>'
+].join('\n'));
+
+var RECENT_SWM_TEMAPLATE = dot.template([
+	'<div>',
+
+	EMAIL_STYLES,
+	' <div class="nbcapsule">',
+	'  <div style="padding: 30px 60px 10px 100px">',
+	'   <h3 style="margin:0 0 10px 0; text-align: center" class="text-muted">',
+	'    Hi <?! it.user.get_first_name() ?>!',
+	'   </h3>',
+	'   <h3 style="margin:0 0 20px 0; text-align: center" class="text-muted">',
+	'    Here are recent things shared with you:',
+	'   </h3>',
+	'   <?~ it.shares :inode:index ?>',
+	'   <div style="margin:10px 0 10px 0">',
+	'    <div style="float: left">',
+	'     <img src="<?! inode.live_owner.get_pic_url() ?>" style="height: 40px; width: 40px" />',
+	'    </div>',
+	'    <div style="padding-left: 10px; overflow: hidden">',
+	'     <h4 style="margin: 0">',
+	'      <span><?! inode.live_owner.get_name() ?></span>',
+	'      <br/><small class="text-muted">shared with you</small>',
+	'     </h4>',
+	'     <a href="https://www.noobaa.com/home/"><h2><?! inode.live_inode.name ?></h2></a>',
+	'    </div>',
+	'   </div>',
+	'   <?~?>',
+	'  </div>',
+	'  <div style="padding: 10px 60px 20px 100px; border-top:1px solid hsl(0,0%,0%); text-align: center">',
+	'   <a href="https://www.noobaa.com">',
+	'    <img src="https://www.noobaa.com/public/images/noobaa_logo.png" height="44px" />',
+	'    <div Xstyle="padding-left: 10px"><small>Connecting the dots</small></div>',
+	'   </a>',
+	'  </div>',
+	' </div>',
+	' <?~ it.tracking_pixel_urls :pixel_url:index ?>',
+	'  <img src="<?! pixel_url ?>" width="1" height="1" />',
+	' <?~?>',
+	'</div>'
+].join('\n'));
+
+
+
 
 function prepare_email_message(user) {
 	var msg = {
@@ -178,44 +270,6 @@ function send_alpha_approved_notification(user, callback) {
 	}, email_callback(callback));
 }
 
-// I looked at this to get some insipration: 
-// http://blog.mandrill.com/an-awesome-plain-text-email.html
-// I didn't think the notification should be HTML since it's prefered it will 
-// be as slim as possible. 
-// The custom message is a text that can be transfered to add some spice to 
-// the message. some examples are: 
-// "Fresh from the oven" for files recently uploaded
-// "Of all people, X wanted YOU to check it out" if shared with a small number of users. 
-// It is not part of the email module logic 
-// to losen the coupling with the inodes and FS structure. 
-
-var SWM_TEMAPLATE = dot.template([
-	'<div style="background-color: #e2e2e2; color: #282828">',
-	' <div style="background-color: #282828; text-align: center; padding: 10px">',
-	'  <img src="https://www.noobaa.com/public/images/noobaa_logo.png" height="44px" />',
-	' </div>',
-	' <div style="padding: 0 40px">',
-	// '  <h2>Hi <?! it.user.get_first_name() ?></h2>',
-	'  <h3 style="margin: 20px 0">',
-	'   <img src="<?! it.sharing_user.get_pic_url() ?>" style="vertical-align: middle; height: 40px; width: 40px" />',
-	'   <span><?! it.sharing_user.get_name() ?></span>',
-	'  </h3>',
-	'  <div style="margin: 40px 0 20px 44px">',
-	'   <h2>',
-	'    <a href="https://www.noobaa.com/home/"><?! it.inode.name ?></a>',
-	'   </h2>',
-	'  </div>',
-	'  <div style="margin: 40px 0 0 0">',
-	'   <p>Check it out on your NooBaa account</p>',
-	'   <p><a href="https://www.noobaa.com">www.noobaa.com</a></p>',
-	'   <p>Connecting the dots</p>',
-	'  </div>',
-	' </div>',
-	' <?~ it.tracking_pixel_urls :pixel_url:index ?>',
-	'  <img src="<?! pixel_url ?>" width="1" height="1" />',
-	' <?~?>',
-	'</div>'
-].join('\n'));
 
 exports.send_swm_notification = send_swm_notification;
 
@@ -272,36 +326,6 @@ function send_swm_notification(user, sharing_user, inode, callback) {
 	], callback);
 }
 
-
-var RECENT_SWM_TEMAPLATE = dot.template([
-	'<div style="background-color: #e2e2e2; color: #282828">',
-	' <div style="background-color: #282828; text-align: center; padding: 10px">',
-	'  <img src="https://www.noobaa.com/public/images/noobaa_logo.png" height="44px" />',
-	' </div>',
-	' <div style="padding: 0 40px">',
-	'  <h2>Hi <?! it.user.get_first_name() ?></h2>',
-	'  <?~ it.shares :inode:index ?>',
-	'   <h3 style="margin: 40px 0 0 0">',
-	'    <img src="<?! inode.live_owner.get_pic_url() ?>" style="vertical-align: middle; height: 40px; width: 40px" />',
-	'    <span><?! inode.live_owner.get_name() ?></span>',
-	'   </h3>',
-	'   <div style="margin: 40px 0 0 44px">',
-	'    <h2>',
-	'     <a href="https://www.noobaa.com/home/"><?! inode.live_inode.name ?></a>',
-	'    </h2>',
-	'   </div>',
-	'  <?~?>',
-	'  <div style="margin: 40px 0 0 0">',
-	'   <p>Check it out on your NooBaa account</p>',
-	'   <p><a href="https://www.noobaa.com">www.noobaa.com</a></p>',
-	'   <p>Connecting the dots</p>',
-	'  </div>',
-	' </div>',
-	' <?~ it.tracking_pixel_urls :pixel_url:index ?>',
-	'  <img src="<?! pixel_url ?>" width="1" height="1" />',
-	' <?~?>',
-	'</div>'
-].join('\n'));
 
 exports.send_recent_swm_notification = send_recent_swm_notification;
 
@@ -393,15 +417,16 @@ exports.test_email_templates = function(req, res) {
 			name: 'Testing recent swm 1'
 		}
 	}];
-	res.write('<div style="max-width: 800px; padding: 30px">');
-	res.write('<br/><div>SWM template</div><br/>');
+	res.write('<div style="max-width: 800px; padding: 20px">');
+	res.write('<div style="height: 100%"><br/>SWM<br/><br/>');
 	res.write(SWM_TEMAPLATE({
 		user: user,
 		sharing_user: user,
 		inode: inode,
 		tracking_pixel_urls: [],
 	}));
-	res.write('<br/><div>Recent SWM template</div><br/>');
+	res.write('</div>');
+	res.write('<div style="height: 100%"><br/>RECENT SWM<br/><br/>');
 	res.write(RECENT_SWM_TEMAPLATE({
 		user: user,
 		shares: shares,
