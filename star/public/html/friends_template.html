@@ -10,7 +10,7 @@
 				<h3>Your NooBaa Friends</h3>
 			</div>
 			<div>
-				<div ng-repeat="friend in friends.users" class="text-ellipses" style="display: inline-block; width: 260px; margin: 0 2px; padding: 5px; cursor: pointer" ng-click="send_friend_message(friend)">
+				<div ng-repeat="friend in friends.users | orderBy:'name'" class="text-ellipses" style="display: inline-block; width: 260px; margin: 0 2px; padding: 5px; cursor: pointer" ng-click="send_friend_message(friend)">
 					<img ng-src="{{nbUser.user_pic_url(friend)}}" />&nbsp;
 					<span>{{friend.name}}</span>
 				</div>
@@ -33,7 +33,7 @@
 			</div>
 		</div>
 		<div class="panel-body">
-			<div ng-repeat="friend in friends.fb" class="text-ellipses {{fb_invites[friend.fbid] && 'label-warning'}}" style="display: inline-block; border-radius: 20px; width: 260px; margin: 0 2px; padding: 5px 10px; cursor: pointer; text-align: left" ng-click="set_fb_invites(friend.fbid)">
+			<div ng-repeat="friend in friends.fb | orderBy:'name'" class="text-ellipses {{fb_invites[friend.fbid] && 'label-warning'}}" style="display: inline-block; border-radius: 20px; width: 260px; margin: 0 2px; padding: 5px 10px; cursor: pointer; text-align: left" ng-click="set_fb_invites(friend.fbid)">
 				<i class="fa fa-{{fb_invites[friend.fbid] && 'check' || 'plus-square'}} fa-fw"></i>&nbsp;
 				<img width="32" height="32" ng-src="{{nbUser.user_pic_url(friend)}}" />&nbsp;
 				<span>{{friend.name}}</span>
@@ -56,7 +56,7 @@
 			</div>
 		</div>
 		<div class="panel-body">
-			<div ng-repeat="friend in friends.google" class="text-ellipses {{google_invites[friend.googleid] && 'label-warning'}}" style="display: inline-block; border-radius: 20px; width: 260px; margin: 0 2px; padding: 5px 10px; cursor: pointer; text-align: left" ng-click="set_google_invites(friend.googleid)">
+			<div ng-repeat="friend in friends.google | orderBy:'name'" class="text-ellipses {{google_invites[friend.googleid] && 'label-warning'}}" style="display: inline-block; border-radius: 20px; width: 260px; margin: 0 2px; padding: 5px 10px; cursor: pointer; text-align: left" ng-click="set_google_invites(friend.googleid)">
 				<i class="fa fa-{{google_invites[friend.googleid] && 'check' || 'plus-square'}} fa-fw"></i>&nbsp;
 				<img width="32" height="32" ng-src="{{nbUser.user_pic_url(friend)}}" />&nbsp;
 				<span>{{friend.name}}</span>

@@ -380,6 +380,10 @@
 				}
 
 				function send_recent_swm(user) {
+					var question = 'Send Email with Recent-SWM to ' + user.name + '?'
+					if (!$window.confirm(question)) {
+						return;
+					}
 					console.log('RECENT SWM', user.name);
 					$scope.loading++;
 					return $http({

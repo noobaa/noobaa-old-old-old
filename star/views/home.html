@@ -323,13 +323,13 @@
 	<!-- SHARE MODAL -->
 
 	<div style="display: none" ng-non-bindable>
-		<div id="share_modal">
+		<div id="share_modal" style="max-height: 100%">
 			<div ng-show="share_is_loading" class="text-center" style="padding: 30px">
 				<i class="fa fa-spinner fa-spin fa-2x"></i>
 			</div>
 			<div ng-show="!share_is_loading && !share_list.length" style="padding: 20px">
 				<h3>Invite your friends to share media with them</h3>
-				<div class="text-center">
+				<div>
 					<a class="btn btn-link btn-lg" style="padding: 5px; cursor: pointer" href="/home/friends/">
 						<span class="fa-stack" rel="tooltip">
 							<i class="fa fa-circle fa-stack-2x text-muted"></i>
@@ -360,8 +360,17 @@
 						</ng-pluralize>
 					</button>
 				</div>
+				<hr/>
+				<div style="padding: 10px">
+					<div ng-repeat="friend in share_list | filter:{name: filter_friend_name} | orderBy:'name'" class="text-ellipses {{friend.shared && 'label-warning'}}" style="display: inline-block; border-radius: 20px; width: 260px; margin: 0 2px; padding: 5px 10px; cursor: pointer; text-align: left" ng-click="friend.shared = !friend.shared">
+						<i class="fa fa-{{friend.shared && 'check' || 'plus-square'}} fa-fw"></i>&nbsp;
+						<img width="32" height="32" ng-src="{{nbUser.user_pic_url(friend)}}" />&nbsp;
+						<span>{{friend.name}}</span>
+					</div>
+				</div>
+				<!-- 
 				<table class="table">
-					<tr ng-repeat="friend in share_list | filter:{name: filter_friend_name} | orderBy:'name'" ng-class="{true: 'warning'}[friend.shared]" ng-click="friend.shared = !friend.shared" style="cursor: pointer">
+					<tr ng-repeat="friend in share_list | filter:{name: filter_friend_name} | orderBy:'name'" ng-class="{true: 'label-warning'}[friend.shared]" ng-click="friend.shared = !friend.shared" style="cursor: pointer">
 						<td>
 							<img ng-src="{{ nbUser.user_pic_url(friend) }}" width="40px" height="40px"></img>
 						</td>
@@ -372,6 +381,7 @@
 						</td>
 					</tr>
 				</table>
+				 -->
 			</div>
 		</div>
 	</div>
