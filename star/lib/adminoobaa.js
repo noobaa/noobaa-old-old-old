@@ -98,7 +98,20 @@ exports.admin_get_user_usage = function(req, res) {
 			});
 		}
 
-	], common_api.reply_callback(req, res, 'ADMIN GET USAGE'));
+	], common_api.reply_callback(req, res, 'ADMIN GET USAGE ' + user_id));
+};
+
+
+exports.admin_send_user_recent_swm = function(req, res) {
+
+	var user_id = req.params.user_id;
+	return async.waterfall([
+
+		function(next) {
+			user_inodes.send_notification_on_recent_swm(user_id, 3, null, next);
+		},
+
+	], common_api.reply_callback(req, res, 'ADMIN RECENT SWM ' + user_id));
 };
 
 

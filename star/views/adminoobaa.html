@@ -95,7 +95,42 @@
 			<tbody>
 
 				<tr ng-repeat="(row_index,user) in users_array | orderBy:'_id':true ">
-					<td>{{users_array.length-row_index}}</td>
+					<td>
+						{{users_array.length-row_index}}
+						<div class="btn-group">
+							<a type="button" class="dropdown-toggle" data-toggle="dropdown" style="cursor: pointer">
+								<i class="fa fa-cog fa-lg fa-fw"></i>
+							</a>
+							<ul class="dropdown-menu" role="menu">
+								<li class="text-center">
+									<small>{{user.email_addr}}</small>
+								</li>
+								<li class="text-center" ng-show="user.fb">
+									<small>FB id {{user.fb.id}}</small>
+								</li>
+								<li class="text-center" ng-show="user.google">
+									<small>Google id {{user.google.id}}</small>
+								</li>
+								<li class="divider"></li>
+								<li>
+									<a ng-click="toggle_email_silent(user)" ng-switch="user.email_policy">
+										Email policy: {{user.email_policy=='silent' && 'silent' || 'normal'}} (click to toggle)
+									</a>
+								</li>
+								<li>
+									<a ng-click="send_recent_swm(user)">
+										Send Recent SWM
+									</a>
+								</li>
+								<li class="divider"></li>
+								<li>
+									<a ng-click="calculate_user_usage(user)">
+										Calculate Usage
+									</a>
+								</li>
+							</ul>
+						</div>
+					</td>
 					<td>
 						<span>{{user.name}}</span>
 						<span ng-show="user.fb">[FB]</span>
@@ -248,6 +283,7 @@
 				$scope.refresh_users = refresh_users;
 				$scope.calculate_user_usage = calculate_user_usage;
 				$scope.calculate_users_usage = calculate_users_usage;
+				$scope.send_recent_swm = send_recent_swm;
 				$scope.export_tracks = export_tracks;
 				$scope.refresh_tracks = refresh_tracks;
 
@@ -341,6 +377,21 @@
 							run: calculate_user_usage.bind(null, user)
 						});
 					}
+				}
+
+				function send_recent_swm(user) {
+					console.log('RECENT SWM', user.name);
+					$scope.loading++;
+					return $http({
+						method: 'POST',
+						url: '/adminoobaa/user/' + user._id + '/recent_swm/'
+					}).then(function(res) {
+						$scope.loading--;
+						console.log('RECENT SWM', res);
+					}, function(err) {
+						$scope.loading--;
+						handle_error('RECENT SWM', err);
+					});
 				}
 
 				$scope.track_params = {

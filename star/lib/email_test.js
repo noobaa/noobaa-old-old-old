@@ -109,7 +109,7 @@ exports.emails = {
 
     // 'send swm notification mail': function(test) {
     //     var custom_message = 'Fuck Yeah!';
-    //     email.send_swm_notification(notified_user, sharing_user, file_name, custom_message, function(err, res) {
+    //     email.send_swm_notification(notified_user, sharing_user, file_name, function(err, res) {
     //         // console.log(res);
     //         if (err) {
     //             console.log(JSON.stringify(err));

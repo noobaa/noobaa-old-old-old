@@ -143,15 +143,16 @@ function inode_to_entry(inode, opt) {
 	//the number of references shoudl only be displyed to the owner.
 	//in case of sharing a folder which has subitems that are shared - this shoudl not be displayed
 	//when the non-owner/shared with users brows this directory. 
-	if (opt && opt.user && mongoose.Types.ObjectId(opt.user.id).equals(inode.owner) && inode.num_refs) {
+	if (opt && opt.user && mongoose.Types.ObjectId(opt.user.id).equals(inode.owner)) {
 		ent.num_refs = inode.num_refs;
 	}
 
 	//handle inode ownership
 	if (inode.live_owner) {
-		ent.owner = {};
-		ent.owner.name = inode.live_owner.get_name();
-		inode.live_owner.assign_ids_to_object(ent.owner);
+		ent.owner = inode.live_owner.get_user_identity_info();
+		// we don't need to tell everyone about the mapping of our user ids to fb/google ids
+		// so remove our user id from here.
+		delete ent.owner.id; 
 	}
 	if (opt && opt.user && !mongoose.Types.ObjectId(opt.user.id).equals(inode.owner)) {
 		ent.not_mine = true;
@@ -1237,11 +1238,9 @@ function update_users_share_map(share_map, users_array, shared_status) {
 	console.log(_.pluck(users_array, '_id'));
 	users_array.forEach(function(v) {
 		share_map[v._id] = {
-			"shared": shared_status,
-			"nb_id": v._id,
-			"name": v.get_name()
+			shared: shared_status,
 		};
-		v.assign_ids_to_object(share_map[v._id]);
+		v.get_user_identity_info(share_map[v._id]);
 	});
 }
 
@@ -1292,7 +1291,7 @@ exports.inode_set_share_list = function(req, res) {
 
 	var new_nb_ids = _.pluck(_.where(req.body.share_list, {
 		shared: true
-	}), 'nb_id');
+	}), 'id');
 	console.log("new_nb_ids", new_nb_ids);
 
 	var inode;
@@ -1372,7 +1371,7 @@ exports.inode_mklink = function(req, res) {
 			if (req.body.link_options) {
 				link_options.acl = _.pluck(_.where(req.body.link_options.share_list, {
 					shared: true
-				}), 'nb_id');
+				}), 'id');
 			}
 			// signing the link_options with a secret to prevent tampering
 			var link = common_api.json_encode_sign(link_options, NBLINK_SECRET);

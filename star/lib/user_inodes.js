@@ -108,6 +108,7 @@ function get_user_basic_folder(folder_name, user_id, next) {
 exports.update_inode_ghost_refs = update_inode_ghost_refs;
 
 //add and remove ghosts as needed
+
 function update_inode_ghost_refs(live_inode_id, old_user_ids, new_user_ids, cb) {
 	var old_user_ids_strings = _.invoke(old_user_ids, 'toHexString');
 	var user_ids_to_add = _.difference(new_user_ids, old_user_ids_strings);
@@ -133,7 +134,7 @@ function remove_inode_ghost_refs(live_inode_id, user_ids, cb) {
 	Inode.remove({
 		ghost_ref: live_inode_id,
 		owner: {
-			'$in': user_ids
+			$in: user_ids
 		}
 	}, cb);
 }
@@ -167,7 +168,6 @@ function add_inode_ghost_refs(live_inode_id, user_ids, cb) {
 			}, function(err) {
 				return next(err);
 			});
-
 		},
 
 	], cb);
@@ -183,31 +183,106 @@ function send_notification_on_new_swm(notified_user_id, sharing_user, live_inode
 			return User.findById(notified_user_id, next);
 		},
 
-		//create custome sharing message. The intention is to make it personalize, differetn etc. 
-		function(notified_user, next) {
-			return create_custom_sharing_message(notified_user, sharing_user, live_inode, function(err, custom_message) {
-				return next(null, notified_user, custom_message);
-			});
-		},
-
 		//send the email notification via the email module. currently not ignoring failurs.  
-		function(notified_user, custom_message, next) {
+		function(notified_user, next) {
 			if (notified_user.email_policy === 'silent') {
 				console.log('silent email for user', notified_user.get_email());
 				return next();
 			}
-			return email.send_swm_notification(notified_user, sharing_user, live_inode.name, custom_message, next);
+			return email.send_swm_notification(notified_user, sharing_user, live_inode, next);
 		}
-
 	], callback);
-
 }
 
-//this function gets all the parameters to help it decided on a groovy custome message.
+exports.find_recent_swm = find_recent_swm;
 
-function create_custom_sharing_message(notified_user, sharing_user, live_inode, callback) {
-	var custom_message = 'Check it out now!';
-	return callback(null, custom_message);
+function find_recent_swm(user_id, count_limit, from_time, callback) {
+	var swm_inodes;
+	var live_inodes;
+	var live_owners;
+	async.waterfall([
+		function(next) {
+			var q = Inode.find({
+				owner: user_id,
+				ghost_ref: {
+					$exists: true
+				}
+			}, {
+				_id: 1,
+				ghost_ref: 1
+			});
+			if (from_time) {
+				q.where('create_time').gte(from_time);
+			}
+			q.sort({
+				_id: -1
+			});
+			if (count_limit) {
+				q.limit(count_limit);
+			}
+			return q.exec(next);
+		},
+		function(inodes, next) {
+			swm_inodes = inodes;
+			var live_inode_ids = _.pluck(swm_inodes, 'ghost_ref');
+			return Inode.find()['in']('_id', live_inode_ids).exec(next);
+		},
+		function(inodes, next) {
+			live_inodes = inodes;
+			var owner_ids = _.pluck(live_inodes, 'owner');
+			return User.find()['in']('_id', owner_ids).exec(next);
+		},
+		function(owners, next) {
+			live_owners = owners;
+			var live_inodes_by_id = _.indexBy(live_inodes, '_id');
+			var live_owners_by_id = _.indexBy(live_owners, '_id');
+			var shares = _.map(swm_inodes, function(inode) {
+				var shared_inode = inode.toObject();
+				var live_inode = live_inodes_by_id[inode.ghost_ref];
+				if (live_inode) {
+					var owner = live_owners_by_id[live_inode.owner];
+					if (owner) {
+						shared_inode.live_owner = owner.get_user_identity_info();
+					}
+					shared_inode.live_name = live_inode.name;
+				}
+				return shared_inode;
+			});
+			return callback(null, shares);
+		}
+	], callback);
+}
+
+exports.send_notification_on_recent_swm = send_notification_on_recent_swm;
+
+function send_notification_on_recent_swm(user_id, count_limit, from_time, callback) {
+	var user;
+	async.waterfall([
+		//get the notified user
+		function(next) {
+			return User.findById(user_id, next);
+		},
+		function(usr, next) {
+			user = usr;
+			if (!user) {
+				return next({
+					status: 404,
+					data: 'USER NOT FOUND'
+				});
+			}
+			if (user.email_policy === 'silent') {
+				console.log('silent email for user', user.get_email());
+				return next(null, null);
+			}
+			return find_recent_swm(user_id, count_limit, from_time, next);
+		},
+		function(shares, next) {
+			if (!user || !shares || !shares.length) {
+				return next();
+			}
+			return email.send_recent_swm_notification(user, shares, next);
+		}
+	], callback);
 }
 
 //add a ghost for this specific user
@@ -248,7 +323,7 @@ function get_referring_users(inode, cb) {
 		function(ref_user_id_list, next) {
 			User.find({
 				_id: {
-					'$in': ref_user_id_list
+					$in: ref_user_id_list
 				}
 			}, next);
 		}

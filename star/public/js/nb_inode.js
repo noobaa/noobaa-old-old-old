@@ -195,6 +195,11 @@
 							e = entries[i];
 						} else {
 							angular.extend(e, entries[i]);
+							// turn off the uploading flag because we don't send each time
+							// and extend won't turn off when the key is missing
+							if (e.uploading && !entries[i].uploading) {
+								delete e.uploading;
+							}
 						}
 						if (e.isdir) {
 							e.content_kind = 'dir';

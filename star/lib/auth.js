@@ -159,14 +159,9 @@ exports.adminoobaa_fbid_list = adminoobaa_fbid_list;
 // if we will need more info, deserialize can fetch from the database
 // or cache it in memory store.
 passport.serializeUser(function(user, done) {
-	var user_info = {
-		id: user._id,
-		name: user.get_name(),
-		first_name: user.get_first_name(),
-		email: user.get_email(),
-		alpha_tester: user.alpha_tester,
-	};
-	user.assign_ids_to_object(user_info);
+	var user_info = user.get_user_identity_info();
+	user_info.email = user.get_email(); // TODO really needed in the session cookie?
+	user_info.alpha_tester = user.alpha_tester;
 
 	// insert the adminoobaa field only if admin user,
 	// and avoid exposing it (even with false value) when not.

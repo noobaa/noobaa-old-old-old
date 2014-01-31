@@ -96,8 +96,12 @@
 						</a>
 					</span>
 					<span class="text-muted pull-right">
-						<i ng-show="inode.uploading" title="Incomplete upload..." rel="tooltip" ng-click="inode_resume_upload(inode)" class="fa fa-cloud-upload fa-lg fa-fw"></i>
-						<i ng-if="!current_inode.owner" ng-show="!!inode.num_refs" class="fa fa-share-square-o fa-lg fa-fw" title="Shared with {{inode.num_refs}} friends" rel="tooltip" ng-click="share_inode(inode)"></i>
+						<span ng-show="inode.uploading">
+							<i title="Incomplete upload..." rel="tooltip" ng-click="inode_resume_upload(inode)" class="fa fa-cloud-upload fa-lg fa-fw"></i>
+						</span>
+						<span ng-if="!current_inode.owner" ng-show="!!inode.num_refs">
+							<i class="fa fa-share-square-o fa-lg fa-fw" ng-attr-title="Shared with {{inode.num_refs}} friends" rel="tooltip" ng-click="share_inode(inode)"></i>
+						</span>
 						<span ng-show="!inode.isdir" style="margin-right: 20px">
 							{{human_size(inode.size)}}
 						</span>
@@ -106,7 +110,7 @@
 						</span>
 					</span>
 				</div>
-				<div ng-if="is_selection_leader(inode)" class="file_actions bg-warning">
+				<div ng-if="is_selection_leader(inode)" class="file_actions">
 					<span ng-if="num_selected()>1">
 						&nbsp;&nbsp;{{num_selected()}} items:
 					</span>

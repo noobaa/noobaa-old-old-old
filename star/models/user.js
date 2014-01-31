@@ -75,13 +75,38 @@ user_schema.methods.get_last_name = function() {
 	return _.last(this.get_name().split(" "));
 };
 
-user_schema.methods.assign_ids_to_object = function(object) {
-	var me = this;
-	providers.forEach(function(provider){
-		if (!! me[provider]){
-			object[provider+'id']=me[provider].id;
+user_schema.methods.get_user_identity_info = function(object) {
+	var user = this;
+	object = object || {};
+	object.id = user._id;
+	object.name = user.get_name();
+	object.first_name = user.get_first_name();
+	providers.forEach(function(provider) {
+		if ( !! user[provider]) {
+			object[provider + 'id'] = user[provider].id;
 		}
 	});
+	return object;
+};
+
+user_schema.methods.get_pic_url = function() {
+	var user = this;
+	if (user.fb.id) {
+		return 'https://graph.facebook.com/' + user.fb.id + '/picture';
+	}
+	if (user.google.id) {
+		return 'https://plus.google.com/s2/photos/profile/' + user.google.id + '?sz=50';
+	}
+};
+
+user_schema.methods.get_social_url = function() {
+	var user = this;
+	if (user.fb.id) {
+		return 'http://facebook.com/profile.php?id=' + user.fb.id;
+	}
+	if (user.google.id) {
+		return 'https://plus.google.com/' + user.google.id;
+	}
 };
 
 var User = mongoose.model('User', user_schema);
