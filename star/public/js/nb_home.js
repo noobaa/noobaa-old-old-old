@@ -288,19 +288,23 @@
 				JSON.parse(localStorage.feedbacks) : [];
 			$scope.feedback_worker();
 
+			$scope.refreshing_friends = 0;
 
 			function refresh_friends() {
 				nbUtil.track_event('home.friends.show');
 				$scope.fb_invites = {};
 				$scope.google_invites = {};
 				$scope.sending_fb_invites = false;
+				$scope.refreshing_friends++;
 				$http({
 					method: 'GET',
 					url: '/api/user/friends/'
 				}).then(function(res) {
+					$scope.refreshing_friends--;
 					console.log('GOT FRIENDS', res);
 					$scope.friends = res.data;
 				}, function(err) {
+					$scope.refreshing_friends--;
 					console.error('FAILED GET FRIENDS', err);
 				});
 			}

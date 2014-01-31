@@ -1,8 +1,7 @@
 <div class="feeder">
 	<div class="container">
 		<div class="text-center" style="margin-bottom: 10px">
-			<span class="text-muted fntpaint" style="font-size: 1.1em; line-height: 0.9em">
-				Friend's stuff shared with me</span>
+			<span>Friend's stuff shared with me</span>
 			<button class="btn btn-link" ng-click="refresh_feeds()" title="Click to refresh" rel="tooltip">
 				<i class="fa fa-refresh {{refreshing_feeds && 'fa-spin' || ''}} fa-lg text-muted"></i>
 			</button>
@@ -12,14 +11,16 @@
 		<div class="feeds_container">
 
 			<div ng-show="feeds && !feeds.length" class="feed_item text-center" style="width: 100%; padding: 20px; background-color: transparent; color: white">
-				<h2>Invite your friends to share media with you</h2>
-				<a class="btn btn-link btn-lg" style="padding: 5px; cursor: pointer" href="/home/friends/">
-					<span class="fa-stack" rel="tooltip">
-						<i class="fa fa-circle fa-stack-2x text-muted"></i>
-						<i class="fa fa-users fa-inverse fa-stack-1x text-white"></i>
-					</span>
-					<span>Find Your Friends</span>
-				</a>
+				<iframe width="400" height="225" style="max-width: 100%" src="//www.youtube.com/embed/9KeVa3IOn78?rel=0&autoplay=1" frameborder="0" allowfullscreen></iframe>
+				<div>
+					<a class="btn btn-link btn-lg" style="padding: 5px; cursor: pointer" href="/home/friends/">
+						<span class="fa-stack" rel="tooltip">
+							<i class="fa fa-circle fa-stack-2x text-muted"></i>
+							<i class="fa fa-users fa-inverse fa-stack-1x text-white"></i>
+						</span>
+						<span>Invite Your Friends</span>
+					</a>
+				</div>
 			</div>
 
 			<div ng-repeat="feed in feeds | filter:{content_kind: filter_content_kind} | limitTo:feeds_limit track by $index" class="feed_item bggrey" ng-controller="FeedCtrl">

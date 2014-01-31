@@ -361,3 +361,52 @@ function send_recent_swm_notification(user, shares, callback) {
 		},
 	], callback);
 }
+
+exports.test_email_templates = function(req, res) {
+	var user = {
+		get_name: function() {
+			return req.user.name;
+		},
+		get_first_name: function() {
+			return req.user.first_name;
+		},
+		get_pic_url: function() {
+			return 'https://graph.facebook.com/' + req.user.fbid + '/picture';
+		}
+	};
+	var inode = {
+		name: 'Testing swm'
+	};
+	var shares = [{
+		live_owner: user,
+		live_inode: {
+			name: 'Testing recent swm 1'
+		}
+	}, {
+		live_owner: user,
+		live_inode: {
+			name: 'Testing recent swm 1'
+		}
+	}, {
+		live_owner: user,
+		live_inode: {
+			name: 'Testing recent swm 1'
+		}
+	}];
+	res.write('<div style="max-width: 800px; padding: 30px">');
+	res.write('<br/><div>SWM template</div><br/>');
+	res.write(SWM_TEMAPLATE({
+		user: user,
+		sharing_user: user,
+		inode: inode,
+		tracking_pixel_urls: [],
+	}));
+	res.write('<br/><div>Recent SWM template</div><br/>');
+	res.write(RECENT_SWM_TEMAPLATE({
+		user: user,
+		shares: shares,
+		tracking_pixel_urls: [],
+	}));
+	res.write('</div>');
+	res.end();
+};

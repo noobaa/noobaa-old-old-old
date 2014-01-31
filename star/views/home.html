@@ -327,18 +327,6 @@
 			<div ng-show="share_is_loading" class="text-center" style="padding: 30px">
 				<i class="fa fa-spinner fa-spin fa-2x"></i>
 			</div>
-			<div ng-show="!share_is_loading && !share_list.length" style="padding: 20px">
-				<h3>Invite your friends to share media with them</h3>
-				<div>
-					<a class="btn btn-link btn-lg" style="padding: 5px; cursor: pointer" href="/home/friends/">
-						<span class="fa-stack" rel="tooltip">
-							<i class="fa fa-circle fa-stack-2x text-muted"></i>
-							<i class="fa fa-users fa-inverse fa-stack-1x text-white"></i>
-						</span>
-						<span>Find Your Friends</span>
-					</a>
-				</div>
-			</div>
 			<div ng-show="!share_is_loading && share_list.length" ng-init="filter_friend_name=''">
 				<div style="padding: 10px" class="Xtext-center clearfix">
 					<div class="input-group pull-left" style="max-width: 180px; margin-right: 5px">

@@ -268,6 +268,7 @@ app.get('/api/user/friends/', user_api.user_get_friends);
 
 var email = require('./lib/email');
 app.post('/api/user/feedback/', email.user_feedback);
+app.get('/api/emailtest/', email.test_email_templates);
 
 var device_api = require('./lib/device_api');
 app.post('/api/device/', device_api.device_create);

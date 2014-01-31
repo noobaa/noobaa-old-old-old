@@ -9,8 +9,8 @@
 	var noobaa_app = angular.module('noobaa_app');
 
 	noobaa_app.factory('nbInode', [
-		'$http', '$timeout', '$interval', '$q', '$rootScope', 'JobQueue', 'nbUtil', 'nbUser',
-		function($http, $timeout, $interval, $q, $rootScope, JobQueue, nbUtil, nbUser) {
+		'$http', '$timeout', '$interval', '$q', '$window', '$location', '$rootScope', 'JobQueue', 'nbUtil', 'nbUser',
+		function($http, $timeout, $interval, $q, $window, $location, $rootScope, JobQueue, nbUtil, nbUser) {
 
 			var $scope = {
 				inode_api_url: inode_api_url,
@@ -545,12 +545,6 @@
 				share_scope.mark_all = function(value) {
 					mark_all_share_list(share_scope.share_list, value);
 				};
-				get_share_list(inode.id).then(function(res) {
-					share_scope.share_is_loading = false;
-					share_scope.share_list = res.data.list;
-				}, function() {
-					share_scope.share_is_loading = false;
-				});
 				var hdr = $('<div class="modal-header">')
 					.append($('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">').html('&times;'))
 					.append($('<h4>').text('Share ' + inode.name));
@@ -560,6 +554,17 @@
 					.append($('<button type="button" class="btn btn-primary" ' +
 						'ng-click="run()" ng-disabled="share_is_loading || !share_list.length">').text('Share'));
 				modal = nbUtil.modal(hdr, body, foot, share_scope);
+				get_share_list(inode.id).then(function(res) {
+					share_scope.share_is_loading = false;
+					share_scope.share_list = res.data.list;
+					if (!share_scope.share_list.length) {
+						modal.modal('hide');
+						modal = null;
+						$location.path('/friends/');
+					}
+				}, function() {
+					share_scope.share_is_loading = false;
+				});
 			}
 
 			function keep_and_share_all(inode) {
