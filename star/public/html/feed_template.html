@@ -10,7 +10,7 @@
 
 		<div class="feeds_container">
 
-			<div ng-show="feeds && !feeds.length" class="feed_item text-center" style="width: 100%; padding: 20px; background-color: transparent; color: white">
+			<div ng-if="feeds && !feeds.length" class="feed_item text-center" style="width: 100%; padding: 20px; background-color: transparent; color: white">
 				<iframe width="400" height="225" style="max-width: 100%" src="//www.youtube.com/embed/9KeVa3IOn78?rel=0&autoplay=1" frameborder="0" allowfullscreen></iframe>
 				<div>
 					<a class="btn btn-link btn-lg" style="padding: 5px; cursor: pointer" href="/home/friends/">
