@@ -13,99 +13,165 @@ var _ = require('underscore');
 var EMAIL_STYLES = [
 	'<style>',
 	'.nbcapsule {',
+	'  max-width: 400px;',
 	'  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;',
-	'  border-radius:100px;',
-	'  background-color:hsl(0,0%,10%);',
-	'  border:1px solid hsl(0,0%,0%);',
-	'  color:hsl(0,0%,90%);',
-	'}',
-	'.nbcapsule .text-muted {',
+	'  border-radius: 100px;',
+	'  background-color: hsl(0,0%,0%);',
+	'  border: 1px solid hsl(0,0%,0%);',
 	'  color: hsl(0,0%,40%);',
+	'  margin-left: auto;',
+	'  margin-right: auto;',
+	// '  text-shadow: -2px 2px 2px hsl(0,0%,10%);',
+	'}',
+	'.nbcapsule > div {',
+	'  padding-left: 10px;',
+	'  padding-right: 10px;',
+	'}',
+	// '@media all and (max-width: 500px) {',
+	// '  .nbcapsule > div {',
+	// '    padding-left: 20px;',
+	// '    padding-right: 20px;',
+	// '  }',
+	// '}',
+	'.nbcapsule .text-color {',
+	'  color: hsl(0, 80%, 40%);',
+	'}',
+	'.nbcapsule .text-bright {',
+	'  color: hsl(0,0%,90%);',
 	'}',
 	'.nbcapsule .border-top {',
 	'  border-top: 1px solid hsl(0,0%,20%);',
 	'}',
 	'.nbcapsule a {',
 	'  color: hsl(210,50%,50%);',
+	'  text-decoration: none;',
+	'}',
+	'.nbcapsule a:hover {',
+	'  color: hsl(210,70%,60%);',
+	'  text-decoration: underline;',
+	'}',
+	'.nbcapsule .heading1 {',
+	'  font-size: 18px;',
+	'  line-height: 1.5em;',
+	'}',
+	'.nbcapsule .heading2 {',
+	'  font-size: 15px;',
+	'  line-height: 1.5em;',
+	'}',
+	'.nbcapsule .smalltext {',
+	'  font-size: 12px;',
+	'  line-height: 1.5em;',
+	'}',
+	'.nbcapsule .pict {',
+	'  width: 40px;',
+	'  height: 40px;',
+	'  border-radius: 10px;',
+	'  -webkit-transition: all 0.5s;',
+	'  -moz-transition: all 0.5s;',
+	'  -o-transition: all 0.5s;',
+	'  transition: all 0.5s;',
+	'}',
+	'.nbcapsule .hoverable {',
+	'  -webkit-transition: all 0.5s;',
+	'  -moz-transition: all 0.5s;',
+	'  -o-transition: all 0.5s;',
+	'  transition: all 0.5s;',
+	'}',
+	'.nbcapsule .hoverable:hover, .nbcapsule .hoverable:focus {',
+	'  background-color: hsl(0,0%,10%);',
+	'}',
+	'.nbcapsule .hoverable:hover .pict, .nbcapsule .hoverable:focus .pict {',
+	'  width: 50px;',
+	'  height: 50px;',
+	'  transform: rotate(360deg);',
+	'  -webkit-transform: rotate(360deg);',
+	'}',
+	'.nbcapsule .caret {',
+	'  width: 0;',
+	'  height: 0;',
+	'  border-top: 15px solid transparent;',
+	'  border-bottom: 15px solid transparent;',
+	'  border-left: 15px solid black;',
+	'  margin-top: 10px;',
+	'  margin-left: 20px;',
+	'}',
+	'.nbcapsule .action-btn {',
+	'  width: 50px;',
+	'  height: 50px;',
+	'  margin: 2px 5px;',
+	'  border-radius: 25px;',
+	'  overflow: hidden;',
+	'  font-size: 40px;',
+	'  text-align: center;',
+	'  background-color: hsl(0,0%,40%);',
+	'  color: black;',
+	'  -webkit-transition: all 0.5s;',
+	'  -moz-transition: all 0.5s;',
+	'  -o-transition: all 0.5s;',
+	'  transition: all 0.5s;',
+	'}',
+	'.nbcapsule .hoverable:hover .action-btn, .nbcapsule .hoverable:focus .action-btn {',
+	'  background-color: hsl(32, 80%, 40%);',
+	'  -webkit-animation-name: dancing;',
+	'  -webkit-animation-duration: 1.3s;',
+	'  -webkit-transform-origin: 50% 50%;',
+	'  -webkit-animation-iteration-count: infinite;',
+	'  -webkit-animation-timing-function: linear;',
+	'}',
+	// '.nbcapsule .action-btn:hover, .nbcapsule .action-btn:focus {',
+	// '  background-color: hsl(0, 0%, 70%) !important;',
+	// '}',
+	'@-webkit-keyframes dancing {',
+	'  0% { -webkit-transform: translate(0px, 0px); }',
+	'  25% { -webkit-transform: translate(-4px, 0px); }',
+	'  50% { -webkit-transform: translate(0px, 0px); }',
+	'  75% { -webkit-transform: translate(4px, 0px); }',
+	'  100% { -webkit-transform: translate(0px, 0px); }',
 	'}',
 	'</style>'
 ].join('\n');
+
 
 var SWM_TEMAPLATE = dot.template([
 	'<div>',
 	EMAIL_STYLES,
 	' <div class="nbcapsule">',
-	'  <div style="padding: 30px 100px 10px 100px">',
-	'   <h3 style="margin:0 0 10px 0; text-align: center" Xclass="text-muted">',
-	'    Hi <?! it.user.get_first_name() ?>!',
-	'   </h3>',
-	'   <h3 style="margin:0 0 20px 0; text-align: center" class="text-muted">',
-	'    Here is a new thing shared with you:',
-	'   </h3>',
-	'   <div style="padding:20px 0 10px 0" class="border-top">',
-	'    <div style="float: left">',
-	'     <img src="<?! it.sharing_user.get_pic_url() ?>" style="height: 40px; width: 40px" />',
+	'  <div>',
+	'   <div style="padding: 25px 0 0 0; text-align: center" class="text-bright heading1">',
+	'    Hi <?! it.user.get_first_name() ?>',
+	'   </div>',
+	'   <div style="padding: 5px 0 15px 0; text-align: center" class="heading1">',
+	'    <?! it.title ?>',
+	'   </div>',
+	'  </div>',
+	'  <?~ it.shares :item:index ?>',
+	'  <div style="padding-top: 10px; padding-bottom: 20px;" class="border-top hoverable">',
+	'   <div style="float: left">',
+	'    <img src="<?! item.live_owner.get_pic_url() ?>" class="pict" />',
+	'   </div>',
+	'   <div style="padding-left: 10px; overflow: hidden">',
+	'    <div style="float: right">',
+	'     <a href="https://www.noobaa.com/home/">',
+	'      <div class="action-btn"><div class="caret"></div></div>',
+	'     </a>',
 	'    </div>',
-	'    <div style="padding-left: 10px; overflow: hidden">',
-	'     <h4 style="margin: 0" class="text-muted">',
-	'      <span><?! it.sharing_user.get_name() ?></span>',
-	// '      <br/><small class="text-muted">shared with you</small>',
-	'     </h4>',
-	'     <div style="padding: 10px 0 0 0">',
-	'      <a href="https://www.noobaa.com/home/">',
-	'       <h3><?! it.inode.name ?></h3>',
-	'      </a>',
+	'    <div style="overflow: hidden">',
+	'     <div style="margin: 0" class="heading2">',
+	'      <span><?! item.live_owner.get_name() ?></span>',
+	'     </div>',
+	'     <div style="padding: 0px 0 0 0">',
+	'      <div class="heading1 text-color">',
+	'       <?! item.live_inode.name ?>',
+	'      </div>',
 	'     </div>',
 	'    </div>',
 	'   </div>',
 	'  </div>',
-	'  <div style="padding: 10px 100px 20px 100px; text-align: center" class="border-top">',
+	'  <?~?>',
+	'  <div style="padding-top: 10px; padding-bottom: 20px; text-align: center" class="border-top">',
 	'   <a href="https://www.noobaa.com">',
 	'    <img src="https://www.noobaa.com/public/images/noobaa_logo.png" height="44px" />',
-	'    <div Xstyle="padding-left: 10px"><small>Connecting the dots</small></div>',
-	'   </a>',
-	'  </div>',
-	' </div>',
-	' <?~ it.tracking_pixel_urls :pixel_url:index ?>',
-	'  <img src="<?! pixel_url ?>" width="1" height="1" />',
-	' <?~?>',
-	'</div>'
-].join('\n'));
-
-var RECENT_SWM_TEMAPLATE = dot.template([
-	'<div>',
-	EMAIL_STYLES,
-	' <div class="nbcapsule">',
-	'  <div style="padding: 30px 100px 0px 100px">',
-	'   <h3 style="margin:0 0 10px 0; text-align: center" Xclass="text-muted">',
-	'    Hi <?! it.user.get_first_name() ?>!',
-	'   </h3>',
-	'   <h3 style="margin:0 0 20px 0; text-align: center" class="text-muted">',
-	'    Here are recent things shared with you:',
-	'   </h3>',
-	'   <?~ it.shares :inode:index ?>',
-	'   <div style="padding:20px 0 10px 0" class="border-top">',
-	'    <div style="float: left">',
-	'     <img src="<?! inode.live_owner.get_pic_url() ?>" style="height: 40px; width: 40px" />',
-	'    </div>',
-	'    <div style="padding-left: 10px; overflow: hidden">',
-	'     <h4 style="margin: 0" class="text-muted">',
-	'      <span><?! inode.live_owner.get_name() ?></span>',
-	// '      <br/><small class="text-muted">shared with you</small>',
-	'     </h4>',
-	'     <div style="padding: 10px 0 0 0">',
-	'      <a href="https://www.noobaa.com/home/">',
-	'       <h3><?! inode.live_inode.name ?></h3>',
-	'      </a>',
-	'     </div>',
-	'    </div>',
-	'   </div>',
-	'   <?~?>',
-	'  </div>',
-	'  <div style="padding: 10px 60px 20px 100px; text-align: center" class="border-top">',
-	'   <a href="https://www.noobaa.com">',
-	'    <img src="https://www.noobaa.com/public/images/noobaa_logo.png" height="44px" />',
-	'    <div Xstyle="padding-left: 10px"><small>Connecting the dots</small></div>',
+	'    <div class="smalltext text-color">Connecting the dots</div>',
 	'   </a>',
 	'  </div>',
 	' </div>',
@@ -301,16 +367,23 @@ function send_swm_notification(user, sharing_user, inode, callback) {
 	var user_info = user.get_user_identity_info();
 	var tracking_pixel_url = track_api.tracking_pixel_url('email.shared.open', null, user_info, ctx);
 	var mixpanel_pixel_url = track_api.mixpanel_pixel_url('email.shared.open', user.id, ctx);
-	msg.subject = inode.name + ' was shared with you by ' + sharing_user.get_first_name() + ' on NooBaa';
-	msg.html = SWM_TEMAPLATE({
+	var shares = [{
+		live_owner: sharing_user,
+		live_inode: inode
+	}];
+	var template_args = {
+		title: 'Here is a new thing shared with you',
 		user: user,
-		sharing_user: sharing_user,
-		inode: inode,
+		shares: shares,
 		tracking_pixel_urls: [tracking_pixel_url, mixpanel_pixel_url],
-	});
+	};
+	var bcc_template_args = _.clone(template_args);
+	bcc_template_args.tracking_pixel_urls = [];
+
+	msg.subject = inode.name + ' was shared with you by ' + sharing_user.get_first_name() + ' on NooBaa';
+	msg.html = SWM_TEMAPLATE(template_args);
 	// don't send bcc with tracking urls
 	msg.bcc_address = null;
-
 	var bcc_msg = _.clone(msg);
 	bcc_msg.to = [{
 		name: msg.to[0].name,
@@ -318,12 +391,7 @@ function send_swm_notification(user, sharing_user, inode, callback) {
 	}];
 	bcc_msg.track_opens = false;
 	bcc_msg.track_clicks = false;
-	bcc_msg.html = SWM_TEMAPLATE({
-		user: user,
-		sharing_user: sharing_user,
-		inode: inode,
-		tracking_pixel_urls: [],
-	});
+	bcc_msg.html = SWM_TEMAPLATE(bcc_template_args);
 
 	return async.parallel([
 		function(next) {
@@ -363,15 +431,19 @@ function send_recent_swm_notification(user, shares, callback) {
 		return inode.live_owner.get_first_name();
 	});
 	var sharers_for_subject = _.first(_.uniq(sharers_names), 3).join(', ');
-	msg.subject = sharers_for_subject + ' shared new stuff with you on NooBaa';
-	msg.html = RECENT_SWM_TEMAPLATE({
+	var template_args = {
+		title: 'Here are recent things shared with you',
 		user: user,
 		shares: shares,
 		tracking_pixel_urls: [tracking_pixel_url, mixpanel_pixel_url],
-	});
+	};
+	var bcc_template_args = _.clone(template_args);
+	bcc_template_args.tracking_pixel_urls = [];
+
+	msg.subject = sharers_for_subject + ' shared new things with you on NooBaa';
+	msg.html = SWM_TEMAPLATE(template_args);
 	// don't send bcc with tracking urls
 	msg.bcc_address = null;
-
 	var bcc_msg = _.clone(msg);
 	bcc_msg.to = [{
 		name: msg.to[0].name,
@@ -379,11 +451,7 @@ function send_recent_swm_notification(user, shares, callback) {
 	}];
 	bcc_msg.track_opens = false;
 	bcc_msg.track_clicks = false;
-	bcc_msg.html = RECENT_SWM_TEMAPLATE({
-		user: user,
-		shares: shares,
-		tracking_pixel_urls: [],
-	});
+	bcc_msg.html = SWM_TEMAPLATE(bcc_template_args);
 
 	return async.parallel([
 		function(next) {
@@ -413,36 +481,34 @@ exports.test_email_templates = function(req, res) {
 			return 'https://graph.facebook.com/' + req.user.fbid + '/picture';
 		}
 	};
-	var inode = {
-		name: 'Testing swm'
-	};
 	var shares = [{
 		live_owner: user,
 		live_inode: {
-			name: 'Testing recent swm 1'
+			name: 'Testing SWM 1'
 		}
 	}, {
 		live_owner: user,
 		live_inode: {
-			name: 'Testing recent swm 1'
+			name: 'Testing SWM 2'
 		}
 	}, {
 		live_owner: user,
 		live_inode: {
-			name: 'Testing recent swm 1'
+			name: '<div style="margin: 10px; padding: 10px; border: 1px solid black">'
 		}
 	}];
-	res.write('<div style="max-width: 800px; padding: 20px">');
+	res.write('<div style="margin: 10px; padding: 10px; border: 1px solid black">');
 	res.write('<div style="height: 100%"><br/>SWM<br/><br/>');
 	res.write(SWM_TEMAPLATE({
+		title: 'Here is a new thing shared with you',
 		user: user,
-		sharing_user: user,
-		inode: inode,
+		shares: shares.slice(0, 1),
 		tracking_pixel_urls: [],
 	}));
 	res.write('</div>');
 	res.write('<div style="height: 100%"><br/>RECENT SWM<br/><br/>');
-	res.write(RECENT_SWM_TEMAPLATE({
+	res.write(SWM_TEMAPLATE({
+		title: 'Here are recent things shared with you',
 		user: user,
 		shares: shares,
 		tracking_pixel_urls: [],

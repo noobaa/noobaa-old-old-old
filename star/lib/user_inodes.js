@@ -237,16 +237,17 @@ function find_recent_swm(user_id, count_limit, from_time, callback) {
 			var live_inodes_by_id = _.indexBy(live_inodes, '_id');
 			var live_owners_by_id = _.indexBy(live_owners, '_id');
 			var shares = _.map(swm_inodes, function(inode) {
-				var shared_inode = inode.toObject();
+				var shared_item = {};
+				shared_item.inode = inode.toObject();
 				var live_inode = live_inodes_by_id[inode.ghost_ref];
 				if (live_inode) {
-					shared_inode.live_inode = live_inode;
+					shared_item.live_inode = live_inode;
 					var owner = live_owners_by_id[live_inode.owner];
 					if (owner) {
-						shared_inode.live_owner = owner;
+						shared_item.live_owner = owner;
 					}
 				}
-				return shared_inode;
+				return shared_item;
 			});
 			return callback(null, shares);
 		}
