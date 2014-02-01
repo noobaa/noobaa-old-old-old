@@ -289,6 +289,10 @@
 			$scope.feedback_worker();
 
 			$scope.refreshing_friends = 0;
+			$scope.invite_text = [
+				'I\'m using NooBaa to share videos with friends. ',
+				'You should be here too! ', (nbUser.user.first_name || '')
+			].join('\n');
 
 			function refresh_friends() {
 				nbUtil.track_event('home.friends.show');
@@ -359,7 +363,7 @@
 						method: 'apprequests',
 						to: now,
 						title: 'NooBaa',
-						message: 'Lets share videos on NooBaa!',
+						message: $scope.invite_text,
 						data: nbUser.user.id
 					}, function(res) {
 						console.log('FB APP REQUESTS', res);

@@ -38,6 +38,10 @@
 				</a>
 				<a class="btn btn-warning btn-sm" ng-click="set_fb_invites(true)">Select All</a>
 			</div>
+			<div style="padding-top: 10px; max-width: 400px" class="center-block">
+				Edit your invite message:
+				<textarea ng-model="invite_text" class="form-control" rows="3"></textarea>
+			</div>
 		</div>
 		<div class="panel-body">
 			<div ng-repeat="friend in friends.fb | orderBy:'name'" class="text-ellipses {{fb_invites[friend.fbid] && 'label-warning'}}" style="display: inline-block; border-radius: 20px; width: 260px; margin: 0 2px; padding: 5px 10px; cursor: pointer; text-align: left" ng-click="set_fb_invites(friend.fbid)">
@@ -60,6 +64,10 @@
 					Invite
 				</a>
 				<a class="btn btn-warning btn-sm" ng-click="set_google_invites(true)">Select All</a>
+			</div>
+			<div style="padding-top: 10px; max-width: 400px" class="center-block">
+				Edit your invite message:
+				<textarea ng-model="invite_text" class="form-control" rows="3"></textarea>
 			</div>
 		</div>
 		<div class="panel-body">
