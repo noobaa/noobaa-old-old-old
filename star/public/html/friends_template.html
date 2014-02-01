@@ -28,6 +28,10 @@
 	<div class="panel panel-default" ng-show="friends.fb.length" style="margin-bottom: 20px">
 		<div class="panel-heading text-center">
 			<h3>Select and Invite your Facebook friends</h3>
+			<div style="padding-bottom: 10px; max-width: 400px" class="center-block">
+				Edit your invite message:
+				<textarea ng-model="invite_text" class="form-control" rows="3"></textarea>
+			</div>
 			<div>
 				<a class="btn btn-default btn-sm" ng-click="set_fb_invites(false)">Select None</a>
 				<a class="btn btn-primary btn-lg" ng-click="send_fb_invites()" ng-disabled="sending_fb_invites">
@@ -37,10 +41,6 @@
 					Invite
 				</a>
 				<a class="btn btn-warning btn-sm" ng-click="set_fb_invites(true)">Select All</a>
-			</div>
-			<div style="padding-top: 10px; max-width: 400px" class="center-block">
-				Edit your invite message:
-				<textarea ng-model="invite_text" class="form-control" rows="3"></textarea>
 			</div>
 		</div>
 		<div class="panel-body">
@@ -55,6 +55,10 @@
 	<div class="panel panel-default" ng-show="friends.google.length" style="margin-bottom: 20px">
 		<div class="panel-heading text-center">
 			<h3>Select and Invite your Google+ friends</h3>
+			<div style="padding-bottom: 10px; max-width: 400px" class="center-block">
+				Edit your invite message:
+				<textarea ng-model="invite_text" class="form-control" rows="3"></textarea>
+			</div>
 			<div>
 				<a class="btn btn-default btn-sm" ng-click="set_google_invites(false)">Select None</a>
 				<a class="btn btn-primary btn-lg" ng-click="send_google_invites()" ng-disabled="sending_google_invites">
@@ -64,10 +68,6 @@
 					Invite
 				</a>
 				<a class="btn btn-warning btn-sm" ng-click="set_google_invites(true)">Select All</a>
-			</div>
-			<div style="padding-top: 10px; max-width: 400px" class="center-block">
-				Edit your invite message:
-				<textarea ng-model="invite_text" class="form-control" rows="3"></textarea>
 			</div>
 		</div>
 		<div class="panel-body">
