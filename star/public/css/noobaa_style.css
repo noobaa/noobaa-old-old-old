@@ -102,7 +102,7 @@ a.btn-link.text-white:hover {
 	/*background-color: white;*/
 }
 .file_line {
-	line-height: 44px;
+	line-height: 40px;
 	vertical-align: middle;
 	border-color: hsla(192, 50%, 54%, 0.1);
 	border-style: solid;
@@ -117,16 +117,6 @@ a.btn-link.text-white:hover {
 	padding-left: 3px;
 	padding-right: 3px;
 	border-color: hsl(192, 50%, 54%);
-}
-.file_actions {
-	border-radius: 10px;
-	margin-bottom: 5px;
-}
-.file_line i.fa-folder {
-	font-size: 1.1em;
-}
-.file_line i.fa-file-o {
-	font-size: 1.1em;
 }
 /**/
 

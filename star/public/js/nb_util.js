@@ -84,6 +84,7 @@
 				var e = modal_scope ? $compile(m)(modal_scope) : m;
 				e.on('hidden.bs.modal', function() {
 					_has_global_modal = false;
+					e.remove();
 				});
 				e.modal();
 				return e;
