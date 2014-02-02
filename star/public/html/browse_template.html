@@ -102,11 +102,12 @@
 						<span ng-if="!current_inode.owner" ng-show="!!inode.num_refs">
 							<i class="fa fa-share-square-o fa-lg fa-fw" ng-attr-title="Shared with {{inode.num_refs}} friends" rel="tooltip" ng-click="share_inode(inode)"></i>
 						</span>
-						<span ng-show="!inode.isdir" style="margin-right: 20px">
+						<span ng-show="!inode.isdir" style="margin-right: 10px">
 							{{human_size(inode.size)}}
 						</span>
-						<span ng-show="!!inode.owner" style="margin-right: 20px">
-							<img ng-src="{{nbUser.user_pic_url(inode.owner)}}" style="width: 30px; height: 30px;"></img> {{inode.owner.first_name}}
+						<span ng-show="!!inode.owner" style="margin-right: 10px">
+							{{inode.owner.first_name}} &nbsp;
+							<img ng-src="{{nbUser.user_pic_url(inode.owner)}}" style="width: 30px; height: 30px;"></img>
 						</span>
 						<span>
 							{{inode.ctime_display}}
