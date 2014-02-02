@@ -71,6 +71,10 @@ function track_event_api(req, res) {
 }
 
 function track_event(event, data, user, req, callback) {
+	if (!event) {
+		console.log('MISSING EVENT NAME');
+		return callback ? callback() : undefined;
+	}
 	var e = new TrackEvent();
 	e.event = event;
 	if (data) {

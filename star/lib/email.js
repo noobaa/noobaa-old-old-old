@@ -496,6 +496,16 @@ exports.test_email_templates = function(req, res) {
 		live_inode: {
 			name: '<div style="margin: 10px; padding: 10px; border: 1px solid black">'
 		}
+	}, {
+		live_owner: user,
+		live_inode: {
+			name: 'Balllalalal al la '
+		}
+	}, {
+		live_owner: user,
+		live_inode: {
+			name: 'Yahahahahah hah ah '
+		}
 	}];
 	res.write('<div style="margin: 10px; padding: 10px; border: 1px solid black">');
 	res.write('<div style="height: 100%"><br/>SWM<br/><br/>');
