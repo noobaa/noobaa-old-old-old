@@ -43,7 +43,7 @@
 					</a>
 				</span>
 				<div ng-show="current_inode.isdir" class="input-group Xinput-group-sm pull-right" style="max-width: 200px">
-					<input type="text" class="form-control {{search_in_folder && 'label-warning' || ''}}" maxlength="100" placeholder="Search in folder" ng-model="search_in_folder" style="border-top-left-radius: 20px; border-bottom-left-radius: 20px"/>
+					<input type="text" class="form-control {{search_in_folder && 'label-warning' || ''}}" maxlength="100" placeholder="Search in folder" ng-model="search_in_folder" style="border-top-left-radius: 20px; border-bottom-left-radius: 20px" />
 					<span class="input-group-btn">
 						<button class="btn btn-default" type="button" ng-click="search_in_folder=''" title="Clear search" rel="tooltip" nb-tooltip="{container: 'body'}">
 							<i class="fa fa-times Xfa-lg"></i>
@@ -104,6 +104,9 @@
 						</span>
 						<span ng-show="!inode.isdir" style="margin-right: 20px">
 							{{human_size(inode.size)}}
+						</span>
+						<span ng-show="!!inode.owner" style="margin-right: 20px">
+							<img ng-src="{{nbUser.user_pic_url(inode.owner)}}" style="width: 30px; height: 30px;"></img> {{inode.owner.first_name}}
 						</span>
 						<span>
 							{{inode.ctime_display}}
