@@ -275,6 +275,7 @@
 			</div>
 		</div>
 		<div id="chart_div"></div>
+		<div id="table_div"></div>
 	</div>
 
 
@@ -300,8 +301,8 @@
 	(function() {
 		'use strict';
 
-		google.load("visualization", "1", {
-			packages: ["corechart"]
+		google.load('visualization', '1', {
+			packages: ['corechart', 'table']
 		});
 
 		var noobaa_app = angular.module('noobaa_app');
@@ -573,6 +574,16 @@
 						legend: {
 							position: 'top'
 						}
+					});
+
+					var table_div = document.getElementById('table_div');
+					var table = new google.visualization.Table(table_div);
+					table.draw(data, {
+						showRowNumber: true,
+						width: $(table_div).parent().width(),
+						page: 'enable',
+						pageSize: 10,
+						sortColumn: 0
 					});
 				}
 
