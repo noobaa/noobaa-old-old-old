@@ -140,17 +140,17 @@
 								</a>
 							</span>
 						</span>
-						<span ng-if="!current_inode.owner">
-							<i ng-show="!!inode.num_refs" class="fa fa-share-square-o fa-lg fa-fw" ng-attr-title="Shared with {{inode.num_refs}} friends" rel="tooltip" ng-click="share_inode(inode)"></i>
-							<i ng-show="!inode.num_refs" class="fa fa-lock fa-lg fa-fw" title="Private" rel="tooltip" ng-click="share_inode(inode)"></i>
-						</span>
 						<span ng-show="inode.uploading">
 							<i title="Incomplete upload..." rel="tooltip" ng-click="inode_resume_upload(inode)" class="fa fa-cloud-upload fa-lg fa-fw"></i>
 						</span>
 						<span ng-show="!inode.isdir" style="margin-right: 10px">
 							{{human_size(inode.size)}}
 						</span>
-						<span ng-show="!!inode.owner" style="margin-right: 10px">
+						<span ng-if="!inode.owner">
+							<i ng-show="!!inode.num_refs" class="fa fa-share-square-o fa-lg fa-fw" ng-attr-title="Shared with {{inode.num_refs}} friends" rel="tooltip" ng-click="share_inode(inode)"></i>
+							<i ng-show="!inode.num_refs" class="fa fa-lock fa-lg fa-fw" title="Private" rel="tooltip" ng-click="share_inode(inode)"></i>
+						</span>
+						<span ng-if="!!inode.owner" style="margin-right: 10px">
 							{{inode.owner.first_name}} &nbsp;
 							<img ng-src="{{nbUser.user_pic_url(inode.owner)}}" style="width: 30px; height: 30px;"></img>
 						</span>
