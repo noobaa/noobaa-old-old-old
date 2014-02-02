@@ -196,51 +196,82 @@
 
 
 	<div class="container" ng-show="current_tab=='tracks'">
-		<div class="text-center" style="padding: 10px 0">
-			<div class="btn-group">
-				<label class="btn btn-default">
-					<input type="radio" ng-model="track_params.resolution" value="hour" ng-change="refresh_tracks()" />
-					<span>Hour</span>
-				</label>
-				<label class="btn btn-default">
-					<input type="radio" ng-model="track_params.resolution" value="day" ng-change="refresh_tracks()" />
-					<span>Day</span>
-				</label>
-				<label class="btn btn-default">
-					<input type="radio" ng-model="track_params.resolution" value="week" ng-change="refresh_tracks()" />
-					<span>Week</span>
-				</label>
-				<label class="btn btn-default">
-					<input type="radio" ng-model="track_params.resolution" value="month" ng-change="refresh_tracks()" />
-					<span>Month</span>
-				</label>
-			</div>
-			<div class="btn-group">
-				<label class="btn btn-default">
-					<input type="checkbox" ng-model="track_params.uniq_user" ng-change="refresh_tracks()" />
-					<span>Uniq User</span>
-				</label>
-				<label class="btn btn-default">
-					<input type="checkbox" ng-model="track_params.uniq_ip" ng-change="refresh_tracks()" />
-					<span>Uniq IP</span>
-				</label>
-				<label class="btn btn-default">
-					<input type="checkbox" ng-model="track_params.mgmt" ng-change="refresh_tracks()" />
-					<span>Mgmt</span>
-				</label>
-			</div>
-			<button class="btn btn-default" ng-click="export_tracks()">
+		<div style="padding: 10px 0">
+			<button class="btn btn-default pull-right" ng-click="export_tracks()">
 				Export CSV
 			</button>
-			<div style="padding: 10px 0">
+			<div>
+				<small>Resolution:</small>
+				<div class="btn-group">
+					<label class="btn btn-default btn-sm">
+						<input type="radio" ng-model="track_params.resolution" value="hour" ng-change="refresh_tracks()" />
+						<span>Hour</span>
+					</label>
+					<label class="btn btn-default btn-sm">
+						<input type="radio" ng-model="track_params.resolution" value="day" ng-change="refresh_tracks()" />
+						<span>Day</span>
+					</label>
+					<label class="btn btn-default btn-sm">
+						<input type="radio" ng-model="track_params.resolution" value="week" ng-change="refresh_tracks()" />
+						<span>Week</span>
+					</label>
+					<label class="btn btn-default btn-sm">
+						<input type="radio" ng-model="track_params.resolution" value="month" ng-change="refresh_tracks()" />
+						<span>Month</span>
+					</label>
+				</div>
+			</div>
+			<div style="padding-top: 10px">
+				<small>Frame:</small>
+				<div class="btn-group">
+					<label class="btn btn-default btn-sm">
+						<input type="radio" ng-model="time_frame" value="day" Xng-change="refresh_tracks()" />
+						<span>Day</span>
+					</label>
+					<label class="btn btn-default btn-sm">
+						<input type="radio" ng-model="time_frame" value="week" Xng-change="refresh_tracks()" />
+						<span>Week</span>
+					</label>
+					<label class="btn btn-default btn-sm">
+						<input type="radio" ng-model="time_frame" value="month" Xng-change="refresh_tracks()" />
+						<span>Month</span>
+					</label>
+					<label class="btn btn-default btn-sm">
+						<input type="radio" ng-model="time_frame" value="all" Xng-change="refresh_tracks()" />
+						<span>All</span>
+					</label>
+					<label class="btn btn-default btn-sm">
+						<input type="radio" ng-model="time_frame" value="custom" Xng-change="refresh_tracks()" />
+						<span>Custom</span>
+					</label>
+				</div>
+			</div>
+			<div style="padding-top: 10px" ng-show="time_frame=='custom'">
 				<label>
-					<span>From</span>
+					<small>From</small>
 					<input type="datetime-local" ng-model="track_params.from" ng-change="refresh_tracks()">
 				</label>
 				<label>
-					<span>To</span>
+					<small>To</small>
 					<input type="datetime-local" ng-model="track_params.till" ng-change="refresh_tracks()">
 				</label>
+			</div>
+			<div style="padding-top: 10px">
+				<small>Query:</small>
+				<div class="btn-group">
+					<label class="btn btn-default btn-sm">
+						<input type="checkbox" ng-model="track_params.uniq_user" ng-change="refresh_tracks()" />
+						<span>Uniq User</span>
+					</label>
+					<label class="btn btn-default btn-sm">
+						<input type="checkbox" ng-model="track_params.uniq_ip" ng-change="refresh_tracks()" />
+						<span>Uniq IP</span>
+					</label>
+					<label class="btn btn-default btn-sm">
+						<input type="checkbox" ng-model="track_params.mgmt" ng-change="refresh_tracks()" />
+						<span>Mgmt</span>
+					</label>
+				</div>
 			</div>
 		</div>
 		<div id="chart_div"></div>
@@ -404,6 +435,7 @@
 					uniq_ip: true,
 					mgmt: false,
 				};
+				$scope.time_frame = 'month';
 
 				function refresh_tracks() {
 					console.log('REFRESH TRACKS', $scope.track_params);
@@ -429,6 +461,35 @@
 				RESTIMES.day = 24 * RESTIMES.hour;
 				RESTIMES.week = 7 * RESTIMES.day;
 				RESTIMES.month = 30 * RESTIMES.day;
+
+				function format_datetime(datetime) {
+					var d = new Date(datetime);
+					return d.toISOString().slice(0, 16);
+				}
+
+				$scope.$watch('time_frame', function(frame) {
+					var now = Date.now();
+					now -= (now % RESTIMES.minute);
+					console.log('CHANGE TIME FRAME', frame, now);
+					if (frame === 'day') {
+						$scope.track_params.from = format_datetime(now - RESTIMES.day);
+						$scope.track_params.till = undefined;
+					} else if (frame === 'week') {
+						$scope.track_params.from = format_datetime(now - RESTIMES.week);
+						$scope.track_params.till = undefined;
+					} else if (frame === 'month') {
+						$scope.track_params.from = format_datetime(now - RESTIMES.month);
+						$scope.track_params.till = undefined;
+					} else if (frame === 'all') {
+						$scope.track_params.from = undefined;
+						$scope.track_params.till = undefined;
+					} else if (frame === 'custom') {
+						// leave custome values
+					} else {
+						console.error('UNKNOWN TIME FRAME', frame);
+					}
+					refresh_tracks();
+				});
 
 				function draw_tracks_chart() {
 					var i;
