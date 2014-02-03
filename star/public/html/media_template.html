@@ -23,7 +23,12 @@
 					<i class="fa fa-video-camera fa-inverse fa-stack-1x text-white"></i>
 				</span>
 			</div>
-			<video ng-if="show_content" controls autoplay ng-src="{{nbInode.inode_api_url(inode.id)}}" class="content-item img-responsive center-block" nb-events="media_events"></video>
+			<video ng-if="show_content" controls autoplay ng-src="{{nbInode.inode_api_url(inode.id)}}" class="content-item img-responsive center-block" nb-events="media_events">
+				<source ng-src="{{nbInode.inode_api_url(inode.id)}}" ng-attr-type="{{inode.content_type}}">
+					<object ng-attr-data="{{nbInode.inode_api_url(inode.id)}}" ng-attr-type="{{inode.content_type}}">
+						<embed ng-src="{{nbInode.inode_api_url(inode.id)}}">
+					</object>
+			</video>
 		</div>
 		<div ng-switch-when="audio">
 			<div class="content-switcher text-center" style="padding: 5px; cursor: pointer" ng-click="toggle_content()" ng-show="!is_previewing">
@@ -32,7 +37,9 @@
 					<i class="fa fa-music fa-inverse fa-stack-1x text-white"></i>
 				</span>
 			</div>
-			<audio ng-if="show_content" controls autoplay ng-src="{{nbInode.inode_api_url(inode.id)}}" style="padding: 30px 5px 5px 5px; Xpadding: 5px" class="content-item img-responsive center-block" nb-events="media_events"></audio>
+			<audio ng-if="show_content" controls autoplay ng-src="{{nbInode.inode_api_url(inode.id)}}" style="padding: 30px 5px 5px 5px; Xpadding: 5px" class="content-item img-responsive center-block" nb-events="media_events">
+				<source ng-src="{{nbInode.inode_api_url(inode.id)}}" ng-attr-type="{{inode.content_type}}">
+			</audio>
 		</div>
 		<img ng-switch-when="image" ng-src="{{nbInode.inode_api_url(inode.id)}}" class="content-item img-responsive center-block" style="max-height: 60%" nb-events="media_events" />
 		<div ng-switch-when="text">
