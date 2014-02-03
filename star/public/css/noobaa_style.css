@@ -160,13 +160,16 @@ a.btn-link.text-white:hover {
 	transform: rotate(360deg);
 	-webkit-transform: rotate(360deg);
 }
-.content-switcher:hover span .fa-stack-1x {
-	color: hsl(338, 100%, 50%) !important;
+.content-switcher:hover span .fa-stack-2x {
+	color: hsl(0,0%,5%) !important;/*hsl(338, 100%, 50%)*/
+}
+.nav > li.active > a > i.fa.text-muted {
+	color: hsl(0,0%,20%) !important;
 }
 .feed_item:hover {
-	-moz-box-shadow: 0 0 5px 5px white;
-	-webkit-box-shadow: 0 0 5px 5px white;
-	box-shadow: 0 0 5px 5px white;
+	-moz-box-shadow: 0 0 1px 1px white;
+	-webkit-box-shadow: 0 0 1px 1px white;
+	box-shadow: 0 0 1px 1px white;
 }
 /**/
 

@@ -189,6 +189,11 @@
 					dir_inode.entries = entries;
 					dir_inode.entries_map = dir_inode.entries_map || {};
 					var entries_map = {};
+					var entries_by_kind = {
+						video: [],
+						audio: [],
+						image: []
+					};
 					for (var i = 0; i < entries.length; i++) {
 						var e = dir_inode.entries_map[entries[i].id];
 						if (!e) {
@@ -201,10 +206,15 @@
 								delete e.uploading;
 							}
 						}
+						var kind;
 						if (e.isdir) {
-							e.content_kind = 'dir';
+							e.content_kind = kind = 'dir';
 						} else if (e.content_type) {
-							e.content_kind = CONTENT_KINDS[e.content_type.split('/')[0]] || e.content_type;
+							kind = CONTENT_KINDS[e.content_type.split('/')[0]];
+							e.content_kind = kind || e.content_type;
+						}
+						if (kind && entries_by_kind[kind]) {
+							entries_by_kind[kind].push(e);
 						}
 						if (e.ctime) {
 							e.ctime_date = new Date(e.ctime);
@@ -222,6 +232,7 @@
 						return a.isdir ? -1 : 1;
 					});
 					dir_inode.entries_map = entries_map;
+					dir_inode.entries_by_kind = entries_by_kind;
 					return res;
 				}, function(err) {
 					dir_inode.is_loading = false;
