@@ -37,7 +37,7 @@ html, body {
 }
 .btn-hover-only:not(:hover) {
 	background-color: transparent !important;
-	border-color: hsl(192, 7%, 90%) !important;
+	border-color: hsl(0, 0%, 60%) !important;
 }
 .btn.btn-default.btn-transparent {
 	background-color: hsla(0, 0%, 0%, 0.2) !important;
@@ -143,33 +143,38 @@ a.btn-link.text-white:hover {
 		width: 300px;
 	}
 }
-.feed_item .content-item {
-	border-bottom-left-radius: 4px;
-	border-bottom-right-radius: 4px;
+.feed_item:hover {
+	-moz-box-shadow: 0 0 1px 1px white;
+	-webkit-box-shadow: 0 0 1px 1px white;
+	box-shadow: 0 0 1px 1px white;
+}
+.feeder .content-item {
+	border-radius: 4px;
 }
 .browser .content-item {
 	border-radius: 4px;
 }
-.content-switcher span, .content-switcher span .fa-stack-1x, .feed_item {
+.content-switcher > span, .content-switcher > span > .fa-stack-2x, .feed_item {
 	-webkit-transition: all 0.5s;
 	-moz-transition: all 0.5s;
 	-o-transition: all 0.5s;
 	transition: all 0.5s;
 }
-.content-switcher:hover span {
+.content-switcher > span:hover {
 	transform: rotate(360deg);
 	-webkit-transform: rotate(360deg);
 }
-.content-switcher:hover span .fa-stack-2x {
-	color: hsl(0,0%,5%) !important;/*hsl(338, 100%, 50%)*/
+.content-switcher > span > .fa-stack-1x {
+	color: white !important;
+}
+.content-switcher > span > .fa-stack-2x {
+	color: black !important;
+}
+.content-switcher > span:hover > .fa-stack-2x {
+	color: hsl(0,0%,60%) !important;
 }
 .nav > li.active > a > i.fa.text-muted {
 	color: hsl(0,0%,20%) !important;
-}
-.feed_item:hover {
-	-moz-box-shadow: 0 0 1px 1px white;
-	-webkit-box-shadow: 0 0 1px 1px white;
-	box-shadow: 0 0 1px 1px white;
 }
 /**/
 

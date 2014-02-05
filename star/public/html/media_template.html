@@ -1,26 +1,26 @@
 <div>
 	<div ng-switch="inode.content_kind">
 		<div ng-switch-default>
-			<div class="content-switcher text-center" style="padding: 5px; cursor: pointer" ng-click="nbInode.seamless_open_inode(inode)">
-				<span class="fa-stack fa-2x" title="Open file" rel="tooltip">
-					<i class="fa fa-circle fa-stack-2x text-muted"></i>
-					<i class="fa fa-file fa-inverse fa-stack-1x text-white"></i>
+			<div class="content-switcher text-center" style="padding: 5px">
+				<span class="fa-stack fa-2x" title="Open file" rel="tooltip" ng-click="nbInode.seamless_open_inode(inode)" style="cursor: pointer">
+					<i class="fa fa-circle fa-stack-2x"></i>
+					<i class="fa fa-file fa-stack-1x"></i>
 				</span>
 			</div>
 		</div>
 		<div ng-switch-when="dir">
-			<div class="content-switcher text-center" style="padding: 5px; Xcursor: pointer" ng-show="!is_previewing" ng-click="media_events.open_dir()">
-				<span class="fa-stack fa-2x" title="An awesome folder" rel="tooltip">
-					<i class="fa fa-circle fa-stack-2x text-muted"></i>
-					<i class="fa fa-folder-open fa-inverse fa-stack-1x text-white"></i>
+			<div class="content-switcher text-center" style="padding: 5px" ng-show="!is_previewing">
+				<span class="fa-stack fa-2x" title="Open folder" rel="tooltip" ng-click="media_events.open_dir()" style="cursor: pointer">
+					<i class="fa fa-circle fa-stack-2x"></i>
+					<i class="fa fa-folder-open fa-stack-1x"></i>
 				</span>
 			</div>
 		</div>
 		<div ng-switch-when="video" class="text-center">
-			<div class="content-switcher text-center" style="padding: 5px; cursor: pointer" ng-click="toggle_content()" ng-show="!is_previewing">
-				<span class="fa-stack fa-2x" title="Play video" rel="tooltip">
-					<i class="fa fa-circle fa-stack-2x text-muted"></i>
-					<i class="fa fa-video-camera fa-inverse fa-stack-1x text-white"></i>
+			<div class="content-switcher text-center" style="padding: 5px" ng-show="!is_previewing">
+				<span class="fa-stack fa-2x" title="Play video" rel="tooltip" ng-click="toggle_content()" style="cursor: pointer">
+					<i class="fa fa-circle fa-stack-2x"></i>
+					<i class="fa fa-video-camera fa-stack-1x"></i>
 				</span>
 			</div>
 			<video ng-if="show_content" controls autoplay ng-src="{{nbInode.inode_api_url(inode.id)}}" class="content-item img-responsive center-block" nb-events="media_events">
@@ -31,25 +31,25 @@
 			</video>
 		</div>
 		<div ng-switch-when="audio">
-			<div class="content-switcher text-center" style="padding: 5px; cursor: pointer" ng-click="toggle_content()" ng-show="!is_previewing">
-				<span class="fa-stack fa-2x" title="Play audio" rel="tooltip">
-					<i class="fa fa-circle fa-stack-2x text-muted"></i>
-					<i class="fa fa-music fa-inverse fa-stack-1x text-white"></i>
+			<div class="content-switcher text-center" style="padding: 5px" ng-show="!is_previewing">
+				<span class="fa-stack fa-2x" title="Play audio" rel="tooltip" ng-click="toggle_content()" style="cursor: pointer">
+					<i class="fa fa-circle fa-stack-2x"></i>
+					<i class="fa fa-music fa-stack-1x"></i>
 				</span>
 			</div>
 			<audio ng-if="show_content" controls autoplay ng-src="{{nbInode.inode_api_url(inode.id)}}" style="padding: 30px 5px 5px 5px; Xpadding: 5px" class="content-item img-responsive center-block" nb-events="media_events">
 				<source ng-src="{{nbInode.inode_api_url(inode.id)}}" ng-attr-type="{{inode.content_type}}">
 			</audio>
 		</div>
-		<img ng-switch-when="image" ng-src="{{nbInode.inode_api_url(inode.id)}}" class="content-item img-responsive center-block" style="max-height: 60%" nb-events="media_events" />
+		<img ng-switch-when="image" ng-src="{{nbInode.inode_api_url(inode.id)}}" class="content-item img-responsive center-block" Xstyle="max-height: 60%" nb-events="media_events" />
 		<div ng-switch-when="text">
-			<div class="content-switcher text-center" style="padding: 5px; cursor: pointer" ng-click="toggle_content()" ng-show="!is_previewing">
-				<span class="fa-stack fa-2x" title="Open text file" rel="tooltip">
-					<i class="fa fa-circle fa-stack-2x text-muted"></i>
-					<i class="fa fa-font fa-inverse fa-stack-1x text-white"></i>
+			<div class="content-switcher text-center" style="padding: 5px" ng-show="!is_previewing">
+				<span class="fa-stack fa-2x" title="Open text file" rel="tooltip" ng-click="toggle_content()" style="cursor: pointer">
+					<i class="fa fa-circle fa-stack-2x"></i>
+					<i class="fa fa-font fa-stack-1x"></i>
 				</span>
 			</div>
-			<object ng-if="show_content" ng-attr-data="{{nbInode.inode_api_url(inode.id)}}" type="text/plain" width="100%" class="content-item center-block" nb-events="media_events" </object>
+			<object ng-if="show_content" ng-attr-data="{{nbInode.inode_api_url(inode.id)}}" type="text/plain" width="100%" class="content-item center-block bggrey" nb-events="media_events" </object>
 		</div>
 	</div>
 </div>

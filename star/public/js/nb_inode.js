@@ -39,6 +39,7 @@
 				mklink: mklink,
 				rmlinks: rmlinks,
 				share_inode: share_inode,
+				keep_inode: keep_inode,
 				keep_and_share_all: keep_and_share_all,
 			};
 
@@ -398,27 +399,6 @@
 				copy_scope.concurrency = 0;
 				copy_scope.max_concurrency = 32;
 
-				// TODO OPEN FOLDER CHOOSER
-
-				var on_copy = function() {
-					var notify_message = '"' + inode.name + '" was copied to My-Data';
-					if (copy_scope.count !== 1) {
-						notify_message += ' (' + copy_scope.count + ' items)';
-					}
-					$.bootstrapGrowl(notify_message, {
-						ele: 'body',
-						type: 'info',
-						offset: {
-							from: 'top',
-							amount: 60
-						},
-						align: 'right',
-						width: 'auto',
-						delay: 5000,
-						allow_dismiss: true,
-						stackup_spacing: 20
-					});
-				};
 				var new_inode_id;
 				return single_copy(inode).then(function(res) {
 					copy_scope.count++;
@@ -575,6 +555,29 @@
 					}
 				}, function() {
 					share_scope.share_is_loading = false;
+				});
+			}
+
+			function keep_inode(inode) {
+				return copy_inode(inode).then(function(res) {
+					var notify_message = '"' + inode.name + '" was added to My-Data';
+					// if (copy_scope.count !== 1) {
+						// notify_message += ' (' + copy_scope.count + ' items)';
+					// }
+					$.bootstrapGrowl(notify_message, {
+						ele: 'body',
+						type: 'info',
+						offset: {
+							from: 'top',
+							amount: 60
+						},
+						align: 'right',
+						width: 'auto',
+						delay: 5000,
+						allow_dismiss: true,
+						stackup_spacing: 20
+					});
+					return res;
 				});
 			}
 

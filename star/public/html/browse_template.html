@@ -45,21 +45,21 @@
 						<i class="fa fa-cloud-upload fa-fw fa-lg"></i>
 						Resume Upload
 					</a>
-					<a class="btn btn-primary" ng-if="!current_inode.isdir && !current_inode.uploading && current_inode.size" ng-click="nbInode.download_inode(current_inode)" href="{{nbInode.inode_api_url(current_inode.id)}}?is_download=true" target="_blank" title="Download" rel="tooltip" nb-tooltip="{container: 'body'}">
-						<i class="fa fa-cloud-download fa-fw fa-lg"></i>
-						Download
-					</a>
-					<a ng-if="!current_inode.isdir" class="btn btn-primary" ng-click="toggle_preview(current_inode)" title="Open" rel="tooltip" nb-tooltip="{container: 'body'}">
-						<i class="fa fa-search-{{current_inode.is_previewing && 'minus' || 'plus'}} fa-fw fa-lg"></i>
-						Show Preview
-					</a>
-					<a class="btn btn-danger" ng-if="nbInode.can_keep_inode(current_inode)" ng-click="copy_inode(current_inode)" title="Add to My Data" rel="tooltip" nb-tooltip="{container: 'body'}">
-						<i class="fa fa-plus fa-fw fa-lg"></i>
-						Add to My Data
-					</a>
 					<a class="btn btn-warning" ng-if="nbInode.can_share_inode(current_inode)" ng-click="share_inode(current_inode)" title="Share" rel="tooltip" nb-tooltip="{container: 'body'}">
 						<i class="fa fa-share-square-o fa-fw fa-lg"></i>
 						Share
+					</a>
+					<a class="btn btn-danger" ng-if="nbInode.can_keep_inode(current_inode)" ng-click="keep_inode(current_inode)" Xtitle="Keep" Xrel="tooltip" Xnb-tooltip="{container: 'body'}">
+						<i class="fa fa-plus fa-fw fa-lg"></i>
+						Keep
+					</a>
+					<a ng-if="!current_inode.isdir" class="btn btn-primary" ng-click="toggle_preview(current_inode)" title="Open" rel="tooltip" nb-tooltip="{container: 'body'}">
+						<i class="fa fa-search-{{current_inode.is_previewing && 'minus' || 'plus'}} fa-fw fa-lg"></i>
+						<!-- Open -->
+					</a>
+					<a class="btn btn-default" ng-if="!current_inode.isdir && !current_inode.uploading && current_inode.size" ng-click="nbInode.download_inode(current_inode)" href="{{nbInode.inode_api_url(current_inode.id)}}?is_download=true" target="_blank" title="Download" rel="tooltip" nb-tooltip="{container: 'body'}">
+						<i class="fa fa-cloud-download fa-fw fa-lg"></i>
+						<!-- Download -->
 					</a>
 					<a class="btn btn-default" ng-if="nbInode.can_upload_to_dir(current_inode)" ng-click="new_folder(current_inode)" title="New Folder" rel="tooltip" nb-tooltip="{container: 'body'}">
 						<span class="fa-stack" style="font-size: 0.65em">
@@ -68,11 +68,11 @@
 						</span>
 						<!-- New Folder -->
 					</a>
-					<a ng-show="has_parent(current_inode)" class="btn btn-default" ng-show="current_inode.isdir" ng-click="open_inode(current_inode)" title="Refresh" rel="tooltip" nb-tooltip="{container: 'body'}">
+					<a ng-show="has_parent(current_inode) && current_inode.isdir" class="btn btn-default" ng-show="current_inode.isdir" ng-click="open_inode(current_inode)" title="Refresh" rel="tooltip" nb-tooltip="{container: 'body'}">
 						<i class="fa fa-refresh fa-fw fa-lg"></i>
 						<!-- Refresh -->
 					</a>
-					<div style="display: inline-block; max-width: 160px; vertical-align:middle">
+					<div style="display: inline-block; max-width: 170px; vertical-align:middle">
 						<div ng-show="current_inode.isdir" class="input-group Xinput-group-sm">
 							<input type="text" class="form-control {{search_in_folder && 'label-warning' || ''}}" maxlength="100" placeholder="Search in folder" ng-model="search_in_folder" style="border-top-left-radius: 20px; border-bottom-left-radius: 20px" />
 							<span class="input-group-btn">
@@ -112,13 +112,13 @@
 									<i class="fa fa-share-square-o fa-fw fa-lg"></i>
 									<!-- Share -->
 								</a>
-								<a class="btn btn-danger" ng-show="nbInode.can_keep_inode(inode)" ng-click="copy_inode(inode)" title="Add to My Data" rel="tooltip" nb-tooltip="{container: 'body'}">
+								<a class="btn btn-danger" ng-show="nbInode.can_keep_inode(inode)" ng-click="keep_inode(inode)" title="Keep" rel="tooltip" nb-tooltip="{container: 'body'}">
 									<i class="fa fa-plus fa-fw fa-lg"></i>
-									<!-- Add to My Data -->
+									<!-- Keep -->
 								</a>
 								<a ng-show="!inode.isdir" class="btn btn-primary" ng-click="toggle_preview(inode)" title="Open" rel="tooltip" nb-tooltip="{container: 'body'}">
 									<i class="fa fa-search-{{inode.is_previewing && 'minus' || 'plus'}} fa-fw fa-lg"></i>
-									<!-- Show Preview -->
+									<!-- Open -->
 								</a>
 								<a class="btn btn-default" ng-if="!inode.isdir && !inode.uploading && inode.size" ng-click="nbInode.download_inode(inode)" href="{{nbInode.inode_api_url(inode.id)}}?is_download=true" target="_blank" title="Download" rel="tooltip" nb-tooltip="{container: 'body'}">
 									<i class="fa fa-cloud-download fa-fw fa-lg"></i>

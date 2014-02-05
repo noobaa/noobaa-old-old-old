@@ -92,6 +92,19 @@
 				init_read_dir();
 			}
 
+			$scope.click_my_feed = function() {
+				$location.path('/feed/');
+				$scope.refresh_feeds();
+			};
+
+			$scope.click_my_items = function() {
+				$location.path('/items/');
+			};
+
+			function swm_sorting_func(a, b) {
+				return a.ctime_date > b.ctime_date ? -1 : 1;
+			}
+
 			function init_read_dir() {
 				// nbInode.read_all($scope.root_dir).then(function(res) {
 				nbInode.read_dir($scope.root_dir).then(function(res) {
@@ -105,6 +118,7 @@
 						} else if (e.name === 'Shared With Me') {
 							$scope.swm = e;
 							e.swm = true;
+							e.sorting_func = swm_sorting_func;
 						} else {
 							console.error('UNRECOGNIZED ROOT FOLDER', e);
 						}
@@ -120,18 +134,30 @@
 			function refresh_feeds() {
 				console.log('READ SWM', $scope.swm);
 				// console.log('READ SWM', $scope.home_context.current_inode);
-				if (!$scope.swm) {
+				if (!$scope.swm || $scope.refreshing_feeds) {
 					return;
 				}
-				$scope.swm.sorting_func = function(a, b) {
-					return a.ctime_date > b.ctime_date ? -1 : 1;
-				};
 				$scope.refreshing_feeds = true;
 				nbInode.read_dir($scope.swm).then(function(res) {
 					// nbInode.read_dir($scope.home_context.current_inode).then(function(res) {
 					console.log('SWM FOLDER', res);
 					$scope.refreshing_feeds = false;
-					$scope.feeds = $scope.swm.entries;
+					// collect together feeds with same name and type (for share loops)
+					var feeds = [];
+					var feeds_by_key = {};
+					_.each($scope.swm.entries, function(e) {
+						var key = (e.isdir ? 'd:' : 'f:') + e.name;
+						var f = feeds_by_key[key];
+						if (!f) {
+							f = e;
+							feeds_by_key[key] = f;
+							feeds.push(f);
+						} else {
+							f.feed_group = f.feed_group || [];
+							f.feed_group.push(e);
+						}
+					});
+					$scope.feeds = feeds;
 					// $scope.feeds = $scope.home_context.current_inode.entries;
 					$scope.feeds_limit = 10;
 					rebuild_layout();
@@ -154,6 +180,7 @@
 			};
 
 			function do_layout() {
+				if (true) return; // TODO decide on masonry
 				console.log('LAYOUT');
 				$timeout.cancel($scope.do_layout_timeout);
 				$timeout.cancel($scope.do_layout_fast_timeout);
@@ -185,6 +212,7 @@
 			}
 
 			function rebuild_layout() {
+				if (true) return; // TODO decide on masonry
 				$scope.should_rebuild_layout = true;
 				if (!$scope.do_layout_fast_timeout) {
 					$scope.do_layout_fast_timeout = $timeout(do_layout, 1);
@@ -192,6 +220,7 @@
 			}
 
 			$scope.notify_layout = function() {
+				if (true) return; // TODO decide on masonry
 				if (!$scope.do_layout_timeout) {
 					$scope.do_layout_timeout = $timeout(do_layout, 50);
 				}
@@ -290,11 +319,14 @@
 
 			$scope.refreshing_friends = 0;
 
-			if (nbUser.user) {
-				$scope.invite_text = [
-					'I\'m using NooBaa to share videos with friends. ',
-					'You should be here too! ', (nbUser.user.first_name || '')
-				].join('\n');
+			$scope.invite_options = {
+				text: [
+					'I\'m using NooBaa to share videos with friends. \n',
+					'You should be here too!'
+				].join('')
+			};
+			if (nbUser.user && nbUser.user.first_name) {
+				$scope.invite_options.text += '\n' + nbUser.user.first_name;
 			}
 
 			function refresh_friends() {
@@ -366,7 +398,7 @@
 						method: 'apprequests',
 						to: now,
 						title: 'NooBaa',
-						message: $scope.invite_text,
+						message: $scope.invite_options.text,
 						data: nbUser.user.id
 					}, function(res) {
 						console.log('FB APP REQUESTS', res);
@@ -439,8 +471,7 @@
 						$scope.next_index();
 					},
 					open_dir: function() {
-						console.log('OPEN DIR');
-						// $scope.home_context.current_inode = $scope.feed.entries[$scope.index];
+						$scope.open_feed_inode($scope.feed.entries[$scope.index]);
 					},
 				};
 			} else {
@@ -453,8 +484,7 @@
 						console.log('MEDIA ENDED', $scope.feed);
 					},
 					open_dir: function() {
-						console.log('OPEN DIR');
-						// $scope.home_context.current_inode = $scope.feed;
+						$scope.open_feed_inode($scope.feed.entries[$scope.index]);
 					},
 				};
 			}
@@ -463,7 +493,8 @@
 				if (feed.isdir) {
 					$scope.home_context.current_inode = feed;
 				} else {
-					$scope.home_context.current_inode = feed.parent;
+					$scope.home_context.current_inode = feed;
+					// $scope.home_context.current_inode = feed.parent;
 					// feed.is_previewing = true;
 					// feed.is_selected = true;
 					// TODO select item
@@ -480,6 +511,10 @@
 					console.error('FAILED KEEP AND SHARE FEED', err);
 					$scope.running_kns = false;
 				});
+			};
+
+			$scope.keep_feed = function() {
+				return nbInode.keep_inode($scope.feed); //.then(refresh_current, refresh_current);
 			};
 		}
 	]);
@@ -520,7 +555,7 @@
 					$scope.delete_inodes = delete_inodes;
 					$scope.new_folder = new_folder;
 					$scope.move_inodes = move_inodes;
-					$scope.copy_inode = copy_inode;
+					$scope.keep_inode = keep_inode;
 					$scope.share_inode = share_inode;
 
 					var selection = $scope.context.selection;
@@ -789,8 +824,8 @@
 						modal = nbUtil.modal(hdr, body, foot, mv_scope);
 					}
 
-					function copy_inode(inode) {
-						return nbInode.copy_inode(inode).then(refresh_current, refresh_current);
+					function keep_inode(inode) {
+						return nbInode.keep_inode(inode); //.then(refresh_current, refresh_current);
 					}
 
 					function share_inode(inode) {
