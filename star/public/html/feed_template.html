@@ -24,33 +24,42 @@
 				<div class="clearfix" style="Xposition: relative; min-height: 70px; border: 1px solid hsla(0,0%,100%,0.2); border-radius: 4px" Xng-mouseover="mouse_over=true" Xng-mouseleave="mouse_over=false">
 					<div nb-media="current_item()" media-events="media_events" show-content="false"></div>
 				</div>
-				<div>
-					<a class="btn btn-link text-danger" style="padding-left: 0" ng-click="keep_feed()">keep</a>
-					<a class="btn btn-link text-warning" ng-click="keep_and_share_feed()" ng-disabled="running_kns || done_kns">
-						share
-						<i ng-if="done_kns" class="fa fa-check"></i> 
-						<span ng-if="running_kns">
-							<i class="fa fa-spin fa-spinner"></i>
-						</span>
-					</a>
-					<a class="btn btn-link text-wrap" ng-click="open_feed_inode(feed)">
-						<i class="fa fa-{{feed.isdir && 'folder-open' || 'file-o'}} fa-fw fa-lg"></i>
-						<span style="white-space: pre-wrap">{{feed.name}}</span>
-					</a>
-					<span ng-show="feed.isdir">
-						&nbsp; / &nbsp;
-						<a class="btn btn-link" ng-disabled="index<=0" ng-click="prev_index()">
-							<i class="fa fa-angle-left fa-2x"></i>
-						</a>
-						<span class="text-muted">{{index+1}} / {{feed.entries.length}}</span>
-						<a class="btn btn-link" ng-disabled="index+1>=feed.entries.length" ng-click="next_index()">
-							<i class="fa fa-angle-right fa-2x"></i>
-						</a>
-						<span style="white-space: pre-wrap">{{current_item().name}}</span>
-					</span>
+				<div class="clearfix">
+					<div class="pull-left">
+						<div>
+							<a class="btn btn-link text-danger" style="padding-left: 0" ng-click="keep_feed()">keep</a>
+							<a class="btn btn-link text-warning" ng-click="keep_and_share_feed()" ng-disabled="running_kns || done_kns">
+								share
+								<i ng-if="done_kns" class="fa fa-check"></i> 
+								<span ng-if="running_kns">
+									<i class="fa fa-spin fa-spinner"></i>
+								</span>
+							</a>
+						</div>
+						<div ng-show="feed.isdir">
+							<a class="btn btn-link" style="padding-left: 0; padding-top: 0" ng-disabled="index<=0" ng-click="prev_index()">
+								<i class="fa fa-arrow-circle-o-left fa-lg"></i>
+							</a>
+							<span class="text-muted">{{index+1}} / {{feed.entries.length}}</span>
+							<a class="btn btn-link" style="padding-top: 0" ng-disabled="index+1>=feed.entries.length" ng-click="next_index()">
+								<i class="fa fa-arrow-circle-o-right fa-lg"></i>
+							</a>
+						</div>
+					</div>
+					<div style="overflow: hidden">
+						<div class="text-ellipses">
+							<a class="btn btn-link" ng-click="open_feed_inode(feed)">
+								<i class="fa fa-{{feed.isdir && 'folder-open' || 'file-o'}} fa-fw fa-lg"></i>
+								{{feed.name}}
+							</a>
+						</div>
+						<div ng-show="feed.isdir" class="text-ellipses" style="padding: 0 0 5px 23px">
+							/ &nbsp;&nbsp; {{current_item().name}}
+						</div>
+					</div>
 				</div>
 
-				<div style="overflow: hidden">
+				<div>
 					<img class="img-rounded" ng-src="{{nbUser.user_pic_url(feed.owner)}}" style="width: 40px; margin: 0 10px 10px 0" ng-attr-title="{{feed.owner.name}}" rel="tooltip" />
 					<img ng-repeat="another_inode in feed.feed_group" class="img-rounded" ng-src="{{nbUser.user_pic_url(another_inode.owner)}}" style="width: 40px; margin: 0 10px 10px 0" ng-attr-title="{{another_inode.owner.name}}" rel="tooltip" />
 				</div>
