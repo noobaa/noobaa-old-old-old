@@ -1,72 +1,76 @@
 <div class="feeder">
 	<div class="container">
 
-		<div class="feeds_container Xcenter-block" style="max-width: 700px">
-			<div class="text-center">
-				<span>Friend's stuff shared with me</span>
-				<button class="btn btn-link" ng-click="refresh_feeds()" title="Click to refresh" rel="tooltip">
-					<i class="fa fa-refresh {{refreshing_feeds && 'fa-spin' || ''}} fa-fw"></i>
-				</button>
-			</div>
+		<div class="text-center">
+			<span>Friend's stuff shared with me</span>
+			<button class="btn btn-link" ng-click="refresh_feeds()" title="Click to refresh" rel="tooltip">
+				<i class="fa fa-refresh {{refreshing_feeds && 'fa-spin' || ''}} fa-fw"></i>
+			</button>
+		</div>
 
-			<div ng-if="feeds && !feeds.length" class="Xfeed_item text-center" style="width: 100%; padding: 20px; background-color: transparent; color: white">
+		<div class="feeds_container center-block">
+
+			<div ng-if="feeds && !feeds.length" class="text-center" style="padding: 20px">
 				<iframe width="400" height="225" style="max-width: 100%" src="//www.youtube.com/embed/9KeVa3IOn78?rel=0" frameborder="0" allowfullscreen></iframe>
 				<div style="padding-top: 20px">
-					<a class="btn btn-link btn-lg" style="padding: 5px; cursor: pointer" href="/home/friends/">
+					<a class="btn btn-link btn-lg" style="padding: 5px" href="/home/friends/">
 						<i class="fa fa-users fa-lg fa-fw"></i>
 						<span>Invite Your Friends</span>
 					</a>
 				</div>
 			</div>
 
-			<div ng-repeat="feed in feeds | filter:{content_kind: filter_content_kind} | limitTo:feeds_limit track by $index" ng-controller="FeedCtrl" class="Xfeed_item" style="padding-top: 60px">
+			<div ng-repeat="feed in feeds | filter:{content_kind: filter_content_kind} | limitTo:feeds_limit track by $index" ng-controller="FeedCtrl" class="feed_item">
 
-				<div class="clearfix" style="Xposition: relative; min-height: 70px; border: 1px solid hsla(0,0%,100%,0.2); border-radius: 4px" Xng-mouseover="mouse_over=true" Xng-mouseleave="mouse_over=false">
+				<div class="clearfix">
 					<div nb-media="current_item()" media-events="media_events" show-content="false"></div>
 				</div>
-				<div class="clearfix">
-					<div class="pull-left">
-						<div>
-							<a class="btn btn-link text-danger" style="padding-left: 0" ng-click="keep_feed()">keep</a>
-							<a class="btn btn-link text-warning" ng-click="keep_and_share_feed()" ng-disabled="running_kns || done_kns">
+
+				<div>
+					<div class="clearfix">
+						<div class="pull-left">
+							<div>
+								<a class="btn btn-link text-danger" style="Xpadding-left: 0" ng-click="keep_feed()">keep</a>
+								<a class="btn btn-link text-warning" ng-click="keep_and_share_feed()" ng-disabled="running_kns || done_kns">
 								share
 								<i ng-if="done_kns" class="fa fa-check"></i> 
 								<span ng-if="running_kns">
 									<i class="fa fa-spin fa-spinner"></i>
 								</span>
 							</a>
+							</div>
+							<div ng-show="feed.isdir">
+								<a class="btn btn-link" style="Xpadding-left: 0; padding-top: 0" ng-disabled="index<=0" ng-click="prev_index()">
+									<i class="fa fa-arrow-circle-o-left fa-lg"></i>
+								</a>
+								<span class="text-muted">{{index+1}} / {{feed.entries.length}}</span>
+								<a class="btn btn-link" style="padding-top: 0" ng-disabled="index+1>=feed.entries.length" ng-click="next_index()">
+									<i class="fa fa-arrow-circle-o-right fa-lg"></i>
+								</a>
+							</div>
 						</div>
-						<div ng-show="feed.isdir">
-							<a class="btn btn-link" style="padding-left: 0; padding-top: 0" ng-disabled="index<=0" ng-click="prev_index()">
-								<i class="fa fa-arrow-circle-o-left fa-lg"></i>
-							</a>
-							<span class="text-muted">{{index+1}} / {{feed.entries.length}}</span>
-							<a class="btn btn-link" style="padding-top: 0" ng-disabled="index+1>=feed.entries.length" ng-click="next_index()">
-								<i class="fa fa-arrow-circle-o-right fa-lg"></i>
-							</a>
+						<div style="overflow: hidden">
+							<div class="text-ellipses">
+								<a class="btn btn-link" ng-click="open_feed_inode(feed)">
+									<i class="fa fa-{{feed.isdir && 'folder-open' || 'file-o'}} fa-fw fa-lg"></i>
+									{{feed.name}}
+								</a>
+							</div>
+							<div ng-show="feed.isdir" class="text-ellipses" style="padding: 0 0 5px 23px">
+								/ &nbsp;&nbsp; {{current_item().name}}
+							</div>
 						</div>
 					</div>
-					<div style="overflow: hidden">
-						<div class="text-ellipses">
-							<a class="btn btn-link" ng-click="open_feed_inode(feed)">
-								<i class="fa fa-{{feed.isdir && 'folder-open' || 'file-o'}} fa-fw fa-lg"></i>
-								{{feed.name}}
-							</a>
-						</div>
-						<div ng-show="feed.isdir" class="text-ellipses" style="padding: 0 0 5px 23px">
-							/ &nbsp;&nbsp; {{current_item().name}}
-						</div>
-					</div>
-				</div>
 
-				<div>
-					<img class="img-rounded" ng-src="{{nbUser.user_pic_url(feed.owner)}}" style="width: 40px; margin: 0 10px 10px 0" ng-attr-title="{{feed.owner.name}}" rel="tooltip" />
-					<img ng-repeat="another_inode in feed.feed_group track by $index" class="img-rounded" ng-src="{{nbUser.user_pic_url(another_inode.owner)}}" style="width: 40px; margin: 0 10px 10px 0" ng-attr-title="{{another_inode.owner.name}}" rel="tooltip" />
+					<div style="padding: 0 12px">
+						<img class="img-rounded" ng-src="{{nbUser.user_pic_url(feed.owner)}}" style="width: 40px; margin: 0 10px 10px 0" ng-attr-title="{{feed.owner.name}}" rel="tooltip" />
+						<img ng-repeat="another_inode in feed.feed_group track by $index" class="img-rounded" ng-src="{{nbUser.user_pic_url(another_inode.owner)}}" style="width: 40px; margin: 0 10px 10px 0" ng-attr-title="{{another_inode.owner.name}}" rel="tooltip" />
+					</div>
 				</div>
 
 			</div>
 
-			<div class="text-center" style="padding-top: 60px; padding-bottom: 30px" ng-show="feeds_limit < feeds.length">
+			<div class="text-center" ng-show="feeds_limit < feeds.length">
 				<button class="btn btn-danger" ng-click="more_feeds()">
 					Load more...
 				</button>

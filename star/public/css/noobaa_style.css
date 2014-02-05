@@ -121,13 +121,23 @@ a.btn-link.text-white:hover {
 /**/
 
 /* FEED */
- .feed_item {
-	border: 1px hsl(0, 0%, 80%) solid;
-	margin-bottom: 20px;
-	background-color: white;
-	border-radius: 4px;
-	width: 100%;
+ .feeds_container {
+	max-width: 600px;
+	padding: 20px 0;
+	/*background-color: hsl(0, 0%, 30%);*/
+	/*border-radius: 10px;*/
 }
+.feed_item {
+	margin-bottom: 40px;
+	border: 1px solid hsla(0, 0%, 100%, 0.1);
+	border-radius: 10px;
+	overflow: hidden;
+	background-color: hsl(0, 0%, 0%);
+	-moz-box-shadow: 0 0 6px 3px hsla(0, 0%, 100%, 0.15);
+	-webkit-box-shadow: 0 0 6px 3px hsla(0, 0%, 100%, 0.15);
+	box-shadow: 0 0 6px 3px hsla(0, 0%, 100%, 0.15);
+}
+/*
 @media all and (min-width: 768px) and (max-width: 991px) {
 	.feed_item {
 		width: 300px;
@@ -143,15 +153,8 @@ a.btn-link.text-white:hover {
 		width: 300px;
 	}
 }
-.feed_item:hover {
-	-moz-box-shadow: 0 0 1px 1px white;
-	-webkit-box-shadow: 0 0 1px 1px white;
-	box-shadow: 0 0 1px 1px white;
-}
-.feeder .content-item {
-	border-radius: 4px;
-}
-.browser .content-item {
+*/
+ .browser .content-item {
 	border-radius: 4px;
 }
 .content-switcher > span, .content-switcher > span > .fa-stack-2x, .feed_item {
@@ -171,10 +174,10 @@ a.btn-link.text-white:hover {
 	color: black !important;
 }
 .content-switcher > span:hover > .fa-stack-2x {
-	color: hsl(0,0%,60%) !important;
+	color: hsl(0, 0%, 60%) !important;
 }
 .nav > li.active > a > i.fa.text-muted {
-	color: hsl(0,0%,20%) !important;
+	color: hsl(0, 0%, 20%) !important;
 }
 /**/
 
