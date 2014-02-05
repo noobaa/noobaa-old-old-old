@@ -52,7 +52,7 @@
 
 				<div style="overflow: hidden">
 					<img class="img-rounded" ng-src="{{nbUser.user_pic_url(feed.owner)}}" style="width: 40px; margin: 0 10px 10px 0" ng-attr-title="{{feed.owner.name}}" rel="tooltip" />
-					<img ng-repeat="another_inode in feed.feed_group" class="img-rounded" ng-src="{{nbUser.user_pic_url(feed.owner)}}" style="width: 40px; margin: 0 10px 10px 0" ng-attr-title="{{feed.owner.name}}" rel="tooltip" />
+					<img ng-repeat="another_inode in feed.feed_group" class="img-rounded" ng-src="{{nbUser.user_pic_url(another_inode.owner)}}" style="width: 40px; margin: 0 10px 10px 0" ng-attr-title="{{another_inode.owner.name}}" rel="tooltip" />
 				</div>
 
 			</div>
