@@ -150,6 +150,7 @@
 						var f = feeds_by_key[key];
 						if (!f) {
 							f = e;
+							f.feed_group = null;
 							feeds_by_key[key] = f;
 							feeds.push(f);
 						} else {
