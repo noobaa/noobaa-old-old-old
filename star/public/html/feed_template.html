@@ -61,16 +61,17 @@
 
 				<div>
 					<img class="img-rounded" ng-src="{{nbUser.user_pic_url(feed.owner)}}" style="width: 40px; margin: 0 10px 10px 0" ng-attr-title="{{feed.owner.name}}" rel="tooltip" />
-					<img ng-repeat="another_inode in feed.feed_group" class="img-rounded" ng-src="{{nbUser.user_pic_url(another_inode.owner)}}" style="width: 40px; margin: 0 10px 10px 0" ng-attr-title="{{another_inode.owner.name}}" rel="tooltip" />
+					<img ng-repeat="another_inode in feed.feed_group track by $index" class="img-rounded" ng-src="{{nbUser.user_pic_url(another_inode.owner)}}" style="width: 40px; margin: 0 10px 10px 0" ng-attr-title="{{another_inode.owner.name}}" rel="tooltip" />
 				</div>
 
 			</div>
-		</div>
 
-		<div class="text-center" style="padding-top: 60px" ng-show="feeds_limit < feeds.length">
-			<button class="btn btn-danger" ng-click="more_feeds()">
-				Load more...
-			</button>
+			<div class="text-center" style="padding-top: 60px; padding-bottom: 30px" ng-show="feeds_limit < feeds.length">
+				<button class="btn btn-danger" ng-click="more_feeds()">
+					Load more...
+				</button>
+			</div>
+
 		</div>
 
 	</div>
