@@ -27,27 +27,18 @@
 				</div>
 
 				<div>
-					<div class="clearfix">
-						<div class="pull-left">
-							<div>
-								<a class="btn btn-link text-danger" style="Xpadding-left: 0" ng-click="keep_feed()">keep</a>
-								<a class="btn btn-link text-warning" ng-click="keep_and_share_feed()" ng-disabled="running_kns || done_kns">
-								share
-								<i ng-if="done_kns" class="fa fa-check"></i> 
-								<span ng-if="running_kns">
+					<div class="clearfix" style="padding: 10px 10px 10px 0">
+						<div class="pull-right">
+							<a class="btn btn-danger btn-hover-only" ng-click="keep_feed()" ng-disabled="feed.running_keep || feed.done_keep">
+								<i ng-if="feed.done_keep" class="fa fa-check"></i> 
+								<span ng-if="feed.running_keep">
 									<i class="fa fa-spin fa-spinner"></i>
 								</span>
+								keep
 							</a>
-							</div>
-							<div ng-show="feed.isdir">
-								<a class="btn btn-link" style="Xpadding-left: 0; padding-top: 0" ng-disabled="index<=0" ng-click="prev_index()">
-									<i class="fa fa-arrow-circle-o-left fa-lg"></i>
-								</a>
-								<span class="text-muted">{{index+1}} / {{feed.entries.length}}</span>
-								<a class="btn btn-link" style="padding-top: 0" ng-disabled="index+1>=feed.entries.length" ng-click="next_index()">
-									<i class="fa fa-arrow-circle-o-right fa-lg"></i>
-								</a>
-							</div>
+							<a class="btn btn-warning btn-hover-only" ng-click="keep_and_share_feed()">
+								share
+							</a>
 						</div>
 						<div style="overflow: hidden">
 							<div class="text-ellipses">
@@ -56,9 +47,16 @@
 									{{feed.name}}
 								</a>
 							</div>
-							<div ng-show="feed.isdir" class="text-ellipses" style="padding: 0 0 5px 23px">
-								/ &nbsp;&nbsp; {{current_item().name}}
-							</div>
+						</div>
+						<div ng-show="feed.isdir" class="text-ellipses">
+							<a class="btn btn-link" style="padding-top: 0" ng-disabled="index<=0" ng-click="prev_index()">
+								<i class="fa fa-arrow-circle-o-left fa-lg"></i>
+							</a>
+							<span class="text-muted">{{index+1}} / {{feed.entries.length}}</span>
+							<a class="btn btn-link" style="padding-top: 0" ng-disabled="index+1>=feed.entries.length" ng-click="next_index()">
+								<i class="fa fa-arrow-circle-o-right fa-lg"></i>
+							</a>
+							{{current_item().name}}
 						</div>
 					</div>
 

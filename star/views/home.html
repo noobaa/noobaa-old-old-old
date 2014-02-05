@@ -302,37 +302,51 @@
 	<!-- SHARE MODAL -->
 
 	<div style="display: none" ng-non-bindable>
-		<div id="share_modal" style="max-height: 100%">
+		<div id="share_modal" style="max-height: 100%" ng-init="filter_friend_name=''">
 			<div ng-show="share_is_loading" class="text-center" style="padding: 30px">
 				<i class="fa fa-spinner fa-spin fa-2x"></i>
 			</div>
-			<div ng-show="!share_is_loading && share_list.length" ng-init="filter_friend_name=''">
-				<div style="padding: 10px" class="Xtext-center clearfix">
-					<div class="input-group pull-left" style="max-width: 180px; margin-right: 5px">
-						<input type="text" class="form-control {{filter_friend_name && 'label-warning' || ''}}" maxlength="100" placeholder="Search in friends" ng-model="filter_friend_name" style="border-top-left-radius: 20px; border-bottom-left-radius: 20px" />
-						<span class="input-group-btn">
-							<button class="btn btn-default" type="button" ng-click="filter_friend_name=''" title="Clear search" rel="tooltip" nb-tooltip="{container: 'body'}">
-								<i class="fa fa-times Xfa-lg"></i>
-							</button>
-						</span>
-					</div>
-					<button class="btn btn-default pull-left" ng-click="mark_all(false)" style="margin-right: 5px">
-						Select None
-					</button>
-					<button class="btn btn-warning pull-left" ng-click="mark_all(true)">
-						<ng-pluralize count="share_list.length" when="{
-								'0': 'Select All',
-                           		'one': 'Select All (1 friend)',
-                           		'other': 'Select All ({} friends)'}">
-						</ng-pluralize>
-					</button>
+			<div style="max-height: 100%; padding: 0 10px 10px 10px" ng-show="!share_is_loading && share_list.length">
+				<div style="padding-top: 10px">
+					<textarea ng-model="share_text" disabled rows="2" class="form-control" placeholder="Write about it... (COMING SOON)"></textarea>
 				</div>
-				<hr/>
-				<div style="padding: 10px">
-					<div ng-repeat="friend in share_list | filter:{name: filter_friend_name} | orderBy:'name'" class="text-ellipses {{friend.shared && 'label-warning'}}" style="display: inline-block; border-radius: 20px; width: 260px; margin: 0 2px; padding: 5px 10px; cursor: pointer; text-align: left" ng-click="friend.shared = !friend.shared">
-						<i class="fa fa-{{friend.shared && 'check' || 'plus-square'}} fa-fw"></i>&nbsp;
-						<img width="32" height="32" ng-src="{{nbUser.user_pic_url(friend)}}" />&nbsp;
-						<span>{{friend.name}}</span>
+				<div Xstyle="padding-top: 10px">
+					<div class="pull-left" style="padding-top: 10px">With:</div>
+					<div style="overflow: hidden; padding-left: 20px">
+						<label class="radio">
+							<input type="radio" ng-model="share_spread" value="all" ng-change="mark_all(true)" />
+							<span class="text-warning">All friends ({{share_list.length}})</span>
+						</label>
+						<label class="radio">
+							<input type="radio" ng-model="share_spread" value="none" ng-change="mark_all(false)" />
+							<span>
+								No one 
+								(<i class="fa fa-lock"></i>)
+							</span>
+						</label>
+						<label class="radio">
+							<input type="radio" ng-model="share_spread" value="list" />
+							<span>
+								Choose friends list
+								<i class="fa fa-caret-down"></i>
+							</span>
+						</label>
+					</div>
+				</div>
+				<div ng-show="share_spread=='list'" style="padding-top: 20px">
+					<hr style="margin: 0" />
+					<div class="center-block" style="width: 260px; padding-bottom: 10px">
+						<div class="Xinput-group input-group-sm" style="position: relative">
+							<input type="text" class="form-control {{filter_friend_name && 'label-warning' || 'label-default'}}" placeholder="Search in friends" ng-model="filter_friend_name" style="border-bottom-left-radius: 20px; border-bottom-right-radius: 20px" />
+							<i class="fa fa-times fa-fw" style="cursor: pointer; position: absolute; right: 10px; top: 7px" ng-click="filter_friend_name=''"></i>
+						</div>
+					</div>
+					<div style="max-height: 400px; overflow-y: scroll; overflow-x: hidden">
+						<div ng-repeat="friend in share_list | filter:{name: filter_friend_name} | orderBy:'name'" class="text-ellipses {{friend.shared && 'label-warning'}}" style="display: inline-block; border-radius: 20px; width: 260px; margin: 0 2px; padding: 5px 10px; cursor: pointer; text-align: left" ng-click="friend.shared = !friend.shared">
+							<i class="fa fa-{{friend.shared && 'check' || 'plus-square'}} fa-fw"></i>&nbsp;
+							<img width="32" height="32" ng-src="{{nbUser.user_pic_url(friend)}}" />&nbsp;
+							<span>{{friend.name}}</span>
+						</div>
 					</div>
 				</div>
 				<!-- 

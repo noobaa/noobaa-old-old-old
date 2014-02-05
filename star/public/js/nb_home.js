@@ -115,10 +115,12 @@
 						e.level = 1;
 						if (e.name === 'My Data') {
 							$scope.mydata = e;
+							$scope.home_context.mydata = e;
 						} else if (e.name === 'Shared With Me') {
-							$scope.swm = e;
 							e.swm = true;
 							e.sorting_func = swm_sorting_func;
+							$scope.swm = e;
+							$scope.home_context.swm = e;
 						} else {
 							console.error('UNRECOGNIZED ROOT FOLDER', e);
 						}
@@ -504,18 +506,11 @@
 			};
 
 			$scope.keep_and_share_feed = function() {
-				$scope.running_kns = true;
-				nbInode.keep_and_share_all($scope.feed).then(function() {
-					$scope.running_kns = false;
-					$scope.done_kns = true;
-				}, function(err) {
-					console.error('FAILED KEEP AND SHARE FEED', err);
-					$scope.running_kns = false;
-				});
+				return nbInode.keep_and_share($scope.feed, $scope.mydata);
 			};
 
 			$scope.keep_feed = function() {
-				return nbInode.keep_inode($scope.feed); //.then(refresh_current, refresh_current);
+				return nbInode.keep_inode($scope.feed, $scope.mydata); //.then(refresh_current, refresh_current);
 			};
 		}
 	]);
@@ -826,7 +821,7 @@
 					}
 
 					function keep_inode(inode) {
-						return nbInode.keep_inode(inode); //.then(refresh_current, refresh_current);
+						return nbInode.keep_inode(inode, $scope.context.mydata); //.then(refresh_current, refresh_current);
 					}
 
 					function share_inode(inode) {

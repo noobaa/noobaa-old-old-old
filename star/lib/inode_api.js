@@ -140,11 +140,15 @@ function inode_to_entry(inode, opt) {
 		ent.isdir = inode.isdir;
 	}
 
-	//the number of references shoudl only be displyed to the owner.
-	//in case of sharing a folder which has subitems that are shared - this shoudl not be displayed
-	//when the non-owner/shared with users brows this directory. 
-	if (opt && opt.user && mongoose.Types.ObjectId(opt.user.id).equals(inode.owner)) {
-		ent.num_refs = inode.num_refs;
+	if (opt && opt.user) {
+		//the number of references shoudl only be displyed to the owner.
+		//in case of sharing a folder which has subitems that are shared - this shoudl not be displayed
+		//when the non-owner/shared with users brows this directory. 
+		if (mongoose.Types.ObjectId(opt.user.id).equals(inode.owner)) {
+			ent.num_refs = inode.num_refs;
+		} else {
+			ent.not_mine = true;
+		}
 	}
 
 	//handle inode ownership
@@ -153,9 +157,6 @@ function inode_to_entry(inode, opt) {
 		// we don't need to tell everyone about the mapping of our user ids to fb/google ids
 		// so remove our user id from here.
 		delete ent.owner.id; 
-	}
-	if (opt && opt.user && !mongoose.Types.ObjectId(opt.user.id).equals(inode.owner)) {
-		ent.not_mine = true;
 	}
 
 	if (opt && opt.fobj) {

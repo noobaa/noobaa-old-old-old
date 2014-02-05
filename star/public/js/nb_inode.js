@@ -32,7 +32,6 @@
 				parents_path: parents_path,
 				recursive_delete: recursive_delete,
 				recursive_copy: recursive_copy,
-				copy_inode: copy_inode,
 				move_inode: move_inode,
 				get_share_list: get_share_list,
 				set_share_list: set_share_list,
@@ -40,7 +39,7 @@
 				rmlinks: rmlinks,
 				share_inode: share_inode,
 				keep_inode: keep_inode,
-				keep_and_share_all: keep_and_share_all,
+				keep_and_share: keep_and_share,
 			};
 
 			function inode_api_url(inode_id) {
@@ -384,7 +383,7 @@
 				});
 			}
 
-			function copy_inode(inode, on_top_copy) {
+			function copy_inode(inode, dir_inode) {
 				if (!inode) {
 					console.error('no selected inode, bailing');
 					return;
@@ -399,21 +398,23 @@
 				copy_scope.concurrency = 0;
 				copy_scope.max_concurrency = 32;
 
-				var new_inode_id;
-				return single_copy(inode).then(function(res) {
+				var new_inode;
+				var deferred = $q.defer(); // using a new defer for notifying on the top inode copy
+				single_copy(inode, dir_inode.id).then(function(res) {
 					copy_scope.count++;
-					new_inode_id = res.data.id;
-					if (on_top_copy) {
-						return on_top_copy(new_inode_id);
-					}
+					new_inode = res.data;
+					deferred.notify(new_inode);
 				}).then(function() {
 					if (inode.isdir) {
-						return recurse_dir_copy(inode, new_inode_id, copy_scope);
+						return recurse_dir_copy(inode, new_inode.id, copy_scope);
 					}
-				}).then(null, function(err) {
+				}).then(function(res) {
+					deferred.resolve(res);
+				}, function(err) {
 					console.error('FAILED COPY', inode, err);
-					throw err;
+					deferred.reject(err);
 				});
+				return deferred.promise;
 			}
 
 			function move_inode(inode, dir_inode) {
@@ -543,7 +544,7 @@
 				var foot = $('<div class="modal-footer">').css('margin-top', 0)
 					.append($('<button type="button" class="btn btn-default" data-dismiss="modal">').text('Cancel'))
 					.append($('<button type="button" class="btn btn-primary" ' +
-						'ng-click="run()" ng-disabled="share_is_loading || !share_list.length">').text('Share'));
+						'ng-click="run()" ng-disabled="share_is_loading || !share_list.length">').text('Update'));
 				modal = nbUtil.modal(hdr, body, foot, share_scope);
 				get_share_list(inode.id).then(function(res) {
 					share_scope.share_is_loading = false;
@@ -552,21 +553,37 @@
 						modal.modal('hide');
 						modal = null;
 						$location.path('/friends/');
+					} else {
+						var counts = _.countBy(share_scope.share_list, 'shared');
+						if (counts[true] === share_scope.share_list.length) {
+							share_scope.share_spread = 'all';
+						// } else if (counts[false] === share_scope.share_list.length) {
+							// share_scope.share_spread = 'none';
+						} else {
+							share_scope.share_spread = 'list';
+						}
 					}
 				}, function() {
 					share_scope.share_is_loading = false;
 				});
 			}
 
-			function keep_inode(inode) {
-				return copy_inode(inode).then(function(res) {
+			function keep_inode(inode, dir_inode) {
+				if (inode.new_keep_inode) {
+					return $q.when(inode.new_keep_inode);
+				}
+				var new_keep_inode_promise;
+				inode.running_keep = (inode.running_keep  || 0) + 1;
+				return copy_inode(inode, dir_inode).then(function(res) {
+					inode.running_keep--;
+					inode.done_keep = true;
 					var notify_message = '"' + inode.name + '" was added to My-Data';
 					// if (copy_scope.count !== 1) {
 						// notify_message += ' (' + copy_scope.count + ' items)';
 					// }
 					$.bootstrapGrowl(notify_message, {
 						ele: 'body',
-						type: 'info',
+						type: 'danger',
 						offset: {
 							from: 'top',
 							amount: 60
@@ -577,13 +594,23 @@
 						allow_dismiss: true,
 						stackup_spacing: 20
 					});
-					return res;
+					return new_keep_inode_promise;
+				}, function(err) {
+					inode.running_keep--;
+					throw err;
+				}, function(new_inode) {
+					new_keep_inode_promise = read_dir(dir_inode).then(function() {
+						inode.new_keep_inode = dir_inode.entries_map[new_inode.id];
+						return inode.new_keep_inode;
+					});
 				});
 			}
 
-			function keep_and_share_all(inode) {
-				return copy_inode(inode, function(new_inode_id) {
+			function keep_and_share(inode, dir_inode) {
+				return keep_inode(inode, dir_inode).then(function(new_inode) {
 					// run this immediately after top inode is copied
+					return share_inode(inode.new_keep_inode);
+					/*
 					var share_list;
 					return get_share_list(new_inode_id).then(function(res) {
 						share_list = res.data.list;
@@ -609,6 +636,7 @@
 						console.error('FAILED SHARE ALL', err);
 						throw err;
 					});
+					*/
 				});
 			}
 
