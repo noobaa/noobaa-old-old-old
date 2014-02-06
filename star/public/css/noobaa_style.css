@@ -78,7 +78,7 @@ html, body {
 	color: hsl(0, 0%, 5%) !important;
 }
 .modal-backdrop {
-	background-color: hsl(0, 0%, 70%);
+	background-color: hsl(0, 0%, 100%);
 }
 /*
 a.btn-link.text-white {

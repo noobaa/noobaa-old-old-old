@@ -545,7 +545,7 @@
 					.append($('<button type="button" class="btn btn-default" data-dismiss="modal">').text('Cancel'))
 					.append($('<button type="button" class="btn btn-primary" ' +
 						'ng-click="run()" ng-disabled="share_is_loading || !share_list.length">').text('Update'));
-				modal = nbUtil.modal(hdr, body, foot, share_scope);
+				modal = nbUtil.modal(hdr, body, foot, share_scope, 'lg');
 				get_share_list(inode.id).then(function(res) {
 					share_scope.share_is_loading = false;
 					share_scope.share_list = res.data.list;

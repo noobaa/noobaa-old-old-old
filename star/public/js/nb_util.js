@@ -69,7 +69,7 @@
 				return link === $window.location.pathname ? 'active' : '';
 			}
 
-			function modal(hdr, body, foot, modal_scope) {
+			function modal(hdr, body, foot, modal_scope, size) {
 				if (_has_global_modal) {
 					console.error('RECURSIVE MODAL');
 					return false;
@@ -86,6 +86,11 @@
 					_has_global_modal = false;
 					e.remove();
 				});
+				if (size === 'lg') {
+					e.find('.modal-dialog').addClass('modal-lg');
+				} else if (size === 'sm') {
+					e.find('.modal-dialog').addClass('modal-sm');
+				}
 				e.modal();
 				return e;
 			}
