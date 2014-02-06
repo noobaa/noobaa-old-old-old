@@ -261,6 +261,11 @@ app.put('/api/inode/:inode_id/share_list', inode_api.inode_set_share_list);
 app.post('/api/inode/:inode_id/link', inode_api.inode_mklink);
 app.del('/api/inode/:inode_id/link', inode_api.inode_rmlinks);
 
+var message_api = require('./lib/message_api');
+app.get('/api/inode/:inode_id/message/', message_api.get_inode_messages);
+app.post('/api/inode/:inode_id/message/', message_api.post_inode_message);
+app.del('/api/inode/:inode_id/message/:message_id', message_api.delete_inode_message);
+
 var user_api = require('./lib/user_api');
 app.get('/api/user/', user_api.user_read);
 app.put('/api/user/', user_api.user_update);

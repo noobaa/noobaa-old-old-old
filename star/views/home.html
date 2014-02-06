@@ -306,42 +306,70 @@
 			<div ng-show="share_is_loading" class="text-center" style="padding: 30px">
 				<i class="fa fa-spinner fa-spin fa-2x"></i>
 			</div>
-			<div style="max-height: 100%; padding: 0 10px 10px 10px" ng-show="!share_is_loading && share_list.length">
-				<div style="padding-top: 10px">
-					<textarea ng-model="share_text" disabled rows="2" class="form-control" placeholder="Write about it... (COMING SOON)"></textarea>
-				</div>
-				<div Xstyle="padding-top: 10px">
-					<div class="pull-left" style="padding-top: 10px">With:</div>
-					<div style="overflow: hidden; padding-left: 20px">
-						<label class="radio">
-							<input type="radio" ng-model="share_spread" value="all" ng-change="mark_all(true)" />
-							<span class="text-warning">All friends ({{share_list.length}})</span>
-						</label>
-						<label class="radio">
-							<input type="radio" ng-model="share_spread" value="none" ng-change="mark_all(false)" />
-							<span>
-								No one 
-								(<i class="fa fa-lock"></i>)
-							</span>
-						</label>
-						<label class="radio">
-							<input type="radio" ng-model="share_spread" value="list" />
-							<span>
-								Choose friends list
-								<i class="fa fa-caret-down"></i>
-							</span>
-						</label>
+			<div style="max-height: 100%" ng-show="!share_is_loading && share_list.length">
+				<div class="row" style="padding: 10px">
+					<div class="col-sm-6">
+						<div style="padding-left: 20px">Comments:</div>
+						<div style="border-radius: 10px; border: 1px solid hsl(0,0%,20%); padding: 10px; margin: 5px">
+							<div ng-repeat="msg in share_inode.messages">
+								<img class="img-rounded pull-left" ng-src="{{nbUser.user_pic_url(msg.user)}}" style="width: 30px; margin: 0 5px 5px 0" />
+								<div style="overflow: hidden">
+									<a>{{msg.user.name}}</a>
+									<a ng-click="delete_inode_message(share_inode, msg)">
+										<i class="fa fa-times fa-fw text-muted"></i>
+									</a>
+									<!-- 
+								<a ng-if="msg.user.id == nbUser.user.id">
+									<i class="fa fa-pencil fa-fw text-muted"></i>
+								</a>
+								 -->
+									<p>{{msg.text}}</p>
+								</div>
+							</div>
+							<div style="Xpadding-top: 10px">
+								<textarea ng-model="share_text" rows="1" class="form-control {{share_text.length && 'label-primary text-black' || 'label-default'}}" placeholder="Write about it..."></textarea>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-6">
+						<div style="padding-left: 20px">Share with:</div>
+						<div style="border-radius: 10px; border: 1px solid hsl(0,0%,20%); padding: 0 10px; margin: 5px">
+							<label class="radio">
+								<input type="radio" ng-model="share_spread" value="all" ng-change="mark_all(true)" />
+								<span class="text-warning">All friends ({{share_list.length}})</span>
+							</label>
+							<label class="radio">
+								<input type="radio" ng-model="share_spread" value="none" ng-change="mark_all(false)" />
+								<span>
+									No one (<i class="fa fa-lock"></i>)
+								</span>
+							</label>
+							<label class="radio">
+								<input type="radio" ng-model="share_spread" value="list" />
+								<span>
+									Choose friends list
+									<i class="fa fa-caret-down"></i>
+								</span>
+							</label>
+						</div>
+						<!-- 
+						<div ng-if="share_spread=='list'">
+							<div ng-repeat="friend in share_list | filter:{shared: true} | orderBy:'name'" style="display: inline-block; padding: 0 0 10px 10px; cursor: pointer" ng-click="friend.shared = !friend.shared" ng-attr-title="{{friend.name}}" rel="tooltip">
+								<img width="26" height="26" ng-src="{{nbUser.user_pic_url(friend)}}" class="img-rounded" />&nbsp;
+							</div>
+						</div>
+						 -->
 					</div>
 				</div>
-				<div ng-show="share_spread=='list'" style="padding-top: 20px">
+				<div ng-if="share_spread=='list'">
 					<hr style="margin: 0" />
-					<div class="center-block" style="width: 260px; padding-bottom: 10px">
+					<div class="center-block" style="width: 260px; padding: 0 10px 10px 10px">
 						<div class="Xinput-group input-group-sm" style="position: relative">
-							<input type="text" class="form-control {{filter_friend_name && 'label-warning' || 'label-default'}}" placeholder="Search in friends" ng-model="filter_friend_name" style="border-bottom-left-radius: 20px; border-bottom-right-radius: 20px" />
+							<input type="text" class="form-control {{filter_friend_name && 'label-warning text-black' || 'label-default'}}" placeholder="Search in friends" ng-model="filter_friend_name" style="border-bottom-left-radius: 20px; border-bottom-right-radius: 20px" />
 							<i class="fa fa-times fa-fw" style="cursor: pointer; position: absolute; right: 10px; top: 7px" ng-click="filter_friend_name=''"></i>
 						</div>
 					</div>
-					<div style="max-height: 300px; overflow-y: scroll; overflow-x: hidden">
+					<div style="padding: 0 10px 10px 10px; max-height: 300px; overflow-y: scroll; overflow-x: hidden">
 						<div ng-repeat="friend in share_list | filter:{name: filter_friend_name} | orderBy:'name'" class="text-ellipses {{friend.shared && 'label-warning'}}" style="display: inline-block; border-radius: 20px; width: 260px; margin: 0 2px; padding: 5px 10px; cursor: pointer; text-align: left" ng-click="friend.shared = !friend.shared">
 							<i class="fa fa-{{friend.shared && 'check' || 'plus-square'}} fa-fw"></i>&nbsp;
 							<img width="32" height="32" ng-src="{{nbUser.user_pic_url(friend)}}" />&nbsp;
@@ -349,20 +377,6 @@
 						</div>
 					</div>
 				</div>
-				<!-- 
-				<table class="table">
-					<tr ng-repeat="friend in share_list | filter:{name: filter_friend_name} | orderBy:'name'" ng-class="{true: 'label-warning'}[friend.shared]" ng-click="friend.shared = !friend.shared" style="cursor: pointer">
-						<td>
-							<img ng-src="{{ nbUser.user_pic_url(friend) }}" width="40px" height="40px"></img>
-						</td>
-						<td>{{friend.name}}</td>
-						<td>
-							<i ng-show="friend.shared" class="fa fa-check-square-o fa-fw fa-lg"></i>
-							<i ng-hide="friend.shared" class="fa fa-square-o fa-fw fa-lg"></i>
-						</td>
-					</tr>
-				</table>
-				 -->
 			</div>
 		</div>
 	</div>

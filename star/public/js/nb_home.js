@@ -144,6 +144,7 @@
 					// nbInode.read_dir($scope.home_context.current_inode).then(function(res) {
 					console.log('SWM FOLDER', res);
 					$scope.refreshing_feeds = false;
+					$scope.feeds_limit = 10;
 					// collect together feeds with same name and type (for share loops)
 					var feeds = [];
 					var feeds_by_key = {};
@@ -152,17 +153,18 @@
 						var f = feeds_by_key[key];
 						if (!f) {
 							f = e;
-							f.feed_group = null;
+							f.feed_group = [e];
 							feeds_by_key[key] = f;
 							feeds.push(f);
 						} else {
-							f.feed_group = f.feed_group || [];
 							f.feed_group.push(e);
+						}
+						if (feeds.length <= $scope.feeds_limit) {
+							nbInode.get_inode_messages(e);
 						}
 					});
 					$scope.feeds = feeds;
 					// $scope.feeds = $scope.home_context.current_inode.entries;
-					$scope.feeds_limit = 10;
 					rebuild_layout();
 					return res;
 				}, function(err) {
@@ -446,6 +448,11 @@
 		'$scope', '$location', 'nbInode',
 		function($scope, $location, nbInode) {
 			$scope.index = 0;
+
+			// _.each($scope.feed.feed_group, function(feed_inode) {
+			// 	nbInode.get_inode_messages(feed_inode);
+			// });
+
 			if ($scope.feed.isdir) {
 				nbInode.read_dir($scope.feed).then(function() {
 					for (var i = 0; i < $scope.feed.entries.length; i++) {

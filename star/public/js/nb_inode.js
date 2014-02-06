@@ -40,6 +40,7 @@
 				share_inode: share_inode,
 				keep_inode: keep_inode,
 				keep_and_share: keep_and_share,
+				get_inode_messages: get_inode_messages,
 			};
 
 			function inode_api_url(inode_id) {
@@ -524,7 +525,9 @@
 				share_scope.share_inode = inode;
 				share_scope.run = function() {
 					share_scope.share_is_loading = true;
-					set_share_list(inode.id, share_scope.share_list).then(function(res) {
+					var sl_promise = set_share_list(inode.id, share_scope.share_list);
+					var msg_promise = post_inode_message(inode, share_scope.share_text);
+					$q.all([sl_promise, msg_promise]).then(function(res) {
 						share_scope.share_is_loading = false;
 						modal.modal('hide');
 						if (on_share_done) {
@@ -534,6 +537,7 @@
 						share_scope.share_is_loading = false;
 					});
 				};
+				share_scope.delete_inode_message = delete_inode_message;
 				share_scope.mark_all = function(value) {
 					mark_all_share_list(share_scope.share_list, value);
 				};
@@ -546,9 +550,12 @@
 					.append($('<button type="button" class="btn btn-primary" ' +
 						'ng-click="run()" ng-disabled="share_is_loading || !share_list.length">').text('Update'));
 				modal = nbUtil.modal(hdr, body, foot, share_scope, 'lg');
-				get_share_list(inode.id).then(function(res) {
+
+				var sl_promise = get_share_list(inode.id);
+				var msg_promise = get_inode_messages(inode);
+				$q.all([sl_promise, msg_promise]).then(function(res) {
 					share_scope.share_is_loading = false;
-					share_scope.share_list = res.data.list;
+					share_scope.share_list = res[0].data.list;
 					if (!share_scope.share_list.length) {
 						modal.modal('hide');
 						modal = null;
@@ -557,7 +564,7 @@
 						var counts = _.countBy(share_scope.share_list, 'shared');
 						if (counts[true] === share_scope.share_list.length) {
 							share_scope.share_spread = 'all';
-						// } else if (counts[false] === share_scope.share_list.length) {
+							// } else if (counts[false] === share_scope.share_list.length) {
 							// share_scope.share_spread = 'none';
 						} else {
 							share_scope.share_spread = 'list';
@@ -573,13 +580,13 @@
 					return $q.when(inode.new_keep_inode);
 				}
 				var new_keep_inode_promise;
-				inode.running_keep = (inode.running_keep  || 0) + 1;
+				inode.running_keep = (inode.running_keep || 0) + 1;
 				return copy_inode(inode, dir_inode).then(function(res) {
 					inode.running_keep--;
 					inode.done_keep = true;
 					var notify_message = '"' + inode.name + '" was added to My-Data';
 					// if (copy_scope.count !== 1) {
-						// notify_message += ' (' + copy_scope.count + ' items)';
+					// notify_message += ' (' + copy_scope.count + ' items)';
 					// }
 					$.bootstrapGrowl(notify_message, {
 						ele: 'body',
@@ -639,6 +646,58 @@
 					*/
 				});
 			}
+
+			function get_inode_messages(inode) {
+				return $http({
+					method: 'GET',
+					url: '/api/inode/' + inode.id + '/message/'
+				}).then(function(res) {
+					console.log('GOT MSGS');
+					inode.messages = res.data;
+					return res;
+				}, function(err) {
+					console.error('FAILED GET MSGS', inode, err);
+					throw err;
+				});
+			}
+
+			function post_inode_message(inode, text) {
+				if (!text) {
+					return;
+				}
+				return $http({
+					method: 'POST',
+					url: '/api/inode/' + inode.id + '/message/',
+					data: {
+						text: text
+					}
+				}).then(function(res) {
+					console.log('POSTED MSG');
+					return res;
+				}, function(err) {
+					console.error('FAILED POST MSG', inode, err);
+					throw err;
+				});
+			}
+
+			function delete_inode_message(inode, msg) {
+				if (!$window.confirm('Remove this comment?')) {
+					return;
+				}
+				return $http({
+					method: 'DELETE',
+					url: '/api/inode/' + inode.id + '/message/' + msg.id,
+				}).then(function(res) {
+					console.log('DELETED MSG', inode.id, msg.id);
+					return res;
+				}, function(err) {
+					console.error('FAILED DEL MSG', inode.id, msg.id, err);
+					throw err;
+				}).then(function() {
+					return get_inode_messages(inode);
+				});
+			}
+
 
 			return $scope;
 
