@@ -519,6 +519,22 @@
 			$scope.keep_feed = function() {
 				return nbInode.keep_inode($scope.feed, $scope.mydata); //.then(refresh_current, refresh_current);
 			};
+
+			$scope.post_comment = function(comment_box) {
+				if (!comment_box || !comment_box.inode || !comment_box.text) {
+					return;
+				}
+				comment_box.posting = true;
+				nbInode.post_inode_message(comment_box.inode, comment_box.text).then(function() {
+					comment_box.posting = false;
+					comment_box.show = false;
+					comment_box.text = '';
+					return nbInode.get_inode_messages(comment_box.inode);
+				}, function() {
+					comment_box.posting = false;
+					return nbInode.get_inode_messages(comment_box.inode);
+				});
+			};
 		}
 	]);
 

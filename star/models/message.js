@@ -13,7 +13,10 @@ var message_schema = new mongoose.Schema({
 		type: Date,
 		default: Date.now
 	},
-	subject_inode: types.ObjectId
+	subject_inode: types.ObjectId,
+	subject_user: types.ObjectId,
+	removed_by: types.ObjectId,
+	removed_time: Date,
 });
 
 message_schema.index({
@@ -24,6 +27,12 @@ message_schema.index({
 
 message_schema.index({
 	subject_inode: 1
+}, {
+	unique: false
+});
+
+message_schema.index({
+	subject_user: 1
 }, {
 	unique: false
 });

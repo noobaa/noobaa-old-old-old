@@ -41,6 +41,8 @@
 				keep_inode: keep_inode,
 				keep_and_share: keep_and_share,
 				get_inode_messages: get_inode_messages,
+				post_inode_message: post_inode_message,
+				delete_inode_message: delete_inode_message,
 			};
 
 			function inode_api_url(inode_id) {

@@ -61,16 +61,42 @@
 					</div>
 
 					<div>
-						<div ng-repeat="feed_inode in feed.feed_group track by $index" style="padding: 7px; border-top: 1px solid hsl(0,0%,20%)" class="clearfix">
+						<div ng-repeat="feed_inode in feed.feed_group track by $index" style="padding: 7px; border-top: 1px solid hsl(0,0%,20%)" class="clearfix" ng-init="comment_box={inode: feed_inode}">
 							<img class="img-rounded pull-left" ng-src="{{nbUser.user_pic_url(feed_inode.owner)}}" style="width: 30px; margin-right: 5px" />
+							<a class="btn btn-link pull-right" title="Add comment" rel="tooltip" ng-click="comment_box.show = !comment_box.show">
+								<i class="fa fa-reply-all"></i>
+							</a>
 							<div style="overflow: hidden">
-								<div class="text-primary"><small>{{feed_inode.owner.name}}</small></div>
+								<div class="text-primary">
+									<small>{{feed_inode.owner.name}}</small>
+								</div>
 								<div style="padding-top: 8px">
 									<div ng-repeat="msg in feed_inode.messages" class="clearfix">
 										<img class="img-rounded pull-left" ng-src="{{nbUser.user_pic_url(msg.user)}}" style="width: 30px; margin-right: 5px" />
 										<div style="overflow: hidden">
-											<div class="text-primary"><small>{{msg.user.name}}</small></div>
-											<div style="padding-bottom: 8px"><small>{{msg.text}}</small></div>
+											<div class="text-primary">
+												<small>{{msg.user.name}}</small>
+												<a ng-click="nbInode.delete_inode_message(feed_inode, msg)" ng-if="msg.is_mine">
+													<i class="fa fa-times fa-fw text-muted"></i>
+												</a>
+											</div>
+											<div style="padding-bottom: 8px">
+												<small>{{msg.text}}</small>
+											</div>
+										</div>
+									</div>
+									<div ng-show="comment_box.show" class="clearfix">
+										<img class="img-rounded pull-left" ng-src="{{nbUser.user_pic_url(nbUser.user)}}" style="width: 30px; margin-right: 5px" />
+										<div style="overflow: hidden">
+											<textarea ng-model="comment_box.text" rows="1" class="form-control {{comment_box.text.length && 'label-primary text-black' || 'label-default'}}" placeholder="Write about it..." autofocus></textarea>
+											<div class="text-center" style="padding-top: 5px">
+												<a class="btn btn-info btn-lg" ng-click="post_comment(comment_box)" ng-disabled="comment_box.posting">
+													Send
+													<span ng-if="comment_box.posting">
+														<i class="fa fa-spin fa-spinner"></i>
+													</span>
+												</a>
+											</div>
 										</div>
 									</div>
 								</div>
