@@ -314,7 +314,7 @@
 							<div ng-repeat="msg in share_inode.messages">
 								<img class="img-rounded pull-left" ng-src="{{nbUser.user_pic_url(msg.user)}}" style="width: 30px; margin: 0 5px 5px 0" />
 								<div style="overflow: hidden">
-									<a>{{msg.user.name}}</a>
+									<span class="text-primary"><small>{{msg.user.name}}</small></span>
 									<a ng-click="delete_inode_message(share_inode, msg)">
 										<i class="fa fa-times fa-fw text-muted"></i>
 									</a>
@@ -323,7 +323,7 @@
 									<i class="fa fa-pencil fa-fw text-muted"></i>
 								</a>
 								 -->
-									<p>{{msg.text}}</p>
+									<div style="padding-bottom: 8px"><small>{{msg.text}}</small></div>
 								</div>
 							</div>
 							<div style="Xpadding-top: 10px">
