@@ -81,21 +81,23 @@
 												</a>
 											</div>
 											<div style="padding-bottom: 8px">
-												<small>{{msg.text}}</small>
+												<small style="white-space: pre" ng-bind-html="msg.text | linky:'_blank'"></small>
 											</div>
 										</div>
 									</div>
-									<div ng-show="comment_box.show" class="clearfix">
+									<div ng-if="comment_box.show" class="clearfix">
 										<img class="img-rounded pull-left" ng-src="{{nbUser.user_pic_url(nbUser.user)}}" style="width: 30px; margin-right: 5px" />
 										<div style="overflow: hidden">
-											<textarea ng-model="comment_box.text" rows="1" class="form-control {{comment_box.text.length && 'label-primary text-black' || 'label-default'}}" placeholder="Write about it..." autofocus></textarea>
+											<textarea ng-model="comment_box.text" rows="1" class="form-control {{comment_box.text.length && 'label-primary text-black' || 'label-default'}}" placeholder="Write about it..." nb-focus="comment_box.show" ng-attr-tabindex="{{($index*10)+100}}" nb-auto-height></textarea>
 											<div class="text-center" style="padding-top: 5px">
-												<a class="btn btn-info btn-lg" ng-click="post_comment(comment_box)" ng-disabled="comment_box.posting">
+												<button class="btn btn-info btn-hover-only" ng-click="post_comment(comment_box)" ng-disabled="comment_box.posting" ng-attr-tabindex="{{($index*10)+101}}">
+													&nbsp;&nbsp;&nbsp;&nbsp;
 													Send
 													<span ng-if="comment_box.posting">
 														<i class="fa fa-spin fa-spinner"></i>
 													</span>
-												</a>
+													&nbsp;&nbsp;&nbsp;&nbsp;
+												</button>
 											</div>
 										</div>
 									</div>

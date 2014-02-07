@@ -7,7 +7,7 @@
 	'use strict';
 
 	// create our module
-	var noobaa_app = angular.module('noobaa_app', ['ngRoute', 'ngAnimate']);
+	var noobaa_app = angular.module('noobaa_app', ['ngRoute', 'ngAnimate', 'ngSanitize']);
 
 	// initializations - setup functions on globalScope
 	// which will be propagated to any other scope, and easily visible
@@ -636,6 +636,47 @@
 					for (var e in events) {
 						$(element).on(e, events[e]);
 					}
+				}
+			};
+		}
+	]);
+
+	noobaa_app.directive('nbFocus', function() {
+		return {
+			restrict: 'A', // use as attribute
+			link: function(scope, element, attr) {
+				scope.$watch(attr.nbFocus, function(val) {
+					if (val) {
+						element.focus();
+					}
+				}, true);
+			}
+		};
+	});
+
+	noobaa_app.directive('nbAutoHeight', ['$timeout',
+		function($timeout) {
+			function update_height(elem, min, pad) {
+				elem.height(0);
+				var height = elem[0].scrollHeight;
+				if (height < min) {
+					height = min + pad;
+				}
+				elem.height(height - pad);
+			}
+			return {
+				restrict: 'A',
+				link: function(scope, element, attr) {
+					var e = $(element);
+					var min = e.height();
+					var pad = 0;
+					element.bind('keyup', function(event) {
+						update_height($(event.target), min, pad);
+					});
+					// Expand as soon as it is added to the DOM
+					$timeout(function() {
+						update_height(e, min, pad);
+					}, 0);
 				}
 			};
 		}
