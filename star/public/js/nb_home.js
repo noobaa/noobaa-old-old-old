@@ -108,7 +108,7 @@
 			function init_read_dir() {
 				// nbInode.read_all($scope.root_dir).then(function(res) {
 				nbInode.read_dir($scope.root_dir).then(function(res) {
-					console.log('ROOT FOLDERS', res);
+					// console.log('ROOT FOLDERS', res);
 					var entries = $scope.root_dir.entries;
 					for (var i = 0; i < entries.length; i++) {
 						var e = entries[i];
@@ -134,7 +134,7 @@
 			}
 
 			function refresh_feeds() {
-				console.log('READ SWM', $scope.swm);
+				// console.log('READ SWM', $scope.swm);
 				// console.log('READ SWM', $scope.home_context.current_inode);
 				if (!$scope.swm || $scope.refreshing_feeds) {
 					return;
@@ -142,7 +142,7 @@
 				$scope.refreshing_feeds = true;
 				nbInode.read_dir($scope.swm).then(function(res) {
 					// nbInode.read_dir($scope.home_context.current_inode).then(function(res) {
-					console.log('SWM FOLDER', res);
+					// console.log('SWM FOLDER', res);
 					$scope.refreshing_feeds = false;
 					$scope.feeds_limit = 10;
 					// collect together feeds with same name and type (for share loops)

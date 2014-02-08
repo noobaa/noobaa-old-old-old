@@ -183,11 +183,11 @@
 			}
 
 			function read_dir(dir_inode) {
-				console.log('READDIR', dir_inode.name);
+				// console.log('READDIR', dir_inode.name);
 				dir_inode.is_loading = true;
 				return $http(inode_call('GET', dir_inode.id)).then(function(res) {
 					dir_inode.is_loading = false;
-					console.log('READDIR OK', dir_inode.name);
+					// console.log('READDIR OK', dir_inode.name);
 					var entries = res.data.entries;
 					dir_inode.entries = entries;
 					dir_inode.entries_map = dir_inode.entries_map || {};
@@ -421,7 +421,7 @@
 			}
 
 			function move_inode(inode, dir_inode) {
-				console.log('MOVE', inode.name, dir_inode.name);
+				// console.log('MOVE', inode.name, dir_inode.name);
 				if (!can_change_inode(inode)) {
 					$.nbalert('Cannot move item');
 					return;
@@ -458,7 +458,7 @@
 
 
 			function get_share_list(inode_id) {
-				console.log('get_share_list', inode_id);
+				// console.log('get_share_list', inode_id);
 				return $http({
 					method: 'GET',
 					url: '/api/inode/' + inode_id + '/share_list'
@@ -466,7 +466,7 @@
 			}
 
 			function set_share_list(inode_id, share_list) {
-				console.log('share', inode_id, 'with', share_list);
+				// console.log('share', inode_id, 'with', share_list);
 				return $http({
 					method: 'PUT',
 					url: '/api/inode/' + inode_id + '/share_list',
@@ -654,7 +654,7 @@
 					method: 'GET',
 					url: '/api/inode/' + inode.id + '/message/'
 				}).then(function(res) {
-					console.log('GOT MSGS');
+					// console.log('GOT MSGS');
 					inode.messages = res.data;
 					return res;
 				}, function(err) {

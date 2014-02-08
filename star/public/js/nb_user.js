@@ -84,14 +84,14 @@
 
 			function on_fb_state_change(res) {
 				$scope.fbme = null;
-				console.log('on_fb_state_change', res);
+				// console.log('on_fb_state_change', res);
 				if (res.status === 'connected') {
 					// The response object is returned with a status field that lets the app know the current
 					// login status of the person. In this case, we're handling the situation where they 
 					// have logged in to the app.
 					// testAPI();
 					FB.api('/me', function(me) {
-						console.log('FBME', me);
+						// console.log('FBME', me);
 						$scope.fbme = me;
 						$rootScope.safe_apply();
 					});
@@ -120,7 +120,7 @@
 				// for any authentication related change, such as login, logout or session refresh. This means that
 				// whenever someone who was previously logged out tries to log in again, the correct case below 
 				// will be handled.
-				console.log('on_fb_init');
+				// console.log('on_fb_init');
 				FB.Event.subscribe('auth.authResponseChange', on_fb_state_change);
 			}
 

@@ -111,7 +111,7 @@
 		var return_false = function() {
 			return false;
 		};
-		console.log('SETUP DROP UPLOAD');
+		// console.log('SETUP DROP UPLOAD');
 		elements.on('dragover', return_false);
 		elements.on('dragend', return_false);
 		elements.on('drop', function(event) {
@@ -1247,7 +1247,7 @@
 				return nbUploadSrv.has_uploads();
 			};
 
-			console.log('SETUP DROP UPLOAD CTRL');
+			// console.log('SETUP DROP UPLOAD CTRL');
 			// nbUploadSrv.setup_file_input($('#file_upload_input'));
 			// nbUploadSrv.setup_file_input($('#dir_upload_input'));
 			nbUploadSrv.setup_drop($(document));

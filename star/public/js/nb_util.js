@@ -137,7 +137,7 @@
 					}
 				});
 				return $q.all([p1, p2]).then(function() {
-					console.log('TRACK', event);
+					// console.log('TRACK', event);
 				}, function(err) {
 					console.error('FAILED TRACK EVENT', err);
 					// don't propagate

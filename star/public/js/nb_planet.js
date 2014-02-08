@@ -17,7 +17,7 @@
 			var localStorage = window.localStorage;
 
 			if (!window.require) {
-				console.log('nbPlanet NO REQUIRE');
+				// console.log('nbPlanet NO REQUIRE');
 				return {};
 			}
 
