@@ -20,7 +20,7 @@
 				</div>
 			</div>
 
-			<div ng-repeat="feed in feeds | limitTo:feeds_limit track by $index" ng-controller="FeedCtrl" class="feed_item">
+			<div ng-repeat="feed in feeds | limitTo:feeds_limit track by $index" ng-controller="FeedCtrl" class="feed_item" ng-init="feed.feed_load()">
 
 				<div class="clearfix">
 					<div nb-media="current_item()" media-events="media_events" show-content="false"></div>

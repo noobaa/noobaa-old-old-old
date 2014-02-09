@@ -133,16 +133,22 @@
 				});
 			}
 
+			function feed_load(feed) {
+				// fetch messages
+				_.each(feed.feed_group, function(feed_inode) {
+					nbInode.get_inode_messages(feed_inode);
+				});
+			}
+
 			function refresh_feeds() {
 				// console.log('READ SWM', $scope.swm);
-				// console.log('READ SWM', $scope.home_context.current_inode);
 				if (!$scope.swm || $scope.refreshing_feeds) {
 					return;
 				}
 				$scope.refreshing_feeds = true;
 				return nbInode.read_dir($scope.swm).then(function() {
 					return nbInode.read_shared_by_me();
-				}).then(function(sbm_entries){
+				}).then(function(sbm_entries) {
 					var entries = sbm_entries.concat($scope.swm.entries);
 					entries.sort(swm_sorting_func);
 					// console.log('SWM FOLDER', res);
@@ -157,13 +163,11 @@
 						if (!f) {
 							f = e;
 							f.feed_group = [e];
+							f.feed_load = feed_load.bind(null, f);
 							feeds_by_key[key] = f;
 							feeds.push(f);
 						} else {
 							f.feed_group.push(e);
-						}
-						if (feeds.length <= $scope.feeds_limit) {
-							nbInode.get_inode_messages(e);
 						}
 					});
 					$scope.feeds = feeds;
@@ -447,10 +451,6 @@
 		'$scope', '$location', 'nbInode',
 		function($scope, $location, nbInode) {
 			$scope.index = 0;
-
-			// _.each($scope.feed.feed_group, function(feed_inode) {
-			// 	nbInode.get_inode_messages(feed_inode);
-			// });
 
 			if ($scope.feed.isdir) {
 				nbInode.read_dir($scope.feed).then(function() {
