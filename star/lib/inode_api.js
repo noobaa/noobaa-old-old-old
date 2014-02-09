@@ -156,7 +156,7 @@ function inode_to_entry(inode, opt) {
 		ent.owner = inode.live_owner.get_user_identity_info();
 		// we don't need to tell everyone about the mapping of our user ids to fb/google ids
 		// so remove our user id from here.
-		delete ent.owner.id; 
+		delete ent.owner.id;
 	}
 
 	if (opt && opt.fobj) {
@@ -607,18 +607,21 @@ function inode_create_action(inode, fobj, user, relative_path, callback) {
 	], callback);
 }
 
-// INODE CRUD - READ
 
-exports.inode_read_all = function(req, res) {
-	// start the read waterfall
+// return all the inodes of the user, with query options
+
+exports.inode_query = function(req, res) {
 	async.waterfall([
 
-		// find the inodes
 		function(next) {
-			var selector = {
+			// TODO must add paging when too many inodes!
+			var q = Inode.find({
 				owner: req.user.id,
-			};
-			return Inode.find(selector, next);
+			});
+			if (req.query.shared_by_me) {
+				q.gt('num_refs', 0);
+			}
+			q.exec(next);
 		},
 
 		// query the fobjs for all the inodes found
@@ -641,9 +644,12 @@ exports.inode_read_all = function(req, res) {
 			});
 		}
 
-		// waterfall end
 	], common_api.reply_callback(req, res, 'INODE READ ALL'));
 };
+
+
+
+// INODE CRUD - READ
 
 exports.inode_read = function(req, res) {
 
@@ -1262,23 +1268,25 @@ function inode_get_share_list(req, res) {
 		// check inode ownership
 		common_api.req_ownership_checker(req),
 
-		//get currently refering users (some might not be friends any more but the user shoudl be aware)
 		function(inode, next) {
-			return user_inodes.get_referring_users(inode, next);
-		},
-
-		//get the friends list which are also noobaa users
-		function(ref_users, next) {
-			return auth.get_noobaa_friends_list(req.session.tokens, function(err, friends_list) {
-				return next(err, ref_users, friends_list);
-			});
+			return async.parallel({
+				// get currently refering users 
+				// (some might not be friends any more but the user should be aware)
+				ref_users: function(next) {
+					return user_inodes.get_referring_users(inode, next);
+				},
+				// get the friends list which are also noobaa users
+				friends_list: function(next) {
+					return auth.get_noobaa_friends_list(req.session.tokens, next);
+				}
+			}, next);
 		},
 
 		//prepare the structure for http send - setting sharing to true/false based on the structures.
-		function(ref_users, friends_list, next) {
+		function(results, next) {
 			var share_users_map = {};
-			update_users_share_map(share_users_map, _.difference(friends_list, ref_users), false);
-			update_users_share_map(share_users_map, ref_users, true);
+			update_users_share_map(share_users_map, _.difference(results.friends_list, results.ref_users), false);
+			update_users_share_map(share_users_map, results.ref_users, true);
 			return next(null, {
 				"list": _.values(share_users_map)
 			});
@@ -1310,17 +1318,13 @@ exports.inode_set_share_list = function(req, res) {
 		// save inode in context
 		function(inode_arg, next) {
 			inode = inode_arg;
-			next(null, inode);
-		},
-
-		//get the currently refering user ids
-		function(inode, next) {
+			//get the currently refering user ids
 			return inode.get_referring_user_ids(next);
 		},
 
 		//add and remove referenes as needed
 		function(old_nb_ids, next) {
-			return user_inodes.update_inode_ghost_refs(inode_id, old_nb_ids, new_nb_ids, next);
+			return user_inodes.update_inode_ghost_refs(inode, old_nb_ids, new_nb_ids, next);
 		},
 
 		//update number of references if was changed. 

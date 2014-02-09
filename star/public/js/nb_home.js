@@ -140,15 +140,18 @@
 					return;
 				}
 				$scope.refreshing_feeds = true;
-				nbInode.read_dir($scope.swm).then(function(res) {
-					// nbInode.read_dir($scope.home_context.current_inode).then(function(res) {
+				return nbInode.read_dir($scope.swm).then(function() {
+					return nbInode.read_shared_by_me();
+				}).then(function(sbm_entries){
+					var entries = sbm_entries.concat($scope.swm.entries);
+					entries.sort(swm_sorting_func);
 					// console.log('SWM FOLDER', res);
 					$scope.refreshing_feeds = false;
 					$scope.feeds_limit = 10;
 					// collect together feeds with same name and type (for share loops)
 					var feeds = [];
 					var feeds_by_key = {};
-					_.each($scope.swm.entries, function(e) {
+					_.each(entries, function(e) {
 						var key = (e.isdir ? 'd:' : 'f:') + e.name;
 						var f = feeds_by_key[key];
 						if (!f) {
@@ -164,17 +167,13 @@
 						}
 					});
 					$scope.feeds = feeds;
-					// $scope.feeds = $scope.home_context.current_inode.entries;
 					rebuild_layout();
-					return res;
 				}, function(err) {
 					console.error('GET SWM FOLDER FAILED', err);
 					$scope.refreshing_feeds = false;
 					throw err;
 				});
 			}
-
-			$scope.filter_content_kind = '';
 
 			$scope.more_feeds = function() {
 				$scope.feeds_limit += 10;

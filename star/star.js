@@ -246,7 +246,7 @@ app.get('/auth/google/login/', auth.provider_login.bind(null, 'google'));
 
 var inode_api = require('./lib/inode_api');
 app.post('/api/inode/', inode_api.inode_create);
-app.get('/api/inode/', inode_api.inode_read_all);
+app.get('/api/inode/', inode_api.inode_query);
 app.get('/api/inode/:inode_id', inode_api.inode_read);
 app.put('/api/inode/:inode_id', inode_api.inode_update);
 app.put('/api/inode/:inode_id/copy', inode_api.inode_copy);

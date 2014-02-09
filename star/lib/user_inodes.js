@@ -71,15 +71,17 @@ exports.verify_and_create_base_folders = function(user, cb) {
 };
 
 //get's the inodes of the shared with me folder
-var get_user_SWM = function(user_id, next) {
+
+function get_user_SWM(user_id, next) {
 	return get_user_basic_folder(CONST_BASE_FOLDERS.SWM, user_id, next);
-};
+}
 exports.get_user_SWM = get_user_SWM;
 
 //get's the inodes of the my data folder
-var get_user_MYD = function(user_id, next) {
+
+function get_user_MYD(user_id, next) {
 	return get_user_basic_folder(CONST_BASE_FOLDERS.MYDATA, user_id, next);
-};
+}
 exports.get_user_MYD = get_user_MYD;
 
 //get's the inodes of requested folder with null parent.
@@ -109,17 +111,17 @@ exports.update_inode_ghost_refs = update_inode_ghost_refs;
 
 //add and remove ghosts as needed
 
-function update_inode_ghost_refs(live_inode_id, old_user_ids, new_user_ids, cb) {
+function update_inode_ghost_refs(live_inode, old_user_ids, new_user_ids, cb) {
 	var old_user_ids_strings = _.invoke(old_user_ids, 'toHexString');
 	var user_ids_to_add = _.difference(new_user_ids, old_user_ids_strings);
 	var user_ids_to_remove = _.difference(old_user_ids_strings, new_user_ids);
 
 	async.parallel([
 		function(next) {
-			remove_inode_ghost_refs(live_inode_id, user_ids_to_remove, next);
+			remove_inode_ghost_refs(live_inode, user_ids_to_remove, next);
 		},
 		function(next) {
-			add_inode_ghost_refs(live_inode_id, user_ids_to_add, next);
+			add_inode_ghost_refs(live_inode, user_ids_to_add, next);
 		},
 	], function(err, results) {
 		// no need to pass on the parallel results array
@@ -129,70 +131,90 @@ function update_inode_ghost_refs(live_inode_id, old_user_ids, new_user_ids, cb) 
 
 //remove ghosts which refer to the live inode and belong to the users in the list
 
-function remove_inode_ghost_refs(live_inode_id, user_ids, cb) {
+function remove_inode_ghost_refs(live_inode, user_ids, callback) {
 	console.log("remove_inode_ghost_refs", arguments);
 	Inode.remove({
-		ghost_ref: live_inode_id,
+		ghost_ref: live_inode.id,
 		owner: {
 			$in: user_ids
 		}
-	}, cb);
+	}, callback);
 }
 
 //add ghosts which refer to the live inode and belong to the users in the list
 
-function add_inode_ghost_refs(live_inode_id, user_ids, cb) {
+function add_inode_ghost_refs(live_inode, user_ids, callback) {
 	console.log("add_inode_ghost_refs", arguments);
+
+	var users_by_id;
+
 	async.waterfall([
+
 		function(next) {
-			return Inode.findById(live_inode_id, next);
+			var uids = user_ids.concat([live_inode.owner]);
+			return async.parallel({
+				// find all the users we need to work with
+				users: function(next) {
+					return User.find({
+						_id: {
+							$in: uids
+						}
+					}).exec(next);
+				},
+				// find the swm folders for the users
+				swm_inodes: function(next) {
+					return Inode.find({
+						owner: {
+							$in: uids
+						},
+						name: CONST_BASE_FOLDERS.SWM,
+						isdir: true,
+						parent: null,
+					}).exec(next);
+				}
+			}, next);
 		},
 
-		function(live_inode, next) {
-			return async.forEach(user_ids, function(user_id, next) {
-				create_ref_ghost_per_user(live_inode, user_id, next);
-			}, function(err) {
-				return next(err, live_inode);
+		// create all the ghost inodes in one batch
+		function(results, next) {
+			users_by_id = _.indexBy(results.users, '_id');
+			var swm_by_user_id = _.indexBy(results.swm_inodes, 'owner');
+			var new_ghosts = [];
+			_.each(user_ids, function(user_id) {
+				var swm = swm_by_user_id[user_id];
+				new_ghosts.push(new Inode({
+					owner: user_id,
+					parent: swm._id,
+					name: live_inode.name,
+					isdir: live_inode.isdir,
+					ghost_ref: live_inode._id
+				}));
 			});
-		},
-
-		function(live_inode, next) {
-			return User.findById(live_inode.owner, function(err, sharing_user) {
-				return next(err, sharing_user, live_inode);
-			});
-		},
-
-		function(sharing_user, live_inode, next) {
-			return async.forEach(user_ids, function(user_id, next) {
-				send_notification_on_new_swm(user_id, sharing_user, live_inode, next);
-			}, function(err) {
+			return Inode.create(new_ghosts, function(err) {
 				return next(err);
 			});
 		},
 
-	], cb);
-}
-
-exports.send_notification_on_new_swm = send_notification_on_new_swm;
-
-function send_notification_on_new_swm(notified_user_id, sharing_user, live_inode, callback) {
-	async.waterfall([
-
-		//get the notified user
 		function(next) {
-			return User.findById(notified_user_id, next);
-		},
-
-		//send the email notification via the email module. currently not ignoring failurs.  
-		function(notified_user, next) {
-			if (notified_user.email_policy === 'silent') {
-				console.log('silent email for user', notified_user.get_email());
+			// currently we do not notify on every share, instead we send periodic emails
+			if (true) {
 				return next();
 			}
-			return email.send_swm_notification(notified_user, sharing_user, live_inode, next);
-		}
+			// notify users by email
+			var live_owner = users_by_id[live_inode.owner];
+			return async.each(user_ids, function(user_id, next) {
+				var user = users_by_id[user_id];
+				if (user.email_policy === 'silent') {
+					console.log('silent email for user', user.get_name(), user.get_email());
+					return next();
+				}
+				return email.send_swm_notification(user, live_owner, live_inode, next);
+			}, next);
+		},
+
 	], callback);
 }
+
 
 exports.find_recent_swm = find_recent_swm;
 
@@ -290,32 +312,6 @@ function send_notification_on_recent_swm(user_id, count_limit, from_time, callba
 	], callback);
 }
 
-//add a ghost for this specific user
-
-function create_ref_ghost_per_user(live_inode, user_id, cb) {
-	async.waterfall([
-		function(next) {
-			next(null, user_id);
-		},
-
-		get_user_SWM,
-
-		function(SWM_inode, next) {
-			var inode = new Inode({
-				owner: user_id,
-				parent: SWM_inode._id,
-				name: live_inode.name,
-				isdir: live_inode.isdir,
-				ghost_ref: live_inode._id
-			});
-			inode.save(function(err, inode) {
-				if (err) return next(err);
-				console.log("Cretead ghost inode: ", inode);
-				next(null);
-			});
-		}
-	], cb);
-}
 
 exports.get_referring_users = get_referring_users;
 

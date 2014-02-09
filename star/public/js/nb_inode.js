@@ -26,8 +26,9 @@
 				can_change_inode: can_change_inode,
 				can_move_to_dir: can_move_to_dir,
 				init_root_dir: init_root_dir,
-				read_all: read_all,
 				read_dir: read_dir,
+				read_shared_by_me: read_shared_by_me,
+				read_all: read_all,
 				is_dir_non_empty: is_dir_non_empty,
 				parents_path: parents_path,
 				recursive_delete: recursive_delete,
@@ -49,13 +50,6 @@
 				return '/api/inode/' + inode_id;
 			}
 
-			function inode_call(method, inode_id) {
-				return {
-					method: method,
-					url: '/api/inode/' + inode_id
-				};
-			}
-
 			function seamless_open_inode(inode) {
 				var url = inode_api_url(inode.id) + '?seamless=1';
 				var win = window.open(url, '_blank');
@@ -63,7 +57,7 @@
 			}
 
 			function download_inode(inode) {
-				var url = inode_api_url(inode) + '?is_download=true';
+				var url = inode_api_url(inode.id) + '?is_download=true';
 				$('<iframe style="display: none">')[0].src = url;
 				// var win = window.open(url, '_blank');
 				// win.focus();
@@ -127,6 +121,97 @@
 				'text': 'text',
 			};
 
+			function set_entry_info(e, parent, level, swm) {
+				if (e.isdir) {
+					e.content_kind = 'dir';
+				} else if (e.content_type) {
+					e.content_kind = CONTENT_KINDS[e.content_type.split('/')[0]];
+				}
+				if (e.ctime) {
+					e.ctime_date = new Date(e.ctime);
+					e.ctime_display = e.ctime_date.toLocaleDateString();
+				}
+				if (swm) {
+					e.swm = swm;
+				}
+				e.parent = parent;
+				e.level = level;
+			}
+
+			function read_dir(dir_inode) {
+				// console.log('READDIR', dir_inode.name);
+				dir_inode.is_loading = true;
+				return $http({
+					method: 'GET',
+					url: inode_api_url(dir_inode.id)
+				}).then(function(res) {
+					dir_inode.is_loading = false;
+					// console.log('READDIR OK', dir_inode.name);
+					var entries = res.data.entries;
+					dir_inode.entries = entries;
+					dir_inode.entries_map = dir_inode.entries_map || {};
+					var entries_map = {};
+					var entries_by_kind = {
+						video: [],
+						audio: [],
+						image: []
+					};
+					for (var i = 0; i < entries.length; i++) {
+						var e = dir_inode.entries_map[entries[i].id];
+						if (!e) {
+							e = entries[i];
+						} else {
+							angular.extend(e, entries[i]);
+							// turn off the uploading flag because we don't send each time
+							// and extend won't turn off when the key is missing
+							if (e.uploading && !entries[i].uploading) {
+								delete e.uploading;
+							}
+						}
+						set_entry_info(e, dir_inode, dir_inode.level + 1, dir_inode.swm);
+						entries[i] = e;
+						entries_map[e.id] = e;
+						if (e.content_kind && entries_by_kind[e.content_kind]) {
+							entries_by_kind[e.content_kind].push(e);
+						}
+					}
+					entries.sort(dir_inode.sorting_func || function(a, b) {
+						return a.isdir ? -1 : 1;
+					});
+					dir_inode.entries_map = entries_map;
+					dir_inode.entries_by_kind = entries_by_kind;
+					return res;
+				}, function(err) {
+					dir_inode.is_loading = false;
+					console.error('FAILED READDIR', err);
+					return $timeout(function() {
+						read_dir(dir_inode);
+					}, 3000);
+				});
+			}
+
+
+			function read_shared_by_me() {
+				return $http({
+					method: 'GET',
+					url: '/api/inode/',
+					params: {
+						shared_by_me: true
+					}
+				}).then(function(res) {
+					var entries = res.data.entries;
+					for (var i = 0; i < entries.length; i++) {
+						var e = entries[i];
+						set_entry_info(e);
+						e.owner = nbUser.user;
+					}
+					return entries;
+				});
+			}
+
+
+			// TODO must add paging when loading many inodes
+			// TODO this flow is still not working...
 			function read_all(root_dir) {
 				root_dir.is_loading = true;
 				return $http({
@@ -151,6 +236,7 @@
 							ents[i].level = dir_inode.level + 1;
 						}
 					}
+
 					set_dir_entries(root_dir);
 					root_dir.inodes_map = root_dir.inodes_map || {};
 					for (var i = 0; i < entries.length; i++) {
@@ -160,15 +246,7 @@
 						} else {
 							angular.extend(e, entries[i]);
 						}
-						if (e.isdir) {
-							e.content_kind = 'dir';
-						} else if (e.content_type) {
-							e.content_kind = CONTENT_KINDS[e.content_type.split('/')[0]] || e.content_type;
-						}
-						if (e.ctime) {
-							e.ctime_date = new Date(e.ctime);
-							e.ctime_display = e.ctime_date.toLocaleDateString();
-						}
+						set_entry_info(e);
 						if (e.isdir) {
 							set_dir_entries(e);
 						}
@@ -179,70 +257,6 @@
 					root_dir.is_loading = false;
 					console.error('FAILED READ ALL', err);
 					throw err;
-				});
-			}
-
-			function read_dir(dir_inode) {
-				// console.log('READDIR', dir_inode.name);
-				dir_inode.is_loading = true;
-				return $http(inode_call('GET', dir_inode.id)).then(function(res) {
-					dir_inode.is_loading = false;
-					// console.log('READDIR OK', dir_inode.name);
-					var entries = res.data.entries;
-					dir_inode.entries = entries;
-					dir_inode.entries_map = dir_inode.entries_map || {};
-					var entries_map = {};
-					var entries_by_kind = {
-						video: [],
-						audio: [],
-						image: []
-					};
-					for (var i = 0; i < entries.length; i++) {
-						var e = dir_inode.entries_map[entries[i].id];
-						if (!e) {
-							e = entries[i];
-						} else {
-							angular.extend(e, entries[i]);
-							// turn off the uploading flag because we don't send each time
-							// and extend won't turn off when the key is missing
-							if (e.uploading && !entries[i].uploading) {
-								delete e.uploading;
-							}
-						}
-						var kind;
-						if (e.isdir) {
-							e.content_kind = kind = 'dir';
-						} else if (e.content_type) {
-							kind = CONTENT_KINDS[e.content_type.split('/')[0]];
-							e.content_kind = kind || e.content_type;
-						}
-						if (kind && entries_by_kind[kind]) {
-							entries_by_kind[kind].push(e);
-						}
-						if (e.ctime) {
-							e.ctime_date = new Date(e.ctime);
-							e.ctime_display = e.ctime_date.toLocaleDateString();
-						}
-						if (dir_inode.swm) {
-							e.swm = dir_inode.swm;
-						}
-						e.parent = dir_inode;
-						e.level = dir_inode.level + 1;
-						entries[i] = e;
-						entries_map[e.id] = e;
-					}
-					entries.sort(dir_inode.sorting_func || function(a, b) {
-						return a.isdir ? -1 : 1;
-					});
-					dir_inode.entries_map = entries_map;
-					dir_inode.entries_by_kind = entries_by_kind;
-					return res;
-				}, function(err) {
-					dir_inode.is_loading = false;
-					console.error('FAILED READDIR', err);
-					return $timeout(function() {
-						read_dir(dir_inode);
-					}, 3000);
 				});
 			}
 
