@@ -15,6 +15,7 @@ var _ = require('underscore');
 var User = require('../models/user').User;
 var email = require('./email');
 var user_inodes = require('./user_inodes');
+var track_api = require('./track_api');
 
 var AUTO_ACCEPT_ALPHA_USERS = true;
 
@@ -50,7 +51,7 @@ var user_details_update = function(profile, user, callback) {
 
 exports.create_user = create_user;
 
-function create_user(profile, callback) {
+function create_user(req, profile, callback) {
 	console.log("CREATE USER", profile);
 
 	async.waterfall([
@@ -63,6 +64,7 @@ function create_user(profile, callback) {
 					return next(err, null);
 				}
 				console.log('CREATED USER:', user);
+				track_api.track_event('auth.signup', null, user, req);
 				return next(null, user);
 			});
 		},
@@ -83,50 +85,50 @@ function user_login(req, accessToken, refreshToken, profile, done) {
 	console.log("USER LOGIN: ", req.user, req.session, accessToken, refreshToken, profile);
 
 	async.waterfall([
-			//find the user in the DB
-			function(next) {
-				if (!provider_to_db_map[profile.provider]) {
-					return next(new Error('Unknown provider: ' + profile.provider));
+		//find the user in the DB
+		function(next) {
+			if (!provider_to_db_map[profile.provider]) {
+				return next(new Error('Unknown provider: ' + profile.provider));
+			}
+			//the two lines below will get {fb.id:'xxx'} or {google.id:'xxx'} based on the provider
+			var find_options = {};
+			find_options[provider_to_db_map[profile.provider] + '.id'] = profile.id;
+			User.findOne(find_options, function(err, user) {
+				if (err) {
+					console.error('ERROR - FIND USER FAILED:', err);
+					return next(err);
 				}
-				//the two lines below will get {fb.id:'xxx'} or {google.id:'xxx'} based on the provider
-				var find_options = {};
-				find_options[provider_to_db_map[profile.provider] + '.id'] = profile.id;
-				User.findOne(find_options, function(err, user) {
-					if (err) {
-						console.error('ERROR - FIND USER FAILED:', err);
-						return next(err);
-					}
 
-					if (!user) {
-						return create_user(profile, next);
-					}
-					return next(null, user);
-				});
-			},
+				if (!user) {
+					req.session.signup = true;
+					return create_user(req, profile, next);
+				}
+				return next(null, user);
+			});
+		},
 
-			user_details_update.bind(null, profile),
+		user_details_update.bind(null, profile),
 
-		],
+	], function(err, user) {
+		if (err) {
+			console.log(err, err.stack);
+			delete req.session.accessToken;
+			delete req.session.tokens;
+			return done(err);
+		}
 
-		function(err, user) {
-			if (err) {
-				console.log(err, err.stack);
-				delete req.session.accessToken;
-				delete req.session.tokens;
-				return done(err);
-			}
-
-			req.session.accessToken = accessToken;
-			if (!req.session.tokens) {
-				req.session.tokens = {};
-			}
-			// req.session.tokens[profile.provider] = accessToken;
-			req.session.tokens[profile.provider] = {
-				access_token: accessToken,
-				refresh_token: refreshToken
-			};
-			return done(null, user);
-		});
+		req.session.signin = true;
+		req.session.accessToken = accessToken;
+		if (!req.session.tokens) {
+			req.session.tokens = {};
+		}
+		// req.session.tokens[profile.provider] = accessToken;
+		req.session.tokens[profile.provider] = {
+			access_token: accessToken,
+			refresh_token: refreshToken
+		};
+		return done(null, user);
+	});
 }
 
 // setup passport with facebook backend

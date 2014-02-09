@@ -272,7 +272,7 @@ exports.test_auth = {
 
 		console.log(profile.id);
 		// test.done();
-		auth.create_user(profile, function(err, user) {
+		auth.create_user({}, profile, function(err, user) {
 			test.ifError(err);
 			test.done();
 		});

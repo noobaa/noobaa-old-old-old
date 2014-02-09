@@ -355,7 +355,16 @@ app.get('/info', function(req, res) {
 });
 
 app.get('/home/*', function(req, res) {
-	return res.render('home.html', common_api.page_context(req));
+	var ctx = common_api.page_context(req);
+	if (req.session.signup) {
+		ctx.signup = req.session.signup;
+		delete req.session.signup;
+	}
+	if (req.session.signin) {
+		ctx.signin = req.session.signin;
+		delete req.session.signin;
+	}
+	return res.render('home.html', ctx);
 });
 app.get('/home', function(req, res) {
 	return res.redirect('/home/');

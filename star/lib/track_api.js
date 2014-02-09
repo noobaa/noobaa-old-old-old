@@ -71,25 +71,29 @@ function track_event_api(req, res) {
 }
 
 function track_event(event, data, user, req, callback) {
-	if (!event) {
-		console.log('MISSING EVENT NAME');
-		return callback ? callback() : undefined;
+	try {
+		if (!event) {
+			console.log('MISSING EVENT NAME');
+			return callback ? callback() : undefined;
+		}
+		var e = new TrackEvent();
+		e.event = event;
+		if (data) {
+			e.data = data;
+		}
+		if (user) {
+			e.user.id = user.id;
+			e.user.name = user.name;
+			e.user.fbid = user.fbid;
+			e.user.googleid = user.googleid;
+		}
+		if (req) {
+			e.req.ip = req.headers['x-forwarded-for'] || req.ip;
+		}
+		return e.save(callback);
+	} catch (err) {
+		console.error('FAILED TRACK EVENT', event, data, user, err);
 	}
-	var e = new TrackEvent();
-	e.event = event;
-	if (data) {
-		e.data = data;
-	}
-	if (user) {
-		e.user.id = user.id;
-		e.user.name = user.name;
-		e.user.fbid = user.fbid;
-		e.user.googleid = user.googleid;
-	}
-	if (req) {
-		e.req.ip = req.headers['x-forwarded-for'] || req.ip;
-	}
-	return e.save(callback);
 }
 
 exports.mixpanel_pixel_url = mixpanel_pixel_url;
