@@ -461,7 +461,7 @@
 			});
 
 			function reload_feed() {
-				console.log('RELOAD FEED', f);
+				// console.log('RELOAD FEED', f);
 				var promise = $q.when();
 				_.each(f.inodes, function(inode) {
 					// read dir entries
