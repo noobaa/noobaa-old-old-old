@@ -449,23 +449,29 @@
 	noobaa_app.controller('FeedCtrl', [
 		'$scope', '$q', '$location', 'nbInode',
 		function($scope, $q, $location, nbInode) {
-			var f = $scope.feed;
 			$scope.reload_feed = reload_feed;
 			$scope.current_inode = current_inode;
 			$scope.current_entry = current_entry;
-
 			$scope.current_inode_index = 0;
 			$scope.current_entry_index = 0;
-
-			reload_feed();
+			var f = $scope.feed;
+			$scope.$watch('feed', function() {
+				f = $scope.feed;
+				reload_feed();
+			});
 
 			function reload_feed() {
+				console.log('RELOAD FEED', f);
 				var promise = $q.when();
 				_.each(f.inodes, function(inode) {
 					// read dir entries
-					if (f.isdir) {
+					if (f.isdir && inode === current_inode()) {
 						promise = promise.then(function() {
 							return nbInode.read_dir(inode);
+						}).then(function() {
+							if (inode.entries_by_kind.image.length) {
+								$scope.current_entry_index = inode.entries.indexOf(inode.entries_by_kind.image[0]);
+							}
 						});
 					}
 					// fetch messages

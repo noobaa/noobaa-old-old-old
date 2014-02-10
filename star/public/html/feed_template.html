@@ -20,7 +20,7 @@
 				</div>
 			</div>
 
-			<div ng-repeat="feed in feeds | limitTo:(feeds_limit+20) track by $index" ng-controller="FeedCtrl" class="feed_item {{ ($index >= feeds_limit) && 'feed_hidden'}}" ng-init="reload_feed()">
+			<div ng-repeat="feed in feeds | limitTo:(feeds_limit+20) track by $index" ng-controller="FeedCtrl" class="feed_item {{ ($index >= feeds_limit) && 'feed_hidden'}}">
 
 				<div class="clearfix">
 					<div nb-media="current_entry()" media-events="media_events" show-content="false"></div>
@@ -56,7 +56,7 @@
 							<a class="btn btn-link" style="padding-top: 0" ng-disabled="current_entry_index+1>=current_inode().entries.length" ng-click="next_entry()">
 								<i class="fa fa-arrow-circle-o-right fa-lg"></i>
 							</a>
-							{{current_media().name}}
+							{{current_entry().name}}
 						</div>
 					</div>
 
