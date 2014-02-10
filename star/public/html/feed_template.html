@@ -20,18 +20,18 @@
 				</div>
 			</div>
 
-			<div ng-repeat="feed in feeds | limitTo:feeds_limit track by $index" ng-controller="FeedCtrl" class="feed_item" ng-init="feed.feed_load()">
+			<div ng-repeat="feed in feeds | limitTo:(feeds_limit+20) track by $index" ng-controller="FeedCtrl" class="feed_item {{ ($index >= feeds_limit) && 'feed_hidden'}}" ng-init="reload_feed()">
 
 				<div class="clearfix">
-					<div nb-media="current_item()" media-events="media_events" show-content="false"></div>
+					<div nb-media="current_entry()" media-events="media_events" show-content="false"></div>
 				</div>
 
 				<div>
 					<div class="clearfix" style="padding: 10px 10px 10px 0">
 						<div class="pull-right">
-							<a class="btn btn-danger btn-hover-only {{feed.done_keep && 'text-danger'}}" ng-click="keep_feed()" ng-disabled="feed.running_keep || feed.done_keep">
-								<i ng-if="feed.done_keep" class="fa fa-check"></i> 
-								<span ng-if="feed.running_keep">
+							<a class="btn btn-danger btn-hover-only {{done_keep() && 'text-danger'}}" ng-click="keep_feed()" ng-disabled="running_keep() || done_keep()">
+								<i ng-if="done_keep()" class="fa fa-check"></i> 
+								<span ng-if="running_keep()">
 									<i class="fa fa-spin fa-spinner"></i>
 								</span>
 								keep
@@ -42,33 +42,33 @@
 						</div>
 						<div style="overflow: hidden">
 							<div class="text-ellipses">
-								<a class="btn btn-link" ng-click="open_feed_inode(feed)">
+								<a class="btn btn-link" ng-click="open_feed_inode(current_inode())">
 									<i class="fa fa-{{feed.isdir && 'folder-open' || 'file-o'}} fa-fw fa-lg"></i>
 									{{feed.name}}
 								</a>
 							</div>
 						</div>
 						<div ng-show="feed.isdir" class="text-ellipses">
-							<a class="btn btn-link" style="padding-top: 0" ng-disabled="index<=0" ng-click="prev_index()">
+							<a class="btn btn-link" style="padding-top: 0" ng-disabled="current_entry_index<=0" ng-click="prev_entry()">
 								<i class="fa fa-arrow-circle-o-left fa-lg"></i>
 							</a>
-							<span class="text-muted">{{index+1}} / {{feed.entries.length}}</span>
-							<a class="btn btn-link" style="padding-top: 0" ng-disabled="index+1>=feed.entries.length" ng-click="next_index()">
+							<span class="text-muted">{{current_entry_index+1}} / {{current_inode().entries.length}}</span>
+							<a class="btn btn-link" style="padding-top: 0" ng-disabled="current_entry_index+1>=current_inode().entries.length" ng-click="next_entry()">
 								<i class="fa fa-arrow-circle-o-right fa-lg"></i>
 							</a>
-							{{current_item().name}}
+							{{current_media().name}}
 						</div>
 					</div>
 
 					<div>
-						<div ng-repeat="feed_inode in feed.feed_group track by $index" style="padding: 7px; border-top: 1px solid hsl(0,0%,20%)" class="clearfix" ng-init="comment_box={inode: feed_inode}">
-							<img class="img-rounded pull-left" ng-src="{{nbUser.user_pic_url(feed_inode.owner)}}" style="width: 30px; margin-right: 5px" />
+						<div ng-repeat="feed_inode in feed.inodes track by $index" style="padding: 7px; border-top: 1px solid hsl(0,0%,20%)" class="clearfix" ng-init="comment_box={inode: feed_inode}">
+							<img class="img-rounded pull-left" ng-src="{{nbUser.user_pic_url(feed_inode.owner || nbUser.user)}}" style="width: 30px; margin-right: 5px" />
 							<a class="btn btn-link pull-right" title="Add comment" rel="tooltip" ng-click="comment_box.show = !comment_box.show">
 								<i class="fa fa-reply-all"></i>
 							</a>
 							<div style="overflow: hidden">
 								<div class="text-primary">
-									<small>{{feed_inode.owner.name}}</small>
+									<small>{{(feed_inode.owner || nbUser.user).name}}</small>
 								</div>
 								<div style="padding-top: 8px">
 									<div ng-repeat="msg in feed_inode.messages" class="clearfix">

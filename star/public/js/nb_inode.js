@@ -26,8 +26,8 @@
 				can_change_inode: can_change_inode,
 				can_move_to_dir: can_move_to_dir,
 				init_root_dir: init_root_dir,
+				ctime_newest_first_sort_func: ctime_newest_first_sort_func,
 				read_dir: read_dir,
-				read_shared_by_me: read_shared_by_me,
 				read_all: read_all,
 				is_dir_non_empty: is_dir_non_empty,
 				parents_path: parents_path,
@@ -138,12 +138,24 @@
 				e.level = level;
 			}
 
+			function ctime_newest_first_sort_func(a, b) {
+				return a.ctime_date > b.ctime_date ? -1 : 1;
+			}
+
 			function read_dir(dir_inode) {
 				// console.log('READDIR', dir_inode.name);
+				var url = '/api/inode/';
+				var params = {};
+				if (dir_inode.sbm) {
+					params.sbm = true;
+				} else {
+					url += dir_inode.id;
+				}
 				dir_inode.is_loading = true;
 				return $http({
 					method: 'GET',
-					url: inode_api_url(dir_inode.id)
+					url: url,
+					params: params
 				}).then(function(res) {
 					dir_inode.is_loading = false;
 					// console.log('READDIR OK', dir_inode.name);
@@ -156,6 +168,14 @@
 						audio: [],
 						image: []
 					};
+					if (!dir_inode.id) {
+						entries.push({
+							sbm: true, // virtual dir
+							id: 'virtual',
+							isdir: true,
+							name: 'Shared By Me',
+						});
+					}
 					for (var i = 0; i < entries.length; i++) {
 						var e = dir_inode.entries_map[entries[i].id];
 						if (!e) {
@@ -191,27 +211,9 @@
 			}
 
 
-			function read_shared_by_me() {
-				return $http({
-					method: 'GET',
-					url: '/api/inode/',
-					params: {
-						shared_by_me: true
-					}
-				}).then(function(res) {
-					var entries = res.data.entries;
-					for (var i = 0; i < entries.length; i++) {
-						var e = entries[i];
-						set_entry_info(e);
-						e.owner = nbUser.user;
-					}
-					return entries;
-				});
-			}
-
-
 			// TODO must add paging when loading many inodes
 			// TODO this flow is still not working...
+
 			function read_all(root_dir) {
 				root_dir.is_loading = true;
 				return $http({
@@ -557,15 +559,7 @@
 				share_scope.mark_all = function(value) {
 					mark_all_share_list(share_scope.share_list, value);
 				};
-				var hdr = $('<div class="modal-header">')
-					.append($('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">').html('&times;'))
-					.append($('<h4>').text('Share ' + inode.name));
-				var body = $('<div class="modal-body">').css('padding', 0).append($('#share_modal').html());
-				var foot = $('<div class="modal-footer">').css('margin-top', 0)
-					.append($('<button type="button" class="btn btn-default" data-dismiss="modal">').text('Cancel'))
-					.append($('<button type="button" class="btn btn-primary" ' +
-						'ng-click="run()" ng-disabled="share_is_loading || !share_list.length">').text('Update'));
-				modal = nbUtil.modal(hdr, body, foot, share_scope, 'lg');
+				modal = nbUtil.modal($('#share_modal').html(), share_scope, 'lg');
 
 				var sl_promise = get_share_list(inode.id);
 				var msg_promise = get_inode_messages(inode);
@@ -592,6 +586,9 @@
 			}
 
 			function keep_inode(inode, dir_inode) {
+				if (!inode.owner && !inode.not_mine) {
+					return $q.when(inode);
+				}
 				if (inode.new_keep_inode) {
 					return $q.when(inode.new_keep_inode);
 				}
@@ -630,9 +627,9 @@
 			}
 
 			function keep_and_share(inode, dir_inode) {
-				return keep_inode(inode, dir_inode).then(function(new_inode) {
+				return keep_inode(inode, dir_inode).then(function(kept_inode) {
 					// run this immediately after top inode is copied
-					return share_inode(inode.new_keep_inode);
+					return share_inode(kept_inode);
 					/*
 					var share_list;
 					return get_share_list(new_inode_id).then(function(res) {

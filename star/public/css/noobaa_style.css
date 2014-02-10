@@ -134,14 +134,28 @@ a.btn-link.text-white:hover {
 	/*border-radius: 10px;*/
 }
 .feed_item {
+	-webkit-transition: all 0.5s;
+	-moz-transition: all 0.5s;
+	-o-transition: all 0.5s;
+	transition: all 0.5s;
+	overflow: hidden;
+	height: auto;
 	margin-bottom: 40px;
 	border: 1px solid hsla(0, 0%, 100%, 0.1);
 	border-radius: 10px;
-	overflow: hidden;
 	background-color: hsl(0, 0%, 0%);
 	-moz-box-shadow: 0 0 6px 3px hsla(0, 0%, 100%, 0.15);
 	-webkit-box-shadow: 0 0 6px 3px hsla(0, 0%, 100%, 0.15);
 	box-shadow: 0 0 6px 3px hsla(0, 0%, 100%, 0.15);
+}
+.feed_item.feed_hidden {
+	height: 0; 
+	margin: 0;
+	padding: 0;
+	border: none;
+	box-shadow: none;
+	visibility: hidden; 
+	overflow: hidden;
 }
 /*
 @media all and (min-width: 768px) and (max-width: 991px) {

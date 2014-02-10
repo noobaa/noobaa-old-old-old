@@ -69,7 +69,7 @@
 				return link === $window.location.pathname ? 'active' : '';
 			}
 
-			function modal(hdr, body, foot, modal_scope, size) {
+			function modal(content, modal_scope, size) {
 				if (_has_global_modal) {
 					console.error('RECURSIVE MODAL');
 					return false;
@@ -78,9 +78,7 @@
 				var m = $('<div class="modal fade">')
 					.append($('<div class="modal-dialog">')
 						.append($('<div class="modal-content">')
-							.append(hdr)
-							.append(body)
-							.append(foot)));
+							.append(content)));
 				var e = modal_scope ? $compile(m)(modal_scope) : m;
 				e.on('hidden.bs.modal', function() {
 					_has_global_modal = false;
@@ -102,7 +100,7 @@
 				var body = $('<div class="modal-body">').css('padding', 0).append(content);
 				var foot = $('<div class="modal-footer">').css('margin-top', 0)
 					.append($('<button type="button" class="btn btn-default" data-dismiss="modal">').text('Close'));
-				return modal(hdr, body, foot, modal_scope);
+				return modal($('<div>').append(hdr, body, foot), modal_scope);
 			}
 
 
@@ -668,7 +666,7 @@
 				restrict: 'A',
 				link: function(scope, element, attr) {
 					var e = $(element);
-					var min = e.height();
+					var min = e.outerHeight();
 					var pad = 0;
 					element.bind('keyup', function(event) {
 						update_height($(event.target), min, pad);

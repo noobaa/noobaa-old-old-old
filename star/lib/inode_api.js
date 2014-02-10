@@ -618,7 +618,7 @@ exports.inode_query = function(req, res) {
 			var q = Inode.find({
 				owner: req.user.id,
 			});
-			if (req.query.shared_by_me) {
+			if (req.query.sbm) {
 				q.gt('num_refs', 0);
 			}
 			q.exec(next);

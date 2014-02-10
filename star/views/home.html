@@ -303,18 +303,24 @@
 
 	<div style="display: none" ng-non-bindable>
 		<div id="share_modal" style="max-height: 100%" ng-init="filter_friend_name=''">
-			<div ng-show="share_is_loading" class="text-center" style="padding: 30px">
-				<i class="fa fa-spinner fa-spin fa-2x"></i>
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4>Share {{share_inode.name}}</h4>
 			</div>
-			<div style="max-height: 100%" ng-show="!share_is_loading && share_list.length">
-				<div class="row" style="padding: 10px">
-					<div class="col-sm-6">
+			<div class="modal-body" style="padding: 0">
+				<div ng-show="share_is_loading" class="text-center" style="padding: 30px">
+					<i class="fa fa-spinner fa-spin fa-2x"></i>
+				</div>
+				<div style="max-height: 100%" ng-show="!share_is_loading && share_list.length">
+					<div style="padding: 10px">
 						<div style="padding-left: 20px">Comments:</div>
 						<div style="border-radius: 10px; border: 1px solid hsl(0,0%,20%); padding: 10px; margin: 5px">
 							<div ng-repeat="msg in share_inode.messages">
 								<img class="img-rounded pull-left" ng-src="{{nbUser.user_pic_url(msg.user)}}" style="width: 30px; margin: 0 5px 5px 0" />
 								<div style="overflow: hidden">
-									<span class="text-primary"><small>{{msg.user.name}}</small></span>
+									<span class="text-primary">
+										<small>{{msg.user.name}}</small>
+									</span>
 									<a ng-click="delete_inode_message(share_inode, msg)">
 										<i class="fa fa-times fa-fw text-muted"></i>
 									</a>
@@ -323,60 +329,100 @@
 									<i class="fa fa-pencil fa-fw text-muted"></i>
 								</a>
 								 -->
-									<div style="padding-bottom: 8px"><small>{{msg.text}}</small></div>
+									<div style="padding-bottom: 8px">
+										<small>{{msg.text}}</small>
+									</div>
 								</div>
 							</div>
-							<div style="Xpadding-top: 10px">
-								<textarea ng-model="share_text" rows="1" class="form-control {{share_text.length && 'label-primary text-black' || 'label-default'}}" placeholder="Write about it..."></textarea>
+							<div>
+								<textarea ng-model="share_text" rows="2" class="form-control {{share_text.length && 'label-primary text-black' || 'label-default'}}" placeholder="Write about it..." nb-focus="!share_is_loading"></textarea>
+								<div></div>
 							</div>
 						</div>
 					</div>
-					<div class="col-sm-6">
-						<div style="padding-left: 20px">Share with:</div>
-						<div style="border-radius: 10px; border: 1px solid hsl(0,0%,20%); padding: 0 10px; margin: 5px">
-							<label class="radio">
-								<input type="radio" ng-model="share_spread" value="all" ng-change="mark_all(true)" />
-								<span class="text-warning">All friends ({{share_list.length}})</span>
-							</label>
-							<label class="radio">
-								<input type="radio" ng-model="share_spread" value="none" ng-change="mark_all(false)" />
-								<span>
-									No one (<i class="fa fa-lock"></i>)
-								</span>
-							</label>
-							<label class="radio">
-								<input type="radio" ng-model="share_spread" value="list" />
-								<span>
-									Choose friends list
-									<i class="fa fa-caret-down"></i>
-								</span>
-							</label>
-						</div>
-						<!-- 
-						<div ng-if="share_spread=='list'">
-							<div ng-repeat="friend in share_list | filter:{shared: true} | orderBy:'name'" style="display: inline-block; padding: 0 0 10px 10px; cursor: pointer" ng-click="friend.shared = !friend.shared" ng-attr-title="{{friend.name}}" rel="tooltip">
-								<img width="26" height="26" ng-src="{{nbUser.user_pic_url(friend)}}" class="img-rounded" />&nbsp;
+					<div ng-if="share_spread=='list'">
+						<hr style="margin: 0" />
+						<div class="center-block" style="width: 260px; padding: 0 10px 10px 10px">
+							<div class="Xinput-group input-group-sm" style="position: relative">
+								<input type="text" class="form-control {{filter_friend_name && 'label-warning text-black' || 'label-default'}}" placeholder="Search in friends" ng-model="filter_friend_name" style="border-bottom-left-radius: 20px; border-bottom-right-radius: 20px" />
+								<i class="fa fa-times fa-fw" style="cursor: pointer; position: absolute; right: 10px; top: 7px" ng-click="filter_friend_name=''"></i>
 							</div>
 						</div>
-						 -->
-					</div>
-				</div>
-				<div ng-if="share_spread=='list'">
-					<hr style="margin: 0" />
-					<div class="center-block" style="width: 260px; padding: 0 10px 10px 10px">
-						<div class="Xinput-group input-group-sm" style="position: relative">
-							<input type="text" class="form-control {{filter_friend_name && 'label-warning text-black' || 'label-default'}}" placeholder="Search in friends" ng-model="filter_friend_name" style="border-bottom-left-radius: 20px; border-bottom-right-radius: 20px" />
-							<i class="fa fa-times fa-fw" style="cursor: pointer; position: absolute; right: 10px; top: 7px" ng-click="filter_friend_name=''"></i>
-						</div>
-					</div>
-					<div style="padding: 0 10px 10px 10px; max-height: 300px; overflow-y: scroll; overflow-x: hidden">
-						<div ng-repeat="friend in share_list | filter:{name: filter_friend_name} | orderBy:'name'" class="text-ellipses {{friend.shared && 'label-warning'}}" style="display: inline-block; border-radius: 20px; width: 260px; margin: 0 2px; padding: 5px 10px; cursor: pointer; text-align: left" ng-click="friend.shared = !friend.shared">
-							<i class="fa fa-{{friend.shared && 'check' || 'plus-square'}} fa-fw"></i>&nbsp;
-							<img width="32" height="32" ng-src="{{nbUser.user_pic_url(friend)}}" />&nbsp;
-							<span>{{friend.name}}</span>
+						<div style="padding: 0 10px 10px 10px; max-height: 300px; overflow-y: scroll; overflow-x: hidden">
+							<div ng-repeat="friend in share_list | filter:{name: filter_friend_name} | orderBy:'name'" class="text-ellipses {{friend.shared && 'label-warning'}}" style="display: inline-block; border-radius: 20px; width: 260px; margin: 0 2px; padding: 5px 10px; cursor: pointer; text-align: left" ng-click="friend.shared = !friend.shared">
+								<i class="fa fa-{{friend.shared && 'check' || 'plus-square'}} fa-fw"></i>&nbsp;
+								<img width="32" height="32" ng-src="{{nbUser.user_pic_url(friend)}}" />&nbsp;
+								<span>{{friend.name}}</span>
+							</div>
 						</div>
 					</div>
 				</div>
+			</div>
+			<div class="modal-footer" style="margin-top: 0">
+				<div class="btn-group dropup">
+					<button class="btn btn-link dropdown-toggle" type="button" data-toggle="dropdown">
+						<span ng-if="share_spread == 'all'">
+							<i class="fa fa-users fa-fw"></i>
+							All Friends
+						</span>
+						<span ng-if="share_spread == 'list'">
+							<i class="fa fa-cog fa-fw"></i>
+							Choose Friends
+						</span>
+						<span ng-if="share_spread == 'none'">
+							<i class="fa fa-lock fa-fw"></i>
+							Private
+						</span>
+						<i class="fa fa-caret-up"></i>
+					</button>
+					<ul class="dropdown-menu text-left" role="menu">
+						<li>
+							<a ng-click="(share_spread='all') && mark_all(true)">
+								<i class="fa fa-{{(share_spread=='all') && 'check'}} fa-fw"></i>
+								<i class="fa fa-users fa-fw"></i>
+								All Friends
+							</a>
+						</li>
+						<li>
+							<a ng-click="share_spread='list'">
+								<i class="fa fa-{{(share_spread=='list') && 'check'}} fa-fw"></i>
+								<i class="fa fa-cog fa-fw"></i>
+								Choose Friends
+							</a>
+						</li>
+						<li>
+							<a ng-click="(share_spread='none') && mark_all(false)">
+								<i class="fa fa-{{(share_spread=='none') && 'check'}} fa-fw"></i>
+								<i class="fa fa-lock fa-fw"></i>
+								Private
+							</a>
+						</li>
+					</ul>
+				</div>
+				<!-- 
+					<div style="border-radius: 10px; border: 1px solid hsl(0,0%,20%); padding: 0 10px; margin: 5px">
+						<label class="radio">
+							<input type="radio" ng-model="share_spread" value="all" ng-change="mark_all(true)" />
+							<span class="text-warning">All friends ({{share_list.length}})</span>
+						</label>
+						<label class="radio">
+							<input type="radio" ng-model="share_spread" value="none" ng-change="mark_all(false)" />
+							<span>
+								No one (<i class="fa fa-lock"></i>)
+							</span>
+						</label>
+						<label class="radio">
+							<input type="radio" ng-model="share_spread" value="list" />
+							<span>
+								Choose friends list
+								<i class="fa fa-caret-down"></i>
+							</span>
+						</label>
+					</div>
+					 -->
+
+				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-primary" ng-click="run()" ng-disabled="share_is_loading || !share_list.length">Update</button>
 			</div>
 		</div>
 	</div>
