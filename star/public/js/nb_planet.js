@@ -591,7 +591,10 @@
 				try {
 					switch (os.platform()) {
 						case 'win32':
-							var fsutil = path.join(process.env[SYSTEM] || process.env[SYSTEM32], 'fsutil.exe');
+							var sys32 = process.env.SYSTEM || 
+								process.env.SYSTEM32 || 
+								path.join(process.env.windir || process.env.WINDIR || process.env.SystemRoot, 'system32');
+							var fsutil = path.join(sys32, 'fsutil.exe');
 							child_process.spawn(fsutil, ['fsinfo', 'drives']).stdout.on('data', function(data) {
 								$scope.drives_info.win_drives = {
 									text: data.toString(),
