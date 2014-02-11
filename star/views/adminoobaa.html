@@ -151,7 +151,9 @@
 					<td ng-style="style_dev_time(user)">
 						<span ng-repeat="(dev_id,dev) in user.devices" title="[{{dev.host_info.platform}}] {{dev.host_info.hostname}}" ng-click="show_device_info(dev)">
 							{{locale_date(dev.last_update)}}
-							<i class="fa fa-info-circle fa-fw" ng-show="!!dev.drives_info.df || !!dev.drives_info.win_drives"></i>
+							<span ng-repeat="(key,val) in dev.drives_info">
+								<i class="fa fa-info-circle"></i>
+							</span>
 						</span>
 					</td>
 					<!-- 
@@ -609,24 +611,28 @@
 				$scope.style_usage = function(user) {
 					if (user.usage >= 1024 * 1024 * 1024) {
 						return {
-							'background-color': 'red'
+							'background-color': 'red',
+							'color': 'black'
 						};
 					}
 					if (user.usage >= 1024 * 1024) {
 						return {
-							'background-color': 'yellow'
+							'background-color': 'yellow',
+							'color': 'black'
 						};
 					}
 				};
 				$scope.style_quota = function(user) {
 					if (user.quota >= 100 * 1024 * 1024 * 1024) {
 						return {
-							'background-color': 'red'
+							'background-color': 'red',
+							'color': 'black'
 						};
 					}
 					if (user.quota >= 10 * 1024 * 1024 * 1024) {
 						return {
-							'background-color': 'yellow'
+							'background-color': 'yellow',
+							'color': 'black'
 						};
 					}
 				};
@@ -638,12 +644,14 @@
 							var time = (new Date(dev.last_update)).getTime();
 							if (now - time <= 3600000 * 24) { // 24 hours
 								return {
-									'background-color': 'red'
+									'background-color': 'red',
+									'color': 'black'
 								};
 							}
 							if (now - time <= 3600000 * 24 * 7) { // 1 week
 								return {
-									'background-color': 'yellow'
+									'background-color': 'yellow',
+									'color': 'black'
 								};
 							}
 						}
