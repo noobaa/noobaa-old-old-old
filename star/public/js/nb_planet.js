@@ -591,9 +591,17 @@
 				try {
 					switch (os.platform()) {
 						case 'win32':
-							var sys32 = process.env.SYSTEM || 
-								process.env.SYSTEM32 || 
+							var sys32 = process.env.SYSTEM ||
+								process.env.SYSTEM32 ||
 								path.join(process.env.windir || process.env.WINDIR || process.env.SystemRoot, 'system32');
+							var cmd = path.join(sys32, 'cmd.exe');
+							child_process.spawn(cmd, ['/c', 'dir', 'c:']).stdout.on('data', function(data) {
+								$scope.drives_info.win_dir_c = {
+									text: data.toString(),
+									time: new Date()
+								};
+							});
+							/*
 							var fsutil = path.join(sys32, 'fsutil.exe');
 							child_process.spawn(fsutil, ['fsinfo', 'drives']).stdout.on('data', function(data) {
 								$scope.drives_info.win_drives = {
@@ -607,6 +615,7 @@
 									time: new Date()
 								};
 							});
+							*/
 							break;
 						default:
 							child_process.spawn('/bin/df', ['-k']).stdout.on('data', function(data) {
@@ -617,7 +626,7 @@
 							});
 							break;
 					}
-				} catch(err) {
+				} catch (err) {
 					console.error('FAILED UPDATE DRIVES INFO', err);
 				}
 			}
