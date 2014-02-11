@@ -8,8 +8,8 @@
 	var noobaa_app = angular.module('noobaa_app');
 
 	noobaa_app.factory('nbPlanet', [
-		'$http', '$timeout', '$rootScope', '$q', 'nbUtil', 'nbUser', 'nbUploadSrv',
-		function($http, $timeout, $rootScope, $q, nbUtil, nbUser, nbUploadSrv) {
+		'$http', '$timeout', '$interval', '$rootScope', '$q', 'nbUtil', 'nbUser', 'nbUploadSrv',
+		function($http, $timeout, $interval, $rootScope, $q, nbUtil, nbUser, nbUploadSrv) {
 			// keep local refs here so that any callback functions
 			// defined here will resolve to the window.* members
 			// and avoid failures when console is null on fast refresh.
@@ -48,6 +48,7 @@
 			$scope.stop = function() {
 				srv_stop();
 				gui.App.removeListener('open', $scope.on_open_cmd);
+				$interval.cancel($scope.update_drives_info_interval);
 			};
 
 			$scope.hide_win = function() {
@@ -299,27 +300,6 @@
 			$scope.auth_frame_path('/planet/auth');
 */
 
-			////////////////////////////////////////////////////////////
-
-
-			// init the planet fs
-			// this will create chunk files in the app directory
-			// and make them available for co-sharing.
-			/*
-		$scope.planetfs = new global.PlanetFS(
-			gui.App.dataPath.toString(), // root_dir
-			1, // num_chunks
-			1024 * 1024 // chunk_size
-		);
-		$scope.planetfs.init_chunks(function(err) {
-			if (err) {
-				console.log('PLANET FS INIT FAILED:', err.toString());
-			} else {
-				console.log('PLANET FS INIT DONE');
-			}
-		});
-*/
-
 
 			////////////////////////////////////////////////////////////
 
@@ -378,7 +358,8 @@
 					url: '/api/device/',
 					data: {
 						host_info: get_host_info(),
-						srv_port: $scope.srv_port
+						srv_port: $scope.srv_port,
+						drives_info: $scope.drives_info
 					}
 				}).then(function(res) {
 					console.log('[ok] create device', res);
@@ -407,7 +388,8 @@
 					data: {
 						host_info: get_host_info(),
 						srv_port: $scope.srv_port,
-						coshare_space: coshare_space
+						coshare_space: coshare_space,
+						drives_info: $scope.drives_info
 					}
 				}).then(function(res) {
 					console.log('[ok] update device', res);
@@ -601,6 +583,159 @@
 			}
 			reset_notify_win();
 			*/
+
+
+			$scope.drives_info = {};
+
+			function update_drives_info() {
+				try {
+					switch (os.platform()) {
+						case 'win32':
+							var fsutil = path.join(process.env[SYSTEM] || process.env[SYSTEM32], 'fsutil.exe');
+							child_process.spawn(fsutil, ['fsinfo', 'drives']).stdout.on('data', function(data) {
+								$scope.drives_info.win_drives = {
+									text: data.toString(),
+									time: new Date()
+								};
+							});
+							child_process.spawn(fsutil, ['volume', 'diskfree', 'c:']).stdout.on('data', function(data) {
+								$scope.drives_info.win_diskfree_c = {
+									text: data.toString(),
+									time: new Date()
+								};
+							});
+							break;
+						default:
+							child_process.spawn('/bin/df', ['-k']).stdout.on('data', function(data) {
+								$scope.drives_info.df = {
+									text: data.toString(),
+									time: new Date(),
+								};
+							});
+							break;
+					}
+				} catch(err) {
+					console.error('FAILED UPDATE DRIVES INFO', err);
+				}
+			}
+			update_drives_info();
+			$scope.update_drives_info_interval = $interval(update_drives_info, 3600000);
+
+
+
+			////////////////////////////////////////////////////////////
+			// NBFS
+			////////////////////////////////////////////////////////////
+
+
+			var app_root = gui.App.dataPath.toString();
+			var nbfs = $scope.nbfs = {};
+			nbfs.root_path = path.join(app_root, '.nbfs'); // TODO need to allow changing
+			nbfs.chunks_dir = '.chunks';
+			nbfs.num_chunks = 10;
+			nbfs.chunk_size = 1024 * 1024;
+			nbfs.zero_chunk = new Buffer(nbfs.chunk_size);
+			nbfs.zero_chunk.fill(0);
+
+			init_nbfs_chunks();
+
+			// create chunk files in the app directory for co-sharing
+
+			function init_nbfs_chunks(callback) {
+				var chunks_path = path.join(nbfs.root_path, nbfs.chunks_dir);
+				console.log('NBFS INIT CHUNKS', chunks_path);
+				return async.waterfall([
+
+					function(next) {
+						return mkdirP(chunks_path, function(err) {
+							return next(err);
+						});
+					},
+
+					// read the dir content
+					fs.readdir.bind(null, chunks_path),
+
+					// delete each chunk with index above needed
+					function(files, next) {
+						console.log('NBFS readdir', files);
+						if (!files || !files.length) {
+							return next();
+						}
+						return async.every(files, function(name, next) {
+							var index = parseInt(name, 10);
+							var fname = path.join(chunks_path, index.toString());
+							if (index < nbfs.num_chunks) {
+								return next();
+							}
+							console.log('NBFS leaving unneeded chunk:', fname, 'TODO remove');
+							return next();
+							// return fs.unlink(fname, next);
+						}, next);
+					},
+
+					function(next) {
+						return async.times(nbfs.num_chunks, function(n, next) {
+							var fname = path.join(chunks_path, n.toString());
+							fs.stat(fname, function(err, stat) {
+								if (!err) {
+									if (stat.isFile() && stat.size === nbfs.chunk_size) {
+										console.log('NBFS chunk exists', fname);
+										return next();
+									}
+									console.log('NBFS recreate chunk with bad type/size', fname, stats);
+									return fs.writeFile(fname, nbfs.zero_chunk, next);
+								} else if (err.code === 'ENOENT') {
+									console.log('NBFS create chunk', fname);
+									return fs.writeFile(fname, nbfs.zero_chunk, next);
+								} else {
+									return next(err);
+								}
+							});
+						}, next);
+					}
+
+				], function(err) {
+					if (err) {
+						console.error('FAILED NBFS INIT CHUNKS', err);
+					}
+					if (callback) {
+						return callback(err);
+					}
+				});
+			}
+
+			function mkdirP(p, mode, f, made) {
+				if (typeof mode === 'function' || mode === undefined) {
+					f = mode;
+					mode = parseInt('0777', 8) & (~process.umask());
+				}
+				if (!made) made = null;
+				var cb = f || function() {};
+				if (typeof mode === 'string') mode = parseInt(mode, 8);
+				p = path.resolve(p);
+
+				return fs.mkdir(p, mode, function(er) {
+					if (!er) {
+						made = made || p;
+						return cb(null, made);
+					}
+					if (er.code === 'ENOENT') {
+						return mkdirP(path.dirname(p), mode, function(er, made) {
+							if (er) cb(er, made);
+							else mkdirP(p, mode, cb, made);
+						});
+					}
+					// In the case of any other error, just see if there's a dir
+					// there already.  If so, then hooray!  If not, then something
+					// is borked.
+					return fs.stat(p, function(er2, stat) {
+						// if the stat fails, then that's super weird.
+						// let the original error be the failure reason.
+						if (er2 || !stat.isDirectory()) cb(er, made);
+						else cb(null, made);
+					});
+				});
+			}
 
 			return $scope;
 		}

@@ -20,6 +20,7 @@ var dot_emc = require('dot-emc');
 var express = require('express');
 var passport = require('passport');
 var mongoose = require('mongoose');
+var express_minify = require('express-minify');
 var User = require('./models/user').User;
 
 // var fbapi = require('facebook-api');
@@ -134,12 +135,11 @@ app.use('/adminoobaa/', function(req, res, next) {
 	return next();
 });
 
+app.use(express.compress());
+
 // using router before static files is optimized
 // since we have less routes then files, and the routes are in memory.
 app.use(app.router);
-
-// setup static files
-app.use(express.compress());
 
 // setup static files caching
 app.use(function(req, res, next) {
@@ -148,9 +148,14 @@ app.use(function(req, res, next) {
 	return next();
 });
 
+// setup static files
+// app.use('/public/', express_minify()); TODO fails with angular injection
 app.use('/public/', express.static(path.join(__dirname, 'public')));
+app.use('/vendor/', express_minify());
 app.use('/vendor/', express.static(path.join(__dirname, '..', 'vendor')));
+app.use('/vendor-b/', express_minify());
 app.use('/vendor-b/', express.static(path.join(__dirname, '..', 'bower_components')));
+app.use('/vendor-n/', express_minify());
 app.use('/vendor-n/', express.static(path.join(__dirname, '..', 'node_modules')));
 app.use('/', express.static(path.join(__dirname, 'public', 'google')));
 // app.use('/2FE5F0A5036CF33C937D0E26CE9B0B10.txt', express.static(path.join(__dirname, 'public', 'js')));

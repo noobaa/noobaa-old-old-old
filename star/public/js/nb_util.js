@@ -93,14 +93,14 @@
 				return e;
 			}
 
-			function content_modal(headline, content, modal_scope) {
+			function content_modal(headline, content, modal_scope, size) {
 				var hdr = $('<div class="modal-header">')
 					.append($('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">').html('&times;'))
 					.append($('<h4>').text(headline));
 				var body = $('<div class="modal-body">').css('padding', 0).append(content);
 				var foot = $('<div class="modal-footer">').css('margin-top', 0)
 					.append($('<button type="button" class="btn btn-default" data-dismiss="modal">').text('Close'));
-				return modal($('<div>').append(hdr, body, foot), modal_scope);
+				return modal($('<div>').append(hdr, body, foot), modal_scope, size);
 			}
 
 

@@ -69,6 +69,7 @@ exports.device_create = function(req, res) {
 		owner: req.user.id,
 		name: args.name || 'MyDevice',
 		host_info: args.host_info,
+		drives_info: args.drives_info,
 		ip_address: remote_ip,
 		srv_port: args.srv_port,
 		total_updates: 0,
@@ -116,7 +117,7 @@ exports.device_update = function(req, res) {
 	var remote_ip = req.get('X-Forwarded-For') || req.socket.remoteAddress;
 
 	// pick valid updates
-	var updates = _.pick(req.body, 'coshare_space', 'srv_port');
+	var updates = _.pick(req.body, 'coshare_space', 'srv_port', 'drives_info');
 
 	if (updates.coshare_space && typeof updates.coshare_space !== 'number') {
 		console.error('invalid coshare_space', updates.coshare_space);
@@ -172,7 +173,7 @@ exports.device_update = function(req, res) {
 			_.extend(dev, updates); // TODO: not deep!
 			dev.updates_stats = null; // dont return all the stats
 			return next(null, {
-				reload: false,
+				reload: true,
 				device: dev
 			});
 		}

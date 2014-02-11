@@ -149,7 +149,7 @@
 						{{human_size(user.quota)}}
 					</td>
 					<td ng-style="style_dev_time(user)">
-						<span ng-repeat="(dev_id,dev) in user.devices" title="[{{dev.host_info.platform}}] {{dev.host_info.hostname}}">
+						<span ng-repeat="(dev_id,dev) in user.devices" title="[{{dev.host_info.platform}}] {{dev.host_info.hostname}}" ng-click="show_device_info(dev)">
 							{{locale_date(dev.last_update)}}
 						</span>
 					</td>
@@ -299,8 +299,8 @@
 		var noobaa_app = angular.module('noobaa_app');
 
 		noobaa_app.controller('AdminoobaaCtrl', [
-			'$scope', '$http', '$window', '$timeout', 'JobQueue',
-			function AdminoobaaCtrl($scope, $http, $window, $timeout, JobQueue) {
+			'$scope', '$http', '$window', '$timeout', 'JobQueue', 'nbUtil',
+			function AdminoobaaCtrl($scope, $http, $window, $timeout, JobQueue, nbUtil) {
 
 				$scope.loading = 0;
 				$scope.refresh_users = refresh_users;
@@ -647,6 +647,24 @@
 							}
 						}
 					}
+				}
+
+				$scope.show_device_info = function(device) {
+					var scope = $scope.$new();
+					scope.dev = _.clone(device);
+					scope.drives_info = scope.dev.drives_info;
+					delete scope.dev.drives_info;
+					scope.dev_json = angular.toJson(scope.dev, true);
+					var content = [
+						'<div style="padding: 20px">',
+						'  <pre style="background-color: transparent; color: inherit; border: none">{{dev_json}}</pre>',
+						'  <div ng-repeat="(k,info) in drives_info">',
+						'    <p class="lead">{{k}} {{info.time}}</p>',
+						'    <pre style="background-color: transparent; color: inherit; border: none">{{info.text}}</pre>',
+						'  </div>',
+						'</div>'
+					].join('\n');
+					nbUtil.content_modal('Device Info', content, scope, 'lg');
 				}
 
 				$scope.locale_date = function(date) {

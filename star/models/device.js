@@ -9,6 +9,7 @@ var device_schema = new mongoose.Schema({
 	owner: types.ObjectId,
 	name: String,
 	host_info: {},
+	drives_info: {},
 	ip_address: String,
 	srv_port: Number,
 	coshare_space: Number,

@@ -124,7 +124,7 @@ function PlanetBoot($scope) {
 			min_height: 100
 		});
 		// when the window closed due to some issue, open a new one.
-		$scope.win.on('closed', load_win);
+		$scope.win.on('closed', reload);
 		// check if the window was not loaded properly.
 		// this might occur if the connection to the star is offline,
 		// or someother issue. for now we just give alert.
