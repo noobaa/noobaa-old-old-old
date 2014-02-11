@@ -151,6 +151,7 @@
 					<td ng-style="style_dev_time(user)">
 						<span ng-repeat="(dev_id,dev) in user.devices" title="[{{dev.host_info.platform}}] {{dev.host_info.hostname}}" ng-click="show_device_info(dev)">
 							{{locale_date(dev.last_update)}}
+							<i class="fa fa-info-circle fa-fw" ng-show="!!dev.drives_info.df || !!dev.drives_info.win_drives"></i>
 						</span>
 					</td>
 					<!-- 
