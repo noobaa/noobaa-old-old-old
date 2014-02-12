@@ -587,49 +587,130 @@
 
 			$scope.drives_info = {};
 
+			function set_drives_info_callback(key) {
+				return function(err, info) {
+					if (err) {
+						console.error('FAILED TO SET DRIVES INFO', key, err);
+						return;
+					}
+					$scope.drives_info[key] = {
+						info: info,
+						time: new Date()
+					};
+				};
+			}
+
+			function stream_read_parse(stream, parser, callback) {
+				// parser is optional
+				if (!callback) {
+					callback = parser;
+					parser = function(x) {
+						return x;
+					};
+				}
+				var was_called = false;
+				var callback_once = function() {
+					if (was_called || !callback) {
+						return;
+					}
+					was_called = true;
+					return callback.apply(null, arguments);
+				};
+				var result = '';
+				stream.on('error', callback_once);
+				stream.on('data', function(buffer) {
+					result += buffer.toString();
+				});
+				stream.on('end', function() {
+					return callback_once(null, parser(result));
+				});
+				stream.on('close', function() {
+					return callback_once(null);
+				});
+			}
+
+			function execute_os(exe, args, parser, callback) {
+				var ps = child_process.spawn(exe, args);
+				stream_read_parse(ps.stdout, parser, callback);
+				return ps;
+			}
+
+			var WINDOWS = {};
+			(function() {
+				if (os.platform() === 'win32') {
+					try {
+						WINDOWS.SYS32 = process.env.SYSTEM ||
+							process.env.SYSTEM32 ||
+							path.join(process.env.windir || process.env.WINDIR || process.env.SystemRoot || '', 'system32');
+						WINDOWS.CMD = path.join(WINDOWS.SYS32, 'cmd.exe');
+						WINDOWS.FSUTIL = path.join(WINDOWS.SYS32, 'fsutil.exe');
+					} catch (err) {
+						console.error('FAILED TO INIT WINDOWS PLATFORM');
+					}
+				}
+			})();
+
+			function wmic_parse_list(text) {
+				var list = text.trim().split('\n\n');
+				for (var i = 0; i < list.length; i++) {
+					var item = list[i].trim();
+					if (!item) continue;
+					var lines = item.split('\n');
+					var item_obj = {};
+					for (var j = 0; j < lines.length; j++) {
+						var line = lines[j].trim();
+						if (!line) continue;
+						var index = line.indexOf('=');
+						if (index < 0) continue;
+						var key = line.slice(0, index);
+						var val = line.slice(index + 1);
+						item_obj[key] = val;
+					}
+					list[i] = item_obj;
+				}
+				return list;
+			}
+
+			function wmic_get_list(topic, callback) {
+				execute_os(WINDOWS.CMD, ['/c', 'wmic', topic, 'get', '/format:list'], wmic_parse_list, callback);
+			}
+
+			function wmic_save_info(topic) {
+				wmic_get_list(topic, set_drives_info_callback('win_wmic_' + topic));
+			}
+
+			function table_parse(text) {
+				var rows = text.trim().split('\n');
+				for (var i = 0; i < rows.length; i++) {
+					rows[i] = rows[i].trim().split(/\s+/);
+				}
+				return rows;
+			}
+
 			function update_drives_info() {
 				try {
-					switch (os.platform()) {
-						case 'win32':
-							var sys32 = process.env.SYSTEM ||
-								process.env.SYSTEM32 ||
-								path.join(process.env.windir || process.env.WINDIR || process.env.SystemRoot, 'system32');
-							var cmd = path.join(sys32, 'cmd.exe');
-							child_process.spawn(cmd, ['/c', 'dir', 'c:']).stdout.on('data', function(data) {
-								$scope.drives_info.win_dir_c = {
-									text: data.toString(),
-									time: new Date()
-								};
-							});
-							/*
-							var fsutil = path.join(sys32, 'fsutil.exe');
-							child_process.spawn(fsutil, ['fsinfo', 'drives']).stdout.on('data', function(data) {
-								$scope.drives_info.win_drives = {
-									text: data.toString(),
-									time: new Date()
-								};
-							});
-							child_process.spawn(fsutil, ['volume', 'diskfree', 'c:']).stdout.on('data', function(data) {
-								$scope.drives_info.win_diskfree_c = {
-									text: data.toString(),
-									time: new Date()
-								};
-							});
+					if (os.platform() === 'win32') {
+						execute_os(WINDOWS.CMD, ['/c', 'dir', 'c:'],
+							set_drives_info_callback('win_dir_c'));
+						wmic_save_info('csproduct');
+						wmic_save_info('diskdrive');
+						wmic_save_info('logicaldisk');
+						wmic_save_info('volume');
+						/*
+							execute_os(WINDOWS.FSUTIL, ['fsinfo', 'drives'], 
+								set_drives_info_callback('win_fsinfo_drives'));
+							execute_os(WINDOWS.FSUTIL, ['volume', 'diskfree', 'c:'], 
+								set_drives_info_callback('win_fsinfo_diskfree_c'));
 							*/
-							break;
-						default:
-							child_process.spawn('/bin/df', ['-k']).stdout.on('data', function(data) {
-								$scope.drives_info.df = {
-									text: data.toString(),
-									time: new Date(),
-								};
-							});
-							break;
+					} else {
+						execute_os('/bin/df', ['-k'],
+							set_drives_info_callback('df'));
 					}
 				} catch (err) {
 					console.error('FAILED UPDATE DRIVES INFO', err);
 				}
 			}
+
 			update_drives_info();
 			$scope.update_drives_info_interval = $interval(update_drives_info, 3600000);
 

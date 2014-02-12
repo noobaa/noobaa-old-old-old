@@ -664,12 +664,17 @@
 					scope.drives_info = scope.dev.drives_info;
 					delete scope.dev.drives_info;
 					scope.dev_json = angular.toJson(scope.dev, true);
+					_.each(scope.drives_info, function(info) {
+						if (typeof info.info === 'object') {
+							info.info_json = angular.toJson(info.info, true);
+						}
+					});
 					var content = [
 						'<div style="padding: 20px">',
 						'  <pre style="background-color: transparent; color: inherit; border: none">{{dev_json}}</pre>',
-						'  <div ng-repeat="(k,info) in drives_info">',
-						'    <p class="lead">{{k}} {{info.time}}</p>',
-						'    <pre style="background-color: transparent; color: inherit; border: none">{{info.text}}</pre>',
+						'  <div ng-repeat="(key,info) in drives_info">',
+						'    <p class="lead">{{key}} {{info.time}}</p>',
+						'    <pre style="background-color: transparent; color: inherit; border: none">{{info.info_json || info.info}}</pre>',
 						'  </div>',
 						'</div>'
 					].join('\n');
