@@ -59,6 +59,7 @@
 			$scope.nbInode = nbInode;
 			$scope.nbUploadSrv = nbUploadSrv;
 			$scope.nbPlanet = nbPlanet;
+			$scope.moment = moment;
 
 			$scope.refresh_feeds = refresh_feeds;
 			$scope.root_dir = nbInode.init_root_dir();

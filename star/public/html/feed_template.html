@@ -70,13 +70,16 @@
 										<i class="fa fa-reply-all"></i>
 									</a>
 									<a class="btn btn-link pull-right" ng-click="open_feed_inode(feed_inode)" title="Go to item" rel="tooltip" style="padding: 5px">
-										<i class="fa fa-bars text-muted"></i>
+										<i class="fa fa-bars text-muted" style="opacity: 0.4"></i>
 									</a>
 								</div>
 								<div style="overflow: hidden">
 									<div ng-repeat="msg in feed_inode.messages" class="clearfix">
 										<img class="img-rounded pull-left" ng-src="{{nbUser.user_pic_url(msg.user)}}" style="width: 30px; margin-right: 5px" />
 										<div style="overflow: hidden">
+											<small class="text-muted pull-right" style="opacity: 0.4">
+												{{moment(msg.create_time).fromNow()}}
+											</small>
 											<div class="text-primary">
 												<small>{{msg.user.name}}</small>
 												<a ng-click="nbInode.delete_inode_message(feed_inode, msg)" ng-if="msg.is_mine">
