@@ -141,12 +141,12 @@ a.btn-link.text-white:hover {
 	overflow: hidden;
 	height: auto;
 	margin-bottom: 40px;
-	border: 1px solid hsla(0, 0%, 100%, 0.1);
+	border: 1px solid hsla(0, 0%, 100%, 0.25);
 	border-radius: 10px;
-	background-color: hsl(0, 0%, 0%);
-	-moz-box-shadow: 0 0 6px 3px hsla(0, 0%, 100%, 0.15);
-	-webkit-box-shadow: 0 0 6px 3px hsla(0, 0%, 100%, 0.15);
-	box-shadow: 0 0 6px 3px hsla(0, 0%, 100%, 0.15);
+	/*background-color: hsl(0, 0%, 0%);*/
+	-webkit-box-shadow: 0 0 8px 5px hsla(0, 0%, 100%, 0.15);
+	-moz-box-shadow: 0 0 8px 5px hsla(0, 0%, 100%, 0.15);
+	box-shadow: 0 0 8px 5px hsla(0, 0%, 100%, 0.15);
 }
 .feed_item.feed_hidden {
 	height: 0; 

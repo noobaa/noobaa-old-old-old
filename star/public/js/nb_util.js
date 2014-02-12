@@ -7,7 +7,7 @@
 	'use strict';
 
 	// create our module
-	var noobaa_app = angular.module('noobaa_app', ['ngRoute', 'ngAnimate', 'ngSanitize']);
+	var noobaa_app = angular.module('noobaa_app', ['ngRoute', 'ngAnimate', 'ngSanitize', 'ngTouch']);
 
 	// initializations - setup functions on globalScope
 	// which will be propagated to any other scope, and easily visible

@@ -61,10 +61,13 @@
 					</div>
 
 					<div>
-						<div ng-repeat="feed_inode in feed.inodes track by $index" style="padding: 7px; border-top: 1px solid hsl(0,0%,20%)" class="clearfix" ng-init="comment_box={inode: feed_inode}">
+						<div ng-repeat="feed_inode in feed.inodes track by $index" style="padding: 7px; border-top: 1px solid hsl(0,0%,15%)" class="clearfix" ng-init="comment_box={inode: feed_inode}">
 							<img class="img-rounded pull-left" ng-src="{{nbUser.user_pic_url(feed_inode.owner || nbUser.user)}}" style="width: 30px; margin-right: 5px" />
-							<a class="btn btn-link pull-right" title="Add comment" rel="tooltip" ng-click="comment_box.show = !comment_box.show">
+							<a class="btn btn-link pull-right" ng-click="comment_box.show = !comment_box.show" title="Add comment" rel="tooltip" style="padding: 5px">
 								<i class="fa fa-reply-all"></i>
+							</a>
+							<a class="btn btn-link pull-right" ng-click="open_feed_inode(feed_inode)" title="Go to item" rel="tooltip" style="padding: 5px">
+								<i class="fa fa-bars text-muted"></i>
 							</a>
 							<div style="overflow: hidden">
 								<div class="text-primary">
@@ -81,7 +84,7 @@
 												</a>
 											</div>
 											<div style="padding-bottom: 8px">
-												<small style="white-space: pre" ng-bind-html="msg.text | linky:'_blank'"></small>
+												<small style="white-space: pre-wrap" ng-bind-html="msg.text | linky:'_blank'"></small>
 											</div>
 										</div>
 									</div>
