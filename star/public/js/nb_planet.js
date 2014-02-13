@@ -651,7 +651,8 @@
 			})();
 
 			function wmic_parse_list(text) {
-				var list = text.trim().split('\n\n');
+				var DBL_EOL_RE = new RegExp(os.EOL + os.EOL);
+				var list = text.trim().split(DBL_EOL_RE);
 				for (var i = 0; i < list.length; i++) {
 					var item = list[i].trim();
 					if (!item) continue;
@@ -662,8 +663,8 @@
 						if (!line) continue;
 						var index = line.indexOf('=');
 						if (index < 0) continue;
-						var key = line.slice(0, index);
-						var val = line.slice(index + 1);
+						var key = line.slice(0, index).trim();
+						var val = line.slice(index + 1).trim();
 						item_obj[key] = val;
 					}
 					list[i] = item_obj;
@@ -676,7 +677,7 @@
 			}
 
 			function wmic_save_info(topic, op) {
-				wmic_get_list(topic, op, set_drives_info_callback('win_wmic_' + topic + '_'+ op));
+				wmic_get_list(topic, op, set_drives_info_callback('win_wmic_' + topic + '_' + op));
 			}
 
 			function table_parse(text) {
