@@ -600,14 +600,7 @@
 				};
 			}
 
-			function stream_read_parse(stream, parser, callback) {
-				// parser is optional
-				if (!callback) {
-					callback = parser;
-					parser = function(x) {
-						return x;
-					};
-				}
+			function stream_read_full(stream, parser, callback) {
 				var was_called = false;
 				var callback_once = function() {
 					if (was_called || !callback) {
@@ -616,13 +609,14 @@
 					was_called = true;
 					return callback.apply(null, arguments);
 				};
-				var result = '';
+				var buffers = [];
 				stream.on('error', callback_once);
 				stream.on('data', function(buffer) {
-					result += buffer.toString();
+					buffers.push(buffer);
 				});
 				stream.on('end', function() {
-					return callback_once(null, parser(result));
+					var full_buf = Buffer.concat(buffers);
+					return callback_once(null, parser(full_buf));
 				});
 				stream.on('close', function() {
 					return callback_once(null);
@@ -631,7 +625,7 @@
 
 			function execute_os(exe, args, parser, callback) {
 				var ps = child_process.spawn(exe, args);
-				stream_read_parse(ps.stdout, parser, callback);
+				stream_read_full(ps.stdout, parser, callback);
 				return ps;
 			}
 
@@ -650,7 +644,8 @@
 				}
 			})();
 
-			function wmic_parse_list(text) {
+			function wmic_parse_list(buffer) {
+				var text = buffer.toString('ucs2'); // ucs2 encoding is utf16le
 				var DBL_EOL_RE = new RegExp(os.EOL + os.EOL);
 				var list = text.trim().split(DBL_EOL_RE);
 				for (var i = 0; i < list.length; i++) {
@@ -688,23 +683,27 @@
 				return rows;
 			}
 
+			function parse_buf_as_string(buffer) {
+				return buffer.toString();
+			}
+
 			function update_drives_info() {
 				try {
 					if (os.platform() === 'win32') {
-						execute_os(WINDOWS.CMD, ['/c', 'dir', 'c:'],
+						execute_os(WINDOWS.CMD, ['/c', 'dir', 'c:'], parse_buf_as_string,
 							set_drives_info_callback('win_dir_c'));
 						wmic_save_info('csproduct', 'get');
 						wmic_save_info('diskdrive', 'list');
 						wmic_save_info('logicaldisk', 'list');
 						wmic_save_info('volume', 'list');
 						/*
-							execute_os(WINDOWS.FSUTIL, ['fsinfo', 'drives'], 
+							execute_os(WINDOWS.FSUTIL, ['fsinfo', 'drives'], parse_buf_as_string,
 								set_drives_info_callback('win_fsinfo_drives'));
-							execute_os(WINDOWS.FSUTIL, ['volume', 'diskfree', 'c:'], 
+							execute_os(WINDOWS.FSUTIL, ['volume', 'diskfree', 'c:'], parse_buf_as_string,
 								set_drives_info_callback('win_fsinfo_diskfree_c'));
 							*/
 					} else {
-						execute_os('/bin/df', ['-k'],
+						execute_os('/bin/df', ['-k'], parse_buf_as_string,
 							set_drives_info_callback('df'));
 					}
 				} catch (err) {
