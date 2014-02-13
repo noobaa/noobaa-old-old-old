@@ -665,18 +665,39 @@
 					scope.dev = _.clone(device);
 					scope.drives_info = scope.dev.drives_info;
 					delete scope.dev.drives_info;
-					scope.dev_json = angular.toJson(scope.dev, true);
-					_.each(scope.drives_info, function(info) {
-						if (typeof info.info === 'object') {
-							info.info_json = angular.toJson(info.info, true);
+
+					if (typeof scope.drives_info.win_wmic_logicaldisk === 'object') {
+						scope.short_info = _.map(scope.drives_info.win_wmic_logicaldisk.info, function(disk) {
+							return disk.Name + ' (' + disk.VolumeName + ') ' +
+								$scope.human_size(disk.Size) + ' - ' + $scope.human_size(disk.FreeSpace) + ' free';
+						});
+					} else if (typeof scope.drives_info.df === 'object') {
+						scope.short_info = scope.drives_info.df.info;
+					}
+
+					scope.printer = function(info) {
+						if (typeof info === 'object') {
+							return angular.toJson(info, true);
+						} else {
+							return info;
 						}
-					});
+					};
+
 					var content = [
 						'<div style="padding: 20px">',
-						'  <pre style="background-color: transparent; color: inherit; border: none">{{dev_json}}</pre>',
-						'  <div ng-repeat="(key,info) in drives_info">',
+						'  <pre style="background-color: transparent; color: inherit; border: none">{{ printer(dev) }}</pre>',
+						'  <div class="text-center">',
+						'    <label class="btn btn-primary">',
+						'      <input type="checkbox" ng-model="full" />',
+						'      <span>Full</span>',
+						'    </label>',
+						'  </div>',
+						'  <div ng-if="!full">',
+						'    <pre style="background-color: transparent; color: inherit; border: none">{{ printer(short_info) }}</pre>',
+						'  </div>',
+						'  <div ng-if="full" ng-repeat="(key,info) in drives_info">',
 						'    <p class="lead">{{key}} {{info.time}}</p>',
-						'    <pre style="background-color: transparent; color: inherit; border: none">{{info.info_json || info.info || info.text}}</pre>',
+						'    <pre style="background-color: transparent; color: inherit; border: none">{{ printer(info.info || info.text) }}</pre>',
 						'  </div>',
 						'</div>'
 					].join('\n');
