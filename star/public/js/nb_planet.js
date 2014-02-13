@@ -601,6 +601,13 @@
 			}
 
 			function stream_read_full(stream, parser, callback) {
+				// parser is optional, default parser will convert buffer to string
+				if (!callback) {
+					callback = parser;
+					parser = function(buffer) {
+						return buffer.toString();
+					};
+				}
 				var was_called = false;
 				var callback_once = function() {
 					if (was_called || !callback) {
@@ -645,9 +652,10 @@
 			})();
 
 			function wmic_parse_list(buffer) {
-				var text = buffer.toString('ucs2'); // ucs2 encoding is utf16le
-				var DBL_EOL_RE = new RegExp(os.EOL + os.EOL);
-				var list = text.trim().split(DBL_EOL_RE);
+				var text = buffer.toString();
+				// split by double eol - 
+				// we get two \r between the \n, so we tolerate any whitespace
+				var list = text.trim().split(/\s*\n\s*\n\s*/); 
 				for (var i = 0; i < list.length; i++) {
 					var item = list[i].trim();
 					if (!item) continue;
@@ -683,27 +691,23 @@
 				return rows;
 			}
 
-			function parse_buf_as_string(buffer) {
-				return buffer.toString();
-			}
-
 			function update_drives_info() {
 				try {
 					if (os.platform() === 'win32') {
-						execute_os(WINDOWS.CMD, ['/c', 'dir', 'c:'], parse_buf_as_string,
+						execute_os(WINDOWS.CMD, ['/c', 'dir', 'c:'],
 							set_drives_info_callback('win_dir_c'));
 						wmic_save_info('csproduct', 'get');
 						wmic_save_info('diskdrive', 'list');
 						wmic_save_info('logicaldisk', 'list');
 						wmic_save_info('volume', 'list');
 						/*
-							execute_os(WINDOWS.FSUTIL, ['fsinfo', 'drives'], parse_buf_as_string,
+							execute_os(WINDOWS.FSUTIL, ['fsinfo', 'drives'],
 								set_drives_info_callback('win_fsinfo_drives'));
-							execute_os(WINDOWS.FSUTIL, ['volume', 'diskfree', 'c:'], parse_buf_as_string,
+							execute_os(WINDOWS.FSUTIL, ['volume', 'diskfree', 'c:'],
 								set_drives_info_callback('win_fsinfo_diskfree_c'));
 							*/
 					} else {
-						execute_os('/bin/df', ['-k'], parse_buf_as_string,
+						execute_os('/bin/df', ['-k'],
 							set_drives_info_callback('df'));
 					}
 				} catch (err) {
