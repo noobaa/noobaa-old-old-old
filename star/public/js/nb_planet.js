@@ -675,12 +675,12 @@
 				return list;
 			}
 
-			function wmic_get_list(topic, op, callback) {
-				execute_os(WINDOWS.CMD, ['/c', 'wmic', topic, op, '/format:list'], wmic_parse_list, callback);
+			function wmic_get_list(topic, callback) {
+				execute_os(WINDOWS.CMD, ['/c', 'wmic', topic, 'get', '/value'], wmic_parse_list, callback);
 			}
 
-			function wmic_save_info(topic, op) {
-				wmic_get_list(topic, op, set_drives_info_callback('win_wmic_' + topic + '_' + op));
+			function wmic_save_info(topic) {
+				wmic_get_list(topic, set_drives_info_callback('win_wmic_' + topic));
 			}
 
 			function table_parse(text) {
@@ -696,10 +696,13 @@
 					if (os.platform() === 'win32') {
 						execute_os(WINDOWS.CMD, ['/c', 'dir', 'c:'],
 							set_drives_info_callback('win_dir_c'));
-						wmic_save_info('csproduct', 'get');
-						wmic_save_info('diskdrive', 'list');
-						wmic_save_info('logicaldisk', 'list');
-						wmic_save_info('volume', 'list');
+						wmic_save_info('diskdrive');
+						wmic_save_info('logicaldisk');
+						wmic_save_info('volume');
+						wmic_save_info('csproduct');
+						wmic_save_info('computersystem');
+						wmic_save_info('os');
+						wmic_save_info('cpu');
 						/*
 							execute_os(WINDOWS.FSUTIL, ['fsinfo', 'drives'],
 								set_drives_info_callback('win_fsinfo_drives'));

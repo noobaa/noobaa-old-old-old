@@ -151,9 +151,9 @@
 					<td ng-style="style_dev_time(user)">
 						<a style="color: inherit" ng-repeat="(dev_id,dev) in user.devices" ng-click="show_device_info(dev)">
 							{{locale_date(dev.last_update)}}
-							<span ng-repeat="(key,val) in dev.drives_info">
-								<i class="fa fa-info-circle"></i>
-							</span>
+							<small ng-hide="_.isEmpty(dev.drives_info)">
+								<span ng-repeat="(key,val) in dev.drives_info">+</span>info
+							</small>
 						</a>
 					</td>
 					<!-- 
@@ -304,6 +304,8 @@
 		noobaa_app.controller('AdminoobaaCtrl', [
 			'$scope', '$http', '$window', '$timeout', 'JobQueue', 'nbUtil',
 			function AdminoobaaCtrl($scope, $http, $window, $timeout, JobQueue, nbUtil) {
+				$scope._ = _;
+				$scope.nbUtil = nbUtil;
 
 				$scope.loading = 0;
 				$scope.refresh_users = refresh_users;
