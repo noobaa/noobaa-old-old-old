@@ -295,7 +295,7 @@
 	(function() {
 		'use strict';
 
-		google.load('visualization', '1', {
+		google.load('visualization', '1.1', {
 			packages: ['corechart', 'table']
 		});
 
@@ -537,7 +537,38 @@
 						data.setCell(last_row, k, tr.count);
 						// console.log('DATA', last_row, k, tr.count, tr.ev);
 					});
+					var view = new google.visualization.DataView(data);
 					var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+					var table_div = document.getElementById('table_div');
+					var table = new google.visualization.Table(table_div);
+
+					function draw_view() {
+						chart.draw(view, {
+							pointSize: 5,
+							height: 500,
+							vAxis: {
+								title: '#events'
+							},
+							hAxis: {
+								title: 'Time',
+							},
+							legend: {
+								position: 'top'
+							},
+							explorer: {
+								actions: ['dragToPan', 'rightClickToReset']
+							}
+						});
+						table.draw(view, {
+							showRowNumber: true,
+							width: $(table_div).parent().width(),
+							page: 'enable',
+							pageSize: 10,
+							sortColumn: 0
+						});
+					}
+					draw_view();
+
 					google.visualization.events.addListener(chart, 'select', function() {
 						var selection = chart.getSelection();
 						if (!selection) {
@@ -548,38 +579,17 @@
 							return;
 						}
 						console.log('CHART SELECTION', selected);
+						if (!selected.row && selected.column) {
+							view.hideColumns([view.getTableColumnIndex(selected.column)]);
+							draw_view();
+						}
 						/*
 						if (!selected.column) {
-						}
-						if (!selected.row) {
 						}
 						if (selected.column && selected.row) {
 							var value = data.getValue(selected.row, selected.column);
 						}
 						*/
-					});
-					chart.draw(data, {
-						pointSize: 5,
-						height: 500,
-						vAxis: {
-							title: '#events'
-						},
-						hAxis: {
-							title: 'Time',
-						},
-						legend: {
-							position: 'top'
-						}
-					});
-
-					var table_div = document.getElementById('table_div');
-					var table = new google.visualization.Table(table_div);
-					table.draw(data, {
-						showRowNumber: true,
-						width: $(table_div).parent().width(),
-						page: 'enable',
-						pageSize: 10,
-						sortColumn: 0
 					});
 				}
 

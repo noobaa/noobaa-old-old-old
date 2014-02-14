@@ -8,23 +8,43 @@ var _ = require('underscore');
 
 var inode_schema = new mongoose.Schema({
 	// user ownership
-	owner: types.ObjectId,
+	owner: {
+		type: types.ObjectId,
+		ref: 'User'
+	},
+
 	// namespace
-	parent: types.ObjectId,
+	parent: {
+		type: types.ObjectId,
+		ref: 'Inode'
+	},
 	name: String,
+
 	// fields describing the content of the inode
 	isdir: Boolean,
-	fobj: types.ObjectId,
-	ghost_ref: types.ObjectId,
+	fobj: {
+		type: types.ObjectId,
+		ref: 'Fobj'
+	},
+	ghost_ref: {
+		type: types.ObjectId,
+		ref: 'Inode'
+	},
 	num_refs: Number,
+
 	// device source info
-	src_dev_id: types.ObjectId,
+	src_dev_id: {
+		type: types.ObjectId,
+		ref: 'Device'
+	},
 	src_dev_path: String,
+
 	// version number used to revoke public links
 	link_vers: {
 		type: Number,
 		default: 1
 	},
+
 	// timestamps
 	create_time: {
 		type: Date,

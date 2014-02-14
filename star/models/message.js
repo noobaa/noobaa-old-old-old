@@ -7,15 +7,27 @@ var _ = require('underscore');
 
 
 var message_schema = new mongoose.Schema({
-	user: types.ObjectId,
+	user: {
+		type: types.ObjectId,
+		ref: 'User'
+	},
 	text: String,
 	create_time: {
 		type: Date,
 		default: Date.now
 	},
-	subject_inode: types.ObjectId,
-	subject_user: types.ObjectId,
-	removed_by: types.ObjectId,
+	subject_inode: {
+		type: types.ObjectId,
+		ref: 'Inode'
+	},
+	subject_user: {
+		type: types.ObjectId,
+		ref: 'User'
+	},
+	removed_by: {
+		type: types.ObjectId,
+		ref: 'User'
+	},
 	removed_time: Date,
 });
 

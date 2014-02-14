@@ -1,8 +1,10 @@
 var _ = require('underscore');
 var async = require('async');
+var moment = require('moment');
 var Inode = require('../models/inode').Inode;
 var User = require('../models/user').User;
 var Fobj = require('../models/fobj').Fobj;
+var Message = require('../models/message').Message;
 var email = require('./email');
 var common_api = require('./common_api');
 
@@ -220,8 +222,10 @@ exports.find_recent_swm = find_recent_swm;
 
 function find_recent_swm(user_id, count_limit, from_time, callback) {
 	var swm_inodes;
+	var live_inode_ids;
 	var live_inodes;
 	var live_owners;
+	var messages;
 	async.waterfall([
 		function(next) {
 			var q = Inode.find({
@@ -246,24 +250,47 @@ function find_recent_swm(user_id, count_limit, from_time, callback) {
 		},
 		function(inodes, next) {
 			swm_inodes = inodes;
-			var live_inode_ids = _.pluck(swm_inodes, 'ghost_ref');
-			return Inode.find()['in']('_id', live_inode_ids).exec(next);
+			live_inode_ids = _.pluck(swm_inodes, 'ghost_ref');
+			return Inode.find({
+				_id: {
+					$in: live_inode_ids
+				}
+			}).exec(next);
 		},
 		function(inodes, next) {
 			live_inodes = inodes;
 			var owner_ids = _.pluck(live_inodes, 'owner');
-			return User.find()['in']('_id', owner_ids).exec(next);
+			return User.find({
+				_id: {
+					$in: owner_ids
+				}
+			}).exec(next);
 		},
 		function(owners, next) {
 			live_owners = owners;
+			return Message.find({
+				subject_inode: {
+					$in: live_inode_ids
+				},
+				removed_by: {
+					$exists: false
+				}
+			}).sort({
+				create_time: 1
+			}).populate('user').exec(next);
+		},
+		function(msgs, next) {
+			messages = msgs;
 			var live_inodes_by_id = _.indexBy(live_inodes, '_id');
 			var live_owners_by_id = _.indexBy(live_owners, '_id');
+			var messages_by_inode = _.groupBy(messages, 'subject_inode');
 			var shares = _.map(swm_inodes, function(inode) {
 				var shared_item = {};
 				shared_item.inode = inode.toObject();
 				var live_inode = live_inodes_by_id[inode.ghost_ref];
 				if (live_inode) {
 					shared_item.live_inode = live_inode;
+					shared_item.messages = messages_by_inode[live_inode.id];
 					var owner = live_owners_by_id[live_inode.owner];
 					if (owner) {
 						shared_item.live_owner = owner;
@@ -276,40 +303,84 @@ function find_recent_swm(user_id, count_limit, from_time, callback) {
 	], callback);
 }
 
-exports.send_notification_on_recent_swm = send_notification_on_recent_swm;
+exports.send_user_daily_notify = send_user_daily_notify;
 
-function send_notification_on_recent_swm(user_id, count_limit, from_time, callback) {
-	var user;
+function send_user_daily_notify(user, callback) {
+	if (user.email_policy === 'silent') {
+		console.log('silent email for user', user.get_email());
+		return callback();
+	}
+
 	async.waterfall([
-		//get the notified user
 		function(next) {
-			return User.findById(user_id, next);
-		},
-		function(usr, next) {
-			user = usr;
-			if (!user) {
-				return next({
-					status: 404,
-					data: 'USER NOT FOUND'
-				});
-			}
-			if (user.email_policy === 'silent') {
-				console.log('silent email for user', user.get_email());
-				return next(null, null);
-			}
-			return find_recent_swm(user_id, count_limit, from_time, next);
+			return find_recent_swm(user.id, 3, user.email_last_daily, next);
 		},
 		function(shares, next) {
 			if (!shares) {
-				return next();
+				return next(null, false);
 			}
 			if (!shares.length) {
-				console.log('NO NEW SWM', user.get_name());
+				// console.log('NO NEW SWM', user.get_name());
+				return next(null, false);
+			}
+			return email.send_recent_swm_notification(user, shares, function(err) {
+				return next(err, true);
+			});
+		},
+		function(was_sent, next) {
+			if (!was_sent) {
 				return next();
 			}
-			return email.send_recent_swm_notification(user, shares, next);
+			user.email_last_daily = new Date();
+			user.save(next);
 		}
 	], callback);
+}
+
+
+function run_users_notify_job() {
+	var now = new Date();
+	var yesterday = moment().day(-1).toDate();
+	console.log('USERS NOTIFY JOB');
+
+	async.waterfall([
+
+		function(next) {
+			return User.find({
+				$or: [{
+					email_last_daily: {
+						$exists: false
+					}
+				}, {
+					email_last_daily: {
+						$lte: yesterday
+					}
+				}]
+			}, next);
+		},
+
+		function(users, next) {
+			return async.eachLimit(users, 5, function(user, next) {
+				return send_user_daily_notify(user, function(err) {
+					if (err) {
+						console.error('FAILED NOTIFY USER', user.get_name());
+						// don't propagate the error further
+					}
+					return next();
+				});
+			}, next);
+		},
+
+	], function(err) {
+		if (err) {
+			console.error('FAILED USERS NOTIFY JOB', err);
+		}
+	});
+}
+
+if (!global.run_users_notify_interval) {
+	run_users_notify_job();
+	global.run_users_notify_interval = setInterval(run_users_notify_job, 3600000);
 }
 
 

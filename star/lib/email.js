@@ -13,7 +13,7 @@ var _ = require('underscore');
 var EMAIL_STYLES = [
 	'<style>',
 	'.nbcapsule {',
-	'  max-width: 400px;',
+	'  max-width: 420px;',
 	'  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;',
 	'  border-radius: 100px;',
 	'  background-color: hsl(0,0%,0%);',
@@ -34,7 +34,7 @@ var EMAIL_STYLES = [
 	// '  }',
 	// '}',
 	'.nbcapsule .text-color {',
-	'  color: hsl(0, 80%, 40%);',
+	'  color: hsl(199,68%,50%);',
 	'}',
 	'.nbcapsule .text-bright {',
 	'  color: hsl(0,0%,90%);',
@@ -63,14 +63,25 @@ var EMAIL_STYLES = [
 	'  line-height: 1.5em;',
 	'}',
 	'.nbcapsule .pict {',
-	'  width: 40px;',
-	'  height: 40px;',
-	'  border-radius: 10px;',
+	'  width: 30px;',
+	'  height: 30px;',
+	'  border-radius: 6px;',
+	'  margin-right: 5px;',
 	'  -webkit-transition: all 0.5s;',
 	'  -moz-transition: all 0.5s;',
 	'  -o-transition: all 0.5s;',
 	'  transition: all 0.5s;',
 	'}',
+	'.nbcapsule .message {',
+	'  padding-top: 5px;',
+	'}',
+	/*
+	'.nbcapsule .message .pict {',
+	'  width: 30px;',
+	'  height: 30px;',
+	'  border-radius: 5px;',
+	'}',
+	*/
 	'.nbcapsule .hoverable {',
 	'  -webkit-transition: all 0.5s;',
 	'  -moz-transition: all 0.5s;',
@@ -80,12 +91,14 @@ var EMAIL_STYLES = [
 	'.nbcapsule .hoverable:hover, .nbcapsule .hoverable:focus {',
 	'  background-color: hsl(0,0%,10%);',
 	'}',
+	/*
 	'.nbcapsule .hoverable:hover .pict, .nbcapsule .hoverable:focus .pict {',
 	'  width: 50px;',
 	'  height: 50px;',
 	'  transform: rotate(360deg);',
 	'  -webkit-transform: rotate(360deg);',
 	'}',
+	*/
 	'.nbcapsule .caret {',
 	'  width: 0;',
 	'  height: 0;',
@@ -103,7 +116,7 @@ var EMAIL_STYLES = [
 	'  overflow: hidden;',
 	'  font-size: 40px;',
 	'  text-align: center;',
-	'  background-color: hsl(0,0%,40%);',
+	'  background-color: hsl(0,0%,80%);',
 	'  color: black;',
 	'  -webkit-transition: all 0.5s;',
 	'  -moz-transition: all 0.5s;',
@@ -111,7 +124,7 @@ var EMAIL_STYLES = [
 	'  transition: all 0.5s;',
 	'}',
 	'.nbcapsule .hoverable:hover .action-btn, .nbcapsule .hoverable:focus .action-btn {',
-	'  background-color: hsl(32, 80%, 40%);',
+	'  background-color: hsl(32, 80%, 50%);',
 	'  -webkit-animation-name: dancing;',
 	'  -webkit-animation-duration: 1.3s;',
 	'  -webkit-transform-origin: 50% 50%;',
@@ -146,24 +159,39 @@ var SWM_TEMAPLATE = dot.template([
 	'  </div>',
 	'  <?~ it.shares :item:index ?>',
 	'  <div style="padding-top: 10px; padding-bottom: 20px;" class="border-top hoverable">',
-	'   <div style="float: left">',
-	'    <img src="<?! item.live_owner.get_pic_url() ?>" class="pict" />',
-	'   </div>',
-	'   <div style="padding-left: 10px; overflow: hidden">',
+	'   <div style="padding: 0px 0 0 0">',
 	'    <div style="float: right">',
 	'     <a href="https://www.noobaa.com/home/">',
 	'      <div class="action-btn"><div class="caret"></div></div>',
 	'     </a>',
 	'    </div>',
+	'    <div style="overflow: hidden" class="heading1 text-color">',
+	'     <?! item.live_inode.name ?>',
+	'    </div>',
+	'   </div>',
+	'   <div style="padding: 10px 0 0 0; opacity: 0.8">',
+	'    <div style="float: left">',
+	'     <img src="<?! item.live_owner.get_pic_url() ?>" class="pict" />',
+	'    </div>',
 	'    <div style="overflow: hidden">',
-	'     <div style="margin: 0" class="heading2">',
-	'      <span><?! item.live_owner.get_name() ?></span>',
-	'     </div>',
-	'     <div style="padding: 0px 0 0 0">',
-	'      <div class="heading1 text-color">',
-	'       <?! item.live_inode.name ?>',
+	'     <div style="overflow: hidden">',
+	'      <div style="padding-bottom: 5px" class="heading2 text-bright smalltext">',
+	'       <span><?! item.live_owner.get_name() ?></span>',
 	'      </div>',
 	'     </div>',
+	'     <?~ item.messages :msg:msg_index ?>',
+	'      <div class="message" style="overflow: hidden">',
+	'       <div style="float: left">',
+	'        <img src="<?! msg.user.get_pic_url() ?>" class="pict" />',
+	'       </div>',
+	'       <div style="overflow: hidden">',
+	'        <div style="margin: 0" class="heading2 text-bright smalltext">',
+	'         <span><?! msg.user.get_name() ?></span>',
+	'        </div>',
+	'        <div class="smalltext"><?! msg.text ?></div>',
+	'       </div>',
+	'      </div>',
+	'     <?~?>',
 	'    </div>',
 	'   </div>',
 	'  </div>',
@@ -481,11 +509,16 @@ exports.test_email_templates = function(req, res) {
 			return 'https://graph.facebook.com/' + req.user.fbid + '/picture';
 		}
 	};
+	var msg = {
+		user: user,
+		text: 'lalalal lalala lkajlkjasd olkjl kjasdlkj alksjd lkj lkj lkja lskjd lkj asd'
+	};
 	var shares = [{
 		live_owner: user,
 		live_inode: {
 			name: 'Testing SWM 1'
-		}
+		},
+		messages: [msg, msg]
 	}, {
 		live_owner: user,
 		live_inode: {
@@ -494,7 +527,7 @@ exports.test_email_templates = function(req, res) {
 	}, {
 		live_owner: user,
 		live_inode: {
-			name: '<div style="margin: 10px; padding: 10px; border: 1px solid black">'
+			name: 'Shtuyut Ze lo Yachol Lihiot'
 		}
 	}, {
 		live_owner: user,

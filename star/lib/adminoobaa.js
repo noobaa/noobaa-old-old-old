@@ -102,13 +102,17 @@ exports.admin_get_user_usage = function(req, res) {
 };
 
 
-exports.admin_send_user_recent_swm = function(req, res) {
-
+exports.admin_send_user_daily_notify = function(req, res) {
 	var user_id = req.params.user_id;
+
 	return async.waterfall([
 
 		function(next) {
-			user_inodes.send_notification_on_recent_swm(user_id, 3, null, next);
+			return User.findById(user_id, next);
+		},
+
+		function(user, next) {
+			return user_inodes.send_user_daily_notify(user, next);
 		},
 
 	], common_api.reply_callback(req, res, 'ADMIN RECENT SWM ' + user_id));

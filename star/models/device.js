@@ -6,7 +6,10 @@ var types = mongoose.Schema.Types;
 
 var device_schema = new mongoose.Schema({
 	// user ownership
-	owner: types.ObjectId,
+	owner: {
+		type: types.ObjectId,
+		ref: 'User'
+	},
 	name: String,
 	host_info: {},
 	drives_info: {},

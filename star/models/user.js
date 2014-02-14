@@ -13,18 +13,12 @@ var user_schema = new mongoose.Schema({
 	local: {},
 	email: String, //this is used when the user updates a different email than the one in FB.
 	email_policy: String,
+	email_last_daily: Date,
 	quota: {
 		type: Number,
 		default: Math.pow(1024, 3)
 	}, //default quota is 1GB for now
 	alpha_tester: Boolean, // true to allow login to alpha testing
-	/*
-	notify_email: {
-		on_share: Boolean,
-		on_daily_shares: Boolean,
-		on_weekly_shares: Boolean,
-	}
-	*/
 });
 
 // create a unique index on the facebook id field
