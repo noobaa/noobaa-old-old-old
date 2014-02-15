@@ -309,13 +309,31 @@
 								(user.fb && user.fb.email);
 							for (var dev_id in user.devices) {
 								$scope.totals.num_devices++;
-								var dev_time = user.devices[dev_id].last_update;
+								var dev = user.devices[dev_id];
+								var dev_time = dev.last_update;
 								if (dev_time) {
 									dev_time = new Date(dev_time);
 									if (!user.main_dev_time ||
 										(dev_time.getTime() > user.main_dev_time.getTime())) {
 										user.main_dev_time = dev_time;
-										user.main_device = user.devices[dev_id];
+										user.main_device = dev;
+
+									}
+								}
+								if (dev.drives_info) {
+									if (typeof dev.drives_info.win_wmic_logicaldisk === 'object') {
+										dev.free_space = 0;
+										dev.total_space = 0;
+										dev.short_info = _.map(dev.drives_info.win_wmic_logicaldisk.info,
+											function(disk) {
+												dev.free_space += disk.FreeSpace;
+												dev.total_space += disk.Size;
+												return disk.Name + ' (' + disk.VolumeName + ') ' +
+													$scope.human_size(disk.Size) + ' - ' + $scope.human_size(disk.FreeSpace) + ' free';
+											}
+										);
+									} else if (typeof dev.drives_info.df === 'object') {
+										dev.short_info = dev.drives_info.df.info;
 									}
 								}
 							}
@@ -339,6 +357,8 @@
 						data.addColumn('number', 'Quota');
 						data.addColumn('datetime', 'AccessTime');
 						data.addColumn('datetime', 'Device');
+						data.addColumn('number', 'DeviceTotal');
+						data.addColumn('number', 'DeviceFree');
 						data.addColumn('number', 'TZ');
 						// data.addColumn('string', 'email');
 
@@ -360,6 +380,12 @@
 								}, {
 									v: user.main_dev_time,
 									f: user.main_dev_time && moment(user.main_dev_time).fromNow()
+								}, {
+									v: user.main_device && user.main_device.total_space,
+									f: user.main_device && $scope.human_size(user.main_device.total_space)
+								}, {
+									v: user.main_device && user.main_device.free_space,
+									f: user.main_device && $scope.human_size(user.main_device.free_space)
 								}, {
 									v: user.tz_offset,
 									f: typeof user.tz_offset === 'number' ? (user.tz_offset / 60).toString() : ''
@@ -427,20 +453,10 @@
 					scope.dev = _.clone(user.main_device);
 					if (scope.dev) {
 						scope.drives_info = scope.dev.drives_info;
+						scope.short_info = scope.dev.short_info;
 						delete scope.dev.drives_info;
-						if (scope.drives_info) {
+						delete scope.dev.short_info;
 
-							if (typeof scope.drives_info.win_wmic_logicaldisk === 'object') {
-								scope.short_info = _.map(scope.drives_info.win_wmic_logicaldisk.info,
-									function(disk) {
-										return disk.Name + ' (' + disk.VolumeName + ') ' +
-											$scope.human_size(disk.Size) + ' - ' + $scope.human_size(disk.FreeSpace) + ' free';
-									}
-								);
-							} else if (typeof scope.drives_info.df === 'object') {
-								scope.short_info = scope.drives_info.df.info;
-							}
-						}
 					}
 					scope.printer = function(info) {
 						if (typeof info === 'object') {
