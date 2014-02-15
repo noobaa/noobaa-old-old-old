@@ -303,26 +303,36 @@ function find_recent_swm(user_id, count_limit, from_time, callback) {
 	], callback);
 }
 
-exports.send_user_daily_notify = send_user_daily_notify;
+exports.user_notify_by_email = user_notify_by_email;
 
-function send_user_daily_notify(user, callback) {
+function user_notify_by_email(user, callback) {
 	if (user.email_policy === 'silent') {
-		console.log('silent email for user', user.get_email());
+		console.log('silent email for user', user.get_name());
+		return callback();
+	}
+	// if not yet filled the tz, assuming GMT+2 (ISRAEL TIME)
+	var tz_offset = (typeof user.tz_offset === 'number') ? user.tz_offset : 120; 
+	// we add the tz offset to the utc time, so then using getUTCHours returns the hour in user time
+	var user_time_now = new Date(Date.now() + (tz_offset * 60000));
+	var user_hour = user_time_now.getUTCHours();
+	// send mails on 8pm
+	if (user_hour !== 20) {
+		console.log('not yet time on user clock', user_hour, user.get_name());
 		return callback();
 	}
 
 	async.waterfall([
 		function(next) {
-			return find_recent_swm(user.id, 3, user.email_last_daily, next);
+			return find_recent_swm(user.id, 3, user.email_last_notify_time, next);
 		},
 		function(shares, next) {
 			if (!shares) {
 				return next(null, false);
 			}
 			if (!shares.length) {
-				// console.log('NO NEW SWM', user.get_name());
 				return next(null, false);
 			}
+			console.log('USER NOTIFY EMAIL', user.get_name());
 			return email.send_recent_swm_notification(user, shares, function(err) {
 				return next(err, true);
 			});
@@ -331,28 +341,28 @@ function send_user_daily_notify(user, callback) {
 			if (!was_sent) {
 				return next();
 			}
-			user.email_last_daily = new Date();
+			user.email_last_notify_time = new Date();
 			user.save(next);
 		}
 	], callback);
 }
 
 
-function run_users_notify_job() {
+function users_notify_by_email_job() {
 	var now = new Date();
 	var yesterday = moment().day(-1).toDate();
-	console.log('USERS NOTIFY JOB');
+	console.log('USERS NOTIFY EMAIL JOB - START');
 
 	async.waterfall([
 
 		function(next) {
 			return User.find({
 				$or: [{
-					email_last_daily: {
+					email_last_notify_time: {
 						$exists: false
 					}
 				}, {
-					email_last_daily: {
+					email_last_notify_time: {
 						$lte: yesterday
 					}
 				}]
@@ -360,8 +370,9 @@ function run_users_notify_job() {
 		},
 
 		function(users, next) {
-			return async.eachLimit(users, 5, function(user, next) {
-				return send_user_daily_notify(user, function(err) {
+			console.log('USERS NOTIFY EMAIL JOB -', users.length, 'USERS TO PROCESS');
+			return async.eachLimit(users, 3, function(user, next) {
+				return user_notify_by_email(user, function(err) {
 					if (err) {
 						console.error('FAILED NOTIFY USER', user.get_name());
 						// don't propagate the error further
@@ -373,15 +384,20 @@ function run_users_notify_job() {
 
 	], function(err) {
 		if (err) {
-			console.error('FAILED USERS NOTIFY JOB', err);
+			console.error('FAILED USERS NOTIFY EMAIL JOB', err);
+		} else {
+			console.log('USERS NOTIFY EMAIL JOB - DONE');
 		}
+		schedule_users_notify_by_email_job();
 	});
 }
 
-if (!global.run_users_notify_interval) {
-	run_users_notify_job();
-	global.run_users_notify_interval = setInterval(run_users_notify_job, 3600000);
+function schedule_users_notify_by_email_job() {
+	clearTimeout(global.users_notify_by_email_job_timeout);
+	global.users_notify_by_email_job_timeout = setTimeout(users_notify_by_email_job, 600000);
 }
+
+users_notify_by_email_job();
 
 
 exports.get_referring_users = get_referring_users;
@@ -419,21 +435,20 @@ function get_user_usage_bytes(user_id, cb) {
 		//sum all the referenced fobj's
 		function(fobj_list, next) {
 			lfobj_list = _.pluck(fobj_list, 'fobj');
-			return Fobj.aggregate(
-				[{
-					$match: {
-						_id: {
-							$in: lfobj_list
-						}
+			return Fobj.aggregate([{
+				$match: {
+					_id: {
+						$in: lfobj_list
 					}
-				}, {
-					$group: {
-						_id: '',
-						size: {
-							$sum: '$size'
-						}
+				}
+			}, {
+				$group: {
+					_id: '',
+					size: {
+						$sum: '$size'
 					}
-				}], next);
+				}
+			}], next);
 		}
 	], function(err, result) {
 		if (err) {

@@ -14,6 +14,8 @@ var auth = require('./auth');
 exports.user_read = function(req, res) {
 
 	var user_id = req.user.id;
+	var user;
+	var usage;
 
 	return async.waterfall([
 
@@ -23,17 +25,37 @@ exports.user_read = function(req, res) {
 		},
 
 		//get the user's current usage
-		function(user, next) {
-			return user_inodes.get_user_usage_bytes(user_id, function(err, usage) {
-				if (err) {
-					return next(err);
-				}
-				return next(null, {
-					quota: user.quota,
-					usage: usage
-				});
+		function(user1, next) {
+			user = user1;
+			return user_inodes.get_user_usage_bytes(user_id, next);
+		},
+
+		function(usage1, next) {
+			usage = usage1;
+			if (user.usage === usage &&
+				(!req.query.tz_offset || (req.query.tz_offset === user.tz_offset)) &&
+				(user.last_access_time && (Date.now() - user.last_access_time.getTime()) < 600000)) {
+				return next();
+			}
+			// save a cached value of the usage in the user
+			user.usage = usage;
+			// save last access time with some resolution (10 mins)
+			user.last_access_time = new Date();
+			// save client timezone
+			if (req.query.tz_offset) {
+				user.tz_offset = req.query.tz_offset;
+			}
+			return user.save(function(err) {
+				return next(err);
 			});
 		},
+
+		function(next) {
+			return next(null, {
+				quota: user.quota,
+				usage: usage
+			});
+		}
 	], common_api.reply_callback(req, res, 'USER READ ' + user_id));
 };
 

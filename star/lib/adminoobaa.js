@@ -84,15 +84,23 @@ exports.admin_get_users = function(req, res) {
 
 
 exports.admin_get_user_usage = function(req, res) {
-
 	var user_id = req.params.user_id;
+	var usage;
+
 	return async.waterfall([
 
 		function(next) {
 			user_inodes.get_user_usage_bytes(user_id, next);
 		},
 
-		function(usage, next) {
+		function(usage1, next) {
+			usage = usage1;
+			User.findByIdAndUpdate(user_id, {
+				usage: usage
+			}, next);
+		},
+
+		function(user, next) {
 			return next(null, {
 				usage: usage
 			});
@@ -102,7 +110,7 @@ exports.admin_get_user_usage = function(req, res) {
 };
 
 
-exports.admin_send_user_daily_notify = function(req, res) {
+exports.admin_user_notify_by_email = function(req, res) {
 	var user_id = req.params.user_id;
 
 	return async.waterfall([
@@ -112,10 +120,10 @@ exports.admin_send_user_daily_notify = function(req, res) {
 		},
 
 		function(user, next) {
-			return user_inodes.send_user_daily_notify(user, next);
+			return user_inodes.user_notify_by_email(user, next);
 		},
 
-	], common_api.reply_callback(req, res, 'ADMIN RECENT SWM ' + user_id));
+	], common_api.reply_callback(req, res, 'ADMIN USER NOTIFY BY EMAIL' + user_id));
 };
 
 

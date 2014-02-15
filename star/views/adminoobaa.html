@@ -3,6 +3,20 @@
 
 <head>
 	<?# def.include( 'common_head.html') ?>
+		<style>
+		table {
+			background-color: inherit !important;
+		}
+		.table-row {
+			border-bottom: 1px solid hsl(0, 0%, 15%);
+		}
+		.table-header-cell {
+			border: 1px solid hsl(0, 0%, 50%);
+		}
+		.table-cell, .table-header-cell {
+			padding: 2px 6px !important;
+		}
+		</style>
 </head>
 
 <body ng-cloak ng-controller="AdminoobaaCtrl">
@@ -51,6 +65,7 @@
 	</div>
 
 	<div class="container" ng-show="current_tab=='users'">
+		<!-- 
 		<div class="text-center" style="padding: 10px 0">
 			<button class="btn btn-default" ng-click="refresh_users()">
 				<i class="fa fa-refresh fa-fw fa-lg"></i>
@@ -61,131 +76,10 @@
 				Calculate Usage
 			</button>
 		</div>
-		<table class="table">
-			<thead>
-				<th>#</th>
-				<th>User</th>
-				<!-- <th>Alpha</th> -->
-				<th>
-					Files
-					<span class="badge">{{totals.num_files}}</span>
-				</th>
-				<th>
-					Usage
-					<span class="badge">{{human_size(totals.usage)}}</span>
-				</th>
-				<th>
-					Quota
-					<span class="badge">{{human_size(totals.quota)}}</span>
-				</th>
-				<th>
-					Device
-					<span class="badge">{{totals.num_devices}}</span>
-				</th>
-			</thead>
-			<tbody>
+		 -->
 
-				<tr ng-repeat="(row_index,user) in users_array | orderBy:'_id':true ">
-					<td>
-						{{users_array.length-row_index}}
-						<div class="btn-group">
-							<a type="button" class="dropdown-toggle" data-toggle="dropdown" style="cursor: pointer">
-								<i class="fa fa-cog fa-lg fa-fw"></i>
-							</a>
-							<ul class="dropdown-menu" role="menu">
-								<li class="text-center">
-									<small>{{user.email_addr}}</small>
-								</li>
-								<li class="text-center" ng-show="user.fb">
-									<small>FB id {{user.fb.id}}</small>
-								</li>
-								<li class="text-center" ng-show="user.google">
-									<small>Google id {{user.google.id}}</small>
-								</li>
-								<li class="divider"></li>
-								<li>
-									<a ng-click="toggle_email_silent(user)" ng-switch="user.email_policy">
-										Email policy: {{user.email_policy=='silent' && 'silent' || 'normal'}} (click to toggle)
-									</a>
-								</li>
-								<li>
-									<a ng-click="send_recent_swm(user)">
-										Send Recent SWM
-									</a>
-								</li>
-								<li class="divider"></li>
-								<li>
-									<a ng-click="calculate_user_usage(user)">
-										Calculate Usage
-									</a>
-								</li>
-							</ul>
-						</div>
-					</td>
-					<td>
-						<span>{{user.name}}</span>
-						<span ng-show="user.fb">[FB]</span>
-						<span ng-show="user.google">[G+]</span>
-						<span ng-switch="user.email_policy" ng-click="toggle_email_silent(user)" style="cursor: pointer" title="{{user.email_addr}}" rel="tooltip">
-							<span ng-switch-when="silent">(@silent)</span>
-							<span ng-switch-default>(@)</span>
-						</span>
-					</td>
-					<!-- 
-					<td>
-						<button 
-						ng-class="{true: ' btn btn-success', false:'btn btn-warning'}[!!user.alpha_tester]"
-							ng-click="toggle_alpha(user)">
-							{{user.alpha_tester || 'false'}}
-						</button>
-					</td>
-					 -->
-					<td>{{user.files}}</td>
-					<td ng-style="style_usage(user)">
-						<a ng-click="calculate_user_usage(user)"><i class="fa fa-tachometer fa-fw text-muted"></i></a>
-						{{human_size(user.usage)}}
-					</td>
-					<td ng-style="style_quota(user)">
-						{{human_size(user.quota)}}
-					</td>
-					<td ng-style="style_dev_time(user)">
-						<a style="color: inherit" ng-repeat="(dev_id,dev) in user.devices" ng-click="show_device_info(dev)">
-							{{locale_date(dev.last_update)}}
-							<small ng-hide="_.isEmpty(dev.drives_info)">
-								<span ng-repeat="(key,val) in dev.drives_info">+</span>info
-							</small>
-						</a>
-					</td>
-					<!-- 
-					<td>
-						<table
-							class="table table-condensed">
-							<thead>
-								<th>Device</th>
-								<th>Host</th>
-								<th>OS</th>
-								<th>Last Update</th>
-								<th>#Updates</th>
-								<th>CoShare</th>
-							</thead>
-							<tbody>
-								<tr ng-repeat="(dev_id,dev) in user.devices">
-									<td>{{dev.name}}</td>
-									<td>{{dev.host_info.hostname}}</td>
-									<td>{{dev.host_info.platform}}</td>
-									<td>{{locale_date(dev.last_update)}}</td>
-									<td>{{dev.total_updates}}</td>
-									<td>{{human_size(dev.coshare_space)}}</td>
-								</tr>
-							</tbody>
-						</table>
-					</td>
-					-->
-				</tr>
+		<div id="users_table"></div>
 
-
-			</tbody>
-		</table>
 	</div>
 
 
@@ -268,8 +162,8 @@
 				</div>
 			</div>
 		</div>
-		<div id="chart_div"></div>
-		<div id="table_div"></div>
+		<div id="tracks_chart"></div>
+		<div id="tracks_table"></div>
 	</div>
 
 
@@ -283,12 +177,44 @@
 	</div>
 
 
+	<div style="display: none" ng-non-bindable>
+		<div id="user_info_modal" style="max-height: 100%">
+			<div style="padding: 0 30px">
+				<div class="row">
+					<div class="col-sm-6">
+						<h3>User</h3>
+						<pre style="background-color: transparent; color: inherit; border: none">{{ printer(user) }}</pre>
+					</div>
+					<div class="col-sm-6">
+						<h3>Device</h3>
+						<pre style="background-color: transparent; color: inherit; border: none">{{ printer(dev) }}</pre>
+					</div>
+				</div>
+				<div class="text-center">
+					<label class="btn btn-primary">
+						<input type="checkbox" ng-model="full" />
+						<span>Full</span>
+					</label>
+				</div>
+				<div ng-if="!full">
+					<pre style="background-color: transparent; color: inherit; border: none">{{ printer(short_info) }}</pre>
+				</div>
+				<div ng-if="full" ng-repeat="(key,info) in drives_info">
+					<h4>{{key}} {{info.time}}</h4>
+					<pre style="background-color: transparent; color: inherit; border: none">{{ printer(info.info || info.text) }}</pre>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
 	<div>
 		<?# def.include( 'common_scripts.html') ?>
 	</div>
 
 	<!-- // <script src="/vendor/d3.v3.min.js" type="text/javascript"></script> -->
 	<script src="//www.google.com/jsapi" type="text/javascript"></script>
+	<script src="/vendor-n/moment/moment.js" type="text/javascript"></script>
 
 
 	<script type="text/javascript">
@@ -326,9 +252,24 @@
 					if (name === 'tracks') {
 						refresh_tracks();
 					}
+					if (name === 'users') {
+						refresh_users();
+					}
 				};
 
-				refresh_users();
+				google.setOnLoadCallback(function() {
+					refresh_users();
+				});
+
+				var table_css_classes = {
+					tableRow: 'table-row',
+					headerRow: 'table-header-row',
+					tableCell: 'table-cell',
+					headerCell: 'table-header-cell',
+					selectedTableRow: 'table-row-selected',
+					hoverTableRow: 'table-row-hover'
+				};
+
 
 				function refresh_users() {
 					$scope.loading++;
@@ -339,13 +280,16 @@
 						$scope.loading--;
 						var old_users = $scope.users || {};
 						$scope.users = res.data;
-						$scope.users_array = _.values($scope.users);
+						$scope.users_array = _.sortBy(_.values($scope.users), function(user) {
+							return -parseInt(user._id, 16);
+						});
 						$scope.totals = {
 							num_devices: 0,
 							quota: 0,
 							usage: 0,
 							num_files: 0
 						};
+
 						for (var user_id in $scope.users) {
 							var user = $scope.users[user_id];
 							var old_user = old_users[user_id];
@@ -357,6 +301,15 @@
 								(user.fb && user.fb.email);
 							for (var dev_id in user.devices) {
 								$scope.totals.num_devices++;
+								var dev_time = user.devices[dev_id].last_update;
+								if (dev_time) {
+									dev_time = new Date(dev_time);
+									if (!user.main_dev_time ||
+										(dev_time.getTime() > user.main_dev_time.getTime())) {
+										user.main_dev_time = dev_time;
+										user.main_device = user.devices[dev_id];
+									}
+								}
 							}
 							if (user.quota > 1024 * 1024 * 1024) {
 								$scope.totals.quota += user.quota;
@@ -367,13 +320,130 @@
 							if (user.files) {
 								$scope.totals.num_files += user.files;
 							}
+							user.last_access_time = user.last_access_time && new Date(user.last_access_time);
 						}
+
+						var data = new google.visualization.DataTable();
+						data.addColumn('number', '#');
+						data.addColumn('string', 'Name');
+						data.addColumn('number', 'Files');
+						data.addColumn('number', 'Usage');
+						data.addColumn('number', 'Quota');
+						data.addColumn('datetime', 'AccessTime');
+						data.addColumn('datetime', 'Device');
+						data.addColumn('number', 'TZ');
+						// data.addColumn('string', 'email');
+
+						var index = $scope.users_array.length;
+						for (var i = 0; i < $scope.users_array.length; i++) {
+							var user = $scope.users_array[i];
+							data.addRow([
+								index--,
+								user.name,
+								user.files, {
+									v: user.usage,
+									f: $scope.human_size(user.usage)
+								}, {
+									v: user.quota,
+									f: $scope.human_size(user.quota)
+								}, {
+									v: user.last_access_time,
+									f: user.last_access_time && moment(user.last_access_time).fromNow()
+								}, {
+									v: user.main_dev_time,
+									f: user.main_dev_time && moment(user.main_dev_time).fromNow()
+								}, {
+									v: user.tz_offset,
+									f: typeof user.tz_offset === 'number' ? (user.tz_offset / 60).toString() : ''
+								},
+								// user.email_addr,
+							]);
+						}
+
+						var yesterday = moment().day(-1).toDate();
+						var week_ago = moment().week(-1).toDate();
+						var date_color_fmt = new google.visualization.ColorFormat();
+						date_color_fmt.addRange(week_ago, yesterday, 'black', 'yellow');
+						date_color_fmt.addRange(yesterday, null, 'black', 'red');
+						date_color_fmt.format(data, 5);
+						date_color_fmt.format(data, 6);
+						var usage_color_fmt = new google.visualization.ColorFormat();
+						usage_color_fmt.addRange(1024 * 1024, 1024 * 1024 * 1024, 'black', 'yellow');
+						usage_color_fmt.addRange(1024 * 1024 * 1024, null, 'black', 'red');
+						usage_color_fmt.format(data, 3);
+						var quota_color_fmt = new google.visualization.ColorFormat();
+						quota_color_fmt.addRange(10 * 1024 * 1024 * 1024, 100 * 1024 * 1024 * 1024, 'black', 'yellow');
+						quota_color_fmt.addRange(100 * 1024 * 1024 * 1024, null, 'black', 'red');
+						quota_color_fmt.format(data, 4);
+
+						var users_table = document.getElementById('users_table');
+						var table = new google.visualization.Table(users_table);
+						table.draw(data, {
+							allowHtml: true,
+							// showRowNumber: true,
+							width: $(users_table).parent().width(),
+							page: 'enable',
+							pageSize: 100,
+							alternatingRowStyle: false,
+							cssClassNames: table_css_classes,
+							sortColumn: 0,
+							sortAscending: false
+						});
+						google.visualization.events.addListener(table, 'select', function() {
+							var selection = table.getSelection();
+							if (!selection) {
+								return;
+							}
+							var selected = selection[0];
+							if (!selected) {
+								return;
+							}
+							var user = $scope.users_array[selected.row];
+							console.log('TABLE SELECTION', selected, user.name);
+							$scope.safe_apply(show_user_info.bind(null, user));
+
+						});
 						console.log('USERS AND DEVICES DATA:', $scope.users, $scope.totals);
 					}, function(err) {
 						$scope.loading--;
 						handle_error('GET USERS', err);
 					});
 				}
+
+
+				function show_user_info(user) {
+					var scope = $scope.$new();
+					scope.user = _.clone(user);
+					delete scope.user.devices;
+					delete scope.user.main_device;
+					scope.dev = _.clone(user.main_device);
+					if (scope.dev) {
+						scope.drives_info = scope.dev.drives_info;
+						delete scope.dev.drives_info;
+						if (scope.drives_info) {
+
+							if (typeof scope.drives_info.win_wmic_logicaldisk === 'object') {
+								scope.short_info = _.map(scope.drives_info.win_wmic_logicaldisk.info,
+									function(disk) {
+										return disk.Name + ' (' + disk.VolumeName + ') ' +
+											$scope.human_size(disk.Size) + ' - ' + $scope.human_size(disk.FreeSpace) + ' free';
+									}
+								);
+							} else if (typeof scope.drives_info.df === 'object') {
+								scope.short_info = scope.drives_info.df.info;
+							}
+						}
+					}
+					scope.printer = function(info) {
+						if (typeof info === 'object') {
+							return angular.toJson(info, true);
+						} else {
+							return info;
+						}
+					};
+					nbUtil.content_modal('User Info', $('#user_info_modal').html(), scope, 'lg');
+				}
+
 
 				function calculate_user_usage(user) {
 					if (!user._id) {
@@ -538,9 +608,9 @@
 						// console.log('DATA', last_row, k, tr.count, tr.ev);
 					});
 					var view = new google.visualization.DataView(data);
-					var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
-					var table_div = document.getElementById('table_div');
-					var table = new google.visualization.Table(table_div);
+					var chart = new google.visualization.LineChart(document.getElementById('tracks_chart'));
+					var tracks_table = document.getElementById('tracks_table');
+					var table = new google.visualization.Table(tracks_table);
 
 					function draw_view() {
 						chart.draw(view, {
@@ -561,10 +631,12 @@
 						});
 						table.draw(view, {
 							showRowNumber: true,
-							width: $(table_div).parent().width(),
+							width: $(tracks_table).parent().width(),
 							page: 'enable',
 							pageSize: 10,
-							sortColumn: 0
+							sortColumn: 0,
+							alternatingRowStyle: false,
+							cssClassNames: table_css_classes
 						});
 					}
 					draw_view();
@@ -620,108 +692,6 @@
 					});
 				}
 
-				$scope.style_usage = function(user) {
-					if (user.usage >= 1024 * 1024 * 1024) {
-						return {
-							'background-color': 'red',
-							'color': 'black'
-						};
-					}
-					if (user.usage >= 1024 * 1024) {
-						return {
-							'background-color': 'yellow',
-							'color': 'black'
-						};
-					}
-				};
-				$scope.style_quota = function(user) {
-					if (user.quota >= 100 * 1024 * 1024 * 1024) {
-						return {
-							'background-color': 'red',
-							'color': 'black'
-						};
-					}
-					if (user.quota >= 10 * 1024 * 1024 * 1024) {
-						return {
-							'background-color': 'yellow',
-							'color': 'black'
-						};
-					}
-				};
-				$scope.style_dev_time = function(user) {
-					var now = (new Date()).getTime();
-					for (var dev_id in user.devices) {
-						var dev = user.devices[dev_id];
-						if (dev.last_update) {
-							var time = (new Date(dev.last_update)).getTime();
-							if (now - time <= 3600000 * 24) { // 24 hours
-								return {
-									'background-color': 'red',
-									'color': 'black'
-								};
-							}
-							if (now - time <= 3600000 * 24 * 7) { // 1 week
-								return {
-									'background-color': 'yellow',
-									'color': 'black'
-								};
-							}
-						}
-					}
-				}
-
-				$scope.show_device_info = function(device) {
-					var scope = $scope.$new();
-					scope.dev = _.clone(device);
-					scope.drives_info = scope.dev.drives_info;
-					delete scope.dev.drives_info;
-
-					if (typeof scope.drives_info.win_wmic_logicaldisk === 'object') {
-						scope.short_info = _.map(scope.drives_info.win_wmic_logicaldisk.info, function(disk) {
-							return disk.Name + ' (' + disk.VolumeName + ') ' +
-								$scope.human_size(disk.Size) + ' - ' + $scope.human_size(disk.FreeSpace) + ' free';
-						});
-					} else if (typeof scope.drives_info.df === 'object') {
-						scope.short_info = scope.drives_info.df.info;
-					}
-
-					scope.printer = function(info) {
-						if (typeof info === 'object') {
-							return angular.toJson(info, true);
-						} else {
-							return info;
-						}
-					};
-
-					var content = [
-						'<div style="padding: 20px">',
-						'  <pre style="background-color: transparent; color: inherit; border: none">{{ printer(dev) }}</pre>',
-						'  <div class="text-center">',
-						'    <label class="btn btn-primary">',
-						'      <input type="checkbox" ng-model="full" />',
-						'      <span>Full</span>',
-						'    </label>',
-						'  </div>',
-						'  <div ng-if="!full">',
-						'    <pre style="background-color: transparent; color: inherit; border: none">{{ printer(short_info) }}</pre>',
-						'  </div>',
-						'  <div ng-if="full" ng-repeat="(key,info) in drives_info">',
-						'    <p class="lead">{{key}} {{info.time}}</p>',
-						'    <pre style="background-color: transparent; color: inherit; border: none">{{ printer(info.info || info.text) }}</pre>',
-						'  </div>',
-						'</div>'
-					].join('\n');
-					nbUtil.content_modal('Device Info', content, scope, 'lg');
-				}
-
-				$scope.locale_date = function(date) {
-					if (!date) {
-						return '';
-					}
-					// convert using Locale to have proper timezone displayed
-					date = new Date(date);
-					return date.toLocaleString();
-				}
 
 				$scope.toggle_alpha = function(user) {
 					var question = 'Change alpha to ' + !user.alpha_tester + ' ?';
@@ -778,6 +748,7 @@
 			}
 
 		])
+
 	})();
 	</script>
 

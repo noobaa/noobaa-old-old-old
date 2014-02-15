@@ -10,7 +10,7 @@
 		"postinstall": "./node_modules/.bin/grunt"
 	},
 	"dependencies": {
-		"underscore": "1.5.2",
+		"underscore": "1.6.0",
 		"underscore.string": "2.3.3",
 		"express": "3.4.8",
 		"dot": "1.0.2",

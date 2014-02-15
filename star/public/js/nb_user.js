@@ -42,6 +42,9 @@
 				return $http({
 					method: "GET",
 					url: "/api/user/",
+					params: {
+						tz_offset: -(new Date()).getTimezoneOffset()
+					}
 				}).then(function(res) {
 					set_user_usage(res.data.quota, res.data.usage);
 					reset_update_user_info();

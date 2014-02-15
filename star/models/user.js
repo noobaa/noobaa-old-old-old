@@ -12,8 +12,11 @@ var user_schema = new mongoose.Schema({
 	google: {},
 	local: {},
 	email: String, //this is used when the user updates a different email than the one in FB.
-	email_policy: String,
-	email_last_daily: Date,
+	email_policy: String, // silent
+	email_last_notify_time: Date,
+	last_access_time: Date,
+	tz_offset: Number, // timezone minutes offset from utc
+	usage: Number, // cached usage value
 	quota: {
 		type: Number,
 		default: Math.pow(1024, 3)
