@@ -360,8 +360,8 @@
 							]);
 						}
 
-						var yesterday = moment().day(-1).toDate();
-						var week_ago = moment().week(-1).toDate();
+						var yesterday = moment().subtract('days', 1).toDate();
+						var week_ago = moment().subtract('days', 7).toDate();
 						var date_color_fmt = new google.visualization.ColorFormat();
 						date_color_fmt.addRange(week_ago, yesterday, 'black', 'yellow');
 						date_color_fmt.addRange(yesterday, null, 'black', 'red');

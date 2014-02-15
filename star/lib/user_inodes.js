@@ -350,7 +350,7 @@ function user_notify_by_email(user, callback) {
 
 function users_notify_by_email_job() {
 	var now = new Date();
-	var yesterday = moment().day(-1).toDate();
+	var yesterday = moment().subtract('days', 1).toDate();
 	console.log('USERS NOTIFY EMAIL JOB - START');
 
 	async.waterfall([

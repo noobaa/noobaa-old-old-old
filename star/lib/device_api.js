@@ -147,7 +147,6 @@ exports.device_update = function(req, res) {
 			if (_.isEmpty(updates)) {
 				return next(null, dev);
 			}
-			console.log(updates);
 			return dev.update(updates, function(err) {
 				return next(err, dev);
 			});
@@ -157,6 +156,7 @@ exports.device_update = function(req, res) {
 			if (!updates.coshare_space) {
 				return next(null, dev);
 			}
+			console.log(updates);
 			// TODO we assume here that there is single device per user for now
 			return User.findByIdAndUpdate(req.user.id, {
 				quota: updates.coshare_space
