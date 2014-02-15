@@ -655,7 +655,7 @@
 				var text = buffer.toString();
 				// split by double eol - 
 				// we get two \r between the \n, so we tolerate any whitespace
-				var list = text.trim().split(/\s*\n\s*\n\s*/); 
+				var list = text.trim().split(/\s*\n\s*\n\s*/);
 				for (var i = 0; i < list.length; i++) {
 					var item = list[i].trim();
 					if (!item) continue;
@@ -670,6 +670,8 @@
 						var val = line.slice(index + 1).trim();
 						item_obj[key] = val;
 					}
+					// TODO is this the only unwanted field
+					delete item_obj['OEMLogoBitmap'];
 					list[i] = item_obj;
 				}
 				return list;
