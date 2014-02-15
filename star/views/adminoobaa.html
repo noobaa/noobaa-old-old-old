@@ -326,8 +326,15 @@
 										dev.total_space = 0;
 										dev.short_info = _.map(dev.drives_info.win_wmic_logicaldisk.info,
 											function(disk) {
-												dev.free_space += parseInt(disk.FreeSpace, 10);
-												dev.total_space += parseInt(disk.Size, 10);
+												var x;
+												if (disk.FreeSpace) {
+													x = parseInt(disk.FreeSpace, 10);
+													dev.free_space += x || 0;
+												}
+												if (disk.Size) {
+													x = parseInt(disk.Size, 10);
+													dev.total_space += x || 0;
+												}
 												return disk.Name + ' (' + disk.VolumeName + ') ' +
 													$scope.human_size(disk.Size) + ' - ' + $scope.human_size(disk.FreeSpace) + ' free';
 											}
