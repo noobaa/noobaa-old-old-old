@@ -123,7 +123,7 @@ exports.admin_user_notify_by_email = function(req, res) {
 			return user_inodes.user_notify_by_email(user, next);
 		},
 
-	], common_api.reply_callback(req, res, 'ADMIN USER NOTIFY BY EMAIL' + user_id));
+	], common_api.reply_callback(req, res, 'ADMIN USER NOTIFY BY EMAIL ' + user_id));
 };
 
 

@@ -195,6 +195,12 @@
 						<input type="checkbox" ng-model="full" />
 						<span>Full</span>
 					</label>
+					<button class="btn btn-primary" ng-click="send_recent_swm(user)">
+						SWM Email
+					</button>
+					<button class="btn btn-primary" ng-click="toggle_email_silent(user)">
+						Silent
+					</button>
 				</div>
 				<div ng-if="!full">
 					<pre style="background-color: transparent; color: inherit; border: none">{{ printer(short_info) }}</pre>
@@ -240,6 +246,8 @@
 				$scope.send_recent_swm = send_recent_swm;
 				$scope.export_tracks = export_tracks;
 				$scope.refresh_tracks = refresh_tracks;
+				$scope.toggle_alpha = toggle_alpha;
+				$scope.toggle_email_silent = toggle_email_silent;
 
 				$scope.current_tab = 'users';
 				$scope.active_tab = function(name) {
@@ -693,7 +701,7 @@
 				}
 
 
-				$scope.toggle_alpha = function(user) {
+				function toggle_alpha(user) {
 					var question = 'Change alpha to ' + !user.alpha_tester + ' ?';
 					if (!$window.confirm(question)) {
 						return;
@@ -719,7 +727,7 @@
 					});
 				}
 
-				$scope.toggle_email_silent = function(user) {
+				function toggle_email_silent(user) {
 					var policy = user.email_policy === 'silent' ? '' : 'silent';
 					var question = 'Change email_policy to ' + (policy || 'loud') + ' ?';
 					if (!$window.confirm(question)) {

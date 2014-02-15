@@ -306,18 +306,9 @@ function find_recent_swm(user_id, count_limit, from_time, callback) {
 exports.user_notify_by_email = user_notify_by_email;
 
 function user_notify_by_email(user, callback) {
+
 	if (user.email_policy === 'silent') {
 		console.log('silent email for user', user.get_name());
-		return callback();
-	}
-	// if not yet filled the tz, assuming GMT+2 (ISRAEL TIME)
-	var tz_offset = (typeof user.tz_offset === 'number') ? user.tz_offset : 120; 
-	// we add the tz offset to the utc time, so then using getUTCHours returns the hour in user time
-	var user_time_now = new Date(Date.now() + (tz_offset * 60000));
-	var user_hour = user_time_now.getUTCHours();
-	// send mails on 8pm
-	if (user_hour !== 20) {
-		console.log('not yet time on user clock', user_hour, user.get_name());
 		return callback();
 	}
 
@@ -372,6 +363,22 @@ function users_notify_by_email_job() {
 		function(users, next) {
 			console.log('USERS NOTIFY EMAIL JOB -', users.length, 'USERS TO PROCESS');
 			return async.eachLimit(users, 3, function(user, next) {
+
+				if (user.email_policy === 'silent') {
+					console.log('silent email for user', user.get_name());
+					return next();
+				}
+				// if not yet filled the tz, assuming GMT+2 (ISRAEL TIME)
+				var tz_offset = (typeof user.tz_offset === 'number') ? user.tz_offset : 120;
+				// we add the tz offset to the utc time, so then using getUTCHours returns the hour in user time
+				var user_time_now = new Date(Date.now() + (tz_offset * 60000));
+				var user_hour = user_time_now.getUTCHours();
+				// send mails on 8pm
+				if (user_hour !== 20) {
+					console.log('not yet time on user clock', user_hour, user.get_name());
+					return next();
+				}
+
 				return user_notify_by_email(user, function(err) {
 					if (err) {
 						console.error('FAILED NOTIFY USER', user.get_name());
