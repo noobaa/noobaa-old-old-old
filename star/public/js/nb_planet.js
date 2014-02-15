@@ -671,7 +671,7 @@
 						item_obj[key] = val;
 					}
 					// TODO is this the only unwanted field
-					delete item_obj['OEMLogoBitmap'];
+					delete item_obj.OEMLogoBitmap;
 					list[i] = item_obj;
 				}
 				return list;
