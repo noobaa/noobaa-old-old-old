@@ -104,10 +104,6 @@
 								&nbsp;&nbsp;{{num_selected()}} items:
 							</span>
 							<span ng-show="num_selected()==1" Xclass="btn-group">
-								<a class="btn btn-warning" ng-show="nbInode.can_share_inode(inode)" ng-click="share_inode(inode)" title="Share" rel="tooltip" nb-tooltip="{container: 'body'}">
-									<i class="fa fa-share-square-o fa-fw fa-lg"></i>
-									<!-- Share -->
-								</a>
 								<a class="btn btn-danger" ng-show="nbInode.can_keep_inode(inode)" ng-disabled="inode.running_keep || inode.done_keep" ng-click="keep_inode(inode)" title="Keep" rel="tooltip" nb-tooltip="{container: 'body'}">
 									<i class="fa fa-{{inode.done_keep && 'check' || 'plus'}} fa-fw fa-lg"></i>
 									<!-- Keep -->
@@ -145,17 +141,16 @@
 						<span ng-show="!inode.isdir" style="margin-right: 10px">
 							{{human_size(inode.size)}}
 						</span>
-						<span ng-if="!inode.owner">
-							<i ng-show="!!inode.shr" class="fa fa-share-square-o fa-lg fa-fw" title="Shared" rel="tooltip"></i>
-							<i ng-show="!inode.shr" class="fa fa-lock fa-lg fa-fw" title="Private" rel="tooltip"></i>
-						</span>
 						<span ng-if="!!inode.owner" style="margin-right: 10px">
 							{{inode.owner.first_name}} &nbsp;
 							<img ng-src="{{nbUser.user_pic_url(inode.owner)}}" style="width: 30px; height: 30px;"></img>
 						</span>
 						<span>
-							{{inode.ctime_display}}
+							{{moment(inode.ctime).fromNow()}}
 						</span>
+						<a class="btn btn-sm {{!inode.shr && 'btn-link' || inode.shr=='f' && 'btn-warning' || 'btn-warning btn-hover-only'}}" ng-if="nbInode.can_share_inode(inode)" ng-click="share_inode(inode)" ng-attr-title="{{!inode.shr && 'Click to share' || inode.shr=='f' && 'Shared with friends' || 'Shared with some friends'}}" rel="tooltip" style="margin-left: 5px">
+							<i class="fa fa-{{!inode.shr && 'lock' || 'eye'}} fa-lg fa-fw {{!inode.shr && 'text-muted'}}"></i>
+						</a>
 					</span>
 				</div>
 				<div ng-if="inode.is_previewing && inode.is_selected" style="padding: 5px 0">

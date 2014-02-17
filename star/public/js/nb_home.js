@@ -589,6 +589,7 @@
 					$scope.nbUser = nbUser;
 					$scope.nbInode = nbInode;
 					$scope.nbUploadSrv = nbUploadSrv;
+					$scope.moment = moment;
 
 					$scope.go_up_level = go_up_level;
 					$scope.has_parent = has_parent;

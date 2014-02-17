@@ -149,10 +149,7 @@
 				} else if (e.content_type) {
 					e.content_kind = CONTENT_KINDS[e.content_type.split('/')[0]];
 				}
-				if (e.ctime) {
-					e.ctime_date = new Date(e.ctime);
-					e.ctime_display = e.ctime_date.toLocaleDateString();
-				}
+				e.ctime = new Date(e.ctime);
 				if (swm) {
 					e.swm = swm;
 				}
@@ -161,7 +158,7 @@
 			}
 
 			function ctime_newest_first_sort_func(a, b) {
-				return a.ctime_date > b.ctime_date ? -1 : 1;
+				return a.ctime > b.ctime ? -1 : 1;
 			}
 
 			function read_dir(dir_inode) {
