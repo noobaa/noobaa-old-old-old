@@ -141,7 +141,7 @@ function inode_to_entry(inode, opt) {
 		id: inode._id,
 		name: inode.name,
 		parent_id: inode.parent,
-		ctime: inode.create_time,
+		ctime: inode._id.getTimestamp(), //inode.create_time,
 		size: 0 // fobj will override, but needed for 0 size files without fobj
 	};
 	if (inode.isdir) {
