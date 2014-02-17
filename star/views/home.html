@@ -308,10 +308,7 @@
 				<h4>Share {{share_inode.name}}</h4>
 			</div>
 			<div class="modal-body" style="padding: 0">
-				<div ng-show="share_is_loading" class="text-center" style="padding: 30px">
-					<i class="fa fa-spinner fa-spin fa-2x"></i>
-				</div>
-				<div style="max-height: 100%" ng-show="!share_is_loading && share_list.length">
+				<div style="max-height: 100%" >
 					<div style="padding: 10px">
 						<div style="padding-left: 20px">Comments:</div>
 						<div style="border-radius: 10px; border: 1px solid hsl(0,0%,20%); padding: 10px; margin: 5px">
@@ -334,13 +331,16 @@
 									</div>
 								</div>
 							</div>
+							<div ng-show="comments_loading" class="text-center" style="padding: 10px">
+								<i class="fa fa-spinner fa-spin fa-lg"></i>
+							</div>
 							<div>
-								<textarea ng-model="share_text" rows="2" class="form-control {{share_text.length && 'label-primary text-black' || 'label-default'}}" placeholder="Write about it..." nb-focus="!share_is_loading"></textarea>
+								<textarea ng-model="share_text" rows="2" class="form-control {{share_text.length && 'label-primary text-black' || 'label-default'}}" placeholder="Write about it..." nb-focus="!share_list_loading"></textarea>
 								<div></div>
 							</div>
 						</div>
 					</div>
-					<div ng-if="share_spread=='list'">
+					<div ng-if="!share_list_loading && shr=='r'">
 						<hr style="margin: 0" />
 						<div class="center-block" style="width: 260px; padding: 0 10px 10px 10px">
 							<div class="Xinput-group input-group-sm" style="position: relative">
@@ -359,70 +359,40 @@
 				</div>
 			</div>
 			<div class="modal-footer" style="margin-top: 0">
+				<span ng-if="share_list_loading" class="text-center" style="padding: 20px">
+					<i class="fa fa-spinner fa-spin fa-lg"></i>
+				</span>
 				<div class="btn-group dropup">
 					<button class="btn btn-link dropdown-toggle" type="button" data-toggle="dropdown">
-						<span ng-if="share_spread == 'all'">
+						<span ng-if="shr == 'f'">
 							<i class="fa fa-users fa-fw"></i>
 							All Friends
 						</span>
-						<span ng-if="share_spread == 'list'">
+						<span ng-if="shr == 'r'">
 							<i class="fa fa-cog fa-fw"></i>
 							Choose Friends
-						</span>
-						<span ng-if="share_spread == 'none'">
-							<i class="fa fa-lock fa-fw"></i>
-							Private
 						</span>
 						<i class="fa fa-caret-up"></i>
 					</button>
 					<ul class="dropdown-menu text-left" role="menu">
 						<li>
-							<a ng-click="(share_spread='all') && mark_all(true)">
-								<i class="fa fa-{{(share_spread=='all') && 'check'}} fa-fw"></i>
+							<a ng-click="shr = 'f'">
+								<i class="fa fa-{{(shr=='f') && 'check'}} fa-fw"></i>
 								<i class="fa fa-users fa-fw"></i>
 								All Friends
 							</a>
 						</li>
 						<li>
-							<a ng-click="share_spread='list'">
-								<i class="fa fa-{{(share_spread=='list') && 'check'}} fa-fw"></i>
+							<a ng-click="set_shr_refs()">
+								<i class="fa fa-{{(shr=='r') && 'check'}} fa-fw"></i>
 								<i class="fa fa-cog fa-fw"></i>
 								Choose Friends
 							</a>
 						</li>
-						<li>
-							<a ng-click="(share_spread='none') && mark_all(false)">
-								<i class="fa fa-{{(share_spread=='none') && 'check'}} fa-fw"></i>
-								<i class="fa fa-lock fa-fw"></i>
-								Private
-							</a>
-						</li>
 					</ul>
 				</div>
-				<!-- 
-					<div style="border-radius: 10px; border: 1px solid hsl(0,0%,20%); padding: 0 10px; margin: 5px">
-						<label class="radio">
-							<input type="radio" ng-model="share_spread" value="all" ng-change="mark_all(true)" />
-							<span class="text-warning">All friends ({{share_list.length}})</span>
-						</label>
-						<label class="radio">
-							<input type="radio" ng-model="share_spread" value="none" ng-change="mark_all(false)" />
-							<span>
-								No one (<i class="fa fa-lock"></i>)
-							</span>
-						</label>
-						<label class="radio">
-							<input type="radio" ng-model="share_spread" value="list" />
-							<span>
-								Choose friends list
-								<i class="fa fa-caret-down"></i>
-							</span>
-						</label>
-					</div>
-					 -->
-
 				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-				<button type="button" class="btn btn-primary" ng-click="run()" ng-disabled="share_is_loading || !share_list.length">Update</button>
+				<button type="button" class="btn btn-primary" ng-click="run()" ng-disabled="share_list_loading">Update</button>
 			</div>
 		</div>
 	</div>

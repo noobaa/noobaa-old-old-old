@@ -544,7 +544,7 @@
 
 			$scope.keep_and_share_feed = function() {
 				var inode = current_inode();
-				return nbInode.keep_and_share(inode, $scope.mydata);
+				return nbInode.keep_and_share(inode, $scope.mydata, $scope.refresh_feeds);
 			};
 
 			$scope.post_comment = function(comment_box) {
@@ -603,6 +603,7 @@
 					$scope.move_inodes = move_inodes;
 					$scope.keep_inode = keep_inode;
 					$scope.share_inode = share_inode;
+					$scope.unshare_inode = unshare_inode;
 
 					var selection = $scope.context.selection;
 
@@ -877,6 +878,10 @@
 					function share_inode(inode) {
 						return nbInode.share_inode(inode, refresh_current);
 					}
+
+					function unshare_inode(inode) {
+						return nbInode.unshare_inode(inode).then(refresh_current, refresh_current);
+					}
 				}
 			]
 		};
@@ -972,10 +977,11 @@
 	]);
 
 
+	/*
+
 	/////////////////////
 	// SHARE DIRECTIVE //
 	/////////////////////
-
 
 	noobaa_app.controller('ShareModalCtrl', ['$scope', '$http',
 		function($scope, $http) {
@@ -984,7 +990,7 @@
 
 			$scope.open = function(inode) {
 				// TODO FIX ICON
-				dlg.find('.inode_label').html(inode.name /*make_inode_with_icon()*/ );
+				dlg.find('.inode_label').html(inode.name / *make_inode_with_icon()* / );
 				$scope.share_is_loading = true;
 				$scope.share_inode = inode;
 				get_share_list(inode).then(function(res) {
@@ -1027,7 +1033,7 @@
 					console.log('mklink', res.data);
 					var dlg = $('#getlink_dialog').clone();
 					// TODO FIX ICON
-					dlg.find('.inode_label').html(inode.name /*make_inode_with_icon()*/ );
+					dlg.find('.inode_label').html(inode.name / *make_inode_with_icon()* / );
 					dlg.find('.link_label').html(
 						'<div style="height: 100%; word-wrap: break-word; word-break: break-all">' +
 						window.location.host + res.data.url + '</div>');
@@ -1059,4 +1065,6 @@
 
 		}
 	]);
+	*/
+
 })();

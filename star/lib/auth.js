@@ -246,10 +246,9 @@ exports.viewback = function(err, data) {
 	}
 };
 
-exports.get_friends_list = get_friends_list;
 
-function get_friends_list(tokens, callback) {
-	async.parallel({
+function get_friends(tokens, callback) {
+	return async.parallel({
 		fb: function(cb) {
 			if (!tokens.facebook) {
 				return cb(null, []);
@@ -281,8 +280,6 @@ function get_friends_list(tokens, callback) {
 	}, callback);
 }
 
-exports.find_users_from_friends = find_users_from_friends;
-
 function find_users_from_friends(friends, callback) {
 	var fb_friends_id_list = _.pluck(friends.fb, 'id');
 	var google_friends_id_list = _.pluck(friends.google, 'id');
@@ -299,19 +296,32 @@ function find_users_from_friends(friends, callback) {
 	}, callback);
 }
 
-exports.get_noobaa_friends_list = get_noobaa_friends_list;
+exports.get_friends_and_users = get_friends_and_users;
 
-function get_noobaa_friends_list(tokens, callback) {
-	if (!tokens) {
-		var err = new Error("the accessToken was not supplied");
-		return callback(err);
-	}
+function get_friends_and_users(tokens, callback) {
+	return async.waterfall([
+		function(next) {
+			return get_friends(tokens, next);
+		},
+		function(friends, next) {
+			return find_users_from_friends(friends, function(err, users) {
+				return next(err, friends, users);
+			});
+		}
+	], callback);
+}
 
-	async.waterfall([
+exports.get_friends_user_ids = get_friends_user_ids;
 
-		get_friends_list.bind(null, tokens),
-
-		find_users_from_friends
-
+function get_friends_user_ids(tokens, callback) {
+	return async.waterfall([
+		function(next) {
+			return get_friends(tokens, next);
+		},
+		function(friends, next) {
+			return find_users_from_friends(friends).select('_id').exec(function(err, users) {
+				return next(err, _.pluck(users, '_id'));
+			});
+		}
 	], callback);
 }

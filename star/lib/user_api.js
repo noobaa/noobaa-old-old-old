@@ -94,13 +94,7 @@ exports.user_get_friends = function(req, res) {
 
 	return async.waterfall([
 
-		auth.get_friends_list.bind(null, req.session.tokens),
-
-		function(friends, next) {
-			return auth.find_users_from_friends(friends, function(err, users) {
-				return next(err, friends, users);
-			});
-		},
+		auth.get_friends_and_users.bind(null, req.session.tokens),
 
 		function(friends, users, next) {
 			var res_users = new Array(users.length);

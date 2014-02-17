@@ -30,6 +30,12 @@ var inode_schema = new mongoose.Schema({
 		type: types.ObjectId,
 		ref: 'Inode'
 	},
+	// share mode: 
+	// shr == '' means private (unless num_refs != 0)
+	// shr == 'r' means open only to referenced users (also assumed when: shr == '' and num_refs > 0)
+	// shr == 'f' means open to all friends
+	// shr == '*' means open to anyone
+	shr: String,
 	num_refs: Number,
 
 	// device source info
@@ -74,22 +80,14 @@ inode_schema.methods.follow_ref = function(cb) {
 	return this.model('Inode').findById(inode.ghost_ref, cb);
 };
 
-inode_schema.methods.get_referring_ghosts = function(callback) {
-	console.log("get_refering_ghosts ", arguments);
+
+// callback is optional, if undefined mongoose returns a Query object
+// that can be used to add more options to the query and finally call q.exec(callback).
+inode_schema.methods.find_refs = function(callback) {
+	console.log('find_refs', this._id);
 	return this.model('Inode').find({
 		ghost_ref: this._id
 	}, callback);
-};
-
-//gets the user id's this inodes is shared with
-inode_schema.methods.get_referring_user_ids = function(callback) {
-	var ref_user_ids;
-	return this.get_referring_ghosts(function(err, inodes) {
-		if (!err) {
-			ref_user_ids = _.pluck(inodes, 'owner');
-		}
-		return callback(err, ref_user_ids);
-	});
 };
 
 

@@ -114,9 +114,9 @@ exports.update_inode_ghost_refs = update_inode_ghost_refs;
 //add and remove ghosts as needed
 
 function update_inode_ghost_refs(live_inode, old_user_ids, new_user_ids, cb) {
-	var old_user_ids_strings = _.invoke(old_user_ids, 'toHexString');
-	var user_ids_to_add = _.difference(new_user_ids, old_user_ids_strings);
-	var user_ids_to_remove = _.difference(old_user_ids_strings, new_user_ids);
+	// var old_user_ids_strings = _.invoke(old_user_ids, 'toHexString');
+	var user_ids_to_add = _.difference(new_user_ids, old_user_ids);
+	var user_ids_to_remove = _.difference(old_user_ids, new_user_ids);
 
 	async.parallel([
 		function(next) {
@@ -135,6 +135,9 @@ function update_inode_ghost_refs(live_inode, old_user_ids, new_user_ids, cb) {
 
 function remove_inode_ghost_refs(live_inode, user_ids, callback) {
 	console.log("remove_inode_ghost_refs", arguments);
+	if (!user_ids || !user_ids.length) {
+		return callback();
+	}
 	Inode.remove({
 		ghost_ref: live_inode.id,
 		owner: {
@@ -148,6 +151,9 @@ function remove_inode_ghost_refs(live_inode, user_ids, callback) {
 function add_inode_ghost_refs(live_inode, user_ids, callback) {
 	console.log("add_inode_ghost_refs", arguments);
 
+	if (!user_ids || !user_ids.length) {
+		return callback();
+	}
 	var users_by_id;
 
 	async.waterfall([
@@ -407,27 +413,9 @@ function schedule_users_notify_by_email_job() {
 users_notify_by_email_job();
 
 
-exports.get_referring_users = get_referring_users;
 
-function get_referring_users(inode, cb) {
-	async.waterfall([
-		function(next) {
-			return inode.get_referring_user_ids(next);
-		},
-
-		function(ref_user_id_list, next) {
-			User.find({
-				_id: {
-					$in: ref_user_id_list
-				}
-			}, next);
-		}
-	], cb);
-}
-
-//This will return the sum of all fobjs' sizes that are referenced by owned 
-//inodes of the user.
-
+// This will return the sum of all fobjs' sizes 
+// that are referenced by owned inodes of the user.
 exports.get_user_usage_bytes = get_user_usage_bytes;
 
 function get_user_usage_bytes(user_id, cb) {

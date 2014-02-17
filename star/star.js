@@ -22,25 +22,26 @@ var passport = require('passport');
 var mongoose = require('mongoose');
 var express_minify = require('express-minify');
 var User = require('./models/user').User;
-
 // var fbapi = require('facebook-api');
 var common_api = require('./lib/common_api');
 
+var nb_debug = (process.env.NB_DEBUG === 'true');
+
 // connect to the database
 mongoose.connect(process.env.MONGOHQ_URL);
+mongoose.set('debug', nb_debug);
 
 // create express app
 var app = express();
 var web_port = process.env.PORT || 5000;
 app.set('port', web_port);
-app.set('env', 'development'); // TODO: temporary
 
 // setup view template engine with doT
 var dot_emc_app = dot_emc.init({
 	app: app
 });
 dot.templateSettings.strip = false;
-dot.templateSettings.cache = true; // ('development' != app.get('env'));
+dot.templateSettings.cache = true;
 // replace dot regexp to use <? ?> to avoid collision with angular {{ }}
 for (var i in dot.templateSettings) {
 	var reg = dot.templateSettings[i];
@@ -167,7 +168,7 @@ app.use(error_404);
 app.use(function(err, req, res, next) {
 	console.error('ERROR:', err);
 	var e = {};
-	if (app.get('env') === 'development') {
+	if (nb_debug) {
 		// show internal info only on development
 		e = err;
 	}

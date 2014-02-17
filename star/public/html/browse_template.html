@@ -120,6 +120,9 @@
 									<i class="fa fa-cloud-download fa-fw fa-lg"></i>
 									<!-- Download -->
 								</a>
+								<a class="btn btn-default" ng-show="!!inode.shr" ng-click="unshare_inode(inode)" title="Make Private" rel="tooltip" nb-tooltip="{container: 'body'}">
+									<i class="fa fa-lock fa-fw fa-lg"></i>
+								</a>
 							</span>
 							<span ng-show="!current_inode.owner && nbInode.can_change_inode(inode)" class="btn-group">
 								<a class="btn btn-default" ng-click="move_inodes()" title="Move" rel="tooltip" nb-tooltip="{container: 'body'}">
@@ -143,8 +146,8 @@
 							{{human_size(inode.size)}}
 						</span>
 						<span ng-if="!inode.owner">
-							<i ng-show="!!inode.num_refs" class="fa fa-share-square-o fa-lg fa-fw" ng-attr-title="Shared with {{inode.num_refs}} friends" rel="tooltip" ng-click="share_inode(inode)"></i>
-							<i ng-show="!inode.num_refs" class="fa fa-lock fa-lg fa-fw" title="Private" rel="tooltip" ng-click="share_inode(inode)"></i>
+							<i ng-show="!!inode.shr" class="fa fa-share-square-o fa-lg fa-fw" title="Shared" rel="tooltip"></i>
+							<i ng-show="!inode.shr" class="fa fa-lock fa-lg fa-fw" title="Private" rel="tooltip"></i>
 						</span>
 						<span ng-if="!!inode.owner" style="margin-right: 10px">
 							{{inode.owner.first_name}} &nbsp;

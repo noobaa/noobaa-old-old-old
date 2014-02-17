@@ -45,7 +45,7 @@
 		'$http', '$timeout', '$interval', '$window', '$q', '$rootScope', '$compile',
 		function($http, $timeout, $interval, $window, $q, $rootScope, $compile) {
 
-			var _has_global_modal = false;
+			var _global_modal = null;
 
 			var $scope = {
 				active_link: active_link,
@@ -56,8 +56,8 @@
 					// TODO send event log
 					nbalert('Coming soon...');
 				},
-				has_global_modal: function() {
-					return _has_global_modal;
+				global_modal: function() {
+					return _global_modal;
 				},
 				modal: modal,
 				content_modal: content_modal,
@@ -70,18 +70,18 @@
 			}
 
 			function modal(content, modal_scope, size) {
-				if (_has_global_modal) {
+				if (_global_modal) {
 					console.error('RECURSIVE MODAL');
 					return false;
 				}
-				_has_global_modal = true;
 				var m = $('<div class="modal fade">')
 					.append($('<div class="modal-dialog">')
 						.append($('<div class="modal-content">')
 							.append(content)));
 				var e = modal_scope ? $compile(m)(modal_scope) : m;
 				e.on('hidden.bs.modal', function() {
-					_has_global_modal = false;
+					$(window).off('keydown.nbutil_modal');
+					_global_modal = null;
 					e.remove();
 				});
 				if (size === 'lg') {
@@ -90,8 +90,17 @@
 					e.find('.modal-dialog').addClass('modal-sm');
 				}
 				e.modal();
+				_global_modal = e;
+				// close modal on ESC key
+				$(window).on('keydown.nbutil_modal', function(event) {
+					if (event.which === 27 && !event.isDefaultPrevented() && _global_modal) {
+						event.preventDefault();
+						_global_modal.modal('hide');
+					}
+				});
 				return e;
 			}
+
 
 			function content_modal(headline, content, modal_scope, size) {
 				var hdr = $('<div class="modal-header">')
@@ -715,6 +724,9 @@
 			link: function(scope, element, attr) {
 				scope.$watch(attr.nbTooltip, function(value) {
 					element.tooltip(value);
+				});
+				$(element).on('remove', function() {
+					element.tooltip('destroy');
 				});
 			}
 		};

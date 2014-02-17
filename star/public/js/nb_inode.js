@@ -39,6 +39,7 @@
 				mklink: mklink,
 				rmlinks: rmlinks,
 				share_inode: share_inode,
+				unshare_inode: unshare_inode,
 				keep_inode: keep_inode,
 				keep_and_share: keep_and_share,
 				get_inode_messages: get_inode_messages,
@@ -121,6 +122,27 @@
 				'text': 'text',
 			};
 
+			function sync_missing_key(target, src, key) {
+				// remove the key from the target object 
+				// according to it's state in the source object
+				if (!src[key]) {
+					delete target[key];
+				}
+			}
+
+			function merge_entry(existing_entry, new_entry) {
+				if (!existing_entry) {
+					return new_entry;
+				}
+				angular.extend(existing_entry, new_entry);
+				// turn off the uploading flag because we don't send each time
+				// and extend won't turn off when the key is missing
+				sync_missing_key(existing_entry, new_entry, 'uploading');
+				sync_missing_key(existing_entry, new_entry, 'shr');
+				sync_missing_key(existing_entry, new_entry, 'num_refs');
+				return existing_entry;
+			}
+
 			function set_entry_info(e, parent, level, swm) {
 				if (e.isdir) {
 					e.content_kind = 'dir';
@@ -177,17 +199,7 @@
 						});
 					}
 					for (var i = 0; i < entries.length; i++) {
-						var e = dir_inode.entries_map[entries[i].id];
-						if (!e) {
-							e = entries[i];
-						} else {
-							angular.extend(e, entries[i]);
-							// turn off the uploading flag because we don't send each time
-							// and extend won't turn off when the key is missing
-							if (e.uploading && !entries[i].uploading) {
-								delete e.uploading;
-							}
-						}
+						var e = merge_entry(dir_inode.entries_map[entries[i].id], entries[i]);
 						set_entry_info(e, dir_inode, dir_inode.level + 1, dir_inode.swm);
 						entries[i] = e;
 						entries_map[e.id] = e;
@@ -242,12 +254,7 @@
 					set_dir_entries(root_dir);
 					root_dir.inodes_map = root_dir.inodes_map || {};
 					for (var i = 0; i < entries.length; i++) {
-						var e = root_dir.inodes_map[entries[i].id];
-						if (!e) {
-							e = entries[i];
-						} else {
-							angular.extend(e, entries[i]);
-						}
+						var e = merge_entry(root_dir.inodes_map[entries[i].id], entries[i]);
 						set_entry_info(e);
 						if (e.isdir) {
 							set_dir_entries(e);
@@ -481,12 +488,13 @@
 				});
 			}
 
-			function set_share_list(inode_id, share_list) {
+			function set_share_list(inode_id, shr, share_list) {
 				// console.log('share', inode_id, 'with', share_list);
 				return $http({
 					method: 'PUT',
 					url: '/api/inode/' + inode_id + '/share_list',
 					data: {
+						shr: shr,
 						share_list: share_list
 					}
 				});
@@ -539,51 +547,75 @@
 				var share_scope = $rootScope.$new();
 				share_scope.nbUtil = nbUtil;
 				share_scope.nbUser = nbUser;
-				share_scope.share_is_loading = true;
 				share_scope.share_inode = inode;
+				share_scope.shr = 'f';
 				share_scope.run = function() {
-					share_scope.share_is_loading = true;
-					var sl_promise = set_share_list(inode.id, share_scope.share_list);
+					share_scope.share_list_loading = true;
+					var sl_promise = set_share_list(inode.id, share_scope.shr, share_scope.share_list);
 					var msg_promise = post_inode_message(inode, share_scope.share_text);
 					$q.all([sl_promise, msg_promise]).then(function(res) {
-						share_scope.share_is_loading = false;
+						share_scope.share_list_loading = false;
 						modal.modal('hide');
 						if (on_share_done) {
 							on_share_done();
 						}
 					}, function() {
-						share_scope.share_is_loading = false;
+						share_scope.share_list_loading = false;
 					});
 				};
 				share_scope.delete_inode_message = delete_inode_message;
-				share_scope.mark_all = function(value) {
-					mark_all_share_list(share_scope.share_list, value);
+				// share_scope.mark_all = function(value) {
+				// 	mark_all_share_list(share_scope.share_list, value);
+				// };
+				share_scope.load_share_list = function() {
+					share_scope.share_list_loading = true;
+					return get_share_list(inode.id).then(function(res) {
+						share_scope.share_list_loading = false;
+						share_scope.share_list = res.data.list;
+					}, function(err) {
+						share_scope.share_list_loading = false;
+						console.error('FAILED GET SHARE LIST', err);
+					});
 				};
-				modal = nbUtil.modal($('#share_modal').html(), share_scope, 'lg');
-
-				var sl_promise = get_share_list(inode.id);
-				var msg_promise = get_inode_messages(inode);
-				$q.all([sl_promise, msg_promise]).then(function(res) {
-					share_scope.share_is_loading = false;
-					share_scope.share_list = res[0].data.list;
-					if (!share_scope.share_list.length) {
-						modal.modal('hide');
-						modal = null;
-						$location.path('/friends/');
-					} else {
-						var counts = _.countBy(share_scope.share_list, 'shared');
-						if (counts[true] === share_scope.share_list.length) {
-							share_scope.share_spread = 'all';
-							// } else if (counts[false] === share_scope.share_list.length) {
-							// share_scope.share_spread = 'none';
+				share_scope.set_shr_refs = function() {
+					share_scope.shr = 'r';
+					return share_scope.load_share_list();
+				};
+				share_scope.get_messages = function() {
+					share_scope.comments_loading = true;
+					get_inode_messages(inode).then(function() {
+						share_scope.comments_loading = false;
+					}, function(err) {
+						share_scope.comments_loading = true;
+						console.error('FAILED GET MESSAGES', err);
+					});
+				};
+				if (inode.shr === 'r') {
+					share_scope.load_share_list().then(function() {
+						// on load check the list and init the scope.
+						// when no friends, go to friends view.
+						if (!share_scope.share_list.length) {
+							modal.modal('hide');
+							modal = null;
+							$location.path('/friends/');
 						} else {
-							share_scope.share_spread = 'list';
+							var counts = _.countBy(share_scope.share_list, 'shared');
+							if (!counts[true]) {
+								share_scope.shr = 'f';
+							} else {
+								share_scope.shr = 'r';
+							}
 						}
-					}
-				}, function() {
-					share_scope.share_is_loading = false;
-				});
+					});
+				}
+				share_scope.get_messages();
+				modal = nbUtil.modal($('#share_modal').html(), share_scope);
 			}
+
+			function unshare_inode(inode) {
+				return set_share_list(inode.id, undefined, undefined);
+			}
+
 
 			function keep_inode(inode, dir_inode) {
 				if (!inode.owner && !inode.not_mine) {
@@ -626,37 +658,10 @@
 				});
 			}
 
-			function keep_and_share(inode, dir_inode) {
+			function keep_and_share(inode, dir_inode, on_share_done) {
 				return keep_inode(inode, dir_inode).then(function(kept_inode) {
 					// run this immediately after top inode is copied
-					return share_inode(kept_inode);
-					/*
-					var share_list;
-					return get_share_list(new_inode_id).then(function(res) {
-						share_list = res.data.list;
-						mark_all_share_list(share_list, true);
-						return set_share_list(new_inode_id, share_list);
-					}).then(function() {
-						var notify_message = '"' + inode.name + '" was shared to ' +
-							share_list.length + (share_list.length === 1 ? ' friend' : ' friends');
-						$.bootstrapGrowl(notify_message, {
-							ele: 'body',
-							type: 'info',
-							offset: {
-								from: 'top',
-								amount: 60
-							},
-							align: 'right',
-							width: 'auto',
-							delay: 5000,
-							allow_dismiss: true,
-							stackup_spacing: 20
-						});
-					}, function(err) {
-						console.error('FAILED SHARE ALL', err);
-						throw err;
-					});
-					*/
+					return share_inode(kept_inode, on_share_done);
 				});
 			}
 

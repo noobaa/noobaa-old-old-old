@@ -36,7 +36,8 @@
 								</span>
 								keep
 							</a>
-							<a class="btn btn-warning btn-hover-only" ng-click="keep_and_share_feed()">
+							<a class="btn btn-warning btn-hover-only {{current_inode().shr=='f' && 'text-warning'}}" ng-click="keep_and_share_feed()">
+								<i ng-if="current_inode().shr=='f'" class="fa fa-check"></i> 
 								share
 							</a>
 						</div>

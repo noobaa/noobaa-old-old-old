@@ -48,8 +48,15 @@ function fobj_s3_key(fobj_id) {
 	return path.join(process.env.S3_PATH, 'fobjs', String(fobj_id));
 }
 
+// using a strict encoding to also handle the remaining special chars
+
+function rfc3986EncodeURIComponent(str) {
+	return encodeURIComponent(str).replace(/[!'()*]/g, global.escape);
+}
+
+
 function name_to_content_dispos(name, is_download) {
-	return (is_download ? 'attachment;' : 'inline;') + 'filename="' + querystring.escape(name) + '"';
+	return (is_download ? 'attachment;' : 'inline;') + 'filename="' + rfc3986EncodeURIComponent(name) + '"';
 }
 
 function detect_content_type(type, name) {
@@ -69,8 +76,9 @@ function s3_get_url(fobj_id, name, is_download) {
 		keyPairId: CF_KEY_PAIR_ID,
 		dateLessThan: dateLessThan
 	};
+	var content_dispos = rfc3986EncodeURIComponent(name_to_content_dispos(name, is_download));
 	var cloudfront_url = CF_PROTO + CF_DOMAIN + '/' + fobj_s3_key(fobj_id) +
-		'?response-content-disposition=' + querystring.escape(name_to_content_dispos(name, is_download));
+		'?response-content-disposition=' + content_dispos;
 	var signed_url = cloudfront_signer.signUrl(cloudfront_url, cloudfront_config);
 	// console.log('CF URL', signed_url);
 	return signed_url;
@@ -133,7 +141,7 @@ function inode_to_entry(inode, opt) {
 		id: inode._id,
 		name: inode.name,
 		parent_id: inode.parent,
-		ctime: inode._id.getTimestamp(),
+		ctime: inode.create_time,
 		size: 0 // fobj will override, but needed for 0 size files without fobj
 	};
 	if (inode.isdir) {
@@ -145,6 +153,11 @@ function inode_to_entry(inode, opt) {
 		//in case of sharing a folder which has subitems that are shared - this shoudl not be displayed
 		//when the non-owner/shared with users brows this directory. 
 		if (mongoose.Types.ObjectId(opt.user.id).equals(inode.owner)) {
+			ent.shr = inode.shr;
+			// conversion - when shr is empty we check for refs and fix shr to denote if any refs exist
+			if (!inode.shr && inode.num_refs) {
+				ent.shr = 'r';
+			}
 			ent.num_refs = inode.num_refs;
 		} else {
 			ent.not_mine = true;
@@ -619,7 +632,15 @@ exports.inode_query = function(req, res) {
 				owner: req.user.id,
 			});
 			if (req.query.sbm) {
-				q.gt('num_refs', 0);
+				q.or([{
+					num_refs: {
+						$gt: 0
+					}
+				}, {
+					shr: {
+						$exists: true
+					}
+				}]);
 			}
 			q.exec(next);
 		},
@@ -1240,21 +1261,8 @@ function complete_upload(fobj, parts, callback) {
 /////////////
 /////////////
 
-function update_users_share_map(share_map, users_array, shared_status) {
-	console.log('update_users_share_map. share status: ', shared_status);
-	console.log(_.pluck(users_array, '_id'));
-	users_array.forEach(function(v) {
-		share_map[v._id] = {
-			shared: shared_status,
-		};
-		v.get_user_identity_info(share_map[v._id]);
-	});
-}
 
-exports.inode_get_share_list = inode_get_share_list;
-
-function inode_get_share_list(req, res) {
-	var user = req.user;
+exports.inode_get_share_list = function(req, res) {
 	var inode_id = req.params.inode_id;
 	console.log('inode_get_share_list', inode_id);
 
@@ -1270,38 +1278,47 @@ function inode_get_share_list(req, res) {
 
 		function(inode, next) {
 			return async.parallel({
-				// get currently refering users 
-				// (some might not be friends any more but the user should be aware)
-				ref_users: function(next) {
-					return user_inodes.get_referring_users(inode, next);
+				// get current refering inodes and populate their users (owner)
+				// (some users might not be friends any more but the user should be aware)
+				ref_owners: function(next) {
+					return inode.find_refs().populate('owner').select('owner').exec(next);
 				},
 				// get the friends list which are also noobaa users
-				friends_list: function(next) {
-					return auth.get_noobaa_friends_list(req.session.tokens, next);
+				friends_users: function(next) {
+					return auth.get_friends_and_users(req.session.tokens, function(err, friends, users) {
+						return next(err, users);
+					});
 				}
 			}, next);
 		},
 
-		//prepare the structure for http send - setting sharing to true/false based on the structures.
-		function(results, next) {
-			var share_users_map = {};
-			update_users_share_map(share_users_map, _.difference(results.friends_list, results.ref_users), false);
-			update_users_share_map(share_users_map, results.ref_users, true);
+		function(result, next) {
+			var share_map = {};
+			_.each(result.friends_users, function(user) {
+				share_map[user.id] = user.get_user_identity_info({
+					shared: false
+				});
+			});
+			_.each(result.ref_owners, function(inode) {
+				share_map[inode.owner.id] = inode.owner.get_user_identity_info({
+					shared: true
+				});
+			});
 			return next(null, {
-				"list": _.values(share_users_map)
+				list: _.values(share_map)
 			});
 		}
 	], common_api.reply_callback(req, res, 'GET_SHARE ' + inode_id));
-}
+};
+
 
 exports.inode_set_share_list = function(req, res) {
 	var inode_id = req.params.inode_id;
 	console.log('inode_set_share_list', inode_id);
 
-	var new_nb_ids = _.pluck(_.where(req.body.share_list, {
-		shared: true
-	}), 'id');
-	console.log("new_nb_ids", new_nb_ids);
+	var shr = req.body.shr;
+	var old_nb_ids;
+	var new_nb_ids;
 
 	var inode;
 
@@ -1315,31 +1332,50 @@ exports.inode_set_share_list = function(req, res) {
 		// check inode ownership
 		common_api.req_ownership_checker(req),
 
-		// save inode in context
 		function(inode_arg, next) {
 			inode = inode_arg;
-			//get the currently refering user ids
-			return inode.get_referring_user_ids(next);
+			return async.parallel({
+				ref_owners: function(next) {
+					return inode.find_refs().select('owner').exec(next);
+				},
+				friends_user_ids: function(next) {
+					return auth.get_friends_user_ids(req.session.tokens, next);
+				}
+			}, next);
 		},
 
-		//add and remove referenes as needed
-		function(old_nb_ids, next) {
-			return user_inodes.update_inode_ghost_refs(inode, old_nb_ids, new_nb_ids, next);
-		},
-
-		//update number of references if was changed. 
-		function(next) {
-			var new_num_refs = new_nb_ids.length;
-			if (inode.num_refs === new_num_refs) {
-				return next();
+		function(result, next) {
+			old_nb_ids = _.pluck(result.ref_owners, 'owner');
+			if ((!shr || shr === 'r') && req.body.share_list) {
+				new_nb_ids = _.pluck(_.where(req.body.share_list, {
+					shared: true
+				}), 'id');
+				inode.shr = shr = 'r'; // update for legacy clients
+				inode.num_refs = new_nb_ids.length;
+			} else if (!shr) {
+				inode.shr = undefined;
+				inode.num_refs = undefined;
+				new_nb_ids = [];
+			} else if (shr === 'f') {
+				inode.shr = 'f';
+				inode.num_refs = undefined;
+				new_nb_ids = result.friends_user_ids;
+			} else {
+				return next({
+					status: 400, // bad request
+					data: 'INVALID SHR'
+				});
 			}
-			console.log('INODE UPDATE NUM_REFS:', inode_id, new_num_refs);
-			return inode.update({
-				num_refs: new_num_refs
-			}, function(err) {
+			console.log('shr', shr, 'new_nb_ids', new_nb_ids, 'old_nb_ids', old_nb_ids);
+			return inode.save(function(err) {
 				return next(err);
 			});
-		}
+		},
+
+		// add and remove referenes as needed
+		function(next) {
+			return user_inodes.update_inode_ghost_refs(inode, old_nb_ids, new_nb_ids, next);
+		},
 
 	], common_api.reply_callback(req, res, 'SET_SHARE ' + inode_id));
 };

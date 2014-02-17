@@ -109,6 +109,12 @@ function main() {
 		list_parts(argv.key, argv.upload_id, function(err, results) {
 			console.log(results);
 		});
+	} else if (cmd === 'url') {
+		console.log(S3.getSignedUrl(argv.op || 'getObject', {
+			Bucket: process.env.S3_BUCKET,
+			Key: argv.key,
+			Expires: 24 * 60 * 60 // 24 hours
+		}));
 	} else if (cmd === 'abort') {
 		abort_upload(argv.key, argv.upload_id);
 	} else if (cmd === 'abort_all') {
