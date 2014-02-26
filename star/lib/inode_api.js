@@ -71,6 +71,7 @@ function detect_content_type(type, name) {
 function s3_get_url(fobj_id, name, is_download) {
 	var dateLessThan = new Date();
 	dateLessThan.setHours(dateLessThan.getHours() + 12);
+	dateLessThan.setMinutes(0);
 	var cloudfront_config = {
 		privateKey: CF_PK,
 		keyPairId: CF_KEY_PAIR_ID,
