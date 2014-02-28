@@ -21,15 +21,7 @@
 				</a>
 			</div>
 			<ul ng-if="nbUser.user" class="nav navbar-nav navbar-right pull-right" style="margin-top: 0; margin-bottom: 0">
-				<!-- 
-				<li class="pull-left">
-					<a href="/home/" style="padding-top: 15px; padding-bottom: 15px">Home</a>
-				</li>
-				<li class="pull-left">
-					<a href="/home/collection/" style="padding-top: 15px; padding-bottom: 15px">Collection</a>
-				</li>
-				 -->
-				<li class="pull-left">
+				<li>
 					<a role="button" nb-popover="{element: '#user_menu', container: 'body', placement: 'bottom'}" style="padding-top: 9px; padding-bottom: 9px">
 						<img ng-src="{{nbUser.user_pic_url(nbUser.user)}}" style="height: 32px" class="img-rounded">
 						<div class="text-ellipses" style="max-width: 160px; vertical-align: middle; height: 100%; display: inline-block; margin-left: 10px">

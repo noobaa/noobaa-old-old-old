@@ -265,15 +265,11 @@ function get_friends(tokens, callback) {
 			googleapis.discover('plus', 'v1').execute(function(err, client) {
 				console.log('tokens.google: ', tokens.google);
 				oauth2Client.credentials = tokens.google;
-				client
-					.plus.people.list({
-						'userId': 'me',
-						'collection': 'visible'
-					})
-					.withAuthClient(oauth2Client)
-				// .execute(cb);
-				.execute(function(err, resutls) {
-					cb(err, resutls.items);
+				client.plus.people.list({
+					'userId': 'me',
+					'collection': 'visible'
+				}).withAuthClient(oauth2Client).execute(function(err, results) {
+					cb(err, results && results.items);
 				});
 			});
 		}

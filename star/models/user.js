@@ -95,10 +95,10 @@ user_schema.methods.get_user_identity_info = function(object) {
 
 user_schema.methods.get_pic_url = function() {
 	var user = this;
-	if (user.fb.id) {
+	if (user.fb && user.fb.id) {
 		return 'https://graph.facebook.com/' + user.fb.id + '/picture';
 	}
-	if (user.google.id) {
+	if (user.google && user.google.id) {
 		return 'https://plus.google.com/s2/photos/profile/' + user.google.id + '?sz=50';
 	}
 };
