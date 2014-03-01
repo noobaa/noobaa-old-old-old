@@ -142,15 +142,20 @@ app.use(express.compress());
 // since we have less routes then files, and the routes are in memory.
 app.use(app.router);
 
-// setup static files caching
-app.use(function(req, res, next) {
-	res.setHeader("Cache-Control", "public, max-age=600"); // 10 min
-	res.setHeader("Expires", new Date(Date.now() + 600000).toUTCString());
-	return next();
-});
+function cache_control(seconds) {
+	var millis = 1000 * seconds;
+	return function(req, res, next) {
+		res.setHeader("Cache-Control", "public, max-age=" + seconds);
+		res.setHeader("Expires", new Date(Date.now() + millis).toUTCString());
+		return next();
+	};
+}
 
 // setup static files
 if (!nb_debug) {
+	// setup caching
+	app.use(cache_control(10 * 60)); // 10 minutes
+	app.use('/public/images/', cache_control(24 * 60 * 60)); // 24 hours
 	// app.use('/public/', express_minify()); TODO fails with angular injection
 	app.use('/vendor/', express_minify());
 	app.use('/vendor-b/', express_minify());

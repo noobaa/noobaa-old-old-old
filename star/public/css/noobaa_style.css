@@ -80,9 +80,6 @@ html, body {
 .modal-backdrop {
 	background-color: hsl(0, 0%, 100%);
 }
-.modal-content {
-	background-color: black;
-}
 /*
 a.btn-link.text-white {
 	color: hsl(0, 0%, 60%) !important;
