@@ -23,7 +23,7 @@
 			<ul ng-if="nbUser.user" class="nav navbar-nav navbar-right pull-right" style="margin-top: 0; margin-bottom: 0">
 				<li>
 					<a role="button" nb-popover="{element: '#user_menu', container: 'body', placement: 'bottom'}" style="padding-top: 9px; padding-bottom: 9px">
-						<img ng-src="{{nbUser.user_pic_url(nbUser.user)}}" style="height: 32px" class="img-rounded">
+						<img ng-src="{{nbUser.user_pic_url(nbUser.user)}}" style="width: 32px; height: 32px" class="img-circle">
 						<div class="text-ellipses" style="max-width: 160px; vertical-align: middle; height: 100%; display: inline-block; margin-left: 10px">
 							{{nbUser.user.name}}
 						</div>
@@ -300,12 +300,12 @@
 				<h4>Share {{share_inode.name}}</h4>
 			</div>
 			<div class="modal-body" style="padding: 0">
-				<div style="max-height: 100%" >
+				<div style="max-height: 100%">
 					<div style="padding: 10px">
 						<div style="padding-left: 20px">Comments:</div>
 						<div style="border-radius: 10px; border: 1px solid hsl(0,0%,20%); padding: 10px; margin: 5px">
 							<div ng-repeat="msg in share_inode.messages">
-								<img class="img-rounded pull-left" ng-src="{{nbUser.user_pic_url(msg.user)}}" style="width: 30px; margin: 0 5px 5px 0" />
+								<img class="img-circle pull-left" ng-src="{{nbUser.user_pic_url(msg.user)}}" style="width: 32px; margin: 0 5px 5px 0" />
 								<div style="overflow: hidden">
 									<span class="text-primary">
 										<small>{{msg.user.name}}</small>
@@ -343,7 +343,7 @@
 						<div style="padding: 0 10px 10px 10px; max-height: 300px; overflow-y: scroll; overflow-x: hidden">
 							<div ng-repeat="friend in share_list | filter:{name: filter_friend_name} | orderBy:'name'" class="text-ellipses {{friend.shared && 'label-warning'}}" style="display: inline-block; border-radius: 20px; width: 260px; margin: 0 2px; padding: 5px 10px; cursor: pointer; text-align: left" ng-click="friend.shared = !friend.shared">
 								<i class="fa fa-{{friend.shared && 'check' || 'plus-square'}} fa-fw"></i>&nbsp;
-								<img width="32" height="32" ng-src="{{nbUser.user_pic_url(friend)}}" />&nbsp;
+								<img width="32" height="32" ng-src="{{nbUser.user_pic_url(friend)}}" class="img-circle" />&nbsp;
 								<span>{{friend.name}}</span>
 							</div>
 						</div>
@@ -406,15 +406,6 @@
 		<div class="nbdialog_footer text-center">
 			<button class="nbdialog_close btn btn-default">Close</button>
 		</div>
-	</div>
-
-
-	<!-- FILE/DIR WITH ICON -->
-
-	<div id="inode_with_icon">
-		<i id="inode_with_icon_dir" class="icon-folder-close icon-large d-icon" style="display: none"></i>
-		<i id="inode_with_icon_file" class="icon-file icon-large d-icon" style="display: none; color: grey"></i>
-		<span id="inode_with_icon_name" class="fntmd fntthin"></span>
 	</div>
 
 

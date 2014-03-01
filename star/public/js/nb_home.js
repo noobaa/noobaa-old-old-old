@@ -702,7 +702,7 @@
 						var dlg = $('#rename_dialog').clone();
 						var input = dlg.find('#dialog_input');
 						input.val(inode.name);
-						dlg.find('.inode_label').html(inode.name /*make_inode_with_icon()*/ );
+						dlg.find('.inode_label').html(inode.name);
 						dlg.find('#dialog_ok').off('click').on('click', function() {
 							dlg.nbdialog('close');
 							if (!input.val() || input.val() === inode.name) {
@@ -745,7 +745,7 @@
 						var dlg = $('#mkdir_dialog').clone();
 						var input = dlg.find('#dialog_input');
 						input.val('');
-						dlg.find('.inode_label').html(dir_inode.name /*make_inode_with_icon()*/ );
+						dlg.find('.inode_label').html(dir_inode.name);
 						dlg.find('#dialog_ok').off('click').on('click', function() {
 							dlg.nbdialog('close');
 							if (!input.val()) {
@@ -805,8 +805,6 @@
 							}
 							var del_scope = $scope.$new();
 							del_scope.count = 0;
-							// TODO
-							// dlg.find('.inode_label').html(inode.make_inode_with_icon());
 							dlg.find('#dialog_ok').off('click').on('click', function() {
 								dlg.find('button.nbdialog_close').text('Hide');
 								dlg.find('a.nbdialog_close').attr('title', 'Hide');
@@ -976,96 +974,5 @@
 			};
 		}
 	]);
-
-
-	/*
-
-	/////////////////////
-	// SHARE DIRECTIVE //
-	/////////////////////
-
-	noobaa_app.controller('ShareModalCtrl', ['$scope', '$http',
-		function($scope, $http) {
-			var dlg = $('#share_modal');
-
-
-			$scope.open = function(inode) {
-				// TODO FIX ICON
-				dlg.find('.inode_label').html(inode.name / *make_inode_with_icon()* / );
-				$scope.share_is_loading = true;
-				$scope.share_inode = inode;
-				get_share_list(inode).then(function(res) {
-					$scope.share_is_loading = false;
-					$scope.share_list = res.data.list;
-				}, function() {
-					$scope.share_is_loading = false;
-				});
-				dlg.nbdialog('open', {
-					modal: true,
-					css: {
-						height: "80%",
-						width: 350
-					}
-				});
-			};
-
-			$scope.submit = function() {
-				var inode = $scope.share_inode;
-				var share_list = $scope.share_list;
-				$scope.share_is_loading = true;
-				set_share_list(inode, share_list).then(function(res) {
-					$scope.share_is_loading = false;
-					$('#share_modal').nbdialog('close');
-					// TODO NEED TO READDIR AFTER SHARE?
-					// if (inode.parent) {
-					// 	inode.parent.read_dir();
-					// }
-				}, function() {
-					$scope.share_is_loading = false;
-				});
-			};
-
-			$scope.mklink = function() {
-				var inode = $scope.share_inode;
-				$scope.share_is_loading = true;
-				mklink(inode).then(function(res) {
-					$scope.share_is_loading = false;
-					$('#share_modal').nbdialog('close');
-					console.log('mklink', res.data);
-					var dlg = $('#getlink_dialog').clone();
-					// TODO FIX ICON
-					dlg.find('.inode_label').html(inode.name / *make_inode_with_icon()* / );
-					dlg.find('.link_label').html(
-						'<div style="height: 100%; word-wrap: break-word; word-break: break-all">' +
-						window.location.host + res.data.url + '</div>');
-					dlg.nbdialog('open', {
-						remove_on_close: true,
-						modal: false,
-						css: {
-							width: 300,
-							height: 400
-						}
-					});
-				}, function() {
-					$scope.share_is_loading = false;
-				});
-			};
-
-			$scope.rmlinks = function() {
-				var inode = $scope.share_inode;
-				$scope.share_is_loading = true;
-				rmlinks(inode).then(function(res) {
-					$scope.share_is_loading = false;
-					$('#share_modal').nbdialog('close');
-					console.log('rmlinks', res.data);
-					$.nbalert('Revoked!');
-				}, function() {
-					$scope.share_is_loading = false;
-				});
-			};
-
-		}
-	]);
-	*/
 
 })();

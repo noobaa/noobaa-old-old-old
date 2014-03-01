@@ -150,13 +150,15 @@ app.use(function(req, res, next) {
 });
 
 // setup static files
-// app.use('/public/', express_minify()); TODO fails with angular injection
+if (!nb_debug) {
+	// app.use('/public/', express_minify()); TODO fails with angular injection
+	app.use('/vendor/', express_minify());
+	app.use('/vendor-b/', express_minify());
+	app.use('/vendor-n/', express_minify());
+}
 app.use('/public/', express.static(path.join(__dirname, 'public')));
-app.use('/vendor/', express_minify());
 app.use('/vendor/', express.static(path.join(__dirname, '..', 'vendor')));
-app.use('/vendor-b/', express_minify());
 app.use('/vendor-b/', express.static(path.join(__dirname, '..', 'bower_components')));
-app.use('/vendor-n/', express_minify());
 app.use('/vendor-n/', express.static(path.join(__dirname, '..', 'node_modules')));
 app.use('/', express.static(path.join(__dirname, 'public', 'google')));
 // app.use('/2FE5F0A5036CF33C937D0E26CE9B0B10.txt', express.static(path.join(__dirname, 'public', 'js')));
@@ -374,6 +376,10 @@ app.get('/home/*', function(req, res) {
 });
 app.get('/home', function(req, res) {
 	return res.redirect('/home/');
+});
+
+app.get('/player', function(req, res) {
+	return res.render('player.html');
 });
 
 app.all('/', redirect_no_user, function(req, res) {

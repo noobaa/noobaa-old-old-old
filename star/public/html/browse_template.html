@@ -143,7 +143,7 @@
 						</span>
 						<span ng-if="!!inode.owner" style="margin-right: 10px">
 							{{inode.owner.first_name}} &nbsp;
-							<img ng-src="{{nbUser.user_pic_url(inode.owner)}}" style="width: 30px; height: 30px;"></img>
+							<img ng-src="{{nbUser.user_pic_url(inode.owner)}}" style="width: 32px; height: 32px;" class="img-circle"></img>
 						</span>
 						<span>
 							{{moment(inode.ctime).fromNow()}}

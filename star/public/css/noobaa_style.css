@@ -235,15 +235,15 @@ a.btn-link, button.btn-link {
 	/*background-color: white;*/
 	/*color: black;*/
 }
-.fnt, body, h1, h2, h3, h4, h5, h6, .ui-widget, button {
-	font-family:'Ubuntu', sans-serif !important;
+.fnt, body, h1, h2, h3, h4, h5, h6, .ui-widget, button, a, p {
+	font-family: 'Ubuntu', sans-serif !important;
+	/*font-family: 'Architects Daughter', cursive !important;*/
 	/*font-family: 'Nunito', 'Ubuntu', sans-serif !important;*/
 }
 .fntpaint {
 	font-family:'Finger Paint', cursive !important;
-}
-.fntthin {
-	font-family:'Ubuntu', sans-serif !important;
+	/*font-family:'Architects Daughter', cursive !important;*/
+	/*font-weight: bold;*/
 }
 .fntmd {
 	/* normal font is 14px and line 1.428em by bootstrap */
