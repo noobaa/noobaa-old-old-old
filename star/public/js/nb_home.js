@@ -348,7 +348,7 @@
 					url: '/api/user/friends/'
 				}).then(function(res) {
 					$scope.refreshing_friends--;
-					console.log('GOT FRIENDS', res);
+					// console.log('GOT FRIENDS', res);
 					$scope.friends = res.data;
 				}, function(err) {
 					$scope.refreshing_friends--;
@@ -424,7 +424,6 @@
 			}
 
 			function send_friend_message(friend) {
-				console.log(ga);
 				if (friend.fbid) {
 					FB.ui({
 						method: 'send',
