@@ -45,7 +45,7 @@
 			total_size: 0,
 			total_upsize: 0,
 			level: 0,
-			is_expanded: true,
+			is_expanded: true
 		};
 
 		// multiple ui selection

@@ -34,7 +34,6 @@ var inode_schema = new mongoose.Schema({
 	// shr == '' means private (unless num_refs != 0)
 	// shr == 'r' means open only to referenced users (also assumed when: shr == '' and num_refs > 0)
 	// shr == 'f' means open to all friends
-	// shr == '*' means open to anyone
 	shr: String,
 	num_refs: Number,
 
@@ -71,22 +70,25 @@ inode_schema.index({
 	unique: false
 });
 
-//If this inode is a ghost inode, it will return it's reference. If not, nothing will be done.
-inode_schema.methods.follow_ref = function(cb) {
+// If this inode is a ghost inode, it will return it's reference. 
+// If not, return this inode.
+inode_schema.methods.follow_ref = function(callback) {
 	var inode = this;
-	if (!inode.ghost_ref) {
-		return cb(null, inode);
+	if (inode.ghost_ref) {
+		return Inode.findById(inode.ghost_ref, callback);
+	} else {
+		return callback(null, inode);
 	}
-	return this.model('Inode').findById(inode.ghost_ref, cb);
 };
 
 
 // callback is optional, if undefined mongoose returns a Query object
 // that can be used to add more options to the query and finally call q.exec(callback).
 inode_schema.methods.find_refs = function(callback) {
-	console.log('find_refs', this._id);
-	return this.model('Inode').find({
-		ghost_ref: this._id
+	var inode = this;
+	console.log('find_refs', inode._id);
+	return Inode.find({
+		ghost_ref: inode._id
 	}, callback);
 };
 
@@ -96,7 +98,7 @@ inode_schema.statics.isDirHasSons = function(inode, next) {
 	if (!inode.isdir) {
 		return next(null, inode, false);
 	}
-	return this.model('Inode').findOne({
+	return Inode.findOne({
 		owner: inode.owner,
 		parent: inode._id
 	}, function(err, result) {

@@ -80,6 +80,21 @@ html, body {
 .modal-backdrop {
 	background-color: hsl(0, 0%, 100%);
 }
+.bottom-radius {
+	border-bottom-left-radius: 20px !important; 
+	border-bottom-right-radius: 20px !important;
+}
+.dropdown-hover:hover > .dropdown-menu {
+	visibility: visible;
+}
+.dropdown-hover > .dropdown-menu {
+	visibility: hidden;
+	display: block;
+	-webkit-transition: all 1s;
+	-moz-transition: all 1s;
+	-o-transition: all 1s;
+	transition: all 1s;	
+}
 /*
 a.btn-link.text-white {
 	color: hsl(0, 0%, 60%) !important;

@@ -49,9 +49,9 @@
 
 
 	noobaa_app.controller('HomeCtrl', [
-		'$scope', '$http', '$timeout', '$interval', '$window', '$location', '$compile',
+		'$scope', '$http', '$timeout', '$interval', '$q', '$window', '$location', '$compile',
 		'nbUtil', 'nbMultiSelect', 'nbUser', 'nbInode', 'nbUploadSrv', 'nbPlanet',
-		function($scope, $http, $timeout, $interval, $window, $location, $compile,
+		function($scope, $http, $timeout, $interval, $q, $window, $location, $compile,
 			nbUtil, nbMultiSelect, nbUser, nbInode, nbUploadSrv, nbPlanet) {
 			$scope.nbUtil = nbUtil;
 			$scope.nbMultiSelect = nbMultiSelect;
@@ -104,7 +104,7 @@
 
 			function init_read_dir() {
 				// nbInode.read_all($scope.root_dir).then(function(res) {
-				nbInode.read_dir($scope.root_dir).then(function(res) {
+				return nbInode.read_dir($scope.root_dir).then(function(res) {
 					// console.log('ROOT FOLDERS', res);
 					var entries = $scope.root_dir.entries;
 					for (var i = 0; i < entries.length; i++) {
@@ -126,11 +126,22 @@
 							console.error('UNRECOGNIZED ROOT FOLDER', e);
 						}
 					}
-					refresh_feeds();
-					return res;
-				}, function(err) {
+				}).then(function() {
+					if (nbUser.server_data.signup) {
+						console.log('ADD GHOSTS');
+						return $http({
+							method: 'POST',
+							url: '/api/user/add_ghosts/'
+						}).then(function(res) {
+							console.log('ADD GHOSTS', res.data);
+							nbUtil.track_event('home.add_ghosts', res.data);
+						});
+					}
+				}).then(function() {
+					return refresh_feeds();
+				}).then(null, function(err) {
 					console.error('GET ROOT FOLDERS FAILED', err);
-					return $timeout(init_read_dir, 3000);
+					$timeout(init_read_dir, 3000);
 				});
 			}
 
@@ -158,7 +169,7 @@
 							f = {
 								isdir: e.isdir,
 								name: e.name,
-								inodes: [e],
+								inodes: [e]
 							};
 							feeds_by_key[key] = f;
 							feeds.push(f);

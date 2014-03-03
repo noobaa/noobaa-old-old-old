@@ -7,6 +7,7 @@ var Fobj = require('../models/fobj').Fobj;
 var Message = require('../models/message').Message;
 var email = require('./email');
 var common_api = require('./common_api');
+var auth = require('./auth');
 
 var CONST_BASE_FOLDERS = {
 	'MYDATA': 'My Data',
@@ -98,7 +99,7 @@ function get_user_basic_folder(folder_name, user_id, next) {
 	}, function(err, inode) {
 		if (err) {
 			console.error('Failed while searching for user basic folder', err,
-				'user id', user._id, 'folder', folder_name);
+				'user id', user_id, 'folder', folder_name);
 			return next(err, null);
 		}
 		if (!inode) {
@@ -114,9 +115,10 @@ exports.update_inode_ghost_refs = update_inode_ghost_refs;
 //add and remove ghosts as needed
 
 function update_inode_ghost_refs(live_inode, old_user_ids, new_user_ids, cb) {
-	// var old_user_ids_strings = _.invoke(old_user_ids, 'toHexString');
-	var user_ids_to_add = _.difference(new_user_ids, old_user_ids);
-	var user_ids_to_remove = _.difference(old_user_ids, new_user_ids);
+	var old_user_ids_str = _.invoke(old_user_ids, 'toString');
+	var new_user_ids_str = _.invoke(new_user_ids, 'toString');
+	var user_ids_to_add = _.difference(new_user_ids_str, old_user_ids_str);
+	var user_ids_to_remove = _.difference(old_user_ids_str, new_user_ids_str);
 
 	async.parallel([
 		function(next) {
@@ -134,10 +136,10 @@ function update_inode_ghost_refs(live_inode, old_user_ids, new_user_ids, cb) {
 //remove ghosts which refer to the live inode and belong to the users in the list
 
 function remove_inode_ghost_refs(live_inode, user_ids, callback) {
-	console.log("remove_inode_ghost_refs", arguments);
 	if (!user_ids || !user_ids.length) {
 		return callback();
 	}
+	console.log("remove_inode_ghost_refs", live_inode.id, live_inode.name, user_ids);
 	Inode.remove({
 		ghost_ref: live_inode.id,
 		owner: {
@@ -149,11 +151,10 @@ function remove_inode_ghost_refs(live_inode, user_ids, callback) {
 //add ghosts which refer to the live inode and belong to the users in the list
 
 function add_inode_ghost_refs(live_inode, user_ids, callback) {
-	console.log("add_inode_ghost_refs", arguments);
-
 	if (!user_ids || !user_ids.length) {
 		return callback();
 	}
+	console.log("add_inode_ghost_refs", live_inode.id, live_inode.name, user_ids);
 	var users_by_id;
 
 	async.waterfall([
@@ -187,16 +188,15 @@ function add_inode_ghost_refs(live_inode, user_ids, callback) {
 		function(results, next) {
 			users_by_id = _.indexBy(results.users, '_id');
 			var swm_by_user_id = _.indexBy(results.swm_inodes, 'owner');
-			var new_ghosts = [];
-			_.each(user_ids, function(user_id) {
+			var new_ghosts = _.map(user_ids, function(user_id) {
 				var swm = swm_by_user_id[user_id];
-				new_ghosts.push(new Inode({
+				return new Inode({
 					owner: user_id,
 					parent: swm._id,
 					name: live_inode.name,
 					isdir: live_inode.isdir,
 					ghost_ref: live_inode._id
-				}));
+				});
 			});
 			return Inode.create(new_ghosts, function(err) {
 				return next(err);
@@ -222,6 +222,86 @@ function add_inode_ghost_refs(live_inode, user_ids, callback) {
 
 	], callback);
 }
+
+function find_missing_ghost_refs(user_id, user_ids, callback) {
+	var inodes_by_id;
+	var inode_ids;
+
+	async.waterfall([
+
+		function(next) {
+			return Inode.find({
+				owner: {
+					$in: user_ids
+				},
+				shr: 'f'
+			}, next);
+		},
+
+		function(inodes, next) {
+			inodes_by_id = _.indexBy(inodes, '_id');
+			inode_ids = _.map(inodes, function(x) {
+				return x._id.toString();
+			});
+			return Inode.find({
+				owner: user_id,
+				ghost_ref: {
+					$in: inode_ids
+				}
+			}).distinct('ghost_ref').exec(next);
+		},
+
+		function(ghost_ids, next) {
+			ghost_ids = _.invoke(ghost_ids, 'toString');
+			inode_ids = _.difference(inode_ids, ghost_ids);
+			inodes_by_id = _.pick(inodes_by_id, inode_ids);
+			return next(null, inodes_by_id);
+		}
+
+	], callback);
+}
+
+
+exports.add_missing_ghost_refs = add_missing_ghost_refs;
+
+function add_missing_ghost_refs(tokens, user_id, callback) {
+	var swm;
+
+	async.waterfall([
+
+		function(next) {
+			return get_user_SWM(user_id, next);
+		},
+
+		function(swm_inode, next) {
+			swm = swm_inode;
+			return auth.get_friends_user_ids(tokens, next);
+		},
+
+		function(user_ids, next) {
+			return find_missing_ghost_refs(user_id, user_ids, next);
+		},
+
+		function(inodes_by_id, next) {
+			var new_ghosts = _.map(inodes_by_id, function(inode) {
+				return new Inode({
+					owner: user_id,
+					parent: swm._id,
+					name: inode.name,
+					isdir: inode.isdir,
+					ghost_ref: inode._id
+				});
+			});
+			return Inode.create(new_ghosts, function(err) {
+				return next(err, {
+					added: new_ghosts.length
+				});
+			});
+		}
+
+	], callback);
+}
+
 
 
 exports.find_recent_swm = find_recent_swm;

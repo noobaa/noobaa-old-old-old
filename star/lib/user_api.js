@@ -141,3 +141,11 @@ exports.user_get_friends = function(req, res) {
 
 	], common_api.reply_callback(req, res, 'USER FRIENDS ' + user_id));
 };
+
+
+exports.add_ghosts = function(req, res) {
+	return user_inodes.add_missing_ghost_refs(req.session.tokens, req.user.id,
+		common_api.reply_callback(req, res, 'ADD GHOSTS'));
+};
+
+

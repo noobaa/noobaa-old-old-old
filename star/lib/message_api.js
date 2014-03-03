@@ -28,11 +28,7 @@ exports.get_inode_messages = function(req, res) {
 		common_api.check_ownership.bind(null, req.user.id),
 
 		function(inode, next) {
-			if (inode.ghost_ref) {
-				return Inode.findById(inode.ghost_ref, next);
-			} else {
-				return next(null, inode);
-			}
+			return inode.follow_ref(next);
 		},
 
 		function(inode, next) {
@@ -86,11 +82,7 @@ exports.post_inode_message = function(req, res) {
 		common_api.check_ownership.bind(null, req.user.id),
 
 		function(inode, next) {
-			if (inode.ghost_ref) {
-				return Inode.findById(inode.ghost_ref, next);
-			} else {
-				return next(null, inode);
-			}
+			return inode.follow_ref(next);
 		},
 
 		function(inode, next) {

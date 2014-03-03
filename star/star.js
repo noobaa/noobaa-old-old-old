@@ -21,9 +21,22 @@ var express = require('express');
 var passport = require('passport');
 var mongoose = require('mongoose');
 var express_minify = require('express-minify');
+var uglifyjs = require('uglify-js');
+var fs = require('fs');
+var mime = require('mime');
 var User = require('./models/user').User;
 // var fbapi = require('facebook-api');
 var common_api = require('./lib/common_api');
+var auth = require('./lib/auth');
+var inode_api = require('./lib/inode_api');
+var user_inodes = require('./lib/user_inodes');
+var message_api = require('./lib/message_api');
+var user_api = require('./lib/user_api');
+var email = require('./lib/email');
+var device_api = require('./lib/device_api');
+var track_api = require('./lib/track_api');
+var adminoobaa = require('./lib/adminoobaa');
+
 
 var nb_debug = (process.env.NB_DEBUG === 'true');
 
@@ -156,15 +169,78 @@ if (!nb_debug) {
 	// setup caching
 	app.use(cache_control(10 * 60)); // 10 minutes
 	app.use('/public/images/', cache_control(24 * 60 * 60)); // 24 hours
-	// app.use('/public/', express_minify()); TODO fails with angular injection
-	app.use('/vendor/', express_minify());
-	app.use('/vendor-b/', express_minify());
-	app.use('/vendor-n/', express_minify());
 }
-app.use('/public/', express.static(path.join(__dirname, 'public')));
-app.use('/vendor/', express.static(path.join(__dirname, '..', 'vendor')));
-app.use('/vendor-b/', express.static(path.join(__dirname, '..', 'bower_components')));
-app.use('/vendor-n/', express.static(path.join(__dirname, '..', 'node_modules')));
+
+function static_files(src) {
+	src = path.resolve(src);
+	var cache = {};
+	var negative_cache = {};
+	var express_static = express.static(src);
+	return function(req, res, next) {
+		// use express static file server for anything that we don't want to minify
+		if (!req.path.match(/\.js$/)) {
+			return express_static(req, res, next);
+		}
+		var file_path = path.resolve(path.join(src, req.path));
+		// verify that we don't allow to access behind the src dir
+		if (file_path.indexOf(src) !== 0) {
+			console.error('UNSAFE STATIC FILE PATH', src, file_path);
+			return next();
+		}
+		// fast negative cache
+		if (negative_cache[file_path]) {
+			console.log('STATIC NEGATIVE CACHE', file_path);
+			return next();
+		}
+		var send_entry = function(entry) {
+			res.set('Content-Type', entry.content_type);
+			res.removeHeader('Set-Cookie');
+			if (req.method === 'GET') {
+				res.send(entry.data);
+			}
+			res.end();
+		};
+		var entry = cache[file_path];
+		if (entry) {
+			console.log('STATIC CACHE HIT', file_path);
+			send_entry(entry);
+			return;
+		}
+		console.log('STATIC CACHE MISS', file_path);
+		fs.readFile(file_path, function(err, data) {
+			if (err) {
+				console.log('STATIC READ FAILED', file_path, err);
+				if (err.code === 'ENOENT' || err.code === 'EISDIR') {
+					negative_cache[file_path] = true;
+					return next();
+				}
+				return next(err);
+			}
+			entry = {
+				content_type: mime.lookup(file_path),
+				data: data
+			};
+			// TODO minify also CSS, more?
+			if (file_path.match(/\.js$/)) {
+				entry.data = uglifyjs.minify(data.toString(), {
+					fromString: true,
+					mangle: false // TODO mangling fails angular...
+				}).code;
+			}
+			if (entry.data.length < 1024 * 1024) {
+				cache[file_path] = entry;
+			} else {
+				console.log('FILE TOO BIG FOR CACHING', file_path);
+			}
+			send_entry(entry);
+		});
+	};
+}
+
+app.use('/public/', static_files(path.join(__dirname, 'public')));
+app.use('/vendor/', static_files(path.join(__dirname, '..', 'vendor')));
+app.use('/vendor-b/', static_files(path.join(__dirname, '..', 'bower_components')));
+app.use('/vendor-n/', static_files(path.join(__dirname, '..', 'node_modules')));
 app.use('/', express.static(path.join(__dirname, 'public', 'google')));
 // app.use('/2FE5F0A5036CF33C937D0E26CE9B0B10.txt', express.static(path.join(__dirname, 'public', 'js')));
 
@@ -239,8 +315,6 @@ function error_501(req, res, next) {
 
 // setup auth routes
 
-var auth = require('./lib/auth');
-
 var facebook_auth_path = URL.parse(process.env.FACEBOOK_AUTHORIZED_URL).path;
 var google_auth_path = URL.parse(process.env.GOOGLE_AUTHORIZED_URL).path;
 
@@ -257,7 +331,6 @@ app.get('/auth/google/login/', auth.provider_login.bind(null, 'google'));
 
 // setup star API routes
 
-var inode_api = require('./lib/inode_api');
 app.post('/api/inode/', inode_api.inode_create);
 app.get('/api/inode/', inode_api.inode_query);
 app.get('/api/inode/:inode_id', inode_api.inode_read);
@@ -274,33 +347,28 @@ app.put('/api/inode/:inode_id/share_list', inode_api.inode_set_share_list);
 app.post('/api/inode/:inode_id/link', inode_api.inode_mklink);
 app.del('/api/inode/:inode_id/link', inode_api.inode_rmlinks);
 
-var message_api = require('./lib/message_api');
 app.get('/api/inode/:inode_id/message/', message_api.get_inode_messages);
 app.post('/api/inode/:inode_id/message/', message_api.post_inode_message);
 app.del('/api/inode/:inode_id/message/:message_id', message_api.delete_inode_message);
 
-var user_api = require('./lib/user_api');
 app.get('/api/user/', user_api.user_read);
 app.put('/api/user/', user_api.user_update);
 app.get('/api/user/friends/', user_api.user_get_friends);
+app.post('/api/user/add_ghosts/', user_api.add_ghosts);
 
-var email = require('./lib/email');
 app.post('/api/user/feedback/', email.user_feedback);
 app.get('/api/emailtest/', email.test_email_templates);
 
-var device_api = require('./lib/device_api');
 app.post('/api/device/', device_api.device_create);
 app.get('/api/device/', device_api.device_list);
 app.put('/api/device/:device_id', device_api.device_update);
 app.get('/api/device/current/', device_api.device_current);
 
-var track_api = require('./lib/track_api');
 app.all('/track/', track_api.track_event_api);
 app.all('/track/pixel/', track_api.track_event_pixel);
 
 // setup admin pages
 
-var adminoobaa = require('./lib/adminoobaa');
 app.get('/adminoobaa/', function(req, res) {
 	return res.render('adminoobaa.html', common_api.page_context(req));
 });

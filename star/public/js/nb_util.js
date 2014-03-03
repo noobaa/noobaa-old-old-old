@@ -733,8 +733,8 @@
 	});
 
 	noobaa_app.directive('nbPopover', [
-		'$compile', '$rootScope',
-		function($compile, $rootScope) {
+		'$compile', '$rootScope', '$timeout',
+		function($compile, $rootScope, $timeout) {
 			return {
 				restrict: 'A', // use as attribute
 				link: function(scope, element, attr) {
@@ -742,20 +742,25 @@
 					var opt_element = opt.element;
 					delete opt.element;
 					opt.trigger = 'manual';
-					var state = false;
-					element.on('click', function() {
-						state = !state;
-						if (state) {
-							if (opt_element) {
-								opt.content = $compile($(opt_element).html())(scope);
-								opt.html = true;
-							}
-							element.popover(opt);
+					if (opt_element) {
+						opt.content = $compile($(opt_element).html())(scope);
+						opt.html = true;
+					}
+					element.popover(opt);
+					var pop_timeout;
+					var pop_shown;
+					$(element).add(opt.content).on('mouseenter', function(e) {
+						$timeout.cancel(pop_timeout);
+						if (!pop_shown) {
+							pop_shown = true;
 							element.popover('show');
-							$rootScope.safe_apply();
-						} else {
-							element.popover('destroy');
 						}
+					}).on('mouseleave', function(e) {
+						$timeout.cancel(pop_timeout);
+						pop_timeout = $timeout(function() {
+							pop_shown = false;
+							element.popover('hide');
+						}, 1000);
 					});
 				}
 			};
