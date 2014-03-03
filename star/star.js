@@ -12,10 +12,36 @@ if (process.env.NODETIME_ACCOUNT_KEY) {
 	});
 }
 
+// important - dot settings should run before any require() that might use dot
+// or else the it will get mess up (like the email.js code)
+var dot = require('dot');
+dot.templateSettings.strip = false;
+dot.templateSettings.cache = true;
+// replace dot regexp to use <? ?> to avoid collision with angular {{ }}
+for (var i in dot.templateSettings) {
+	var reg = dot.templateSettings[i];
+	if (!(reg instanceof RegExp)) {
+		continue;
+	}
+	var pattern = reg.source;
+	pattern = pattern.replace(/\\\{\\\{/g, '\\<\\?');
+	pattern = pattern.replace(/\\\}\\\}/g, '\\?\\>');
+	var flags = '';
+	if (reg.global) {
+		flags += 'g';
+	}
+	if (reg.ignoreCase) {
+		flags += 'i';
+	}
+	if (reg.multiline) {
+		flags += 'm';
+	}
+	dot.templateSettings[i] = new RegExp(pattern, flags);
+}
+
 var path = require('path');
 var URL = require('url');
 var http = require('http');
-var dot = require('dot');
 var dot_emc = require('dot-emc');
 var express = require('express');
 var passport = require('passport');
@@ -24,8 +50,8 @@ var express_minify = require('express-minify');
 var uglifyjs = require('uglify-js');
 var fs = require('fs');
 var mime = require('mime');
-var User = require('./models/user').User;
 // var fbapi = require('facebook-api');
+var User = require('./models/user').User;
 var common_api = require('./lib/common_api');
 var auth = require('./lib/auth');
 var inode_api = require('./lib/inode_api');
@@ -53,29 +79,6 @@ app.set('port', web_port);
 var dot_emc_app = dot_emc.init({
 	app: app
 });
-dot.templateSettings.strip = false;
-dot.templateSettings.cache = true;
-// replace dot regexp to use <? ?> to avoid collision with angular {{ }}
-for (var i in dot.templateSettings) {
-	var reg = dot.templateSettings[i];
-	if (!(reg instanceof RegExp)) {
-		continue;
-	}
-	var pattern = reg.source;
-	pattern = pattern.replace(/\\\{\\\{/g, '\\<\\?');
-	pattern = pattern.replace(/\\\}\\\}/g, '\\?\\>');
-	var flags = '';
-	if (reg.global) {
-		flags += 'g';
-	}
-	if (reg.ignoreCase) {
-		flags += 'i';
-	}
-	if (reg.multiline) {
-		flags += 'm';
-	}
-	dot.templateSettings[i] = new RegExp(pattern, flags);
-}
 app.set('views', path.join(__dirname, 'views'));
 app.engine('dot', dot_emc_app.__express);
 app.engine('html', dot_emc_app.__express);
