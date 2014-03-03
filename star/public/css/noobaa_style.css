@@ -30,10 +30,10 @@ html, body {
 	background-color: hsl(192, 7%, 80%) !important;
 }
 .btn-hover-only {
-	-webkit-transition: all 0.5s;
-	-moz-transition: all 0.5s;
-	-o-transition: all 0.5s;
 	transition: all 0.5s;
+	-o-transition: all 0.5s;
+	-moz-transition: all 0.5s;
+	-webkit-transition: all 0.5s;
 }
 .btn-hover-only:not(:hover) {
 	background-color: transparent !important;
@@ -81,7 +81,7 @@ html, body {
 	background-color: hsl(0, 0%, 100%);
 }
 .bottom-radius {
-	border-bottom-left-radius: 20px !important; 
+	border-bottom-left-radius: 20px !important;
 	border-bottom-right-radius: 20px !important;
 }
 .dropdown-hover:hover > .dropdown-menu {
@@ -90,10 +90,24 @@ html, body {
 .dropdown-hover > .dropdown-menu {
 	visibility: hidden;
 	display: block;
-	-webkit-transition: all 1s;
-	-moz-transition: all 1s;
+}
+.transition-fast {
+	transition: all 0.5s;
+	-o-transition: all 0.5s;
+	-moz-transition: all 0.5s;
+	-webkit-transition: all 0.5s;
+}
+.transition-normal {
+	transition: all 1s;
 	-o-transition: all 1s;
-	transition: all 1s;	
+	-moz-transition: all 1s;
+	-webkit-transition: all 1s;
+}
+.transition-slow {
+	transition: all 1.5s;
+	-o-transition: all 1.5s;
+	-moz-transition: all 1.5s;
+	-webkit-transition: all 1.5s;
 }
 /*
 a.btn-link.text-white {
@@ -105,9 +119,18 @@ a.btn-link.text-white:hover {
 /**/
 
 /* MENU */
- .nb-menu-item {
-	text-decoration: none !important;
-	font-size: 30px;
+ #nb-menu li, #nb-menu li > a {
+	-webkit-transition: all 0.2s;
+	-moz-transition: all 0.2s;
+	-o-transition: all 0.2s;
+	transition: all 0.2s;
+}
+#nb-menu li:hover {
+	margin-top: -8px;
+	padding-bottom: 8px;
+	transform: scale(1.03, 1.1);
+	-ms-transform: scale(1.03, 1.1);
+	-webkit-transform: scale(1.03, 1.1);
 }
 /**/
 
@@ -146,10 +169,10 @@ a.btn-link.text-white:hover {
 	/*border-radius: 10px;*/
 }
 .feed_item {
-	-webkit-transition: all 0.5s;
-	-moz-transition: all 0.5s;
-	-o-transition: all 0.5s;
 	transition: all 0.5s;
+	-o-transition: all 0.5s;
+	-moz-transition: all 0.5s;
+	-webkit-transition: all 0.5s;
 	overflow: hidden;
 	height: auto;
 	margin-bottom: 40px;
@@ -161,12 +184,12 @@ a.btn-link.text-white:hover {
 	box-shadow: 0 0 8px 5px hsla(0, 0%, 100%, 0.15);
 }
 .feed_item.feed_hidden {
-	height: 0; 
+	height: 0;
 	margin: 0;
 	padding: 0;
 	border: none;
 	box-shadow: none;
-	visibility: hidden; 
+	visibility: hidden;
 	overflow: hidden;
 }
 /*
@@ -190,10 +213,10 @@ a.btn-link.text-white:hover {
 	border-radius: 4px;
 }
 .content-switcher > span, .content-switcher > span > .fa-stack-2x, .feed_item {
-	-webkit-transition: all 0.5s;
-	-moz-transition: all 0.5s;
-	-o-transition: all 0.5s;
 	transition: all 0.5s;
+	-o-transition: all 0.5s;
+	-moz-transition: all 0.5s;
+	-webkit-transition: all 0.5s;
 }
 .content-switcher > span:hover {
 	transform: rotate(360deg);
@@ -229,26 +252,19 @@ a[ng-click], a[role=button] {
 	cursor: pointer;
 }
 .btn-link, .navbar-link {
-	-webkit-transition: color 0.6s;
-	-moz-transition: color 0.6;
-	-o-transition: color 0.6;
-	transition: color 0.6;
+	transition: all 0.6s;
+	-o-transition: all 0.6s;
+	-moz-transition: all 0.6s;
+	-webkit-transition: all 0.6s;
 }
 .btn:not(.btn-link) {
-	-webkit-transition: background-color 0.6;
-	-moz-transition: background-color 0.6;
-	-o-transition: background-color 0.6;
-	transition: background-color 0.6;
-}
-a.btn-link, button.btn-link {
-	/*color: hsl(0, 0%, 5%);*/
-}
-.panel-heading .badge {
-	/*background-color: white;*/
-	/*color: black;*/
+	transition: all 0.6s;
+	-o-transition: all 0.6s;
+	-moz-transition: all 0.6s;
+	-webkit-transition: all 0.6s;
 }
 .fnt, body, h1, h2, h3, h4, h5, h6, .ui-widget, button, a, p {
-	font-family: 'Ubuntu', sans-serif !important;
+	font-family:'Ubuntu', sans-serif !important;
 	/*font-family: 'Architects Daughter', cursive !important;*/
 	/*font-family: 'Nunito', 'Ubuntu', sans-serif !important;*/
 }
@@ -355,10 +371,10 @@ a.btn-link, button.btn-link {
 	opacity: 0;
 }
 .view-animate {
-	-webkit-transition: opacity 0.5s linear;
-	-moz-transition: opacity 0.5s linear;
-	-o-transition: opacity 0.5s linear;
 	transition: opacity 0.5s linear;
+	-o-transition: opacity 0.5s linear;
+	-moz-transition: opacity 0.5s linear;
+	-webkit-transition: opacity 0.5s linear;
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -380,9 +396,9 @@ a.btn-link, button.btn-link {
 	box-shadow: 		0 0 3px 3px rgba(0, 0, 0, 0.4);
 	*/
 	border: 3px solid rgba(50, 50, 50, 0.5);
+	background-clip: padding-box;
 	-moz-background-clip: padding;
 	-webkit-background-clip: padding;
-	background-clip: padding-box;
 }
 .nbdialog_header, .nbdialog_content, .nbdialog_footer {
 	padding: 15px;
