@@ -400,7 +400,14 @@ function user_notify_by_email(user, callback) {
 
 	async.waterfall([
 		function(next) {
-			return find_recent_swm(user.id, 3, user.email_last_notify_time, next);
+			var dt = user.email_last_notify_time;
+			if (dt) {
+				console.log(dt.getTime(), '<', 1393874656000);
+				if (dt.getTime() < 1393874656000) {
+					dt = moment(dt).subtract('hours', 12).toDate();
+				}
+			}
+			return find_recent_swm(user.id, 3, dt, next);
 		},
 		function(shares, next) {
 			if (!shares) {
@@ -433,7 +440,7 @@ function users_notify_by_email_job() {
 	async.waterfall([
 
 		function(next) {
-			return User.find({
+			return User.find(/*{
 				$or: [{
 					email_last_notify_time: {
 						$exists: false
@@ -443,7 +450,7 @@ function users_notify_by_email_job() {
 						$lte: yesterday
 					}
 				}]
-			}, next);
+			},*/ next);
 		},
 
 		function(users, next) {
@@ -460,7 +467,7 @@ function users_notify_by_email_job() {
 				var user_time_now = new Date(Date.now() + (tz_offset * 60000));
 				var user_hour = user_time_now.getUTCHours();
 				// send mails on 8pm
-				if (user_hour !== 20) {
+				if (false && user_hour !== 20) {
 					console.log('not yet time on user clock', user_hour, user.get_name());
 					return next();
 				}
