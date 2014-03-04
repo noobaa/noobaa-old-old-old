@@ -20,13 +20,13 @@
 				</div>
 			</div>
 
-			<div ng-repeat="feed in feeds | limitTo:(feeds_limit+20) track by $index" ng-controller="FeedCtrl" class="feed_item {{ ($index >= feeds_limit) && 'feed_hidden'}}">
+			<div ng-repeat="feed in feeds | limitTo:(feeds_limit+20) track by $index" ng-controller="FeedCtrl" class="feed_item row {{ ($index >= feeds_limit) && 'feed_hidden'}}">
 
-				<div class="clearfix">
+				<div class="clearfix col-xs-6 col-xs-offset-3 col-sm-offset-0 col-sm-4" style="max-height: 250px">
 					<div nb-media="current_entry()" media-events="media_events" show-content="false"></div>
 				</div>
 
-				<div>
+				<div class="col-xs-12 col-sm-8 col-md-7 col-lg-6">
 					<div class="clearfix" style="padding: 10px 10px 10px 0">
 						<div class="pull-right">
 							<a class="btn btn-danger btn-hover-only {{done_keep() && 'text-danger'}}" ng-click="keep_feed()" ng-disabled="running_keep() || done_keep()">

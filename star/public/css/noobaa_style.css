@@ -109,6 +109,12 @@ html, body {
 	-moz-transition: all 1.5s;
 	-webkit-transition: all 1.5s;
 }
+.img-circle-non-hover {
+	border-radius: 50%;
+}
+.img-circle-non-hover:hover {
+	border-radius: 0;
+}
 /*
 a.btn-link.text-white {
 	color: hsl(0, 0%, 60%) !important;
@@ -163,8 +169,8 @@ a.btn-link.text-white:hover {
 
 /* FEED */
  .feeds_container {
-	max-width: 600px;
-	padding: 20px 0;
+	/*max-width: 600px;*/
+	/*padding: 20px 0;*/
 	/*background-color: hsl(0, 0%, 30%);*/
 	/*border-radius: 10px;*/
 }
@@ -175,13 +181,14 @@ a.btn-link.text-white:hover {
 	-webkit-transition: all 0.5s;
 	overflow: hidden;
 	height: auto;
-	margin-bottom: 40px;
-	border: 1px solid hsla(0, 0%, 100%, 0.25);
-	border-radius: 10px;
-	/*background-color: hsl(0, 0%, 0%);*/
-	-webkit-box-shadow: 0 0 8px 5px hsla(0, 0%, 100%, 0.15);
-	-moz-box-shadow: 0 0 8px 5px hsla(0, 0%, 100%, 0.15);
-	box-shadow: 0 0 8px 5px hsla(0, 0%, 100%, 0.15);
+	padding-top: 20px;
+	padding-bottom: 20px;
+	border-top: 1px dotted hsl(0,0%,15%);
+	/*border: 1px solid hsla(0, 0%, 100%, 0.25);*/
+	/*border-radius: 10px;*/
+	/*-webkit-box-shadow: 0 0 8px 5px hsla(0, 0%, 100%, 0.15);*/
+	/*-moz-box-shadow: 0 0 8px 5px hsla(0, 0%, 100%, 0.15);*/
+	/*box-shadow: 0 0 8px 5px hsla(0, 0%, 100%, 0.15);*/
 }
 .feed_item.feed_hidden {
 	height: 0;
