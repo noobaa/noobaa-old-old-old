@@ -1,11 +1,16 @@
 <div class="feeder">
 	<div class="container">
 
-		<div class="text-center">
-			<span>Friend's stuff shared with me</span>
-			<button class="btn btn-link" ng-click="refresh_feeds()" title="Click to refresh" rel="tooltip" data-placement="bottom">
+		<div class="text-center" style="margin-bottom: 15px">
+			<button class="btn btn-default" ng-click="refresh_feeds()" title="Click to refresh" rel="tooltip" data-placement="bottom">
 				<i class="fa fa-refresh {{refreshing_feeds && 'fa-spin' || ''}} fa-fw"></i>
 			</button>
+			<div style="display: inline-block; max-width: 170px; vertical-align: middle">
+				<div Xclass="input-group" style="position: relative">
+					<input type="text" class="normal-radius form-control {{search_in_feed && 'label-warning' || 'label-default'}}" maxlength="100" placeholder="Search in feed" ng-model="search_in_feed" />
+					<i class="fa fa-times fa-fw" style="cursor: pointer; position: absolute; right: 10px; top: 11px" ng-click="search_in_feed=''"></i>
+				</div>
+			</div>
 		</div>
 
 		<div class="feeds_container center-block">
@@ -20,14 +25,14 @@
 				</div>
 			</div>
 
-			<div ng-repeat="feed in feeds | limitTo:(feeds_limit+20) track by $index" ng-controller="FeedCtrl" class="feed_item row {{ ($index >= feeds_limit) && 'feed_hidden'}}">
+			<div ng-repeat="feed in feeds | filter:{name:search_in_feed} | limitTo:(feeds_limit+20) track by $index" ng-controller="FeedCtrl" class="feed_item row {{ ($index >= feeds_limit) && 'feed_hidden'}}">
 
-				<div class="clearfix col-xs-6 col-xs-offset-3 col-sm-offset-0 col-sm-4" style="max-height: 250px">
+				<div class="clearfix col-xs-10 col-xs-offset-1 col-sm-offset-0 col-sm-4" style="max-height: 250px; margin-bottom: 15px">
 					<div nb-media="current_entry()" media-events="media_events" show-content="false"></div>
 				</div>
 
-				<div class="col-xs-12 col-sm-8 col-md-7 col-lg-6">
-					<div class="clearfix" style="padding: 10px 10px 10px 0">
+				<div class="col-xs-12 col-sm-8 col-md-7 col-lg-6" style="margin-bottom: 15px">
+					<div class="clearfix" style="padding-bottom: 10px; Xpadding: 10px 10px 10px 0">
 						<div class="pull-right">
 							<a class="btn btn-danger btn-hover-only {{done_keep() && 'text-danger'}}" ng-click="keep_feed()" ng-disabled="running_keep() || done_keep()">
 								<i ng-if="done_keep()" class="fa fa-check"></i> 
@@ -37,8 +42,7 @@
 								keep
 							</a>
 							<a class="btn btn-warning btn-hover-only {{current_inode().shr=='f' && 'text-warning'}}" ng-click="keep_and_share_feed()">
-								<i ng-if="current_inode().shr=='f'" class="fa fa-check"></i> 
-								share
+								<i ng-if="current_inode().shr=='f'" class="fa fa-check"></i> share
 							</a>
 						</div>
 						<div style="overflow: hidden">
@@ -98,8 +102,7 @@
 											<textarea ng-model="comment_box.text" rows="1" class="form-control {{comment_box.text.length && 'label-primary text-black' || 'label-default'}}" placeholder="Write about it..." nb-focus="comment_box.show" ng-attr-tabindex="{{($index*10)+100}}" nb-auto-height></textarea>
 											<div class="text-center" style="padding-top: 5px">
 												<button class="btn btn-info btn-hover-only" ng-click="post_comment(comment_box)" ng-disabled="comment_box.posting" ng-attr-tabindex="{{($index*10)+101}}">
-													&nbsp;&nbsp;&nbsp;&nbsp;
-													Send
+													&nbsp;&nbsp;&nbsp;&nbsp; Send
 													<span ng-if="comment_box.posting">
 														<i class="fa fa-spin fa-spinner"></i>
 													</span>

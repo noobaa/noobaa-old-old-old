@@ -84,6 +84,9 @@ html, body {
 	border-bottom-left-radius: 20px !important;
 	border-bottom-right-radius: 20px !important;
 }
+.normal-radius {
+	border-radius: 20px !important;
+}
 .dropdown-hover:hover > .dropdown-menu {
 	visibility: visible;
 }
@@ -181,8 +184,7 @@ a.btn-link.text-white:hover {
 	-webkit-transition: all 0.5s;
 	overflow: hidden;
 	height: auto;
-	padding-top: 20px;
-	padding-bottom: 20px;
+	padding-top: 15px;
 	border-top: 1px dotted hsl(0,0%,15%);
 	/*border: 1px solid hsla(0, 0%, 100%, 0.25);*/
 	/*border-radius: 10px;*/
