@@ -5,7 +5,7 @@ var _ = require('underscore');
 var async = require('async');
 var common_api = require('./common_api');
 var User = require('../models/user').User;
-var Inodes = require('../models/inode').Inode;
+var Inode = require('../models/inode').Inode;
 var Device = require('../models/device.js').Device;
 var TrackEvent = require('../models/track_event').TrackEvent;
 var user_inodes = require('./user_inodes');
@@ -33,7 +33,7 @@ exports.admin_get_users = function(req, res) {
 				}),
 				// get the number of files (pointing at fobj) per user
 				files: function(cb) {
-					Inodes.aggregate([{
+					Inode.aggregate([{
 						$match: {
 							fobj: {
 								$exists: true
@@ -357,3 +357,92 @@ exports.admin_get_tracks_csv = function(req, res) {
 		}
 	], common_api.reply_callback(req, res, 'ADMIN GET TRACKS CSV'));
 };
+
+
+exports.admin_pull_inodes_fobj = function(req, res) {
+	pull_inodes_fobj(common_api.reply_callback(req, res, 'ADMIN PULL INODES FOBJ'));
+};
+
+function pull_inodes_fobj(callback) {
+	return async.waterfall([
+		function(next) {
+			return Inode.find({
+				fobj: {
+					$exists: true
+				},
+				$or: [{
+					size: {
+						$exists: false
+					}
+				}, {
+					content_type: {
+						$exists: false
+					}
+				}]
+			}).limit(100).populate('fobj').exec(next);
+		},
+
+		function(inodes, next) {
+			var updates_list = _.map(inodes, function(inode) {
+				return function(next) {
+					inode.size = inode.fobj.size;
+					inode.content_type = inode.fobj.content_type;
+					return inode.save(function(err) {
+						return next(err);
+					});
+				};
+			});
+			async.parallelLimit(updates_list, 10, function(err, results) {
+				return next(err, _.map(inodes, function(inode) {
+					return _.pick(inode, '_id', 'name', 'size', 'content_type', 'fobj');
+				}));
+			});
+		}
+	], callback);
+}
+
+exports.admin_pull_inodes_ref = function(req, res) {
+	pull_inodes_ref(common_api.reply_callback(req, res, 'ADMIN PULL INODES REF'));
+};
+
+function pull_inodes_ref(callback) {
+	return async.waterfall([
+		function(next) {
+			return Inode.find({
+				ghost_ref: {
+					$exists: true
+				},
+				$or: [{
+					ref_owner: {
+						$exists: false
+					}
+				}, {
+					isdir: false,
+					size: {
+						$gt: 0
+					},
+					fobj: {
+						$exists: false
+					}
+				}]
+			}).limit(100).populate('ghost_ref').exec(next);
+		},
+
+		function(inodes, next) {
+			var updates_list = _.map(inodes, function(inode) {
+				return function(next) {
+					inode.ref_owner = inode.ghost_ref.owner;
+					inode.fobj = inode.ghost_ref.fobj;
+					return inode.save(function(err) {
+						return next(err);
+					});
+				};
+			});
+			async.parallelLimit(updates_list, 10, function(err, results) {
+				return next(err, _.map(inodes, function(inode) {
+					return _.pick(inode, '_id', 'name', 'fobj', 'ref_owner', 'ghost_ref');
+				}));
+			});
+		}
+	], callback);
+}

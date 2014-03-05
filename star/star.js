@@ -381,6 +381,8 @@ app.all('/adminoobaa/user/:user_id/recent_swm/', adminoobaa.admin_user_notify_by
 app.all('/adminoobaa/track/', adminoobaa.admin_get_tracks);
 app.all('/adminoobaa/track/csv/', adminoobaa.admin_get_tracks_csv);
 app.put('/adminoobaa/', adminoobaa.admin_update);
+app.get('/adminoobaa/pull_inodes_fobj/', adminoobaa.admin_pull_inodes_fobj);
+app.get('/adminoobaa/pull_inodes_ref/', adminoobaa.admin_pull_inodes_ref);
 
 // setup planet pages
 

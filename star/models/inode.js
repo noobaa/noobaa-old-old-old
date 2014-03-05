@@ -22,6 +22,8 @@ var inode_schema = new mongoose.Schema({
 
 	// fields describing the content of the inode
 	isdir: Boolean,
+	size: Number, // from fobj, for performance
+	content_type: String, // from fobj, for performance
 	fobj: {
 		type: types.ObjectId,
 		ref: 'Fobj'
@@ -29,6 +31,10 @@ var inode_schema = new mongoose.Schema({
 	ghost_ref: {
 		type: types.ObjectId,
 		ref: 'Inode'
+	},
+	ref_owner: {
+		type: types.ObjectId,
+		ref: 'User'
 	},
 	// share mode: 
 	// shr == '' means private (unless num_refs != 0)
@@ -55,10 +61,6 @@ var inode_schema = new mongoose.Schema({
 		type: Date,
 		default: Date.now
 	}
-	// TODO: uncomment when relevant
-	// change_time: Date,
-	// modify_time: Date,
-	// access_time: Date
 });
 
 // define non-unique index on the tuple (owner,parent,name)
