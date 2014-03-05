@@ -41,7 +41,7 @@
 				<source ng-src="{{nbInode.inode_api_url(inode.id)}}" ng-attr-type="{{inode.content_type}}">
 			</audio>
 		</div>
-		<img ng-switch-when="image" ng-src="{{nbInode.inode_api_url(inode.id)}}" class="content-item img-responsive center-block img-circle-non-hover transition-slow" style="max-height: 100%" nb-events="media_events" />
+		<img ng-switch-when="image" ng-src="{{nbInode.inode_api_url(inode.id)}}" class="content-item img-responsive center-block img-rounded Ximg-circle-non-hover transition-slow" style="max-height: 100%" nb-events="media_events" />
 		<div ng-switch-when="text">
 			<div class="content-switcher text-center" style="padding: 5px" ng-show="!is_previewing">
 				<span class="fa-stack fa-2x" title="Open text file" rel="tooltip" ng-click="toggle_content()" style="cursor: pointer">

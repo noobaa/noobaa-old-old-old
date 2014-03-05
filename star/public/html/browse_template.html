@@ -89,7 +89,7 @@
 
 		<div class="panel-body" style="padding: 0; border-top-width: 1px; border-top-style: solid">
 			<div ng-repeat="inode in filter_entries = ( current_inode.entries | filter:{name: search_in_folder} )" class="clearfix file_line notextselect {{inode.is_selected && 'bggrey' || ''}}" style="border-bottom-width: 1px; border-top-width: 1px">
-				<div class="clearfix" ng-click="select_inode(inode, $index, $event)" style="cursor: pointer">
+				<div class="pullDown clearfix" ng-click="select_inode(inode, $index, $event)" style="cursor: pointer">
 					<span class="text-wrap">
 						<i ng-show="inode.is_selected" class="fa fa-check fa-fw fa-lg text-muted"></i>
 						<i ng-show="!!inode.isdir" class="fa fa-folder-open fa-fw fa-lg text-muted"></i>
@@ -154,7 +154,7 @@
 					</span>
 				</div>
 				<div ng-if="inode.is_previewing && inode.is_selected" style="padding: 5px 0">
-					<div nb-media="inode" media-events="media_events" show-content="true"></div>
+					<div nb-media="inode" media-events="media_events" show-content="true" class="pullDown"></div>
 				</div>
 			</div>
 			<div ng-if="!filter_entries.length" style="padding-left: 20px; line-height: 60px; vertical-align: middle">

@@ -74,7 +74,7 @@
 					console.error('RECURSIVE MODAL');
 					return false;
 				}
-				var m = $('<div class="modal fade">')
+				var m = $('<div class="modal pullDown">')
 					.append($('<div class="modal-dialog">')
 						.append($('<div class="modal-content">')
 							.append(content)));
@@ -760,7 +760,7 @@
 						pop_timeout = $timeout(function() {
 							pop_shown = false;
 							element.popover('hide');
-						}, 1000);
+						}, 500);
 					});
 				}
 			};
