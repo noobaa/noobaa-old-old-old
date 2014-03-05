@@ -12,6 +12,7 @@ var user_inodes = require('./user_inodes');
 var email = require('./email');
 var auth = require('./auth');
 var mongoose = require('mongoose');
+var mime = require('mime');
 
 
 exports.admin_get_users = function(req, res) {
@@ -385,9 +386,24 @@ function pull_inodes_fobj(callback) {
 		function(inodes, next) {
 			var updates_list = _.map(inodes, function(inode) {
 				return function(next) {
-					inode.size = inode.fobj.size;
-					inode.content_type = inode.fobj.content_type;
-					return inode.save(function(err) {
+					var fobj = inode.fobj;
+					var save_fobj = false;
+					if (typeof(fobj.size) !== 'number') {
+						fobj.size = 0;
+						save_fobj = true;
+					}
+					if (!fobj.content_type) {
+						fobj.content_type = mime.lookup(inode.name) || 'application/octet-stream';
+						save_fobj = true;
+					}
+					inode.size = fobj.size;
+					inode.content_type = fobj.content_type;
+					var series = [];
+					if (save_fobj) {
+						series.push(fobj.save.bind(fobj));
+					}
+					series.push(inode.save.bind(inode));
+					return async.series(series, function(err) {
 						return next(err);
 					});
 				};
