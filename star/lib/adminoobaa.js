@@ -360,8 +360,35 @@ exports.admin_get_tracks_csv = function(req, res) {
 };
 
 
+function async_repeat_limit(fn, limit, callback) {
+	var count = 0;
+	var done = false;
+	async.whilst(
+		function() {
+			console.log('REPEAT', done, count, limit);
+			return !done && count < limit;
+		},
+		function(callback) {
+			fn(function(err, result) {
+				if (!err) {
+					if (result) {
+						count += result;
+					} else {
+						done = true;
+					}
+				}
+				callback(err);
+			});
+		},
+		function(err) {
+			return callback(err, ''+count);
+		}
+	);
+}
+
 exports.admin_pull_inodes_fobj = function(req, res) {
-	pull_inodes_fobj(common_api.reply_callback(req, res, 'ADMIN PULL INODES FOBJ'));
+	async_repeat_limit(pull_inodes_fobj, Number(req.query.limit) || 1000,
+		common_api.reply_callback(req, res, 'ADMIN PULL INODES FOBJ'));
 };
 
 function pull_inodes_fobj(callback) {
@@ -409,16 +436,18 @@ function pull_inodes_fobj(callback) {
 				};
 			});
 			async.parallelLimit(updates_list, 10, function(err, results) {
-				return next(err, _.map(inodes, function(inode) {
-					return _.pick(inode, '_id', 'name', 'size', 'content_type', 'fobj');
-				}));
+				// _.map(inodes, function(inode) {
+				// 	return _.pick(inode, '_id', 'name', 'size', 'content_type', 'fobj');
+				// });
+				return next(err, inodes.length);
 			});
 		}
 	], callback);
 }
 
 exports.admin_pull_inodes_ref = function(req, res) {
-	pull_inodes_ref(common_api.reply_callback(req, res, 'ADMIN PULL INODES REF'));
+	async_repeat_limit(pull_inodes_ref, Number(req.query.limit) || 1000,
+		common_api.reply_callback(req, res, 'ADMIN PULL INODES REF'));
 };
 
 function pull_inodes_ref(callback) {
@@ -455,9 +484,10 @@ function pull_inodes_ref(callback) {
 				};
 			});
 			async.parallelLimit(updates_list, 10, function(err, results) {
-				return next(err, _.map(inodes, function(inode) {
-					return _.pick(inode, '_id', 'name', 'fobj', 'ref_owner', 'ghost_ref');
-				}));
+				// _.map(inodes, function(inode) {
+				// 	return _.pick(inode, '_id', 'name', 'fobj', 'ref_owner', 'ghost_ref');
+				// });
+				return next(err, inodes.length);
 			});
 		}
 	], callback);
