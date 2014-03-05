@@ -476,6 +476,10 @@ function pull_inodes_ref(callback) {
 		function(inodes, next) {
 			var updates_list = _.map(inodes, function(inode) {
 				return function(next) {
+					if (!inode.ghost_ref) {
+						console.log('NO GHOST REF', inode);
+						return next('NO GHOST REF');
+					}
 					inode.ref_owner = inode.ghost_ref.owner;
 					inode.fobj = inode.ghost_ref.fobj;
 					return inode.save(function(err) {
