@@ -437,7 +437,7 @@ function pull_inodes_fobj(callback) {
 			});
 			async.parallelLimit(updates_list, 10, function(err, results) {
 				// _.map(inodes, function(inode) {
-				// 	return _.pick(inode, '_id', 'name', 'size', 'content_type', 'fobj');
+				// return _.pick(inode, '_id', 'name', 'size', 'content_type', 'fobj');
 				// });
 				return next(err, inodes.length);
 			});
@@ -485,7 +485,7 @@ function pull_inodes_ref(callback) {
 			});
 			async.parallelLimit(updates_list, 10, function(err, results) {
 				// _.map(inodes, function(inode) {
-				// 	return _.pick(inode, '_id', 'name', 'fobj', 'ref_owner', 'ghost_ref');
+				// return _.pick(inode, '_id', 'name', 'fobj', 'ref_owner', 'ghost_ref');
 				// });
 				return next(err, inodes.length);
 			});
