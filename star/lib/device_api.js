@@ -75,7 +75,7 @@ exports.device_create = function(req, res) {
 		total_updates: 0,
 		last_update: Date.now()
 	});
-	console.log('DEVICE CREATE', new_dev);
+	console.log('DEVICE CREATE', _.omit(new_dev, 'drives_info'));
 
 	async.waterfall([
 		// lookup the device by owner and name
