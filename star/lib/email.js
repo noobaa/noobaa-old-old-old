@@ -165,16 +165,16 @@ var SWM_TEMAPLATE = dot.template([
 	'     </a>',
 	'    </div>',
 	'    <div style="overflow: hidden" class="heading1 text-color">',
-	'     <?! item.live_inode.name ?>',
+	'     <?! item.inode.name ?>',
 	'    </div>',
 	'   </div>',
 	'   <div style="padding-top: 10px">',
 	'    <div style="float: left">',
-	'     <img src="<?! item.live_owner.get_pic_url() ?>" class="pict" />',
+	'     <img src="<?! item.inode.ref_owner.get_pic_url() ?>" class="pict" />',
 	'    </div>',
 	'    <div style="overflow: hidden">',
 	'     <div style="padding-bottom: 5px" class="heading2 text-bright smalltext">',
-	'      <span><?! item.live_owner.get_name() ?></span>',
+	'      <span><?! item.inode.ref_owner.get_name() ?></span>',
 	'     </div>',
 	'    </div>',
 	'    <div style="overflow: hidden; padding-top: 5px">',
@@ -379,64 +379,6 @@ function send_alpha_approved_notification(user, callback) {
 }
 
 
-exports.send_swm_notification = send_swm_notification;
-
-function send_swm_notification(user, sharing_user, inode, callback) {
-	var msg = prepare_email_message(user);
-	if (!msg) {
-		return callback(null, user);
-	}
-	// make the url unique with miliseconds timestamp and random number
-	var ctx = {
-		time: Date.now(),
-		rand: Math.random()
-	};
-	var user_info = user.get_user_identity_info();
-	var tracking_pixel_url = track_api.tracking_pixel_url('email.shared.open', null, user_info, ctx);
-	var mixpanel_pixel_url = track_api.mixpanel_pixel_url('email.shared.open', user.id, ctx);
-	var shares = [{
-		live_owner: sharing_user,
-		live_inode: inode
-	}];
-	var template_args = {
-		title: 'Here is a new thing shared with you',
-		user: user,
-		shares: shares,
-		tracking_pixel_urls: [tracking_pixel_url, mixpanel_pixel_url],
-	};
-	var bcc_template_args = _.clone(template_args);
-	bcc_template_args.tracking_pixel_urls = [];
-
-	msg.subject = inode.name + ' was shared with you by ' + sharing_user.get_first_name() + ' on NooBaa';
-	msg.html = SWM_TEMAPLATE(template_args);
-	// don't send bcc with tracking urls
-	msg.bcc_address = null;
-	var bcc_msg = _.clone(msg);
-	bcc_msg.to = [{
-		name: msg.to[0].name,
-		email: 'info@noobaa.com'
-	}];
-	bcc_msg.track_opens = false;
-	bcc_msg.track_clicks = false;
-	bcc_msg.html = SWM_TEMAPLATE(bcc_template_args);
-
-	return async.parallel([
-		function(next) {
-			console.log('SEND SHARE MSG', user.get_name());
-			return mandrill('/messages/send', {
-				message: msg
-			}, email_callback(next));
-		},
-		function(next) {
-			console.log('SEND SHARE BCC', user.get_name());
-			return mandrill('/messages/send', {
-				message: bcc_msg
-			}, email_callback(next));
-		},
-	], callback);
-}
-
-
 exports.send_recent_swm_notification = send_recent_swm_notification;
 
 function send_recent_swm_notification(user, shares, callback) {
@@ -454,8 +396,8 @@ function send_recent_swm_notification(user, shares, callback) {
 	var user_info = user.get_user_identity_info();
 	var tracking_pixel_url = track_api.tracking_pixel_url('email.recent_swm.open', null, user_info, ctx);
 	var mixpanel_pixel_url = track_api.mixpanel_pixel_url('email.recent_swm.open', user.id, ctx);
-	var sharers_names = _.map(shares, function(inode) {
-		return inode.live_owner.get_first_name();
+	var sharers_names = _.map(shares, function(item) {
+		return item.inode.ref_owner.get_first_name();
 	});
 	var sharers_for_subject = _.first(_.uniq(sharers_names), 3).join(' and ');
 	var template_args = {
@@ -513,42 +455,23 @@ exports.test_email_templates = function(req, res) {
 		text: 'lalalal lalala lkajlkjasd olkjl kjasdlkj alksjd lkj lkj lkja lskjd lkj asd'
 	};
 	var shares = [{
-		live_owner: user,
-		live_inode: {
-			name: 'Testing SWM 1'
+		inode: {
+			name: 'Testing SWM 1',
+			ref_owner: user
 		},
 		messages: [msg, msg]
 	}, {
-		live_owner: user,
-		live_inode: {
-			name: 'Testing SWM 2'
+		inode: {
+			name: 'Shtuyut Ze lo Yachol Lihiot',
+			ref_owner: user
 		}
 	}, {
-		live_owner: user,
-		live_inode: {
-			name: 'Shtuyut Ze lo Yachol Lihiot'
-		}
-	}, {
-		live_owner: user,
-		live_inode: {
-			name: 'Balllalalal al la '
-		}
-	}, {
-		live_owner: user,
-		live_inode: {
-			name: 'Yahahahahah hah ah '
+		inode: {
+			name: 'Balllalalal al la',
+			ref_owner: user
 		}
 	}];
 	res.write('<div style="margin: 10px; padding: 10px; border: 1px solid black">');
-	res.write('<div style="height: 100%"><br/>SWM<br/><br/>');
-	res.write(SWM_TEMAPLATE({
-		title: 'Here is a new thing shared with you',
-		user: user,
-		shares: shares.slice(0, 1),
-		tracking_pixel_urls: [],
-	}));
-	res.write('</div>');
-	res.write('<div style="height: 100%"><br/>RECENT SWM<br/><br/>');
 	res.write(SWM_TEMAPLATE({
 		title: 'Here are recent things shared with you',
 		user: user,

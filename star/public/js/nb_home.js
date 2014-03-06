@@ -722,7 +722,6 @@
 								method: 'PUT',
 								url: '/api/inode/' + inode.id,
 								data: {
-									parent: inode.parent.id,
 									name: input.val()
 								}
 							}).then(function(res) {

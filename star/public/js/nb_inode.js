@@ -139,7 +139,6 @@
 				// and extend won't turn off when the key is missing
 				sync_missing_key(existing_entry, new_entry, 'uploading');
 				sync_missing_key(existing_entry, new_entry, 'shr');
-				sync_missing_key(existing_entry, new_entry, 'num_refs');
 				return existing_entry;
 			}
 

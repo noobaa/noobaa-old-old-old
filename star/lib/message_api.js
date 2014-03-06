@@ -28,12 +28,9 @@ exports.get_inode_messages = function(req, res) {
 		common_api.check_ownership.bind(null, req.user.id),
 
 		function(inode, next) {
-			return inode.follow_ref(next);
-		},
-
-		function(inode, next) {
+			var subject_id = inode.ghost_ref || inode.id;
 			return Message.find({
-				subject_inode: inode.id,
+				subject_inode: subject_id,
 				removed_by: {
 					$exists: false
 				}
@@ -82,15 +79,16 @@ exports.post_inode_message = function(req, res) {
 		common_api.check_ownership.bind(null, req.user.id),
 
 		function(inode, next) {
-			return inode.follow_ref(next);
-		},
-
-		function(inode, next) {
 			var msg = new Message();
 			msg.user = req.user.id;
 			msg.text = req.body.text;
-			msg.subject_inode = inode.id;
-			msg.subject_user = inode.owner;
+			if (inode.ghost_ref) {
+				msg.subject_inode = inode.ghost_ref;
+				msg.subject_user = inode.ref_owner;
+			} else {
+				msg.subject_inode = inode.id;
+				msg.subject_user = inode.owner;
+			}
 			return msg.save(next);
 		},
 

@@ -515,7 +515,7 @@
 						url: '/api/inode/' + inode.id + '?getattr=1'
 					}).then(function(res) {
 						console.log('PLANET OPEN CONTENT GET ATTR', res);
-						file_url = res.data.s3_get_url;
+						file_url = res.data.fobj_get_url;
 						if (sub_id) {
 							return $http({
 								method: 'GET',

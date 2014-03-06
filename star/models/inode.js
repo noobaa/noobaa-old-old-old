@@ -37,11 +37,11 @@ var inode_schema = new mongoose.Schema({
 		ref: 'User'
 	},
 	// share mode: 
-	// shr == '' means private (unless num_refs != 0)
-	// shr == 'r' means open only to referenced users (also assumed when: shr == '' and num_refs > 0)
+	// shr == undefined means private
+	// shr == 'r' means open only to referenced users
 	// shr == 'f' means open to all friends
 	shr: String,
-	num_refs: Number,
+	num_refs: Number, // DEPRECATED kept only for legacy conversion
 
 	// device source info
 	src_dev_id: {

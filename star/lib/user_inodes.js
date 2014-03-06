@@ -1,6 +1,7 @@
 var _ = require('underscore');
 var async = require('async');
 var moment = require('moment');
+var mongoose = require('mongoose');
 var Inode = require('../models/inode').Inode;
 var User = require('../models/user').User;
 var Fobj = require('../models/fobj').Fobj;
@@ -15,15 +16,10 @@ var CONST_BASE_FOLDERS = {
 };
 exports.CONST_BASE_FOLDERS = CONST_BASE_FOLDERS;
 
-// ---------------------------------------------------------
+
 // verify_and_create_base_folder 
 // If the requested folder name does not exists, creates a folder with
 // the requested name. Parent is set to null for those folders.  
-// ==========
-// 1. folder name 
-// 2. user object as appears in the user model
-// 3. callback(err,data)
-// -----------------------------------------------------------
 
 function verify_and_create_base_folder(folder_name, user, next) {
 	// find the requested base folder
@@ -60,17 +56,13 @@ function verify_and_create_base_folder(folder_name, user, next) {
 }
 
 // verify_and_create_base_folders is intended to be used upon use login.
-exports.verify_and_create_base_folders = function(user, cb) {
-	console.log("in verify_and_create_base_folders");
-	async.waterfall([
-		function(next) {
-			return next(null, user);
-		},
-		//create my data
-		verify_and_create_base_folder.bind(null, CONST_BASE_FOLDERS.MYDATA),
-		//create shared with me
-		verify_and_create_base_folder.bind(null, CONST_BASE_FOLDERS.SWM),
-	], cb);
+exports.verify_and_create_base_folders = function(user, callback) {
+	async.parallel([
+		verify_and_create_base_folder.bind(null, CONST_BASE_FOLDERS.MYDATA, user),
+		verify_and_create_base_folder.bind(null, CONST_BASE_FOLDERS.SWM, user),
+	], function(err) {
+		return callback(err, user);
+	});
 };
 
 //get's the inodes of the shared with me folder
@@ -114,7 +106,7 @@ exports.update_inode_ghost_refs = update_inode_ghost_refs;
 
 //add and remove ghosts as needed
 
-function update_inode_ghost_refs(live_inode, old_user_ids, new_user_ids, cb) {
+function update_inode_ghost_refs(inode, old_user_ids, new_user_ids, callback) {
 	var old_user_ids_str = _.invoke(old_user_ids, 'toString');
 	var new_user_ids_str = _.invoke(new_user_ids, 'toString');
 	var user_ids_to_add = _.difference(new_user_ids_str, old_user_ids_str);
@@ -122,106 +114,84 @@ function update_inode_ghost_refs(live_inode, old_user_ids, new_user_ids, cb) {
 
 	async.parallel([
 		function(next) {
-			remove_inode_ghost_refs(live_inode, user_ids_to_remove, next);
+			remove_inode_ghost_refs(inode, user_ids_to_remove, next);
 		},
 		function(next) {
-			add_inode_ghost_refs(live_inode, user_ids_to_add, next);
+			add_inode_ghost_refs(inode, user_ids_to_add, next);
 		},
 	], function(err, results) {
 		// no need to pass on the parallel results array
-		cb(err);
+		callback(err);
 	});
 }
 
 //remove ghosts which refer to the live inode and belong to the users in the list
 
-function remove_inode_ghost_refs(live_inode, user_ids, callback) {
+function remove_inode_ghost_refs(inode, user_ids, callback) {
 	if (!user_ids || !user_ids.length) {
 		return callback();
 	}
-	console.log("remove_inode_ghost_refs", live_inode.id, live_inode.name, user_ids);
+	console.log("remove_inode_ghost_refs", inode.id, inode.name, user_ids);
 	Inode.remove({
-		ghost_ref: live_inode.id,
+		ghost_ref: inode.id,
 		owner: {
 			$in: user_ids
 		}
 	}, callback);
 }
 
-//add ghosts which refer to the live inode and belong to the users in the list
+function new_inode_ref(user_id, parent_id, inode) {
+	return new Inode({
+		owner: user_id,
+		parent: parent_id,
+		name: inode.name,
+		isdir: inode.isdir,
+		ghost_ref: inode._id,
+		ref_owner: inode.owner,
+		fobj: inode.fobj,
+		size: inode.size,
+		content_type: inode.content_type
+	});
+}
 
-function add_inode_ghost_refs(live_inode, user_ids, callback) {
+
+// add ghosts which refer to the inode and belong to the users in the list
+
+function add_inode_ghost_refs(inode, user_ids, callback) {
 	if (!user_ids || !user_ids.length) {
 		return callback();
 	}
-	console.log("add_inode_ghost_refs", live_inode.id, live_inode.name, user_ids);
-	var users_by_id;
+	console.log("add_inode_ghost_refs", inode.id, inode.name, user_ids);
 
-	async.waterfall([
+	return async.waterfall([
 
 		function(next) {
-			var uids = user_ids.concat([live_inode.owner]);
-			return async.parallel({
-				// find all the users we need to work with
-				users: function(next) {
-					return User.find({
-						_id: {
-							$in: uids
-						}
-					}).exec(next);
+			var uids = user_ids.concat([inode.owner]);
+			return Inode.find({
+				owner: {
+					$in: uids
 				},
-				// find the swm folders for the users
-				swm_inodes: function(next) {
-					return Inode.find({
-						owner: {
-							$in: uids
-						},
-						name: CONST_BASE_FOLDERS.SWM,
-						isdir: true,
-						parent: null,
-					}).exec(next);
-				}
-			}, next);
+				name: CONST_BASE_FOLDERS.SWM,
+				isdir: true,
+				parent: null,
+			}).exec(next);
 		},
 
 		// create all the ghost inodes in one batch
-		function(results, next) {
-			users_by_id = _.indexBy(results.users, '_id');
-			var swm_by_user_id = _.indexBy(results.swm_inodes, 'owner');
+		function(swm_inodes, next) {
+			var swm_by_user_id = _.indexBy(swm_inodes, 'owner');
 			var new_ghosts = _.map(user_ids, function(user_id) {
 				var swm = swm_by_user_id[user_id];
-				return new Inode({
-					owner: user_id,
-					parent: swm._id,
-					name: live_inode.name,
-					isdir: live_inode.isdir,
-					ghost_ref: live_inode._id
-				});
+				return new_inode_ref(user_id, swm._id, inode);
 			});
 			return Inode.create(new_ghosts, function(err) {
 				return next(err);
 			});
-		},
-
-		function(next) {
-			// currently we do not notify on every share, instead we send periodic emails
-			if (true) {
-				return next();
-			}
-			// notify users by email
-			var live_owner = users_by_id[live_inode.owner];
-			return async.each(user_ids, function(user_id, next) {
-				var user = users_by_id[user_id];
-				if (user.email_policy === 'silent') {
-					console.log('silent email for user', user.get_name(), user.get_email());
-					return next();
-				}
-				return email.send_swm_notification(user, live_owner, live_inode, next);
-			}, next);
-		},
+		}
 
 	], callback);
 }
+
 
 function find_missing_ghost_refs(user_id, user_ids, callback) {
 	var inodes_by_id;
@@ -284,13 +254,7 @@ function add_missing_ghost_refs(tokens, user_id, callback) {
 
 		function(inodes_by_id, next) {
 			var new_ghosts = _.map(inodes_by_id, function(inode) {
-				return new Inode({
-					owner: user_id,
-					parent: swm._id,
-					name: inode.name,
-					isdir: inode.isdir,
-					ghost_ref: inode._id
-				});
+				return new_inode_ref(user_id, swm._id, inode);
 			});
 			return Inode.create(new_ghosts, function(err) {
 				return next(err, {
@@ -304,14 +268,8 @@ function add_missing_ghost_refs(tokens, user_id, callback) {
 
 
 
-exports.find_recent_swm = find_recent_swm;
-
 function find_recent_swm(user_id, count_limit, from_time, callback) {
 	var swm_inodes;
-	var live_inode_ids;
-	var live_inodes;
-	var live_owners;
-	var messages;
 	async.waterfall([
 		function(next) {
 			var q = Inode.find({
@@ -319,9 +277,6 @@ function find_recent_swm(user_id, count_limit, from_time, callback) {
 				ghost_ref: {
 					$exists: true
 				}
-			}, {
-				_id: 1,
-				ghost_ref: 1
 			});
 			if (from_time) {
 				q.where('create_time').gte(from_time);
@@ -332,31 +287,15 @@ function find_recent_swm(user_id, count_limit, from_time, callback) {
 			if (count_limit) {
 				q.limit(count_limit);
 			}
+			q.populate('ref_owner');
 			return q.exec(next);
 		},
 		function(inodes, next) {
 			swm_inodes = inodes;
-			live_inode_ids = _.pluck(swm_inodes, 'ghost_ref');
-			return Inode.find({
-				_id: {
-					$in: live_inode_ids
-				}
-			}).exec(next);
-		},
-		function(inodes, next) {
-			live_inodes = inodes;
-			var owner_ids = _.pluck(live_inodes, 'owner');
-			return User.find({
-				_id: {
-					$in: owner_ids
-				}
-			}).exec(next);
-		},
-		function(owners, next) {
-			live_owners = owners;
+			var refs = _.pluck(swm_inodes, 'ghost_ref');
 			return Message.find({
 				subject_inode: {
-					$in: live_inode_ids
+					$in: refs
 				},
 				removed_by: {
 					$exists: false
@@ -365,24 +304,13 @@ function find_recent_swm(user_id, count_limit, from_time, callback) {
 				create_time: 1
 			}).populate('user').exec(next);
 		},
-		function(msgs, next) {
-			messages = msgs;
-			var live_inodes_by_id = _.indexBy(live_inodes, '_id');
-			var live_owners_by_id = _.indexBy(live_owners, '_id');
+		function(messages, next) {
 			var messages_by_inode = _.groupBy(messages, 'subject_inode');
-			var shares = _.map(swm_inodes, function(inode) {
-				var shared_item = {};
-				shared_item.inode = inode.toObject();
-				var live_inode = live_inodes_by_id[inode.ghost_ref];
-				if (live_inode) {
-					shared_item.live_inode = live_inode;
-					shared_item.messages = messages_by_inode[live_inode.id];
-					var owner = live_owners_by_id[live_inode.owner];
-					if (owner) {
-						shared_item.live_owner = owner;
-					}
-				}
-				return shared_item;
+			var shares = _.map(swm_inodes, function(swm_inode) {
+				return {
+					inode: swm_inode,
+					messages: messages_by_inode[swm_inode.ghost_ref]
+				};
 			});
 			return callback(null, shares);
 		}
@@ -505,34 +433,31 @@ users_notify_by_email_job();
 
 // This will return the sum of all fobjs' sizes 
 // that are referenced by owned inodes of the user.
+
 exports.get_user_usage_bytes = get_user_usage_bytes;
 
 function get_user_usage_bytes(user_id, cb) {
+	user_id = mongoose.Types.ObjectId(user_id);
 	async.waterfall([
-		//get all owned inodes which are files. 
 		function(next) {
-			return Inode.find({
+			return Inode.aggregate().match({
 				owner: user_id,
-				isdir: false
-			}, 'fobj', next);
-		},
-		//sum all the referenced fobj's
-		function(fobj_list, next) {
-			lfobj_list = _.pluck(fobj_list, 'fobj');
-			return Fobj.aggregate([{
-				$match: {
-					_id: {
-						$in: lfobj_list
-					}
+				size: {
+					$gt: 0
 				}
-			}, {
-				$group: {
-					_id: '',
-					size: {
-						$sum: '$size'
-					}
+			}).group({
+				_id: '$fobj',
+				size: {
+					// we expect all inodes pointing the same fobj would have same size
+					// but using $max just to be on the safe side.
+					$max: '$size'
 				}
-			}], next);
+			}).group({
+				_id: '',
+				size: {
+					$sum: '$size'
+				}
+			}).exec(next);
 		}
 	], function(err, result) {
 		if (err) {
@@ -542,16 +467,18 @@ function get_user_usage_bytes(user_id, cb) {
 		if (result && result.length) {
 			usage = result[0].size;
 		}
+		console.log('USAGE RESULTS', user_id, usage);
 		//the aggregate returns an array with an embeded object. This is not a very clear return.
 		//so cleaning it to reduce coupling. 
 		return cb(null, usage);
 	});
 }
 
+
+// searche for ancestor directory which is sharing with this user
+// this is a recursive function 
+
 exports.shared_ancestor = shared_ancestor;
-//get user id and an Inode.
-//searches for ancestor directory which is sharing with this user
-//this is a recursive function 
 
 function shared_ancestor(user_id, inode, callback) {
 	//stopping the recursion

@@ -58,7 +58,7 @@
 
 			function reset_update_user_info(unset) {
 				$timeout.cancel($scope.timeout_update_user_info);
-				$scope.timeout_update_user_info = unset ? null : $timeout(update_user_info, 60000);
+				$scope.timeout_update_user_info = unset ? null : $timeout(update_user_info, 300000);
 			}
 
 			// testing code
