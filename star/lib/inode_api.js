@@ -503,6 +503,9 @@ exports.inode_read = function(req, res) {
 			if (req.query.seamless) {
 				res.end('<html><body><iframe width="100%" height="100%" seamless src="' + url + '"></body></html>');
 			} else {
+				var day_seconds = 24 * 60 * 60;
+				res.setHeader("Cache-Control", "public, max-age=" + day_seconds);
+				res.setHeader("Expires", new Date(Date.now() + (day_seconds * 1000)).toUTCString());
 				res.redirect(url);
 			}
 			// var ctx = common_api.page_context(req);
