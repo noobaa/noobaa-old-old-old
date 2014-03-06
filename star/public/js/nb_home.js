@@ -151,9 +151,10 @@
 					return;
 				}
 				$scope.refreshing_feeds = true;
-				return nbInode.read_dir($scope.swm).then(function() {
-					return nbInode.read_dir($scope.sbm);
-				}).then(function() {
+				return $q.all([
+					nbInode.read_dir($scope.swm),
+					nbInode.read_dir($scope.sbm)
+				]).then(function() {
 					var entries = $scope.sbm.entries.concat($scope.swm.entries);
 					entries.sort(nbInode.ctime_newest_first_sort_func);
 					// console.log('SWM FOLDER', res);
@@ -486,9 +487,9 @@
 						});
 					}
 					// fetch messages
-					promise = promise.then(function() {
-						return nbInode.get_inode_messages(inode);
-					});
+					// promise = promise.then(function() {
+					// return nbInode.get_inode_messages(inode);
+					// });
 				});
 			}
 

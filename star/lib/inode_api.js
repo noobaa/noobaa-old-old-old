@@ -17,9 +17,11 @@ var mime = require('mime');
 var Inode = require('../models/inode').Inode;
 var Fobj = require('../models/fobj').Fobj;
 var User = require('../models/user').User;
+var Message = require('../models/message').Message;
 var auth = require('./auth');
 var user_inodes = require('./user_inodes');
 var common_api = require('./common_api');
+var message_api = require('./message_api');
 
 
 var NBLINK_SECRET = 'try-da-link'; // TODO: do something with the secret
@@ -147,11 +149,17 @@ function inode_to_entry(inode, opt) {
 	}
 
 	// add more info when the current user is the owner
-	if (mongoose.Types.ObjectId(opt.user.id).equals(inode.owner)) {
+	var user_id = mongoose.Types.ObjectId(opt.user.id);
+	if (user_id.equals(inode.owner)) {
 		ent.shr = inode.shr;
 		if (inode.src_dev_id) {
 			ent.src_dev_id = inode.src_dev_id;
 			ent.src_dev_path = inode.src_dev_path;
+		}
+		if (inode.messages) {
+			ent.messages = _.map(inode.messages, function(msg) {
+				return message_api.message_to_entry(msg, user_id);
+			});
 		}
 		// send the info of the ref_owner for shared refs
 		if (inode.ref_owner && inode.ref_owner.get_user_identity_info) {
@@ -236,6 +244,35 @@ function find_fobjs_for_inodes(inodes_list, callback) {
 	});
 }
 
+function find_messages_for_inodes(inodes_list, callback) {
+	var ids = _.map(inodes_list, function(inode) {
+		return inode.ghost_ref || inode.id;
+	});
+	return Message.find({
+		subject_inode: {
+			$in: ids
+		},
+		removed_by: {
+			$exists: false
+		}
+	}).sort({
+		create_time: 1
+	}).populate('user').exec(function(err, messages) {
+		if (err) {
+			return callback(err);
+		}
+		var messages_by_subject = _.groupBy(messages, 'subject_inode');
+		_.each(inodes_list, function(inode) {
+			if (inode.ghost_ref) {
+				inode.messages = messages_by_subject[inode.ghost_ref];
+			} else {
+				inode.messages = messages_by_subject[inode.id];
+			}
+		});
+		return callback(null, inodes_list);
+	});
+}
+
 
 
 
@@ -271,9 +308,6 @@ exports.inode_source_device = function(req, res) {
 				var ent = inode_to_entry(inode, {
 					user: req.user
 				});
-				ent.src_dev_id = inode.src_dev_id;
-				ent.src_dev_path = inode.src_dev_path;
-				console.log('INODE_SRC_DEV', inode, ent);
 				return ent;
 			});
 			return next(null, {
@@ -309,6 +343,8 @@ function do_read_dir(user, dir_id, callback) {
 			}
 		},
 
+		find_messages_for_inodes,
+
 		function(inodes_list, next) {
 			console.log('INODE READDIR:', dir_id, 'entries', inodes_list.length);
 			// for each inode return an entry with both inode and fobj info
@@ -343,6 +379,8 @@ exports.inode_query = function(req, res) {
 			}
 			q.exec(next);
 		},
+
+		find_messages_for_inodes,
 
 		function(inodes_list, next) {
 			// for each inode return an entry with both inode and fobj info

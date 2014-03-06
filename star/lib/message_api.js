@@ -15,9 +15,21 @@ var common_api = require('./common_api');
 var track_api = require('./track_api');
 
 
+exports.message_to_entry = message_to_entry;
+
+function message_to_entry(msg, user_id) {
+	return {
+		id: msg._id,
+		user: msg.user && msg.user.get_user_identity_info(),
+		text: msg.text,
+		create_time: msg.create_time,
+		is_mine: is_message_mine(user_id, msg)
+	};
+}
+
+
 exports.get_inode_messages = function(req, res) {
 	var user_id = mongoose.Types.ObjectId(req.user.id);
-	var messages;
 	return async.waterfall([
 
 		function(next) {
@@ -35,33 +47,14 @@ exports.get_inode_messages = function(req, res) {
 					$exists: false
 				}
 			}).sort({
-				_id: 1
-			}).exec(next);
+				create_time: 1
+			}).populate('user').exec(next);
 		},
 
-		function(msgs, next) {
-			messages = msgs;
-			return User.find({
-				_id: {
-					$in: _.pluck(messages, 'user')
-				}
-			}, next);
-		},
-
-		function(users, next) {
-			var users_by_id = _.indexBy(users, '_id');
-			var messages_reply = new Array(messages.length);
-			for (var i = 0; i < messages.length; i++) {
-				var msg = messages[i];
-				var user = users_by_id[msg.user];
-				messages_reply[i] = {
-					id: msg._id,
-					user: user && user.get_user_identity_info(),
-					text: msg.text,
-					create_time: msg.create_time,
-					is_mine: is_message_mine(user_id, msg)
-				};
-			}
+		function(messages, next) {
+			var messages_reply = _.map(messages, function(msg) {
+				return message_to_entry(msg, user_id);
+			});
 			return next(null, messages_reply);
 		}
 	], common_api.reply_callback(req, res, 'MSG GET'));
@@ -130,5 +123,6 @@ exports.delete_inode_message = function(req, res) {
 
 
 function is_message_mine(user_id, msg) {
-	return user_id.equals(msg.user) || (msg.subject_user && user_id.equals(msg.subject_user));
+	return user_id.equals(msg.user.id || msg.user) ||
+		(msg.subject_user && user_id.equals(msg.subject_user));
 }

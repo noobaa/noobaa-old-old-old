@@ -108,5 +108,11 @@ inode_schema.statics.isDirHasSons = function(inode, next) {
 	});
 };
 
+inode_schema.virtual('messages').get(function() {
+	return this._messages;
+}).set(function(m) {
+	this._messages = m;
+});
+
 var Inode = mongoose.model('Inode', inode_schema);
 exports.Inode = Inode;
