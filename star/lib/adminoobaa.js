@@ -496,3 +496,39 @@ function pull_inodes_ref(callback) {
 		}
 	], callback);
 }
+
+
+exports.admin_pull_inodes_shr = function(req, res) {
+	async_repeat_limit(pull_inodes_shr, Number(req.query.limit) || 1000,
+		common_api.reply_callback(req, res, 'ADMIN PULL INODES SHR'));
+};
+
+function pull_inodes_shr(callback) {
+	return async.waterfall([
+		function(next) {
+			return Inode.find({
+				num_refs: {
+					$exists: true
+				},
+				shr: {
+					$exists: false
+				}
+			}).limit(100).exec(next);
+		},
+
+		function(inodes, next) {
+			var updates_list = _.map(inodes, function(inode) {
+				return function(next) {
+					inode.shr = 'r';
+					inode.num_refs = undefined;
+					return inode.save(function(err) {
+						return next(err);
+					});
+				};
+			});
+			async.parallelLimit(updates_list, 10, function(err, results) {
+				return next(err, inodes.length);
+			});
+		}
+	], callback);
+}

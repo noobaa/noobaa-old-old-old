@@ -347,8 +347,8 @@ app.post('/api/inode/:inode_id/multipart/', inode_api.inode_multipart);
 app.get('/api/inode/:inode_id/share_list', inode_api.inode_get_share_list);
 app.put('/api/inode/:inode_id/share_list', inode_api.inode_set_share_list);
 
-app.post('/api/inode/:inode_id/link', inode_api.inode_mklink);
-app.del('/api/inode/:inode_id/link', inode_api.inode_rmlinks);
+// app.post('/api/inode/:inode_id/link', inode_api.inode_mklink);
+// app.del('/api/inode/:inode_id/link', inode_api.inode_rmlinks);
 
 app.get('/api/inode/:inode_id/message/', message_api.get_inode_messages);
 app.post('/api/inode/:inode_id/message/', message_api.post_inode_message);
@@ -383,6 +383,7 @@ app.all('/adminoobaa/track/csv/', adminoobaa.admin_get_tracks_csv);
 app.put('/adminoobaa/', adminoobaa.admin_update);
 app.get('/adminoobaa/pull_inodes_fobj/', adminoobaa.admin_pull_inodes_fobj);
 app.get('/adminoobaa/pull_inodes_ref/', adminoobaa.admin_pull_inodes_ref);
+app.get('/adminoobaa/pull_inodes_shr/', adminoobaa.admin_pull_inodes_shr);
 
 // setup planet pages
 
