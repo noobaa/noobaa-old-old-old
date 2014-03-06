@@ -28,7 +28,6 @@
 				init_root_dir: init_root_dir,
 				ctime_newest_first_sort_func: ctime_newest_first_sort_func,
 				read_dir: read_dir,
-				read_all: read_all,
 				is_dir_non_empty: is_dir_non_empty,
 				parents_path: parents_path,
 				recursive_delete: recursive_delete,
@@ -215,53 +214,6 @@
 					return $timeout(function() {
 						read_dir(dir_inode);
 					}, 3000);
-				});
-			}
-
-
-			// TODO must add paging when loading many inodes
-			// TODO this flow is still not working...
-
-			function read_all(root_dir) {
-				root_dir.is_loading = true;
-				return $http({
-					method: 'GET',
-					url: '/api/inode/'
-				}).then(function(res) {
-					root_dir.is_loading = false;
-					var entries = res.data.entries;
-					var inodes_map = _.groupBy(entries, 'id');
-					var parents_map = _.groupBy(entries, 'parent_id');
-
-					function set_dir_entries(dir_inode) {
-						var ents = parents_map[dir_inode.id || null] || [];
-						ents.sort(dir_inode.sorting_func || function(a, b) {
-							return a.isdir ? -1 : 1;
-						});
-						dir_inode.entries = ents;
-						dir_inode.entries_map = _.groupBy(ents, 'id');
-						console.log('SET READ ALL ENTRIES', dir_inode, ents);
-						for (var i = 0; i < ents.length; i++) {
-							ents[i].parent = dir_inode;
-							ents[i].level = dir_inode.level + 1;
-						}
-					}
-
-					set_dir_entries(root_dir);
-					root_dir.inodes_map = root_dir.inodes_map || {};
-					for (var i = 0; i < entries.length; i++) {
-						var e = merge_entry(root_dir.inodes_map[entries[i].id], entries[i]);
-						set_entry_info(e);
-						if (e.isdir) {
-							set_dir_entries(e);
-						}
-					}
-					root_dir.inodes_map = inodes_map;
-					return res;
-				}, function(err) {
-					root_dir.is_loading = false;
-					console.error('FAILED READ ALL', err);
-					throw err;
 				});
 			}
 

@@ -103,7 +103,6 @@
 			};
 
 			function init_read_dir() {
-				// nbInode.read_all($scope.root_dir).then(function(res) {
 				return nbInode.read_dir($scope.root_dir).then(function(res) {
 					// console.log('ROOT FOLDERS', res);
 					var entries = $scope.root_dir.entries;
