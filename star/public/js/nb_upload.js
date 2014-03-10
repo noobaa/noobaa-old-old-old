@@ -9,14 +9,15 @@
 	var noobaa_app = angular.module('noobaa_app');
 
 	noobaa_app.service('nbUploadSrv', [
-		'$q', '$http', '$timeout', '$rootScope', 'LinkedList', 'JobQueue', UploadSrv
+		'$q', '$http', '$timeout', '$rootScope', 'nbUtil', 'LinkedList', 'JobQueue', UploadSrv
 	]);
 
-	function UploadSrv($q, $http, $timeout, $rootScope, LinkedList, JobQueue) {
+	function UploadSrv($q, $http, $timeout, $rootScope, nbUtil, LinkedList, JobQueue) {
 		this.$q = $q;
 		this.$http = $http;
 		this.$timeout = $timeout;
 		this.$rootScope = $rootScope;
+		this.nbUtil = nbUtil;
 
 		this.$cb = $rootScope.safe_callback.bind($rootScope);
 
@@ -732,10 +733,11 @@
 
 
 	UploadSrv.prototype._mkfile_check = function(upload, res) {
+		var me = this;
 		var item = upload.item;
 		console.log('UPLOAD mkfile result', res.data);
 		if (res.data.name !== item.name || res.data.size !== item.size) {
-			$.nbalert('Choose the same file to resume the upload');
+			me.nbUtil.nbalert('Choose the same file to resume the upload');
 			throw 'mismatching file attr';
 		}
 		upload.inode_id = res.data.id;
@@ -996,12 +998,12 @@
 			me.foreach_selected(me.do_remove.bind(me));
 			me.clear_selection();
 		} else {
-			$.nbconfirm('Some of the selected uploads did not complete. Are you sure?', {
-				on_confirm: me.$cb(function() {
+			me.nbUtil.nbconfirm('Some of the selected uploads did not complete. Are you sure?',
+				me.$cb(function() {
 					me.foreach_selected(me.do_remove.bind(me));
 					me.clear_selection();
 				})
-			});
+			);
 		}
 	};
 

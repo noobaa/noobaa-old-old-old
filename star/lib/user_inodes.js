@@ -481,9 +481,9 @@ function get_user_usage_bytes(user_id, cb) {
 exports.shared_ancestor = shared_ancestor;
 
 function shared_ancestor(user_id, inode, callback) {
-	//stopping the recursion
+	// stopping the recursion when parent not found
 	if (!inode) {
-		return callback(null, false);
+		return callback(null, null);
 	}
 
 	async.waterfall([
@@ -495,28 +495,18 @@ function shared_ancestor(user_id, inode, callback) {
 			}, next);
 		},
 
-		function(relevant_ghost, next) {
-			if (relevant_ghost) {
-				return next(null, true);
-			}
-			return next(null, false);
-		},
-
-		function(found_relevant_refs_in_curr_inode, next) {
-			if (found_relevant_refs_in_curr_inode) {
-				return next(null, true);
+		function(ghost_ref, next) {
+			if (ghost_ref) {
+				return next(null, ghost_ref);
 			}
 			if (!inode.parent) {
-				callback(null, false);
+				callback(null, null);
 			}
 			return Inode.findById(inode.parent, function(err, parent_inode) {
 				if (err) {
 					return next(err);
 				}
-				if (!parent_inode) { //for some reason even though we're searching by specific id...
-					return next(null, false);
-				}
-				//Z recursive call. my concern is that the callbacks will bloat.
+				// Z recursive call. my concern is that the callbacks will bloat.
 				return shared_ancestor(user_id, parent_inode, next);
 			});
 		}

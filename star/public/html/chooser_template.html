@@ -15,10 +15,10 @@
 						</span>
 					</a>
 					<ul ng-if="has_parent(current_inode)" class="dropdown-menu" role="menu">
-						<li ng-repeat="parent in path = (nbInode.parents_path(current_inode)).reverse()">
+						<li ng-repeat="parent in path = nbInode.parents_path(current_inode)">
 							<a ng-click="open_inode(parent)" style="padding-left: {{10+((path.length-1-$index) * 10)}}px">
 								<i class="fa fa-folder-open fa-fw"></i>
-								{{parent.name}}
+								{{parent.name || '...'}}
 							</a>
 						</li>
 					</ul>
@@ -36,13 +36,13 @@
 			<div ng-repeat="inode in filter_entries = (current_inode.entries | filter:{isdir: context.dir_only || undefined} )" class="file_line notextselect" style="border-bottom-width: 1px; border-top-width: 1px">
 				<div class="clearfix" ng-click="open_inode(inode, $index, $event)" style="cursor: pointer">
 					<span class="text-wrap">
-						<i ng-show="!!inode.isdir" class="fa fa-folder-open fa-fw fa-lg text-muted"></i>
-						<i ng-show="!inode.isdir" class="fa fa-file-o fa-fw fa-lg text-muted"></i>
+						<i ng-show="!!inode.isdir" class="fa fa-folder-open fa-fw fa-lg"></i>
+						<i ng-show="!inode.isdir" class="fa fa-file-o fa-fw fa-lg"></i>
 						<span class="btn btn-link" style="padding-left: 0; display: inline">
 							<span style="white-space: pre-wrap">{{inode.name}}</span>
 						</span>
 					</span>
-					<span class="text-muted pull-right">
+					<span class="pull-right">
 						<span ng-show="!inode.isdir" style="margin-right: 20px">
 							{{human_size(inode.size)}}
 						</span>

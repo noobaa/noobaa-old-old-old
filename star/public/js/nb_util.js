@@ -19,9 +19,6 @@
 		$rootScope.mobile_check = mobile_check;
 		// add nbdialog func per element as in - $('#dlg').nbdialog(...)
 		jQuery.fn.nbdialog = nbdialog;
-		// add nbalert as global jquery function - $.nbalert
-		jQuery.nbalert = nbalert;
-		jQuery.nbconfirm = nbconfirm;
 
 		jQuery.fn.focusWithoutScrolling = function() {
 			var x = window.scrollX;
@@ -45,23 +42,18 @@
 		'$http', '$timeout', '$interval', '$window', '$q', '$rootScope', '$compile',
 		function($http, $timeout, $interval, $window, $q, $rootScope, $compile) {
 
-			var _global_modal = null;
-
 			var $scope = {
 				active_link: active_link,
 				bowser: bowser,
-				nbalert: nbalert,
-				nbconfirm: nbconfirm,
-				coming_soon: function(feature) {
-					// TODO send event log
-					nbalert('Coming soon...');
-				},
-				global_modal: function() {
-					return _global_modal;
-				},
 				modal: modal,
 				content_modal: content_modal,
-				track_event: track_event
+				nbalert: nbalert,
+				nbconfirm: nbconfirm,
+				track_event: track_event,
+				coming_soon: function(feature) {
+					// TODO send event log
+					alert('Coming soon...');
+				}
 			};
 
 
@@ -70,18 +62,31 @@
 			}
 
 			function modal(content, modal_scope, size) {
-				if (_global_modal) {
-					console.error('RECURSIVE MODAL');
-					return false;
-				}
-				var m = $('<div class="modal pullDown">')
+				var m = $('<div class="modal animated flipInX">')
 					.append($('<div class="modal-dialog">')
 						.append($('<div class="modal-content">')
 							.append(content)));
 				var e = modal_scope ? $compile(m)(modal_scope) : m;
+				// close modal on ESC key
+				$(window).off('keydown.nbutil_modal').on('keydown.nbutil_modal', function(event) {
+					if (event.which === 27 && !event.isDefaultPrevented()) {
+						event.preventDefault();
+						e.modal('hide');
+					}
+				});
+				e.on('hide.bs.modal', function() {
+					if (true || !e.hasClass('flipInX')) {
+						return;
+					}
+					e.removeClass('flipInX').addClass('animated flipOutX');
+					setTimeout(function() {
+						e.modal('hide');
+					}, 250);
+					// e.one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function() {});
+					return false;
+				});
 				e.on('hidden.bs.modal', function() {
 					$(window).off('keydown.nbutil_modal');
-					_global_modal = null;
 					e.remove();
 				});
 				if (size === 'lg') {
@@ -90,14 +95,6 @@
 					e.find('.modal-dialog').addClass('modal-sm');
 				}
 				e.modal();
-				_global_modal = e;
-				// close modal on ESC key
-				$(window).on('keydown.nbutil_modal', function(event) {
-					if (event.which === 27 && !event.isDefaultPrevented() && _global_modal) {
-						event.preventDefault();
-						_global_modal.modal('hide');
-					}
-				});
 				return e;
 			}
 
@@ -105,11 +102,29 @@
 			function content_modal(headline, content, modal_scope, size) {
 				var hdr = $('<div class="modal-header">')
 					.append($('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">').html('&times;'))
-					.append($('<h4>').text(headline));
+					.append($('<h4>').html(headline));
 				var body = $('<div class="modal-body">').css('padding', 0).append(content);
 				var foot = $('<div class="modal-footer">').css('margin-top', 0)
 					.append($('<button type="button" class="btn btn-default" data-dismiss="modal">').text('Close'));
 				return modal($('<div>').append(hdr, body, foot), modal_scope, size);
+			}
+
+			function nbalert(msg, modal_scope, size) {
+				var h = $('<i class="fa fa-warning fa-2x text-warning">');
+				var c = $('<div class="lead">').css('padding', '20px 20px 0 20px').append(msg);
+				return content_modal(h, c, modal_scope, size || 'sm');
+			}
+
+			function nbconfirm(content, callback, modal_scope, size) {
+				var hdr = $('<div class="modal-header">')
+					.append($('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">').html('&times;'))
+					.append($('<h4>').append($('<i class="fa fa-question-circle fa-2x text-warning">')));
+				var body = $('<div class="modal-body lead">').css('padding', '20px 20px 0 20px').append(content);
+				var foot = $('<div class="modal-footer">').css('margin-top', 0)
+					.append($('<button type="button" class="btn btn-default" data-dismiss="modal">').text('No'))
+					.append($('<button type="button" class="btn btn-primary" data-dismiss="modal">').text('Yes')
+						.on('click', callback));
+				return modal($('<div>').append(hdr, body, foot), modal_scope, size || 'sm');
 			}
 
 
@@ -557,68 +572,6 @@
 		}
 	}
 
-	function nbalert(str, options) {
-		var dlg = $('<div class="nbdialog alert_dialog fnt fntmd"></div>');
-		var head = $('<div class="nbdialog_header nbdialog_drag"></div>').appendTo(dlg);
-		var content = $('<div class="nbdialog_content"></div>').appendTo(dlg);
-		var foot = $('<div class="nbdialog_footer text-center"></div>').appendTo(dlg);
-		$('<span class="alert_icon"></span>')
-			.append($('<i class="fa fa-warning"></i>'))
-			.appendTo(head);
-		// $('<span>Hmmm...</span>')
-		//	.css('padding', '20px')
-		//	.appendTo(head);
-		$('<p></p>')
-			.append($('<b></b>').html(str))
-			.css('padding', '20px 20px 0 20px')
-			.appendTo(content);
-		$('<button class="nbdialog_close btn btn-default">Close</button>').appendTo(foot);
-		dlg.appendTo($('body'));
-		dlg.nbdialog('open', _.extend({
-			remove_on_close: true,
-			modal: true
-		}, options));
-	}
-
-	function nbconfirm(msg, options) {
-		var dlg = $('<div class="nbdialog confirm_dialog fnt fntmd"></div>');
-		var head = $('<div class="nbdialog_header nbdialog_drag"></div>').appendTo(dlg);
-		var content = $('<div class="nbdialog_content"></div>').appendTo(dlg);
-		var foot = $('<div class="nbdialog_footer"></div>').appendTo(dlg);
-		$('<span class="confirm_icon"></span>')
-			.append($('<i class="fa fa-question-circle"></i>'))
-			.appendTo(head);
-		// $('<span>Hmmm?</span>')
-		//	.css('padding', '20px')
-		//	.appendTo(head);
-		content.css('padding', '20px').append(msg);
-		$('<button class="nbdialog_close"></button>')
-			.text(options.noButtonCaption || 'No')
-			.addClass(options.noButtonClass || 'btn btn-default')
-			.appendTo(foot);
-		if (options.on_close) {
-			dlg.on('nbdialog_close.nbconfirm', options.on_close.bind(dlg));
-		}
-		$('<button></button>')
-			.text(options.yesButtonCaption || 'Yes')
-			.addClass(options.yesButtonClass || 'btn btn-primary pull-right')
-			.appendTo(foot)
-			.on('click', function() {
-				var prevent_close = false;
-				if (options.on_confirm) {
-					prevent_close = options.on_confirm.bind(dlg)();
-				}
-				if (!prevent_close) {
-					dlg.off('nbdialog_close.nbconfirm');
-					dlg.nbdialog('close');
-				}
-			});
-		dlg.appendTo($('body'));
-		dlg.nbdialog('open', _.extend({
-			remove_on_close: true,
-			modal: true
-		}, options));
-	}
 
 
 	// http wrapper to be used with async library

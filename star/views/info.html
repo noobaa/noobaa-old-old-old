@@ -109,11 +109,11 @@
 	<script type="text/javascript">
 	$(function() {
 		function do_animate() {
-			$('.animated:not(.expandUp)').each(function() {
+			$('.animated:not(.bounceIn)').each(function() {
 				var pos = $(this).offset().top;
 				var marker = $(window).scrollTop() + $(window).height();
 				if (pos < marker) {
-					$(this).addClass('expandUp');
+					$(this).addClass('bounceIn').css('visibility', 'visible');
 				}
 			});
 		}

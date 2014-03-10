@@ -100,15 +100,7 @@
 
 			$scope.nbconfirm = function(q, callback) {
 				$scope.show();
-				$.nbconfirm(q, {
-					on_confirm: callback,
-					// css: {
-					//	width: win.width - win_frame_width,
-					//	height: win.height - win_frame_height,
-					//	top: 0,
-					//	left: 0
-					// }
-				});
+				nbUtil.nbconfirm(q, callback);
 			};
 
 			// terminate the entire application

@@ -224,7 +224,7 @@ function static_files(src) {
 				data: data
 			};
 			// TODO minify also CSS, more?
-			if (file_path.match(/\.js$/)) {
+			if (!nb_debug && file_path.match(/\.js$/)) {
 				entry.data = uglifyjs.minify(data.toString(), {
 					fromString: true,
 					mangle: false // TODO mangling fails angular...
@@ -353,6 +353,8 @@ app.put('/api/inode/:inode_id/share_list', inode_api.inode_set_share_list);
 app.get('/api/inode/:inode_id/message/', message_api.get_inode_messages);
 app.post('/api/inode/:inode_id/message/', message_api.post_inode_message);
 app.del('/api/inode/:inode_id/message/:message_id', message_api.delete_inode_message);
+
+app.get('/api/feed/', inode_api.feed_query);
 
 app.get('/api/user/', user_api.user_read);
 app.put('/api/user/', user_api.user_update);

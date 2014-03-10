@@ -9,24 +9,36 @@
 	var noobaa_app = angular.module('noobaa_app');
 
 	noobaa_app.factory('nbInode', [
-		'$http', '$timeout', '$interval', '$q', '$window', '$location', '$rootScope', 'JobQueue', 'nbUtil', 'nbUser',
-		function($http, $timeout, $interval, $q, $window, $location, $rootScope, JobQueue, nbUtil, nbUser) {
+		'$http', '$timeout', '$interval', '$q', '$window', '$location', '$rootScope',
+		'LinkedList', 'JobQueue', 'nbUtil', 'nbUser',
+
+		function($http, $timeout, $interval, $q, $window, $location, $rootScope,
+			LinkedList, JobQueue, nbUtil, nbUser) {
 
 			var $scope = {
 				inode_api_url: inode_api_url,
+				fobj_get_url: fobj_get_url,
 				seamless_open_inode: seamless_open_inode,
+				download_url: download_url,
 				download_inode: download_inode,
-				is_immutable_root: is_immutable_root,
-				is_shared_with_me: is_shared_with_me,
+				is_root_inode: is_root_inode,
+				is_my_data_dir: is_my_data_dir,
+				is_swm_dir: is_swm_dir,
+				is_sbm_dir: is_sbm_dir,
 				is_not_mine: is_not_mine,
 				can_upload_to_dir: can_upload_to_dir,
 				can_upload_file: can_upload_file,
 				can_share_inode: can_share_inode,
 				can_keep_inode: can_keep_inode,
 				can_change_inode: can_change_inode,
+				can_move_inode: can_move_inode,
 				can_move_to_dir: can_move_to_dir,
-				init_root_dir: init_root_dir,
+				mk_user_root: mk_user_root,
 				ctime_newest_first_sort_func: ctime_newest_first_sort_func,
+				get_inode: get_inode,
+				merge_inode: merge_inode,
+				merge_inode_entries: merge_inode_entries,
+				load_inode: load_inode,
 				read_dir: read_dir,
 				is_dir_non_empty: is_dir_non_empty,
 				parents_path: parents_path,
@@ -50,15 +62,22 @@
 				return '/api/inode/' + inode_id;
 			}
 
+			function fobj_get_url(inode) {
+				return inode.fobj_get_url || inode_api_url(inode.id);
+			}
+
 			function seamless_open_inode(inode) {
 				var url = inode_api_url(inode.id) + '?seamless=1';
 				var win = window.open(url, '_blank');
 				win.focus();
 			}
 
+			function download_url(inode) {
+				return inode_api_url(inode.id) + '?is_download=true';
+			}
+
 			function download_inode(inode) {
-				var url = inode_api_url(inode.id) + '?is_download=true';
-				$('<iframe style="display: none">')[0].src = url;
+				$('<iframe style="display: none">')[0].src = download_url(inode);
 				// var win = window.open(url, '_blank');
 				// win.focus();
 			}
@@ -66,48 +85,61 @@
 			// return true for "My Data" and "Shared With Me"
 			// which are user root dirs and shouldn't be modified.
 
-			function is_immutable_root(inode) {
-				return !inode.parent || !inode.parent.parent;
+			function is_root_inode(inode) {
+				return !inode.parent_id;
 			}
 
-			function is_shared_with_me(inode) {
-				return inode.swm;
+			function is_my_data_dir(inode) {
+				return !inode.parent_id && inode.name === 'My Data';
+			}
+
+			function is_swm_dir(inode) {
+				return !inode.parent_id && inode.name === 'Shared With Me';
+			}
+
+			function is_sbm_dir(inode) {
+				return !inode.parent_id && inode.name === 'Shared By Me';
 			}
 
 			function is_not_mine(inode) {
-				return inode.not_mine;
+				return !!inode.not_mine;
 			}
 
 			function can_upload_to_dir(inode) {
-				return inode && inode.isdir && !inode.swm && inode.level > 0;
+				return !!inode && inode.isdir && !inode.not_mine && !inode.ref_owner && !inode.ro;
 			}
 
 			function can_upload_file(inode) {
-				return inode && can_upload_to_dir(inode.parent) && !inode.isdir && inode.uploading;
+				return !!inode && can_upload_to_dir(inode.parent) && !inode.isdir && inode.uploading;
 			}
 
 			function can_share_inode(inode) {
-				return inode && !inode.swm && inode.level > 1;
+				return !!inode && !inode.not_mine && !inode.ref_owner && !! inode.parent_id;
 			}
 
 			function can_keep_inode(inode) {
-				return inode && inode.swm && inode.level > 1;
+				return !!inode && ( !! inode.ref_owner || !! inode.not_mine);
 			}
 
 			function can_change_inode(inode) {
-				return inode && !inode.not_mine && inode.level > 1;
+				return !!inode && !inode.not_mine && !! inode.parent_id;
+			}
+
+			function can_move_inode(inode) {
+				return !!inode && !inode.not_mine && !inode.ref_owner && !! inode.parent_id;
 			}
 
 			function can_move_to_dir(inode) {
-				return inode && !inode.not_mine && !inode.owner && inode.level > 0;
+				return !!inode && !inode.not_mine && !inode.ref_owner && !inode.ro;
 			}
 
-			function init_root_dir() {
+			function mk_user_root() {
 				return {
 					id: null,
 					parent: null,
 					level: 0,
 					isdir: true,
+					ro: true,
 					name: 'My Items',
 					entries: [],
 					entries_map: {}
@@ -129,94 +161,134 @@
 				}
 			}
 
-			function merge_entry(existing_entry, new_entry) {
-				if (!existing_entry) {
-					return new_entry;
-				}
-				angular.extend(existing_entry, new_entry);
-				// turn off the uploading flag because we don't send each time
-				// and extend won't turn off when the key is missing
-				sync_missing_key(existing_entry, new_entry, 'uploading');
-				sync_missing_key(existing_entry, new_entry, 'shr');
-				return existing_entry;
-			}
-
-			function set_entry_info(e, parent, level, swm) {
-				if (e.isdir) {
-					e.content_kind = 'dir';
-				} else if (e.content_type) {
-					e.content_kind = CONTENT_KINDS[e.content_type.split('/')[0]];
-				}
-				e.ctime = new Date(e.ctime);
-				if (swm) {
-					e.swm = swm;
-				}
-				e.parent = parent;
-				e.level = level;
-			}
-
 			function ctime_newest_first_sort_func(a, b) {
 				return a.ctime > b.ctime ? -1 : 1;
 			}
 
-			function read_dir(dir_inode) {
-				// console.log('READDIR', dir_inode.name);
+			function default_sort_func(a, b) {
+				return a.isdir ? -1 : 1;
+			}
+
+			var inodes_cache = {};
+
+			var inodes_lru = new LinkedList('lru');
+
+			inodes_cache['null'] = {
+				id: null,
+				isdir: true,
+				ro: true,
+				name: 'My Items',
+			};
+
+			inodes_cache.sbm = {
+				id: 'sbm',
+				isdir: true,
+				ro: true,
+				name: 'Shared By Me',
+			};
+
+			function get_inode(inode_id, peek) {
+				inode_id = inode_id || 'null';
+				var inode = inodes_cache[inode_id];
+				if (!inode) {
+					// if (peek === 'peek') { // uncomment if needed
+					// return null;
+					// }
+					inodes_cache[inode_id] = inode = {
+						id: inode_id
+					};
+				}
+				// bump to front of lru
+				inodes_lru.remove(inode);
+				inodes_lru.push_front(inode);
+				return inode;
+			}
+
+			function discard_inode(inode_id) {
+				var inode = inodes_cache[inode_id];
+				inodes_lru.remove(inode);
+				delete inodes_cache[inode_id];
+			}
+
+			function merge_inode(entry) {
+				if (entry.isdir) {
+					entry.content_kind = 'dir';
+				} else if (entry.content_type) {
+					entry.content_kind = CONTENT_KINDS[entry.content_type.split('/')[0]];
+				}
+				entry.ctime = new Date(entry.ctime);
+				var inode = get_inode(entry.id);
+				angular.extend(inode, entry);
+				// turn off the uploading flag because we don't send each time
+				// and extend won't turn off when the key is missing
+				sync_missing_key(inode, entry, 'uploading');
+				sync_missing_key(inode, entry, 'shr');
+				if (entry.entries) {
+					inode.entries = merge_inode_entries(entry.entries);
+					inode.entries.sort(inode.sorting_func || default_sort_func);
+					inode.entries_by_kind = _.groupBy(inode.entries, 'content_kind');
+				}
+				return inode;
+			}
+
+			function merge_inode_entries(entries) {
+				return _.map(entries, merge_inode);
+			}
+
+			function load_inode(inode, retries) {
+
+				if (inode.loaded) {
+					var now = Date.now();
+					if (now < inode.loaded + 10000 && now > inode.loaded) {
+						console.log('ALREADY LOADED', inode.name);
+						return $q.when(inode);
+					}
+				}
+				// handle the virtual folder sbm
 				var url = '/api/inode/';
-				var params = {};
-				if (dir_inode.sbm) {
+				var params = {
+					metadata: true
+				};
+				if (inode.id === 'sbm') {
 					params.sbm = true;
 				} else {
-					url += dir_inode.id;
+					url += inode.id;
 				}
-				dir_inode.is_loading = true;
+
+				// console.log('LOAD INODE', inode);
+				inode.is_loading = true;
 				return $http({
 					method: 'GET',
 					url: url,
 					params: params
 				}).then(function(res) {
-					dir_inode.is_loading = false;
-					// console.log('READDIR OK', dir_inode.name);
-					var entries = res.data.entries;
-					dir_inode.entries = entries;
-					dir_inode.entries_map = dir_inode.entries_map || {};
-					var entries_map = {};
-					var entries_by_kind = {
-						video: [],
-						audio: [],
-						image: []
-					};
-					if (!dir_inode.id) {
-						entries.push({
-							sbm: true, // virtual dir
-							id: 'virtual',
-							isdir: true,
-							name: 'Shared By Me',
-						});
+					inode.is_loading = false;
+					inode.loaded = Date.now();
+					var entry = res.data;
+					if (!inode.id) {
+						entry.entries.push(inodes_cache.sbm);
+					} else if (params.sbm) {
+						entry.id = 'sbm';
 					}
-					for (var i = 0; i < entries.length; i++) {
-						var e = merge_entry(dir_inode.entries_map[entries[i].id], entries[i]);
-						set_entry_info(e, dir_inode, dir_inode.level + 1, dir_inode.swm);
-						entries[i] = e;
-						entries_map[e.id] = e;
-						if (e.content_kind && entries_by_kind[e.content_kind]) {
-							entries_by_kind[e.content_kind].push(e);
-						}
+					// console.log('LOAD INODE', inode, entry);
+					return merge_inode(entry);
+				}).then(null, function(err) {
+					inode.is_loading = false;
+					console.error('FAILED LOAD INODE', err);
+					if (!retries) {
+						throw err;
 					}
-					entries.sort(dir_inode.sorting_func || function(a, b) {
-						return a.isdir ? -1 : 1;
-					});
-					dir_inode.entries_map = entries_map;
-					dir_inode.entries_by_kind = entries_by_kind;
-					return res;
-				}, function(err) {
-					dir_inode.is_loading = false;
-					console.error('FAILED READDIR', err);
 					return $timeout(function() {
-						read_dir(dir_inode);
+						load_inode(inode, retries - 1);
 					}, 3000);
 				});
 			}
 
+			// TODO TEMPORARY
+
+			function read_dir(inode) {
+				return load_inode(inode);
+			}
 
 			function is_dir_non_empty(inode, callback) {
 				if (!inode.isdir) {
@@ -238,15 +310,13 @@
 			}
 
 			function parents_path(inode) {
-				if (!inode) {
-					return;
-				}
-				var parents = new Array(inode.level);
-				var p = inode.parent;
-				for (var i = inode.level - 1; i >= 0; i--) {
-					parents[i] = p;
-					p = p.parent;
-				}
+				var parents = [];
+				var p = inode;
+				do {
+					p = get_inode(p.parent_id);
+					parents.push(p);
+				} while (p && p.id);
+				// console.log('PARENTS', parents);
 				return parents;
 			}
 
@@ -362,8 +432,8 @@
 					console.error('no selected inode, bailing');
 					return;
 				}
-				if (is_immutable_root(inode)) {
-					$.nbalert('Cannot copy root folder');
+				if (is_root_inode(inode)) {
+					nbUtil.nbalert('Cannot copy root folder');
 					return;
 				}
 
@@ -393,28 +463,23 @@
 
 			function move_inode(inode, dir_inode) {
 				// console.log('MOVE', inode.name, dir_inode.name);
-				if (!can_change_inode(inode)) {
-					$.nbalert('Cannot move item');
+				if (!can_move_inode(inode)) {
+					nbUtil.nbalert('Cannot move item');
 					return;
 				}
 				if (!can_move_to_dir(dir_inode)) {
-					$.nbalert('Cannot move into someone else\'s folder');
-					return;
-				}
-				if (is_shared_with_me(inode) !== is_shared_with_me(dir_inode)) {
-					$.nbalert('Cannot move in or out of the "Shared With Me" folder.<br/>' +
-						'Maybe you meant to use "Add To My Data"...');
+					nbUtil.nbalert('Cannot move into selected folder');
 					return;
 				}
 				var p = dir_inode;
 				while (p) {
 					if (p.id === inode.id) {
-						$.nbalert('Cannot create circular folders.<br/>It\'s just wrong...');
+						nbUtil.nbalert('Cannot create circular folders. It\'s just wrong...');
 						return;
 					}
 					p = p.parent;
 				}
-				if (inode.parent.id === dir_inode.id) {
+				if (inode.parent_id === dir_inode.id) {
 					console.log('move into same parent. nothing to do.');
 					return;
 				}
@@ -478,16 +543,8 @@
 					console.error('no selected inode, bailing');
 					return;
 				}
-				if (is_immutable_root(inode)) {
-					$.nbalert('Cannot share root folder');
-					return;
-				}
-				if (is_shared_with_me(inode)) {
-					$.nbalert('Cannot share files not in My Data. Use "Add to My Data" first');
-					return;
-				}
-				if (is_not_mine(inode)) {
-					$.nbalert('Cannot share someone else\'s file');
+				if (!can_share_inode(inode)) {
+					nbUtil.nbalert('Cannot share item');
 					return;
 				}
 
@@ -566,7 +623,7 @@
 
 
 			function keep_inode(inode, dir_inode) {
-				if (!inode.owner && !inode.not_mine) {
+				if (!inode.ref_owner && !inode.not_mine) {
 					return $q.when(inode);
 				}
 				if (inode.new_keep_inode) {

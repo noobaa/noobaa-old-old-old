@@ -23,10 +23,10 @@
 					<i class="fa fa-video-camera fa-stack-1x"></i>
 				</span>
 			</div>
-			<video ng-if="show_content" controls autoplay ng-src="{{nbInode.inode_api_url(inode.id)}}" class="content-item img-responsive center-block" nb-events="media_events">
-				<source ng-src="{{nbInode.inode_api_url(inode.id)}}" ng-attr-type="{{inode.content_type}}">
-					<object ng-attr-data="{{nbInode.inode_api_url(inode.id)}}" ng-attr-type="{{inode.content_type}}">
-						<embed ng-src="{{nbInode.inode_api_url(inode.id)}}">
+			<video ng-if="show_content" controls autoplay ng-src="{{nbInode.fobj_get_url(inode)}}" class="content-item img-responsive center-block" nb-events="media_events">
+				<source ng-src="{{nbInode.fobj_get_url(inode)}}" ng-attr-type="{{inode.content_type}}">
+					<object ng-attr-data="{{nbInode.fobj_get_url(inode)}}" ng-attr-type="{{inode.content_type}}">
+						<embed ng-src="{{nbInode.fobj_get_url(inode)}}">
 					</object>
 			</video>
 		</div>
@@ -37,11 +37,11 @@
 					<i class="fa fa-music fa-stack-1x"></i>
 				</span>
 			</div>
-			<audio ng-if="show_content" controls autoplay ng-src="{{nbInode.inode_api_url(inode.id)}}" style="padding: 30px 5px 5px 5px; Xpadding: 5px" class="content-item img-responsive center-block" nb-events="media_events">
-				<source ng-src="{{nbInode.inode_api_url(inode.id)}}" ng-attr-type="{{inode.content_type}}">
+			<audio ng-if="show_content" controls autoplay ng-src="{{nbInode.fobj_get_url(inode)}}" style="padding: 30px 5px 5px 5px; Xpadding: 5px" class="content-item img-responsive center-block" nb-events="media_events">
+				<source ng-src="{{nbInode.fobj_get_url(inode)}}" ng-attr-type="{{inode.content_type}}">
 			</audio>
 		</div>
-		<img ng-switch-when="image" ng-src="{{nbInode.inode_api_url(inode.id)}}" class="content-item img-responsive center-block img-rounded Ximg-circle-non-hover transition-slow" style="max-height: 100%" nb-events="media_events" />
+		<img ng-switch-when="image" ng-src="{{nbInode.fobj_get_url(inode)}}" class="content-item img-responsive center-block img-rounded Ximg-circle-non-hover transition-slow" style="max-height: 100%" nb-events="media_events" />
 		<div ng-switch-when="text">
 			<div class="content-switcher text-center" style="padding: 5px" ng-show="!is_previewing">
 				<span class="fa-stack fa-2x" title="Open text file" rel="tooltip" ng-click="toggle_content()" style="cursor: pointer">
@@ -49,7 +49,7 @@
 					<i class="fa fa-font fa-stack-1x"></i>
 				</span>
 			</div>
-			<object ng-if="show_content" ng-attr-data="{{nbInode.inode_api_url(inode.id)}}" type="text/plain" width="100%" class="content-item center-block bggrey" nb-events="media_events" </object>
+			<object ng-if="show_content" ng-attr-data="{{nbInode.fobj_get_url(inode)}}" type="text/plain" width="100%" class="content-item center-block bggrey" nb-events="media_events" </object>
 		</div>
 	</div>
 </div>

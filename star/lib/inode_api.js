@@ -138,7 +138,7 @@ function inode_to_entry(inode, opt) {
 		id: inode._id,
 		name: inode.name,
 		parent_id: inode.parent,
-		ctime: inode._id.getTimestamp(), // TODO use inode.create_time ?
+		ctime: inode._id && inode._id.getTimestamp(), // TODO use inode.create_time ?
 		size: inode.size || 0
 	};
 	if (inode.content_type) {
@@ -163,10 +163,10 @@ function inode_to_entry(inode, opt) {
 		}
 		// send the info of the ref_owner for shared refs
 		if (inode.ref_owner && inode.ref_owner.get_user_identity_info) {
-			ent.owner = inode.ref_owner.get_user_identity_info();
+			ent.ref_owner = inode.ref_owner.get_user_identity_info();
 			// we don't need to tell everyone about the mapping of our user ids to fb/google ids
 			// so remove our user id from here.
-			delete ent.owner.id;
+			delete ent.ref_owner.id;
 		}
 	} else {
 		ent.not_mine = true;
@@ -350,12 +350,11 @@ function do_read_dir(user, dir_id, callback) {
 			// for each inode return an entry with both inode and fobj info
 			var entries = _.map(inodes_list, function(inode) {
 				return inode_to_entry(inode, {
-					user: user
+					user: user,
+					fobj_get_url: true
 				});
 			});
-			return next(null, {
-				entries: entries
-			});
+			return next(null, entries);
 		}
 
 	], callback);
@@ -377,7 +376,7 @@ exports.inode_query = function(req, res) {
 			if (req.query.sbm) {
 				q.where('shr').exists();
 			}
-			q.exec(next);
+			q.populate('ref_owner').exec(next);
 		},
 
 		find_messages_for_inodes,
@@ -386,9 +385,72 @@ exports.inode_query = function(req, res) {
 			// for each inode return an entry with both inode and fobj info
 			var entries = _.map(inodes_list, function(inode) {
 				var ent = inode_to_entry(inode, {
-					user: req.user
+					user: req.user,
+					fobj_get_url: true
 				});
 				return ent;
+			});
+			return next(null, {
+				entries: entries
+			});
+		}
+
+	], common_api.reply_callback(req, res, 'INODE READ ALL'));
+};
+
+
+exports.feed_query = function(req, res) {
+	var skip = Number(req.query.skip) || 0;
+	var limit = Number(req.query.limit) || 10;
+	var groups;
+
+	async.waterfall([
+		function(next) {
+			return Inode.aggregate().match({
+				owner: mongoose.Types.ObjectId(req.user.id),
+				$or: [{
+					shr: {
+						$exists: true
+					}
+				}, {
+					ghost_ref: {
+						$exists: true
+					}
+				}]
+			}).group({
+				_id: {
+					name: '$name',
+					isdir: '$isdir'
+				},
+				max: {
+					$max: '$_id'
+				},
+				ids: {
+					$addToSet: '$_id'
+				}
+			}).sort('-max').skip(skip).limit(limit).exec(next);
+		},
+
+		function(groups_arg, next) {
+			groups = groups_arg;
+			console.log('FEED GROUPS', groups);
+			var ids = _.flatten(_.pluck(groups, 'ids'));
+			return Inode.find({
+				_id: {
+					$in: ids
+				}
+			}).populate('ref_owner').sort('-_id').exec(next);
+		},
+
+		find_messages_for_inodes,
+
+		function(inodes_list, next) {
+			// for each inode return an entry with both inode and fobj info
+			var entries = _.map(inodes_list, function(inode) {
+				return inode_to_entry(inode, {
+					user: req.user,
+					fobj_get_url: true
+				});
 			});
 			return next(null, {
 				entries: entries
@@ -475,7 +537,22 @@ exports.inode_read = function(req, res) {
 			}
 			if (inode.isdir) {
 				var dir_id = inode.ghost_ref || inode._id;
-				return do_read_dir(req.user, dir_id, next);
+				return do_read_dir(req.user, dir_id, function(err, entries) {
+					if (err) {
+						return next(err);
+					}
+					var reply = inode_to_entry(inode, {
+						user: req.user,
+					});
+					reply.entries = entries;
+					return next(null, reply);
+				});
+			}
+			if (req.query.metadata) {
+				return next(null, inode_to_entry(inode, {
+					user: req.user,
+					fobj_get_url: true
+				}));
 			}
 			if (!inode.fobj) {
 				return next({
@@ -1452,12 +1529,18 @@ function validate_access_to_inode(user_id, inode, callback) {
 			return callback(err, inode);
 		}
 		// check if one of the inode ancestors are shared to the user
-		return user_inodes.shared_ancestor(user_id, inode, function(err, shared) {
-			if (err || !shared) {
+		return user_inodes.shared_ancestor(user_id, inode, function(err, ghost_ref) {
+			if (err || !ghost_ref) {
 				return callback({
 					status: 403,
 					data: 'Access Denied'
 				});
+			}
+			// fix the parent to trace back to the ghost ref, 
+			// since this user can only follow it through this path.
+			// this is only to return as reply, certainly not to be saved to DB!
+			if (inode.parent.equals(ghost_ref.ghost_ref)) {
+				inode.parent = ghost_ref.id;
 			}
 			return callback(null, inode);
 		});

@@ -23,12 +23,19 @@
 					$scope.refresh_feeds();
 				}
 			]
-		}).when('/items/:path*?', {
+		}).when('/items/:item_id*?', {
 			template: [
 				'<div class="container">',
 				'	<div nb-browse ng-if="home_context" context="home_context" notify-layout="angular.noop"></div>',
 				'</div>'
-			].join('\n')
+			].join('\n'),
+			controller: ['$scope', '$routeParams', 'nbInode',
+				function($scope, $routeParams, nbInode) {
+					var inode_id = $routeParams.item_id;
+					var inode = nbInode.get_inode(inode_id);
+					$scope.home_context.current_inode = inode;
+				}
+			]
 		}).when('/friends/', {
 			templateUrl: '/public/html/friends_template.html',
 			controller: ['$scope',
@@ -62,7 +69,7 @@
 			$scope.moment = moment;
 
 			$scope.refresh_feeds = refresh_feeds;
-			$scope.root_dir = nbInode.init_root_dir();
+			$scope.root_dir = nbInode.get_inode();
 
 			$scope.refresh_friends = refresh_friends;
 			$scope.present_map = present_map;
@@ -81,6 +88,9 @@
 					}
 				}
 			};
+
+			var feeds_per_page = 3;
+			$scope.fetching_feeds = 0;
 
 			nbUtil.track_event('home.load', {
 				client: !! nbPlanet.on
@@ -108,16 +118,17 @@
 					var entries = $scope.root_dir.entries;
 					for (var i = 0; i < entries.length; i++) {
 						var e = entries[i];
-						e.level = 1;
-						if (e.name === 'My Data') {
+						if (nbInode.is_my_data_dir(e)) {
 							$scope.mydata = e;
 							$scope.home_context.mydata = e;
-						} else if (e.name === 'Shared With Me') {
+						} else if (nbInode.is_swm_dir(e)) {
 							e.swm = true;
+							e.ro = true;
 							e.sorting_func = nbInode.ctime_newest_first_sort_func;
 							$scope.swm = e;
 							$scope.home_context.swm = e;
-						} else if (e.name === 'Shared By Me') {
+						} else if (nbInode.is_sbm_dir(e)) {
+							e.ro = true;
 							e.sorting_func = nbInode.ctime_newest_first_sort_func;
 							$scope.sbm = e;
 							$scope.home_context.sbm = e;
@@ -144,23 +155,37 @@
 				});
 			}
 
+
 			function refresh_feeds() {
-				// console.log('READ SWM', $scope.swm);
-				if (!$scope.swm || !$scope.sbm || $scope.refreshing_feeds) {
+				if (!$scope.swm || !$scope.sbm || $scope.fetching_feeds) {
 					return;
 				}
-				$scope.refreshing_feeds = true;
-				return $q.all([
-					nbInode.read_dir($scope.swm),
-					nbInode.read_dir($scope.sbm)
-				]).then(function() {
-					var entries = $scope.sbm.entries.concat($scope.swm.entries);
+				$scope.feeds = [];
+				$scope.feeds_limit = 0;
+				$scope.has_more_feeds = true;
+				fetch_feeds(feeds_per_page).then(function() {
+					rebuild_layout();
+				});
+			}
+
+			function fetch_feeds(count) {
+				if ($scope.fetching_feeds) {
+					return;
+				}
+				$scope.fetching_feeds = true;
+				return $http({
+					method: 'GET',
+					url: '/api/feed/',
+					params: {
+						skip: $scope.feeds_limit,
+						limit: count
+					}
+				}).then(function(res) {
+					var entries = nbInode.merge_inode_entries(res.data.entries);
+					$scope.feeds_limit += count;
+					$scope.has_more_feeds = entries.length < count ? false : true;
 					entries.sort(nbInode.ctime_newest_first_sort_func);
-					// console.log('SWM FOLDER', res);
-					$scope.refreshing_feeds = false;
-					$scope.feeds_limit = 10;
 					// collect together feeds with same name and type (for share loops)
-					var feeds = [];
 					var feeds_by_key = {};
 					_.each(entries, function(e) {
 						var key = (e.isdir ? 'd:' : 'f:') + e.name;
@@ -172,26 +197,26 @@
 								inodes: [e]
 							};
 							feeds_by_key[key] = f;
-							feeds.push(f);
+							$scope.feeds.push(f);
 						} else {
-							if (e.owner) {
+							if (e.ref_owner) {
 								f.inodes.push(e);
 							} else {
 								f.inodes.unshift(e); // mine goes first
 							}
 						}
 					});
-					$scope.feeds = feeds;
-					rebuild_layout();
+				}).then(function() {
+					$scope.fetching_feeds = false;
 				}, function(err) {
-					console.error('GET SWM FOLDER FAILED', err);
-					$scope.refreshing_feeds = false;
+					$scope.fetching_feeds = false;
+					console.error('FAILED FETCH FEEDS', err);
 					throw err;
 				});
 			}
 
 			$scope.more_feeds = function() {
-				$scope.feeds_limit += 10;
+				fetch_feeds(feeds_per_page);
 				rebuild_layout();
 				nbUtil.track_event('home.feed.scroll', {
 					count: $scope.feeds_limit
@@ -480,7 +505,7 @@
 						promise = promise.then(function() {
 							return nbInode.read_dir(inode);
 						}).then(function() {
-							if (inode.entries_by_kind.image.length) {
+							if (inode.entries_by_kind.image && inode.entries_by_kind.image.length) {
 								$scope.current_entry_index = inode.entries.indexOf(inode.entries_by_kind.image[0]);
 							}
 						});
@@ -520,6 +545,7 @@
 			};
 
 			$scope.open_feed_inode = function(inode) {
+				/*
 				if (inode.isdir) {
 					$scope.home_context.current_inode = inode;
 				} else {
@@ -528,8 +554,8 @@
 					// inode.is_previewing = true;
 					// inode.is_selected = true;
 					// TODO select item
-				}
-				$location.path('/items/');
+				}*/
+				$location.path('/items/' + inode.id);
 			};
 
 			$scope.keep_feed = function() {
@@ -539,7 +565,7 @@
 
 			$scope.done_keep = function() {
 				var inode = current_inode();
-				if (!inode.owner && !inode.not_mine) {
+				if (!inode.ref_owner && !inode.not_mine) {
 					return true;
 				}
 				if (inode.new_keep_inode) {
@@ -590,9 +616,9 @@
 				context: '='
 			},
 			controller: [
-				'$scope', '$http', '$timeout', '$q', '$compile', '$rootScope',
+				'$scope', '$http', '$timeout', '$q', '$compile', '$location', '$rootScope',
 				'nbUtil', 'nbMultiSelect', 'nbUser', 'nbInode', 'nbUploadSrv', 'JobQueue',
-				function($scope, $http, $timeout, $q, $compile, $rootScope,
+				function($scope, $http, $timeout, $q, $compile, $location, $rootScope,
 					nbUtil, nbMultiSelect, nbUser, nbInode, nbUploadSrv, JobQueue) {
 					$scope.human_size = $rootScope.human_size;
 					$scope.nbUtil = nbUtil;
@@ -603,7 +629,6 @@
 
 					$scope.go_up_level = go_up_level;
 					$scope.has_parent = has_parent;
-					$scope.folder_icon = folder_icon;
 					$scope.is_selection_leader = is_selection_leader;
 					$scope.num_selected = num_selected;
 					$scope.open_inode = open_inode;
@@ -623,33 +648,30 @@
 					};
 
 					// console.log('BROWSER CONTEXT', $scope.context);
-					set_current_inode($scope.context.current_inode);
-					open_inode($scope.current_inode, 0, {});
+					$scope.$watch('context.current_inode', function(inode) {
+						console.log('CURRENT INODE', inode.name);
+						$scope.current_inode = inode;
+						refresh_current();
+					});
+
+					function refresh_current() {
+						$scope.search_in_folder = '';
+						nbMultiSelect.reset_selection(selection);
+						nbInode.load_inode($scope.current_inode);
+					}
 
 					nbUploadSrv.notify_create_in_dir = function(dir_id) {
 						if ($scope.current_inode.id === dir_id) {
-							open_inode($scope.current_inode);
+							refresh_current();
 						}
 					};
 
-					function set_current_inode(dir_inode) {
-						$scope.context.current_inode = dir_inode;
-						$scope.current_inode = dir_inode;
-						$scope.search_in_folder = '';
-					}
-
 					function go_up_level() {
-						if ($scope.current_inode.level > 0) {
-							open_inode($scope.current_inode.parent);
-						}
+						$location.path('/items/' + ($scope.current_inode.parent_id || ''));
 					}
 
 					function has_parent(dir_inode) {
-						return dir_inode.level > 0;
-					}
-
-					function folder_icon(dir_inode) {
-						return dir_inode.level > 0 ? 'fa-folder' : 'fa-folder-open'; // TODO PICK BETTER
+						return !!dir_inode.id;
 					}
 
 					function is_selection_leader(inode) {
@@ -668,11 +690,15 @@
 					}
 
 					function open_inode(inode, $index, $event) {
+						if (!inode.loaded) {
+							return nbInode.load_inode(inode).then(function() {
+								open_inode(inode, $index, $event);
+							});
+						}
 						if (inode.isdir) {
-							nbMultiSelect.reset_selection(selection);
-							set_current_inode(inode);
-							nbInode.read_dir(inode);
+							$location.path('/items/' + inode.id);
 						} else {
+							nbInode.load_inode(inode);
 							if ((inode.is_selected && !inode.is_previewing) ||
 								nbMultiSelect.select_item(selection, inode, $index, $event)) {
 								inode.is_previewing = true;
@@ -680,14 +706,6 @@
 								inode.is_previewing = false;
 							}
 							return stop_event($event);
-						}
-					}
-
-					function refresh_current() {
-						if ($scope.current_inode.isdir) {
-							nbMultiSelect.reset_selection(selection);
-							set_current_inode($scope.current_inode);
-							return nbInode.read_dir($scope.current_inode);
 						}
 					}
 
@@ -700,12 +718,12 @@
 							console.error('no selected inode, bailing');
 							return;
 						}
-						if (nbInode.is_immutable_root(inode)) {
-							$.nbalert('Cannot rename root folder');
+						if (nbInode.is_root_inode(inode)) {
+							nbUtil.nbalert('Cannot rename root folder');
 							return;
 						}
 						if (nbInode.is_not_mine(inode)) {
-							$.nbalert('Cannot rename someone else\'s file');
+							nbUtil.nbalert('Cannot rename someone else\'s file');
 							return;
 						}
 
@@ -747,8 +765,8 @@
 						// the first condition is true when looking at a directory 
 						// which is not owned by the user.
 						// the second is true for ghosts or when not owned by the user
-						if (nbInode.is_not_mine(dir_inode) || dir_inode.owner_name) {
-							$.nbalert('Cannot create folder in someone else\'s folder');
+						if (nbInode.is_not_mine(dir_inode) || dir_inode.ref_owner) {
+							nbUtil.nbalert('Cannot create folder in someone else\'s folder');
 							return;
 						}
 						var dlg = $('#mkdir_dialog').clone();
@@ -791,12 +809,12 @@
 								console.error('no selected inode, bailing');
 								return;
 							}
-							if (nbInode.is_immutable_root(inode)) {
-								$.nbalert('Cannot delete root folder');
+							if (nbInode.is_root_inode(inode)) {
+								nbUtil.nbalert('Cannot delete root folder');
 								return;
 							}
 							if (nbInode.is_not_mine(inode)) {
-								$.nbalert('Cannot delete someone else\'s file ' + inode.name);
+								nbUtil.nbalert('Cannot delete someone else\'s file ' + inode.name);
 								return;
 							}
 							read_dir_promises[i] = inode.isdir ? nbInode.read_dir(inode) : $q.when(null);
@@ -845,8 +863,14 @@
 						if (!selected.length) {
 							return;
 						}
-						if (!nbInode.can_change_inode(selected[0])) {
-							$.nbalert('Cannot move item');
+						for (var i = 0; i < selected.length; i++) {
+							if (!nbInode.can_move_inode(selected[i])) {
+								var msg = $('<span>')
+									.append('Cannot move item ')
+									.append($('<span>').text(selected[i].name));
+								nbUtil.nbalert(msg);
+								return;
+							}
 						}
 						var mv_scope = $scope.$new();
 						mv_scope.count = 0;
@@ -964,18 +988,17 @@
 
 						$scope.open_inode = function(inode) {
 							set_current_inode(inode);
-							if (inode.isdir) {
-								nbInode.read_dir(inode);
-							}
+							nbInode.load_inode(inode);
 						};
 
 						$scope.has_parent = function(inode) {
-							return inode.level > 0;
+							return !!inode.id;
 						};
 
 						$scope.go_up_level = function() {
-							if ($scope.current_inode.level > 0) {
-								set_current_inode($scope.current_inode.parent);
+							if ($scope.current_inode.id) {
+								var parent = nbInode.get_inode($scope.current_inode.parent_id);
+								$scope.open_inode(parent);
 							}
 						};
 					}
