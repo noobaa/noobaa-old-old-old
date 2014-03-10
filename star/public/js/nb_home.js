@@ -114,7 +114,6 @@
 				$scope.home_context.current_inode = nbInode.get_inode(inode_id);
 			};
 
-
 			function init_read_dir() {
 				return nbInode.read_dir($scope.root_dir).then(function(res) {
 					// console.log('ROOT FOLDERS', res);
@@ -159,6 +158,11 @@
 			}
 
 
+			$scope.search_feed = {
+				query: '',
+				timeout: null
+			};
+
 			function refresh_feeds() {
 				if (!$scope.swm || !$scope.sbm || $scope.fetching_feeds) {
 					return;
@@ -181,7 +185,8 @@
 					url: '/api/feed/',
 					params: {
 						skip: $scope.feeds_limit,
-						limit: count
+						limit: count,
+						search: $scope.search_feed.query
 					}
 				}).then(function(res) {
 					var entries = nbInode.merge_inode_entries(res.data.entries);
@@ -209,11 +214,12 @@
 							}
 						}
 					});
+					$scope.safe_apply();
 				}).then(function() {
 					$scope.fetching_feeds = false;
 				}, function(err) {
-					$scope.fetching_feeds = false;
 					console.error('FAILED FETCH FEEDS', err);
+					$scope.fetching_feeds = false;
 					throw err;
 				});
 			}
@@ -225,6 +231,13 @@
 					count: $scope.feeds_limit
 				});
 			};
+
+			$scope.search_feed_changed = function() {
+				$timeout.cancel($scope.search_feed.timeout);
+				$scope.search_feed.timeout = $timeout(refresh_feeds, 500);
+				return ''; // used for clearing the query
+			};
+
 
 			function do_layout() {
 				if (true) return; // TODO decide on masonry

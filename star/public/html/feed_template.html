@@ -7,8 +7,8 @@
 			</button>
 			<div style="display: inline-block; max-width: 170px; vertical-align: middle">
 				<div Xclass="input-group" style="position: relative">
-					<input type="text" class="normal-radius form-control {{search_in_feed && 'label-warning' || 'label-default'}}" maxlength="100" placeholder="Search feed" ng-model="search_in_feed" />
-					<i class="fa fa-times fa-fw" style="cursor: pointer; position: absolute; right: 10px; top: 11px" ng-click="search_in_feed=''"></i>
+					<input type="text" class="normal-radius form-control {{search_feed.query && 'label-warning' || 'label-default'}}" maxlength="100" placeholder="Search feed" ng-model="search_feed.query" ng-change="search_feed_changed()" />
+					<i class="fa fa-times fa-fw" style="cursor: pointer; position: absolute; right: 10px; top: 11px" ng-click="search_feed.query = search_feed_changed()"></i>
 				</div>
 			</div>
 		</div>
@@ -25,7 +25,7 @@
 				</div>
 			</div>
 
-			<div ng-repeat="feed in feeds | filter:{name:search_in_feed}" ng-controller="FeedCtrl" class="feed_item row">
+			<div ng-repeat="feed in feeds" ng-controller="FeedCtrl" class="feed_item row">
 
 				<div class="animated fadeIn clearfix col-xs-10 col-xs-offset-1 col-sm-offset-0 col-sm-4" style="max-height: 250px; margin-bottom: 15px">
 					<div nb-media="current_entry()" media-events="media_events" show-content="false"></div>

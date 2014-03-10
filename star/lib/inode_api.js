@@ -406,7 +406,7 @@ exports.feed_query = function(req, res) {
 
 	async.waterfall([
 		function(next) {
-			return Inode.aggregate().match({
+			var match = {
 				owner: mongoose.Types.ObjectId(req.user.id),
 				$or: [{
 					shr: {
@@ -417,7 +417,11 @@ exports.feed_query = function(req, res) {
 						$exists: true
 					}
 				}]
-			}).group({
+			};
+			if (req.query.search) {
+				match.name = new RegExp(req.query.search, 'i');
+			}
+			return Inode.aggregate().match(match).group({
 				_id: {
 					name: '$name',
 					isdir: '$isdir'
