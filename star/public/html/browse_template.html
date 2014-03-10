@@ -18,9 +18,9 @@
 								</span>
 							</span>
 						</a>
-						<ul ng-if="has_parent(current_inode)" class="dropdown-menu" role="menu">
+						<ul ng-if="has_parent(current_inode)" class="dropdown-menu" role="menu" style="border-radius: 10px; border: 1px solid hsl(0,0%,50%)">
 							<li ng-repeat="parent in path = nbInode.parents_path(current_inode)">
-								<a ng-click="open_inode(parent)" style="padding-left: {{10+((path.length-1-$index) * 10)}}px">
+								<a ng-click="open_inode(parent)" style="padding-left: {{10+((path.length-1-$index) * 15)}}px" class="btn-lg">
 									<i class="fa fa-{{!parent.id && 'home' || 'folder-open'}} fa-fw"></i>
 									{{parent.name || '...'}}
 								</a>
