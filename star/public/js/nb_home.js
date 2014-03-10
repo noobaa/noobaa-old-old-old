@@ -26,14 +26,12 @@
 		}).when('/items/:item_id*?', {
 			template: [
 				'<div class="container">',
-				'	<div nb-browse ng-if="home_context" context="home_context" notify-layout="angular.noop"></div>',
+				'	<div nb-browse context="home_context"></div>',
 				'</div>'
 			].join('\n'),
-			controller: ['$scope', '$routeParams', 'nbInode',
-				function($scope, $routeParams, nbInode) {
-					var inode_id = $routeParams.item_id;
-					var inode = nbInode.get_inode(inode_id);
-					$scope.home_context.current_inode = inode;
+			controller: ['$scope', '$routeParams',
+				function($scope, $routeParams) {
+					$scope.set_current_item($routeParams.item_id);
 				}
 			]
 		}).when('/friends/', {
@@ -89,7 +87,7 @@
 				}
 			};
 
-			var feeds_per_page = 3;
+			var feeds_per_page = 10;
 			$scope.fetching_feeds = 0;
 
 			nbUtil.track_event('home.load', {
@@ -111,6 +109,11 @@
 			$scope.click_my_items = function() {
 				$location.path('/items/');
 			};
+
+			$scope.set_current_item = function(inode_id) {
+				$scope.home_context.current_inode = nbInode.get_inode(inode_id);
+			};
+
 
 			function init_read_dir() {
 				return nbInode.read_dir($scope.root_dir).then(function(res) {
@@ -545,16 +548,6 @@
 			};
 
 			$scope.open_feed_inode = function(inode) {
-				/*
-				if (inode.isdir) {
-					$scope.home_context.current_inode = inode;
-				} else {
-					$scope.home_context.current_inode = inode;
-					// $scope.home_context.current_inode = inode.parent;
-					// inode.is_previewing = true;
-					// inode.is_selected = true;
-					// TODO select item
-				}*/
 				$location.path('/items/' + inode.id);
 			};
 
@@ -627,16 +620,15 @@
 					$scope.nbUploadSrv = nbUploadSrv;
 					$scope.moment = moment;
 
+					$scope.refresh_current = refresh_current;
 					$scope.go_up_level = go_up_level;
 					$scope.has_parent = has_parent;
 					$scope.is_selection_leader = is_selection_leader;
 					$scope.num_selected = num_selected;
 					$scope.open_inode = open_inode;
 					$scope.toggle_preview = toggle_preview;
-					$scope.rename_inode = rename_inode;
-					$scope.delete_inodes = delete_inodes;
-					$scope.new_folder = new_folder;
 					$scope.move_inodes = move_inodes;
+					$scope.delete_inodes = delete_inodes;
 					$scope.keep_inode = keep_inode;
 					$scope.share_inode = share_inode;
 					$scope.unshare_inode = unshare_inode;
@@ -647,22 +639,20 @@
 						nbMultiSelect.select_item(selection, inode, $index, $event);
 					};
 
-					// console.log('BROWSER CONTEXT', $scope.context);
 					$scope.$watch('context.current_inode', function(inode) {
-						console.log('CURRENT INODE', inode.name);
 						$scope.current_inode = inode;
 						refresh_current();
 					});
 
-					function refresh_current() {
+					function refresh_current(force_load) {
 						$scope.search_in_folder = '';
 						nbMultiSelect.reset_selection(selection);
-						nbInode.load_inode($scope.current_inode);
+						nbInode.load_inode($scope.current_inode, force_load);
 					}
 
 					nbUploadSrv.notify_create_in_dir = function(dir_id) {
 						if ($scope.current_inode.id === dir_id) {
-							refresh_current();
+							refresh_current('force');
 						}
 					};
 
@@ -713,92 +703,6 @@
 						inode.is_previewing = !inode.is_previewing;
 					}
 
-					function rename_inode(inode) {
-						if (!inode) {
-							console.error('no selected inode, bailing');
-							return;
-						}
-						if (nbInode.is_root_inode(inode)) {
-							nbUtil.nbalert('Cannot rename root folder');
-							return;
-						}
-						if (nbInode.is_not_mine(inode)) {
-							nbUtil.nbalert('Cannot rename someone else\'s file');
-							return;
-						}
-
-						var dlg = $('#rename_dialog').clone();
-						var input = dlg.find('#dialog_input');
-						input.val(inode.name);
-						dlg.find('.inode_label').html(inode.name);
-						dlg.find('#dialog_ok').off('click').on('click', function() {
-							dlg.nbdialog('close');
-							if (!input.val() || input.val() === inode.name) {
-								return;
-							}
-							return $http({
-								method: 'PUT',
-								url: '/api/inode/' + inode.id,
-								data: {
-									name: input.val()
-								}
-							}).then(function(res) {
-								nbInode.read_dir(inode.parent);
-								return res;
-							}, function(err) {
-								nbInode.read_dir(inode.parent);
-								throw err;
-							});
-						});
-						dlg.nbdialog('open', {
-							remove_on_close: true,
-							modal: true
-						});
-					}
-
-					function new_folder(dir_inode) {
-						if (!dir_inode) {
-							console.error('no selected dir, bailing');
-							return;
-						}
-						// check dir creation conditions
-						// the first condition is true when looking at a directory 
-						// which is not owned by the user.
-						// the second is true for ghosts or when not owned by the user
-						if (nbInode.is_not_mine(dir_inode) || dir_inode.ref_owner) {
-							nbUtil.nbalert('Cannot create folder in someone else\'s folder');
-							return;
-						}
-						var dlg = $('#mkdir_dialog').clone();
-						var input = dlg.find('#dialog_input');
-						input.val('');
-						dlg.find('.inode_label').html(dir_inode.name);
-						dlg.find('#dialog_ok').off('click').on('click', function() {
-							dlg.nbdialog('close');
-							if (!input.val()) {
-								return;
-							}
-							return $http({
-								method: 'POST',
-								url: '/api/inode/',
-								data: {
-									id: dir_inode.id,
-									name: input.val(),
-									isdir: true
-								}
-							}).then(function(res) {
-								nbInode.read_dir(dir_inode);
-								return res;
-							}, function(err) {
-								nbInode.read_dir(dir_inode);
-								throw err;
-							});
-						});
-						dlg.nbdialog('open', {
-							remove_on_close: true,
-							modal: true
-						});
-					}
 
 					function delete_inodes() {
 						var selected = nbMultiSelect.selection_items(selection); // copy array
@@ -820,8 +724,8 @@
 							read_dir_promises[i] = inode.isdir ? nbInode.read_dir(inode) : $q.when(null);
 						}
 						$q.all(read_dir_promises).then(function(read_dir_results) {
-							var all_empty = _.reduce(read_dir_results, function(memo, res) {
-								return memo && (!res || res.data.entries.length === 0);
+							var all_empty = _.reduce(read_dir_results, function(memo, inode) {
+								return memo && (!inode || inode.entries.length === 0);
 							}, true);
 							read_dir_results = null;
 							var dlg = $('#delete_dialog').clone();

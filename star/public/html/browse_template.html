@@ -61,14 +61,14 @@
 						<i class="fa fa-cloud-download fa-fw fa-lg"></i>
 						<!-- Download -->
 					</a>
-					<a class="btn btn-default" ng-if="nbInode.can_upload_to_dir(current_inode)" ng-click="new_folder(current_inode)" title="New Folder" rel="tooltip" nb-tooltip="{container: 'body'}">
+					<a class="btn btn-default" ng-if="nbInode.can_upload_to_dir(current_inode)" ng-click="nbInode.new_folder(current_inode)" title="New Folder" rel="tooltip" nb-tooltip="{container: 'body'}">
 						<span class="fa-stack" style="font-size: 0.65em">
 							<i class="fa fa-folder fa-stack-2x"></i>
 							<i class="fa fa-plus fa-stack-1x text-black"></i>
 						</span>
 						<!-- New Folder -->
 					</a>
-					<a ng-show="has_parent(current_inode) && current_inode.isdir" class="btn btn-default" ng-show="current_inode.isdir" ng-click="open_inode(current_inode)" title="Refresh" rel="tooltip" nb-tooltip="{container: 'body'}">
+					<a ng-show="has_parent(current_inode) && current_inode.isdir" class="btn btn-default" ng-click="refresh_current('force')" title="Refresh" rel="tooltip" nb-tooltip="{container: 'body'}">
 						<i class="fa fa-refresh fa-fw fa-lg"></i>
 						<!-- Refresh -->
 					</a>
@@ -82,8 +82,8 @@
 
 			</div>
 
-			<div ng-if="current_inode.is_previewing" style="padding-top: 8px">
-				<div nb-media="current_inode" show-content="false"></div>
+			<div ng-if="current_inode.is_previewing" Xstyle="padding-top: 8px">
+				<div nb-media="current_inode" media-events="media_events" show-content="true"></div>
 			</div>
 		</div>
 
@@ -125,7 +125,7 @@
 									<i class="fa fa-arrows fa-fw fa-lg"></i>
 									<!-- Move {{num_selected()>1 && 'all' || ''}} -->
 								</a>
-								<a class="btn btn-default" ng-show="num_selected()==1" ng-click="rename_inode(inode)" title="Rename" rel="tooltip" nb-tooltip="{container: 'body'}">
+								<a class="btn btn-default" ng-show="num_selected()==1" ng-click="nbInode.rename_inode(inode)" title="Rename" rel="tooltip" nb-tooltip="{container: 'body'}">
 									<i class="fa fa-pencil fa-rotate-270 fa-fw fa-lg"></i>
 									<!-- Rename -->
 								</a>

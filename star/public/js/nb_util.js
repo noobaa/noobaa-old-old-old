@@ -62,7 +62,7 @@
 			}
 
 			function modal(content, modal_scope, size) {
-				var m = $('<div class="modal animated flipInX">')
+				var m = $('<div class="modal animated fadeInDown">')
 					.append($('<div class="modal-dialog">')
 						.append($('<div class="modal-content">')
 							.append(content)));
@@ -75,10 +75,10 @@
 					}
 				});
 				e.on('hide.bs.modal', function() {
-					if (true || !e.hasClass('flipInX')) {
+					if (true || !e.hasClass('fadeInDown')) {
 						return;
 					}
-					e.removeClass('flipInX').addClass('animated flipOutX');
+					e.removeClass('fadeInDown').addClass('animated fadeOut');
 					setTimeout(function() {
 						e.modal('hide');
 					}, 250);

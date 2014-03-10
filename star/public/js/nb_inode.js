@@ -9,10 +9,10 @@
 	var noobaa_app = angular.module('noobaa_app');
 
 	noobaa_app.factory('nbInode', [
-		'$http', '$timeout', '$interval', '$q', '$window', '$location', '$rootScope',
+		'$http', '$timeout', '$interval', '$q', '$window', '$location', '$rootScope', '$sce',
 		'LinkedList', 'JobQueue', 'nbUtil', 'nbUser',
 
-		function($http, $timeout, $interval, $q, $window, $location, $rootScope,
+		function($http, $timeout, $interval, $q, $window, $location, $rootScope, $sce,
 			LinkedList, JobQueue, nbUtil, nbUser) {
 
 			var $scope = {
@@ -33,7 +33,6 @@
 				can_change_inode: can_change_inode,
 				can_move_inode: can_move_inode,
 				can_move_to_dir: can_move_to_dir,
-				mk_user_root: mk_user_root,
 				ctime_newest_first_sort_func: ctime_newest_first_sort_func,
 				get_inode: get_inode,
 				merge_inode: merge_inode,
@@ -42,9 +41,11 @@
 				read_dir: read_dir,
 				is_dir_non_empty: is_dir_non_empty,
 				parents_path: parents_path,
+				new_folder: new_folder,
+				rename_inode: rename_inode,
+				move_inode: move_inode,
 				recursive_delete: recursive_delete,
 				recursive_copy: recursive_copy,
-				move_inode: move_inode,
 				get_share_list: get_share_list,
 				set_share_list: set_share_list,
 				mklink: mklink,
@@ -63,7 +64,10 @@
 			}
 
 			function fobj_get_url(inode) {
-				return inode.fobj_get_url || inode_api_url(inode.id);
+				if (inode.fobj_get_url) {
+					return $sce.trustAsResourceUrl(inode.fobj_get_url);
+				}
+				return inode_api_url(inode.id);
 			}
 
 			function seamless_open_inode(inode) {
@@ -131,19 +135,6 @@
 
 			function can_move_to_dir(inode) {
 				return !!inode && !inode.not_mine && !inode.ref_owner && !inode.ro;
-			}
-
-			function mk_user_root() {
-				return {
-					id: null,
-					parent: null,
-					level: 0,
-					isdir: true,
-					ro: true,
-					name: 'My Items',
-					entries: [],
-					entries_map: {}
-				};
 			}
 
 			var CONTENT_KINDS = {
@@ -235,12 +226,12 @@
 				return _.map(entries, merge_inode);
 			}
 
-			function load_inode(inode, retries) {
+			function load_inode(inode, force_load, retries) {
 
-				if (inode.loaded) {
+				if (inode.loaded && force_load !== 'force') {
 					var now = Date.now();
-					if (now < inode.loaded + 10000 && now > inode.loaded) {
-						console.log('ALREADY LOADED', inode.name);
+					if (now < inode.loaded + 5000 && now > inode.loaded) {
+						// console.log('ALREADY LOADED', inode.name);
 						return $q.when(inode);
 					}
 				}
@@ -279,7 +270,7 @@
 						throw err;
 					}
 					return $timeout(function() {
-						load_inode(inode, retries - 1);
+						load_inode(inode, force_load, retries - 1);
 					}, 3000);
 				});
 			}
@@ -287,7 +278,7 @@
 			// TODO TEMPORARY
 
 			function read_dir(inode) {
-				return load_inode(inode);
+				return load_inode(inode, 'force');
 			}
 
 			function is_dir_non_empty(inode, callback) {
@@ -319,6 +310,131 @@
 				// console.log('PARENTS', parents);
 				return parents;
 			}
+
+
+
+
+
+			function new_folder(dir_inode) {
+				if (!dir_inode) {
+					console.error('no selected dir, bailing');
+					return;
+				}
+				// check dir creation conditions
+				// the first condition is true when looking at a directory 
+				// which is not owned by the user.
+				// the second is true for ghosts or when not owned by the user
+				if (is_not_mine(dir_inode) || dir_inode.ref_owner) {
+					nbUtil.nbalert('Cannot create folder in someone else\'s folder');
+					return;
+				}
+				var dlg = $('#mkdir_dialog').clone();
+				var input = dlg.find('#dialog_input');
+				input.val('');
+				dlg.find('.inode_label').html(dir_inode.name);
+				dlg.find('#dialog_ok').off('click').on('click', function() {
+					dlg.nbdialog('close');
+					if (!input.val()) {
+						return;
+					}
+					return $http({
+						method: 'POST',
+						url: '/api/inode/',
+						data: {
+							id: dir_inode.id,
+							name: input.val(),
+							isdir: true
+						}
+					}).then(function(res) {
+						load_inode(dir_inode, 'force');
+						return res;
+					}, function(err) {
+						load_inode(dir_inode, 'force');
+						throw err;
+					});
+				});
+				dlg.nbdialog('open', {
+					remove_on_close: true,
+					modal: true
+				});
+			}
+
+
+			function rename_inode(inode) {
+				if (!inode) {
+					console.error('no inode to rename, bailing');
+					return;
+				}
+				if (is_root_inode(inode)) {
+					nbUtil.nbalert('Cannot rename root folder');
+					return;
+				}
+				if (is_not_mine(inode)) {
+					nbUtil.nbalert('Cannot rename someone else\'s file');
+					return;
+				}
+
+				var dlg = $('#rename_dialog').clone();
+				var input = dlg.find('#dialog_input');
+				input.val(inode.name);
+				dlg.find('.inode_label').html(inode.name);
+				dlg.find('#dialog_ok').off('click').on('click', function() {
+					dlg.nbdialog('close');
+					if (!input.val() || input.val() === inode.name) {
+						return;
+					}
+					return $http({
+						method: 'PUT',
+						url: '/api/inode/' + inode.id,
+						data: {
+							name: input.val()
+						}
+					}).then(function(res) {
+						load_inode(inode, 'force');
+						return res;
+					}, function(err) {
+						load_inode(inode, 'force');
+						throw err;
+					});
+				});
+				dlg.nbdialog('open', {
+					remove_on_close: true,
+					modal: true
+				});
+			}
+
+			function move_inode(inode, dir_inode) {
+				// console.log('MOVE', inode.name, dir_inode.name);
+				if (!can_move_inode(inode)) {
+					nbUtil.nbalert('Cannot move item');
+					return;
+				}
+				if (!can_move_to_dir(dir_inode)) {
+					nbUtil.nbalert('Cannot move into selected folder');
+					return;
+				}
+				var p = dir_inode;
+				while (p) {
+					if (p.id === inode.id) {
+						nbUtil.nbalert('Cannot create circular folders. It\'s just wrong...');
+						return;
+					}
+					p = p.parent;
+				}
+				if (inode.parent_id === dir_inode.id) {
+					console.log('move into same parent. nothing to do.');
+					return;
+				}
+				return $http({
+					method: 'PUT',
+					url: '/api/inode/' + inode.id,
+					data: {
+						parent: dir_inode.id,
+					}
+				});
+			}
+
+
 
 			function recursive_delete(inodes, del_scope, complete) {
 				var jobq = new JobQueue($timeout, 32);
@@ -459,37 +575,6 @@
 					deferred.reject(err);
 				});
 				return deferred.promise;
-			}
-
-			function move_inode(inode, dir_inode) {
-				// console.log('MOVE', inode.name, dir_inode.name);
-				if (!can_move_inode(inode)) {
-					nbUtil.nbalert('Cannot move item');
-					return;
-				}
-				if (!can_move_to_dir(dir_inode)) {
-					nbUtil.nbalert('Cannot move into selected folder');
-					return;
-				}
-				var p = dir_inode;
-				while (p) {
-					if (p.id === inode.id) {
-						nbUtil.nbalert('Cannot create circular folders. It\'s just wrong...');
-						return;
-					}
-					p = p.parent;
-				}
-				if (inode.parent_id === dir_inode.id) {
-					console.log('move into same parent. nothing to do.');
-					return;
-				}
-				return $http({
-					method: 'PUT',
-					url: '/api/inode/' + inode.id,
-					data: {
-						parent: dir_inode.id,
-					}
-				});
 			}
 
 
@@ -657,7 +742,7 @@
 					throw err;
 				}, function(new_inode) {
 					new_keep_inode_promise = read_dir(dir_inode).then(function() {
-						inode.new_keep_inode = dir_inode.entries_map[new_inode.id];
+						inode.new_keep_inode = get_inode(new_inode.id);
 						return inode.new_keep_inode;
 					});
 				});

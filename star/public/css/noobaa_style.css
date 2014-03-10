@@ -24,10 +24,10 @@ html, body {
 	background-repeat: repeat-x;
 }
 .bggrey {
-	background-color: hsl(192, 7%, 37%) !important;
+	background-color: hsl(222, 5%, 37%) !important;
 }
 .progress-bar-grey {
-	background-color: hsl(192, 7%, 80%) !important;
+	background-color: hsl(222, 5%, 80%) !important;
 }
 .btn-hover-only {
 	transition: all 0.5s;
