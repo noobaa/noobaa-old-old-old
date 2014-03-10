@@ -15,7 +15,7 @@
 
 		<div class="feeds_container center-block">
 
-			<div ng-if="feeds && !feeds.length" class="text-center" style="padding: 20px">
+			<div ng-if="feeds && !feeds.length && !fetching_feeds && !search_feed.query" class="text-center" style="padding: 20px">
 				<iframe width="400" height="225" style="max-width: 100%" src="//www.youtube.com/embed/9KeVa3IOn78?rel=0" frameborder="0" allowfullscreen></iframe>
 				<div style="padding-top: 20px">
 					<a class="btn btn-link btn-lg" style="padding: 5px" href="/home/friends/">
