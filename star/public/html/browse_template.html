@@ -146,7 +146,7 @@
 							<img ng-src="{{nbUser.user_pic_url(inode.ref_owner)}}" style="width: 32px; height: 32px;" class="img-circle"></img>
 						</span>
 						<span>
-							{{moment(inode.ctime).fromNow()}}
+							{{moment(inode.ctime).fromNow(true)}}
 						</span>
 						<a class="btn btn-sm {{!inode.shr && 'btn-link' || inode.shr=='f' && 'btn-warning' || 'btn-warning btn-hover-only'}}" ng-if="nbInode.can_share_inode(inode)" ng-click="share_inode(inode)" ng-attr-title="{{!inode.shr && 'Click to share' || inode.shr=='f' && 'Shared with friends' || 'Shared with some friends'}}" rel="tooltip" style="margin-left: 5px">
 							<i class="fa fa-{{!inode.shr && 'lock' || 'eye'}} fa-lg fa-fw {{!inode.shr && 'text-muted'}}"></i>
