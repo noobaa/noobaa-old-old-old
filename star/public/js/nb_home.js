@@ -257,7 +257,7 @@
 					}
 					var marker = jq_marker.offset().top;
 					var bottom = jq_window.scrollTop() + jq_window.height();
-					if (bottom > marker) {
+					if (bottom + 5 > marker) {
 						$scope.more_feeds();
 					}
 				}, 1000);
