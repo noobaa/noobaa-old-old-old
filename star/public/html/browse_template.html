@@ -57,7 +57,7 @@
 						<i class="fa fa-search-{{current_inode.is_previewing && 'minus' || 'plus'}} fa-fw fa-lg"></i>
 						<!-- Open -->
 					</a>
-					<a class="btn btn-default" ng-if="!current_inode.isdir && !current_inode.uploading && current_inode.size" ng-click="nbInode.download_inode(current_inode)" href="{{nbInode.download_url(current_inode)}}" target="_blank" title="Download" rel="tooltip" nb-tooltip="{container: 'body'}">
+					<a class="btn btn-default" ng-if="!current_inode.isdir && !current_inode.uploading && current_inode.size" href="{{nbInode.download_url(current_inode)}}" download="{{current_inode.name}}" target="_blank" title="Download" rel="tooltip" nb-tooltip="{container: 'body'}">
 						<i class="fa fa-cloud-download fa-fw fa-lg"></i>
 						<!-- Download -->
 					</a>
@@ -112,7 +112,7 @@
 									<i class="fa fa-search-{{inode.is_previewing && 'minus' || 'plus'}} fa-fw fa-lg"></i>
 									<!-- Open -->
 								</a>
-								<a class="btn btn-default" ng-if="!inode.isdir && !inode.uploading && inode.size" ng-click="nbInode.download_inode(inode)" href="{{nbInode.download_url(inode)}}" target="_blank" title="Download" rel="tooltip" nb-tooltip="{container: 'body'}">
+								<a class="btn btn-default" ng-if="!inode.isdir && !inode.uploading && inode.size" href="{{nbInode.download_url(inode)}}" download="{{inode.name}}" target="_blank" title="Download" rel="tooltip" nb-tooltip="{container: 'body'}">
 									<i class="fa fa-cloud-download fa-fw fa-lg"></i>
 									<!-- Download -->
 								</a>

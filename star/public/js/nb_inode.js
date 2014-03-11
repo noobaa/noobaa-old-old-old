@@ -77,10 +77,11 @@
 			}
 
 			function download_url(inode) {
-				return inode_api_url(inode.id) + '?is_download=true';
+				return inode_api_url(inode.id) + '?is_download=1';
 			}
 
 			function download_inode(inode) {
+				console.log('DOWNLOAD INODE', inode.name, download_url(inode));
 				$('<iframe style="display: none">')[0].src = download_url(inode);
 				// var win = window.open(url, '_blank');
 				// win.focus();
