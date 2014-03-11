@@ -119,10 +119,15 @@
 
 			</div>
 
-			<div class="text-center" ng-show="has_more_feeds" style="padding-bottom: 15px">
-				<button class="btn btn-danger" ng-click="more_feeds()" ng-disabled="fetching_feeds">
-					Load more...
+			<div class="text-center" ng-show="feeds.length && has_more_feeds">
+				<button class="btn btn-danger {{feed_scroll_timeout && 'tossing'}}" ng-click="more_feeds()" ng-disabled="fetching_feeds">
+					Load more
+					<span ng-if="fetching_feeds">
+						<i class="fa fa-spinner fa-spin fa-lg"></i>
+					</span>
 				</button>
+				<div style="height: 15px"></div>
+				<div id="more_feeds_marker"></div>
 			</div>
 
 		</div>

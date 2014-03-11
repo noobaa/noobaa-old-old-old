@@ -238,6 +238,31 @@
 				return ''; // used for clearing the query
 			};
 
+			// auto fetch feeds on scroll to bottom
+			var jq_window = $(window);
+			jq_window.scroll(function() {
+				if (!$scope.has_more_feeds || $scope.fetching_feeds) {
+					return;
+				}
+				$timeout.cancel($scope.feed_scroll_timeout);
+				$scope.feed_scroll_timeout = $timeout(function() {
+					$timeout.cancel($scope.feed_scroll_timeout);
+					$scope.feed_scroll_timeout = null;
+					if (!$scope.has_more_feeds || $scope.fetching_feeds) {
+						return;
+					}
+					var jq_marker = $('#more_feeds_marker');
+					if (!jq_marker.length) {
+						return;
+					}
+					var marker = jq_marker.offset().top;
+					var bottom = jq_window.scrollTop() + jq_window.height();
+					if (bottom > marker) {
+						$scope.more_feeds();
+					}
+				}, 1000);
+			});
+
 
 			function do_layout() {
 				if (true) return; // TODO decide on masonry
