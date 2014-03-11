@@ -182,7 +182,7 @@ a.btn-link.text-white:hover {
 	-o-transition: all 0.5s;
 	-moz-transition: all 0.5s;
 	-webkit-transition: all 0.5s;
-	overflow: hidden;
+	/*overflow: hidden;*/
 	height: auto;
 	padding-top: 15px;
 	border-top: 1px dotted hsl(0,0%,15%);

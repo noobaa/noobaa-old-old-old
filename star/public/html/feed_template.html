@@ -25,13 +25,13 @@
 				</div>
 			</div>
 
-			<div ng-repeat="feed in feeds" ng-controller="FeedCtrl" class="feed_item row">
+			<div ng-repeat="feed in feeds" ng-controller="FeedCtrl" class="feed_item row fadeIn">
 
-				<div class="animated fadeIn clearfix col-xs-10 col-xs-offset-1 col-sm-offset-0 col-sm-4" style="max-height: 250px; margin-bottom: 15px">
+				<div class="col-xs-10 col-xs-offset-1 col-sm-offset-0 col-sm-4" style="max-height: 250px; margin-bottom: 15px">
 					<div nb-media="current_entry()" media-events="media_events" show-content="false"></div>
 				</div>
 
-				<div class="animated fadeIn col-xs-12 col-sm-8 col-md-7 col-lg-6" style="margin-bottom: 15px">
+				<div class="col-xs-12 col-sm-8 col-md-7 col-lg-6" style="margin-bottom: 15px">
 					<div class="clearfix" style="padding-bottom: 10px; Xpadding: 10px 10px 10px 0">
 						<div class="pull-right">
 							<a class="btn btn-danger btn-hover-only {{done_keep() && 'text-danger'}}" ng-click="keep_feed()" ng-disabled="running_keep() || done_keep()">
