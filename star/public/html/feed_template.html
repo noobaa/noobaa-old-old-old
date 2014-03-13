@@ -7,7 +7,7 @@
 			</button>
 			<div style="display: inline-block; max-width: 170px; vertical-align: middle">
 				<div Xclass="input-group" style="position: relative">
-					<input type="text" class="normal-radius form-control {{search_feed.query && 'label-warning' || 'label-default'}}" maxlength="100" placeholder="Search feed" ng-model="search_feed.query" ng-change="search_feed_changed()" />
+					<input type="text" class="form-control {{search_feed.query && 'label-primary' || 'label-default'}} text-white" maxlength="100" placeholder="Search feed" ng-model="search_feed.query" ng-change="search_feed_changed()" />
 					<i class="fa fa-times fa-fw" style="cursor: pointer; position: absolute; right: 10px; top: 11px" ng-click="search_feed.query = search_feed_changed()"></i>
 				</div>
 			</div>
@@ -54,44 +54,46 @@
 							</div>
 						</div>
 						<div ng-show="feed.isdir" class="text-ellipses">
-							<a class="btn btn-link" style="padding-top: 0" ng-disabled="current_entry_index<=0" ng-click="prev_entry()">
-								<i class="fa fa-arrow-circle-o-left fa-lg"></i>
-							</a>
-							<span class="text-muted">{{current_entry_index+1}} / {{current_inode().entries.length}}</span>
-							<a class="btn btn-link" style="padding-top: 0" ng-disabled="current_entry_index+1>=current_inode().entries.length" ng-click="next_entry()">
-								<i class="fa fa-arrow-circle-o-right fa-lg"></i>
-							</a>
-							{{current_entry().name}}
+							<span ng-hide="current_inode().entries.length<=1">
+								<a class="btn btn-link" style="padding-top: 0" ng-disabled="current_entry_index<=0" ng-click="prev_entry()">
+									<i class="fa fa-arrow-circle-o-left fa-lg text-muted"></i>
+								</a>
+								<span class="text-muted">{{current_entry_index+1}} / {{current_inode().entries.length}}</span>
+								<a class="btn btn-link" style="padding-top: 0" ng-disabled="current_entry_index+1>=current_inode().entries.length" ng-click="next_entry()">
+									<i class="fa fa-arrow-circle-o-right fa-lg text-muted"></i>
+								</a>
+							</span>
+							<a class="btn btn-link text-muted" style="padding-top: 0" ng-click="open_feed_inode(current_entry())">{{current_entry().name}}</a>
 						</div>
 					</div>
 
 					<div>
-						<div ng-repeat="feed_inode in feed.inodes track by $index" style="padding: 7px; border-top: 1px solid hsl(0,0%,15%)" class="clearfix" ng-init="comment_box={inode: feed_inode}">
+						<div ng-repeat="feed_inode in feed.inodes track by $index" style="padding: 7px; border-top: 1px solid hsla(0,0%,30%,0.5)" class="clearfix" ng-init="comment_box={inode: feed_inode}">
 							<img class="img-circle pull-left" ng-src="{{nbUser.user_pic_url(feed_inode.ref_owner || nbUser.user)}}" style="width: 30px; margin-right: 5px" />
 							<div style="overflow: hidden">
-								<div class="text-primary" style="overflow: hidden">
-									<small>{{(feed_inode.ref_owner || nbUser.user).name}}</small>
-									<a class="btn btn-link pull-right" ng-click="comment_box.show = !comment_box.show" title="Add comment" rel="tooltip" style="padding: 5px">
+								<div class="text-muted" style="overflow: hidden">
+									<small>{{(feed_inode.ref_owner || nbUser.user).first_name}}</small>
+									<a class="btn btn-link btn-lg pull-right" ng-click="comment_box.show = !comment_box.show" title="Add comment" rel="tooltip" style="padding: 5px">
 										<i class="fa fa-reply-all"></i>
 									</a>
-									<a class="btn btn-link pull-right" ng-click="open_feed_inode(feed_inode)" title="Go to item" rel="tooltip" style="padding: 5px">
-										<i class="fa fa-bars text-muted" style="opacity: 0.4"></i>
+									<a class="btn btn-link btn-lg pull-right" ng-click="open_feed_inode(feed_inode)" title="Go to item" rel="tooltip" style="padding: 5px">
+										<i class="fa fa-file-o text-muted"></i>
 									</a>
 								</div>
 								<div style="overflow: hidden">
 									<div ng-repeat="msg in feed_inode.messages" class="clearfix">
 										<img class="img-circle pull-left" ng-src="{{nbUser.user_pic_url(msg.user)}}" style="width: 30px; margin-right: 5px" />
 										<div style="overflow: hidden">
-											<small class="text-muted pull-right" style="opacity: 0.4">
+											<small class="text-muted pull-right">
 												{{moment(msg.create_time).fromNow()}}
 											</small>
-											<div class="text-primary">
-												<small>{{msg.user.name}}</small>
+											<div class="text-muted">
+												<small>{{msg.user.first_name}}</small>
 												<a ng-click="nbInode.delete_inode_message(feed_inode, msg)" ng-if="msg.is_mine">
 													<i class="fa fa-times fa-fw text-muted"></i>
 												</a>
 											</div>
-											<div style="padding-bottom: 8px">
+											<div class="text-primary" style="padding-bottom: 8px">
 												<small style="white-space: pre-wrap" ng-bind-html="msg.text | linky:'_blank'"></small>
 											</div>
 										</div>
@@ -99,7 +101,7 @@
 									<div ng-if="comment_box.show" class="clearfix">
 										<img class="img-circle pull-left" ng-src="{{nbUser.user_pic_url(nbUser.user)}}" style="width: 30px; margin-right: 5px" />
 										<div style="overflow: hidden">
-											<textarea ng-model="comment_box.text" rows="1" class="form-control {{comment_box.text.length && 'label-primary text-black' || 'label-default'}}" placeholder="Write about it..." nb-focus="comment_box.show" ng-attr-tabindex="{{($index*10)+100}}" nb-auto-height></textarea>
+											<textarea ng-model="comment_box.text" rows="1" class="form-control" style="resize: none" placeholder="Write about it..." nb-focus="comment_box.show" ng-attr-tabindex="{{($index*10)+100}}" nb-auto-height></textarea>
 											<div class="text-center" style="padding-top: 5px">
 												<button class="btn btn-info btn-hover-only" ng-click="post_comment(comment_box)" ng-disabled="comment_box.posting" ng-attr-tabindex="{{($index*10)+101}}">
 													&nbsp;&nbsp;&nbsp;&nbsp; Send

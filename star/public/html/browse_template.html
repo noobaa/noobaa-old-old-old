@@ -12,15 +12,18 @@
 					<div class="btn-group">
 						<a class="btn btn-link dropdown-toggle" data-toggle="dropdown" title="Back to folder..." rel="tooltip" nb-tooltip="{container: 'body'}" ng-disabled="!has_parent(current_inode)">
 							<span style="font-size: 1.2em; line-height: 1.2em; vertical-align: middle">
-								<span ng-show="has_parent(current_inode)">. . . &nbsp; /</span>
+								<span ng-show="has_parent(current_inode)">
+									. . .
+									<span class="text-white">&nbsp;/</span>
+								</span>
 								<span ng-hide="has_parent(current_inode)" class="text-muted">
 									<i class="fa fa-home fa-lg"></i>
 								</span>
 							</span>
 						</a>
-						<ul ng-if="has_parent(current_inode)" class="dropdown-menu" role="menu" style="border-radius: 10px; border: 1px solid hsl(0,0%,50%)">
+						<ul ng-if="has_parent(current_inode)" class="dropdown-menu" role="menu" style="border: 1px solid hsl(0,0%,50%)">
 							<li ng-repeat="parent in path = nbInode.parents_path(current_inode)">
-								<a ng-click="open_inode(parent)" style="padding-left: {{10+((path.length-1-$index) * 15)}}px" class="btn-lg">
+								<a ng-click="open_inode(parent)" style="padding-left: {{10+((path.length-1-$index) * 15)}}px; font-size: 1.1em">
 									<i class="fa fa-{{!parent.id && 'home' || 'folder-open'}} fa-fw"></i>
 									{{parent.name || '...'}}
 								</a>
@@ -72,9 +75,9 @@
 						<i class="fa fa-refresh fa-fw fa-lg"></i>
 						<!-- Refresh -->
 					</a>
-					<div style="display: inline-block; max-width: 170px; vertical-align:middle">
+					<div style="display: inline-block; max-width: 140px; vertical-align:middle">
 						<div ng-show="current_inode.isdir" Xclass="input-group" style="position: relative">
-							<input type="text" class="normal-radius form-control {{search_in_folder && 'label-warning' || 'label-default'}}" maxlength="100" placeholder="Search in folder" ng-model="search_in_folder" />
+							<input type="text" class="form-control {{search_in_folder && 'label-primary' || 'label-default'}} text-white" maxlength="100" placeholder="Search folder" ng-model="search_in_folder" />
 							<i class="fa fa-times fa-fw" style="cursor: pointer; position: absolute; right: 10px; top: 11px" ng-click="search_in_folder=''"></i>
 						</div>
 					</div>
@@ -87,14 +90,14 @@
 			</div>
 		</div>
 
-		<div class="panel-body" style="padding: 0; border-top-width: 1px; border-top-style: solid">
+		<div class="panel-body" style="padding: 0">
 			<div ng-repeat="inode in filter_entries = ( current_inode.entries | filter:{name: search_in_folder} )" class="clearfix file_line notextselect {{inode.is_selected && 'bggrey' || ''}}" style="border-bottom-width: 1px; border-top-width: 1px">
-				<div class="Xanimated XfadeIn clearfix" ng-click="select_inode(inode, $index, $event)" style="cursor: pointer">
+				<div class="Xanimated XfadeIn Xclearfix" ng-click="select_inode(inode, $index, $event)" style="cursor: pointer">
 					<span class="text-wrap">
 						<i ng-show="inode.is_selected" class="fa fa-check fa-fw fa-lg"></i>
 						<i ng-show="!!inode.isdir" class="fa fa-folder-open fa-fw fa-lg"></i>
 						<i ng-show="!inode.isdir" class="fa fa-file-o fa-fw fa-lg"></i>
-						<a class="btn btn-link btn-lg" ng-click="open_inode(inode, $index, $event)" style="padding-left: 0; display: inline">
+						<a class="btn btn-link" ng-click="open_inode(inode, $index, $event)" style="padding-left: 0; display: inline">
 							<span style="white-space: pre-wrap">{{inode.name}}</span>
 						</a>
 					</span>
@@ -149,7 +152,7 @@
 							{{moment(inode.ctime).fromNow(true)}}
 						</span>
 						<a class="btn btn-sm {{!inode.shr && 'btn-link' || inode.shr=='f' && 'btn-warning' || 'btn-warning btn-hover-only'}}" ng-if="nbInode.can_share_inode(inode)" ng-click="share_inode(inode)" ng-attr-title="{{!inode.shr && 'Click to share' || inode.shr=='f' && 'Shared with friends' || 'Shared with some friends'}}" rel="tooltip" style="margin-left: 5px">
-							<i class="fa fa-{{!inode.shr && 'lock' || 'eye'}} fa-lg fa-fw {{!inode.shr && 'text-muted'}}"></i>
+							<i class="fa fa-{{!inode.shr && 'lock' || 'eye'}} fa-lg fa-fw {{!inode.shr && 'text-white'}}"></i>
 						</a>
 					</span>
 				</div>
@@ -157,7 +160,7 @@
 					<div nb-media="inode" media-events="media_events" show-content="true" class="Xanimated XfadeIn"></div>
 				</div>
 			</div>
-			<div ng-if="!filter_entries.length" style="padding-left: 20px; line-height: 60px; vertical-align: middle">
+			<div ng-if="current_inode.isdir && !filter_entries.length" style="padding-left: 20px; line-height: 60px; vertical-align: middle">
 				<span ng-if="current_inode.is_loading">
 					Loading ...
 				</span>

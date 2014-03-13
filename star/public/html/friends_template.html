@@ -44,15 +44,15 @@
 			</div>
 		</div>
 		<div class="panel-body" style="padding: 0">
-			<div class="center-block" style="width: 260px; padding: 0 10px 10px 10px">
+			<div class="center-block" style="width: 160px; padding: 0 10px 10px 10px">
 				<div class="Xinput-group input-group-sm" style="position: relative">
-					<input type="text" class="form-control bottom-radius {{fb_filter_friend_name && 'label-warning text-black' || 'label-default'}}" placeholder="Search in friends" ng-model="fb_filter_friend_name" />
+					<input type="text" class="form-control bottom-radius {{fb_filter_friend_name && 'label-primary text-white'}}" placeholder="Search friends" ng-model="fb_filter_friend_name" />
 					<i class="fa fa-times fa-fw" style="cursor: pointer; position: absolute; right: 10px; top: 7px" ng-click="fb_filter_friend_name=''"></i>
 				</div>
 			</div>
 
 			<div style="max-height: 300px; overflow-y: scroll">
-				<div ng-repeat="friend in friends.fb | filter:{name: fb_filter_friend_name} | orderBy:'name'" class="text-ellipses {{fb_invites[friend.fbid] && 'label-warning'}}" style="display: inline-block; border-radius: 20px; width: 175px; margin: 0 2px; padding: 5px; cursor: pointer; text-align: left" ng-click="set_fb_invites(friend.fbid)">
+				<div ng-repeat="friend in friends.fb | filter:{name: fb_filter_friend_name} | orderBy:'name'" class="text-ellipses {{fb_invites[friend.fbid] && 'label-warning'}}" style="display: inline-block; Xborder-radius: 20px; width: 175px; margin: 0 2px; padding: 5px; cursor: pointer; text-align: left" ng-click="set_fb_invites(friend.fbid)">
 					<i class="fa fa-{{fb_invites[friend.fbid] && 'check' || 'plus-square'}} fa-fw"></i>&nbsp;
 					<img width="32" height="32" ng-src="{{nbUser.user_pic_url(friend)}}" class="img-circle" />&nbsp;
 					<small>{{friend.name}}</small>
@@ -80,14 +80,14 @@
 			</div>
 		</div>
 		<div class="panel-body" style="padding-top: 0">
-			<div class="center-block" style="width: 260px; padding: 0 10px 10px 10px">
+			<div class="center-block" style="width: 160px; padding: 0 10px 10px 10px">
 				<div class="Xinput-group input-group-sm" style="position: relative">
-					<input type="text" class="form-control bottom-radius {{google_filter_friend_name && 'label-warning text-black' || 'label-default'}}" placeholder="Search in friends" ng-model="google_filter_friend_name" />
+					<input type="text" class="form-control bottom-radius {{google_filter_friend_name && 'label-primary text-white'}}" placeholder="Search friends" ng-model="google_filter_friend_name" />
 					<i class="fa fa-times fa-fw" style="cursor: pointer; position: absolute; right: 10px; top: 7px" ng-click="google_filter_friend_name=''"></i>
 				</div>
 			</div>
 			<div style="max-height: 300px; overflow-y: scroll">
-				<div ng-repeat="friend in friends.google | filter:{name: google_filter_friend_name} | orderBy:'name'" class="text-ellipses {{google_invites[friend.googleid] && 'label-warning'}}" style="display: inline-block; border-radius: 20px; width: 175px; margin: 0 2px; padding: 5px; cursor: pointer; text-align: left" ng-click="set_google_invites(friend.googleid)">
+				<div ng-repeat="friend in friends.google | filter:{name: google_filter_friend_name} | orderBy:'name'" class="text-ellipses {{google_invites[friend.googleid] && 'label-warning'}}" style="display: inline-block; Xborder-radius: 20px; width: 175px; margin: 0 2px; padding: 5px; cursor: pointer; text-align: left" ng-click="set_google_invites(friend.googleid)">
 					<i class="fa fa-{{google_invites[friend.googleid] && 'check' || 'plus-square'}} fa-fw"></i>&nbsp;
 					<img width="32" height="32" ng-src="{{nbUser.user_pic_url(friend)}}" class="img-circle" />&nbsp;
 					<small>{{friend.name}}</small>

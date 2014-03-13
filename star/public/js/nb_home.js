@@ -685,7 +685,11 @@
 					function refresh_current(force_load) {
 						$scope.search_in_folder = '';
 						nbMultiSelect.reset_selection(selection);
-						nbInode.load_inode($scope.current_inode, force_load);
+						nbInode.load_inode($scope.current_inode, force_load).then(function() {
+							if (!$scope.current_inode.isdir) {
+								toggle_preview($scope.current_inode);
+							}
+						});
 					}
 
 					nbUploadSrv.notify_create_in_dir = function(dir_id) {

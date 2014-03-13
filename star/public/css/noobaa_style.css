@@ -24,10 +24,10 @@ html, body {
 	background-repeat: repeat-x;
 }
 .bggrey {
-	background-color: hsl(222, 5%, 37%) !important;
+	background-color: hsl(210, 16%, 46%) !important;
 }
 .progress-bar-grey {
-	background-color: hsl(222, 5%, 80%) !important;
+	background-color: hsl(210, 16%, 46%) !important;
 }
 .btn-hover-only {
 	transition: all 0.5s;
@@ -37,7 +37,7 @@ html, body {
 }
 .btn-hover-only:not(:hover) {
 	background-color: transparent !important;
-	border-color: hsl(0, 0%, 60%) !important;
+	border-color: hsl(0, 0%, 30%) !important;
 }
 .btn.btn-default.btn-transparent {
 	background-color: hsla(0, 0%, 0%, 0.2) !important;
@@ -49,17 +49,17 @@ html, body {
 	color: white !important;
 	border: white solid 2px !important;
 }
-.panel-default .panel-heading {
-	background-color: hsl(0, 0%, 33%);
+.btn-link {
+	/*color: white;*/
 }
 .btn {
-	border-radius: 20px;
+	/*border-radius: 20px;*/
 }
 .btn-lg {
-	border-radius: 30px;
+	/*border-radius: 30px;*/
 }
 .nav-pills > li > a {
-	border-radius: 30px;
+	/*border-radius: 30px;*/
 }
 /* COLOR BLACK & WHITE */
  .bg-white {
@@ -79,6 +79,25 @@ html, body {
 }
 .modal-backdrop {
 	background-color: hsl(0, 0%, 100%);
+}
+.text-muted {
+	color: hsl(210, 16%, 56%) !important;
+}
+::-webkit-input-placeholder {
+	/* WebKit browsers */
+	color: hsl(210, 16%, 56%) !important;
+}
+:-moz-placeholder {
+	/* Mozilla Firefox 4 to 18 */
+	color: hsl(210, 16%, 56%) !important;
+}
+::-moz-placeholder {
+	/* Mozilla Firefox 19+ */
+	color: hsl(210, 16%, 56%) !important;
+}
+:-ms-input-placeholder {
+	/* Internet Explorer 10+ */
+	color: hsl(210, 16%, 56%) !important;
 }
 .bottom-radius {
 	border-bottom-left-radius: 20px !important;
@@ -153,8 +172,8 @@ a.btn-link.text-white:hover {
 }
 .file_line {
 	line-height: 40px;
-	vertical-align: middle;
-	border-color: hsla(192, 50%, 54%, 0.1);
+	vertical-align: top;
+	border-color: transparent;
 	border-style: solid;
 	border-width: 0;
 	padding-left: 10px;
@@ -166,7 +185,7 @@ a.btn-link.text-white:hover {
 	border-right-width: 7px;
 	padding-left: 3px;
 	padding-right: 3px;
-	border-color: hsl(192, 50%, 54%);
+	border-color: hsl(210, 16%, 56%);
 }
 /**/
 
@@ -185,7 +204,7 @@ a.btn-link.text-white:hover {
 	/*overflow: hidden;*/
 	height: auto;
 	padding-top: 15px;
-	border-top: 1px dotted hsl(0,0%,15%);
+	border-top: 1px solid hsl(0, 0%, 30%);
 	/*border: 1px solid hsla(0, 0%, 100%, 0.25);*/
 	/*border-radius: 10px;*/
 	/*-webkit-box-shadow: 0 0 8px 5px hsla(0, 0%, 100%, 0.15);*/
@@ -235,13 +254,13 @@ a.btn-link.text-white:hover {
 	color: white !important;
 }
 .content-switcher > span > .fa-stack-2x {
-	color: black !important;
+	color: hsl(210, 16%, 56%) !important;
 }
 .content-switcher > span:hover > .fa-stack-2x {
-	color: hsl(0, 0%, 60%) !important;
+	color: hsl(210, 16%, 36%) !important;
 }
 .nav > li.active > a > i.fa.text-muted {
-	color: hsl(0, 0%, 20%) !important;
+	color: hsl(0, 0%, 95%) !important;
 }
 /**/
 
@@ -273,7 +292,8 @@ a[ng-click], a[role=button] {
 	-webkit-transition: all 0.6s;
 }
 .fnt, body, h1, h2, h3, h4, h5, h6, .ui-widget, button, a, p {
-	font-family:'Ubuntu', sans-serif !important;
+	/*font-family: helvetica, sans-serif !important;*/
+	/*font-family:'Ubuntu', sans-serif !important;*/
 	/*font-family: 'Architects Daughter', cursive !important;*/
 	/*font-family: 'Nunito', 'Ubuntu', sans-serif !important;*/
 }
