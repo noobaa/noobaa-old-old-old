@@ -121,6 +121,7 @@
 	</nav>
 
 	<div ng-if="!nbUser.user">
+		<!-- <div style="height: 20px"></div> -->
 		<div class="container">
 			<div class="jumbotron text-center">
 				<p class="text-muted">
@@ -137,6 +138,8 @@
 				</p>
 			</div>
 		</div>
+		<div style="height: 20px"></div>
+
 		<!-- <hr/> -->
 		<div class="container text-center">
 			<p class="text-muted">
@@ -157,23 +160,23 @@
 
 	<div Xng-if="nbUser.user">
 
-		<div id="nb-menu" class="text-center" style="margin: 15px">
+		<div id="nb-menu" class="text-center" style="padding: 15px 0">
 			<div class="container">
-				<ul class="nav nav-pills center-block" style="max-width: 640px">
+				<ul class="nav nav-pills Xnav-justified center-block text-center" style="max-width: 600px">
 					<li ng-class="nbUtil.active_link('/home/feed/')">
-						<a class="btn-link btn-lg" style="padding: 10px; cursor: pointer" ng-click="click_my_feed()" Xhref="/home/feed/">
+						<a Xclass="btn-link btn-lg" Xstyle="padding: 10px; cursor: pointer" ng-click="click_my_feed()" Xhref="/home/feed/">
 							<i class="fa fa-rss fa-lg fa-fw text-muted"></i>
 							<span>My Feed</span>
 						</a>
 					</li>
 					<li ng-class="nbUtil.active_link('/home/items/')">
-						<a class="btn-link btn-lg" style="padding: 10px; cursor: pointer" ng-click="click_my_items()" Xhref="/home/items/">
+						<a Xclass="btn-link btn-lg" Xstyle="padding: 10px; cursor: pointer" ng-click="click_my_items()" Xhref="/home/items/">
 							<i class="fa fa-file fa-lg fa-fw text-muted"></i>
 							<span>My Items</span>
 						</a>
 					</li>
 					<li ng-class="nbUtil.active_link('/home/upload/')">
-						<a class="btn-link btn-lg" style="padding: 10px; cursor: pointer" Xhref="/home/upload/" ng-click="nbUploadSrv.open_file_input()">
+						<a Xclass="btn-link btn-lg" Xstyle="padding: 10px; cursor: pointer" Xhref="/home/upload/" ng-click="nbUploadSrv.open_file_input()">
 							<i class="fa fa-cloud-upload fa-lg fa-fw text-muted"></i>
 							<span>
 								Upload
@@ -185,25 +188,25 @@
 						</a>
 					</li>
 					<li ng-if="nbPlanet.on" ng-class="nbUtil.active_link('/home/upload/')">
-						<a class="btn-link btn-lg" style="padding: 10px; cursor: pointer" ng-click="nbUploadSrv.open_dir_input()">
+						<a Xclass="btn-link btn-lg" Xstyle="padding: 10px; cursor: pointer" ng-click="nbUploadSrv.open_dir_input()">
 							<i class="fa fa-folder fa-lg fa-fw text-muted"></i>
 							<span>Upload Folder</span>
 						</a>
 					</li>
 					<li ng-if="!nbPlanet.on" ng-class="nbUtil.active_link('/home/install/')">
-						<a class="btn-link btn-lg" style="padding: 10px; cursor: pointer" Xhref="/home/install/" ng-click="show_client_installation()">
+						<a Xclass="btn-link btn-lg" Xstyle="padding: 10px; cursor: pointer" Xhref="/home/install/" ng-click="show_client_installation()">
 							<i class="fa fa-anchor fa-lg fa-fw text-muted"></i>
 							<span>Install</span>
 						</a>
 					</li>
 					<li ng-if="nbPlanet.on" ng-class="nbUtil.active_link('/home/expand/')">
-						<a class="btn-link btn-lg" style="padding: 10px; cursor: pointer" ng-click="show_client_expansion()">
+						<a Xclass="btn-link btn-lg" Xstyle="padding: 10px; cursor: pointer" ng-click="show_client_expansion()">
 							<i class="fa fa-rocket fa-lg fa-fw text-muted"></i>
 							Expand Space
 						</a>
 					</li>
 					<li ng-class="nbUtil.active_link('/home/friends/')">
-						<a class="btn-link btn-lg" style="padding: 10px; cursor: pointer" href="/home/friends/">
+						<a Xclass="btn-link btn-lg" Xstyle="padding: 10px; cursor: pointer" href="/home/friends/">
 							<i class="fa fa-users fa-lg fa-fw text-muted"></i>
 							<span>Friends</span>
 						</a>
