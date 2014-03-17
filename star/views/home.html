@@ -20,7 +20,7 @@
 					<small>BETA</small>
 				</a>
 			</div>
-			<ul ng-if="nbUser.user" class="nav navbar-nav navbar-right pull-right" style="margin-top: 0; margin-bottom: 0">
+			<ul class="nav navbar-nav navbar-right pull-right" style="margin-top: 0; margin-bottom: 0">
 				<li>
 					<a role="button" nb-popover="{element: '#user_menu', container: 'body', placement: 'bottom'}" style="padding-top: 9px; padding-bottom: 9px">
 						<img ng-src="{{nbUser.user_pic_url(nbUser.user)}}" style="width: 32px; height: 32px" class="img-circle">
@@ -30,13 +30,6 @@
 					</a>
 					<div style="display: none" ng-non-bindable>
 						<div id="user_menu">
-							<!-- 
-							<div class="text-center">
-								<a href="/home/mydata/" class="btn btn-block btn-info" style="margin-bottom: 5px">
-									My-Data
-								</a>
-							</div>
-							 -->
 							<div class="text-center">
 								<small>
 									<span class="text-muted">Using</span>
@@ -107,10 +100,16 @@
 									</a>
 								</li>
 								 -->
-								<li>
+								<li ng-if="nbUser.user">
 									<a ng-click="nbUser.logout()" Xhref="/auth/logout/?state=/home/" Xtarget="_self">
 										<i class="fa fa-sign-out fa-fw"></i>
 										Logout
+									</a>
+								</li>
+								<li ng-if="!nbUser.user">
+									<a ng-click="open_signin()">
+										<i class="fa fa-sign-in fa-fw"></i>
+										Sign In
 									</a>
 								</li>
 							</ul>
@@ -121,11 +120,46 @@
 		</div>
 	</nav>
 
-	<div ng-if="nbUser.user">
+	<div ng-if="!nbUser.user">
+		<div class="container">
+			<div class="jumbotron text-center">
+				<p class="text-muted">
+					Introducing NooBaa's
+					<a class="text-primary" href="/info" target="_blank">shared-economy</a> video platform
+				</p>
+				<h1 style="font-size: 60px">
+					Watch friends videos!
+				</h1>
+				<p style="padding-top: 20px">
+					<button class="btn btn-primary btn-lg" ng-click="open_signin()">
+						<span class="lead">Sign in, it's free</span>
+					</button>
+				</p>
+			</div>
+		</div>
+		<!-- <hr/> -->
+		<div class="container text-center">
+			<p class="text-muted">
+				Here you can learn about NooBaa while exploring the app:
+			</p>
+			<!-- 
+			<div style="padding: 20px 0">
+				<a class="btn btn-default btn-hover-only" ng-click="play_welcome_video()">
+					<span class="text-warning">
+						<i class="fa fa-play fa-4x"></i>
+						<div>Play the welcome video</div>
+					</span>
+				</a>
+			</div>
+			 -->
+		</div>
+	</div>
+
+	<div Xng-if="nbUser.user">
 
 		<div id="nb-menu" class="text-center" style="margin: 15px">
 			<div class="container">
-				<ul class="nav nav-pills center-block" style="max-width: 620px">
+				<ul class="nav nav-pills center-block" style="max-width: 640px">
 					<li ng-class="nbUtil.active_link('/home/feed/')">
 						<a class="btn-link btn-lg" style="padding: 10px; cursor: pointer" ng-click="click_my_feed()" Xhref="/home/feed/">
 							<i class="fa fa-rss fa-lg fa-fw text-muted"></i>
@@ -187,29 +221,39 @@
 		</div>
 	</div>
 
-	<div ng-if="!nbUser.user">
-		<div class="text-center" style="padding: 20px">
-			<div style="display: inline-block; background-color: hsla(0,0%,100%,0.3); border-radius: 10px; padding: 5px 10px 10px 10px" class="center-block text-center">
-				<h4 class="fntpaint shades" style="margin-bottom: 15px">
-					Sign in, It's free
-				</h4>
-				<div style="overflow: hidden">
-					<div class="fb-facepile" data-width="300" data-max-rows="1" data-colorscheme="light" data-size="small" data-show-count="true"></div>
-				</div>
+	<div style="display: none" ng-non-bindable>
+		<div id="signin" ng-controller>
+			<div class="text-center" style="padding: 20px">
 				<div style="margin-top: 10px">
 					<a ng-click="nbUser.login_facebook()" Xhref="/auth/facebook/login/">
-						<img src="/public/images/facebook_sign_in.png" class="img-rounded img-responsive center-block" style="width: 300px" />
+						<img src="/public/images/facebook_sign_in.png" class="img-rounded img-responsive center-block" style="width: 345px" />
 					</a>
 				</div>
-				<h4 class="fntpaint shades">or</h4>
-				<div style="margin-top: 10px">
+				<div style="display: inline-block; background-color: hsla(0,0%,100%,0.3); padding: 10px" class="center-block text-center">
+					<div style="overflow: hidden">
+						<div class="fb-facepile" data-width="320" data-max-rows="1" data-colorscheme="light" data-size="small" data-show-count="true"></div>
+					</div>
+				</div>
+				<div style="margin-top: 20px">
 					<a ng-click="nbUser.login_google()" Xhref="/auth/google/login/">
-						<img src="/public/images/google_sign_in.png" class="img-rounded img-responsive center-block" style="width: 300px" />
+						<img src="/public/images/google_sign_in.png" class="img-rounded img-responsive center-block" style="width: 240px" />
 					</a>
+				</div>
+				<div style="margin-top: 10px; width: 230px" class="center-block">
+					<div class="input-group Xinput-group-lg" ng-init="signin_email_address=''">
+						<input type="text" ng-model="signin_email_address" class="form-control" placeholder="Sign in with email">
+						<span class="input-group-btn">
+							<button class="btn btn-warning" type="button" ng-click="nbUser.login_email(signin_email_address)">
+								<i class="fa fa-play fa-lg"></i>
+							</button>
+						</span>
+					</div>
 				</div>
 			</div>
 		</div>
 	</div>
+
+	<div style="height: 20px"></div>
 
 
 	<!-- FEEDBACK -->

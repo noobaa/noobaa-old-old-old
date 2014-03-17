@@ -229,6 +229,10 @@
 
 			function load_inode(inode, force_load, retries) {
 
+				if (!nbUser.user) { // virtual inodes
+					inode.loaded = Date.now();
+					return $q.when(inode);
+				}
 				if (inode.loaded && force_load !== 'force') {
 					var now = Date.now();
 					if (now < inode.loaded + 5000 && now > inode.loaded) {
@@ -266,7 +270,7 @@
 					return merge_inode(entry);
 				}).then(null, function(err) {
 					inode.is_loading = false;
-					console.error('FAILED LOAD INODE', err);
+					console.error('FAILED LOAD INODE', err, inode);
 					if (!retries) {
 						throw err;
 					}

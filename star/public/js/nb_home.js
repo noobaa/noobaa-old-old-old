@@ -94,11 +94,52 @@
 				client: !! nbPlanet.on
 			});
 
+			nbUser.update_user_info();
+
 			if (nbUser.user) {
-
-				nbUser.update_user_info();
-
 				init_read_dir();
+			} else {
+				var inodes = [{
+					name: 'Share videos',
+					fobj_get_url: '/public/images/bg_wave.jpg',
+					content_type: 'image/jpg',
+					content_kind: 'image',
+					id: 'v1',
+					shr: 'f',
+					messages: [{
+						text: 'asda'
+					}, {
+						text: '123123'
+					}]
+				}, {
+					name: 'Watch videos',
+					fobj_get_url: '/public/images/bg_bike.jpg',
+					content_type: 'image/jpg',
+					content_kind: 'image',
+					id: 'v2',
+					shr: 'f',
+				}, {
+					name: 'Access anywhere',
+					fobj_get_url: '/public/images/bg_snow.jpg',
+					content_type: 'image/jpg',
+					content_kind: 'image',
+					id: 'v3',
+					shr: 'f',
+				}, {
+					name: 'Protect your memories',
+					fobj_get_url: '/public/images/bg_skate.jpg',
+					content_type: 'image/jpg',
+					content_kind: 'image',
+					id: 'v4',
+					shr: 'f',
+				}];
+				$scope.feeds = _.map(inodes, function(inode) {
+					return {
+						name: inode.name,
+						inodes: [inode]
+					};
+				});
+				$scope.root_dir.entries = inodes;
 			}
 
 			$scope.click_my_feed = function() {
@@ -214,7 +255,7 @@
 							}
 						}
 					});
-					$scope.safe_apply();
+					$scope.$root.safe_apply();
 				}).then(function() {
 					$scope.fetching_feeds = false;
 				}, function(err) {
@@ -513,6 +554,32 @@
 					console.log('TODO send_friend_message to googleid');
 				}
 			}
+
+			$scope.play_welcome_video = function() {
+				nbUtil.track_event('home.play_welcome_video');
+				var content = [
+					'<div style="display: table; width: 100%; height: 100%">',
+					'<div style="display: table-row; width: 100%; height: 100%">',
+					' <div class="modal-body" style="width: 100%; height: 100%">',
+					'  <iframe class="center-block" style="width: 100%; height: 100%"',
+					'    src="//www.youtube.com/embed/nz4AAfgs36g?rel=0&autoplay=1"',
+					'    frameborder="0" allowfullscreen></iframe>',
+					' </div>',
+					'</div>',
+					'<div style="display: table-row">',
+					' <div class="modal-footer" style="margin-top: 0">',
+					'  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>',
+					' </div>',
+					'</div>',
+					'</div>'
+				].join('\n');
+				nbUtil.modal(content, null, 'fullscreen');
+			};
+
+			$scope.open_signin = function() {
+				nbUtil.track_event('home.open_signin');
+				nbUtil.content_modal('Your account is waiting for you.', $('#signin').html(), $scope);
+			};
 		}
 	]);
 
@@ -524,8 +591,8 @@
 
 
 	noobaa_app.controller('FeedCtrl', [
-		'$scope', '$q', '$location', 'nbInode',
-		function($scope, $q, $location, nbInode) {
+		'$scope', '$q', '$location', '$timeout', 'nbInode',
+		function($scope, $q, $location, $timeout, nbInode) {
 			$scope.reload_feed = reload_feed;
 			$scope.current_inode = current_inode;
 			$scope.current_entry = current_entry;
@@ -545,17 +612,30 @@
 					if (f.isdir && inode === current_inode()) {
 						promise = promise.then(function() {
 							return nbInode.read_dir(inode);
-						}).then(function() {
-							if (inode.entries_by_kind.image && inode.entries_by_kind.image.length) {
-								$scope.current_entry_index = inode.entries.indexOf(inode.entries_by_kind.image[0]);
-							}
-						});
+						}).then(current_entry_switcher);
 					}
 					// fetch messages
 					// promise = promise.then(function() {
 					// return nbInode.get_inode_messages(inode);
 					// });
 				});
+			}
+
+			function current_entry_switcher() {
+				$timeout.cancel(f.timeout_switcher);
+				delete f.timeout_switcher;
+				var inode = current_inode();
+				if (!inode.entries_by_kind || !inode.entries_by_kind.image || !inode.entries_by_kind.image.length) {
+					return;
+				}
+				$scope.current_image_index =
+					typeof($scope.current_image_index) !== 'number' ?
+					0 : (($scope.current_image_index + 1) % inode.entries_by_kind.image.length);
+				$scope.current_entry_index = inode.entries.indexOf(
+					inode.entries_by_kind.image[$scope.current_image_index]);
+
+				// TODO check why switching forces image reload each time and misses browser cache
+				// f.timeout_switcher = $timeout(current_entry_switcher, 10000);
 			}
 
 			function current_inode() {
@@ -884,6 +964,12 @@
 					});
 					scope.media_events = scope.$eval(attr.mediaEvents) || {};
 					scope.is_previewing = scope.$eval(attr.showContent);
+					scope.media_url = function(inode) {
+						return nbInode.fobj_get_url(inode);
+					};
+					scope.media_open = function(inode) {
+						return nbInode.seamless_open_inode(inode);
+					};
 					scope.toggle_content = function() {
 						if (nbPlanet.on) {
 							if (nbPlanet.open_content(scope.inode)) {
@@ -904,6 +990,8 @@
 			};
 		}
 	]);
+
+
 
 	///////////////////////
 	// CHOOSER DIRECTIVE //

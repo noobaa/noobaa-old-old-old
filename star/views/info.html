@@ -67,12 +67,10 @@
 		<div ng-repeat="(sec_idx, curr_faq_section) in faq" style="margin-top: 50px">
 			<!-- <a class="btn btn-success btn-lg" data-toggle="collapse" href="#curr_faq_section_content{{sec_idx}}" style="min-width: 300px"> -->
 			<h1 class="animated">
-				<i class="fa fa-angle-double-right Xfa-fw fa-lg text-danger"></i>
+				<!-- <i class="fa fa-angle-double-right Xfa-fw fa-lg text-danger"></i> -->
 				<span class="text-muted">{{curr_faq_section.title}}</span>
-				<i class="fa fa-angle-double-left Xfa-fw fa-lg text-danger"></i>
-				<!-- </div> -->
+				<!-- <i class="fa fa-angle-double-left Xfa-fw fa-lg text-danger"></i> -->
 			</h1>
-			<!-- </a> -->
 			<br/>
 			<div id="curr_faq_section_content{{sec_idx}}">
 				<div ng-repeat="(idx, question) in curr_faq_section.questions" class="question animated">
@@ -80,7 +78,6 @@
 					<p class="lead text-warning">
 						{{question.q}}
 					</p>
-					<!-- </a> -->
 					<div id="curr_faq_section_question{{idx}}{{sec_idx}}">
 						<p class="lead answer" style="margin-left: 50px; text-align: justify; text-indent: 0">{{question.a}}</p>
 					</div>

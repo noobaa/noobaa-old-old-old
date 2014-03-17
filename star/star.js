@@ -398,12 +398,12 @@ app.get('/planet', function(req, res) {
 
 function redirect_no_user(req, res, next) {
 	if (!req.user) {
-		res.redirect('/welcome');
+		res.redirect('/home/');
 		return;
 	}
 	if (!req.session.accessToken || !req.session.tokens) {
 		console.log('NO TOKENS FORCE LOGOUT', req.user);
-		res.redirect('/auth/logout/?state=/welcome#join');
+		res.redirect('/auth/logout/?state=/home/#join');
 		return;
 	}
 	if (req.user.alpha_tester) {
@@ -429,12 +429,13 @@ function redirect_no_user(req, res, next) {
 }
 
 app.get('/welcome', function(req, res) {
-	return res.render('welcome.html', common_api.page_context(req));
+	return res.redirect('/home/');
+	// return res.render('welcome.html', common_api.page_context(req));
 });
 
 app.get('/thankyou', function(req, res) {
 	if (!req.user) {
-		return res.redirect('/welcome');
+		return res.redirect('/home/');
 	}
 	return res.render('thankyou.html', common_api.page_context(req));
 });

@@ -38,6 +38,10 @@
 			}
 
 			function update_user_info() {
+				if (!$scope.user) {
+					set_user_usage(1024 * 1024 * 1024, 0);
+					return;
+				}
 				reset_update_user_info(true);
 				return $http({
 					method: "GET",
@@ -61,21 +65,9 @@
 				$scope.timeout_update_user_info = unset ? null : $timeout(update_user_info, 300000);
 			}
 
-			// testing code
-			if (false) {
-				var temp = 0;
-				$interval(function() {
-					if (temp > 100) {
-						temp = 0;
-					}
-					set_user_usage(100, temp);
-					temp += 10;
-				}, 2000);
-			}
-
 			function user_pic_url(user) {
 				if (!user) {
-					return;
+					return '/public/images/user_silhouette.png';
 				}
 				if (user.fbid) {
 					return 'https://graph.facebook.com/' + user.fbid + '/picture';
@@ -142,6 +134,18 @@
 			$scope.login_google = function() {
 				nbUtil.track_event('login.google').then(function() {
 					$window.location.href = '/auth/google/login/';
+				});
+			};
+
+			$scope.login_email = function(email) {
+				if (!email) {
+					return;
+				}
+				nbUtil.track_event('login.email', {
+					email: email
+				}).then(function() {
+					window.alert('Thank you! Currently we only support sign in with Facebook or Google+. ' +
+						' We will let you know once we implement sign in with email.');
 				});
 			};
 

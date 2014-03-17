@@ -78,7 +78,8 @@ html, body {
 	color: hsl(0, 0%, 5%) !important;
 }
 .modal-backdrop {
-	background-color: hsl(0, 0%, 100%);
+	background-color: hsl(0, 0%, 0%);
+	opacity: 0.7 !important;
 }
 .text-muted {
 	color: hsl(210, 16%, 56%) !important;
@@ -190,12 +191,6 @@ a.btn-link.text-white:hover {
 /**/
 
 /* FEED */
- .feeds_container {
-	/*max-width: 600px;*/
-	/*padding: 20px 0;*/
-	/*background-color: hsl(0, 0%, 30%);*/
-	/*border-radius: 10px;*/
-}
 .feed_item {
 	transition: all 0.5s;
 	-o-transition: all 0.5s;
@@ -204,7 +199,7 @@ a.btn-link.text-white:hover {
 	/*overflow: hidden;*/
 	height: auto;
 	padding-top: 15px;
-	border-top: 1px solid hsl(0, 0%, 30%);
+	/*border-top: 1px solid hsl(0, 0%, 30%);*/
 	/*border: 1px solid hsla(0, 0%, 100%, 0.25);*/
 	/*border-radius: 10px;*/
 	/*-webkit-box-shadow: 0 0 8px 5px hsla(0, 0%, 100%, 0.15);*/
@@ -296,10 +291,13 @@ a[ng-click], a[role=button] {
 	/*font-family:'Ubuntu', sans-serif !important;*/
 	/*font-family: 'Architects Daughter', cursive !important;*/
 	/*font-family: 'Nunito', 'Ubuntu', sans-serif !important;*/
+	font-family:'Salsa', cursive !important;
+	/*letter-spacing: 1px;*/
 }
 .fntpaint {
-	font-family:'Finger Paint', cursive !important;
+	/*font-family:'Finger Paint', cursive !important;*/
 	/*font-family:'Architects Daughter', cursive !important;*/
+	/*font-family:'Salsa', cursive !important;*/
 	/*font-weight: bold;*/
 }
 .fntmd {

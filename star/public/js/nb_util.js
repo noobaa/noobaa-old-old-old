@@ -93,6 +93,17 @@
 					e.find('.modal-dialog').addClass('modal-lg');
 				} else if (size === 'sm') {
 					e.find('.modal-dialog').addClass('modal-sm');
+				} else if (size === 'fullscreen') {
+					e.find('.modal-dialog').css({
+						width: '100%',
+						height: '100%',
+						margin: 0
+					});
+					e.find('.modal-content').css({
+						width: '100%',
+						height: '100%',
+						margin: 0
+					});
 				}
 				e.modal();
 				return e;
@@ -170,6 +181,8 @@
 
 		}
 	]);
+
+
 
 
 	noobaa_app.factory('nbMultiSelect', [
