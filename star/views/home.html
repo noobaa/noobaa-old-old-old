@@ -165,19 +165,19 @@
 			<div class="container">
 				<ul class="nav nav-pills Xnav-justified center-block text-center" style="max-width: 620px">
 					<li ng-class="nbUtil.active_link('/home/feed/')">
-						<a Xclass="btn-link btn-lg" Xstyle="padding: 10px; cursor: pointer" ng-click="click_my_feed()" Xhref="/home/feed/">
+						<a ng-click="click_my_feed()">
 							<i class="fa fa-rss fa-lg fa-fw text-muted"></i>
 							<span>My Feed</span>
 						</a>
 					</li>
 					<li ng-class="nbUtil.active_link('/home/items/')">
-						<a Xclass="btn-link btn-lg" Xstyle="padding: 10px; cursor: pointer" ng-click="click_my_items()" Xhref="/home/items/">
+						<a ng-click="click_my_items()">
 							<i class="fa fa-file fa-lg fa-fw text-muted"></i>
 							<span>My Items</span>
 						</a>
 					</li>
 					<li ng-class="nbUtil.active_link('/home/upload/')">
-						<a Xclass="btn-link btn-lg" Xstyle="padding: 10px; cursor: pointer" Xhref="/home/upload/" ng-click="nbUploadSrv.open_file_input()">
+						<a ng-click="open_upload_file()">
 							<i class="fa fa-cloud-upload fa-lg fa-fw text-muted"></i>
 							<span>
 								Upload
@@ -189,25 +189,25 @@
 						</a>
 					</li>
 					<li ng-if="nbPlanet.on" ng-class="nbUtil.active_link('/home/upload/')">
-						<a Xclass="btn-link btn-lg" Xstyle="padding: 10px; cursor: pointer" ng-click="nbUploadSrv.open_dir_input()">
+						<a ng-click="open_upload_dir()">
 							<i class="fa fa-folder fa-lg fa-fw text-muted"></i>
 							<span>Upload a folder</span>
 						</a>
 					</li>
 					<li ng-if="!nbPlanet.on" ng-class="nbUtil.active_link('/home/install/')">
-						<a Xclass="btn-link btn-lg" Xstyle="padding: 10px; cursor: pointer" Xhref="/home/install/" ng-click="show_client_installation()">
+						<a ng-click="show_client_installation()">
 							<i class="fa fa-anchor fa-lg fa-fw text-muted"></i>
 							<span>Install</span>
 						</a>
 					</li>
 					<li ng-if="nbPlanet.on" ng-class="nbUtil.active_link('/home/expand/')">
-						<a Xclass="btn-link btn-lg" Xstyle="padding: 10px; cursor: pointer" ng-click="show_client_expansion()">
+						<a ng-click="show_client_expansion()">
 							<i class="fa fa-rocket fa-lg fa-fw text-muted"></i>
 							Expand Space
 						</a>
 					</li>
 					<li ng-class="nbUtil.active_link('/home/friends/')">
-						<a Xclass="btn-link btn-lg" Xstyle="padding: 10px; cursor: pointer" href="/home/friends/">
+						<a href="/home/friends/">
 							<i class="fa fa-users fa-lg fa-fw text-muted"></i>
 							<span>Friends</span>
 						</a>
@@ -254,7 +254,7 @@
 					<div class="input-group Xinput-group-lg" ng-init="signin_email_address=''">
 						<input type="text" ng-model="signin_email_address" class="form-control" placeholder="Sign in with email">
 						<span class="input-group-btn">
-							<button class="btn btn-warning" type="button" ng-click="nbUser.login_email(signin_email_address)">
+							<button class="btn btn-primary" type="button" ng-click="nbUser.login_email(signin_email_address)">
 								<i class="fa fa-play fa-lg"></i>
 							</button>
 						</span>

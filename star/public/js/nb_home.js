@@ -110,11 +110,6 @@
 					content_kind: 'image',
 					id: 'v1',
 					shr: 'f',
-					messages: [{
-						text: 'asda'
-					}, {
-						text: '123123'
-					}]
 				}, {
 					name: 'Watch videos',
 					fobj_get_url: '/public/images/bg_bike.jpg',
@@ -587,6 +582,21 @@
 				nbUtil.content_modal('Your account is waiting for you.', $('#signin_dialog').html(), $scope);
 			};
 
+			$scope.open_upload_file = function() {
+				if (nbUser.user) {
+					nbUploadSrv.open_file_input();
+				} else {
+					$scope.open_signin();
+				}
+			};
+
+			$scope.open_upload_dir = function() {
+				if (nbUser.user) {
+					nbUploadSrv.open_dir_input();
+				} else {
+					$scope.open_signin();
+				}					
+			};
 		}
 	]);
 
