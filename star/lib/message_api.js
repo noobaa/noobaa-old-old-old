@@ -124,10 +124,10 @@ exports.delete_inode_message = function(req, res) {
 
 function is_message_mine(user_id, msg) {
 	var msg_user_id = msg.populated('user') || msg.user;
-	if (user_id.equals(msg_user_id)) {
+	if (msg_user_id && user_id.equals(msg_user_id)) {
 		return true;
 	}
-	if (user_id.equals(msg.subject_user)) {
+	if (msg.subject_user && user_id.equals(msg.subject_user)) {
 		return true;
 	}
 	return false;
