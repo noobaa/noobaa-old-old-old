@@ -1,10 +1,10 @@
 <div ng-controller="UploadCtrl">
 	<div class="panel panel-default">
-		<div class="panel-heading bggrey clearfix" style="padding: 0px">
-			<span class="text-muted" style="margin: 7px 10px">
+		<div class="panel-heading clearfix" style="padding: 0px">
+			<div class="text-muted" style="margin: 10px; display: inline-block">
 				<i class="fa fa-cloud-upload"></i>
 				Uploading
-			</span>
+			</div>
 
 			<div class="progress text-center" style="vertical-align: middle; margin: 7px; Xborder-radius: 0; border: 1px grey solid; width: 100px; display: inline-block">
 				<div class="progress-bar Xprogress-bar-grey Xtext-black" role="progressbar" aria-valuenow="{{100 * srv.root.total_upsize / srv.root.total_size}}" aria-valuemin="0" aria-valuemax="100" style="width: {{100 * srv.root.total_upsize / srv.root.total_size}}%">
@@ -20,11 +20,11 @@
 			 -->
 
 			<div class="pull-right">
-				<button class="btn btn-link" ng-click="srv.clear_completed()" style="color: hsl(0, 0%, 15%)">
+				<button class="btn btn-link" ng-click="srv.clear_completed()">
 					<i class="fa fa-eraser fa-fw"></i>
 					Clear Completed
 				</button>
-				<button class="btn btn-link" ng-click="show_upload_details = !show_upload_details" style="color: hsl(0, 0%, 15%)">
+				<button class="btn btn-link" ng-click="show_upload_details = !show_upload_details">
 					<span ng-if="show_upload_details">
 						Hide
 						<i class="fa fa-caret-up"></i>
@@ -37,7 +37,7 @@
 			</div>
 		</div>
 
-		<div class="panel-body" style="margin: 0; padding: 0; background-color: white" nb-effect-toggle="show_upload_details" nb-effect-options="{effect: 'blind'}">
+		<div class="panel-body" style="margin: 0; padding: 0" nb-effect-toggle="show_upload_details" nb-effect-options="{effect: 'blind'}">
 
 			<div style="margin-bottom: 5px">
 				<div class="btn-group">

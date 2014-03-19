@@ -39,8 +39,7 @@
 			<div ng-repeat="inode in filter_entries = (current_inode.entries | filter:{isdir: context.dir_only || undefined} )" class="file_line notextselect" style="border-bottom-width: 1px; border-top-width: 1px">
 				<div class="clearfix" ng-click="open_inode(inode, $index, $event)" style="cursor: pointer">
 					<span class="text-wrap">
-						<i ng-show="!!inode.isdir" class="fa fa-folder-open fa-fw fa-lg"></i>
-						<i ng-show="!inode.isdir" class="fa fa-file-o fa-fw fa-lg"></i>
+						<i class="fa fa-{{nbUtil.icon_by_kind(inode.content_kind)}} fa-fw fa-lg"></i>
 						<span class="btn btn-link" style="padding-left: 0; display: inline">
 							<span style="white-space: pre-wrap">{{inode.name}}</span>
 						</span>

@@ -12,7 +12,7 @@
 		<?# def.facebook_init_body ?>
 	</div>
 
-	<nav class="navbar navbar-static-top navbar-default home_navbar" role="navigation">
+	<nav class="navbar navbar-default home_navbar" role="navigation">
 		<div class="container clearfix">
 			<div class="navbar-header pull-left">
 				<a id="logo_link" class="navbar-brand" href="/">
@@ -22,7 +22,7 @@
 			</div>
 			<ul class="nav navbar-nav navbar-right pull-right" style="margin-top: 0; margin-bottom: 0">
 				<li>
-					<a role="button" nb-popover="{element: '#user_menu', container: 'body', placement: 'bottom'}" style="padding-top: 9px; padding-bottom: 9px">
+					<a role="button" nb-popover="{element: '#user_menu', container: 'body', placement: 'bottom'}">
 						<img ng-src="{{nbUser.user_pic_url(nbUser.user)}}" style="width: 32px; height: 32px" class="img-circle">
 						<div class="text-ellipses" style="max-width: 160px; vertical-align: middle; height: 100%; display: inline-block; margin-left: 10px">
 							{{nbUser.user.name}}
@@ -33,7 +33,7 @@
 							<div class="text-center">
 								<small>
 									<span class="text-muted">Using</span>
-									<span class="text-white">{{human_size(nbUser.user_usage)}} / {{human_size(nbUser.user_quota)}}</span>
+									<span>{{human_size(nbUser.user_usage)}} / {{human_size(nbUser.user_quota)}}</span>
 								</small>
 							</div>
 							<div class="progress text-center bggrey" style="vertical-align: middle; margin: 0">
@@ -120,10 +120,10 @@
 		</div>
 	</nav>
 
-	<div ng-if="!nbUser.user">
+	<div ng-if="!nbUser.user" class="fadeIn">
 		<!-- <div style="height: 20px"></div> -->
 		<div class="container">
-			<div class="jumbotron text-center">
+			<div class="jumbotron text-center" style="padding: 20px">
 				<p class="text-muted">
 					Introducing NooBaa's
 					<a class="text-primary" href="/info" target="_blank">shared-economy</a> video platform
@@ -156,13 +156,14 @@
 			</div>
 			 -->
 		</div>
+		<div style="height: 20px"></div>
 	</div>
 
 	<div Xng-if="nbUser.user">
 
-		<div id="nb-menu" class="text-center" style="padding: 15px 0">
+		<div id="nb-menu" class="text-center" style="padding-bottom: 15px">
 			<div class="container">
-				<ul class="nav nav-pills Xnav-justified center-block text-center" style="max-width: 600px">
+				<ul class="nav nav-pills Xnav-justified center-block text-center" style="max-width: 620px">
 					<li ng-class="nbUtil.active_link('/home/feed/')">
 						<a Xclass="btn-link btn-lg" Xstyle="padding: 10px; cursor: pointer" ng-click="click_my_feed()" Xhref="/home/feed/">
 							<i class="fa fa-rss fa-lg fa-fw text-muted"></i>
@@ -190,7 +191,7 @@
 					<li ng-if="nbPlanet.on" ng-class="nbUtil.active_link('/home/upload/')">
 						<a Xclass="btn-link btn-lg" Xstyle="padding: 10px; cursor: pointer" ng-click="nbUploadSrv.open_dir_input()">
 							<i class="fa fa-folder fa-lg fa-fw text-muted"></i>
-							<span>Upload Folder</span>
+							<span>Upload a folder</span>
 						</a>
 					</li>
 					<li ng-if="!nbPlanet.on" ng-class="nbUtil.active_link('/home/install/')">
@@ -224,8 +225,15 @@
 		</div>
 	</div>
 
+	<div style="height: 20px"></div>
+
+
+
+
+	<!-- SIGN IN -->
+
 	<div style="display: none" ng-non-bindable>
-		<div id="signin" ng-controller>
+		<div id="signin_dialog" ng-controller>
 			<div class="text-center" style="padding: 20px">
 				<div style="margin-top: 10px">
 					<a ng-click="nbUser.login_facebook()" Xhref="/auth/facebook/login/">
@@ -256,12 +264,11 @@
 		</div>
 	</div>
 
-	<div style="height: 20px"></div>
 
 
 	<!-- FEEDBACK -->
 
-	<div id="feedback_dialog" class="modal fade fntmd">
+	<div id="feedback_dialog" class="modal animated fadeInDown">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -284,6 +291,8 @@
 			</div>
 		</div>
 	</div>
+
+
 
 	<!-- INSTALL  -->
 
@@ -319,6 +328,8 @@
 		</div>
 	</div>
 
+
+
 	<!-- EXPAND -->
 
 	<div style="display: none" ng-non-bindable>
@@ -338,6 +349,26 @@
 		</div>
 	</div>
 
+
+
+	<!-- PLAY -->
+
+	<div style="display: none" ng-non-bindable>
+		<div id="play_dialog" style="max-height: 100%" ng-init="item=current_inode()">
+			<div class="text-center" style="padding: 20px">
+				<p>{{item.name}}</p>
+				<p ng-repeat="x in item.entries">
+					{{x.name}}
+				</p>
+
+				<select ng-if="item.isdir" ng-model="selected_item" ng-options="x.name for x in item.entries_by_kind.video"></select>
+
+			</div>
+		</div>
+	</div>
+
+
+
 	<!-- SHARE MODAL -->
 
 	<div style="display: none" ng-non-bindable>
@@ -348,7 +379,7 @@
 			</div>
 			<div class="modal-body" style="padding: 0">
 				<div style="max-height: 100%">
-					<div style="padding: 10px">
+					<div style="padding: 10px 20px">
 						<div>Comments:</div>
 						<div style="margin: 5px 0">
 							<div ng-repeat="msg in share_inode.messages">
@@ -381,13 +412,13 @@
 					</div>
 					<div ng-if="!share_list_loading && shr=='r'">
 						<hr style="margin: 0" />
-						<div class="center-block" style="width: 160px; padding: 0 10px 10px 10px">
+						<div class="center-block" style="width: 160px; padding: 0 20px 10px 20px">
 							<div class="Xinput-group input-group-sm" style="position: relative">
-								<input type="text" class="form-control bottom-radius {{filter_friend_name && 'label-primary text-white'}}" placeholder="Search friends" ng-model="filter_friend_name" />
+								<input type="text" class="form-control bottom-radius {{filter_friend_name && 'label-primary'}}" placeholder="Search friends" ng-model="filter_friend_name" />
 								<i class="fa fa-times fa-fw" style="cursor: pointer; position: absolute; right: 10px; top: 7px" ng-click="filter_friend_name=''"></i>
 							</div>
 						</div>
-						<div style="padding: 0 10px 10px 10px; max-height: 300px; overflow-y: scroll; overflow-x: hidden">
+						<div style="padding: 0 20px 10px 20px; max-height: 300px; overflow-y: scroll; overflow-x: hidden">
 							<div ng-repeat="friend in share_list | filter:{name: filter_friend_name} | orderBy:'name'" class="text-ellipses {{friend.shared && 'label-warning'}}" style="display: inline-block; Xborder-radius: 20px; width: 260px; margin: 0 2px; padding: 5px 10px; cursor: pointer; text-align: left" ng-click="friend.shared = !friend.shared">
 								<i class="fa fa-{{friend.shared && 'check' || 'plus-square'}} fa-fw"></i>&nbsp;
 								<img width="32" height="32" ng-src="{{nbUser.user_pic_url(friend)}}" class="img-circle" />&nbsp;
@@ -436,6 +467,8 @@
 		</div>
 	</div>
 
+
+
 	<!-- GET LINK DIALOG -->
 
 	<div id="getlink_dialog" class="nbdialog fntmd">
@@ -454,6 +487,7 @@
 			<button class="nbdialog_close btn btn-default">Close</button>
 		</div>
 	</div>
+
 
 
 	<!-- DELETE DIALOG -->
@@ -480,6 +514,7 @@
 	</div>
 
 
+
 	<!-- MKDIR DIALOG -->
 
 	<div id="mkdir_dialog" class="nbdialog fntmd">
@@ -502,6 +537,8 @@
 		</div>
 	</div>
 
+
+
 	<!-- RENAME DIALOG -->
 
 	<div id="rename_dialog" class="nbdialog fntmd">
@@ -523,6 +560,7 @@
 			<button id="dialog_ok" class="btn btn-primary pull-right">Rename</button>
 		</div>
 	</div>
+
 
 
 	<div>

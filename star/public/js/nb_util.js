@@ -50,6 +50,7 @@
 				nbalert: nbalert,
 				nbconfirm: nbconfirm,
 				track_event: track_event,
+				icon_by_kind: icon_by_kind,
 				coming_soon: function(feature) {
 					// TODO send event log
 					alert('Coming soon...');
@@ -175,6 +176,18 @@
 					console.error('FAILED TRACK EVENT', err);
 					// don't propagate
 				});
+			}
+
+			var ICONS_BY_KIND = {
+				dir: 'folder-open',
+				video: 'video-camera',
+				audio: 'music',
+				image: 'picture-o',
+				text: 'font',
+			};
+
+			function icon_by_kind(kind) {
+				return ICONS_BY_KIND[kind] || 'file';
 			}
 
 			return $scope;

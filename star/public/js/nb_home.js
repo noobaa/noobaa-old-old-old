@@ -20,7 +20,9 @@
 			templateUrl: '/public/html/feed_template.html',
 			controller: ['$scope',
 				function($scope) {
-					$scope.refresh_feeds();
+					if (!$scope.feeds) {
+						$scope.refresh_feeds();
+					}
 				}
 			]
 		}).when('/items/:item_id*?', {
@@ -38,7 +40,9 @@
 			templateUrl: '/public/html/friends_template.html',
 			controller: ['$scope',
 				function($scope) {
-					$scope.refresh_friends();
+					if (!$scope.friends) {
+						$scope.refresh_friends();
+					}
 				}
 			]
 		}).otherwise({
@@ -144,7 +148,9 @@
 
 			$scope.click_my_feed = function() {
 				$location.path('/feed/');
-				$scope.refresh_feeds();
+				if (!$scope.feeds) {
+					$scope.refresh_feeds();
+				}
 			};
 
 			$scope.click_my_items = function() {
@@ -578,8 +584,9 @@
 
 			$scope.open_signin = function() {
 				nbUtil.track_event('home.open_signin');
-				nbUtil.content_modal('Your account is waiting for you.', $('#signin').html(), $scope);
+				nbUtil.content_modal('Your account is waiting for you.', $('#signin_dialog').html(), $scope);
 			};
+
 		}
 	]);
 
@@ -591,12 +598,10 @@
 
 
 	noobaa_app.controller('FeedCtrl', [
-		'$scope', '$q', '$location', '$timeout', 'nbInode',
-		function($scope, $q, $location, $timeout, nbInode) {
+		'$scope', '$q', '$location', '$timeout', 'nbUtil', 'nbInode',
+		function($scope, $q, $location, $timeout, nbUtil, nbInode) {
 			$scope.reload_feed = reload_feed;
-			$scope.current_inode = current_inode;
 			$scope.current_entry = current_entry;
-			$scope.current_inode_index = 0;
 			$scope.current_entry_index = 0;
 			var f = $scope.feed;
 			$scope.$watch('feed', function() {
@@ -605,26 +610,16 @@
 			});
 
 			function reload_feed() {
-				// console.log('RELOAD FEED', f);
-				var promise = $q.when();
-				_.each(f.inodes, function(inode) {
-					// read dir entries
-					if (f.isdir && inode === current_inode()) {
-						promise = promise.then(function() {
-							return nbInode.read_dir(inode);
-						}).then(current_entry_switcher);
-					}
-					// fetch messages
-					// promise = promise.then(function() {
-					// return nbInode.get_inode_messages(inode);
-					// });
-				});
+				$scope.current_inode = f.inodes[0];
+				if (f.isdir) {
+					return nbInode.load_inode($scope.current_inode).then(current_entry_switcher);
+				}
 			}
 
 			function current_entry_switcher() {
 				$timeout.cancel(f.timeout_switcher);
 				delete f.timeout_switcher;
-				var inode = current_inode();
+				var inode = $scope.current_inode;
 				if (!inode.entries_by_kind || !inode.entries_by_kind.image || !inode.entries_by_kind.image.length) {
 					return;
 				}
@@ -638,12 +633,8 @@
 				// f.timeout_switcher = $timeout(current_entry_switcher, 10000);
 			}
 
-			function current_inode() {
-				return f.inodes[$scope.current_inode_index];
-			}
-
 			function current_entry() {
-				var inode = current_inode();
+				var inode = $scope.current_inode;
 				return inode.entries ? inode.entries[$scope.current_entry_index] : inode;
 			}
 
@@ -669,13 +660,28 @@
 				$location.path('/items/' + inode.id);
 			};
 
+			$scope.play_feed_inode = function(inode) {
+				nbUtil.track_event('home.play_feed');
+				$scope.open_feed_inode(inode);
+				// nbUtil.content_modal('', $('#play_dialog').html(), $scope, 'lg');
+			};
+
+			$scope.num_messages = function() {
+				return _.reduce(f.inodes, function(sum, inode) {
+					return sum + (inode.messages && inode.messages.length || 0);
+				}, 0);
+			};
+
 			$scope.keep_feed = function() {
-				var inode = current_inode();
+				var inode = $scope.current_inode;
 				return nbInode.keep_inode(inode, $scope.mydata).then(reload_feed, reload_feed);
 			};
 
 			$scope.done_keep = function() {
-				var inode = current_inode();
+				var inode = $scope.current_inode;
+				if (!inode) {
+					return;
+				}
 				if (!inode.ref_owner && !inode.not_mine) {
 					return true;
 				}
@@ -685,12 +691,12 @@
 			};
 
 			$scope.running_keep = function() {
-				var inode = current_inode();
+				var inode = $scope.current_inode;
 				return inode.running_keep;
 			};
 
 			$scope.keep_and_share_feed = function() {
-				var inode = current_inode();
+				var inode = $scope.current_inode;
 				return nbInode.keep_and_share(inode, $scope.mydata, $scope.refresh_feeds);
 			};
 
@@ -802,6 +808,7 @@
 					}
 
 					function open_inode(inode, $index, $event) {
+						// must load in order to detect if dir at all
 						if (!inode.loaded) {
 							return nbInode.load_inode(inode).then(function() {
 								open_inode(inode, $index, $event);
@@ -824,7 +831,6 @@
 					function toggle_preview(inode) {
 						inode.is_previewing = !inode.is_previewing;
 					}
-
 
 					function delete_inodes() {
 						var selected = nbMultiSelect.selection_items(selection); // copy array
@@ -963,27 +969,21 @@
 						scope.inode = scope.$eval(attr.nbMedia) || {};
 					});
 					scope.media_events = scope.$eval(attr.mediaEvents) || {};
-					scope.is_previewing = scope.$eval(attr.showContent);
 					scope.media_url = function(inode) {
 						return nbInode.fobj_get_url(inode);
 					};
 					scope.media_open = function(inode) {
 						return nbInode.seamless_open_inode(inode);
 					};
-					scope.toggle_content = function() {
-						if (nbPlanet.on) {
-							if (nbPlanet.open_content(scope.inode)) {
-								return;
-							}
+					if (nbPlanet.on) {
+						if (nbPlanet.open_content(scope.inode)) {
+							return;
 						}
-						scope.show_content = !scope.show_content;
-						// TODO a little bit hacky way to call notify_layout...
-						if (scope.media_events.load) {
-							scope.media_events.load();
-						}
-					};
-					if (scope.is_previewing) {
-						scope.toggle_content();
+					}
+					scope.show_content = true;
+					// TODO a little bit hacky way to call notify_layout...
+					if (scope.media_events.load) {
+						scope.media_events.load();
 					}
 				},
 				templateUrl: '/public/html/media_template.html'

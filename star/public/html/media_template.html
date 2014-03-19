@@ -1,29 +1,14 @@
 <div>
-	<div ng-switch="inode.content_kind">
+	<div ng-if="show_content" ng-switch="inode.content_kind" class="text-center">
 		<div ng-switch-default>
-			<div class="content-switcher text-center" style="padding: 5px">
-				<span class="fa-stack fa-2x" title="Open file" rel="tooltip" ng-click="media_open(inode)" style="cursor: pointer">
-					<i class="fa fa-circle fa-stack-2x"></i>
-					<i class="fa fa-file fa-stack-1x"></i>
-				</span>
-			</div>
+			<span class="label label-default">Preview not available</span>
 		</div>
 		<div ng-switch-when="dir">
-			<div class="content-switcher text-center" style="padding: 5px" ng-show="!is_previewing">
-				<span class="fa-stack fa-2x" title="Open folder" rel="tooltip" ng-click="media_events.open_dir()" style="cursor: pointer">
-					<i class="fa fa-circle fa-stack-2x"></i>
-					<i class="fa fa-folder-open fa-stack-1x"></i>
-				</span>
-			</div>
+			<span class="label label-default">Folder</span>
 		</div>
-		<div ng-switch-when="video" class="text-center">
-			<div class="content-switcher text-center" style="padding: 5px" ng-show="!is_previewing">
-				<span class="fa-stack fa-2x" title="Play video" rel="tooltip" ng-click="toggle_content()" style="cursor: pointer">
-					<i class="fa fa-circle fa-stack-2x"></i>
-					<i class="fa fa-video-camera fa-stack-1x"></i>
-				</span>
-			</div>
-			<video ng-if="show_content" controls autoplay ng-src="{{media_url(inode)}}" class="content-item img-responsive center-block" nb-events="media_events">
+		<img ng-switch-when="image" ng-src="{{media_url(inode)}}" class="content-item img-responsive center-block" style="max-width: 100%; max-height: 100%; vertical-align: center" nb-events="media_events" />
+		<div ng-switch-when="video">
+			<video controls autoplay ng-src="{{media_url(inode)}}" class="content-item img-responsive center-block" nb-events="media_events">
 				<source ng-src="{{media_url(inode)}}" ng-attr-type="{{inode.content_type}}">
 					<object ng-attr-data="{{media_url(inode)}}" ng-attr-type="{{inode.content_type}}">
 						<embed ng-src="{{media_url(inode)}}">
@@ -31,25 +16,12 @@
 			</video>
 		</div>
 		<div ng-switch-when="audio">
-			<div class="content-switcher text-center" style="padding: 5px" ng-show="!is_previewing">
-				<span class="fa-stack fa-2x" title="Play audio" rel="tooltip" ng-click="toggle_content()" style="cursor: pointer">
-					<i class="fa fa-circle fa-stack-2x"></i>
-					<i class="fa fa-music fa-stack-1x"></i>
-				</span>
-			</div>
-			<audio ng-if="show_content" controls autoplay ng-src="{{media_url(inode)}}" style="padding: 30px 5px 5px 5px; Xpadding: 5px" class="content-item img-responsive center-block" nb-events="media_events">
+			<audio controls autoplay ng-src="{{media_url(inode)}}" style="padding: 30px 5px 5px 5px; Xpadding: 5px" class="content-item img-responsive center-block" nb-events="media_events">
 				<source ng-src="{{media_url(inode)}}" ng-attr-type="{{inode.content_type}}">
 			</audio>
 		</div>
-		<img ng-switch-when="image" ng-src="{{media_url(inode)}}" class="content-item img-responsive center-block img-rounded Ximg-circle-non-hover transition-slow" style="max-height: 100%" nb-events="media_events" />
 		<div ng-switch-when="text">
-			<div class="content-switcher text-center" style="padding: 5px" ng-show="!is_previewing">
-				<span class="fa-stack fa-2x" title="Open text file" rel="tooltip" ng-click="toggle_content()" style="cursor: pointer">
-					<i class="fa fa-circle fa-stack-2x"></i>
-					<i class="fa fa-font fa-stack-1x"></i>
-				</span>
-			</div>
-			<object ng-if="show_content" ng-attr-data="{{media_url(inode)}}" type="text/plain" width="100%" class="content-item center-block bggrey" nb-events="media_events" </object>
+			<object ng-attr-data="{{media_url(inode)}}" type="text/plain" width="100%" class="content-item center-block bggrey" nb-events="media_events" </object>
 		</div>
 	</div>
 </div>

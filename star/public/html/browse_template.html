@@ -56,10 +56,6 @@
 						<i class="fa fa-{{current_inode.done_keep && 'check' || 'plus'}} fa-fw fa-lg"></i>
 						Keep
 					</a>
-					<a ng-if="!current_inode.isdir" class="btn btn-primary" ng-click="toggle_preview(current_inode)" title="Open" rel="tooltip" nb-tooltip="{container: 'body'}">
-						<i class="fa fa-search-{{current_inode.is_previewing && 'minus' || 'plus'}} fa-fw fa-lg"></i>
-						<!-- Open -->
-					</a>
 					<a class="btn btn-default" ng-if="!current_inode.isdir && !current_inode.uploading && current_inode.size" href="{{nbInode.download_url(current_inode)}}" download="{{current_inode.name}}" target="_blank" title="Download" rel="tooltip" nb-tooltip="{container: 'body'}">
 						<i class="fa fa-cloud-download fa-fw fa-lg"></i>
 						<!-- Download -->
@@ -67,7 +63,7 @@
 					<a class="btn btn-default" ng-if="nbInode.can_upload_to_dir(current_inode)" ng-click="nbInode.new_folder(current_inode)" title="New Folder" rel="tooltip" nb-tooltip="{container: 'body'}">
 						<span class="fa-stack" style="font-size: 0.65em">
 							<i class="fa fa-folder fa-stack-2x"></i>
-							<i class="fa fa-plus fa-stack-1x text-black"></i>
+							<i class="fa fa-plus fa-stack-1x fa-inverse"></i>
 						</span>
 						<!-- New Folder -->
 					</a>
@@ -77,7 +73,7 @@
 					</a>
 					<div style="display: inline-block; max-width: 140px; vertical-align:middle">
 						<div ng-show="current_inode.isdir" Xclass="input-group" style="position: relative">
-							<input type="text" class="form-control {{search_in_folder && 'label-primary' || 'label-default'}} text-white" maxlength="100" placeholder="Search folder" ng-model="search_in_folder" />
+							<input type="text" class="form-control {{search_in_folder && 'label-primary'}}" maxlength="100" placeholder="Search folder" ng-model="search_in_folder" />
 							<i class="fa fa-times fa-fw" style="cursor: pointer; position: absolute; right: 10px; top: 11px" ng-click="search_in_folder=''"></i>
 						</div>
 					</div>
@@ -95,8 +91,7 @@
 				<div class="Xanimated XfadeIn Xclearfix" ng-click="select_inode(inode, $index, $event)" style="cursor: pointer">
 					<span class="text-wrap">
 						<i ng-show="inode.is_selected" class="fa fa-check fa-fw fa-lg"></i>
-						<i ng-show="!!inode.isdir" class="fa fa-folder-open fa-fw fa-lg"></i>
-						<i ng-show="!inode.isdir" class="fa fa-file-o fa-fw fa-lg"></i>
+						<i class="fa fa-{{nbUtil.icon_by_kind(inode.content_kind)}} fa-fw fa-lg"></i>
 						<a class="btn btn-link" ng-click="open_inode(inode, $index, $event)" style="padding-left: 0; display: inline">
 							<span style="white-space: pre-wrap">{{inode.name}}</span>
 						</a>
@@ -111,8 +106,8 @@
 									<i class="fa fa-{{inode.done_keep && 'check' || 'plus'}} fa-fw fa-lg"></i>
 									<!-- Keep -->
 								</a>
-								<a ng-show="!inode.isdir" class="btn btn-primary" ng-click="toggle_preview(inode)" title="Open" rel="tooltip" nb-tooltip="{container: 'body'}">
-									<i class="fa fa-search-{{inode.is_previewing && 'minus' || 'plus'}} fa-fw fa-lg"></i>
+								<a class="btn btn-primary" ng-click="open_inode(inode, $index, $event)" title="Open" rel="tooltip" nb-tooltip="{container: 'body'}">
+									<i class="fa fa-play fa-fw fa-lg"></i>
 									<!-- Open -->
 								</a>
 								<a class="btn btn-default" ng-if="!inode.isdir && !inode.uploading && inode.size" href="{{nbInode.download_url(inode)}}" download="{{inode.name}}" target="_blank" title="Download" rel="tooltip" nb-tooltip="{container: 'body'}">
@@ -152,7 +147,7 @@
 							{{moment(inode.ctime).fromNow(true)}}
 						</span>
 						<a class="btn btn-sm {{!inode.shr && 'btn-link' || inode.shr=='f' && 'btn-warning' || 'btn-warning btn-hover-only'}}" ng-if="nbInode.can_share_inode(inode)" ng-click="share_inode(inode)" ng-attr-title="{{!inode.shr && 'Click to share' || inode.shr=='f' && 'Shared with friends' || 'Shared with some friends'}}" rel="tooltip" style="margin-left: 5px">
-							<i class="fa fa-{{!inode.shr && 'lock' || 'eye'}} fa-lg fa-fw {{!inode.shr && 'text-white'}}"></i>
+							<i class="fa fa-{{!inode.shr && 'lock' || 'eye'}} fa-lg fa-fw {{inode.shr=='f' || 'text-muted'}}"></i>
 						</a>
 					</span>
 				</div>
