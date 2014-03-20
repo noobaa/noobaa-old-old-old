@@ -91,8 +91,9 @@
 				}
 			};
 
-			var feeds_per_page = 10;
+			$scope.feeds = [];
 			$scope.fetching_feeds = 0;
+			var feeds_per_page = 10;
 
 			if (nbUser.user) {
 				nbUtil.track_event('home.load' + (nbPlanet.on ? '.planet' : ''));
@@ -211,9 +212,10 @@
 				if (!$scope.swm || !$scope.sbm || $scope.fetching_feeds) {
 					return;
 				}
-				$scope.feeds = [];
+				$scope.feeds.length = 0;
 				$scope.feeds_limit = 0;
 				$scope.has_more_feeds = true;
+				$scope.safe_apply();
 				fetch_feeds(feeds_per_page).then(function() {
 					rebuild_layout();
 				});
@@ -258,7 +260,7 @@
 							}
 						}
 					});
-					$scope.$root.safe_apply();
+					$scope.safe_apply();
 				}).then(function() {
 					$scope.fetching_feeds = false;
 				}, function(err) {

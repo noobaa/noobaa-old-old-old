@@ -207,13 +207,13 @@ a.btn-link.text-white:hover {
 	/*box-shadow: 0 0 8px 5px hsla(0, 0%, 100%, 0.15);*/
 }
 .feed_item .panel, .feed_item .panel-footer {
-	background-color: hsl(0, 0%, 94%);
+	background-color: hsl(0, 0%, 97%);
 	border: none;
 }
 .feed_item .panel {
-	-webkit-box-shadow: 0 0 4px 4px hsl(0, 0%, 96%) !important;
-	-moz-box-shadow: 0 0 4px 4px hsl(0, 0%, 96%) !important;
-	box-shadow: 0 0 4px 4px hsl(0, 0%, 96%) !important;
+	-webkit-box-shadow: 0 0 4px 4px hsl(0, 0%, 97%) !important;
+	-moz-box-shadow: 0 0 4px 4px hsl(0, 0%, 97%) !important;
+	box-shadow: 0 0 4px 4px hsl(0, 0%, 97%) !important;
 }
 .white-shadow {
 	-webkit-box-shadow: 0 0 7px 7px hsla(0, 0%, 100%, 0.3) !important;
@@ -239,25 +239,6 @@ a.btn-link.text-white:hover {
 */
  .browser .content-item {
 	border-radius: 4px;
-}
-.content-switcher > span, .content-switcher > span > .fa-stack-2x, .feed_item {
-	transition: all 0.5s;
-	-o-transition: all 0.5s;
-	-moz-transition: all 0.5s;
-	-webkit-transition: all 0.5s;
-}
-.content-switcher > span:hover {
-	transform: rotate(360deg);
-	-webkit-transform: rotate(360deg);
-}
-.content-switcher > span > .fa-stack-1x {
-	color: white !important;
-}
-.content-switcher > span > .fa-stack-2x {
-	color: hsl(210, 16%, 56%) !important;
-}
-.content-switcher > span:hover > .fa-stack-2x {
-	color: hsl(210, 16%, 36%) !important;
 }
 .nav > li.active > a > i.fa.text-muted {
 	color: hsl(0, 0%, 95%) !important;
