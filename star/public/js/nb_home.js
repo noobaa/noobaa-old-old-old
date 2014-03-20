@@ -160,8 +160,8 @@
 						content_kind: 'image',
 						id: 'v3',
 						shr: 'f',
-						new_keep_inode: true,
-						done_keep: true,
+						// new_keep_inode: true,
+						// done_keep: true,
 						ref_owner: max,
 						messages: [{
 							user: max,
@@ -177,8 +177,8 @@
 						content_kind: 'image',
 						id: 'v4',
 						shr: 'f',
-						new_keep_inode: true,
-						done_keep: true,
+						// new_keep_inode: true,
+						// done_keep: true,
 						ref_owner: kiefer,
 						messages: [{
 							user: kiefer,
@@ -191,7 +191,7 @@
 					$scope.feeds = _.map(inodes, function(inode) {
 						return {
 							name: inode.name,
-							expanded: true,
+							// expanded: true,
 							inodes: [inode]
 						};
 					});

@@ -24,7 +24,7 @@
 			/*text-indent: 50px;*/
 		}
 		.question:hover .answer {
-			color: white !important;
+			/*color: white !important;*/
 		}
 		.animated {
 			visibility: hidden;
@@ -48,7 +48,7 @@
 			</div>
 			<div class="pull-right">
 				<a class="navbar-btn btn btn-default" href="/welcome">
-					<i class="fa fa-hand-o-left"></i>
+					<!-- <i class="fa fa-hand-o-left"></i> -->
 					Back
 				</a>
 			</div>
@@ -57,29 +57,29 @@
 
 	<div class="container">
 
-		<h1 class="text-muted Xfntpaint">
-			<span class="text-danger" style="font-size: 1.2em">F</span>requently
-			<span class="text-danger" style="font-size: 1.2em">A</span>sked
-			<span class="text-danger" style="font-size: 1.2em">Q</span>uestions
+		<h1 class="text-center text-muted fadeIn">
+			<span class="Xtext-primary" style="font-size: 1.2em">F</span>requently
+			<span class="Xtext-primary" style="font-size: 1.2em">A</span>sked
+			<span class="Xtext-primary" style="font-size: 1.2em">Q</span>uestions
 		</h1>
 
 
 		<div ng-repeat="(sec_idx, curr_faq_section) in faq" style="margin-top: 50px">
 			<!-- <a class="btn btn-success btn-lg" data-toggle="collapse" href="#curr_faq_section_content{{sec_idx}}" style="min-width: 300px"> -->
-			<h1 class="animated">
+			<h2 class="animated text-muted text-center">
 				<!-- <i class="fa fa-angle-double-right Xfa-fw fa-lg text-danger"></i> -->
-				<span class="text-muted">{{curr_faq_section.title}}</span>
+				<span>{{curr_faq_section.title}}</span>
 				<!-- <i class="fa fa-angle-double-left Xfa-fw fa-lg text-danger"></i> -->
-			</h1>
+			</h2>
 			<br/>
 			<div id="curr_faq_section_content{{sec_idx}}">
 				<div ng-repeat="(idx, question) in curr_faq_section.questions" class="question animated">
 					<!-- <a data-toggle="collapse" href="#curr_faq_section_question{{idx}}{{sec_idx}}"> -->
-					<p class="lead text-warning">
+					<h4 class="Xtext-primary">
 						{{question.q}}
-					</p>
+					</h4>
 					<div id="curr_faq_section_question{{idx}}{{sec_idx}}">
-						<p class="lead answer" style="margin-left: 50px; text-align: justify; text-indent: 0">{{question.a}}</p>
+						<p class="answer" style="margin-left: 30px; text-align: justify; text-indent: 0">{{question.a}}</p>
 					</div>
 				</div>
 			</div>
@@ -88,7 +88,7 @@
 
 		<div class="text-center" style="padding: 50px 0">
 			<a class="btn btn-default btn-lg" href="/welcome">
-				<i class="fa fa-hand-o-left"></i>
+				<!-- <i class="fa fa-hand-o-left"></i> -->
 				Back
 			</a>
 		</div>
@@ -106,11 +106,11 @@
 	<script type="text/javascript">
 	$(function() {
 		function do_animate() {
-			$('.animated:not(.bounceIn)').each(function() {
+			$('.animated:not(.fadeIn)').each(function() {
 				var pos = $(this).offset().top;
 				var marker = $(window).scrollTop() + $(window).height();
 				if (pos < marker) {
-					$(this).addClass('bounceIn').css('visibility', 'visible');
+					$(this).addClass('fadeIn').css('visibility', 'visible');
 				}
 			});
 		}

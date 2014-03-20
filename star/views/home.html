@@ -122,30 +122,22 @@
 
 	<div ng-if="!nbUser.user" class="fadeIn">
 		<!-- <div style="height: 20px"></div> -->
-		<div class="container">
-			<div class="jumbotron text-center" style="padding: 20px">
-				<p class="text-muted">
-					Introducing NooBaa's
-					<a class="text-primary" href="/info" target="_blank">shared-economy</a> video platform
+		<div class="well well-sm clearfix" style="Xmargin: 0 0 20px 0; border-radius: 0">
+			<div class="container">
+				<button class="btn btn-default btn-lg pull-right hidden-xs" ng-click="open_signin()">
+					Sign in, it's free
+				</button>
+				<p style="margin-bottom: 2px">
+					Welcome to NooBaa's shared-economy personal cloud where you can
+					<span class="lead">watch friends videos!</span>
 				</p>
-				<h1 style="font-size: 60px">
-					Watch friends videos!
-				</h1>
-				<p style="padding-top: 20px">
-					<button class="btn btn-primary btn-lg" ng-click="open_signin()">
-						<span class="lead">Sign in, it's free</span>
-					</button>
-				</p>
+				<p style="margin-bottom: 2px">Learn about the features by exploring the app below.</p>
+				<button class="btn btn-default btn-lg pull-right visible-xs" ng-click="open_signin()">
+					Sign in, it's free
+				</button>
 			</div>
 		</div>
-		<div style="height: 20px"></div>
-
-		<!-- <hr/> -->
-		<div class="container text-center">
-			<p class="text-muted">
-				Here you can learn about NooBaa while exploring the app:
-			</p>
-			<!-- 
+		<!-- 
 			<div style="padding: 20px 0">
 				<a class="btn btn-default btn-hover-only" ng-click="play_welcome_video()">
 					<span class="text-warning">
@@ -155,13 +147,11 @@
 				</a>
 			</div>
 			 -->
-		</div>
-		<div style="height: 20px"></div>
 	</div>
 
 	<div Xng-if="nbUser.user">
 
-		<div id="nb-menu" class="text-center" style="padding-bottom: 15px">
+		<div id="nb-menu" class="text-center" style="padding: 15px 0">
 			<div class="container">
 				<ul class="nav nav-pills Xnav-justified center-block text-center" style="max-width: 620px">
 					<li ng-class="nbUtil.active_link('/home/feed/')">
@@ -225,8 +215,9 @@
 		</div>
 	</div>
 
-	<div style="height: 20px"></div>
+	<div style="height: 50px"></div>
 
+	<div ng-if="!nbUser.user" ng-include="'/public/html/site_foot_template.html'"></div>
 
 
 
