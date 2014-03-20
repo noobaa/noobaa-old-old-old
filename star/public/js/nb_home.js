@@ -110,8 +110,8 @@
 					var sher = {
 						first_name: 'Sher'
 					};
-					var walt = {
-						first_name: 'Walt'
+					var wang = {
+						first_name: 'Wang'
 					};
 					var max = {
 						first_name: 'Max'
@@ -145,12 +145,12 @@
 						shr: '',
 						// new_keep_inode: true,
 						// done_keep: true,
-						ref_owner: walt,
+						ref_owner: wang,
 						messages: [{
-							user: walt,
+							user: wang,
 							text: 'Watching your own videos is always fun, but let’s face it – most of us are more interested in what our friends have been up to.'
 						}, {
-							user: walt,
+							user: wang,
 							text: 'NooBaa makes it easy and fun to watch videos shared by your friends.'
 						}]
 					}, {
