@@ -206,14 +206,14 @@ a.btn-link.text-white:hover {
 	/*-moz-box-shadow: 0 0 8px 5px hsla(0, 0%, 100%, 0.15);*/
 	/*box-shadow: 0 0 8px 5px hsla(0, 0%, 100%, 0.15);*/
 }
-.feed_item.feed_hidden {
-	height: 0;
-	margin: 0;
-	padding: 0;
+.feed_item .panel, .feed_item .panel-footer {
+	background-color: hsl(0, 0%, 94%);
 	border: none;
-	box-shadow: none;
-	visibility: hidden;
-	overflow: hidden;
+}
+.feed_item .panel {
+	-webkit-box-shadow: 0 0 4px 4px hsl(0, 0%, 96%) !important;
+	-moz-box-shadow: 0 0 4px 4px hsl(0, 0%, 96%) !important;
+	box-shadow: 0 0 4px 4px hsl(0, 0%, 96%) !important;
 }
 .white-shadow {
 	-webkit-box-shadow: 0 0 7px 7px hsla(0, 0%, 100%, 0.3) !important;
@@ -295,14 +295,10 @@ input, textarea {
 	font-weight: normal !important;
 }
 .fnt, body, h1, h2, h3, h4, h5, h6, .ui-widget, button, a, p, input, textarea, .panel-header, .panel-body, .panel-footer {
-	/*font-family:'Ubuntu', sans-serif !important;*/
-	/*font-family: 'Architects Daughter', cursive !important;*/
-	/*font-family:'Salsa', cursive !important;*/
-	/*font-family:'Gilda Display', serif !important;*/
-	/*font-family:'Droid Serif', serif !important;*/
-	/*font-family: Helvetica, sans-serif !important;*/
+	font-family:"Droid Sans", Arial, Helvetica, sans-serif !important;
+}
+.fntserif {
 	font-family:"Times New Roman", Times, serif !important;
-	/*letter-spacing: 1px;*/
 }
 .fntpaint {
 	/*font-family:'Finger Paint', cursive !important;*/
@@ -333,17 +329,23 @@ input, textarea {
 	color: white;
 }
 .navbar {
-	margin: 0;
+	margin-bottom: 10px;
+	border-bottom: 1px solid hsl(0, 0%, 90%);
 }
 .navbar .navbar-brand {
-	padding: 5px 10px;
+	margin-top: 0;
+	padding: 4px 15px;
+	height: auto;
 }
 .navbar .navbar-brand img {
 	height: 32px;
 }
 .navbar .navbar-nav > li > a {
-	margin: 5px;
-	padding: 5px;
+	margin: 2px;
+	padding: 4px;
+}
+.navbar .navbar-brand small {
+	font-size: 12px;
 }
 /*
 @media all and (min-width: 992px) and (max-width: 1099px) {

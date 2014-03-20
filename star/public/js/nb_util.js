@@ -183,7 +183,7 @@
 				video: 'video-camera',
 				audio: 'music',
 				image: 'picture-o',
-				text: 'font',
+				text: 'file-text-o',
 			};
 
 			function icon_by_kind(kind) {
