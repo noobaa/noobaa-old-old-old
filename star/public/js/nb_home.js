@@ -94,9 +94,11 @@
 			var feeds_per_page = 10;
 			$scope.fetching_feeds = 0;
 
-			nbUtil.track_event('home.load', {
-				client: !! nbPlanet.on
-			});
+			if (nbUser.user) {
+				nbUtil.track_event('home.load' + (nbPlanet.on ? '.planet' : ''));
+			} else {
+				nbUtil.track_event('welcome.load' + (nbPlanet.on ? '.planet' : ''));
+			}
 
 			nbUser.update_user_info();
 
@@ -595,7 +597,7 @@
 					nbUploadSrv.open_dir_input();
 				} else {
 					$scope.open_signin();
-				}					
+				}
 			};
 		}
 	]);
