@@ -106,42 +106,97 @@
 			if (nbUser.user) {
 				init_read_dir();
 			} else {
-				var inodes = [{
-					name: 'Share videos',
-					fobj_get_url: '/public/images/bg_wave.jpg',
-					content_type: 'image/jpg',
-					content_kind: 'image',
-					id: 'v1',
-					shr: 'f',
-				}, {
-					name: 'Watch videos',
-					fobj_get_url: '/public/images/bg_bike.jpg',
-					content_type: 'image/jpg',
-					content_kind: 'image',
-					id: 'v2',
-					shr: 'f',
-				}, {
-					name: 'Access anywhere',
-					fobj_get_url: '/public/images/bg_snow.jpg',
-					content_type: 'image/jpg',
-					content_kind: 'image',
-					id: 'v3',
-					shr: 'f',
-				}, {
-					name: 'Protect your memories',
-					fobj_get_url: '/public/images/bg_skate.jpg',
-					content_type: 'image/jpg',
-					content_kind: 'image',
-					id: 'v4',
-					shr: 'f',
-				}];
-				$scope.feeds = _.map(inodes, function(inode) {
-					return {
-						name: inode.name,
-						inodes: [inode]
+				(function() {
+					var sher = {
+						first_name: 'Sher'
 					};
-				});
-				$scope.root_dir.entries = inodes;
+					var walt = {
+						first_name: 'Walt'
+					};
+					var max = {
+						first_name: 'Max'
+					};
+					var kiefer = {
+						first_name: 'Kiefer'
+					};
+					var inodes = [{
+						name: 'Share videos',
+						fobj_get_url: '/public/images/bg_wave.jpg',
+						content_type: 'image/jpg',
+						content_kind: 'image',
+						id: 'v1',
+						shr: '',
+						// new_keep_inode: true,
+						// done_keep: true,
+						ref_owner: sher,
+						messages: [{
+							user: sher,
+							text: 'Sharing videos with your friends has never been so easy.'
+						}, {
+							user: sher,
+							text: 'Connect using your Facebook or Google+ account and click on their faces!'
+						}]
+					}, {
+						name: 'Watch videos',
+						fobj_get_url: '/public/images/bg_bike.jpg',
+						content_type: 'image/jpg',
+						content_kind: 'image',
+						id: 'v2',
+						shr: '',
+						// new_keep_inode: true,
+						// done_keep: true,
+						ref_owner: walt,
+						messages: [{
+							user: walt,
+							text: 'Watching your own videos is always fun, but let’s face it – most of us are more interested in what our friends have been up to.'
+						}, {
+							user: walt,
+							text: 'NooBaa makes it easy and fun to watch videos shared by your friends.'
+						}]
+					}, {
+						name: 'Access anywhere',
+						fobj_get_url: '/public/images/bg_snow.jpg',
+						content_type: 'image/jpg',
+						content_kind: 'image',
+						id: 'v3',
+						shr: 'f',
+						new_keep_inode: true,
+						done_keep: true,
+						ref_owner: max,
+						messages: [{
+							user: max,
+							text: 'Videos are accessible from any device, anywhere, anytime.'
+						}, {
+							user: max,
+							text: 'Stream directly from the cloud.'
+						}]
+					}, {
+						name: 'Protect your memories',
+						fobj_get_url: '/public/images/bg_skate.jpg',
+						content_type: 'image/jpg',
+						content_kind: 'image',
+						id: 'v4',
+						shr: 'f',
+						new_keep_inode: true,
+						done_keep: true,
+						ref_owner: kiefer,
+						messages: [{
+							user: kiefer,
+							text: 'No need for an external hard drive.'
+						}, {
+							user: kiefer,
+							text: 'Keep a copy on the cloud for safekeeping and peace of mind.'
+						}]
+					}];
+					$scope.feeds = _.map(inodes, function(inode) {
+						return {
+							name: inode.name,
+							expanded: true,
+							inodes: [inode]
+						};
+					});
+					$scope.root_dir.entries = nbInode.merge_inode_entries(inodes);
+				})();
 			}
 
 			$scope.click_my_feed = function() {
@@ -612,8 +667,8 @@
 
 
 	noobaa_app.controller('FeedCtrl', [
-		'$scope', '$q', '$location', '$timeout', 'nbUtil', 'nbInode',
-		function($scope, $q, $location, $timeout, nbUtil, nbInode) {
+		'$scope', '$q', '$location', '$timeout', 'nbUtil', 'nbUser', 'nbInode',
+		function($scope, $q, $location, $timeout, nbUtil, nbUser, nbInode) {
 			$scope.reload_feed = reload_feed;
 			$scope.current_entry = current_entry;
 			$scope.current_entry_index = 0;
@@ -687,6 +742,9 @@
 			};
 
 			$scope.keep_feed = function() {
+				if (!nbUser.user) {
+					return $scope.open_signin();
+				}
 				var inode = $scope.current_inode;
 				return nbInode.keep_inode(inode, $scope.mydata).then(reload_feed, reload_feed);
 			};
@@ -710,11 +768,17 @@
 			};
 
 			$scope.keep_and_share_feed = function() {
+				if (!nbUser.user) {
+					return $scope.open_signin();
+				}
 				var inode = $scope.current_inode;
 				return nbInode.keep_and_share(inode, $scope.mydata, $scope.refresh_feeds);
 			};
 
 			$scope.post_comment = function(comment_box) {
+				if (!nbUser.user) {
+					return $scope.open_signin();
+				}
 				if (!comment_box || !comment_box.inode || !comment_box.text) {
 					return;
 				}
@@ -979,26 +1043,26 @@
 				replace: true,
 				link: function(scope, element, attr) {
 					scope.nbInode = nbInode;
-					scope.$watch(attr.nbMedia, function(value) {
-						scope.inode = scope.$eval(attr.nbMedia) || {};
-					});
-					scope.media_events = scope.$eval(attr.mediaEvents) || {};
 					scope.media_url = function(inode) {
 						return nbInode.fobj_get_url(inode);
 					};
 					scope.media_open = function(inode) {
 						return nbInode.seamless_open_inode(inode);
 					};
-					if (nbPlanet.on) {
-						if (nbPlanet.open_content(scope.inode)) {
-							return;
+					scope.media_events = scope.$eval(attr.mediaEvents) || {};
+					scope.$watch(attr.nbMedia, function(value) {
+						scope.inode = scope.$eval(attr.nbMedia) || {};
+						if (nbPlanet.on) {
+							if (nbPlanet.open_content(scope.inode)) {
+								return;
+							}
 						}
-					}
-					scope.show_content = true;
-					// TODO a little bit hacky way to call notify_layout...
-					if (scope.media_events.load) {
-						scope.media_events.load();
-					}
+						scope.show_content = true;
+						// TODO a little bit hacky way to call notify_layout...
+						if (scope.media_events.load) {
+							scope.media_events.load();
+						}
+					});
 				},
 				templateUrl: '/public/html/media_template.html'
 			};

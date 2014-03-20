@@ -29,7 +29,7 @@
 
 				<div class="panel panel-default" style="margin: 15px 10px; border-radius: 4px; overflow: hidden">
 
-					<div class="panel-body hover-target" style="{{expanded && 'min-height' || 'height'}}: 200px; padding: 0; position: relative; overflow: hidden">
+					<div class="panel-body hover-target" style="{{feed.expanded && 'min-height' || 'height'}}: 200px; padding: 0; position: relative; overflow: hidden">
 						<div ng-if="current_entry().content_kind != 'image'" class="text-center">
 							<br/>
 							<span class="label label-default">Add image for preview</span>
@@ -55,7 +55,7 @@
 							</div>
 						</div>
 
-						<div ng-show="expanded" class="pullDown">
+						<div ng-show="feed.expanded" class="pullDown">
 							<div ng-repeat="feed_inode in feed.inodes track by $index" style="padding: 7px; border-top: 1px solid hsl(210,10%,90%)" class="hover-target" ng-init="comment_box={inode: feed_inode}">
 								<div style="overflow: hidden">
 									<img class="img-circle" ng-src="{{nbUser.user_pic_url(feed_inode.ref_owner || nbUser.user)}}" style="width: 30px; height: 30px; margin-right: 5px; vertical-align: top" />
@@ -115,14 +115,14 @@
 						</div>
 
 						<div>
-							<a ng-click="expanded = !expanded" class="btn btn-sm {{expanded && 'btn-primary' || 'btn-link'}}" style="padding: 3px 5px; margin: 5px; text-decoration: none">
-								<small class="{{expanded || 'text-primary'}}">
+							<a ng-click="feed.expanded = !feed.expanded" class="btn btn-sm {{feed.expanded && 'btn-primary' || 'btn-link'}}" style="padding: 3px 5px; margin: 5px; text-decoration: none">
+								<small class="{{feed.expanded || 'text-primary'}}">
 									{{feed.inodes.length}}
 									<i class="fa fa-user"></i>
 									&nbsp; {{num_messages()}}
 									<i class="fa fa-comments"></i>
 									&nbsp;
-									<i class="fa fa-caret-{{expanded && 'up' || 'down'}}"></i>
+									<i class="fa fa-caret-{{feed.expanded && 'up' || 'down'}}"></i>
 								</small>
 							</a>
 							<a ng-show="done_keep()" class="btn btn-link btn-sm" ng-click="open_feed_inode(current_inode)" style="padding: 0; margin: 5px">

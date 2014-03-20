@@ -75,6 +75,7 @@
 				if (user.googleid) {
 					return 'https://plus.google.com/s2/photos/profile/' + user.googleid + '?sz=50';
 				}
+				return '/public/images/user_silhouette.png';
 			}
 
 			function on_fb_state_change(res) {
