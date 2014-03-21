@@ -52,7 +52,7 @@
 							{{moment(inode.ctime).fromNow(true)}}
 						</span>
 						<a class="btn btn-sm {{!inode.shr && 'btn-link' || inode.shr=='f' && 'btn-warning' || 'btn-warning btn-hover-only'}}" ng-if="nbInode.can_share_inode(inode)" ng-attr-title="{{!inode.shr && 'Not shared' || inode.shr=='f' && 'Shared with friends' || 'Shared with some friends'}}" rel="tooltip" style="margin-left: 5px">
-							<i class="fa fa-{{!inode.shr && 'lock' || 'eye'}} fa-lg fa-fw {{!inode.shr && 'text-white'}}"></i>
+							<i class="fa fa-{{!inode.shr && 'lock' || 'eye'}} fa-lg fa-fw {{!inode.shr && 'text-muted'}}"></i>
 						</a>
 					</span>
 				</div>

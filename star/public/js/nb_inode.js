@@ -642,6 +642,7 @@
 				var share_scope = $rootScope.$new();
 				share_scope.nbUtil = nbUtil;
 				share_scope.nbUser = nbUser;
+				share_scope.moment = moment;
 				share_scope.share_inode = inode;
 				share_scope.shr = 'f';
 				share_scope.run = function() {

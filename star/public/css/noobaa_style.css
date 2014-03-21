@@ -7,7 +7,8 @@ html, body {
 }
 /* COLOR SCHEME */
  .btn-link, .text-primary, .nav>li:not(.active)>a, .navbar-header a {
-	color: hsl(218, 60%, 50%) !important;
+	/*color: hsl(218, 20%, 60%) !important;*/
+	/*color: hsl(218, 60%, 50%) !important;*/
 }
 .btn-primary, .nav>li.active>a, .label-primary {
 	/*background-color: hsl(240, 20%, 50%) !important;*/
@@ -36,6 +37,14 @@ html, body {
 	border-color: hsl(0, 0%, 87%) !important;
 	color: black !important;
 }
+.btn.btn-outline {
+	background-color: transparent;
+	border: black solid 1px;
+	color: black;
+}
+.btn.btn-outline:hover {
+	/*background-color: ; TODO */
+}
 .btn.btn-default.btn-transparent {
 	background-color: hsla(0, 0%, 0%, 0.2) !important;
 	color: #eee !important;
@@ -45,18 +54,6 @@ html, body {
 	background-color: hsla(0, 0%, 40%, 0.2) !important;
 	color: white !important;
 	border: white solid 2px !important;
-}
-.btn-link {
-	/*color: white;*/
-}
-.btn {
-	/*border-radius: 20px;*/
-}
-.btn-lg {
-	/*border-radius: 30px;*/
-}
-.nav-pills > li > a {
-	/*border-radius: 30px;*/
 }
 /* COLOR BLACK & WHITE */
  .bg-white {
@@ -73,29 +70,6 @@ html, body {
 }
 .text-black {
 	color: hsl(0, 0%, 5%) !important;
-}
-.text-muted {
-	/*color: hsl(210, 16%, 56%) !important;*/
-}
-::-webkit-input-placeholder {
-	/* WebKit browsers */
-	/*color: hsl(210, 16%, 56%) !important;*/
-}
-:-moz-placeholder {
-	/* Mozilla Firefox 4 to 18 */
-	/*color: hsl(210, 16%, 56%) !important;*/
-}
-::-moz-placeholder {
-	/* Mozilla Firefox 19+ */
-	/*color: hsl(210, 16%, 56%) !important;*/
-}
-:-ms-input-placeholder {
-	/* Internet Explorer 10+ */
-	/*color: hsl(210, 16%, 56%) !important;*/
-}
-.modal-backdrop {
-	/*background-color: hsl(0, 0%, 0%);*/
-	/*opacity: 0.7 !important;*/
 }
 .bottom-radius {
 	border-bottom-left-radius: 20px !important;
@@ -134,13 +108,6 @@ html, body {
 }
 .img-circle-non-hover:hover {
 	border-radius: 0;
-}
-/*
-a.btn-link.text-white {
-	color: hsl(0, 0%, 60%) !important;
-}
-a.btn-link.text-white:hover {
-	color: hsl(0, 0%, 95%) !important;
 }
 /**/
 
@@ -310,46 +277,28 @@ input, textarea {
 	color: white;
 }
 .navbar {
-	margin: 0;
-	border-bottom: 1px solid hsl(0, 0%, 90%);
+	background-color: transparent;
+	border-radius: 0;
+	/*border-bottom: 1px solid hsl(0, 0%, 90%);*/
+	/*margin: 0;*/
 }
 .navbar .navbar-brand {
 	margin-top: 0;
-	padding: 4px 15px;
+	padding: 8px 15px;
 	height: auto;
 }
 .navbar .navbar-brand img {
 	height: 32px;
 }
-.navbar .navbar-nav > li > a {
-	margin: 2px;
-	padding: 4px;
-}
 .navbar .navbar-brand small {
 	font-size: 12px;
 }
-/*
-@media all and (min-width: 992px) and (max-width: 1099px) {
-	.container {
-		width: 750px !important;
-	}
+.navbar .nav-pills li a {
+	border-radius: 0;
 }
-@media all and (min-width: 1100px) and (max-width: 1400px) {
-	.container {
-		width: 1000px !important;
-	}
-}
-*/
-
 /**/
 
 /* GENERAL */
- .bgpattern {
-	background-image: url('/public/images/pattern.png');
-	position: absolute;
-	width: 100%;
-	height: 100%;
-}
 .notextselect {
 	/* begin disable text selection highlight */
 	-webkit-touch-callout: none;
@@ -498,48 +447,6 @@ input, textarea {
 .tour-step-background {
 	display: none !important;
 }
-/*.selectable .ui-selecting {
-	background: #FECA40;
-}
-.selectable .ui-selected {
-	background: #F39814;
-	color: white;
-}
-.selectable {
-	list-style-type: none;
-}
-.t-table {
-	display: table;
-	width: 100%;
-}
-.t-row-group {
-	display: table-row-group;
-}
-.t-row {
-	display: table-row;
-}
-.t-cell {
-	display: table-cell;
-	padding: 3px;
-}
-.radius_right {
-	-webkit-border-top-right-radius: 100px !important;
-	-moz-border-radius-topright: 100px !important;
-	border-top-right-radius: 100px !important;
-	-webkit-border-bottom-left-radius: 100px !important;
-	-moz-border-radius-bottomleft: 100px !important;
-	border-bottom-left-radius: 100px !important;
-}
-.radius_left {
-	-webkit-border-top-left-radius: 100px !important;
-	-moz-border-radius-topleft: 100px !important;
-	border-top-left-radius: 100px !important;
-	-webkit-border-bottom-right-radius: 100px !important;
-	-moz-border-radius-bottomright: 100px !important;
-	border-bottom-right-radius: 100px !important;
-}
-*/
-
 /**/
 
 /*
@@ -549,73 +456,6 @@ input, textarea {
 */
 [ng\:cloak], [ng-cloak], .ng-cloak {
 	display: none !important;
-}
-/**/
-
-/* http://getbootstrap.com/examples/non-responsive/
- * 
- * Non-responsive overrides
- * 
- * Utilitze the following CSS to disable the responsive-ness of the container,
- * grid system, and navbar.
- */
-
-/* Reset the container */
- .nonresp .container {
-	max-width: none !important;
-	/* fixed width seems unneeded */
-}
-/* Always float the navbar header */
- .nonresp .navbar-header {
-	float: left;
-}
-/* Undo the collapsing navbar */
- .nonresp .navbar-collapse {
-	display: block !important;
-	height: auto !important;
-	padding-bottom: 0;
-	overflow: visible !important;
-}
-.nonresp .navbar-toggle {
-	display: none;
-}
-/* Always apply the floated nav */
- .nonresp .navbar-nav {
-	float: left;
-	margin: 0;
-}
-.nonresp .navbar-nav > li {
-	float: left;
-}
-.nonresp .navbar-nav > li > a {
-	padding: 15px;
-}
-/* Redeclare since we override the float above */
- .nonresp .navbar-nav.navbar-right {
-	float: right;
-}
-/* Undo custom dropdowns */
- .nonresp .navbar .open .dropdown-menu {
-	position: absolute;
-	float: left;
-	background-color: #fff;
-	border: 1px solid #cccccc;
-	border: 1px solid rgba(0, 0, 0, 0.15);
-	border-width: 0 1px 1px;
-	border-radius: 0 0 4px 4px;
-	-webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
-	box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
-}
-.nonresp .navbar .open .dropdown-menu > li > a {
-	color: #333 !important;
-}
-.nonresp .navbar .open .dropdown-menu > li > a:hover, .nonresp .navbar .open .dropdown-menu > li > a:focus, .nonresp .navbar .open .dropdown-menu > .active > a, .nonresp .navbar .open .dropdown-menu > .active > a:hover, .nonresp .navbar .open .dropdown-menu > .active > a:focus {
-	color: #fff !important;
-	background-color: #428bca !important;
-}
-.nonresp .navbar .open .dropdown-menu > .disabled > a, .nonresp .navbar .open .dropdown-menu > .disabled > a:hover, .nonresp .navbar .open .dropdown-menu > .disabled > a:focus {
-	color: #999 !important;
-	background-color: transparent !important;
 }
 /**/
 
