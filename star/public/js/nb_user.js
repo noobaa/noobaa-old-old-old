@@ -39,7 +39,7 @@
 
 			function update_user_info() {
 				if (!$scope.user) {
-					set_user_usage(1024 * 1024 * 1024, 0);
+					set_user_usage(400 * 1024 * 1024 * 1024, 250 * 1024 * 1024 * 1024);
 					return;
 				}
 				reset_update_user_info(true);

@@ -59,9 +59,7 @@
 							<div ng-repeat="feed_inode in feed.inodes track by $index" style="padding: 7px; border-top: 1px solid hsl(210,10%,90%)" ng-init="comment_box={inode: feed_inode}">
 								<div style="overflow: hidden">
 									<img class="img-circle" ng-src="{{nbUser.user_pic_url(feed_inode.ref_owner || nbUser.user)}}" style="width: 30px; height: 30px; margin-right: 5px; vertical-align: top" />
-									<small>
-										<small class="text-primary"><b>{{(feed_inode.ref_owner || nbUser.user).first_name}}</b>
-										</small>
+									<small class="text-primary"><b>{{(feed_inode.ref_owner || nbUser.user).first_name}}</b>
 									</small>
 									<a class="btn btn-link btn-lg pull-right" ng-click="comment_box.show = !comment_box.show" title="Add comment" rel="tooltip" nb-tooltip="{placement: 'bottom'}" style="padding: 2px 7px">
 										<i class="fa fa-reply-all"></i>
@@ -70,28 +68,24 @@
 										<i class="fa fa-file-o text-muted"></i>
 									</a>
 								</div>
-								<div style="margin-left: 25px">
+								<div style="margin: 5px 0 0 15px">
 									<div ng-repeat="msg in feed_inode.messages" class="clearfix hover-target">
 										<img class="img-circle pull-left" ng-src="{{nbUser.user_pic_url(msg.user)}}" style="width: 30px; height: 30px; margin-right: 5px; vertical-align: top" />
 										<div style="overflow: hidden">
 											<div class="Xtext-wrap">
+												<small class="text-primary"><b>{{msg.user.first_name}}</b>
+												</small>
+												&nbsp;
 												<small>
-													<small class="text-primary"><b>{{msg.user.first_name}}</b>
-													</small>
-													&nbsp;
-													<small>
-														<span style="white-space: pre-wrap" ng-bind-html="msg.text | linky:'_blank'"></span>
-													</small>
+													<span style="white-space: pre-wrap" ng-bind-html="msg.text | linky:'_blank'"></span>
 												</small>
 											</div>
 											<div>
-												<small>
-													<small class="text-muted">
-														{{moment(msg.create_time).fromNow()}}
-														<a class="visible-hover-only" ng-click="nbInode.delete_inode_message(feed_inode, msg)" ng-if="msg.is_mine">
-															<i class="fa fa-times fa-fw text-muted"></i>
-														</a>
-													</small>
+												<small class="text-muted">
+													{{moment(msg.create_time).fromNow()}}
+													<a class="visible-hover-only" ng-click="nbInode.delete_inode_message(feed_inode, msg)" ng-if="msg.is_mine">
+														<i class="fa fa-times fa-fw text-muted"></i>
+													</a>
 												</small>
 											</div>
 										</div>
