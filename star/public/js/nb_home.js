@@ -96,9 +96,13 @@
 			var feeds_per_page = 10;
 
 			if (nbUser.user) {
-				nbUtil.track_event('home.load' + (nbPlanet.on ? '.planet' : ''));
+				nbUtil.track_event('home.load', {
+					planet: !! nbPlanet.on
+				});
 			} else {
-				nbUtil.track_event('welcome.load' + (nbPlanet.on ? '.planet' : ''));
+				nbUtil.track_event('welcome.load', {
+					planet: !! nbPlanet.on
+				});
 			}
 
 			nbUser.update_user_info();
