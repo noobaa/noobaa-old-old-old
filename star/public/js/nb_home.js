@@ -163,7 +163,7 @@
 						content_type: 'image/jpg',
 						content_kind: 'image',
 						id: 'v3',
-						shr: 'f',
+						shr: '',
 						// new_keep_inode: true,
 						// done_keep: true,
 						ref_owner: max,
@@ -180,7 +180,7 @@
 						content_type: 'image/jpg',
 						content_kind: 'image',
 						id: 'v4',
-						shr: 'f',
+						shr: '',
 						// new_keep_inode: true,
 						// done_keep: true,
 						ref_owner: kiefer,
@@ -748,6 +748,9 @@
 			$scope.keep_feed = function() {
 				if (!nbUser.user) {
 					return $scope.open_signin();
+				}
+				if ($scope.done_keep()) {
+					return $scope.open_feed_inode($scope.current_inode);
 				}
 				var inode = $scope.current_inode;
 				return nbInode.keep_inode(inode, $scope.mydata).then(reload_feed, reload_feed);

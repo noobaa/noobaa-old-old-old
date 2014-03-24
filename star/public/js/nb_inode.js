@@ -9,10 +9,10 @@
 	var noobaa_app = angular.module('noobaa_app');
 
 	noobaa_app.factory('nbInode', [
-		'$http', '$timeout', '$interval', '$q', '$window', '$location', '$rootScope', '$sce',
+		'$http', '$timeout', '$interval', '$q', '$window', '$location', '$rootScope', '$sce', '$sanitize',
 		'LinkedList', 'JobQueue', 'nbUtil', 'nbUser',
 
-		function($http, $timeout, $interval, $q, $window, $location, $rootScope, $sce,
+		function($http, $timeout, $interval, $q, $window, $location, $rootScope, $sce, $sanitize,
 			LinkedList, JobQueue, nbUtil, nbUser) {
 
 			var $scope = {
@@ -725,22 +725,28 @@
 				return copy_inode(inode, dir_inode).then(function(res) {
 					inode.running_keep--;
 					inode.done_keep = true;
-					var notify_message = '"' + inode.name + '" was added to My-Data';
+					var notify_message = [
+						'<p>Added to My-Data</p>',
+						'<p class="text-wrap">',
+						' <i class="fa fa-' + nbUtil.icon_by_kind(inode.content_kind) + ' fa-lg fa-fw"></i>',
+						$sanitize(inode.name),
+						'</p>'
+					].join('\n');
 					// if (copy_scope.count !== 1) {
 					// notify_message += ' (' + copy_scope.count + ' items)';
 					// }
 					$.bootstrapGrowl(notify_message, {
 						ele: 'body',
-						type: 'danger',
+						type: 'info',
 						offset: {
 							from: 'top',
-							amount: 60
+							amount: 30
 						},
 						align: 'right',
-						width: 'auto',
+						// width: 'auto',
 						delay: 5000,
 						allow_dismiss: true,
-						stackup_spacing: 20
+						stackup_spacing: 10
 					});
 					return new_keep_inode_promise;
 				}, function(err) {

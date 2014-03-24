@@ -120,24 +120,24 @@
 									<i class="fa fa-caret-{{feed.expanded && 'up' || 'down'}}"></i>
 								</span>
 							</button>
-							<button ng-show="done_keep()" class="btn btn-link btn-sm" ng-click="open_feed_inode(current_inode)" style="padding: 0; margin: 5px">
-								<span class="text-muted">
+							<button class="btn btn-link btn-sm" ng-click="keep_feed()" ng-disabled="running_keep()" style="padding: 0; margin: 5px" ng-switch="done_keep()">
+								<span ng-switch-when="true" class="text-muted">
 									<i class="fa fa-check"></i> Keep
 								</span>
-							</button>
-							<button ng-show="!done_keep()" class="btn btn-link btn-sm" ng-click="keep_feed()" ng-disabled="running_keep()" style="padding: 0; margin: 5px">
-								<span ng-if="running_keep()">
-									<i class="fa fa-spin fa-spinner"></i>
+								<span ng-switch-default>
+									<span ng-if="running_keep()">
+										<i class="fa fa-spin fa-spinner"></i>
+									</span>
+									<i class="fa fa-plus text-danger"></i> Keep
 								</span>
-								Keep
 							</button>
-							<button ng-show="current_inode.shr=='f'" class="btn btn-link btn-sm" ng-click="keep_and_share_feed()" style="padding: 0; margin: 5px">
-								<span class="text-muted">
+							<button class="btn btn-link btn-sm" ng-click="keep_and_share_feed()" style="padding: 0; margin: 5px" ng-switch="current_inode.shr">
+								<span ng-switch-when="f" class="text-muted">
 									<i class="fa fa-check"></i> Share
 								</span>
-							</button>
-							<button ng-hide="current_inode.shr=='f'" class="btn btn-link btn-sm" ng-click="keep_and_share_feed()" style="padding: 0; margin: 5px">
-								Share
+								<span ng-switch-default>
+									<i class="fa fa-share-square-o text-warning"></i> Share
+								</span>
 							</button>
 						</div>
 
