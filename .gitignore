@@ -3,4 +3,4 @@
 .env
 node_modules/
 bower_components/
-noobaa-mongohq-dump/
+noobaa-prod-dump/
