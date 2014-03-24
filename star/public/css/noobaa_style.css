@@ -19,7 +19,10 @@ html, body {
 	color: hsl(0, 0%, 60%);
 }
 */
- .well, .panel-default .panel-heading, .panel-default .panel-footer {
+ .text-warning {
+	color: hsl(35, 84%, 62%);
+}
+.well, .panel-default .panel-heading, .panel-default .panel-footer {
 	background-color: hsl(0, 0%, 93%);
 }
 .bggrey, .progress-bar-grey, .bggrey-hover-only:hover {
