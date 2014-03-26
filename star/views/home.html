@@ -144,12 +144,14 @@
 	</nav>
 
 
-	<div>
-		<div nb-effect-toggle="nbUploadSrv.has_uploads()" nb-effect-options="{effect: 'blind'}" class="container">
+	<div class="container">
+
+		<div ng-show="nbUploadSrv.has_uploads()" class="fadeIn">
 			<div ng-include="'/public/html/upload_template.html'"></div>
 		</div>
 
 		<div ng-view></div>
+
 	</div>
 
 
@@ -283,15 +285,20 @@
 	<!-- PLAY -->
 
 	<div style="display: none" ng-non-bindable>
-		<div id="play_dialog" style="max-height: 100%" ng-init="item=current_inode()">
-			<div class="text-center" style="padding: 20px">
-				<p>{{item.name}}</p>
-				<p ng-repeat="x in item.entries">
-					{{x.name}}
-				</p>
-
-				<select ng-if="item.isdir" ng-model="selected_item" ng-options="x.name for x in item.entries_by_kind.video"></select>
-
+		<div id="play_dialog">
+			<div class="modal-body clearfix" style="padding: 20px; max-height: 100%; background-color: hsl(0,0%,15%); color: hsl(0,0%,90%)">
+				<div class="row">
+					<div class="col-sm-9 text-left" style="min-height: 200px; border-right: 1px solid hsl(0,0%,30%)">
+						<div nb-media="selected.item" show-content="true" media-events="media_events" style="max-height: 100%"></div>
+					</div>
+					<div class="col-sm-3">
+						<h4 class="text-center text-wrap">{{name}}</h4>
+						<select ng-if="items" ng-model="selected.item" ng-options="x.name group by x.content_kind for x in items" class="form-control"></select>
+						<div class="text-center" style="padding: 20px">
+							<button class="btn btn-primary btn-lg" data-dismiss="modal">Close</button>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>

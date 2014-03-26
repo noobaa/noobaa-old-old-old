@@ -96,14 +96,13 @@
 					e.find('.modal-dialog').addClass('modal-sm');
 				} else if (size === 'fullscreen') {
 					e.find('.modal-dialog').css({
-						width: '100%',
-						height: '100%',
-						margin: 0
-					});
-					e.find('.modal-content').css({
-						width: '100%',
-						height: '100%',
-						margin: 0
+						position: 'absolute',
+						left: 30,
+						right: 30,
+						top: 30,
+						width: 'auto',
+						height: 'auto',
+						margin: '0 0 30px 0'
 					});
 				}
 				e.modal();
@@ -112,9 +111,11 @@
 
 
 			function content_modal(headline, content, modal_scope, size) {
-				var hdr = $('<div class="modal-header">')
-					.append($('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">').html('&times;'))
-					.append($('<h4>').html(headline));
+				var hdr = $('<div class="modal-header clearfix">')
+					.append($('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">').html('&times;'));
+				if (headline) {
+					hdr.append($('<h4>').html(headline));
+				}
 				var body = $('<div class="modal-body">').css('padding', 0).append(content);
 				var foot = $('<div class="modal-footer">').css('margin-top', 0)
 					.append($('<button type="button" class="btn btn-default" data-dismiss="modal">').text('Close'));
@@ -128,7 +129,7 @@
 			}
 
 			function nbconfirm(content, callback, modal_scope, size) {
-				var hdr = $('<div class="modal-header">')
+				var hdr = $('<div class="modal-header clearfix">')
 					.append($('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">').html('&times;'))
 					.append($('<h4>').append($('<i class="fa fa-question-circle fa-2x text-warning">')));
 				var body = $('<div class="modal-body lead">').css('padding', '20px 20px 0 20px').append(content);

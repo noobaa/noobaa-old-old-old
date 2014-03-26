@@ -1,14 +1,14 @@
 <div>
-	<div ng-if="show_content" ng-switch="inode.content_kind" class="text-center">
-		<div ng-switch-default>
-			<span class="label label-default">Add image for preview</span>
-		</div>
-		<div ng-switch-when="dir">
+	<div ng-if="show_content" ng-switch="inode.content_kind">
+		<h4 ng-switch-default class="text-center">
+			<span class="label label-default">No preview</span>
+		</h4>
+		<h4 ng-switch-when="dir" class="text-center">
 			<span class="label label-default">Folder</span>
-		</div>
-		<img ng-switch-when="image" ng-src="{{media_url(inode)}}" class="content-item img-responsive center-block" style="max-width: 100%; max-height: 100%; vertical-align: center" nb-events="media_events" />
+		</h4>
+		<img ng-switch-when="image" ng-src="{{media_url(inode)}}" class="content-item img-responsive Xcenter-block" style="vertical-align: center" nb-events="media_events" />
 		<div ng-switch-when="video">
-			<video controls autoplay ng-src="{{media_url(inode)}}" class="content-item img-responsive center-block" nb-events="media_events">
+			<video controls autoplay ng-src="{{media_url(inode)}}" class="content-item img-responsive Xcenter-block" nb-events="media_events">
 				<source ng-src="{{media_url(inode)}}" ng-attr-type="{{inode.content_type}}">
 					<object ng-attr-data="{{media_url(inode)}}" ng-attr-type="{{inode.content_type}}">
 						<embed ng-src="{{media_url(inode)}}">
@@ -16,12 +16,12 @@
 			</video>
 		</div>
 		<div ng-switch-when="audio">
-			<audio controls autoplay ng-src="{{media_url(inode)}}" style="padding: 30px 5px 5px 5px; Xpadding: 5px" class="content-item img-responsive center-block" nb-events="media_events">
+			<audio controls autoplay ng-src="{{media_url(inode)}}" style="padding: 30px 5px 5px 5px; Xpadding: 5px" class="content-item img-responsive Xcenter-block" nb-events="media_events">
 				<source ng-src="{{media_url(inode)}}" ng-attr-type="{{inode.content_type}}">
 			</audio>
 		</div>
 		<div ng-switch-when="text">
-			<object ng-attr-data="{{media_url(inode)}}" type="text/plain" width="100%" class="content-item center-block bggrey" nb-events="media_events" </object>
+			<object ng-attr-data="{{media_url(inode)}}" type="text/plain" style="width: 100%; min-height: 90%" class="content-item Xcenter-block bggrey" nb-events="media_events" </object>
 		</div>
 	</div>
 </div>

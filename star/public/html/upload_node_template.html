@@ -36,6 +36,6 @@
 			</div>
 		</div>
 	</div>
-	<div ng-include="'/public/html/upload_node_template.html'" style="font-size: 13px" nb-effect-toggle="upload.is_expanded" nb-effect-options="{effect:'blind'}">
+	<div ng-include="'/public/html/upload_node_template.html'" style="font-size: 13px" ng-if="upload.is_expanded">
 	</div>
 </div>

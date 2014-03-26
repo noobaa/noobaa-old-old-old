@@ -1,5 +1,5 @@
 <div class="feeder">
-	<div class="container">
+	<div Xclass="container">
 
 		<div class="text-center" style="margin-bottom: 15px" ng-if="nbUser.user">
 			<button class="btn btn-default" ng-click="refresh_feeds()" title="Click to refresh" rel="tooltip" data-placement="bottom">
@@ -46,7 +46,7 @@
 
 						<div style="overflow: hidden">
 							<div class="text-ellipses">
-								<a class="btn btn-link btn-sm text-ellipses" style="max-width: 100%; padding-left: 5px" ng-click="open_feed_inode(current_inode)">
+								<a class="btn btn-link btn-sm text-ellipses" style="max-width: 100%; padding-left: 5px" ng-click="play_feed_inode(current_inode)">
 									<span class="text-muted">
 										<i class="fa fa-{{nbUtil.icon_by_kind(current_inode.content_kind)}} fa-fw fa-lg"></i>
 										{{feed.name}}

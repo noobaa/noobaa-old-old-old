@@ -27,7 +27,7 @@
 			]
 		}).when('/items/:item_id*?', {
 			template: [
-				'<div class="container">',
+				'<div Xclass="container">',
 				'	<div nb-browse context="home_context"></div>',
 				'</div>'
 			].join('\n'),
@@ -731,9 +731,12 @@
 
 			$scope.play_feed_inode = function(inode) {
 				nbUtil.track_event('home.play_feed');
+				if (nbInode.play_inode(inode)) {
+					return;
+				}
 				$scope.open_feed_inode(inode);
-				// nbUtil.content_modal('', $('#play_dialog').html(), $scope, 'lg');
 			};
+
 
 			$scope.num_messages = function() {
 				return _.reduce(f.inodes, function(sum, inode) {
@@ -831,6 +834,7 @@
 					$scope.is_selection_leader = is_selection_leader;
 					$scope.num_selected = num_selected;
 					$scope.open_inode = open_inode;
+					$scope.play_inode = play_inode;
 					$scope.toggle_preview = toggle_preview;
 					$scope.move_inodes = move_inodes;
 					$scope.delete_inodes = delete_inodes;
@@ -901,11 +905,26 @@
 							nbInode.load_inode(inode);
 							if ((inode.is_selected && !inode.is_previewing) ||
 								nbMultiSelect.select_item(selection, inode, $index, $event)) {
-								inode.is_previewing = true;
+								// inode.is_previewing = true;
+								play_inode(inode);
 							} else {
 								inode.is_previewing = false;
 							}
 							return stop_event($event);
+						}
+					}
+
+					function play_inode(inode, $index, $event) {
+						if (!inode.loaded) {
+							return nbInode.load_inode(inode).then(function() {
+								play_inode(inode, $index, $event);
+							});
+						}
+						if (nbInode.play_inode(inode)) {
+							return;
+						}
+						if ($event) {
+							open_inode(inode, $index, $event);
 						}
 					}
 

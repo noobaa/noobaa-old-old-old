@@ -57,6 +57,7 @@
 				get_inode_messages: get_inode_messages,
 				post_inode_message: post_inode_message,
 				delete_inode_message: delete_inode_message,
+				play_inode: play_inode,
 			};
 
 			function inode_api_url(inode_id) {
@@ -818,6 +819,52 @@
 				});
 			}
 
+
+			var KIND_PLAY_SCORE = {
+				video: -5,
+				audio: -4,
+				image: -3,
+				text: -2,
+			};
+
+			function sort_inodes_for_play(a, b) {
+				var diff = (KIND_PLAY_SCORE[a.content_kind] || 0) - (KIND_PLAY_SCORE[b.content_kind] || 0);
+				if (diff) {
+					return diff;
+				}
+				return (a.size || 0) - (b.size || 0);
+			}
+
+			function play_inode(inode) {
+				var play_scope = $rootScope.$new();
+				play_scope.name = inode.name;
+				play_scope.selected = {};
+				if (inode.isdir) {
+					play_scope.items = _.filter(inode.entries, function(e) {
+						return !!KIND_PLAY_SCORE[e.content_kind];
+					}).sort(sort_inodes_for_play);
+					if (!play_scope.items.length) {
+						return false;
+					}
+					play_scope.selected.item = play_scope.items[0];
+					play_scope.media_events = {
+						ended: function() {
+							// next entry
+							var index = play_scope.items.indexOf(play_scope.selected.item) + 1;
+							if (index < play_scope.items.length) {
+								play_scope.selected.item = play_scope.items[index];
+							}
+						}
+					};
+				} else {
+					// if (!KIND_PLAY_SCORE[inode.content_kind]) {
+					// return false;
+					// }
+					play_scope.selected.item = inode;
+				}
+				nbUtil.modal($('#play_dialog').html(), play_scope, 'fullscreen');
+				return true;
+			}
 
 			return $scope;
 
