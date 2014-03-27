@@ -13,21 +13,23 @@
 	</div>
 
 	<div ng-if="!nbUser.user" class="fadeIn">
-		<div class="well clearfix" style="margin: 0; border-radius: 0">
-			<div class="container">
-				<button class="btn btn-default btn-lg pull-right hidden-xs" ng-click="open_signin()">
-					Sign in, it's free
-				</button>
-				<h3 style="margin-top: 0">Welcome to NooBaa</h3>
-				<h4>
-					<small>Personal cloud made by shared-economy where you can</small>
-					stream friends videos!
-					<br class="hidden-xs" />
-					<small>Explore the features of the app below and sign in for the full power.</small>
-				</h4>
-				<button class="btn btn-default btn-lg pull-right visible-xs" ng-click="open_signin()">
-					Sign in, it's free
-				</button>
+		<div class="panel panel-info clearfix" style="margin: 0; border-radius: 0">
+			<div class="panel-heading" style="border-radius: 0; padding: 20px 0; background-color: hsl(0,0%,15%)">
+				<div class="container">
+					<button class="btn btn-primary btn-lg pull-right hidden-xs" ng-click="open_signin()">
+						Sign in, it's free
+					</button>
+					<h3 style="margin-top: 0">Welcome to NooBaa</h3>
+					<h4>
+						<small>Personal cloud made by shared-economy where you can</small>
+						stream friends videos!
+						<br class="hidden-xs" />
+						<small>Explore the features of the app below and sign in for the full power.</small>
+					</h4>
+					<button class="btn btn-primary btn-lg pull-right visible-xs" ng-click="open_signin()">
+						Sign in, it's free
+					</button>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -43,10 +45,10 @@
 				</a>
 			</div>
 
-			<div class="pull-right">
+			<div class="pull-right" style="padding-left: 30px">
 				<button class="navbar-link btn btn-link" nb-popover="{element: '#user_menu', container: 'body', placement: 'bottom'}" style="padding: 8px 0">
 					<img ng-src="{{nbUser.user_pic_url(nbUser.user)}}" style="width: 32px; height: 32px" class="img-circle">
-					<span class="text-ellipses" style="max-width: 120px; vertical-align: middle; height: 100%; display: inline-block; margin-left: 10px">
+					<span class="text-ellipses" style="max-width: 120px; vertical-align: middle; height: 100%; display: inline-block; margin-left: 5px">
 						{{nbUser.user.name}}
 					</span>
 				</button>
@@ -90,7 +92,7 @@
 				</div>
 			</div>
 
-			<ul class="nav navbar-nav nav-pills" style="display: inline-block">
+			<ul class="nav navbar-right navbar-nav nav-pills" style="display: inline-block">
 				<li ng-class="nbUtil.active_link('/home/feed/')">
 					<a ng-click="click_my_feed()">
 						<i class="fa {{fetching_feeds && 'fa-refresh fa-spin' || 'fa-rss'}} fa-lg fa-fw text-muted"></i>

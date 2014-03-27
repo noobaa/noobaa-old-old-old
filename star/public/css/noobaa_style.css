@@ -162,6 +162,9 @@ button.close {
 	-moz-transition: all 0.5s;
 	-webkit-transition: all 0.5s;
 }
+.bgnoise1 {
+	background-image: url('/public/images/pattern-noise1.png');
+}
 .feed_item .panel, .feed_item .panel-footer {
 	background-image: url('/public/images/pattern-noise2.png');
 	background-color: hsl(0, 0%, 90%);

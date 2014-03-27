@@ -139,7 +139,7 @@
 								<span ng-if="!feed.expanded">
 									<span ng-repeat="feed_inode in feed.inodes track by $index | limitTo:10">
 										<img class="img-circle" ng-src="{{nbUser.user_pic_url(feed_inode.ref_owner || nbUser.user)}}" style="width: 28px; height: 28px; vertical-align: top; margin-right: -2px; margin-left: 12px" />
-										<span class="label label-primary" style="margin-right: -2px">{{feed_inode.messages && feed_inode.messages.length || ''}}</span>
+										<span class="label label-info" style="margin-right: -2px">{{feed_inode.messages && feed_inode.messages.length || ''}}</span>
 									</span>
 									<i class="fa fa-caret-down fa-fw text-muted" style="margin-left: 10px"></i>
 								</span>
