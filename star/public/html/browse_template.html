@@ -40,6 +40,14 @@
 
 				<div class="pull-right text-right" ng-show="has_parent(current_inode)" style="padding-top: 8px">
 					<!-- <div class="btn-group"></div> -->
+					<a class="btn btn-primary" ng-click="play_inode(current_inode)" title="Play" rel="tooltip" nb-tooltip="{container: 'body'}">
+						<i class="fa fa-play fa-fw fa-lg"></i>
+						<!-- Open -->
+					</a>
+					<a class="btn btn-warning" ng-if="nbInode.can_share_inode(current_inode)" ng-click="share_inode(current_inode)" Xtitle="Share" Xrel="tooltip" nb-tooltip="{container: 'body'}">
+						<i class="fa fa-share-square-o fa-fw fa-lg"></i>
+						Share
+					</a>
 					<a class="btn btn-info" ng-if="nbInode.can_upload_to_dir(current_inode)" ng-click="nbUploadSrv.open_file_input()" Xtitle="Upload" rel="tooltip" nb-tooltip="{container: 'body'}">
 						<i class="fa fa-cloud-upload fa-fw fa-lg"></i>
 						Upload
@@ -47,10 +55,6 @@
 					<a class="btn btn-default" ng-if="nbInode.can_upload_file(current_inode)" ng-click="resume_upload(current_inode)" title="Resume Upload" rel="tooltip" nb-tooltip="{container: 'body'}">
 						<i class="fa fa-cloud-upload fa-fw fa-lg"></i>
 						Resume Upload
-					</a>
-					<a class="btn btn-warning" ng-if="nbInode.can_share_inode(current_inode)" ng-click="share_inode(current_inode)" title="Share" rel="tooltip" nb-tooltip="{container: 'body'}">
-						<i class="fa fa-share-square-o fa-fw fa-lg"></i>
-						Share
 					</a>
 					<a class="btn btn-danger" ng-if="nbInode.can_keep_inode(current_inode)" ng-disabled="current_inode.running_keep || current_inode.done_keep" ng-click="keep_inode(current_inode)" Xtitle="Keep" Xrel="tooltip" Xnb-tooltip="{container: 'body'}">
 						<i class="fa fa-{{current_inode.done_keep && 'check' || 'plus'}} fa-fw fa-lg"></i>
@@ -74,7 +78,7 @@
 					<div style="display: inline-block; max-width: 140px; vertical-align:middle">
 						<div ng-show="current_inode.isdir" Xclass="input-group" style="position: relative">
 							<input type="text" class="form-control {{search_in_folder && 'label-primary'}}" maxlength="100" placeholder="Search folder" ng-model="search_in_folder" />
-							<i class="fa fa-times fa-fw" style="cursor: pointer; position: absolute; right: 10px; top: 11px" ng-click="search_in_folder=''"></i>
+							<i class="fa fa-times fa-fw text-muted" style="cursor: pointer; position: absolute; right: 8px; top: 10px" ng-click="search_in_folder=''"></i>
 						</div>
 					</div>
 				</div>

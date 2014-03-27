@@ -1,42 +1,42 @@
 <div class="feeder">
-	<div Xclass="container">
 
-		<div class="text-center" style="margin-bottom: 15px" ng-if="nbUser.user">
-			<button class="btn btn-default" ng-click="refresh_feeds()" title="Click to refresh" rel="tooltip" data-placement="bottom">
-				<i class="fa fa-refresh {{fetching_feeds && 'fa-spin' || ''}} fa-fw"></i>
-			</button>
-			<div style="display: inline-block; max-width: 170px; vertical-align: middle">
+	<div class="row">
+		<div class="col-xs-12 col-sm-4 col-sm-offset-4 col-lg-4 col-lg-offset-4" ng-if="nbUser.user">
+			<div class="feed_item">
 				<div Xclass="input-group" style="position: relative">
-					<input type="text" class="form-control {{search_feed.query && 'label-primary'}}" maxlength="100" placeholder="Search feed" ng-model="search_feed.query" ng-change="search_feed_changed()" />
-					<i class="fa fa-times fa-fw" style="cursor: pointer; position: absolute; right: 10px; top: 11px" ng-click="search_feed.query = search_feed_changed()"></i>
+					<input type="text" class="form-control Xinput-lg {{search_feed.query && 'label-primary'}}" maxlength="100" placeholder="Search feed" ng-model="search_feed.query" ng-change="search_feed_changed()" />
+					<i class="fa fa-times fa-lg fa-fw text-muted" style="cursor: pointer; position: absolute; right: 8px; top: 10px" ng-click="search_feed.query = search_feed_changed()"></i>
 				</div>
 			</div>
 		</div>
+	</div>
 
-		<div class="feeds_container row">
+	<div ng-if="feeds && !feeds.length && !fetching_feeds && !search_feed.query" class="text-center" style="padding: 20px">
+		<iframe width="400" height="225" style="max-width: 100%" src="//www.youtube.com/embed/9KeVa3IOn78?rel=0" frameborder="0" allowfullscreen></iframe>
+		<div style="padding-top: 20px">
+			<a class="btn btn-link btn-lg" style="padding: 5px" href="/home/friends/">
+				<i class="fa fa-users fa-lg fa-fw"></i>
+				<span>Invite Your Friends</span>
+			</a>
+		</div>
+	</div>
 
-			<div ng-if="feeds && !feeds.length && !fetching_feeds && !search_feed.query" class="text-center" style="padding: 20px">
-				<iframe width="400" height="225" style="max-width: 100%" src="//www.youtube.com/embed/9KeVa3IOn78?rel=0" frameborder="0" allowfullscreen></iframe>
-				<div style="padding-top: 20px">
-					<a class="btn btn-link btn-lg" style="padding: 5px" href="/home/friends/">
-						<i class="fa fa-users fa-lg fa-fw"></i>
-						<span>Invite Your Friends</span>
-					</a>
-				</div>
-			</div>
+	<div class="feeds_container row">
 
-			<div ng-repeat="feed in feeds" ng-controller="FeedCtrl" class="feed_item col-xs-12 col-sm-6 col-md-4 col-lg-3">
+		<div ng-repeat="feed in feeds" class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
 
-				<div class="panel panel-default" style="margin: 15px 10px; border-radius: 4px; overflow: hidden">
+			<div ng-controller="FeedCtrl" class="feed_item">
 
-					<div class="panel-body hover-target" style="{{feed.expanded && 'min-height' || 'height'}}: 200px; padding: 0; position: relative; overflow: hidden">
+				<div class="panel panel-default" style="margin-bottom: 15px; border-radius: 4px; overflow: hidden">
+
+					<div class="panel-body hover-target" style="{{feed.expanded && 'min-height' || 'height'}}: 200px;  padding: 0; position: relative; overflow: hidden">
 						<div ng-if="current_entry().content_kind != 'image'" class="text-center">
 							<br/>
 							<span class="label label-default">Add image for preview</span>
 						</div>
-						<div ng-if="current_entry().content_kind == 'image'" nb-media="current_entry()" media-events="media_events" style="width: 100%; height: 100%"></div>
-						<div class="text-center cover opaque-hover-only transition-fast" style="Xbackground-color: hsla(0,0%,0%,0.2); padding-top: 60px">
-							<button ng-click="play_feed_inode(current_inode)" class="btn btn-default btn-transparent btn-lg Xwhite-shadow hover-grow" style="border-radius: 50%; padding: 10px 10px 8px 18px">
+						<div ng-if="current_entry().content_kind == 'image'" nb-media="current_entry()" media-events="media_events" class="text-center" style="width: 100%; height: 100%"></div>
+						<div ng-click="play_feed_inode(current_inode)" class="text-center cover opaque-hover-only transition-fast" style="cursor: pointer; background-color: hsla(0,0%,0%,0.15); padding-top: 70px">
+							<button class="play-btn hover-grow transition-fast">
 								<i class="fa fa-play fa-2x"></i>
 							</button>
 						</div>
@@ -45,6 +45,27 @@
 					<div class="panel-footer clearfix" style="padding: 0; font-weight: normal">
 
 						<div style="overflow: hidden">
+							<div class="pull-right">
+								<button class="btn btn-default btn-hover-only btn-sm" ng-click="keep_feed()" ng-disabled="running_keep() || done_keep()" style="border: none; Xmargin: 0" ng-switch="done_keep()">
+									<span ng-switch-when="true" class="text-muted">
+										<i class="fa fa-check"></i> Kept
+									</span>
+									<span ng-switch-default>
+										<span ng-if="running_keep()">
+											<i class="fa fa-spin fa-spinner"></i>
+										</span>
+										<i class="fa fa-plus fa-lg text-danger"></i> Keep
+									</span>
+								</button>
+								<button class="btn btn-default btn-hover-only btn-sm" ng-click="keep_and_share_feed()" style="border: none; Xmargin: 0" ng-switch="current_inode.shr">
+									<span ng-switch-when="f" class="text-muted">
+										<i class="fa fa-check"></i> Shared
+									</span>
+									<span ng-switch-default>
+										<i class="fa fa-share-square-o fa-lg text-warning"></i> Share
+									</span>
+								</button>
+							</div>
 							<div class="text-ellipses">
 								<a class="btn btn-link btn-sm text-ellipses" style="max-width: 100%; padding-left: 5px" ng-click="play_feed_inode(current_inode)">
 									<span class="text-muted">
@@ -75,15 +96,14 @@
 											<div class="Xtext-wrap">
 												<small class="text-primary"><b>{{msg.user.first_name}}</b>
 												</small>
-												&nbsp;
 												<small>
 													<span style="white-space: pre-wrap" ng-bind-html="msg.text | linky:'_blank'"></span>
 												</small>
 											</div>
-											<div>
+											<div class="visible-hover-only">
 												<small class="text-muted">
 													{{moment(msg.create_time).fromNow()}}
-													<a class="visible-hover-only" ng-click="nbInode.delete_inode_message(feed_inode, msg)" ng-if="msg.is_mine">
+													<a ng-click="nbInode.delete_inode_message(feed_inode, msg)" ng-if="msg.is_mine">
 														<i class="fa fa-times fa-fw text-muted"></i>
 													</a>
 												</small>
@@ -110,33 +130,22 @@
 						</div>
 
 						<div>
-							<button ng-click="feed.expanded = !feed.expanded" class="btn btn-sm {{feed.expanded && 'btn-primary' || 'btn-default'}}" style="padding: 3px 5px; margin: 5px; text-decoration: none">
-								<span class="{{feed.expanded || 'text-muted'}}">
-									{{feed.inodes.length}}
-									<i class="fa fa-user"></i>
-									&nbsp; {{num_messages()}}
-									<i class="fa fa-comments"></i>
-									&nbsp;
-									<i class="fa fa-caret-{{feed.expanded && 'up' || 'down'}}"></i>
-								</span>
-							</button>
-							<button class="btn btn-link btn-sm" ng-click="keep_feed()" ng-disabled="running_keep()" style="padding: 0; margin: 5px" ng-switch="done_keep()">
-								<span ng-switch-when="true" class="text-muted">
-									<i class="fa fa-check"></i> Keep
-								</span>
-								<span ng-switch-default>
-									<span ng-if="running_keep()">
-										<i class="fa fa-spin fa-spinner"></i>
+							<button ng-click="feed.expanded = !feed.expanded" class="btn btn-block btn-hover-only {{feed.expanded && 'btn-primary' || 'btn-default'}}" style="padding: 3px 5px; {{feed.expanded || 'border: none;'}} text-decoration: none; outline: none" rel="tooltip">
+								<!-- {{feed.inodes.length}} -->
+								<!-- <i class="fa fa-user"></i> -->
+								<!-- &nbsp; {{num_messages()}} -->
+								<!-- <i class="fa fa-comments"></i> -->
+								<!-- &nbsp; -->
+								<span ng-if="!feed.expanded">
+									<span ng-repeat="feed_inode in feed.inodes track by $index | limitTo:10">
+										<img class="img-circle" ng-src="{{nbUser.user_pic_url(feed_inode.ref_owner || nbUser.user)}}" style="width: 28px; height: 28px; vertical-align: top; margin-right: -2px; margin-left: 12px" />
+										<span class="label label-primary" style="margin-right: -2px">{{feed_inode.messages && feed_inode.messages.length || ''}}</span>
 									</span>
-									<i class="fa fa-plus text-danger"></i> Keep
+									<i class="fa fa-caret-down fa-fw text-muted" style="margin-left: 10px"></i>
 								</span>
-							</button>
-							<button class="btn btn-link btn-sm" ng-click="keep_and_share_feed()" style="padding: 0; margin: 5px" ng-switch="current_inode.shr">
-								<span ng-switch-when="f" class="text-muted">
-									<i class="fa fa-check"></i> Share
-								</span>
-								<span ng-switch-default>
-									<i class="fa fa-share-square-o text-warning"></i> Share
+								<span ng-if="feed.expanded">
+									Close
+									<i class="fa fa-caret-up"></i>
 								</span>
 							</button>
 						</div>
@@ -144,22 +153,22 @@
 					</div>
 
 				</div>
-
-			</div>
-
-			<div class="clearfix"></div>
-			<div class="text-center" ng-show="feeds.length && has_more_feeds">
-				<button class="btn btn-default text-primary" ng-click="more_feeds()" ng-disabled="fetching_feeds">
-					Load more
-					<span ng-if="fetching_feeds">
-						<i class="fa fa-spinner fa-spin fa-lg"></i>
-					</span>
-				</button>
-				<div style="height: 15px"></div>
-				<div id="more_feeds_marker"></div>
 			</div>
 
 		</div>
 
+		<div class="clearfix"></div>
+		<div class="text-center" ng-show="feeds.length && has_more_feeds">
+			<button class="btn btn-default text-primary" ng-click="more_feeds()" ng-disabled="fetching_feeds">
+				Load more
+				<span ng-if="fetching_feeds">
+					<i class="fa fa-spinner fa-spin fa-lg"></i>
+				</span>
+			</button>
+			<div style="height: 15px"></div>
+			<div id="more_feeds_marker"></div>
+		</div>
+
 	</div>
+
 </div>

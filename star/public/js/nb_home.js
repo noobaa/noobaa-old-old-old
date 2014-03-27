@@ -27,9 +27,7 @@
 			]
 		}).when('/items/:item_id*?', {
 			template: [
-				'<div Xclass="container">',
-				'	<div nb-browse context="home_context"></div>',
-				'</div>'
+				'<div nb-browse context="home_context"></div>'
 			].join('\n'),
 			controller: ['$scope', '$routeParams',
 				function($scope, $routeParams) {
@@ -200,9 +198,13 @@
 			}
 
 			$scope.click_my_feed = function() {
-				$location.path('/feed/');
-				if (!$scope.feeds) {
+				if ($location.path() === '/feed/') {
 					$scope.refresh_feeds();
+				} else {
+					$location.path('/feed/');
+					if (!$scope.feeds) {
+						$scope.refresh_feeds();
+					}
 				}
 			};
 
@@ -1036,14 +1038,23 @@
 					}
 
 					function keep_inode(inode) {
+						if (!nbUser.user) {
+							return; // $scope.open_signin();
+						}
 						return nbInode.keep_inode(inode, $scope.context.mydata); //.then(refresh_current, refresh_current);
 					}
 
 					function share_inode(inode) {
+						if (!nbUser.user) {
+							return; // $scope.open_signin();
+						}
 						return nbInode.share_inode(inode, refresh_current);
 					}
 
 					function unshare_inode(inode) {
+						if (!nbUser.user) {
+							return; // $scope.open_signin();
+						}
 						return nbInode.unshare_inode(inode).then(refresh_current, refresh_current);
 					}
 				}

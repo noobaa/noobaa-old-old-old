@@ -170,7 +170,7 @@
 				id: null,
 				isdir: true,
 				ro: true,
-				name: 'My Items',
+				name: 'Home',
 			};
 
 			inodes_cache.sbm = {
