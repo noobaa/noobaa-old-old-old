@@ -155,12 +155,28 @@ button.close {
 	/*margin-left: auto;*/
 }
 .feed_item {
+	width: 270px;
 	vertical-align: top;
 	padding: 5px 10px 30px 10px;
-	transition: all 0.5s;
-	-o-transition: all 0.5s;
-	-moz-transition: all 0.5s;
-	-webkit-transition: all 0.5s;
+	/*transition: all 0.5s;*/
+	/*-o-transition: all 0.5s;*/
+	/*-moz-transition: all 0.5s;*/
+	/*-webkit-transition: all 0.5s;*/
+}
+@media all and (min-width: 400px) and (max-width: 500px) {
+	.feed_item {
+		width: 370px;
+	}
+}
+@media all and (min-width: 500px) and (max-width: 600px) {
+	.feed_item {
+		width: 470px;
+	}
+}
+@media all and (min-width: 600px) and (max-width: 700px) {
+	.feed_item {
+		width: 570px;
+	}
 }
 .bgnoise1 {
 	background-image: url('/public/images/pattern-noise1.png');

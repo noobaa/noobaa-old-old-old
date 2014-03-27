@@ -273,9 +273,7 @@
 				$scope.feeds_limit = 0;
 				$scope.has_more_feeds = true;
 				$scope.safe_apply();
-				fetch_feeds(feeds_per_page).then(function() {
-					rebuild_layout();
-				});
+				fetch_feeds(feeds_per_page);
 			}
 
 			function fetch_feeds(count) {
@@ -319,6 +317,7 @@
 					});
 					$scope.safe_apply();
 				}).then(function() {
+					rebuild_layout();
 					$scope.fetching_feeds = false;
 				}, function(err) {
 					console.error('FAILED FETCH FEEDS', err);
@@ -328,11 +327,10 @@
 			}
 
 			$scope.more_feeds = function() {
-				fetch_feeds(feeds_per_page);
-				rebuild_layout();
 				nbUtil.track_event('home.feed.scroll', {
 					count: $scope.feeds_limit
 				});
+				fetch_feeds(feeds_per_page);
 			};
 
 			$scope.search_feed_changed = function() {
@@ -368,7 +366,6 @@
 
 
 			function do_layout() {
-				if (true) return; // TODO decide on masonry
 				console.log('LAYOUT');
 				$timeout.cancel($scope.do_layout_timeout);
 				$timeout.cancel($scope.do_layout_fast_timeout);
@@ -392,15 +389,15 @@
 					var y = window.scrollY;
 					$scope.masonry = new Masonry(elem[0], {
 						itemSelector: '.feed_item',
-						columnWidth: 300,
-						gutter: 20
+						// columnWidth: 300,
+						gutter: 20,
+						isFitWidth: true
 					});
 					window.scrollTo(x, y);
 				}
 			}
 
 			function rebuild_layout() {
-				if (true) return; // TODO decide on masonry
 				$scope.should_rebuild_layout = true;
 				if (!$scope.do_layout_fast_timeout) {
 					$scope.do_layout_fast_timeout = $timeout(do_layout, 1);
@@ -408,7 +405,6 @@
 			}
 
 			$scope.notify_layout = function() {
-				if (true) return; // TODO decide on masonry
 				if (!$scope.do_layout_timeout) {
 					$scope.do_layout_timeout = $timeout(do_layout, 50);
 				}
@@ -726,6 +722,7 @@
 					$scope.open_feed_inode(current_entry());
 				},
 			};
+			$scope.$watch('feed.expanded', $scope.notify_layout);
 
 			$scope.open_feed_inode = function(inode) {
 				$location.path('/items/' + inode.id);
@@ -1091,7 +1088,7 @@
 							}
 						}
 						scope.show_content = true;
-						// TODO a little bit hacky way to call notify_layout...
+						// this is a little bit hacky way to call notify_layout...
 						if (scope.media_events.load) {
 							scope.media_events.load();
 						}

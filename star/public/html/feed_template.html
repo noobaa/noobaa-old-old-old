@@ -1,12 +1,10 @@
 <div class="feeder">
 
-	<div class="row">
-		<div class="col-xs-12 col-sm-4 col-sm-offset-4 col-lg-4 col-lg-offset-4" ng-if="nbUser.user">
-			<div class="feed_item">
-				<div Xclass="input-group" style="position: relative">
-					<input type="text" class="form-control Xinput-lg {{search_feed.query && 'label-primary'}}" maxlength="100" placeholder="Search feed" ng-model="search_feed.query" ng-change="search_feed_changed()" />
-					<i class="fa fa-times fa-lg fa-fw text-muted" style="cursor: pointer; position: absolute; right: 8px; top: 10px" ng-click="search_feed.query = search_feed_changed()"></i>
-				</div>
+	<div ng-if="nbUser.user">
+		<div class="feed_item center-block">
+			<div Xclass="input-group" style="position: relative">
+				<input type="text" class="form-control Xinput-lg {{search_feed.query && 'label-primary'}}" maxlength="100" placeholder="Search feed" ng-model="search_feed.query" ng-change="search_feed_changed()" />
+				<i class="fa fa-times fa-lg fa-fw text-muted" style="cursor: pointer; position: absolute; right: 8px; top: 10px" ng-click="search_feed.query = search_feed_changed()"></i>
 			</div>
 		</div>
 	</div>
@@ -21,154 +19,150 @@
 		</div>
 	</div>
 
-	<div class="feeds_container row">
+	<div class="feeds_container center-block clearfix">
 
-		<div ng-repeat="feed in feeds" class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+		<div ng-repeat="feed in feeds" ng-controller="FeedCtrl" class="feed_item">
 
-			<div ng-controller="FeedCtrl" class="feed_item">
+			<div class="panel panel-default" style="margin-bottom: 15px; border-radius: 4px; overflow: hidden">
 
-				<div class="panel panel-default" style="margin-bottom: 15px; border-radius: 4px; overflow: hidden">
+				<div class="panel-body hover-target" style="min-height: 90px; padding: 0; position: relative; overflow: hidden">
+					<div ng-if="current_entry().content_kind != 'image'" class="text-center">
+						<br/>
+						<span class="label label-default">Add image for preview</span>
+					</div>
+					<div ng-if="current_entry().content_kind == 'image'" nb-media="current_entry()" media-events="media_events" class="text-center" style="width: 100%; height: 100%"></div>
+					<div ng-click="play_feed_inode(current_inode)" class="text-center cover opaque-hover-only transition-fast" style="cursor: pointer; background-color: hsla(0,0%,0%,0.15)">
+						<button style="position: absolute; top: 50%; left: 50%; margin-top: -30px; margin-left: -30px" class="play-btn hover-grow transition-fast">
+							<i class="fa fa-play fa-3x"></i>
+						</button>
+					</div>
+				</div>
 
-					<div class="panel-body hover-target" style="{{feed.expanded && 'min-height' || 'height'}}: 200px;  padding: 0; position: relative; overflow: hidden">
-						<div ng-if="current_entry().content_kind != 'image'" class="text-center">
-							<br/>
-							<span class="label label-default">Add image for preview</span>
-						</div>
-						<div ng-if="current_entry().content_kind == 'image'" nb-media="current_entry()" media-events="media_events" class="text-center" style="width: 100%; height: 100%"></div>
-						<div ng-click="play_feed_inode(current_inode)" class="text-center cover opaque-hover-only transition-fast" style="cursor: pointer; background-color: hsla(0,0%,0%,0.15)">
-							<button style="position: absolute; top: 50%; left: 50%; margin-top: -30px; margin-left: -30px" class="play-btn hover-grow transition-fast">
-								<i class="fa fa-play fa-3x"></i>
+				<div class="panel-footer clearfix" style="padding: 0; font-weight: normal">
+
+					<div style="overflow: hidden">
+						<div class="pull-right">
+							<button class="btn btn-default btn-hover-only btn-sm" ng-click="keep_feed()" ng-disabled="running_keep() || done_keep()" style="border: none; Xmargin: 0" ng-switch="done_keep()">
+								<span ng-switch-when="true" class="text-muted">
+									<i class="fa fa-check"></i> Kept
+								</span>
+								<span ng-switch-default>
+									<span ng-if="running_keep()">
+										<i class="fa fa-spin fa-spinner"></i>
+									</span>
+									<i class="fa fa-plus fa-lg text-danger"></i> Keep
+								</span>
 							</button>
+							<button class="btn btn-default btn-hover-only btn-sm" ng-click="keep_and_share_feed()" style="border: none; Xmargin: 0" ng-switch="current_inode.shr">
+								<span ng-switch-when="f" class="text-muted">
+									<i class="fa fa-check"></i> Shared
+								</span>
+								<span ng-switch-default>
+									<i class="fa fa-share-square-o fa-lg text-warning"></i> Share
+								</span>
+							</button>
+						</div>
+						<div class="text-ellipses">
+							<a class="btn btn-link btn-sm text-ellipses" style="max-width: 100%; padding-left: 5px" ng-click="play_feed_inode(current_inode)">
+								<span class="text-muted">
+									<i class="fa fa-{{nbUtil.icon_by_kind(current_inode.content_kind)}} fa-fw fa-lg"></i>
+									{{feed.name}}
+								</span>
+							</a>
 						</div>
 					</div>
 
-					<div class="panel-footer clearfix" style="padding: 0; font-weight: normal">
-
-						<div style="overflow: hidden">
-							<div class="pull-right">
-								<button class="btn btn-default btn-hover-only btn-sm" ng-click="keep_feed()" ng-disabled="running_keep() || done_keep()" style="border: none; Xmargin: 0" ng-switch="done_keep()">
-									<span ng-switch-when="true" class="text-muted">
-										<i class="fa fa-check"></i> Kept
-									</span>
-									<span ng-switch-default>
-										<span ng-if="running_keep()">
-											<i class="fa fa-spin fa-spinner"></i>
-										</span>
-										<i class="fa fa-plus fa-lg text-danger"></i> Keep
-									</span>
-								</button>
-								<button class="btn btn-default btn-hover-only btn-sm" ng-click="keep_and_share_feed()" style="border: none; Xmargin: 0" ng-switch="current_inode.shr">
-									<span ng-switch-when="f" class="text-muted">
-										<i class="fa fa-check"></i> Shared
-									</span>
-									<span ng-switch-default>
-										<i class="fa fa-share-square-o fa-lg text-warning"></i> Share
-									</span>
-								</button>
-							</div>
-							<div class="text-ellipses">
-								<a class="btn btn-link btn-sm text-ellipses" style="max-width: 100%; padding-left: 5px" ng-click="play_feed_inode(current_inode)">
-									<span class="text-muted">
-										<i class="fa fa-{{nbUtil.icon_by_kind(current_inode.content_kind)}} fa-fw fa-lg"></i>
-										{{feed.name}}
-									</span>
+					<div ng-show="feed.expanded" class="pullDown">
+						<div ng-repeat="feed_inode in feed.inodes track by $index" style="padding: 7px; border-top: 1px solid hsl(210,10%,90%)" ng-init="comment_box={inode: feed_inode}">
+							<div style="overflow: hidden">
+								<img class="img-circle" ng-src="{{nbUser.user_pic_url(feed_inode.ref_owner || nbUser.user)}}" style="width: 30px; height: 30px; margin-right: 5px; vertical-align: top" />
+								<small class="text-primary"><b>{{(feed_inode.ref_owner || nbUser.user).first_name}}</b>
+								</small>
+								<a class="btn btn-link btn-lg pull-right" ng-click="comment_box.show = !comment_box.show" title="Add comment" rel="tooltip" nb-tooltip="{placement: 'bottom'}" style="padding: 2px 7px">
+									<i class="fa fa-reply-all"></i>
+								</a>
+								<a class="btn btn-link btn-lg pull-right" ng-click="open_feed_inode(feed_inode)" title="Go to item" rel="tooltip" nb-tooltip="{placement: 'bottom'}" style="padding: 2px 7px">
+									<i class="fa fa-file-o text-muted"></i>
 								</a>
 							</div>
-						</div>
-
-						<div ng-show="feed.expanded" class="pullDown">
-							<div ng-repeat="feed_inode in feed.inodes track by $index" style="padding: 7px; border-top: 1px solid hsl(210,10%,90%)" ng-init="comment_box={inode: feed_inode}">
-								<div style="overflow: hidden">
-									<img class="img-circle" ng-src="{{nbUser.user_pic_url(feed_inode.ref_owner || nbUser.user)}}" style="width: 30px; height: 30px; margin-right: 5px; vertical-align: top" />
-									<small class="text-primary"><b>{{(feed_inode.ref_owner || nbUser.user).first_name}}</b>
-									</small>
-									<a class="btn btn-link btn-lg pull-right" ng-click="comment_box.show = !comment_box.show" title="Add comment" rel="tooltip" nb-tooltip="{placement: 'bottom'}" style="padding: 2px 7px">
-										<i class="fa fa-reply-all"></i>
-									</a>
-									<a class="btn btn-link btn-lg pull-right" ng-click="open_feed_inode(feed_inode)" title="Go to item" rel="tooltip" nb-tooltip="{placement: 'bottom'}" style="padding: 2px 7px">
-										<i class="fa fa-file-o text-muted"></i>
-									</a>
-								</div>
-								<div style="margin: 5px 0 0 15px">
-									<div ng-repeat="msg in feed_inode.messages" class="clearfix hover-target">
-										<img class="img-circle pull-left" ng-src="{{nbUser.user_pic_url(msg.user)}}" style="width: 30px; height: 30px; margin-right: 5px; vertical-align: top" />
-										<div style="overflow: hidden">
-											<div class="Xtext-wrap">
-												<small class="text-primary"><b>{{msg.user.first_name}}</b>
-												</small>
-												<small>
-													<span style="white-space: pre-wrap" ng-bind-html="msg.text | linky:'_blank'"></span>
-												</small>
-											</div>
-											<div class="visible-hover-only">
-												<small class="text-muted">
-													{{moment(msg.create_time).fromNow()}}
-													<a ng-click="nbInode.delete_inode_message(feed_inode, msg)" ng-if="msg.is_mine">
-														<i class="fa fa-times fa-fw text-muted"></i>
-													</a>
-												</small>
-											</div>
+							<div style="margin: 5px 0 0 15px">
+								<div ng-repeat="msg in feed_inode.messages" class="clearfix hover-target">
+									<img class="img-circle pull-left" ng-src="{{nbUser.user_pic_url(msg.user)}}" style="width: 30px; height: 30px; margin-right: 5px; vertical-align: top" />
+									<div style="overflow: hidden">
+										<div class="Xtext-wrap">
+											<small class="text-primary"><b>{{msg.user.first_name}}</b>
+											</small>
+											<small>
+												<span style="white-space: pre-wrap" ng-bind-html="msg.text | linky:'_blank'"></span>
+											</small>
+										</div>
+										<div class="visible-hover-only">
+											<small class="text-muted">
+												{{moment(msg.create_time).fromNow()}}
+												<a ng-click="nbInode.delete_inode_message(feed_inode, msg)" ng-if="msg.is_mine">
+													<i class="fa fa-times fa-fw text-muted"></i>
+												</a>
+											</small>
 										</div>
 									</div>
-									<div ng-if="comment_box.show" class="clearfix">
-										<img class="img-circle pull-left" ng-src="{{nbUser.user_pic_url(nbUser.user)}}" style="width: 30px; height: 30px; margin-right: 5px" />
-										<div style="overflow: hidden">
-											<textarea ng-model="comment_box.text" rows="1" class="form-control" style="resize: none" placeholder="Write about it..." nb-focus="comment_box.show" ng-attr-tabindex="{{($index*10)+100}}" nb-auto-height></textarea>
-											<div class="text-center" style="padding-top: 5px">
-												<button class="btn btn-info btn-hover-only" ng-click="post_comment(comment_box)" ng-disabled="comment_box.posting" ng-attr-tabindex="{{($index*10)+101}}">
-													&nbsp;&nbsp;&nbsp;&nbsp; Send
-													<span ng-if="comment_box.posting">
-														<i class="fa fa-spin fa-spinner"></i>
-													</span>
-													&nbsp;&nbsp;&nbsp;&nbsp;
-												</button>
-											</div>
+								</div>
+								<div ng-if="comment_box.show" class="clearfix">
+									<img class="img-circle pull-left" ng-src="{{nbUser.user_pic_url(nbUser.user)}}" style="width: 30px; height: 30px; margin-right: 5px" />
+									<div style="overflow: hidden">
+										<textarea ng-model="comment_box.text" rows="1" class="form-control" style="resize: none" placeholder="Write about it..." nb-focus="comment_box.show" ng-attr-tabindex="{{($index*10)+100}}" nb-auto-height></textarea>
+										<div class="text-center" style="padding-top: 5px">
+											<button class="btn btn-info btn-hover-only" ng-click="post_comment(comment_box)" ng-disabled="comment_box.posting" ng-attr-tabindex="{{($index*10)+101}}">
+												&nbsp;&nbsp;&nbsp;&nbsp; Send
+												<span ng-if="comment_box.posting">
+													<i class="fa fa-spin fa-spinner"></i>
+												</span>
+												&nbsp;&nbsp;&nbsp;&nbsp;
+											</button>
 										</div>
 									</div>
 								</div>
 							</div>
 						</div>
+					</div>
 
-						<div>
-							<button ng-click="feed.expanded = !feed.expanded" class="btn btn-block btn-hover-only {{feed.expanded && 'btn-primary' || 'btn-default'}}" style="padding: 3px 5px; {{feed.expanded || 'border: none;'}} text-decoration: none; outline: none" rel="tooltip">
-								<!-- {{feed.inodes.length}} -->
-								<!-- <i class="fa fa-user"></i> -->
-								<!-- &nbsp; {{num_messages()}} -->
-								<!-- <i class="fa fa-comments"></i> -->
-								<!-- &nbsp; -->
-								<span ng-if="!feed.expanded">
-									<span ng-repeat="feed_inode in feed.inodes track by $index | limitTo:10">
-										<img class="img-circle" ng-src="{{nbUser.user_pic_url(feed_inode.ref_owner || nbUser.user)}}" style="width: 28px; height: 28px; vertical-align: top; margin-right: -2px; margin-left: 12px" />
-										<span class="label label-info" style="margin-right: -2px">{{feed_inode.messages && feed_inode.messages.length || ''}}</span>
-									</span>
-									<i class="fa fa-caret-down fa-fw text-muted" style="margin-left: 10px"></i>
+					<div>
+						<button ng-click="feed.expanded = !feed.expanded" class="btn btn-block btn-hover-only {{feed.expanded && 'btn-primary' || 'btn-default'}}" style="padding: 3px 5px; {{feed.expanded || 'border: none;'}} text-decoration: none; outline: none" rel="tooltip">
+							<!-- {{feed.inodes.length}} -->
+							<!-- <i class="fa fa-user"></i> -->
+							<!-- &nbsp; {{num_messages()}} -->
+							<!-- <i class="fa fa-comments"></i> -->
+							<!-- &nbsp; -->
+							<span ng-if="!feed.expanded">
+								<span ng-repeat="feed_inode in feed.inodes track by $index | limitTo:10">
+									<img class="img-circle" ng-src="{{nbUser.user_pic_url(feed_inode.ref_owner || nbUser.user)}}" style="width: 28px; height: 28px; vertical-align: top; margin-right: -2px; margin-left: 12px" />
+									<span class="label label-info" style="margin-right: -2px">{{feed_inode.messages && feed_inode.messages.length || ''}}</span>
 								</span>
-								<span ng-if="feed.expanded">
-									Close
-									<i class="fa fa-caret-up"></i>
-								</span>
-							</button>
-						</div>
-
+								<i class="fa fa-caret-down fa-fw text-muted" style="margin-left: 10px"></i>
+							</span>
+							<span ng-if="feed.expanded">
+								Close
+								<i class="fa fa-caret-up"></i>
+							</span>
+						</button>
 					</div>
 
 				</div>
+
 			</div>
 
 		</div>
 
-		<div class="clearfix"></div>
-		<div class="text-center" ng-show="feeds.length && has_more_feeds">
-			<button class="btn btn-default text-primary" ng-click="more_feeds()" ng-disabled="fetching_feeds">
-				Load more
-				<span ng-if="fetching_feeds">
-					<i class="fa fa-spinner fa-spin fa-lg"></i>
-				</span>
-			</button>
-			<div style="height: 15px"></div>
-			<div id="more_feeds_marker"></div>
-		</div>
+	</div>
 
+	<div class="text-center" ng-show="feeds.length && has_more_feeds">
+		<button class="btn btn-default text-primary" ng-click="more_feeds()" ng-disabled="fetching_feeds">
+			Load more
+			<span ng-if="fetching_feeds">
+				<i class="fa fa-spinner fa-spin fa-lg"></i>
+			</span>
+		</button>
+		<div style="height: 15px"></div>
+		<div id="more_feeds_marker"></div>
 	</div>
 
 </div>
