@@ -204,6 +204,8 @@
 					$location.path('/feed/');
 					if (!$scope.feeds) {
 						$scope.refresh_feeds();
+					} else {
+						rebuild_layout();
 					}
 				}
 			};
