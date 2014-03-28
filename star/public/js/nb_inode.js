@@ -832,7 +832,7 @@
 				if (diff) {
 					return diff;
 				}
-				return (a.size || 0) - (b.size || 0);
+				return String(a.name).localeCompare(b.name);
 			}
 
 			function play_inode(inode) {
