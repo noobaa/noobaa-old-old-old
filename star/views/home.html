@@ -95,21 +95,21 @@
 			<ul class="nav navbar-right navbar-nav nav-pills" style="display: inline-block">
 				<li ng-class="nbUtil.active_link('/home/feed/')">
 					<a ng-click="click_my_feed()">
-						<i class="fa {{fetching_feeds && 'fa-refresh fa-spin' || 'fa-rss'}} fa-lg fa-fw text-muted"></i>
-						<span>Feed</span>
+						<i class="fa {{fetching_feeds && 'fa-refresh fa-spin' || 'fa-play'}} fa-lg fa-fw text-muted"></i>
+						<span>WATCH</span>
 					</a>
 				</li>
 				<li ng-class="nbUtil.active_link('/home/items/')">
 					<a ng-click="click_my_items()">
 						<i class="fa fa-folder-open fa-lg fa-fw text-muted"></i>
-						<span>Folders</span>
+						<span>FOLDERS</span>
 					</a>
 				</li>
 				<li ng-class="nbUtil.active_link('/home/upload/')">
 					<a ng-click="open_upload_file()">
 						<i class="fa fa-cloud-upload fa-lg fa-fw text-muted"></i>
 						<span>
-							Upload
+							UPLOAD
 							<span class="badge" ng-show="nbUploadSrv.root.total_sons - nbUploadSrv.root.total_completed">
 								{{nbUploadSrv.root.total_sons - nbUploadSrv.root.total_completed}}
 								<i class="fa fa-cog fa-spin"></i>
@@ -120,25 +120,25 @@
 				<li ng-if="nbPlanet.on" ng-class="nbUtil.active_link('/home/upload/')">
 					<a ng-click="open_upload_dir()">
 						<i class="fa fa-folder fa-lg fa-fw text-muted"></i>
-						<span>Upload a folder</span>
+						<span>UPLOAD A FOLDER</span>
 					</a>
 				</li>
 				<li ng-if="!nbPlanet.on" ng-class="nbUtil.active_link('/home/install/')">
 					<a ng-click="show_client_installation()">
-						<i class="fa fa-anchor fa-lg fa-fw text-muted"></i>
-						<span>Install</span>
+						<i class="fa fa-wrench fa-lg fa-fw text-muted"></i>
+						<span>INSTALL</span>
 					</a>
 				</li>
 				<li ng-if="nbPlanet.on" ng-class="nbUtil.active_link('/home/expand/')">
 					<a ng-click="show_client_expansion()">
-						<i class="fa fa-rocket fa-lg fa-fw text-muted"></i>
-						Expand Space
+						<i class="fa fa-wrench fa-lg fa-fw text-muted"></i>
+						EXPAND SPACE
 					</a>
 				</li>
 				<li ng-class="nbUtil.active_link('/home/friends/')">
 					<a href="/home/friends/">
 						<i class="fa fa-user fa-lg fa-fw text-muted"></i>
-						<span>Friends</span>
+						<span>FRIENDS</span>
 					</a>
 				</li>
 			</ul>
