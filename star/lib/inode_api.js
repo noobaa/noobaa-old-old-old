@@ -407,8 +407,12 @@ exports.feed_query = function(req, res) {
 	async.waterfall([
 		function(next) {
 			var match = {
-				owner: mongoose.Types.ObjectId(req.user.id),
-				$or: [{
+				owner: mongoose.Types.ObjectId(req.user.id)
+			};
+			if (req.query.search) {
+				match.name = new RegExp(req.query.search, 'i');
+			} else {
+				match.$or = [{
 					shr: {
 						$exists: true
 					}
@@ -416,10 +420,7 @@ exports.feed_query = function(req, res) {
 					ghost_ref: {
 						$exists: true
 					}
-				}]
-			};
-			if (req.query.search) {
-				match.name = new RegExp(req.query.search, 'i');
+				}];
 			}
 			return Inode.aggregate().match(match).group({
 				_id: {

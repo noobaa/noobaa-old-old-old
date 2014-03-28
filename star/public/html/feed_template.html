@@ -3,7 +3,7 @@
 	<div ng-if="nbUser.user">
 		<div class="feed_item center-block">
 			<div Xclass="input-group" style="position: relative">
-				<input type="text" class="form-control Xinput-lg {{search_feed.query && 'label-primary'}}" maxlength="100" placeholder="Search feed" ng-model="search_feed.query" ng-change="search_feed_changed()" />
+				<input type="text" class="form-control Xinput-lg {{search_feed.query && 'label-primary'}}" maxlength="100" placeholder="I want to watch..." ng-model="search_feed.query" ng-change="search_feed_changed()" />
 				<i class="fa fa-times fa-lg fa-fw text-muted" style="cursor: pointer; position: absolute; right: 8px; top: 10px" ng-click="search_feed.query = search_feed_changed()"></i>
 			</div>
 		</div>

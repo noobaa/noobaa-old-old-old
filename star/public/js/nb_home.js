@@ -16,7 +16,7 @@
 
 	noobaa_app.config(function($routeProvider, $locationProvider) {
 		$locationProvider.html5Mode(true);
-		$routeProvider.when('/feed/', {
+		$routeProvider.when('/watch/', {
 			templateUrl: '/public/html/feed_template.html',
 			controller: ['$scope',
 				function($scope) {
@@ -44,7 +44,7 @@
 				}
 			]
 		}).otherwise({
-			redirectTo: '/feed/'
+			redirectTo: '/watch/'
 		});
 	});
 
@@ -198,10 +198,10 @@
 			}
 
 			$scope.click_my_feed = function() {
-				if ($location.path() === '/feed/') {
+				if ($location.path() === '/watch/') {
 					$scope.refresh_feeds();
 				} else {
-					$location.path('/feed/');
+					$location.path('/watch/');
 					if (!$scope.feeds) {
 						$scope.refresh_feeds();
 					} else {
