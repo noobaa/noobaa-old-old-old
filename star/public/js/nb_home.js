@@ -782,6 +782,11 @@
 				return nbInode.keep_and_share(inode, $scope.mydata, $scope.refresh_feeds);
 			};
 
+			$scope.show_comment_box = function(comment_box) {
+				comment_box.show = !comment_box.show;
+				$scope.notify_layout();
+			};
+
 			$scope.post_comment = function(comment_box) {
 				if (!nbUser.user) {
 					return $scope.open_signin();

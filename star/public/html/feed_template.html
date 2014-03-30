@@ -78,7 +78,7 @@
 								<img class="img-circle" ng-src="{{nbUser.user_pic_url(feed_inode.ref_owner || nbUser.user)}}" style="width: 30px; height: 30px; margin-right: 5px; vertical-align: top" />
 								<small class="text-primary"><b>{{(feed_inode.ref_owner || nbUser.user).first_name}}</b>
 								</small>
-								<a class="btn btn-link btn-lg pull-right" ng-click="comment_box.show = !comment_box.show" title="Add comment" rel="tooltip" nb-tooltip="{placement: 'bottom'}" style="padding: 2px 7px">
+								<a class="btn btn-link btn-lg pull-right" ng-click="show_comment_box(comment_box)" title="Add comment" rel="tooltip" nb-tooltip="{placement: 'bottom'}" style="padding: 2px 7px">
 									<i class="fa fa-reply-all"></i>
 								</a>
 								<a class="btn btn-link btn-lg pull-right" ng-click="open_feed_inode(feed_inode)" title="Go to item" rel="tooltip" nb-tooltip="{placement: 'bottom'}" style="padding: 2px 7px">
