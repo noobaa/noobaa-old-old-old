@@ -48,6 +48,7 @@
 				modal: modal,
 				content_modal: content_modal,
 				nbalert: nbalert,
+				nbinfo: nbinfo,
 				nbconfirm: nbconfirm,
 				track_event: track_event,
 				icon_by_kind: icon_by_kind,
@@ -114,7 +115,7 @@
 				var hdr = $('<div class="modal-header clearfix">')
 					.append($('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">').html('&times;'));
 				if (headline) {
-					hdr.append($('<h4>').html(headline));
+					hdr.append(headline);
 				}
 				var body = $('<div class="modal-body">').css('padding', 0).append(content);
 				var foot = $('<div class="modal-footer">').css('margin-top', 0)
@@ -123,16 +124,22 @@
 			}
 
 			function nbalert(msg, modal_scope, size) {
-				var h = $('<i class="fa fa-warning fa-2x text-warning">');
-				var c = $('<div class="lead">').css('padding', '20px 20px 0 20px').append(msg);
+				var h = $('<h4 class="text-warning"><i class="fa fa-warning"> Alert</h4>');
+				var c = $('<div>').css('padding', 15).append(msg);
+				return content_modal(h, c, modal_scope, size || 'sm');
+			}
+
+			function nbinfo(msg, modal_scope, size) {
+				var h = $('<h4 class="text-info">Info</h4>');
+				var c = $('<div>').css('padding', 15).append(msg);
 				return content_modal(h, c, modal_scope, size || 'sm');
 			}
 
 			function nbconfirm(content, callback, modal_scope, size) {
 				var hdr = $('<div class="modal-header clearfix">')
 					.append($('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">').html('&times;'))
-					.append($('<h4>').append($('<i class="fa fa-question-circle fa-2x text-warning">')));
-				var body = $('<div class="modal-body lead">').css('padding', '20px 20px 0 20px').append(content);
+					.append($('<h4 class="text-warning">Confirm <i class="fa fa-question-circle"></h4>'));
+				var body = $('<div class="modal-body">').css('padding', 15).append(content);
 				var foot = $('<div class="modal-footer">').css('margin-top', 0)
 					.append($('<button type="button" class="btn btn-default" data-dismiss="modal">').text('No'))
 					.append($('<button type="button" class="btn btn-primary" data-dismiss="modal">').text('Yes')

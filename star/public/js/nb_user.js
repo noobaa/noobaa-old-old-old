@@ -145,7 +145,7 @@
 				nbUtil.track_event('login.email', {
 					email: email
 				}).then(function() {
-					window.alert('Thank you! Currently we only support sign in with Facebook or Google+. ' +
+					nbUtil.nbinfo('Thank you! Currently we only support sign in with Facebook or Google+. ' +
 						' We will let you know once we implement sign in with email.');
 				});
 			};

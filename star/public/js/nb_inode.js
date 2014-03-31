@@ -230,7 +230,7 @@
 
 			function load_inode(inode, force_load, retries) {
 
-				if (!nbUser.user) { // virtual inodes
+				if (!nbUser.user || (inode.id && inode.id[0] === 'v')) { // virtual inodes
 					inode.loaded = Date.now();
 					return $q.when(inode);
 				}

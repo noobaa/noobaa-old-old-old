@@ -20,7 +20,7 @@
 			templateUrl: '/public/html/feed_template.html',
 			controller: ['$scope',
 				function($scope) {
-					if (!$scope.feeds) {
+					if (!$scope.feeds || !$scope.feeds.length) {
 						$scope.refresh_feeds();
 					}
 				}
@@ -41,6 +41,13 @@
 					if (!$scope.friends) {
 						$scope.refresh_friends();
 					}
+				}
+			]
+		}).when('/yuval/', {
+			templateUrl: '/public/html/scene_template.html',
+			controller: ['$scope',
+				function($scope) {
+					$scope.yuval_load_scenes();
 				}
 			]
 		}).otherwise({
@@ -189,6 +196,7 @@
 					$scope.feeds = _.map(inodes, function(inode) {
 						return {
 							name: inode.name,
+							isdir: inode.isdir,
 							// expanded: true,
 							inodes: [inode]
 						};
@@ -196,6 +204,104 @@
 					$scope.root_dir.entries = nbInode.merge_inode_entries(inodes);
 				})();
 			}
+
+			$scope.yuval_load_scenes = function() {
+				nbUtil.track_event('home.scenes.yuval_load');
+				var base_distro = 'https://d11c7vtptj6nd7.cloudfront.net/yuval_scenes/';
+				var scenes = [{
+					id: 'superbad',
+					comment: 'Superbad finest',
+					desc: 'Superbad',
+					duration: '0:31',
+				}, {
+					id: 'kickass2',
+					comment: 'Schwartz!',
+					desc: 'Kickass 2',
+					duration: '0:18',
+				}, {
+					id: 'Pinapple_express',
+					comment: 'My dad owns a Dawoo Lanos',
+					desc: 'Pinapple Express',
+					duration: '0:27',
+				}, {
+					id: 'TheHobbit',
+					comment: 'Terrible movie. Loved the war scenes though',
+					desc: 'The Hobbit',
+					duration: '0:18',
+				}, {
+					id: 'Furious6',
+					comment: 'Loved this stunt!',
+					desc: 'Fast & Furious 6',
+					duration: '0:15',
+				}, {
+					id: 'TheDarkKnight',
+					comment: 'It\'s fun to meet Herzel Ben Tovim in prison with Bruce Whein. Herzel? What are you up to?',
+					desc: 'The Dark Night',
+					duration: '0:12',
+				}, {
+					id: 'FamilyGuyAutobots',
+					comment: 'Brian was NOT born in the eighties',
+					desc: 'Family Guy - Transformers',
+					duration: '0:59',
+				}, {
+					id: 'FamilyGuyNewOrleans',
+					comment: 'This is why I will not let my kids watch family guy with me. Too embarrassing to explain',
+					desc: 'Family Guy - New Orleans',
+					duration: '0:16',
+				}];
+				$scope.scene_owner = {
+					first_name: 'Yuval',
+					fbid: 100000601353304
+				};
+				$scope.scenes = _.map(scenes, function(s) {
+					var scene = {
+						name: s.desc,
+						id: 'v_' + s.id,
+						isdir: true,
+						content_kind: 'dir',
+						comment: s.comment,
+						desc: s.desc,
+						duration: s.duration
+					};
+					var img_type = 'jpg';
+					var img_name = s.id + '.' + img_type;
+					scene.image = {
+						name: s.desc,
+						id: 'v_' + img_name,
+						fobj_get_url: base_distro + img_name,
+						content_type: 'image/' + img_type,
+						content_kind: 'image',
+					};
+					var vid_type = 'mp4';
+					var vid_name = s.id + '.' + vid_type;
+					scene.video = {
+						name: s.desc,
+						id: 'v_' + vid_name,
+						fobj_get_url: base_distro + vid_name,
+						content_type: 'video/' + vid_type,
+						content_kind: 'video',
+					};
+					return scene;
+				});
+				$scope.play_scene = function(scene) {
+					nbUtil.track_event('home.scenes.play', {
+						name: scene.name
+					});
+					nbInode.play_inode(scene.video);
+				};
+				$scope.media_events = {
+					load: $scope.notify_layout,
+				};
+				$scope.create_scene_page = function() {
+					nbUtil.track_event('home.scenes.create_own_page');
+					nbUtil.nbinfo('<p>Thank you for showing interest!</p>' +
+						'<p>We also think this feature would be great and we are working on it.</p>' +
+						'<p>If you have any additional feedbacks, drop us a note to <a href="mailto:info@noobaa.com">info@noobaa.com</a></p>');
+					// if (nbUser.user) {} else {$scope.open_signin()}
+				};
+				rebuild_layout();
+			};
+
 
 			$scope.click_my_feed = function() {
 				if ($location.path() === '/watch/') {
@@ -254,7 +360,9 @@
 						});
 					}
 				}).then(function() {
-					return refresh_feeds();
+					if ($location.path() === '/watch/') {
+						return refresh_feeds();
+					}
 				}).then(null, function(err) {
 					console.error('GET ROOT FOLDERS FAILED', err);
 					$timeout(init_read_dir, 3000);
@@ -446,12 +554,12 @@
 
 			$scope.show_client_installation = function() {
 				nbUtil.track_event('home.install.show');
-				nbUtil.content_modal('Install Client', $('#client_installation').html(), $scope);
+				nbUtil.content_modal('<h4>Install Client</h4>', $('#client_installation').html(), $scope);
 			};
 
 			$scope.show_client_expansion = function() {
 				nbUtil.track_event('home.space.show');
-				nbUtil.content_modal('Choose Space Plan', $('#client_expansion').html(), $scope);
+				nbUtil.content_modal('<h4>Choose Space Plan</h4>', $('#client_expansion').html(), $scope);
 			};
 
 			var feedback_dialog = $('#feedback_dialog');
@@ -638,7 +746,7 @@
 
 			$scope.open_signin = function() {
 				nbUtil.track_event('home.open_signin');
-				nbUtil.content_modal('Your account is waiting for you.', $('#signin_dialog').html(), $scope);
+				nbUtil.content_modal('<h4>Your account is waiting for you.</h4>', $('#signin_dialog').html(), $scope);
 			};
 
 			$scope.open_upload_file = function() {
