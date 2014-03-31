@@ -626,8 +626,13 @@
 			return {
 				restrict: 'A', // use as attribute
 				link: function(scope, element, attr) {
+					var content_type = scope.$eval(attr.nbFlowplayer);
+					if (content_type === 'video/x-matroska') {
+						return;
+					}
 					$timeout(function() {
 						$(element).flowplayer({
+							// engine: 'flash'
 						});
 					}, 5);
 				}

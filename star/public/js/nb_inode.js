@@ -848,7 +848,8 @@
 					}
 					play_scope.selected.item = play_scope.items[0];
 					var subtitles = _.filter(inode.entries, function(e) {
-						return e.name.indexOf('.srt', e.name.length - 4) !== -1;
+						return e.name.indexOf('.srt', e.name.length - 4) !== -1 || 
+							e.name.indexOf('.sub', e.name.length - 4) !== -1;
 					});
 					if (subtitles.length) {
 						play_scope.subtitles = subtitles;
