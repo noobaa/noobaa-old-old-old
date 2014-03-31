@@ -621,6 +621,20 @@
 		}
 	]);
 
+	noobaa_app.directive('nbFlowplayer', ['$parse', '$timeout',
+		function($parse, $timeout) {
+			return {
+				restrict: 'A', // use as attribute
+				link: function(scope, element, attr) {
+					$timeout(function() {
+						$(element).flowplayer({
+						});
+					}, 5);
+				}
+			};
+		}
+	]);
+
 	noobaa_app.directive('nbEvents', ['$parse',
 		function($parse) {
 			return {

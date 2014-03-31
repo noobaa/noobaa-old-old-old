@@ -7,12 +7,13 @@
 			<span class="label label-default">Folder</span>
 		</h4>
 		<img ng-switch-when="image" ng-src="{{media_url(inode)}}" class="content-item img-responsive center-block" style="vertical-align: middle; max-height: 100%" nb-events="media_events" />
-		<div ng-switch-when="video">
+		<div ng-switch-when="video" nb-flowplayer class="flowplayer">
 			<video controls autoplay ng-src="{{media_url(inode)}}" class="content-item img-responsive center-block" nb-events="media_events">
-				<source ng-src="{{media_url(inode)}}" ng-attr-type="{{inode.content_type}}">
-					<object ng-attr-data="{{media_url(inode)}}" ng-attr-type="{{inode.content_type}}">
-						<embed ng-src="{{media_url(inode)}}">
-					</object>
+				<source ng-src="{{media_url(inode)}}" ng-attr-type="{{inode.content_type}}" />
+				<object ng-attr-data="{{media_url(inode)}}" ng-attr-type="{{inode.content_type}}">
+					<embed ng-src="{{media_url(inode)}}">
+				</object>
+				<track ng-if="media_subtitles" ng-src="{{media_url(media_subtitles)}}" kind="subtitle" />
 			</video>
 		</div>
 		<div ng-switch-when="audio">

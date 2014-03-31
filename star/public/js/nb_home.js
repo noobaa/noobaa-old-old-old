@@ -1195,6 +1195,9 @@
 						return nbInode.seamless_open_inode(inode);
 					};
 					scope.media_events = scope.$eval(attr.mediaEvents) || {};
+					scope.$watch(attr.nbSubtitles, function(value) {
+						scope.media_subtitles = value;
+					});
 					scope.$watch(attr.nbMedia, function(value) {
 						scope.inode = scope.$eval(attr.nbMedia) || {};
 						if (nbPlanet.on) {

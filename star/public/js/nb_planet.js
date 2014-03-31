@@ -481,7 +481,8 @@
 			$scope.open_content = function(inode) {
 				console.log('PLANET OPEN CONTENT', inode);
 				if ($scope.media_player_path &&
-					(inode.content_kind === 'video' || inode.content_kind === 'audio')) {
+					(inode.content_kind === 'video' || inode.content_kind === 'audio') &&
+					inode.id && inode.id[0] !== 'v') {
 					// find subtitles in sibling
 					if (inode.parent) {
 						var last_dot = inode.name.lastIndexOf('.');
