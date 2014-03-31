@@ -1,5 +1,7 @@
 db.trackevents.find({
 	event: /home\.scenes/
+}).sort({
+	time: 1
 }).forEach(function(e) {
 	print(e._id.getTimestamp(),
 		'- [ ' + (e.user ? e.user.name : e.req.ip) + ' ]',
