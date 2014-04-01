@@ -47,7 +47,70 @@
 			templateUrl: '/public/html/scene_template.html',
 			controller: ['$scope',
 				function($scope) {
-					$scope.yuval_load_scenes();
+					$scope.init_scenes('yuval', {
+						first_name: 'Yuval',
+						fbid: 100000601353304
+					}, [{
+						id: 'superbad',
+						comment: 'Superbad finest',
+						desc: 'Superbad',
+						duration: '0:31',
+					}, {
+						id: 'kickass2',
+						comment: 'Schwartz!',
+						desc: 'Kickass 2',
+						duration: '0:18',
+					}, {
+						id: 'Pinapple_express',
+						comment: 'My dad owns a Dawoo Lanos',
+						desc: 'Pinapple Express',
+						duration: '0:27',
+					}, {
+						id: 'TheHobbit',
+						comment: 'Terrible movie. Loved the war scenes though',
+						desc: 'The Hobbit',
+						duration: '0:18',
+					}, {
+						id: 'Furious6',
+						comment: 'Loved this stunt!',
+						desc: 'Fast & Furious 6',
+						duration: '0:15',
+					}, {
+						id: 'TheDarkKnight',
+						comment: 'It\'s fun to meet Herzel Ben Tovim in prison with Bruce Whein. Herzel? What are you up to?',
+						desc: 'The Dark Night',
+						duration: '0:12',
+					}, {
+						id: 'FamilyGuyAutobots',
+						comment: 'Brian was NOT born in the eighties',
+						desc: 'Family Guy - Transformers',
+						duration: '0:59',
+					}, {
+						id: 'FamilyGuyNewOrleans',
+						comment: 'This is why I will not let my kids watch family guy with me. Too embarrassing to explain',
+						desc: 'Family Guy - New Orleans',
+						duration: '0:16',
+					}]);
+				}
+			]
+		}).when('/guy/', {
+			templateUrl: '/public/html/scene_template.html',
+			controller: ['$scope',
+				function($scope) {
+					$scope.init_scenes('guy', {
+						first_name: 'Guy',
+						fbid: 532326962
+					}, [{
+						id: 'dumber catch a break',
+						comment: 'Don\'t worry, we\'ll catch our break too, just gotta keep our eyes open...',
+						desc: 'Dumb & Dumber',
+						duration: '1:19',
+					}, {
+						id: 'dumber extra gloves',
+						comment: 'Yeah, we\'re in the rockies',
+						desc: 'Dumb & Dumber',
+						duration: '0:33',
+					}]);
 				}
 			]
 		}).otherwise({
@@ -205,54 +268,12 @@
 				})();
 			}
 
-			$scope.yuval_load_scenes = function() {
-				nbUtil.track_event('home.scenes.yuval_load');
-				var base_distro = 'https://d11c7vtptj6nd7.cloudfront.net/yuval_scenes/';
-				var scenes = [{
-					id: 'superbad',
-					comment: 'Superbad finest',
-					desc: 'Superbad',
-					duration: '0:31',
-				}, {
-					id: 'kickass2',
-					comment: 'Schwartz!',
-					desc: 'Kickass 2',
-					duration: '0:18',
-				}, {
-					id: 'Pinapple_express',
-					comment: 'My dad owns a Dawoo Lanos',
-					desc: 'Pinapple Express',
-					duration: '0:27',
-				}, {
-					id: 'TheHobbit',
-					comment: 'Terrible movie. Loved the war scenes though',
-					desc: 'The Hobbit',
-					duration: '0:18',
-				}, {
-					id: 'Furious6',
-					comment: 'Loved this stunt!',
-					desc: 'Fast & Furious 6',
-					duration: '0:15',
-				}, {
-					id: 'TheDarkKnight',
-					comment: 'It\'s fun to meet Herzel Ben Tovim in prison with Bruce Whein. Herzel? What are you up to?',
-					desc: 'The Dark Night',
-					duration: '0:12',
-				}, {
-					id: 'FamilyGuyAutobots',
-					comment: 'Brian was NOT born in the eighties',
-					desc: 'Family Guy - Transformers',
-					duration: '0:59',
-				}, {
-					id: 'FamilyGuyNewOrleans',
-					comment: 'This is why I will not let my kids watch family guy with me. Too embarrassing to explain',
-					desc: 'Family Guy - New Orleans',
-					duration: '0:16',
-				}];
-				$scope.scene_owner = {
-					first_name: 'Yuval',
-					fbid: 100000601353304
-				};
+			$scope.init_scenes = function(uid, owner, scenes) {
+				nbUtil.track_event('home.scenes.load', {
+					uid: uid
+				});
+				var base_distro = 'https://d11c7vtptj6nd7.cloudfront.net/' + uid + '_scenes/';
+				$scope.scene_owner = owner;
 				$scope.scenes = _.map(scenes, function(s) {
 					var scene = {
 						name: s.desc,
@@ -285,6 +306,7 @@
 				});
 				$scope.play_scene = function(scene) {
 					nbUtil.track_event('home.scenes.play', {
+						uid: uid,
 						name: scene.name
 					});
 					nbInode.play_inode(scene.video);
@@ -293,7 +315,9 @@
 					load: $scope.notify_layout,
 				};
 				$scope.create_scene_page = function() {
-					nbUtil.track_event('home.scenes.create_own_page');
+					nbUtil.track_event('home.scenes.create_own_page', {
+						uid: uid
+					});
 					nbUtil.nbinfo('<p>Thank you for showing interest!</p>' +
 						'<p>We also think this feature would be great and we are working on it.</p>' +
 						'<p>If you have any additional feedbacks, drop us a note to <a href="mailto:info@noobaa.com">info@noobaa.com</a></p>');
