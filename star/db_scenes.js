@@ -3,7 +3,10 @@ db.trackevents.find({
 }).sort({
 	time: 1
 }).forEach(function(e) {
+	var user = e.user ? e.user.name : e.req.ip;
+	var data = e.data || {};
+	var uid = data.uid ? '<'+data.uid+'>' : '';
 	print(e._id.getTimestamp(),
-		'- [ ' + (e.user ? e.user.name : e.req.ip) + ' ]',
-		e.event, (e.data ? e.data.name : ''));
+		'- [ ' + user + ' ]',
+		e.event, uid, data.name||'');
 });
