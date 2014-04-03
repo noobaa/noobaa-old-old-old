@@ -121,6 +121,9 @@ button.close {
 	margin: 0 !important;
 	padding: 0 !important;
 	width: 100% !important;
+	overflow: auto !important;
+	overflow-y: auto !important;
+	overflow-x: auto !important;
 	height: 100% !important;
 }
 :-webkit-full-screen-ancestor > *:not(:-webkit-full-screen):not(:-webkit-full-screen-ancestor) {
