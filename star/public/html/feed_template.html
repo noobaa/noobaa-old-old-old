@@ -1,6 +1,6 @@
 <div class="feeder">
 
-	<div ng-if="feeds && !feeds.length && !fetching_feeds && !search_feed.query" class="text-center" Xstyle="padding: 20px">
+	<div ng-if="feeds && !feeds.length && !fetching_feeds && !search_feed.query && !search_feed.timeout" class="text-center" Xstyle="padding: 20px">
 		<div style="padding-bottom: 20px">
 			<a class="btn btn-default btn-lg" href="/home/friends/">
 				<i class="fa fa-user fa-lg fa-fw"></i>
@@ -10,7 +10,7 @@
 		<iframe width="400" height="225" style="max-width: 100%" src="//www.youtube.com/embed/9KeVa3IOn78?rel=0" frameborder="0" allowfullscreen></iframe>
 	</div>
 
-	<div ng-if="nbUser.user && feeds && feeds.length">
+	<div ng-if="nbUser.user">
 		<div class="feed_item center-block">
 			<div Xclass="input-group" style="position: relative">
 				<input type="text" class="form-control input-lg {{search_feed.query && 'label-primary'}}" maxlength="100" placeholder="I want to watch..." ng-model="search_feed.query" ng-change="search_feed_changed()" />
