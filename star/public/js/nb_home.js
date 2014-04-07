@@ -464,6 +464,7 @@
 				nbUtil.track_event('home.feed.scroll', {
 					count: $scope.feeds_limit
 				});
+				$scope.force_manual_fetch_feed = !$scope.force_manual_fetch_feed;
 				fetch_feeds(feeds_per_page);
 			};
 
@@ -476,7 +477,7 @@
 			// auto fetch feeds on scroll to bottom
 			var jq_window = $(window);
 			jq_window.scroll(function() {
-				if (!$scope.has_more_feeds || $scope.fetching_feeds) {
+				if (!$scope.has_more_feeds || $scope.fetching_feeds || $scope.force_manual_fetch_feed) {
 					return;
 				}
 				$timeout.cancel($scope.feed_scroll_timeout);
