@@ -87,6 +87,7 @@
 			};
 
 			$scope.load_blog_item = function(headline) {
+				nbUtil.track_event('blog.item.' + headline);
 				if ($scope.blog && $scope.blog.headline === headline) {
 					return;
 				}
