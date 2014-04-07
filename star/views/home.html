@@ -16,22 +16,47 @@
 		<div class="site-body">
 
 			<div ng-if="!nbUser.user" class="fadeIn">
-				<div class="panel panel-info clearfix" style="margin: 0; border-radius: 0">
-					<div class="panel-heading bgdark" style="border-radius: 0; padding: 20px 0">
-						<div class="container">
-							<button class="btn btn-primary btn-lg pull-right hidden-xs" ng-click="open_signin()">
-								Sign in, it's free
-							</button>
-							<h3 style="margin-top: 0">Welcome to NooBaa</h3>
-							<h4>
-								<small>Personal cloud made by shared-economy where you can</small>
-								stream friends videos!
-								<br class="hidden-xs" />
-								<small>Explore the features of the app below and sign in for the full power.</small>
-							</h4>
-							<button class="btn btn-primary btn-lg pull-right visible-xs" ng-click="open_signin()">
-								Sign in, it's free
-							</button>
+				<div class="bgdark" style="padding: 15px">
+					<div class="container">
+						<h1>NooBaa makes cloud-storage for people.</h1>
+						<div class="row">
+							<div class="col-sm-3">
+								<h2 style="padding: 15px 15px 15px 0">
+									<span class="label label-success">Green</span>
+									<small>
+										We made it easy to swap your unused disk-space and get precious cloud-space in return.
+									</small>
+								</h2>
+							</div>
+							<div class="col-sm-3">
+								<h2 style="padding: 15px">
+									<span class="label label-info">Social</span>
+									<small>
+										Personal cloud space can be quite boring without friends so we made it simple to share and stream friends videos!
+									</small>
+								</h2>
+							</div>
+							<div class="col-sm-3">
+								<h2 style="padding: 15px">
+									<span class="label label-danger">Free</span>
+									<small>
+										We made it so you don't have to pay for storing big capacity, which makes it ideal for any media content.
+									</small>
+								</h2>
+							</div>
+							<div class="col-sm-3">
+								<h2 class="text-center" style="padding: 15px">
+									<button class="btn btn-primary btn-lg btn-block" ng-click="open_signin()">
+										Sign in, it's free
+									</button>
+									<small>
+										<small>
+											or try out the demo below
+											<i class="fa fa-arrow-down"></i>
+										</small>
+									</small>
+								</h2>
+							</div>
 						</div>
 					</div>
 				</div>

@@ -48,7 +48,18 @@
 
 /* BOOTSTRAP */
  .text-warning {
+	/*lumen*/
+	/*color: hsl(28, 100%, 55%);*/
+	/*readable*/
 	color: hsl(35, 84%, 62%);
+}
+.text-success {
+	/*cyborg*/
+	/*color: hsl(140, 100%, 38%);*/
+	/*lumen*/
+	/*color: hsl(122, 64%, 44%);*/
+	/*readable*/
+	/*color: hsl(124, 47%, 46%); */
 }
 .well, .panel-default .panel-heading, .panel-default .panel-footer, .bggrey, .progress-bar-grey, .bggrey-hover-only:hover {
 	background-color: hsl(0, 0%, 97%);
@@ -62,7 +73,7 @@
 .bggrey .navbar {
 	background-color: white;
 }
-.bgdark, .panel-heading.bgdark {
+.bgdark {
 	background-color: hsl(0, 0%, 20%);
 }
 .bgdark {
