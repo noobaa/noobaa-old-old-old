@@ -257,30 +257,23 @@ input, textarea {
  .feeds_container {
 }
 .feed_item {
-	width: 365px;
+	width: 300px;
 	vertical-align: top;
 	padding: 5px 20px 40px 20px;
 }
 @media all and (min-width: 400px) and (max-width: 500px) {
 	.feed_item {
-		width: 380px;
+		width: 370px;
 	}
 }
-@media all and (min-width: 500px) and (max-width: 768px) {
+@media all and (min-width: 500px) and (max-width: 600px) {
 	.feed_item {
-		width: 480px;
+		width: 470px;
 	}
 }
-@media all and (min-width: 769px) and (max-width: 991px) {
+@media all and (min-width: 600px) and (max-width: 768px) {
 	.feed_item {
-		width: 350px;
-		padding: 5px 10px 30px 10px;
-	}
-}
-@media all and (min-width: 992px) and (max-width: 1200px) {
-	.feed_item {
-		width: 300px;
-		padding: 5px 10px 30px 10px;
+		width: 570px;
 	}
 }
 .bgnoise1 {
