@@ -10,7 +10,7 @@
 		<iframe width="400" height="225" style="max-width: 100%" src="//www.youtube.com/embed/9KeVa3IOn78?rel=0" frameborder="0" allowfullscreen></iframe>
 	</div>
 
-	<div ng-if="nbUser.user">
+	<div ng-if="nbUser.user && (feeds.length || fetching_feeds || search_feed.query || search_feed.timeout)">
 		<div class="feed_item center-block">
 			<div Xclass="input-group" style="position: relative">
 				<input type="text" class="form-control input-lg {{search_feed.query && 'label-primary'}}" maxlength="100" placeholder="I want to watch..." ng-model="search_feed.query" ng-change="search_feed_changed()" />
