@@ -641,6 +641,25 @@
 		}
 	]);
 
+	noobaa_app.directive('nbXfbml', ['$parse',
+		function($parse) {
+			return {
+				restrict: 'A', // use as attribute
+				link: function(scope, element, attr) {
+					var opt = scope.$eval(attr.nbXfbml);
+					if (opt) {
+						_.each(opt, function(value, key) {
+							element.attr(key, value);
+						});
+					}
+					if (typeof FB !== 'undefined') {
+						FB.XFBML.parse(element.parent()[0]);
+					}
+				}
+			};
+		}
+	]);
+
 	noobaa_app.directive('nbEvents', ['$parse',
 		function($parse) {
 			return {

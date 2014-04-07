@@ -78,7 +78,7 @@
 					<div style="display: inline-block; max-width: 140px; vertical-align:middle">
 						<div ng-show="current_inode.isdir" Xclass="input-group" style="position: relative">
 							<input type="text" class="form-control {{search_in_folder && 'label-primary'}}" maxlength="100" placeholder="Search folder" ng-model="search_in_folder" />
-							<i class="fa fa-times fa-fw text-muted" style="cursor: pointer; position: absolute; right: 8px; top: 10px" ng-click="search_in_folder=''"></i>
+							<i ng-show="search_in_folder" class="fa fa-times fa-fw" style="cursor: pointer; position: absolute; right: 8px; top: 10px" ng-click="search_in_folder=''"></i>
 						</div>
 					</div>
 				</div>

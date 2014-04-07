@@ -1,21 +1,21 @@
 <div class="feeder">
 
-	<div ng-if="nbUser.user">
-		<div class="feed_item center-block">
-			<div Xclass="input-group" style="position: relative">
-				<input type="text" class="form-control Xinput-lg {{search_feed.query && 'label-primary'}}" maxlength="100" placeholder="I want to watch..." ng-model="search_feed.query" ng-change="search_feed_changed()" />
-				<i class="fa fa-times fa-lg fa-fw text-muted" style="cursor: pointer; position: absolute; right: 8px; top: 10px" ng-click="search_feed.query = search_feed_changed()"></i>
-			</div>
+	<div ng-if="feeds && !feeds.length && !fetching_feeds && !search_feed.query" class="text-center" Xstyle="padding: 20px">
+		<div style="padding-bottom: 20px">
+			<a class="btn btn-default btn-lg" href="/home/friends/">
+				<i class="fa fa-user fa-lg fa-fw"></i>
+				<span>Bring Your Friends</span>
+			</a>
 		</div>
+		<iframe width="400" height="225" style="max-width: 100%" src="//www.youtube.com/embed/9KeVa3IOn78?rel=0" frameborder="0" allowfullscreen></iframe>
 	</div>
 
-	<div ng-if="feeds && !feeds.length && !fetching_feeds && !search_feed.query" class="text-center" style="padding: 20px">
-		<iframe width="400" height="225" style="max-width: 100%" src="//www.youtube.com/embed/9KeVa3IOn78?rel=0" frameborder="0" allowfullscreen></iframe>
-		<div style="padding-top: 20px">
-			<a class="btn btn-link btn-lg" style="padding: 5px" href="/home/friends/">
-				<i class="fa fa-users fa-lg fa-fw"></i>
-				<span>Invite Your Friends</span>
-			</a>
+	<div ng-if="nbUser.user && feeds && feeds.length">
+		<div class="feed_item center-block">
+			<div Xclass="input-group" style="position: relative">
+				<input type="text" class="form-control input-lg {{search_feed.query && 'label-primary'}}" maxlength="100" placeholder="I want to watch..." ng-model="search_feed.query" ng-change="search_feed_changed()" />
+				<i ng-show="search_feed.query" class="fa fa-times fa-lg fa-fw" style="cursor: pointer; position: absolute; right: 8px; top: 17px" ng-click="search_feed.query = search_feed_changed()"></i>
+			</div>
 		</div>
 	</div>
 

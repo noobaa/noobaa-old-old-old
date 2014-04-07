@@ -61,6 +61,7 @@ var user_api = require('./lib/user_api');
 var email = require('./lib/email');
 var device_api = require('./lib/device_api');
 var track_api = require('./lib/track_api');
+// var blog_api = require('./lib/blog_api');
 var adminoobaa = require('./lib/adminoobaa');
 
 
@@ -369,6 +370,9 @@ app.get('/api/device/', device_api.device_list);
 app.put('/api/device/:device_id', device_api.device_update);
 app.get('/api/device/current/', device_api.device_current);
 
+// app.get('/public_api/blog/', blog_api.blog_list);
+// app.get('/public_api/blog/:headline', blog_api.blog_get);
+
 app.all('/track/', track_api.track_event_api);
 app.all('/track/pixel/', track_api.track_event_pixel);
 
@@ -433,6 +437,15 @@ app.get('/welcome', function(req, res) {
 	// return res.render('welcome.html', common_api.page_context(req));
 });
 
+/*
+app.get('/gopro', function(req, res) {
+	return res.render('welcome.html', common_api.page_context(req));
+});
+app.get('/info', function(req, res) {
+	return res.render('info.html', common_api.page_context(req));
+});
+*/
+
 app.get('/thankyou', function(req, res) {
 	if (!req.user) {
 		return res.redirect('/home/');
@@ -440,8 +453,12 @@ app.get('/thankyou', function(req, res) {
 	return res.render('thankyou.html', common_api.page_context(req));
 });
 
-app.get('/info', function(req, res) {
-	return res.render('info.html', common_api.page_context(req));
+
+app.get('/blog/*', function(req, res) {
+	return res.render('blog.html', common_api.page_context(req));
+});
+app.get('/blog', function(req, res) {
+	return res.redirect('/blog/');
 });
 
 app.get('/home/*', function(req, res) {
