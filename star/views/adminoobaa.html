@@ -4,17 +4,8 @@
 <head>
 	<?# def.include( 'common_head.html') ?>
 		<style>
-		table {
-			background-color: inherit !important;
-		}
-		.table-row {
-			border-bottom: 1px solid hsl(0, 0%, 15%);
-		}
-		.table-header-cell {
-			border: 1px solid hsl(0, 0%, 50%);
-		}
-		.table-cell, .table-header-cell {
-			padding: 2px 6px !important;
+		.google-visualization-table-th, .google-visualization-table-td {
+			/*white-space: nowrap;*/
 		}
 		</style>
 </head>
@@ -176,6 +167,8 @@
 		</div>
 	</div>
 
+	<div style="height: 30px"></div>
+
 
 	<div style="display: none" ng-non-bindable>
 		<div id="user_info_modal" style="max-height: 100%">
@@ -249,12 +242,12 @@
 				$scope.toggle_alpha = toggle_alpha;
 				$scope.toggle_email_silent = toggle_email_silent;
 
-				$scope.current_tab = 'users';
 				$scope.active_tab = function(name) {
 					if ($scope.current_tab === name) {
 						return 'active';
 					}
 				};
+
 				$scope.activate_tab = function(name) {
 					$scope.current_tab = name;
 					if (name === 'tracks') {
@@ -266,9 +259,13 @@
 				};
 
 				google.setOnLoadCallback(function() {
-					refresh_users();
+					$scope.activate_tab('tracks');
 				});
 
+
+				// for now prefer to keep the default style
+				var table_css_classes = undefined;
+				/*
 				var table_css_classes = {
 					tableRow: 'table-row',
 					headerRow: 'table-header-row',
@@ -277,6 +274,7 @@
 					selectedTableRow: 'table-row-selected',
 					hoverTableRow: 'table-row-hover'
 				};
+				*/
 
 
 				function refresh_users() {
@@ -595,12 +593,12 @@
 					var events_map = {};
 					_.each($scope.tracks, function(tr) {
 						tr.date = new Date(tr._id.time);
-						tr.time = tr.date.getTime();
+						tr.tick = (tr.date.getTime() / restime) >> 0; // integer division
 						tr.ev = tr._id.event;
 						delete tr._id;
 						events_map[tr.ev] = true;
 					});
-					var tracks_sorted_by_time = _.sortBy($scope.tracks, 'time');
+					var tracks_sorted_by_time = _.sortBy($scope.tracks, 'tick');
 					var events = _.keys(events_map).sort();
 
 					var data = new google.visualization.DataTable();
@@ -608,45 +606,51 @@
 					for (i = 0; i < events.length; i++) {
 						data.addColumn('number', events[i]);
 					}
-					var ticks = [];
-					var last_time;
-					var last_row = -1;
+					var current_tick = tracks_sorted_by_time[0].tick;
+					var num_ticks = 0;
 					_.each(tracks_sorted_by_time, function(tr) {
-						var k = _.indexOf(events, tr.ev, true /*sorted*/ ) + 1;
-						if (tr.time !== last_time) {
-							while (last_time + restime < tr.time) {
-								last_row++;
-								last_time += restime;
-								var row = new Array(events.length + 1);
-								row[0] = new Date(last_time);
-								for (i = 1; i <= events.length; i++) {
-									row[i] = 0;
-								}
-								data.addRow(row);
-							}
-							// add new time row
-							last_row++;
-							last_time = tr.time;
+						// fill zero rows even when there are time jumps 
+						// which the server might send us when there are no events in that period
+						// but the data table can't take it so have to fill zero rows
+						while (current_tick !== tr.tick + 1) {
+							num_ticks++;
+							current_tick++;
 							var row = new Array(events.length + 1);
-							row[0] = tr.date;
+							row[0] = new Date(current_tick * restime);
 							for (i = 1; i <= events.length; i++) {
 								row[i] = 0;
 							}
 							data.addRow(row);
-							// console.log('DATA', last_row, 0, tr.date);
 						}
-						data.setCell(last_row, k, tr.count);
-						// console.log('DATA', last_row, k, tr.count, tr.ev);
+						var k = _.indexOf(events, tr.ev, true /*sorted*/ ) + 1;
+						data.setCell(num_ticks - 1, k, tr.count);
+						// console.log('DATA', num_ticks, k, tr.count, tr.ev);
 					});
-					var view = new google.visualization.DataView(data);
+					var chart_view = new google.visualization.DataView(data);
 					var chart = new google.visualization.LineChart(document.getElementById('tracks_chart'));
+
+					var table_data = new google.visualization.DataTable();
+					table_data.addColumn('string', 'event');
+					var this_moment = moment();
+					for (i = 0; i < num_ticks; i++) {
+						table_data.addColumn('number',
+							moment(data.getValue(num_ticks - i - 1, 0)).format('D/M HH:mm'));
+					}
+					_.each(events, function(ev, ev_idx) {
+						var row = new Array(num_ticks + 1);
+						row[0] = ev;
+						for (i = 0; i < num_ticks; i++) {
+							row[i + 1] = data.getValue(num_ticks - i - 1, ev_idx + 1);
+						}
+						table_data.addRow(row);
+					});
 					var tracks_table = document.getElementById('tracks_table');
 					var table = new google.visualization.Table(tracks_table);
 
 					function draw_view() {
-						chart.draw(view, {
+						chart.draw(chart_view, {
 							pointSize: 5,
-							height: 500,
+							height: 300,
 							vAxis: {
 								title: '#events'
 							},
@@ -657,14 +661,14 @@
 								position: 'top'
 							},
 							explorer: {
-								actions: ['dragToPan', 'rightClickToReset']
+								actions: ['dragToZoom', 'rightClickToReset']
 							}
 						});
-						table.draw(view, {
-							showRowNumber: true,
+						table.draw(table_data, {
+							// showRowNumber: true,
+							// page: 'enable',
+							// pageSize: 10,
 							width: $(tracks_table).parent().width(),
-							page: 'enable',
-							pageSize: 10,
 							sortColumn: 0,
 							alternatingRowStyle: false,
 							cssClassNames: table_css_classes
@@ -683,7 +687,7 @@
 						}
 						console.log('CHART SELECTION', selected);
 						if (!selected.row && selected.column) {
-							view.hideColumns([view.getTableColumnIndex(selected.column)]);
+							chart_view.hideColumns([chart_view.getTableColumnIndex(selected.column)]);
 							draw_view();
 						}
 						/*
