@@ -444,6 +444,9 @@ function get_user_usage_bytes(user_id, cb) {
 				owner: user_id,
 				size: {
 					$gt: 0
+				},
+				ghost_ref: {
+					$exists: false
 				}
 			}).group({
 				_id: '$fobj',
