@@ -705,8 +705,11 @@
 			}
 
 			function send_fb_invites() {
-				nbUtil.track_event('home.friends.fb_invite');
 				var fbids = _.keys($scope.fb_invites);
+				nbUtil.track_event('home.friends.fb_invite', {
+					count: fbids.length,
+					fbids: fbids
+				});
 				$scope.sending_fb_invites = true;
 				snd();
 
