@@ -358,6 +358,7 @@
 						data.addColumn('number', '#');
 						data.addColumn('string', 'Name');
 						data.addColumn('number', 'Files');
+						data.addColumn('number', 'Files SWM');
 						data.addColumn('number', 'Usage');
 						data.addColumn('number', 'Quota');
 						data.addColumn('datetime', 'AccessTime');
@@ -373,7 +374,8 @@
 							data.addRow([
 								index--,
 								user.name,
-								user.files, {
+								user.files,
+								user.files_swm, {
 									v: user.usage,
 									f: $scope.human_size(user.usage)
 								}, {

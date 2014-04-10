@@ -35,16 +35,17 @@ exports.admin_get_users = function(req, res) {
 				// get the number of files (pointing at fobj) per user
 				files: function(cb) {
 					Inode.aggregate([{
-						$match: {
-							fobj: {
-								$exists: true
-							}
-						}
-					}, {
 						$group: {
-							_id: "$owner",
-							num: {
-								$sum: 1
+							_id: '$owner',
+							my: {
+								$sum: {
+									$cond: ['$ref_owner', 0, 1]
+								}
+							},
+							swm: {
+								$sum: {
+									$cond: ['$ref_owner', 1, 0]
+								}
 							}
 						}
 					}], cb);
@@ -74,7 +75,9 @@ exports.admin_get_users = function(req, res) {
 				// didn't manage to do it differently in the aggregate
 				var u = merge_users[f._id];
 				if (u) {
-					u.files = f.num;
+					u.files = f.my;
+					u.files_swm = f.swm;
+					console.log('MY', f.my, 'SWM', f.swm, u.name);
 				}
 			});
 			return next(null, merge_users);
