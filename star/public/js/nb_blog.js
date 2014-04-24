@@ -44,15 +44,35 @@
 				if ($scope.blogs) {
 					return;
 				}
+				var yuval = {
+					name: 'Yuval Dimnik',
+					title: 'NooBaa\'s Co-Founder & CEO',
+				};
+				var guy = {
+					name: 'Guy Margalit',
+					title: 'NooBaa\'s',
+				};
 				$scope.blogs = [{
+					/*
+					headline: 'why-we-make-noobaa',
+					subject: 'Why We Make NooBaa',
+					// image_url: '/public/images/cloud.png',
+					image_url: '/public/images/bg5.jpg',
+					time: moment("20140407", "YYYYMMDD").toDate(),
+					author: {
+						name: 'Guy Margalit',
+						title: 'NooBaa\'s Co-Founder & CTO',
+					},
+					summary: [
+						''
+					].join('')
+				}, {
+					*/
 					headline: 'trash-the-welcome-page-part-1',
-					subject: 'Trash the Welcome Page',
+					subject: 'Trash The Welcome Page',
 					image_url: '/public/images/yoda.png',
 					time: moment("20140406", "YYYYMMDD").toDate(),
-					author: {
-						name: 'Yuval Dimnik',
-						title: 'NooBaa\'s CEO',
-					},
+					author: yuval,
 					summary: [
 						'Envision a ring. It’s full of sand and there are 20 year-old cars ',
 						'warming their engines at its edges. In the center of the ring, ',
@@ -65,10 +85,7 @@
 					subject: 'How NooBaa Works',
 					image_url: '/public/images/bg1.jpg',
 					time: moment("20140406", "YYYYMMDD").toDate(),
-					author: {
-						name: 'Yuval Dimnik',
-						title: 'NooBaa\'s CEO',
-					}
+					author: yuval,
 				}];
 				$scope.blogs_by_headline = _.indexBy($scope.blogs, 'headline');
 				/*
