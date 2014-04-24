@@ -406,16 +406,16 @@
 						var date_color_fmt = new google.visualization.ColorFormat();
 						date_color_fmt.addRange(week_ago, yesterday, 'black', 'yellow');
 						date_color_fmt.addRange(yesterday, null, 'black', 'red');
-						date_color_fmt.format(data, 5);
 						date_color_fmt.format(data, 6);
+						date_color_fmt.format(data, 7);
 						var usage_color_fmt = new google.visualization.ColorFormat();
 						usage_color_fmt.addRange(1024 * 1024, 1024 * 1024 * 1024, 'black', 'yellow');
 						usage_color_fmt.addRange(1024 * 1024 * 1024, null, 'black', 'red');
-						usage_color_fmt.format(data, 3);
+						usage_color_fmt.format(data, 4);
 						var quota_color_fmt = new google.visualization.ColorFormat();
 						quota_color_fmt.addRange(10 * 1024 * 1024 * 1024, 100 * 1024 * 1024 * 1024, 'black', 'yellow');
 						quota_color_fmt.addRange(100 * 1024 * 1024 * 1024, null, 'black', 'red');
-						quota_color_fmt.format(data, 4);
+						quota_color_fmt.format(data, 5);
 
 						var users_table = document.getElementById('users_table');
 						var table = new google.visualization.Table(users_table);
