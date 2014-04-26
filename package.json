@@ -37,6 +37,7 @@
     "dot-emc": "~0.1.2",
     "async": "~0.7.0",
     "underscore": "~1.6.0",
+    "masonry.js": "~3.1.5",
     "passport": "~0.2.0",
     "passport-facebook": "~1.0.3",
     "passport-google-oauth": "~0.1.5",
@@ -57,6 +58,7 @@
     "browserify": "~3.44.2",
     "browserify-shim": "~3.4.1",
     "debowerify": "~0.7.0",
+    "esprima": "~1.1.1",
     "deamdify": "~0.1.1",
     "deglobalify": "~0.2.0",
     "gulp": "~3.6.1",
@@ -78,8 +80,6 @@
     "jshint-stylish": "~0.1.5",
     "event-stream": "~3.1.2",
     "vinyl-buffer": "0.0.0",
-    "vinyl-source-stream": "~0.1.1",
-    "masonry.js": "~3.1.5",
-    "esprima": "~1.1.1"
+    "vinyl-source-stream": "~0.1.1"
   }
 }
