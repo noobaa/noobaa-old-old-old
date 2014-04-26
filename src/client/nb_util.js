@@ -6,45 +6,53 @@
 (function() {
 	'use strict';
 
-	// create our module
-	var noobaa_app = angular.module('noobaa_app', ['ngRoute', 'ngAnimate', 'ngSanitize', 'ngTouch']);
+	var _ = require('underscore');
+	var moment = require('moment');
+
+	var nb_util = angular.module('nb_util', [
+		'templates'
+	]);
 
 	// initializations - setup functions on globalScope
 	// which will be propagated to any other scope, and easily visible
 
-	noobaa_app.run(function($rootScope) {
-		$rootScope.safe_apply = safe_apply;
-		$rootScope.safe_callback = safe_callback;
-		$rootScope.human_size = human_size;
-		$rootScope.mobile_check = mobile_check;
-		// add nbdialog func per element as in - $('#dlg').nbdialog(...)
-		jQuery.fn.nbdialog = nbdialog;
+	nb_util.run(['$rootScope',
+		function($rootScope) {
+			$rootScope.safe_apply = safe_apply;
+			$rootScope.safe_callback = safe_callback;
+			$rootScope.human_size = human_size;
+			$rootScope.mobile_check = mobile_check;
+			// add nbdialog func per element as in - $('#dlg').nbdialog(...)
+			jQuery.fn.nbdialog = nbdialog;
 
-		jQuery.fn.focusWithoutScrolling = function() {
-			var x = window.scrollX;
-			var y = window.scrollY;
-			this.focus();
-			window.scrollTo(x, y);
-		};
+			jQuery.fn.focusWithoutScrolling = function() {
+				var x = window.scrollX;
+				var y = window.scrollY;
+				this.focus();
+				window.scrollTo(x, y);
+			};
 
-		$('body').tooltip({
-			selector: '[rel=tooltip]'
-		});
+			$('body').tooltip({
+				selector: '[rel=tooltip]'
+			});
 
-		$('body').popover({
-			selector: '[rel=popover]'
-		});
-	});
+			$('body').popover({
+				selector: '[rel=popover]'
+			});
+		}
+	]);
 
 
 
-	noobaa_app.factory('nbUtil', [
+	nb_util.factory('nbUtil', [
 		'$http', '$timeout', '$interval', '$window', '$q', '$rootScope', '$compile',
 		function($http, $timeout, $interval, $window, $q, $rootScope, $compile) {
 
 			var $scope = {
+				bowser: require('bowser'),
+				underscore: require('underscore'),
+				moment: require('moment'),
 				active_link: active_link,
-				bowser: bowser,
 				modal: modal,
 				content_modal: content_modal,
 				nbalert: nbalert,
@@ -206,7 +214,7 @@
 
 
 
-	noobaa_app.factory('nbMultiSelect', [
+	nb_util.factory('nbMultiSelect', [
 		'$http', '$timeout', '$interval', '$q', '$rootScope',
 		function($http, $timeout, $interval, $q, $rootScope) {
 
@@ -293,7 +301,7 @@
 	]);
 
 
-	// noobaa_app.config([
+	// nb_util.config([
 	//	'$httpProvider', '$interpolateProvider',
 	//	function($httpProvider, $interpolateProvider) {
 	//		delete $httpProvider.defaults.headers.put;
@@ -609,7 +617,7 @@
 
 
 	// http wrapper to be used with async library
-	noobaa_app.factory('$http_async', ['$http',
+	nb_util.factory('$http_async', ['$http',
 		function($http) {
 			return function(req, callback) {
 				return $http(req).then(function(data) {
@@ -621,7 +629,7 @@
 		}
 	]);
 
-	noobaa_app.directive('nbFlowplayer', ['$parse', '$timeout',
+	nb_util.directive('nbFlowplayer', ['$parse', '$timeout',
 		function($parse, $timeout) {
 			return {
 				restrict: 'A', // use as attribute
@@ -641,7 +649,7 @@
 		}
 	]);
 
-	noobaa_app.directive('nbXfbml', ['$parse',
+	nb_util.directive('nbXfbml', ['$parse',
 		function($parse) {
 			return {
 				restrict: 'A', // use as attribute
@@ -660,7 +668,7 @@
 		}
 	]);
 
-	noobaa_app.directive('nbEvents', ['$parse',
+	nb_util.directive('nbEvents', ['$parse',
 		function($parse) {
 			return {
 				restrict: 'A', // use as attribute
@@ -674,7 +682,7 @@
 		}
 	]);
 
-	noobaa_app.directive('nbFocus', function() {
+	nb_util.directive('nbFocus', function() {
 		return {
 			restrict: 'A', // use as attribute
 			link: function(scope, element, attr) {
@@ -687,7 +695,7 @@
 		};
 	});
 
-	noobaa_app.directive('nbAutoHeight', ['$timeout',
+	nb_util.directive('nbAutoHeight', ['$timeout',
 		function($timeout) {
 			function update_height(elem, min, pad) {
 				elem.height(0);
@@ -715,7 +723,7 @@
 		}
 	]);
 
-	noobaa_app.directive('nbRightClick', ['$parse',
+	nb_util.directive('nbRightClick', ['$parse',
 		function($parse) {
 			return {
 				restrict: 'A', // use as attribute
@@ -735,7 +743,7 @@
 		}
 	]);
 
-	noobaa_app.directive('nbResizable', function() {
+	nb_util.directive('nbResizable', function() {
 		return {
 			restrict: 'A', // use as attribute
 			link: function(scope, element, attr) {
@@ -744,7 +752,7 @@
 		};
 	});
 
-	noobaa_app.directive('nbTooltip', function() {
+	nb_util.directive('nbTooltip', function() {
 		return {
 			restrict: 'A', // use as attribute
 			link: function(scope, element, attr) {
@@ -758,7 +766,7 @@
 		};
 	});
 
-	noobaa_app.directive('nbPopover', [
+	nb_util.directive('nbPopover', [
 		'$compile', '$rootScope', '$timeout',
 		function($compile, $rootScope, $timeout) {
 			return {
@@ -793,7 +801,7 @@
 		}
 	]);
 
-	noobaa_app.directive('nbKey', ['$parse',
+	nb_util.directive('nbKey', ['$parse',
 		function($parse) {
 			return {
 				restrict: 'A', // use as attribute
@@ -812,7 +820,7 @@
 		}
 	]);
 
-	noobaa_app.directive('nbDrop', ['$parse', '$rootScope',
+	nb_util.directive('nbDrop', ['$parse', '$rootScope',
 		function($parse, $rootScope) {
 			return {
 				restrict: 'A', // use as attribute
@@ -856,7 +864,7 @@
 	// }
 	// });
 
-	noobaa_app.directive('nbDrag', ['$parse', '$rootScope',
+	nb_util.directive('nbDrag', ['$parse', '$rootScope',
 		function($parse, $rootScope) {
 			return {
 				restrict: 'A', // use as attribute
@@ -882,7 +890,7 @@
 		}
 	]);
 
-	noobaa_app.directive('nbEffectToggle', ['$timeout',
+	nb_util.directive('nbEffectToggle', ['$timeout',
 		function($timeout) {
 			return {
 				restrict: 'A', // use as attribute
@@ -912,7 +920,7 @@
 		}
 	]);
 
-	noobaa_app.directive('nbEffectSwitchClass', ['$parse',
+	nb_util.directive('nbEffectSwitchClass', ['$parse',
 		function($parse) {
 			return {
 				restrict: 'A', // use as attribute
@@ -946,7 +954,7 @@
 		}
 	]);
 
-	noobaa_app.directive('nbShine', ['$parse',
+	nb_util.directive('nbShine', ['$parse',
 		function($parse) {
 			return {
 				restrict: 'A', // use as attribute
@@ -996,7 +1004,7 @@
 	]);
 
 
-	noobaa_app.factory('LinkedList', function() {
+	nb_util.factory('LinkedList', function() {
 		return LinkedList;
 	});
 
@@ -1091,7 +1099,7 @@
 	};
 
 
-	noobaa_app.factory('JobQueue', ['$timeout',
+	nb_util.factory('JobQueue', ['$timeout',
 		function($timeout) {
 			return JobQueue.bind(JobQueue, $timeout);
 		}

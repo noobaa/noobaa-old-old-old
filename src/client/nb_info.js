@@ -6,9 +6,9 @@
 (function() {
 	'use strict';
 
-	var noobaa_app = angular.module('noobaa_app');
+	var nb_info = angular.module('nb_info', ['nb_util']);
 
-	noobaa_app.controller('InfoCtrl', ['$scope', '$http', 'nbUtil',
+	nb_info.controller('InfoCtrl', ['$scope', '$http', 'nbUtil',
 		function($scope, $http, nbUtil) {
 
 			nbUtil.track_event('info.load');

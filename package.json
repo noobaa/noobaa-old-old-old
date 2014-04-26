@@ -72,6 +72,11 @@
     "gulp-uglify": "~0.2.1",
     "gulp-bower": "~0.0.4",
     "gulp-nodemon": "~1.0.2",
-    "gulp-filter": "~0.4.1"
+    "gulp-filter": "~0.4.1",
+    "gulp-concat": "~2.2.0",
+    "event-stream": "~3.1.2",
+    "masonry.js": "~3.1.5",
+    "esprima": "~1.1.1",
+    "gulp-ngmin": "~0.2.0"
   }
 }

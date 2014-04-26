@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app="noobaa_app" xmlns:fb="http://ogp.me/ns/fb#" lang="en">
+<html ng-app="nb_thankyou" xmlns:fb="http://ogp.me/ns/fb#" lang="en">
 
 <head>
 	<?# def.include( 'common_head.html') ?>
@@ -69,22 +69,22 @@
 	</div>
 
 
-	<?# def.include( 'common_scripts.html') ?>
+	<div>
+		<?# def.include( 'common_scripts.html') ?>
+	</div>
 
-		<!-- server data is safely embedded in a JSON type script -->
-		<script id="user_data" type="application/json">
-		<?= JSON.stringify(it.user) ?>
-		</script>
+	<!-- server data is safely embedded in a JSON type script -->
+	<script id="user_data" type="application/json">
+	<?= JSON.stringify(it.user) ?>
+	</script>
 
-		<script type="text/javascript">
-		<?? it.user ?>
-		var noobaa_user = JSON.parse($('#user_data').html()); 
-		<????>
-		var noobaa_user = null; 
-		<???>
-		</script>
-
-		<script src="/public/js/thank_you.js" type="text/javascript"></script>
+	<script type="text/javascript">
+	<?? it.user ?>
+	var noobaa_user = JSON.parse($('#user_data').html()); 
+	<????>
+	var noobaa_user = null; 
+	<???>
+	</script>
 
 </body>
 

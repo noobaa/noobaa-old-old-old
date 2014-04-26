@@ -6,9 +6,12 @@
 (function() {
 	'use strict';
 
-	var noobaa_app = angular.module('noobaa_app');
+	var _ = require('underscore');
+	var moment = require('moment');
 
-	noobaa_app.factory('nbInode', [
+	var nb_util = angular.module('nb_util');
+
+	nb_util.factory('nbInode', [
 		'$http', '$timeout', '$interval', '$q', '$window', '$location', '$rootScope', '$sce', '$sanitize',
 		'LinkedList', 'JobQueue', 'nbUtil', 'nbUser',
 
@@ -736,6 +739,8 @@
 					// if (copy_scope.count !== 1) {
 					// notify_message += ' (' + copy_scope.count + ' items)';
 					// }
+					alertify.success(notify_message);
+					/*
 					$.bootstrapGrowl(notify_message, {
 						ele: 'body',
 						type: 'info',
@@ -749,6 +754,7 @@
 						allow_dismiss: true,
 						stackup_spacing: 10
 					});
+					*/
 					return new_keep_inode_promise;
 				}, function(err) {
 					inode.running_keep--;
@@ -848,7 +854,7 @@
 					}
 					play_scope.selected.item = play_scope.items[0];
 					var subtitles = _.filter(inode.entries, function(e) {
-						return e.name.indexOf('.srt', e.name.length - 4) !== -1 || 
+						return e.name.indexOf('.srt', e.name.length - 4) !== -1 ||
 							e.name.indexOf('.sub', e.name.length - 4) !== -1;
 					});
 					if (subtitles.length) {

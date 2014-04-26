@@ -5,9 +5,9 @@
 (function() {
 	'use strict';
 
-	var noobaa_app = angular.module('noobaa_app');
+	var nb_util = angular.module('nb_util');
 
-	noobaa_app.factory('nbPlanet', [
+	nb_util.factory('nbPlanet', [
 		'$http', '$timeout', '$interval', '$rootScope', '$q', 'nbUtil', 'nbUser', 'nbUploadSrv',
 		function($http, $timeout, $interval, $rootScope, $q, nbUtil, nbUser, nbUploadSrv) {
 			// keep local refs here so that any callback functions

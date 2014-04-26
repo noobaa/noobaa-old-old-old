@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app="noobaa_app" xmlns:fb="http://ogp.me/ns/fb#" lang="en">
+<html ng-app="nb_admin" xmlns:fb="http://ogp.me/ns/fb#" lang="en">
 
 <head>
 	<?# def.include( 'common_head.html') ?>
@@ -213,7 +213,6 @@
 
 	<!-- // <script src="/vendor/d3.v3.min.js" type="text/javascript"></script> -->
 	<script src="//www.google.com/jsapi" type="text/javascript"></script>
-	<script src="/vendor-n/moment/moment.js" type="text/javascript"></script>
 
 
 	<script type="text/javascript">
@@ -224,11 +223,13 @@
 			packages: ['corechart', 'table']
 		});
 
-		var noobaa_app = angular.module('noobaa_app');
+		var nb_admin = angular.module('nb_admin', ['nb_util']);
 
-		noobaa_app.controller('AdminoobaaCtrl', [
+		nb_admin.controller('AdminoobaaCtrl', [
 			'$scope', '$http', '$window', '$timeout', 'JobQueue', 'nbUtil',
 			function AdminoobaaCtrl($scope, $http, $window, $timeout, JobQueue, nbUtil) {
+				var moment = nbUtil.moment;
+				var _ = nbUtil.underscore;
 				$scope._ = _;
 				$scope.nbUtil = nbUtil;
 
@@ -714,6 +715,8 @@
 					}
 					console.error(action, err);
 					var msg = action + err.toString();
+					alertify.error(msg);
+					/*
 					$.bootstrapGrowl(msg, {
 						ele: 'body',
 						type: 'error',
@@ -727,6 +730,7 @@
 						allow_dismiss: true,
 						stackup_spacing: 20
 					});
+					*/
 				}
 
 

@@ -6,9 +6,9 @@
 (function() {
 	'use strict';
 
-	var noobaa_app = angular.module('noobaa_app');
+	var nb_util = angular.module('nb_util');
 
-	noobaa_app.service('nbUploadSrv', [
+	nb_util.service('nbUploadSrv', [
 		'$q', '$http', '$timeout', '$rootScope', 'nbUtil', 'LinkedList', 'JobQueue', UploadSrv
 	]);
 
@@ -1221,7 +1221,7 @@
 
 	// this forces the html to be empty when not expanded
 	// and saves some memory and overhead in case there are lots of items
-	noobaa_app.filter('upload_sons_filter', function() {
+	nb_util.filter('upload_sons_filter', function() {
 		return function(upload) {
 			if (!upload.is_expanded) {
 				return null;
@@ -1240,7 +1240,7 @@
 	});
 
 
-	noobaa_app.controller('UploadCtrl', ['$scope', 'nbUploadSrv',
+	nb_util.controller('UploadCtrl', ['$scope', 'nbUploadSrv',
 		function($scope, nbUploadSrv) {
 			$scope.srv = nbUploadSrv;
 			$scope.upload = $scope.srv.root;

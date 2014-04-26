@@ -5,9 +5,9 @@
 (function() {
 	'use strict';
 
-	var noobaa_app = angular.module('noobaa_app');
+	var nb_thankyou = angular.module('nb_thankyou', ['nb_util']);
 
-	noobaa_app.controller('ThankYouCtrl', [
+	nb_thankyou.controller('ThankYouCtrl', [
 		'$scope', '$http',
 		ThankYouCtrl
 	]);

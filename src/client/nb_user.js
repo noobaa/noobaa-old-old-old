@@ -6,9 +6,9 @@
 (function() {
 	'use strict';
 
-	var noobaa_app = angular.module('noobaa_app');
+	var nb_util = angular.module('nb_util');
 
-	noobaa_app.factory('nbUser', [
+	nb_util.factory('nbUser', [
 		'$http', '$timeout', '$interval', '$q', '$rootScope', '$window', '$location', 'nbUtil',
 		function($http, $timeout, $interval, $q, $rootScope, $window, $location, nbUtil) {
 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app="noobaa_app" xmlns:fb="http://ogp.me/ns/fb#" lang="en">
+<html ng-app="nb_welcome" xmlns:fb="http://ogp.me/ns/fb#" lang="en">
 
 <head>
 	<?# def.include( 'common_head.html') ?>
@@ -317,7 +317,7 @@
 					top
 				</a>
 			</div>
-			<div ng-include="'/public/html/site_foot_template.html'"></div>
+			<div ng-include="'site_foot_template.html'"></div>
 		</div>
 		<div id="viewport">
 			<div id="world"></div>
@@ -334,14 +334,14 @@
 	(function() {
 		'use strict';
 
-		var noobaa_app = angular.module('noobaa_app');
+		var nb_welcome = angular.module('nb_welcome', ['nb_util']);
 
-		noobaa_app.controller('WelcomeCtrl', [
+		nb_welcome.controller('WelcomeCtrl', [
 			'$scope', '$location', '$anchorScroll', '$timeout', '$interval', 'nbUser', 'nbUtil',
 
 			function($scope, $location, $anchorScroll, $timeout, $interval, nbUser, nbUtil) {
 				$scope.nbUser = nbUser;
-				$scope.need_chrome_ref = !bowser.chrome;
+				$scope.need_chrome_ref = !nbUtil.bowser.chrome;
 
 				nbUtil.track_event('welcome.load');
 

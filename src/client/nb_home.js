@@ -6,7 +6,19 @@
 (function() {
 	'use strict';
 
-	var noobaa_app = angular.module('noobaa_app');
+	var _ = require('underscore');
+	var moment = require('moment');
+	// var masonry = require('masonry-shim');
+	// var masonry = require('masonry.js/dist/masonry.pkgd.js');
+	// console.log('MASONRY', Masonry);
+
+	var nb_home = angular.module('nb_home', [
+		'ngRoute',
+		'ngAnimate',
+		'ngSanitize',
+		'ngTouch',
+		'nb_util'
+	]);
 
 
 	///////////////////
@@ -14,109 +26,111 @@
 	///////////////////
 
 
-	noobaa_app.config(function($routeProvider, $locationProvider) {
-		$locationProvider.html5Mode(true);
-		$routeProvider.when('/watch/', {
-			templateUrl: '/public/html/feed_template.html',
-			controller: ['$scope',
-				function($scope) {
-					if (!$scope.feeds || !$scope.feeds.length) {
-						$scope.refresh_feeds();
+	nb_home.config(['$routeProvider', '$locationProvider',
+		function($routeProvider, $locationProvider) {
+			$locationProvider.html5Mode(true);
+			$routeProvider.when('/watch/', {
+				templateUrl: 'feed_template.html',
+				controller: ['$scope',
+					function($scope) {
+						if (!$scope.feeds || !$scope.feeds.length) {
+							$scope.refresh_feeds();
+						}
 					}
-				}
-			]
-		}).when('/items/:item_id*?', {
-			template: [
-				'<div nb-browse context="home_context"></div>'
-			].join('\n'),
-			controller: ['$scope', '$routeParams',
-				function($scope, $routeParams) {
-					$scope.set_current_item($routeParams.item_id);
-				}
-			]
-		}).when('/friends/', {
-			templateUrl: '/public/html/friends_template.html',
-			controller: ['$scope',
-				function($scope) {
-					if (!$scope.friends) {
-						$scope.refresh_friends();
+				]
+			}).when('/items/:item_id*?', {
+				template: [
+					'<div nb-browse context="home_context"></div>'
+				].join('\n'),
+				controller: ['$scope', '$routeParams',
+					function($scope, $routeParams) {
+						$scope.set_current_item($routeParams.item_id);
 					}
-				}
-			]
-		}).when('/yuval/', {
-			templateUrl: '/public/html/scene_template.html',
-			controller: ['$scope',
-				function($scope) {
-					$scope.init_scenes('yuval', {
-						first_name: 'Yuval',
-						fbid: 100000601353304
-					}, [{
-						id: 'superbad',
-						comment: 'Superbad finest',
-						desc: 'Superbad',
-						duration: '0:31',
-					}, {
-						id: 'kickass2',
-						comment: 'Schwartz!',
-						desc: 'Kickass 2',
-						duration: '0:18',
-					}, {
-						id: 'Pinapple_express',
-						comment: 'My dad owns a Dawoo Lanos',
-						desc: 'Pinapple Express',
-						duration: '0:27',
-					}, {
-						id: 'TheHobbit',
-						comment: 'Terrible movie. Loved the war scenes though',
-						desc: 'The Hobbit',
-						duration: '0:18',
-					}, {
-						id: 'Furious6',
-						comment: 'Loved this stunt!',
-						desc: 'Fast & Furious 6',
-						duration: '0:15',
-					}, {
-						id: 'TheDarkKnight',
-						comment: 'It\'s fun to meet Herzel Ben Tovim in prison with Bruce Whein. Herzel? What are you up to?',
-						desc: 'The Dark Night',
-						duration: '0:12',
-					}, {
-						id: 'FamilyGuyAutobots',
-						comment: 'Brian was NOT born in the eighties',
-						desc: 'Family Guy - Transformers',
-						duration: '0:59',
-					}, {
-						id: 'FamilyGuyNewOrleans',
-						comment: 'This is why I will not let my kids watch family guy with me. Too embarrassing to explain',
-						desc: 'Family Guy - New Orleans',
-						duration: '0:16',
-					}]);
-				}
-			]
-		}).when('/guy/', {
-			templateUrl: '/public/html/scene_template.html',
-			controller: ['$scope',
-				function($scope) {
-					$scope.init_scenes('guy', {
-						first_name: 'Guy',
-						fbid: 532326962
-					}, [{
-						id: 'dumber catch a break',
-						comment: 'Don\'t worry, we\'ll catch our break too, just gotta keep our eyes open...',
-						desc: 'Dumb & Dumber',
-						duration: '1:19',
-					}, {
-						id: 'dumber extra gloves',
-						comment: 'Yeah, we\'re in the rockies',
-						desc: 'Dumb & Dumber',
-						duration: '0:33',
-					}]);
-				}
-			]
-		}).otherwise({
-			redirectTo: '/watch/'
-		});
-	});
+				]
+			}).when('/friends/', {
+				templateUrl: 'friends_template.html',
+				controller: ['$scope',
+					function($scope) {
+						if (!$scope.friends) {
+							$scope.refresh_friends();
+						}
+					}
+				]
+			}).when('/yuval/', {
+				templateUrl: 'scene_template.html',
+				controller: ['$scope',
+					function($scope) {
+						$scope.init_scenes('yuval', {
+							first_name: 'Yuval',
+							fbid: 100000601353304
+						}, [{
+							id: 'superbad',
+							comment: 'Superbad finest',
+							desc: 'Superbad',
+							duration: '0:31',
+						}, {
+							id: 'kickass2',
+							comment: 'Schwartz!',
+							desc: 'Kickass 2',
+							duration: '0:18',
+						}, {
+							id: 'Pinapple_express',
+							comment: 'My dad owns a Dawoo Lanos',
+							desc: 'Pinapple Express',
+							duration: '0:27',
+						}, {
+							id: 'TheHobbit',
+							comment: 'Terrible movie. Loved the war scenes though',
+							desc: 'The Hobbit',
+							duration: '0:18',
+						}, {
+							id: 'Furious6',
+							comment: 'Loved this stunt!',
+							desc: 'Fast & Furious 6',
+							duration: '0:15',
+						}, {
+							id: 'TheDarkKnight',
+							comment: 'It\'s fun to meet Herzel Ben Tovim in prison with Bruce Whein. Herzel? What are you up to?',
+							desc: 'The Dark Night',
+							duration: '0:12',
+						}, {
+							id: 'FamilyGuyAutobots',
+							comment: 'Brian was NOT born in the eighties',
+							desc: 'Family Guy - Transformers',
+							duration: '0:59',
+						}, {
+							id: 'FamilyGuyNewOrleans',
+							comment: 'This is why I will not let my kids watch family guy with me. Too embarrassing to explain',
+							desc: 'Family Guy - New Orleans',
+							duration: '0:16',
+						}]);
+					}
+				]
+			}).when('/guy/', {
+				templateUrl: 'scene_template.html',
+				controller: ['$scope',
+					function($scope) {
+						$scope.init_scenes('guy', {
+							first_name: 'Guy',
+							fbid: 532326962
+						}, [{
+							id: 'dumber catch a break',
+							comment: 'Don\'t worry, we\'ll catch our break too, just gotta keep our eyes open...',
+							desc: 'Dumb & Dumber',
+							duration: '1:19',
+						}, {
+							id: 'dumber extra gloves',
+							comment: 'Yeah, we\'re in the rockies',
+							desc: 'Dumb & Dumber',
+							duration: '0:33',
+						}]);
+					}
+				]
+			}).otherwise({
+				redirectTo: '/watch/'
+			});
+		}
+	]);
 
 
 
@@ -125,7 +139,7 @@
 	/////////////////////
 
 
-	noobaa_app.controller('HomeCtrl', [
+	nb_home.controller('HomeCtrl', [
 		'$scope', '$http', '$timeout', '$interval', '$q', '$window', '$location', '$compile',
 		'nbUtil', 'nbMultiSelect', 'nbUser', 'nbInode', 'nbUploadSrv', 'nbPlanet',
 		function($scope, $http, $timeout, $interval, $q, $window, $location, $compile,
@@ -792,6 +806,7 @@
 					$scope.open_signin();
 				}
 			};
+
 		}
 	]);
 
@@ -802,7 +817,7 @@
 	/////////////////////
 
 
-	noobaa_app.controller('FeedCtrl', [
+	nb_home.controller('FeedCtrl', [
 		'$scope', '$q', '$location', '$timeout', 'nbUtil', 'nbUser', 'nbInode',
 		function($scope, $q, $location, $timeout, nbUtil, nbUser, nbInode) {
 			$scope.reload_feed = reload_feed;
@@ -951,10 +966,10 @@
 	//////////////////////
 
 
-	noobaa_app.directive('nbBrowse', function() {
+	nb_home.directive('nbBrowse', function() {
 		return {
 			replace: true,
-			templateUrl: '/public/html/browse_template.html',
+			templateUrl: 'browse_template.html',
 			scope: { // isolated scope
 				context: '='
 			},
@@ -1210,7 +1225,7 @@
 	/////////////////////
 
 
-	noobaa_app.directive('nbMedia', ['$parse', '$timeout', 'nbInode', 'nbPlanet',
+	nb_home.directive('nbMedia', ['$parse', '$timeout', 'nbInode', 'nbPlanet',
 		function($parse, $timeout, nbInode, nbPlanet) {
 			return {
 				replace: true,
@@ -1240,7 +1255,7 @@
 						}
 					});
 				},
-				templateUrl: '/public/html/media_template.html'
+				templateUrl: 'media_template.html'
 			};
 		}
 	]);
@@ -1252,11 +1267,11 @@
 	///////////////////////
 
 
-	noobaa_app.directive('nbChooser', ['$parse', '$timeout', 'nbInode',
+	nb_home.directive('nbChooser', ['$parse', '$timeout', 'nbInode',
 		function($parse, $timeout, nbInode) {
 			return {
 				replace: true,
-				templateUrl: '/public/html/chooser_template.html',
+				templateUrl: 'chooser_template.html',
 				scope: { // isolated scope
 					context: '='
 				},

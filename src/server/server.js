@@ -44,10 +44,17 @@ var URL = require('url');
 var http = require('http');
 var dot_emc = require('dot-emc');
 var express = require('express');
-var passport = require('passport');
-var mongoose = require('mongoose');
+var express_favicon = require('static-favicon');
+var express_morgan_logger = require('morgan');
+var express_body_parser = require('body-parser');
+var express_cookie_parser = require('cookie-parser');
+var express_cookie_session = require('cookie-session');
+var express_method_override = require('method-override');
+var express_compress = require('compression');
 var express_minify = require('express-minify');
 var uglifyjs = require('uglify-js');
+var passport = require('passport');
+var mongoose = require('mongoose');
 var fs = require('fs');
 var mime = require('mime');
 // var fbapi = require('facebook-api');
@@ -65,11 +72,14 @@ var track_api = require('./lib/track_api');
 var adminoobaa = require('./lib/adminoobaa');
 
 
-var nb_debug = (process.env.NB_DEBUG === 'true');
+var rootdir = path.join(__dirname, '..', '..');
+var dev_mode = (process.env.DEV_MODE === 'dev');
+var debug_mode = (process.env.DEBUG_MODE === 'true');
+
 
 // connect to the database
 mongoose.connect(process.env.MONGOHQ_URL);
-mongoose.set('debug', nb_debug);
+mongoose.set('debug', debug_mode);
 
 // create express app
 var app = express();
@@ -80,7 +90,7 @@ app.set('port', web_port);
 var dot_emc_app = dot_emc.init({
 	app: app
 });
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', path.join(rootdir, 'src', 'views'));
 app.engine('dot', dot_emc_app.__express);
 app.engine('html', dot_emc_app.__express);
 
@@ -92,8 +102,8 @@ app.engine('html', dot_emc_app.__express);
 
 // configure app middleware handlers in the order to use them
 
-app.use(express.favicon('/public/images/noobaa_icon16.ico'));
-app.use(express.logger());
+app.use(express_favicon(path.join(rootdir, 'images', 'noobaa_icon16.ico')));
+app.use(express_morgan_logger());
 app.use(function(req, res, next) {
 	// HTTPS redirect:
 	// since we want to provide secure and certified connections 
@@ -118,11 +128,12 @@ var COOKIE_SECRET =
 	'PkAksV4&SNLj+iXl?^{O)XIrRDAFr+CTOx1Gq/B/sM+=P&' +
 	'j)|X|cI}c>jmEf@2TZmQJhEMk_WZMT:l6Z(4rQK$\\NT*G' +
 	'cnv.0F9<c<&?E>Uj(x!z_~%075:%DHRhL"3w-0W+r)bV!)x)Ya*i]QReP"T+e@;_';
-app.use(express.cookieParser(COOKIE_SECRET));
-app.use(express.bodyParser());
-app.use(express.methodOverride());
-app.use(express.cookieSession({
+app.use(express_cookie_parser(COOKIE_SECRET));
+app.use(express_body_parser());
+app.use(express_method_override());
+app.use(express_cookie_session({
 	// no need for secret since its signed by cookieParser
+	signed: false, // already signed by cookie_parser
 	key: 'noobaa_session',
 	cookie: {
 		// TODO: setting max-age for all sessions although we prefer only for /auth.html
@@ -133,6 +144,16 @@ app.use(express.cookieSession({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(express_compress());
+
+
+
+////////////
+// ROUTES //
+////////////
+// using router before static files is optimized
+// since we have less routes then files, and the routes are in memory.
+
 app.use('/api/', function(req, res, next) {
 	// general validations preceding all the star api functions
 	if (!req.user) {
@@ -152,170 +173,6 @@ app.use('/adminoobaa/', function(req, res, next) {
 	}
 	return next();
 });
-
-app.use(express.compress());
-
-// using router before static files is optimized
-// since we have less routes then files, and the routes are in memory.
-app.use(app.router);
-
-function cache_control(seconds) {
-	var millis = 1000 * seconds;
-	return function(req, res, next) {
-		res.setHeader("Cache-Control", "public, max-age=" + seconds);
-		res.setHeader("Expires", new Date(Date.now() + millis).toUTCString());
-		return next();
-	};
-}
-
-// setup static files
-if (!nb_debug) {
-	// setup caching
-	app.use(cache_control(10 * 60)); // 10 minutes
-	app.use('/public/images/', cache_control(24 * 60 * 60)); // 24 hours
-}
-
-function static_files(src) {
-	src = path.resolve(src);
-	var cache = {};
-	var negative_cache = {};
-	var express_static = express.static(src);
-	return function(req, res, next) {
-		// use express static file server for anything that we don't want to minify
-		if (!req.path.match(/\.js$/)) {
-			return express_static(req, res, next);
-		}
-		var file_path = path.resolve(path.join(src, req.path));
-		// verify that we don't allow to access behind the src dir
-		if (file_path.indexOf(src) !== 0) {
-			console.error('UNSAFE STATIC FILE PATH', src, file_path);
-			return next();
-		}
-		// fast negative cache
-		if (negative_cache[file_path]) {
-			console.log('STATIC NEGATIVE CACHE', file_path);
-			return next();
-		}
-		var send_entry = function(entry) {
-			res.set('Content-Type', entry.content_type);
-			res.removeHeader('Set-Cookie');
-			if (req.method === 'GET') {
-				res.send(entry.data);
-			}
-			res.end();
-		};
-		var entry = cache[file_path];
-		if (entry) {
-			console.log('STATIC CACHE HIT', file_path);
-			send_entry(entry);
-			return;
-		}
-		console.log('STATIC CACHE MISS', file_path);
-		fs.readFile(file_path, function(err, data) {
-			if (err) {
-				console.log('STATIC READ FAILED', file_path, err);
-				if (err.code === 'ENOENT' || err.code === 'EISDIR') {
-					negative_cache[file_path] = true;
-					return next();
-				}
-				return next(err);
-			}
-			entry = {
-				content_type: mime.lookup(file_path),
-				data: data
-			};
-			// TODO minify also CSS, more?
-			if (!nb_debug && file_path.match(/\.js$/)) {
-				entry.data = uglifyjs.minify(data.toString(), {
-					fromString: true,
-					mangle: false // TODO mangling fails angular...
-				}).code;
-			}
-			if (entry.data.length < 1024 * 1024) {
-				cache[file_path] = entry;
-			} else {
-				console.log('FILE TOO BIG FOR CACHING', file_path);
-			}
-			send_entry(entry);
-		});
-	};
-}
-
-app.use('/public/', static_files(path.join(__dirname, 'public')));
-app.use('/vendor/', static_files(path.join(__dirname, '..', 'vendor')));
-app.use('/vendor-b/', static_files(path.join(__dirname, '..', 'bower_components')));
-app.use('/vendor-n/', static_files(path.join(__dirname, '..', 'node_modules')));
-app.use('/', express.static(path.join(__dirname, 'public', 'google')));
-// app.use('/2FE5F0A5036CF33C937D0E26CE9B0B10.txt', express.static(path.join(__dirname, 'public', 'js')));
-
-
-// error handlers should be last
-// roughly based on express.errorHandler from connect's errorHandler.js
-app.use(error_404);
-app.use(function(err, req, res, next) {
-	console.error('ERROR:', err);
-	var e = {};
-	if (nb_debug) {
-		// show internal info only on development
-		e = err;
-	}
-	e.data = e.data || e.message;
-	e.status = err.status || res.statusCode;
-	if (e.status < 400) {
-		e.status = 500;
-	}
-	res.status(e.status);
-
-	if (req.xhr) {
-		return res.json(e);
-	} else if (req.accepts('html')) {
-		return res.render('error.html', {
-			data: e.data,
-			status: e.status,
-			stack: e.stack
-		});
-	} else if (req.accepts('json')) {
-		return res.json(e);
-	} else {
-		return res.type('txt').send(e.data || e.toString());
-	}
-});
-
-function error_404(req, res, next) {
-	next({
-		status: 404, // not found
-		data: 'We dug the earth, but couldn\'t find ' + req.originalUrl
-	});
-}
-
-function error_403(req, res, next) {
-	if (req.accepts('html')) {
-		return res.redirect(URL.format({
-			pathname: '/auth/facebook/login/',
-			query: {
-				state: req.originalUrl
-			}
-		}));
-	}
-	next({
-		status: 403, // forbidden
-		data: 'Forgot to login?'
-	});
-}
-
-function error_501(req, res, next) {
-	next({
-		status: 501, // not implemented
-		data: 'Working on it... ' + req.originalUrl
-	});
-}
-
-
-
-////////////
-// ROUTES //
-////////////
-
 
 // setup auth routes
 
@@ -484,6 +341,166 @@ app.get('/player', function(req, res) {
 app.all('/', redirect_no_user, function(req, res) {
 	return res.redirect('/home/');
 });
+
+
+
+////////////
+// STATIC //
+////////////
+
+function cache_control(seconds) {
+	var millis = 1000 * seconds;
+	return function(req, res, next) {
+		res.setHeader("Cache-Control", "public, max-age=" + seconds);
+		res.setHeader("Expires", new Date(Date.now() + millis).toUTCString());
+		return next();
+	};
+}
+
+// setup static files
+if (!debug_mode) {
+	// setup caching
+	app.use(cache_control(10 * 60)); // 10 minutes
+	app.use('/public/images/', cache_control(24 * 60 * 60)); // 24 hours
+}
+
+function static_files(src) {
+	src = path.resolve(src);
+	var cache = {};
+	var negative_cache = {};
+	var express_static = express.static(src);
+	return function(req, res, next) {
+		// use express static file server for anything that we don't want to minify
+		if (!req.path.match(/\.js$/)) {
+			return express_static(req, res, next);
+		}
+		var file_path = path.resolve(path.join(src, req.path));
+		// verify that we don't allow to access behind the src dir
+		if (file_path.indexOf(src) !== 0) {
+			console.error('UNSAFE STATIC FILE PATH', src, file_path);
+			return next();
+		}
+		// fast negative cache
+		if (negative_cache[file_path]) {
+			console.log('STATIC NEGATIVE CACHE', file_path);
+			return next();
+		}
+		var send_entry = function(entry) {
+			res.set('Content-Type', entry.content_type);
+			res.removeHeader('Set-Cookie');
+			if (req.method === 'GET') {
+				res.send(entry.data);
+			}
+			res.end();
+		};
+		var entry = cache[file_path];
+		if (entry) {
+			console.log('STATIC CACHE HIT', file_path);
+			send_entry(entry);
+			return;
+		}
+		console.log('STATIC CACHE MISS', file_path);
+		fs.readFile(file_path, function(err, data) {
+			if (err) {
+				console.log('STATIC READ FAILED', file_path, err);
+				if (err.code === 'ENOENT' || err.code === 'EISDIR') {
+					negative_cache[file_path] = true;
+					return next();
+				}
+				return next(err);
+			}
+			entry = {
+				content_type: mime.lookup(file_path),
+				data: data
+			};
+			// TODO minify also CSS, more?
+			if (!debug_mode && file_path.match(/\.js$/)) {
+				entry.data = uglifyjs.minify(data.toString(), {
+					fromString: true,
+					mangle: false // TODO mangling fails angular...
+				}).code;
+			}
+			if (entry.data.length < 1024 * 1024) {
+				cache[file_path] = entry;
+			} else {
+				console.log('FILE TOO BIG FOR CACHING', file_path);
+			}
+			send_entry(entry);
+		});
+	};
+}
+
+app.use('/public/', express.static(path.join(rootdir, 'build', 'public')));
+app.use('/public/images/', express.static(path.join(rootdir, 'images')));
+app.use('/vendor/', express.static(path.join(rootdir, 'vendor')));
+app.use('/vendor/', express.static(path.join(rootdir, 'node_modules')));
+app.use('/vendor/', express.static(path.join(rootdir, 'bower_components')));
+app.use('/', express.static(path.join(rootdir, 'public')));
+
+
+
+// error handlers should be last
+// roughly based on express.errorHandler from connect's errorHandler.js
+app.use(error_404);
+app.use(function(err, req, res, next) {
+	console.error('ERROR:', err);
+	var e = {};
+	if (debug_mode) {
+		// show internal info only on development
+		e = err;
+	}
+	e.data = e.data || e.message;
+	e.status = err.status || res.statusCode;
+	if (e.status < 400) {
+		e.status = 500;
+	}
+	res.status(e.status);
+
+	if (req.xhr) {
+		return res.json(e);
+	} else if (req.accepts('html')) {
+		return res.render('error.html', {
+			data: e.data,
+			status: e.status,
+			stack: e.stack
+		});
+	} else if (req.accepts('json')) {
+		return res.json(e);
+	} else {
+		return res.type('txt').send(e.data || e.toString());
+	}
+});
+
+function error_404(req, res, next) {
+	next({
+		status: 404, // not found
+		data: 'We dug the earth, but couldn\'t find ' + req.originalUrl
+	});
+}
+
+function error_403(req, res, next) {
+	if (req.accepts('html')) {
+		return res.redirect(URL.format({
+			pathname: '/auth/facebook/login/',
+			query: {
+				state: req.originalUrl
+			}
+		}));
+	}
+	next({
+		status: 403, // forbidden
+		data: 'Forgot to login?'
+	});
+}
+
+function error_501(req, res, next) {
+	next({
+		status: 501, // not implemented
+		data: 'Working on it... ' + req.originalUrl
+	});
+}
+
+
 
 
 // start http server

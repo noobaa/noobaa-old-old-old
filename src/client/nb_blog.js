@@ -6,35 +6,43 @@
 (function() {
 	'use strict';
 
-	var noobaa_app = angular.module('noobaa_app');
+	var _ = require('underscore');
+	var moment = require('moment');
+
+	var nb_blog = angular.module('nb_blog', [
+		'ngRoute',
+		'nb_util'
+	]);
 
 	///////////////////
 	// ROUTES CONFIG //
 	///////////////////
 
 
-	noobaa_app.config(function($routeProvider, $locationProvider) {
-		$locationProvider.html5Mode(true);
-		$routeProvider.when('/', {
-			templateUrl: '/public/html/blog_main_template.html',
-			controller: ['$scope', '$routeParams',
-				function($scope, $routeParams) {
-					$scope.load_blogs();
-				}
-			]
-		}).when('/item/:headline*?', {
-			templateUrl: '/public/html/blog_item_template.html',
-			controller: ['$scope', '$routeParams',
-				function($scope, $routeParams) {
-					$scope.load_blog_item($routeParams.headline);
-				}
-			]
-		}).otherwise({
-			redirectTo: '/'
-		});
-	});
+	nb_blog.config(['$routeProvider', '$locationProvider',
+		function($routeProvider, $locationProvider) {
+			$locationProvider.html5Mode(true);
+			$routeProvider.when('/', {
+				templateUrl: 'blog_main_template.html',
+				controller: ['$scope', '$routeParams',
+					function($scope, $routeParams) {
+						$scope.load_blogs();
+					}
+				]
+			}).when('/item/:headline*?', {
+				templateUrl: 'blog_item_template.html',
+				controller: ['$scope', '$routeParams',
+					function($scope, $routeParams) {
+						$scope.load_blog_item($routeParams.headline);
+					}
+				]
+			}).otherwise({
+				redirectTo: '/'
+			});
+		}
+	]);
 
-	noobaa_app.controller('BlogCtrl', ['$scope', '$http', '$timeout', '$location', '$sce', 'nbUtil',
+	nb_blog.controller('BlogCtrl', ['$scope', '$http', '$timeout', '$location', '$sce', 'nbUtil',
 		function($scope, $http, $timeout, $location, $sce, nbUtil) {
 			$scope.moment = moment;
 
