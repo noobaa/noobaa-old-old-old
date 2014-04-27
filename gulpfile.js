@@ -1,4 +1,5 @@
 var gulp = require('gulp');
+var gulp_util = require('gulp-util');
 var gulp_debug = require('gulp-debug');
 var gulp_size = require('gulp-size');
 var gulp_concat = require('gulp-concat');
@@ -11,7 +12,6 @@ var gulp_minify_css = require('gulp-minify-css');
 var gulp_rename = require('gulp-rename');
 var gulp_bower = require('gulp-bower');
 var gulp_ng_template = require('gulp-angular-templatecache');
-var gulp_nodemon = require('gulp-nodemon');
 var gulp_jshint = require('gulp-jshint');
 var jshint_stylish = require('jshint-stylish');
 var vinyl_buffer = require('vinyl-buffer');
@@ -19,6 +19,13 @@ var vinyl_source_stream = require('vinyl-source-stream');
 var browserify = require('browserify');
 var event_stream = require('event-stream');
 var path = require('path');
+var child_process = require('child_process');
+var dotenv = require('dotenv');
+
+if (!process.env.PORT) {
+	console.log('loading .env file ( no foreman ;)');
+	dotenv.load();
+}
 
 var paths = {
 	css: './src/css/**/*',
@@ -111,22 +118,52 @@ gulp.task('js', ['bower', 'jshint', 'ng'], function() {
 gulp.task('install', ['css', 'js']);
 
 
-var nodemon_instance;
+var active_server;
 
-gulp.task('serve', ['install'], function() {
-	if (!nodemon_instance) {
-		nodemon_instance = gulp_nodemon({
-			script: paths.server_main,
-			watch: 'src/__manual_watch__/',
-			ext: '__manual_watch__',
-			verbose: true,
-		}).on('restart', function() {
-			console.log('~~~ restart server ~~~');
-		});
-	} else {
-		nodemon_instance.emit('restart');
+function serve() {
+	if (active_server) {
+		console.log(' ');
+		console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+		console.log('~~~      KILL SERVER       ~~~ (pid=' + active_server.pid + ')');
+		console.log('~~~ (wait exit to respawn) ~~~');
+		console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+		console.log(' ');
+		active_server.kill();
+		return;
 	}
-});
+	console.log(' ');
+	console.log('~~~~~~~~~~~~~~~~~~~~~~');
+	console.log('~~~  START SERVER  ~~~');
+	console.log('~~~~~~~~~~~~~~~~~~~~~~');
+	console.log(' ');
+	active_server = child_process.fork(
+		path.basename(paths.server_main), [], {
+			cwd: path.dirname(paths.server_main)
+		}
+	);
+	active_server.on('error', function(err) {
+		console.error(' ');
+		console.error('~~~~~~~~~~~~~~~~~~~~~~');
+		console.error('~~~  SERVER ERROR  ~~~', err);
+		console.error('~~~~~~~~~~~~~~~~~~~~~~');
+		console.error(' ');
+		gulp_util.beep();
+	});
+	active_server.on('exit', function(code, signal) {
+		console.error(' ');
+		console.error('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+		console.error('~~~       SERVER EXIT       ~~~ (rc=' + code + ')');
+		console.error('~~~  (respawn in 1 second)  ~~~');
+		console.error('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+		console.error(' ');
+		active_server = null;
+		setTimeout(serve, 1);
+	});
+	gulp_util.beep();
+}
+
+
+gulp.task('serve', ['install'], serve);
 
 gulp.task('start_dev', ['serve'], function() {
 	return gulp.watch('src/**/*', ['serve']);
