@@ -3,6 +3,7 @@ var gulp_util = require('gulp-util');
 var gulp_debug = require('gulp-debug');
 var gulp_size = require('gulp-size');
 var gulp_concat = require('gulp-concat');
+var gulp_replace = require('gulp-replace');
 var gulp_cached = require('gulp-cached');
 var gulp_newer = require('gulp-newer');
 var gulp_filter = require('gulp-filter');
@@ -92,13 +93,20 @@ gulp.task('js', ['bower', 'jshint', 'ng'], function() {
 	var NAME_MIN = 'bundle.min.js';
 	var bundler = browserify(paths.client_main);
 	var bundle_options = {
-		insertGlobals: true,
+		// bare is alias for both --no-builtins, --no-commondir, 
+		// and sets --insert-global-vars to just "__filename,__dirname". 
+		// This is handy if you want to run bundles in node.
+		bare: true,
+		detectGlobals: false,
 		list: true,
 		debug: true
 	};
+	// using gulp_replace to fix collision of requires
 	var client_bundle_stream = bundler.bundle(bundle_options)
 		.pipe(vinyl_source_stream(NAME))
-		.pipe(vinyl_buffer());
+		.pipe(vinyl_buffer())
+		.pipe(gulp_replace(/\brequire\b/g, 'require_browserify'))
+		.pipe(gulp_replace(/\brequire_node\b/g, 'require'));
 	var client_merged_stream = event_stream.merge(
 		client_bundle_stream,
 		gulp.src(paths.client_externals)

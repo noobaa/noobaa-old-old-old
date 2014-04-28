@@ -25,7 +25,7 @@
     "jquery": "global:$"
   },
   "dependencies": {
-    "express": "~4.1.0",
+    "express": "~4.1.1",
     "static-favicon": "~1.0.2",
     "morgan": "~1.0.0",
     "cookie-parser": "~1.0.1",
@@ -84,6 +84,7 @@
     "jquery": "~2.1.0",
     "jquery-ui": "~1.10.5",
     "angular": "~1.2.16",
-    "dotenv": "~0.2.8"
+    "dotenv": "~0.2.8",
+    "gulp-replace": "~0.2.0"
   }
 }

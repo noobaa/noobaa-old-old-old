@@ -16,24 +16,30 @@
 			var console = window.console;
 			var localStorage = window.localStorage;
 
-			if (!window.require) {
-				// console.log('nbPlanet NO REQUIRE');
-				return {};
+			var $scope = {};
+			if (window.require_node) {
+				console.log('nbPlanet on');
+				$scope.on = true;
+			} else {
+				console.log('nbPlanet off');
+				return $scope;
 			}
 
-			console.log('nbPlanet REQUIRE');
-
-			var $scope = {
-				on: true
-			};
-
-			var os = require('os');
-			var path = require('path');
-			var fs = require('fs');
-			var http = require('http');
-			var child_process = require('child_process');
+			// avoid require of native nw modules.
+			// these were required in bootstrap stage to avoid
+			// conflicts with browserify's require
+			var fs = window.require_node('fs');
+			var os = window.require_node('os');
+			var path = window.require_node('path');
+			var http = window.require_node('http');
+			var child_process = window.require_node('child_process');
 			// load native node-webkit library
-			var gui = window.require('nw.gui');
+			var gui = window.require_node('nw.gui');
+
+			// requires resolved from browserify's bundle
+			var async = require('async');
+
+
 			// get the node-webkit native window of the planet
 			var win = gui.Window.get();
 

@@ -22,8 +22,10 @@
 		this.$cb = $rootScope.safe_callback.bind($rootScope);
 
 		// use node-webkit modules if available
-		this.$fs = window.require && window.require('fs');
-		this.$path = window.require && window.require('path');
+		if (window.require_node) {
+			this.$fs = window.require_node('fs');
+			this.$path = window.require_node('path');
+		}
 
 		this.list_loading = new LinkedList('ld');
 		this.list_uploading = new LinkedList('up');

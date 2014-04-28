@@ -132,9 +132,8 @@ app.use(express_cookie_parser(COOKIE_SECRET));
 app.use(express_body_parser());
 app.use(express_method_override());
 app.use(express_cookie_session({
-	// no need for secret since its signed by cookieParser
-	signed: false, // already signed by cookie_parser
 	key: 'noobaa_session',
+	secret: COOKIE_SECRET,
 	cookie: {
 		// TODO: setting max-age for all sessions although we prefer only for /auth.html
 		// but express/connect seems broken to accept individual session maxAge,

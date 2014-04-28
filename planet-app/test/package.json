@@ -1,7 +1,7 @@
 {
 	"name": "NooBaaTEST",
 	"description": "NooBaaTEST",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"main": "http://localhost:5000/planet",
 	"main1": "app://noobaa/draft_planet_boot.html",
 	"node-remote": "localhost:5000",
@@ -17,6 +17,7 @@
 		"height": 300
 	},
 	"webkit": {
-		"plugin": true
+		"plugin": true,
+		"page-cache": true
 	}
 }
