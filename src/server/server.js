@@ -134,12 +134,10 @@ app.use(express_method_override());
 app.use(express_cookie_session({
 	key: 'noobaa_session',
 	secret: COOKIE_SECRET,
-	cookie: {
-		// TODO: setting max-age for all sessions although we prefer only for /auth.html
-		// but express/connect seems broken to accept individual session maxAge,
-		// although documented to work. people also report it fails.
-		maxAge: 356 * 24 * 60 * 60 * 1000 // 1 year
-	}
+	// TODO: setting max-age for all sessions although we prefer only for /auth.html
+	// but express/connect seems broken to accept individual session maxAge,
+	// although documented to work. people also report it fails.
+	maxage: 356 * 24 * 60 * 60 * 1000 // 1 year
 }));
 app.use(passport.initialize());
 app.use(passport.session());
