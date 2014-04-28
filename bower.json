@@ -2,7 +2,7 @@
 	"name": "NooBaa",
 	"version": "0.0.1",
 	"dependencies": {
-		"bootstrap-growl": "latest",
+		"alertify.js": "0.3.x",
 		"bootstrap": "3.1.1",
 		"bootswatch": "3.1.1",
 		"font-awesome": "4.0.3",

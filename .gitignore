@@ -1,8 +1,8 @@
 *.sublime-workspace
 *.sublime-project
 .env
+build/
 node_modules/
 bower_components/
 noobaa-prod-dump/
-
 draft_*

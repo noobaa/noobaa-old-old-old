@@ -1,8 +1,8 @@
 {
 	"name": "NooBaaApp",
 	"description": "NooBaaApp",
-	"version": "0.0.1",
-	"main": "http://www.noobaa.com/planet",
+	"version": "0.0.2",
+	"main": "https://www.noobaa.com/planet",
 	"node-remote": "*.noobaa.com",
 	"window": {
 		"icon": "noobaa_icon.ico",
@@ -16,6 +16,7 @@
 		"height": 300
 	},
 	"webkit": {
-		"plugin": true
+		"plugin": true,
+		"page-cache": true
 	}
 }
