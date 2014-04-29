@@ -2,14 +2,14 @@
 'use strict';
 
 process.on('uncaughtException', function(err) {
-	console.log(err.stack);
+    console.log(err.stack);
 });
 
 if (process.env.NODETIME_ACCOUNT_KEY) {
-	require('nodetime').profile({
-		accountKey: process.env.NODETIME_ACCOUNT_KEY,
-		appName: process.env.NODETIME_APP_DESC
-	});
+    require('nodetime').profile({
+        accountKey: process.env.NODETIME_ACCOUNT_KEY,
+        appName: process.env.NODETIME_APP_DESC
+    });
 }
 
 // important - dot settings should run before any require() that might use dot
@@ -19,24 +19,24 @@ dot.templateSettings.strip = false;
 dot.templateSettings.cache = true;
 // replace dot regexp to use <? ?> to avoid collision with angular {{ }}
 for (var i in dot.templateSettings) {
-	var reg = dot.templateSettings[i];
-	if (!(reg instanceof RegExp)) {
-		continue;
-	}
-	var pattern = reg.source;
-	pattern = pattern.replace(/\\\{\\\{/g, '\\<\\?');
-	pattern = pattern.replace(/\\\}\\\}/g, '\\?\\>');
-	var flags = '';
-	if (reg.global) {
-		flags += 'g';
-	}
-	if (reg.ignoreCase) {
-		flags += 'i';
-	}
-	if (reg.multiline) {
-		flags += 'm';
-	}
-	dot.templateSettings[i] = new RegExp(pattern, flags);
+    var reg = dot.templateSettings[i];
+    if (!(reg instanceof RegExp)) {
+        continue;
+    }
+    var pattern = reg.source;
+    pattern = pattern.replace(/\\\{\\\{/g, '\\<\\?');
+    pattern = pattern.replace(/\\\}\\\}/g, '\\?\\>');
+    var flags = '';
+    if (reg.global) {
+        flags += 'g';
+    }
+    if (reg.ignoreCase) {
+        flags += 'i';
+    }
+    if (reg.multiline) {
+        flags += 'm';
+    }
+    dot.templateSettings[i] = new RegExp(pattern, flags);
 }
 
 var path = require('path');
@@ -88,7 +88,7 @@ app.set('port', web_port);
 
 // setup view template engine with doT
 var dot_emc_app = dot_emc.init({
-	app: app
+    app: app
 });
 app.set('views', path.join(rootdir, 'src', 'views'));
 app.engine('dot', dot_emc_app.__express);
@@ -105,39 +105,39 @@ app.engine('html', dot_emc_app.__express);
 app.use(express_favicon(path.join(rootdir, 'images', 'noobaa_icon16.ico')));
 app.use(express_morgan_logger());
 app.use(function(req, res, next) {
-	// HTTPS redirect:
-	// since we want to provide secure and certified connections 
-	// for the entire application, so once a request for http arrives,
-	// we redirect it to https.
-	// it was suggested to use the req.secure flag to check that.
-	// however our nodejs server is always http so the flag is false,
-	// and on heroku only the router does ssl,
-	// so we need to pull the heroku router headers to check.
-	var fwd_proto = req.get('X-Forwarded-Proto');
-	// var fwd_port = req.get('X-Forwarded-Port');
-	// var fwd_from = req.get('X-Forwarded-For');
-	// var fwd_start = req.get('X-Request-Start');
-	if (fwd_proto === 'http') {
-		var host = req.get('Host');
-		return res.redirect('https://' + host + req.url);
-	}
-	return next();
+    // HTTPS redirect:
+    // since we want to provide secure and certified connections 
+    // for the entire application, so once a request for http arrives,
+    // we redirect it to https.
+    // it was suggested to use the req.secure flag to check that.
+    // however our nodejs server is always http so the flag is false,
+    // and on heroku only the router does ssl,
+    // so we need to pull the heroku router headers to check.
+    var fwd_proto = req.get('X-Forwarded-Proto');
+    // var fwd_port = req.get('X-Forwarded-Port');
+    // var fwd_from = req.get('X-Forwarded-For');
+    // var fwd_start = req.get('X-Request-Start');
+    if (fwd_proto === 'http') {
+        var host = req.get('Host');
+        return res.redirect('https://' + host + req.url);
+    }
+    return next();
 });
 var COOKIE_SECRET =
-	'.9n>(3(Tl.~8Q4mL9fhzqFnD;*vbd\\8cI!&3r#I!y&kP>' +
-	'PkAksV4&SNLj+iXl?^{O)XIrRDAFr+CTOx1Gq/B/sM+=P&' +
-	'j)|X|cI}c>jmEf@2TZmQJhEMk_WZMT:l6Z(4rQK$\\NT*G' +
-	'cnv.0F9<c<&?E>Uj(x!z_~%075:%DHRhL"3w-0W+r)bV!)x)Ya*i]QReP"T+e@;_';
+    '.9n>(3(Tl.~8Q4mL9fhzqFnD;*vbd\\8cI!&3r#I!y&kP>' +
+    'PkAksV4&SNLj+iXl?^{O)XIrRDAFr+CTOx1Gq/B/sM+=P&' +
+    'j)|X|cI}c>jmEf@2TZmQJhEMk_WZMT:l6Z(4rQK$\\NT*G' +
+    'cnv.0F9<c<&?E>Uj(x!z_~%075:%DHRhL"3w-0W+r)bV!)x)Ya*i]QReP"T+e@;_';
 app.use(express_cookie_parser(COOKIE_SECRET));
 app.use(express_body_parser());
 app.use(express_method_override());
 app.use(express_cookie_session({
-	key: 'noobaa_session',
-	secret: COOKIE_SECRET,
-	// TODO: setting max-age for all sessions although we prefer only for /auth.html
-	// but express/connect seems broken to accept individual session maxAge,
-	// although documented to work. people also report it fails.
-	maxage: 356 * 24 * 60 * 60 * 1000 // 1 year
+    key: 'noobaa_session',
+    secret: COOKIE_SECRET,
+    // TODO: setting max-age for all sessions although we prefer only for /auth.html
+    // but express/connect seems broken to accept individual session maxAge,
+    // although documented to work. people also report it fails.
+    maxage: 356 * 24 * 60 * 60 * 1000 // 1 year
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -152,23 +152,23 @@ app.use(express_compress());
 // since we have less routes then files, and the routes are in memory.
 
 app.use('/api/', function(req, res, next) {
-	// general validations preceding all the star api functions
-	if (!req.user) {
-		return error_403(req, res, next);
-	}
-	return next();
+    // general validations preceding all the star api functions
+    if (!req.user) {
+        return error_403(req, res, next);
+    }
+    return next();
 });
 app.use('/adminoobaa/', function(req, res, next) {
-	// admin validation
-	// to make sure admin url cannot be spotted from outside,
-	// we skip the route as if it was never defined.
-	if (!req.user || !req.user.adminoobaa) {
-		console.error('SECURITY ERROR:',
-			'User Not Admin', req.user,
-			'Headers', req.headers);
-		return error_404(req, res, next);
-	}
-	return next();
+    // admin validation
+    // to make sure admin url cannot be spotted from outside,
+    // we skip the route as if it was never defined.
+    if (!req.user || !req.user.adminoobaa) {
+        console.error('SECURITY ERROR:',
+            'User Not Admin', req.user,
+            'Headers', req.headers);
+        return error_404(req, res, next);
+    }
+    return next();
 });
 
 // setup auth routes
@@ -233,7 +233,7 @@ app.all('/track/pixel/', track_api.track_event_pixel);
 // setup admin pages
 
 app.get('/adminoobaa/', function(req, res) {
-	return res.render('adminoobaa.html', common_api.page_context(req));
+    return res.render('adminoobaa.html', common_api.page_context(req));
 });
 app.get('/adminoobaa/user/', adminoobaa.admin_get_users);
 app.get('/adminoobaa/user/:user_id/usage/', adminoobaa.admin_get_user_usage);
@@ -248,47 +248,49 @@ app.get('/adminoobaa/pull_inodes_shr/', adminoobaa.admin_pull_inodes_shr);
 // setup planet pages
 
 app.get('/planet', function(req, res) {
-	return res.render('planet_boot.html', common_api.page_context(req));
+    return res.render('planet_boot.html', common_api.page_context(req));
 });
 
 
 // setup user pages
+var welcome_path = '/welcome';
+// var welcome_path = '/home/';
 
 function redirect_no_user(req, res, next) {
-	if (!req.user) {
-		res.redirect('/home/');
-		return;
-	}
-	if (!req.session.accessToken || !req.session.tokens) {
-		console.log('NO TOKENS FORCE LOGOUT', req.user);
-		res.redirect('/auth/logout/?state=/home/#join');
-		return;
-	}
-	if (req.user.alpha_tester) {
-		return next();
-	}
+    if (!req.user) {
+        res.redirect(welcome_path);
+        return;
+    }
+    if (!req.session.accessToken || !req.session.tokens) {
+        console.log('NO TOKENS FORCE LOGOUT', req.user);
+        res.redirect('/auth/logout/?state=/home/#join');
+        return;
+    }
+    if (req.user.alpha_tester) {
+        return next();
+    }
 
-	//in case the user is not an alpha tester - we want to validate in the DB if this is still the case.
-	User.findById(req.user.id, function(err, user) {
-		if (err) {
-			return next(err);
-		}
-		if (!user) {
-			res.redirect('/auth/logout/');
-			return;
-		}
-		if (!user.alpha_tester) {
-			res.redirect('/thankyou');
-			return;
-		}
-		//user is an approved user
-		return next();
-	});
+    //in case the user is not an alpha tester - we want to validate in the DB if this is still the case.
+    User.findById(req.user.id, function(err, user) {
+        if (err) {
+            return next(err);
+        }
+        if (!user) {
+            res.redirect('/auth/logout/');
+            return;
+        }
+        if (!user.alpha_tester) {
+            res.redirect('/thankyou');
+            return;
+        }
+        //user is an approved user
+        return next();
+    });
 }
 
 app.get('/welcome', function(req, res) {
-	return res.redirect('/home/');
-	// return res.render('welcome.html', common_api.page_context(req));
+    // return res.redirect('/home/');
+    return res.render('welcome.html', common_api.page_context(req));
 });
 
 /*
@@ -301,42 +303,42 @@ app.get('/info', function(req, res) {
 */
 
 app.get('/thankyou', function(req, res) {
-	if (!req.user) {
-		return res.redirect('/home/');
-	}
-	return res.render('thankyou.html', common_api.page_context(req));
+    if (!req.user) {
+        return res.redirect(welcome_path);
+    }
+    return res.render('thankyou.html', common_api.page_context(req));
 });
 
 
 app.get('/blog/*', function(req, res) {
-	return res.render('blog.html', common_api.page_context(req));
+    return res.render('blog.html', common_api.page_context(req));
 });
 app.get('/blog', function(req, res) {
-	return res.redirect('/blog/');
+    return res.redirect('/blog/');
 });
 
 app.get('/home/*', function(req, res) {
-	var ctx = common_api.page_context(req);
-	if (req.session.signup) {
-		ctx.signup = req.session.signup;
-		delete req.session.signup;
-	}
-	if (req.session.signin) {
-		ctx.signin = req.session.signin;
-		delete req.session.signin;
-	}
-	return res.render('home.html', ctx);
+    var ctx = common_api.page_context(req);
+    if (req.session.signup) {
+        ctx.signup = req.session.signup;
+        delete req.session.signup;
+    }
+    if (req.session.signin) {
+        ctx.signin = req.session.signin;
+        delete req.session.signin;
+    }
+    return res.render('home.html', ctx);
 });
 app.get('/home', function(req, res) {
-	return res.redirect('/home/');
+    return res.redirect('/home/');
 });
 
 app.get('/player', function(req, res) {
-	return res.render('player.html');
+    return res.render('player.html');
 });
 
 app.all('/', redirect_no_user, function(req, res) {
-	return res.redirect('/home/');
+    return res.redirect('/home/');
 });
 
 
@@ -346,85 +348,85 @@ app.all('/', redirect_no_user, function(req, res) {
 ////////////
 
 function cache_control(seconds) {
-	var millis = 1000 * seconds;
-	return function(req, res, next) {
-		res.setHeader("Cache-Control", "public, max-age=" + seconds);
-		res.setHeader("Expires", new Date(Date.now() + millis).toUTCString());
-		return next();
-	};
+    var millis = 1000 * seconds;
+    return function(req, res, next) {
+        res.setHeader("Cache-Control", "public, max-age=" + seconds);
+        res.setHeader("Expires", new Date(Date.now() + millis).toUTCString());
+        return next();
+    };
 }
 
 // setup static files
 if (!debug_mode) {
-	// setup caching
-	app.use(cache_control(10 * 60)); // 10 minutes
-	app.use('/public/images/', cache_control(24 * 60 * 60)); // 24 hours
+    // setup caching
+    app.use(cache_control(10 * 60)); // 10 minutes
+    app.use('/public/images/', cache_control(24 * 60 * 60)); // 24 hours
 }
 
 function static_files(src) {
-	src = path.resolve(src);
-	var cache = {};
-	var negative_cache = {};
-	var express_static = express.static(src);
-	return function(req, res, next) {
-		// use express static file server for anything that we don't want to minify
-		if (!req.path.match(/\.js$/)) {
-			return express_static(req, res, next);
-		}
-		var file_path = path.resolve(path.join(src, req.path));
-		// verify that we don't allow to access behind the src dir
-		if (file_path.indexOf(src) !== 0) {
-			console.error('UNSAFE STATIC FILE PATH', src, file_path);
-			return next();
-		}
-		// fast negative cache
-		if (negative_cache[file_path]) {
-			console.log('STATIC NEGATIVE CACHE', file_path);
-			return next();
-		}
-		var send_entry = function(entry) {
-			res.set('Content-Type', entry.content_type);
-			res.removeHeader('Set-Cookie');
-			if (req.method === 'GET') {
-				res.send(entry.data);
-			}
-			res.end();
-		};
-		var entry = cache[file_path];
-		if (entry) {
-			console.log('STATIC CACHE HIT', file_path);
-			send_entry(entry);
-			return;
-		}
-		console.log('STATIC CACHE MISS', file_path);
-		fs.readFile(file_path, function(err, data) {
-			if (err) {
-				console.log('STATIC READ FAILED', file_path, err);
-				if (err.code === 'ENOENT' || err.code === 'EISDIR') {
-					negative_cache[file_path] = true;
-					return next();
-				}
-				return next(err);
-			}
-			entry = {
-				content_type: mime.lookup(file_path),
-				data: data
-			};
-			// TODO minify also CSS, more?
-			if (!debug_mode && file_path.match(/\.js$/)) {
-				entry.data = uglifyjs.minify(data.toString(), {
-					fromString: true,
-					mangle: false // TODO mangling fails angular...
-				}).code;
-			}
-			if (entry.data.length < 1024 * 1024) {
-				cache[file_path] = entry;
-			} else {
-				console.log('FILE TOO BIG FOR CACHING', file_path);
-			}
-			send_entry(entry);
-		});
-	};
+    src = path.resolve(src);
+    var cache = {};
+    var negative_cache = {};
+    var express_static = express.static(src);
+    return function(req, res, next) {
+        // use express static file server for anything that we don't want to minify
+        if (!req.path.match(/\.js$/)) {
+            return express_static(req, res, next);
+        }
+        var file_path = path.resolve(path.join(src, req.path));
+        // verify that we don't allow to access behind the src dir
+        if (file_path.indexOf(src) !== 0) {
+            console.error('UNSAFE STATIC FILE PATH', src, file_path);
+            return next();
+        }
+        // fast negative cache
+        if (negative_cache[file_path]) {
+            console.log('STATIC NEGATIVE CACHE', file_path);
+            return next();
+        }
+        var send_entry = function(entry) {
+            res.set('Content-Type', entry.content_type);
+            res.removeHeader('Set-Cookie');
+            if (req.method === 'GET') {
+                res.send(entry.data);
+            }
+            res.end();
+        };
+        var entry = cache[file_path];
+        if (entry) {
+            console.log('STATIC CACHE HIT', file_path);
+            send_entry(entry);
+            return;
+        }
+        console.log('STATIC CACHE MISS', file_path);
+        fs.readFile(file_path, function(err, data) {
+            if (err) {
+                console.log('STATIC READ FAILED', file_path, err);
+                if (err.code === 'ENOENT' || err.code === 'EISDIR') {
+                    negative_cache[file_path] = true;
+                    return next();
+                }
+                return next(err);
+            }
+            entry = {
+                content_type: mime.lookup(file_path),
+                data: data
+            };
+            // TODO minify also CSS, more?
+            if (!debug_mode && file_path.match(/\.js$/)) {
+                entry.data = uglifyjs.minify(data.toString(), {
+                    fromString: true,
+                    mangle: false // TODO mangling fails angular...
+                }).code;
+            }
+            if (entry.data.length < 1024 * 1024) {
+                cache[file_path] = entry;
+            } else {
+                console.log('FILE TOO BIG FOR CACHING', file_path);
+            }
+            send_entry(entry);
+        });
+    };
 }
 
 app.use('/public/', express.static(path.join(rootdir, 'build', 'public')));
@@ -440,61 +442,61 @@ app.use('/', express.static(path.join(rootdir, 'public')));
 // roughly based on express.errorHandler from connect's errorHandler.js
 app.use(error_404);
 app.use(function(err, req, res, next) {
-	console.error('ERROR:', err);
-	var e = {};
-	if (debug_mode) {
-		// show internal info only on development
-		e = err;
-	}
-	e.data = e.data || e.message;
-	e.status = err.status || res.statusCode;
-	if (e.status < 400) {
-		e.status = 500;
-	}
-	res.status(e.status);
+    console.error('ERROR:', err);
+    var e = {};
+    if (debug_mode) {
+        // show internal info only on development
+        e = err;
+    }
+    e.data = e.data || e.message;
+    e.status = err.status || res.statusCode;
+    if (e.status < 400) {
+        e.status = 500;
+    }
+    res.status(e.status);
 
-	if (req.xhr) {
-		return res.json(e);
-	} else if (req.accepts('html')) {
-		return res.render('error.html', {
-			data: e.data,
-			status: e.status,
-			stack: e.stack
-		});
-	} else if (req.accepts('json')) {
-		return res.json(e);
-	} else {
-		return res.type('txt').send(e.data || e.toString());
-	}
+    if (req.xhr) {
+        return res.json(e);
+    } else if (req.accepts('html')) {
+        return res.render('error.html', {
+            data: e.data,
+            status: e.status,
+            stack: e.stack
+        });
+    } else if (req.accepts('json')) {
+        return res.json(e);
+    } else {
+        return res.type('txt').send(e.data || e.toString());
+    }
 });
 
 function error_404(req, res, next) {
-	next({
-		status: 404, // not found
-		data: 'We dug the earth, but couldn\'t find ' + req.originalUrl
-	});
+    next({
+        status: 404, // not found
+        data: 'We dug the earth, but couldn\'t find ' + req.originalUrl
+    });
 }
 
 function error_403(req, res, next) {
-	if (req.accepts('html')) {
-		return res.redirect(URL.format({
-			pathname: '/auth/facebook/login/',
-			query: {
-				state: req.originalUrl
-			}
-		}));
-	}
-	next({
-		status: 403, // forbidden
-		data: 'Forgot to login?'
-	});
+    if (req.accepts('html')) {
+        return res.redirect(URL.format({
+            pathname: '/auth/facebook/login/',
+            query: {
+                state: req.originalUrl
+            }
+        }));
+    }
+    next({
+        status: 403, // forbidden
+        data: 'Forgot to login?'
+    });
 }
 
 function error_501(req, res, next) {
-	next({
-		status: 501, // not implemented
-		data: 'Working on it... ' + req.originalUrl
-	});
+    next({
+        status: 501, // not implemented
+        data: 'Working on it... ' + req.originalUrl
+    });
 }
 
 
@@ -503,5 +505,5 @@ function error_501(req, res, next) {
 // start http server
 var server = http.createServer(app);
 server.listen(web_port, function() {
-	console.log('Web server on port ' + web_port);
+    console.log('Web server on port ' + web_port);
 });
