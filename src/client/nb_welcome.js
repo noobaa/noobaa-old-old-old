@@ -14,15 +14,21 @@
 
             nbUtil.track_event('welcome.load');
 
+
             $scope.show_welcome_video = function() {
+                var base_url = 'https://d11c7vtptj6nd7.cloudfront.net/messaging/';
+                var video_source = function(name, ext) {
+                    return {
+                        src: $sce.trustAsResourceUrl(base_url + name + '.' + ext),
+                        type: 'video/' + ext
+                    };
+                };
                 var scope = $scope.$new();
-                scope.sources = [{
-                    src: $sce.trustAsResourceUrl('https://d11c7vtptj6nd7.cloudfront.net/messaging/buddy.m4v'),
-                    type: 'video/m4v',
-                }, {
-                    src: $sce.trustAsResourceUrl('https://d11c7vtptj6nd7.cloudfront.net/messaging/buddy.mp4'),
-                    type: 'video/mp4',
-                }];
+                scope.sources = [
+                    video_source('buddy', 'm4v'),
+                    video_source('buddy', 'mp4'),
+                    video_source('buddy', 'webm')
+                ];
                 nbUtil.modal($templateCache.get('video_modal.html'), scope, 'fullscreen');
             };
 

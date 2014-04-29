@@ -640,13 +640,7 @@
                     // if (content_type === 'video/x-matroska') {
                     // return;
                     // }
-                    // scope.$on('$destroy', function() {
-                    // console.log('VIDEO scope $destroy');
-                    // don't seem to need to call unload
-                    // $(element).unload();
-                    // });
                     $timeout(function() {
-                        console.log('video.js player');
                         element.addClass('video-js');
                         element.addClass('vjs-default-skin');
                         videojs(element[0], {
@@ -656,16 +650,6 @@
                             // Player (this) is initialized and ready.
                             this.play();
                         });
-                        /*
-                        $(element).flowplayer({
-                            // engine: 'flash'
-                            onFinish: function() {
-                                console.log('FLOWPLAYER onFinish');
-                                // don't seem to need to call unload
-                                // this.unload();
-                            }
-                        });
-						*/
                     }, 1);
                 }
             };
