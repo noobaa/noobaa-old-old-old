@@ -7,6 +7,8 @@ var gulp_replace = require('gulp-replace');
 var gulp_cached = require('gulp-cached');
 var gulp_newer = require('gulp-newer');
 var gulp_filter = require('gulp-filter');
+var gulp_plumber = require('gulp-plumber');
+var gulp_notify = require('gulp-notify');
 var gulp_less = require('gulp-less');
 var gulp_uglify = require('gulp-uglify');
 var gulp_minify_css = require('gulp-minify-css');
@@ -43,6 +45,8 @@ function leave_no_wounded(err) {
         active_server.removeAllListeners('exit');
         active_server.kill('SIGKILL');
     }
+    gutil.beep();
+    gutil.beep();
     process.exit();
 }
 process.on("uncaughtException", leave_no_wounded);
@@ -93,7 +97,7 @@ function simple_bower() {
                 directory: './bower_components'
             })
                 .on('log', function(result) {
-                    gutil.log(['bower', gutil.colors.cyan(result.id), result.message].join(' '));
+                    gutil.log('bower', gutil.colors.cyan(result.id), result.message);
                 })
                 .on('error', function(error) {
                     stream.emit('error', new gutil.PluginError('simple_bower', error));
@@ -109,10 +113,15 @@ function simple_bower() {
     return stream;
 }
 
+var plumb_conf = {
+    errorHandler: gulp_notify.onError("Error: <%= error.message %>")
+};
+
 gulp.task('bower', function() {
     var DEST = 'build';
     var NAME = 'bower.json';
     return gulp.src(NAME)
+        .pipe(gulp_plumber(plumb_conf))
         .pipe(gulp_newer(path.join(DEST, NAME)))
         .pipe(simple_bower())
         .pipe(gulp.dest(DEST));
@@ -124,12 +133,15 @@ gulp.task('assets', function() {
     var FONTS2_DEST = 'build/public/css/font';
     return Q.all([
         gulp.src(paths.assets)
+        .pipe(gulp_plumber(plumb_conf))
         .pipe(gulp_newer(DEST))
         .pipe(gulp.dest(DEST)),
         gulp.src(paths.fonts)
+        .pipe(gulp_plumber(plumb_conf))
         .pipe(gulp_newer(FONTS_DEST))
         .pipe(gulp.dest(FONTS_DEST)),
         gulp.src(paths.fonts2)
+        .pipe(gulp_plumber(plumb_conf))
         .pipe(gulp_newer(FONTS2_DEST))
         .pipe(gulp.dest(FONTS2_DEST))
     ]);
@@ -140,6 +152,7 @@ gulp.task('css', function() {
     var NAME = 'styles.css';
     var NAME_MIN = 'styles.min.css';
     return gulp.src(paths.css)
+        .pipe(gulp_plumber(plumb_conf))
         .pipe(gulp_newer(path.join(DEST, NAME)))
         .pipe(gulp_less())
         .pipe(gulp_rename(NAME))
@@ -156,6 +169,7 @@ gulp.task('ng', function() {
     var NAME = 'templates.js';
     var NAME_MIN = 'templates.min.js';
     return gulp.src(paths.views_ng)
+        .pipe(gulp_plumber(plumb_conf))
         .pipe(gulp_newer(path.join(DEST, NAME)))
         .pipe(gulp_ng_template())
         .pipe(gulp_size_log(NAME))
@@ -169,6 +183,7 @@ gulp.task('ng', function() {
 
 gulp.task('jshint', function() {
     return gulp.src(paths.scripts)
+        .pipe(gulp_plumber(plumb_conf))
         .pipe(gulp_cached('jshint'))
         .pipe(gulp_jshint())
         .pipe(gulp_jshint.reporter(jshint_stylish))
@@ -200,6 +215,7 @@ gulp.task('client', function() {
         gulp.src(paths.client_externals)
     );
     return client_merged_stream
+        .pipe(gulp_plumber(plumb_conf))
         .pipe(gulp_concat(NAME))
         .pipe(gulp_size_log(NAME))
         .pipe(gulp.dest(DEST))
@@ -250,7 +266,7 @@ function serve() {
         active_server = null;
         setTimeout(serve, 1);
     });
-    gutil.beep();
+    gulp_notify('noobaa serving...').end('stam');
 }
 
 gulp.task('install', ['bower', 'assets', 'css', 'ng', 'jshint', 'client']);
