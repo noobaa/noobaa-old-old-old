@@ -16,8 +16,13 @@
 
             $scope.show_welcome_video = function() {
                 var scope = $scope.$new();
-                scope.source = $sce.trustAsResourceUrl('https://d11c7vtptj6nd7.cloudfront.net/messaging/buddy.m4v');
-                scope.type = 'video/mp4';
+                scope.sources = [{
+                    src: $sce.trustAsResourceUrl('https://d11c7vtptj6nd7.cloudfront.net/messaging/buddy.m4v'),
+                    type: 'video/m4v',
+                }, {
+                    src: $sce.trustAsResourceUrl('https://d11c7vtptj6nd7.cloudfront.net/messaging/buddy.mp4'),
+                    type: 'video/mp4',
+                }];
                 nbUtil.modal($templateCache.get('video_modal.html'), scope, 'fullscreen');
             };
 
@@ -89,7 +94,7 @@
                 });
 
                 generate();
-                requestAnimationFrame(update);
+                updateView();
 
                 function random_range(from, to) {
                     return from + (Math.random() * (to - from));
@@ -106,27 +111,34 @@
                         'rotateY( ' + worldYAngle + 'deg )';
                     world.style.transform = t;
                     world.style['-webkit-transform'] = t;
+                    requestAnimationFrame(update);
                 }
 
                 // Iterate layers[], update the rotation and apply the
                 // inverse transformation currently applied to the world.
                 // Notice the order in which rotations are applied.
 
-                function update() {             
-                    for (var j = 0; j < layers.length; j++) {
-                        var layer = layers[j];
-                        layer.data.a += layer.data.speed;
-                        var t = 'translateX( ' + layer.data.x + 'px ) ' +
-                            'translateY( ' + layer.data.y + 'px ) ' +
-                            'translateZ( ' + layer.data.z + 'px ) ' +
-                            'rotateY( ' + (-worldYAngle) + 'deg ) ' +
-                            'rotateX( ' + (-worldXAngle) + 'deg ) ' +
-                            'rotateZ( ' + layer.data.a + 'deg ) ' +
-                            'scale( ' + layer.data.s + ' )';
-                        layer.style.transform = t;
-                        layer.style['-webkit-transform'] = t;
+                function update() {
+                    for (var i = 0; i < layers.length; i++) {
+                        update_layer(layers[i]);
                     }
-                    requestAnimationFrame(update);
+                    // not running the animation because it hogs the cpu.
+                    // instead this is called on mouse move to refresh the cloud
+                    // from the new perspective.
+                    // requestAnimationFrame(update);
+                }
+
+                function update_layer(layer) {
+                    layer.data.a += layer.data.speed;
+                    var t = 'translateX( ' + layer.data.x + 'px ) ' +
+                        'translateY( ' + layer.data.y + 'px ) ' +
+                        'translateZ( ' + layer.data.z + 'px ) ' +
+                        'rotateY( ' + (-worldYAngle) + 'deg ) ' +
+                        'rotateX( ' + (-worldXAngle) + 'deg ) ' +
+                        'rotateZ( ' + layer.data.a + 'deg ) ' +
+                        'scale( ' + layer.data.s + ' )';
+                    layer.style.transform = t;
+                    layer.style['-webkit-transform'] = t;
                 }
 
                 // Creates a single cloud base: a div in world

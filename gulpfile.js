@@ -11,7 +11,6 @@ var gulp_less = require('gulp-less');
 var gulp_uglify = require('gulp-uglify');
 var gulp_minify_css = require('gulp-minify-css');
 var gulp_rename = require('gulp-rename');
-var gulp_bower = require('gulp-bower');
 var gulp_ng_template = require('gulp-angular-templatecache');
 var gulp_jshint = require('gulp-jshint');
 var jshint_stylish = require('jshint-stylish');
@@ -152,6 +151,22 @@ gulp.task('css', function() {
         .pipe(gulp.dest(DEST));
 });
 
+gulp.task('ng', function() {
+    var DEST = 'build/public/js';
+    var NAME = 'templates.js';
+    var NAME_MIN = 'templates.min.js';
+    return gulp.src(paths.views_ng)
+        .pipe(gulp_newer(path.join(DEST, NAME)))
+        .pipe(gulp_ng_template())
+        .pipe(gulp_size_log(NAME))
+        .pipe(gulp.dest(DEST))
+        .pipe(gulp_cached(NAME))
+        .pipe(gulp_uglify())
+        .pipe(gulp_rename(NAME_MIN))
+        .pipe(gulp_size_log(NAME_MIN))
+        .pipe(gulp.dest(DEST));
+});
+
 gulp.task('jshint', function() {
     return gulp.src(paths.scripts)
         .pipe(gulp_cached('jshint'))
@@ -160,17 +175,7 @@ gulp.task('jshint', function() {
         .pipe(gulp_jshint.reporter('fail'));
 });
 
-gulp.task('ng', function() {
-    var DEST = 'build/';
-    var NAME = 'templates.js';
-    return gulp.src(paths.views_ng)
-        .pipe(gulp_newer(path.join(DEST, NAME)))
-        .pipe(gulp_ng_template())
-        .pipe(gulp_size_log(NAME))
-        .pipe(gulp.dest(DEST));
-});
-
-gulp.task('js', ['bower', 'jshint', 'ng'], function() {
+gulp.task('client', function() {
     var DEST = 'build/public/js';
     var NAME = 'bundle.js';
     var NAME_MIN = 'bundle.min.js';
@@ -204,9 +209,6 @@ gulp.task('js', ['bower', 'jshint', 'ng'], function() {
         .pipe(gulp_size_log(NAME_MIN))
         .pipe(gulp.dest(DEST));
 });
-
-
-gulp.task('install', ['assets', 'css', 'js']);
 
 
 function serve() {
@@ -251,11 +253,18 @@ function serve() {
     gutil.beep();
 }
 
+gulp.task('install', ['bower', 'assets', 'css', 'ng', 'jshint', 'client']);
+gulp.task('install_and_serve', ['install'], serve);
+gulp.task('install_css_and_serve', ['css'], serve);
+gulp.task('install_ng_and_serve', ['ng'], serve);
+gulp.task('install_client_and_serve', ['jshint', 'client'], serve);
+gulp.task('install_server_and_serve', ['jshint'], serve);
 
-gulp.task('serve', ['install'], serve);
-
-gulp.task('start_dev', ['serve'], function() {
-    return gulp.watch('src/**/*', ['serve']);
+gulp.task('start_dev', ['install_and_serve'], function() {
+    gulp.watch('src/css/**/*', ['install_css_and_serve']);
+    gulp.watch('src/views_ng/**/*', ['install_ng_and_serve']);
+    gulp.watch('src/client/**/*', ['install_client_and_serve']);
+    gulp.watch(['src/server/**/*', 'src/views/**/*', 'src/utils/**/*'], ['install_server_and_serve']);
 });
 
 gulp.task('start_prod', function() {

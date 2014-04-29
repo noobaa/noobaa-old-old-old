@@ -1,5 +1,5 @@
 angular.module('templates', []);
-require('../../build/templates.js');
+// require('../../build/templates.js');
 
 require('./nb_util.js');
 
