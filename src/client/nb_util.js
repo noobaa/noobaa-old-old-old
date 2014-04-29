@@ -630,22 +630,33 @@
         }
     ]);
 
-    nb_util.directive('nbFlowplayer', ['$parse', '$timeout',
+    nb_util.directive('nbVideo', ['$parse', '$timeout',
         function($parse, $timeout) {
             return {
                 restrict: 'A', // use as attribute
                 link: function(scope, element, attr) {
-                    var content_type = attr.nbFlowplayer;
-                    console.log('FLOWPLAYER TYPE', content_type);
-                    if (content_type === 'video/x-matroska') {
-                        return;
-                    }
-                    scope.$on('$destroy', function() {
-                        console.log('FLOWPLAYER scope $destroy');
-                        // don't seem to need to call unload
-                        // $(element).unload();
-                    });
+                    var content_type = attr.nbVideo;
+                    console.log('VIDEO TYPE', content_type);
+                    // if (content_type === 'video/x-matroska') {
+                    // return;
+                    // }
+                    // scope.$on('$destroy', function() {
+                    // console.log('VIDEO scope $destroy');
+                    // don't seem to need to call unload
+                    // $(element).unload();
+                    // });
                     $timeout(function() {
+                        console.log('video.js player');
+                        element.addClass('video-js');
+                        element.addClass('vjs-default-skin');
+                        videojs(element[0], {
+                            width: 'auto',
+                            height: 'auto',
+                        }, function() {
+                            // Player (this) is initialized and ready.
+                            this.play();
+                        });
+                        /*
                         $(element).flowplayer({
                             // engine: 'flash'
                             onFinish: function() {
@@ -654,6 +665,7 @@
                                 // this.unload();
                             }
                         });
+						*/
                     }, 1);
                 }
             };

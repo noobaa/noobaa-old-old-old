@@ -25,14 +25,44 @@ var child_process = require('child_process');
 var dotenv = require('dotenv');
 var through = require('through2');
 var bower = require('bower');
+var Q = require('q');
 
 if (!process.env.PORT) {
     console.log('loading .env file ( no foreman ;)');
     dotenv.load();
 }
 
+var active_server;
+
+function leave_no_wounded(err) {
+    if (err) {
+        console.log(err.stack);
+    }
+    if (active_server) {
+        console.log('LEAVE NO WOUNDED - kill active server', active_server.pid);
+        active_server.removeAllListeners('error');
+        active_server.removeAllListeners('exit');
+        active_server.kill('SIGKILL');
+    }
+    process.exit();
+}
+process.on("uncaughtException", leave_no_wounded);
+process.on("SIGINT", leave_no_wounded);
+process.on("SIGTERM", leave_no_wounded);
+
+
 var paths = {
     css: './src/css/**/*',
+    fonts: [
+        './bower_components/bootstrap/dist/fonts/*',
+        './bower_components/font-awesome/fonts/*',
+    ],
+    fonts2: [
+        './node_modules/video.js/dist/video-js/font/*',
+    ],
+    assets: [
+        './node_modules/video.js/dist/video-js/video-js.swf',
+    ],
     views_ng: './src/views_ng/**/*',
     scripts: ['./src/server/**/*.js', './src/client/**/*.js', './gulpfile.js'],
     server_main: './src/server/server.js',
@@ -41,7 +71,8 @@ var paths = {
         './bower_components/bootstrap/dist/js/bootstrap.min.js',
         './node_modules/masonry.js/dist/masonry.pkgd.min.js',
         './bower_components/alertify.js/lib/alertify.min.js',
-        './vendor/flowplayer-5.4.6/flowplayer.js',
+        './node_modules/video.js/dist/video-js/video.dev.js',
+        // './vendor/flowplayer-5.4.6/flowplayer.js',
     ]
 };
 
@@ -86,6 +117,23 @@ gulp.task('bower', function() {
         .pipe(gulp_newer(path.join(DEST, NAME)))
         .pipe(simple_bower())
         .pipe(gulp.dest(DEST));
+});
+
+gulp.task('assets', function() {
+    var DEST = 'build/public';
+    var FONTS_DEST = 'build/public/fonts';
+    var FONTS2_DEST = 'build/public/css/font';
+    return Q.all([
+        gulp.src(paths.assets)
+        .pipe(gulp_newer(DEST))
+        .pipe(gulp.dest(DEST)),
+        gulp.src(paths.fonts)
+        .pipe(gulp_newer(FONTS_DEST))
+        .pipe(gulp.dest(FONTS_DEST)),
+        gulp.src(paths.fonts2)
+        .pipe(gulp_newer(FONTS2_DEST))
+        .pipe(gulp.dest(FONTS2_DEST))
+    ]);
 });
 
 gulp.task('css', function() {
@@ -158,10 +206,8 @@ gulp.task('js', ['bower', 'jshint', 'ng'], function() {
 });
 
 
-gulp.task('install', ['css', 'js']);
+gulp.task('install', ['assets', 'css', 'js']);
 
-
-var active_server;
 
 function serve() {
     if (active_server) {

@@ -1,8 +1,10 @@
-@import (less)"../../bower_components/bootstrap/dist/css/bootstrap.css";
- // @import (less)"../../bower_components/font-awesome/css/font-awesome.css";
- @import (less)"../../bower_components/animate.css/animate.min.css";
- @import (less)"../../bower_components/alertify.js/themes/alertify.core.css";
- @import (less)"../../bower_components/alertify.js/themes/alertify.default.css";
+@import (less)"../../bower_components/bootstrap/less/bootstrap.less";
+ @import (less)"../../bower_components/font-awesome/less/font-awesome.less";
+ @import (inline)"../../bower_components/alertify.js/themes/alertify.core.css";
+ @import (inline)"../../bower_components/alertify.js/themes/alertify.default.css";
+ @import (inline)"../../node_modules/video.js/dist/video-js/video-js.css";
+ @import (inline)"../../bower_components/animate.css/animate.min.css";
+ @import (inline)"../../vendor/animations.css";
 
 /* LAYOUTS */
  html, body {
@@ -341,7 +343,11 @@ input, textarea {
     border: white solid 2px !important;
 }
 /**/
-
+ .video-js {
+    > video {
+        position: relative !important;
+    }
+}
 /* WELCOME */
  .full-page {
     position: relative;

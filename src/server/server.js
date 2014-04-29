@@ -295,10 +295,10 @@ app.get('/welcome', function(req, res) {
 
 /*
 app.get('/gopro', function(req, res) {
-	return res.render('welcome.html', common_api.page_context(req));
+    return res.render('welcome.html', common_api.page_context(req));
 });
 app.get('/info', function(req, res) {
-	return res.render('info.html', common_api.page_context(req));
+    return res.render('info.html', common_api.page_context(req));
 });
 */
 
@@ -357,83 +357,13 @@ function cache_control(seconds) {
 }
 
 // setup static files
-if (!debug_mode) {
-    // setup caching
-    app.use(cache_control(10 * 60)); // 10 minutes
-    app.use('/public/images/', cache_control(24 * 60 * 60)); // 24 hours
-}
-
-function static_files(src) {
-    src = path.resolve(src);
-    var cache = {};
-    var negative_cache = {};
-    var express_static = express.static(src);
-    return function(req, res, next) {
-        // use express static file server for anything that we don't want to minify
-        if (!req.path.match(/\.js$/)) {
-            return express_static(req, res, next);
-        }
-        var file_path = path.resolve(path.join(src, req.path));
-        // verify that we don't allow to access behind the src dir
-        if (file_path.indexOf(src) !== 0) {
-            console.error('UNSAFE STATIC FILE PATH', src, file_path);
-            return next();
-        }
-        // fast negative cache
-        if (negative_cache[file_path]) {
-            console.log('STATIC NEGATIVE CACHE', file_path);
-            return next();
-        }
-        var send_entry = function(entry) {
-            res.set('Content-Type', entry.content_type);
-            res.removeHeader('Set-Cookie');
-            if (req.method === 'GET') {
-                res.send(entry.data);
-            }
-            res.end();
-        };
-        var entry = cache[file_path];
-        if (entry) {
-            console.log('STATIC CACHE HIT', file_path);
-            send_entry(entry);
-            return;
-        }
-        console.log('STATIC CACHE MISS', file_path);
-        fs.readFile(file_path, function(err, data) {
-            if (err) {
-                console.log('STATIC READ FAILED', file_path, err);
-                if (err.code === 'ENOENT' || err.code === 'EISDIR') {
-                    negative_cache[file_path] = true;
-                    return next();
-                }
-                return next(err);
-            }
-            entry = {
-                content_type: mime.lookup(file_path),
-                data: data
-            };
-            // TODO minify also CSS, more?
-            if (!debug_mode && file_path.match(/\.js$/)) {
-                entry.data = uglifyjs.minify(data.toString(), {
-                    fromString: true,
-                    mangle: false // TODO mangling fails angular...
-                }).code;
-            }
-            if (entry.data.length < 1024 * 1024) {
-                cache[file_path] = entry;
-            } else {
-                console.log('FILE TOO BIG FOR CACHING', file_path);
-            }
-            send_entry(entry);
-        });
-    };
-}
-
+app.use('/public/', cache_control(dev_mode ? 0 : 10 * 60)); // 10 minutes
 app.use('/public/', express.static(path.join(rootdir, 'build', 'public')));
+app.use('/public/images/', cache_control(dev_mode ? 3600 : 24 * 3600)); // 24 hours
 app.use('/public/images/', express.static(path.join(rootdir, 'images')));
-app.use('/vendor/', express.static(path.join(rootdir, 'vendor')));
-app.use('/vendor/', express.static(path.join(rootdir, 'node_modules')));
-app.use('/vendor/', express.static(path.join(rootdir, 'bower_components')));
+// app.use('/vendor/', express.static(path.join(rootdir, 'vendor')));
+// app.use('/vendor/', express.static(path.join(rootdir, 'node_modules')));
+// app.use('/vendor/', express.static(path.join(rootdir, 'bower_components')));
 app.use('/', express.static(path.join(rootdir, 'public')));
 
 
