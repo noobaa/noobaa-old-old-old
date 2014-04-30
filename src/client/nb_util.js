@@ -303,14 +303,14 @@
 
 
     // nb_util.config([
-    //	'$httpProvider', '$interpolateProvider',
-    //	function($httpProvider, $interpolateProvider) {
-    //		delete $httpProvider.defaults.headers.put;
-    //		// set the symbol to avoid collision with server side templates
-    //		// this is unneeded for now, but keeping the code in comment just for reference.
-    //		$interpolateProvider.startSymbol('{{');
-    //		$interpolateProvider.endSymbol('}}');
-    //	}
+    //  '$httpProvider', '$interpolateProvider',
+    //  function($httpProvider, $interpolateProvider) {
+    //      delete $httpProvider.defaults.headers.put;
+    //      // set the symbol to avoid collision with server side templates
+    //      // this is unneeded for now, but keeping the code in comment just for reference.
+    //      $interpolateProvider.startSymbol('{{');
+    //      $interpolateProvider.endSymbol('}}');
+    //  }
     // ]);
 
     // safe apply handles cases when apply may fail with:
@@ -637,9 +637,9 @@
                 link: function(scope, element, attr) {
                     var content_type = attr.nbVideo;
                     console.log('VIDEO TYPE', content_type);
-                    // if (content_type === 'video/x-matroska') {
-                    // return;
-                    // }
+                    if (content_type === 'video/x-matroska') {
+                        return;
+                    }
                     $timeout(function() {
                         element.addClass('video-js');
                         element.addClass('vjs-default-skin');
