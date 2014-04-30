@@ -11,76 +11,84 @@
         <?# def.facebook_init_body ?>
     </div>
 
-    <div class="full-page" id="page0">
-
-        <div class="curtain">
-            <a href="/">
-                <img src="/public/images/noobaa_logo.png" height="40px"></img>
-                <small style="color: white">BETA</small>
-            </a>
-            <h1>
-                Free Cloud for Home Video
-            </h1>
-            <p>
-                Why pay for cloud storage when you have lots of storage at home? Introducing the shared economy revolution to cloud storage.
-            </p>
+    <div class="welcome-page" id="page0">
+        <div class="horiz curtain">
             <div class="text-center">
-                <a class="btn btn-trans" ng-click="show_welcome_video()">
-                    Watch the video
-                    <i class="fa fa-play fa-lg"></i>
+                <a href="/">
+                    <img class="logo" src="/public/images/noobaa_logo.png" height="40px"></img>
+                    <small style="color: white">BETA</small>
                 </a>
             </div>
-
-            <!-- <div style="padding: 20px 0"> -->
-            <!-- <iframe width="300" height="200" src="//www.youtube.com/embed/nz4AAfgs36g" frameborder="0" allowfullscreen></iframe> -->
-            <!-- </div> -->
-            <div style="Xdisplay: inline-block; Xbackground-color: hsla(0,0%,20%,0.4); Xborder-radius: 10px; Xpadding: 5px 10px 10px 10px" class="text-center Xanimated XbounceIn">
-                <h4 style="margin-bottom: 15px">
-                    Sign in, It's free
-                </h4>
-                <div style="overflow: hidden">
-                    <div class="fb-facepile" data-width="300" data-max-rows="1" data-colorscheme="light" data-size="small" data-show-count="true"></div>
-                </div>
-                <div style="margin-top: 10px">
-                    <a ng-click="nbUser.login_facebook()" Xhref="/auth/facebook/login/">
-                        <img src="/public/images/facebook_sign_in.png" class="img-rounded img-responsive center-block" style="width: 300px" />
-                    </a>
-                </div>
-                <h4>or</h4>
-                <div style="margin-top: 10px">
-                    <a ng-click="nbUser.login_google()" Xhref="/auth/google/login/">
-                        <img src="/public/images/google_sign_in.png" class="img-rounded img-responsive center-block" style="width: 300px" />
-                    </a>
-                </div>
-            </div>
-            <div class="bottom-abs text-center" style="padding: 10px">
-                <a href="#page1" class="scroller btn btn-trans btn-lg">
-                    <i class="fa fa-caret-down fa-fw fa-lg"></i>
+            <div class="pad-10"></div>
+            <h1 class="text-center">
+                Cloud for your Videos. Free.
+            </h1>
+            <div class="text-center">
+                <a class="btn btn-trans btn-lg" ng-click="show_welcome_video()">
+                    <i class="fa fa-play fa-3x"></i>
+                    <div class="pad-10"></div>
+                    <small>Watch the video</small>
                 </a>
+            </div>
+            <div class="pad-30"></div>
+            <div style="width: 230px" class="center-block">
+                <div class="text-center">
+                    <button ng-click="nbUser.login_facebook()" class="btn btn-primary btn-hover-only btn-block btn-lg">
+                        <i class="fa fa-facebook fa-lg" style="margin-right: 10px"></i>
+                        Sign in
+                        <!-- <img src="/public/images/facebook_sign_in.png" class="img-rounded" style="width: 180px" /> -->
+                    </button>
+                </div>
+                <div class="pad-10"></div>
+                <div class="clearfix">
+                    <div class="pull-left" style="width: 50%; padding-right: 5px">
+                        <button ng-click="nbUser.login_google()" class="btn btn-danger btn-hover-only btn-sm btn-block">
+                            <i class="fa fa-google-plus fa-lg" style="margin-right: 5px"></i>
+                            Sign in
+                            <!-- <img src="/public/images/google_sign_in.png" class="img-rounded" style="width: 80px" /> -->
+                        </button>
+                    </div>
+                    <div class="pull-left" style="width: 50%; padding-left: 5px">
+                        <button ng-click="nbUser.login_email()" class="btn btn-default btn-hover-only btn-sm btn-block">
+                            <i class="fa fa-envelope-o fa-lg" style="margin-right: 5px"></i>
+                            Sign in
+                        </button>
+                    </div>
+                </div>
+                <div class="pad-10"></div>
+                <div class="nb-facepile">
+                    <div class="fb-facepile" data-width="190" data-max-rows="1" data-colorscheme="dark" data-size="medium" data-show-count="false"></div>
+                </div>
             </div>
         </div>
+        <div class="horiz bottom-abs text-center">
+            <a href="#page1" class="scroller btn btn-trans btn-lg">
+                <i class="fa fa-angle-down fa-4x"></i>
+            </a>
+        </div>
         <div class="poster text-center">
-            <img src="/public/images/bg_wave.jpg" style="top: -20%; left:-25%; right:auto; min-height: 120%" />
+            <img src="/public/images/bg_wave.jpg" style="top: -20%; left:0; right:auto; min-height: 120%" />
         </div>
     </div>
 
 
-    <div class="full-page" id="page1">
-        <div class="curtain curtain-right">
+    <div class="welcome-page" id="page1">
+        <div class="horiz curtain">
             <h1>Share videos</h1>
             <p>
                 Sharing videos with your friends has never been so easy. Connect using your Facebook or Google+ account and click on their faces!
             </p>
+            <div class="pad-20"></div>
+        </div>
+        <div class="horiz bottom-abs text-center">
             <div class="text-center">
-                <a class="btn btn-lg btn-primary btn-hover-only" ng-click="show_signin()">
+                <a class="btn btn-lg btn-primary Xbtn-hover-only" ng-click="show_signin()">
                     Get Started
                 </a>
             </div>
-            <div class="bottom-abs text-center" style="padding: 10px">
-                <a href="#page2" class="scroller btn btn-trans btn-lg">
-                    <i class="fa fa-caret-down fa-fw fa-lg"></i>
-                </a>
-            </div>
+            <a href="#page2" class="scroller btn btn-trans btn-lg">
+                <i class="fa fa-angle-down fa-4x"></i>
+            </a>
         </div>
         <div class="poster text-center">
             <img src="/public/images/bg_bike.jpg" style="bottom: 0; top: auto" />
@@ -88,36 +96,48 @@
     </div>
 
 
-    <div class="full-page" id="page2">
-        <div class="curtain">
+    <div class="welcome-page" id="page2">
+        <div class="horiz curtain">
             <h1>Watch videos</h1>
             <p>
                 Watching your own videos is always fun, but let’s face it – most of us are more interested in what our friends have been up to. NooBaa makes it easy and fun to watch videos shared by your friends.
             </p>
-            <div class="bottom-abs text-center" style="padding: 10px">
-                <a href="#page3" class="scroller btn btn-trans btn-lg">
-                    <i class="fa fa-caret-down fa-fw fa-lg"></i>
+            <div class="pad-20"></div>
+        </div>
+        <div class="horiz bottom-abs text-center">
+            <div class="text-center">
+                <a class="btn btn-lg btn-warning Xbtn-hover-only" ng-click="show_signin()">
+                    Get Started
                 </a>
             </div>
+            <a href="#page3" class="scroller btn btn-trans btn-lg">
+                <i class="fa fa-angle-down fa-4x"></i>
+            </a>
         </div>
         <div class="poster text-center">
             <!-- <img src="/public/images/bg_rock.jpg" /> -->
-            <img src="/public/images/bg_snow.jpg" />
+            <img src="/public/images/bg_snow.jpg" style="left:0; right:auto" />
         </div>
     </div>
 
 
-    <div class="full-page" id="page3">
-        <div class="curtain curtain-right">
+    <div class="welcome-page" id="page3">
+        <div class="horiz curtain">
             <h1>Access anywhere</h1>
             <p>
                 Videos are accessible from any device, anywhere, anytime. Stream directly from the cloud.
             </p>
-            <div class="bottom-abs text-center" style="padding: 10px">
-                <a href="#page4" class="scroller btn btn-trans btn-lg">
-                    <i class="fa fa-caret-down fa-fw fa-lg"></i>
+            <div class="pad-20"></div>
+        </div>
+        <div class="horiz bottom-abs text-center">
+            <div class="text-center">
+                <a class="btn btn-lg btn-danger Xbtn-hover-only" ng-click="show_signin()">
+                    Get Started
                 </a>
             </div>
+            <a href="#page4" class="scroller btn btn-trans btn-lg">
+                <i class="fa fa-angle-down fa-4x"></i>
+            </a>
         </div>
         <div class="poster text-center">
             <img src="/public/images/bg_skate.jpg" />
@@ -125,17 +145,23 @@
     </div>
 
 
-    <div class="full-page" id="page4">
-        <div class="curtain">
+    <div class="welcome-page" id="page4">
+        <div class="horiz curtain">
             <h1>Protect your memories</h1>
             <p>
                 No need for an external hard drive. Keep a copy on the cloud for safekeeping and peace of mind.
             </p>
-            <div class="bottom-abs text-center" style="padding: 10px">
-                <a href="#page5" class="scroller btn btn-trans btn-lg">
-                    <i class="fa fa-caret-down fa-fw fa-lg"></i>
+            <div class="pad-20"></div>
+        </div>
+        <div class="horiz bottom-abs text-center">
+            <div class="text-center">
+                <a class="btn btn-lg btn-success Xbtn-hover-only" ng-click="show_signin()">
+                    Get Started
                 </a>
             </div>
+            <a href="#page5" class="scroller btn btn-trans btn-lg">
+                <i class="fa fa-angle-down fa-4x"></i>
+            </a>
         </div>
         <div class="poster text-center">
             <img src="/public/images/bg_fall.jpg" />
@@ -143,8 +169,8 @@
     </div>
 
 
-    <div class="full-page" id="page5" style="padding-bottom: 430px">
-        <div class="curtain curtain-right">
+    <div class="welcome-page" id="page5">
+        <div class="horiz curtain">
             <h1>Sign In</h1>
             <p>
                 Your account is waiting for you.
@@ -170,19 +196,21 @@
                         </div>
                 </div>
             </div>
-            <div class="bottom-abs text-center" style="padding: 10px">
-                <a href="#page0" class="scroller btn btn-trans btn-lg">top</a>
-            </div>
+        </div>
+        <div class="horiz bottom-abs text-center">
+            <a href="#page0" class="scroller btn btn-trans btn-lg">
+                <h4>Top</h4>
+            </a>
         </div>
         <div id="clouds-viewport">
             <div id="clouds-world"></div>
-            <!-- TODO -->
-            <div class="bottom-abs">
-                <div ng-include="'site_foot_template.html'"></div>
-            </div>
         </div>
     </div>
 
+    <!-- TODO -->
+    <div class="Xbottom-abs">
+        <div ng-include="'site_foot_template.html'"></div>
+    </div>
 
     <div>
         <?# def.include( 'common_scripts.html') ?>
