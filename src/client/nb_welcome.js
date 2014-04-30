@@ -64,26 +64,26 @@
                 // world and viewport are DOM elements,
                 // worldXAngle and worldYAngle are floats that hold the world rotations,
                 // d is an int that defines the distance of the world from the camera 
-                var world = document.getElementById('clouds-world'),
-                    viewport = document.getElementById('clouds-viewport'),
-                    worldXAngle = 0,
-                    worldYAngle = 0,
-                    d = 0;
+                var world = document.getElementById('clouds-world');
+                var viewport = document.getElementById('clouds-viewport');
+                var worldXAngle = 0;
+                var worldYAngle = 0;
+                var d = 0;
                 // objects is an array of cloud bases
                 // layers is an array of cloud layers
-                var objects = [],
-                    layers = [];
+                var objects = [];
+                var layers = [];
+
+                generate();
+                update_view();
 
                 // Event listener to transform mouse position into angles 
                 // from -180 to 180 degress, both vertically and horizontally
-                window.addEventListener('mousemove', function(e) {
+                viewport.parentNode.addEventListener('mousemove', function(e) {
                     worldYAngle = -(0.5 - (e.clientX / window.innerWidth)) * 180;
                     worldXAngle = (0.5 - (e.clientY / window.innerHeight)) * 180;
-                    updateView();
+                    update_view();
                 });
-
-                generate();
-                updateView();
 
                 function random_range(from, to) {
                     return from + (Math.random() * (to - from));
@@ -94,28 +94,28 @@
                 // rotated in the X axis by worldXAngle degrees and
                 // rotated in the Y axis by worldYAngle degrees.
 
-                function updateView() {
+                function update_view() {
                     var t = 'translateZ( ' + d + 'px ) ' +
                         'rotateX( ' + worldXAngle + 'deg ) ' +
                         'rotateY( ' + worldYAngle + 'deg )';
                     world.style.transform = t;
                     world.style['-webkit-transform'] = t;
-                    requestAnimationFrame(update);
+                    requestAnimationFrame(update_layers);
                 }
 
-                // Iterate layers[], update the rotation and apply the
-                // inverse transformation currently applied to the world.
-                // Notice the order in which rotations are applied.
-
-                function update() {
+                function update_layers() {
                     for (var i = 0; i < layers.length; i++) {
                         update_layer(layers[i]);
                     }
                     // not running the animation because it hogs the cpu.
                     // instead this is called on mouse move to refresh the cloud
                     // from the new perspective.
-                    // requestAnimationFrame(update);
+                    // requestAnimationFrame(update_layers);
                 }
+
+                // update the rotation and apply the inverse transformation
+                // currently applied to the world.
+                // Notice the order in which rotations are applied.
 
                 function update_layer(layer) {
                     layer.data.a += layer.data.speed;

@@ -116,10 +116,7 @@
     }
 }
 .btn-hover-only {
-    transition: all 0.5s;
-    -o-transition: all 0.5s;
-    -moz-transition: all 0.5s;
-    -webkit-transition: all 0.5s;
+    .transition-fast;
 }
 .btn-hover-only:not(:hover) {
     background-color: transparent !important;
@@ -413,7 +410,7 @@ input, textarea {
         }
     }
     .poster {
-        z-index: -10;
+        z-index: -1;
         overflow: hidden;
         position: absolute;
         top: 0;
@@ -423,7 +420,6 @@ input, textarea {
         background-color: hsl(0, 0%, 45%);
     }
     .poster img {
-        z-index: -10;
         position: absolute;
         right: 0;
         top: 0;
@@ -557,7 +553,6 @@ input, textarea {
 }
 */
  #clouds-viewport {
-    z-index: -10;
     background-color: #87ceeb;
     position: absolute;
     top: 0;
