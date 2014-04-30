@@ -756,7 +756,7 @@
                         refresh_users();
                     }).error(function(data, status, headers, config) {
                         console.error('[ERR] toggle_alpha failed', data, status);
-                        $window.alert(JSON.stringify(data));
+                        alertify.error(JSON.stringify(data));
                     });
                 }
 
@@ -783,7 +783,7 @@
                         refresh_users();
                     }, function(err) {
                         console.error('[ERR] toggle_email_silent failed', err);
-                        $window.alert(JSON.stringify(err));
+                        alertify.error(JSON.stringify(err));
                     });
                 }
             }

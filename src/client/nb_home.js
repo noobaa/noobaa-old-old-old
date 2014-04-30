@@ -332,7 +332,7 @@
                     nbUtil.track_event('home.scenes.create_own_page', {
                         uid: uid
                     });
-                    nbUtil.nbinfo('<p>Thank you for showing interest!</p>' +
+                    alertify.alert('<p>Thank you for showing interest!</p>' +
                         '<p>We also think this feature would be great and we are working on it.</p>' +
                         '<p>If you have any additional feedbacks, drop us a note to <a href="mailto:info@noobaa.com">info@noobaa.com</a></p>');
                     // if (nbUser.user) {} else {nbUser.open_signin()}
@@ -1071,11 +1071,11 @@
                                 return;
                             }
                             if (nbInode.is_root_inode(inode)) {
-                                nbUtil.nbalert('Cannot delete root folder');
+                                alertify.error('Cannot delete root folder');
                                 return;
                             }
                             if (nbInode.is_not_mine(inode)) {
-                                nbUtil.nbalert('Cannot delete someone else\'s file ' + inode.name);
+                                alertify.error('Cannot delete someone else\'s file ' + inode.name);
                                 return;
                             }
                             read_dir_promises[i] = inode.isdir ? nbInode.read_dir(inode) : $q.when(null);
@@ -1129,7 +1129,7 @@
                                 var msg = $('<span>')
                                     .append('Cannot move item ')
                                     .append($('<span>').text(selected[i].name));
-                                nbUtil.nbalert(msg);
+                                alertify.error(msg);
                                 return;
                             }
                         }

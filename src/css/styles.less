@@ -348,19 +348,15 @@ input, textarea {
  .welcome-page {
     position: relative;
     margin-bottom: 1px;
-    padding-bottom: 80px;
+    padding-bottom: 100px;
     overflow: hidden;
     min-width: 100%;
     min-height: 95%;
     @c: hsl(0, 0%, 5%);
     color: @c;
-    .horiz {
-        margin-left: 10%;
-        margin-right: auto;
+    .col-left {
         max-width: 100%;
         width: 500px;
-        padding-left: 20px;
-        padding-right: 20px;
     }
     .curtain {
         position: relative;
@@ -384,12 +380,12 @@ input, textarea {
     }
     .fa-play {
         border-radius: 50%;
-        border-width: 1px;
+        border-width: 2px;
         border-style: solid;
         border-color: inherit;
-        padding: 10px 11px 7px 19px;
-        width: 74px;
-        height: 73px;
+        padding: 12px 10px 8px 26px;
+        min-width: 97px;
+        min-height: 96px;
     }
     .btn {
         color: @c;
@@ -399,8 +395,7 @@ input, textarea {
         }
     }
     @media all and (min-width: 0px) and (max-width: 700px) {
-        .horiz {
-            margin-left: auto;
+        .col-left {
             width: 100%;
         }
         img.logo {

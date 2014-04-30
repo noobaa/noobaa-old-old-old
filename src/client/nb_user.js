@@ -129,10 +129,11 @@
             }
 
             $scope.open_signin = function() {
-                nbUtil.track_event('home.open_signin');
+                nbUtil.track_event('user.open_signin');
                 var scope = $scope.$new();
                 nbUtil.content_modal('<h4>Start using your account</h4>',
                     $templateCache.get('signin_dialog.html'), scope);
+                // simulate some preparation work
                 scope.ready = false;
                 $timeout(function() {
                     scope.ready = true;
@@ -148,31 +149,32 @@
             };
 
             $scope.login_facebook = function() {
-                nbUtil.track_event('login.fb').then(function() {
+                nbUtil.track_event('user.login_fb').then(function() {
                     $window.location.href = '/auth/facebook/login/';
                 });
             };
 
             $scope.login_google = function() {
-                nbUtil.track_event('login.google').then(function() {
+                nbUtil.track_event('user.login_google').then(function() {
                     $window.location.href = '/auth/google/login/';
                 });
             };
 
-            $scope.login_email = function(email) {
-                if (!email) {
+            $scope.login_email = function(email, password) {
+                if (!email || !password) {
                     return;
                 }
-                nbUtil.track_event('login.email', {
-                    email: email
+                nbUtil.track_event('user.login_email', {
+                    email: email,
+                    password: password
                 }).then(function() {
-                    nbUtil.nbinfo('Thank you! Currently we only support sign in with Facebook or Google+. ' +
+                    alertify.alert('Thank you! Currently we only support sign in with Facebook or Google+. ' +
                         ' We will let you know once we implement sign in with email.');
                 });
             };
 
             $scope.logout = function() {
-                nbUtil.track_event('logout').then(function() {
+                nbUtil.track_event('user.logout').then(function() {
                     $window.location.href = '/auth/logout/';
                 });
             };

@@ -196,42 +196,6 @@
 
 
 
-    <!-- SIGN IN -->
-
-    <div style="display: none" ng-non-bindable>
-        <div id="signin_dialog" ng-controller>
-            <div class="text-center" style="padding: 20px">
-                <div style="margin-top: 10px">
-                    <a ng-click="nbUser.login_facebook()" Xhref="/auth/facebook/login/">
-                        <img src="/public/images/facebook_sign_in.png" class="img-rounded img-responsive center-block" style="width: 345px" />
-                    </a>
-                </div>
-                <div style="display: inline-block; background-color: hsla(0,0%,100%,0.3); padding: 10px" class="center-block text-center">
-                    <div style="overflow: hidden">
-                        <div class="fb-facepile" data-width="320" data-max-rows="1" data-colorscheme="light" data-size="small" data-show-count="true"></div>
-                    </div>
-                </div>
-                <div style="margin-top: 20px">
-                    <a ng-click="nbUser.login_google()" Xhref="/auth/google/login/">
-                        <img src="/public/images/google_sign_in.png" class="img-rounded img-responsive center-block" style="width: 240px" />
-                    </a>
-                </div>
-                <div style="margin-top: 10px; width: 230px" class="center-block">
-                    <div class="input-group Xinput-group-lg" ng-init="signin_email_address=''">
-                        <input type="text" ng-model="signin_email_address" class="form-control" placeholder="Sign in with email">
-                        <span class="input-group-btn">
-                            <button class="btn btn-primary" type="button" ng-click="nbUser.login_email(signin_email_address)">
-                                <i class="fa fa-play fa-lg"></i>
-                            </button>
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-
     <!-- FEEDBACK -->
 
     <div id="feedback_dialog" class="modal animated fadeInDown">

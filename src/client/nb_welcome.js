@@ -16,6 +16,7 @@
 
 
             $scope.show_welcome_video = function() {
+                nbUtil.track_event('welcome.play_video');
                 var base_url = 'https://d11c7vtptj6nd7.cloudfront.net/messaging/';
                 var video_source = function(name, ext) {
                     return {
@@ -44,6 +45,9 @@
             var html_body = $('body');
             $('.scroller').click(function() {
                 var href = $.attr(this, 'href');
+                nbUtil.track_event('welcome.scroll', {
+                    href: href
+                });
                 console.log('SCROLL', href);
                 html_body.animate({
                     scrollTop: $(href).offset().top
