@@ -24,7 +24,7 @@
 
 		$scope.submit = function() {
 			$scope.submitting = true;
-			$('.fa-spinner').show();
+			$('.fa-cog').show();
 			$('.alert').html('').hide();
 
 			if (!$scope.new_email) {
@@ -49,7 +49,7 @@
 
 		$scope.finished_with_error = function(text) {
 			$scope.submitting = false;
-			$('.fa-spinner').hide();
+			$('.fa-cog').hide();
 			$('.alert-success').html('').hide();
 			$('.alert-error').html(text).show().effect('bounce', 'slow');
 		};
@@ -57,7 +57,7 @@
 		$scope.finished_with_success = function(text) {
 			$scope.submitting = false;
 			$scope.submitted = true;
-			$('.fa-spinner').hide();
+			$('.fa-cog').hide();
 			$('.alert-error').html('').hide();
 			$('.alert-success').html(text).show('fade', 'slow');
 		};

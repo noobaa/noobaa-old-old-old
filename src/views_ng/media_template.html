@@ -7,8 +7,8 @@
 			<span class="label label-default">Folder</span>
 		</h4>
 		<img ng-switch-when="image" ng-src="{{media_url(inode)}}" class="content-item img-responsive center-block" style="vertical-align: middle; max-height: 100%" nb-events="media_events" />
-		<div ng-switch-when="video" nb-flowplayer="{{inode.content_type}}">
-			<video controls autoplay ng-src="{{media_url(inode)}}" class="content-item img-responsive center-block" nb-events="media_events">
+		<div ng-switch-when="video">
+			<video controls autoplay ng-src="{{media_url(inode)}}" class="content-item img-responsive center-block" nb-events="media_events" nb-video="{{inode.content_type}}">
 				<source ng-src="{{media_url(inode)}}" ng-attr-type="{{inode.content_type}}" />
 				<object ng-attr-data="{{media_url(inode)}}" ng-attr-type="{{inode.content_type}}">
 					<embed ng-src="{{media_url(inode)}}">

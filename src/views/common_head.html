@@ -20,10 +20,10 @@
 
 <!-- STYLES -->
 
-<link href="/vendor/bootstrap/dist/css/bootstrap.min.css" type="text/css" rel="stylesheet">
+<!-- <link href="/vendor/bootstrap/dist/css/bootstrap.min.css" type="text/css" rel="stylesheet"> -->
 <!-- <link href="/vendor-b/bootstrap/dist/css/bootstrap-theme.min.css" type="text/css" rel="stylesheet"> -->
 <!-- <link href="/vendor-b/bootswatch/readable/bootstrap.min.css" type="text/css" rel="stylesheet"> -->
-<link href="/vendor/font-awesome/css/font-awesome.min.css" type="text/css" rel="stylesheet" />
+<!-- <link href="/vendor/font-awesome/css/font-awesome.min.css" type="text/css" rel="stylesheet" /> -->
 <!-- <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet"> -->
 <!-- <link href="//bootswatch.com/cosmo/bootstrap.min.css" rel="stylesheet"> -->
 <!-- <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css" rel="stylesheet"> -->
@@ -34,11 +34,11 @@
 <!-- <link href="//code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" type="text/css" rel="stylesheet" /> -->
 <!-- <link href="//ajax.googleapis.com/ajax/libs/jquerymobile/1.4.0/jquery.mobile.min.css" type="text/css" rel="stylesheet" /> -->
 
-<link href="/vendor/animations.css" type="text/css" rel="stylesheet" />
-<link href="/vendor/animate.css/animate.min.css" type="text/css" rel="stylesheet" />
-<link href="/vendor/alertify.js/themes/alertify.core.css" rel="stylesheet">
-<link href="/vendor/alertify.js/themes/alertify.default.css" rel="stylesheet">
-<link href="/vendor/flowplayer-5.4.6/skin/minimalist.css" rel="stylesheet">
+<!-- <link href="/vendor/animations.css" type="text/css" rel="stylesheet" /> -->
+<!-- <link href="/vendor/animate.css/animate.min.css" type="text/css" rel="stylesheet" /> -->
+<!-- <link href="/vendor/alertify.js/themes/alertify.core.css" rel="stylesheet"> -->
+<!-- <link href="/vendor/alertify.js/themes/alertify.default.css" rel="stylesheet"> -->
+<!-- <link href="/vendor/flowplayer-5.4.6/skin/minimalist.css" rel="stylesheet"> -->
 <link href="/public/css/styles.min.css" type="text/css" rel="stylesheet" />
 
 <!-- Google Fonts -->
@@ -58,7 +58,7 @@
 <script type="text/javascript">
 <!--
 if (top.location != self.location) {
-	top.location = self.location.href
+    top.location = self.location.href
 }
 //-->
 </script>
@@ -71,15 +71,15 @@ if (top.location != self.location) {
 <!-- Google analytics snippet - best included as soon as possible -->
 <script>
 (function(i, s, o, g, r, a, m) {
-	i['GoogleAnalyticsObject'] = r;
-	i[r] = i[r] || function() {
-		(i[r].q = i[r].q || []).push(arguments)
-	}, i[r].l = 1 * new Date();
-	a = s.createElement(o),
-	m = s.getElementsByTagName(o)[0];
-	a.async = 1;
-	a.src = g;
-	m.parentNode.insertBefore(a, m)
+    i['GoogleAnalyticsObject'] = r;
+    i[r] = i[r] || function() {
+        (i[r].q = i[r].q || []).push(arguments)
+    }, i[r].l = 1 * new Date();
+    a = s.createElement(o),
+    m = s.getElementsByTagName(o)[0];
+    a.async = 1;
+    a.src = g;
+    m.parentNode.insertBefore(a, m)
 })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
 ga('create', 'UA-42330226-1', 'noobaa.com');
 ga('send', 'pageview');
@@ -99,47 +99,47 @@ ga('send', 'pageview');
 <!-- start Mixpanel -->
 <script type="text/javascript">
 (function(e, b) {
-	if (!b.__SV) {
-		var a, f, i, g;
-		window.mixpanel = b;
-		a = e.createElement("script");
-		a.type = "text/javascript";
-		a.async = !0;
-		a.src = ("https:" === e.location.protocol ? "https:" : "http:") + '//cdn.mxpnl.com/libs/mixpanel-2.2.min.js';
-		f = e.getElementsByTagName("script")[0];
-		f.parentNode.insertBefore(a, f);
-		b._i = [];
-		b.init = function(a, e, d) {
-			function f(b, h) {
-				var a = h.split(".");
-				2 == a.length && (b = b[a[0]], h = a[1]);
-				b[h] = function() {
-					b.push([h].concat(Array.prototype.slice.call(arguments, 0)))
-				}
-			}
-			var c = b;
-			"undefined" !==
-				typeof d ? c = b[d] = [] : d = "mixpanel";
-			c.people = c.people || [];
-			c.toString = function(b) {
-				var a = "mixpanel";
-				"mixpanel" !== d && (a += "." + d);
-				b || (a += " (stub)");
-				return a
-			};
-			c.people.toString = function() {
-				return c.toString(1) + ".people (stub)"
-			};
-			i = "disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
-			for (g = 0; g < i.length; g++) f(c, i[g]);
-			b._i.push([a, e, d])
-		};
-		b.__SV = 1.2
-	}
+    if (!b.__SV) {
+        var a, f, i, g;
+        window.mixpanel = b;
+        a = e.createElement("script");
+        a.type = "text/javascript";
+        a.async = !0;
+        a.src = ("https:" === e.location.protocol ? "https:" : "http:") + '//cdn.mxpnl.com/libs/mixpanel-2.2.min.js';
+        f = e.getElementsByTagName("script")[0];
+        f.parentNode.insertBefore(a, f);
+        b._i = [];
+        b.init = function(a, e, d) {
+            function f(b, h) {
+                var a = h.split(".");
+                2 == a.length && (b = b[a[0]], h = a[1]);
+                b[h] = function() {
+                    b.push([h].concat(Array.prototype.slice.call(arguments, 0)))
+                }
+            }
+            var c = b;
+            "undefined" !==
+                typeof d ? c = b[d] = [] : d = "mixpanel";
+            c.people = c.people || [];
+            c.toString = function(b) {
+                var a = "mixpanel";
+                "mixpanel" !== d && (a += "." + d);
+                b || (a += " (stub)");
+                return a
+            };
+            c.people.toString = function() {
+                return c.toString(1) + ".people (stub)"
+            };
+            i = "disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+            for (g = 0; g < i.length; g++) f(c, i[g]);
+            b._i.push([a, e, d])
+        };
+        b.__SV = 1.2
+    }
 })(document, window.mixpanel || []);
 if ( <?= !! it.mixpanel_token ?> ) {
-	mixpanel.init("<?= it.mixpanel_token ?>");
-	window.nb_mixpanel = true;
+    mixpanel.init("<?= it.mixpanel_token ?>");
+    window.nb_mixpanel = true;
 }
 </script>
 <!-- end Mixpanel -->
@@ -147,53 +147,53 @@ if ( <?= !! it.mixpanel_token ?> ) {
 
 
 <?## def.facebook_init_body: <!-- facebook init - best be included right after body tag -->
-	<div id="fb-root"></div>
-	<script type="text/javascript">
-	// Facebook initialization code
-	window.fbAsyncInit = function() {
-		FB.init({
-			appId: '<?= it.app_id ?>', // App ID
-			channelUrl: '<?= it.channel_url ?>', // Channel File
-			status: true, // check login status
-			cookie: true, // enable cookies to allow the server to access the session
-			xfbml: true // parse XFBML
-		});
-		window.fb_init_complete = true;
-		if (window.on_fb_init) {
-			window.on_fb_init();
-		}
-	};
+    <div id="fb-root"></div>
+    <script type="text/javascript">
+    // Facebook initialization code
+    window.fbAsyncInit = function() {
+        FB.init({
+            appId: '<?= it.app_id ?>', // App ID
+            channelUrl: '<?= it.channel_url ?>', // Channel File
+            status: true, // check login status
+            cookie: true, // enable cookies to allow the server to access the session
+            xfbml: true // parse XFBML
+        });
+        window.fb_init_complete = true;
+        if (window.on_fb_init) {
+            window.on_fb_init();
+        }
+    };
 
-	// Load the SDK Asynchronously
-	(function(d, s, id) {
-		var js, fjs = d.getElementsByTagName(s)[0];
-		if (d.getElementById(id)) return;
-		js = d.createElement(s);
-		js.id = id;
-		js.src = "//connect.facebook.net/en_US/all.js";
-		fjs.parentNode.insertBefore(js, fjs);
-	}(document, 'script', 'facebook-jssdk'));
-	</script>
-	#?>
+    // Load the SDK Asynchronously
+    (function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s);
+        js.id = id;
+        js.src = "//connect.facebook.net/en_US/all.js";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+    </script>
+    #?>
 
 
-	<!-- Facebook Conversion Code for FB sign in -->
-	<?? it.signup ?>
-		<script type="text/javascript">
-		console.log('FB CONV');
-		var fb_param = {};
-		fb_param.pixel_id = '6011740116912';
-		fb_param.value = '0.00';
-		fb_param.currency = 'USD';
-		(function() {
-			var fpw = document.createElement('script');
-			fpw.async = true;
-			fpw.src = '//connect.facebook.net/en_US/fp.js';
-			var ref = document.getElementsByTagName('script')[0];
-			ref.parentNode.insertBefore(fpw, ref);
-		})();
-		</script>
-		<noscript>
-			<img height="1" width="1" alt="" style="display:none" src="https://www.facebook.com/offsite_event.php?id=6011740116912&amp;value=0&amp;currency=USD" />
-		</noscript>
-		<???>
+    <!-- Facebook Conversion Code for FB sign in -->
+    <?? it.signup ?>
+        <script type="text/javascript">
+        console.log('FB CONV');
+        var fb_param = {};
+        fb_param.pixel_id = '6011740116912';
+        fb_param.value = '0.00';
+        fb_param.currency = 'USD';
+        (function() {
+            var fpw = document.createElement('script');
+            fpw.async = true;
+            fpw.src = '//connect.facebook.net/en_US/fp.js';
+            var ref = document.getElementsByTagName('script')[0];
+            ref.parentNode.insertBefore(fpw, ref);
+        })();
+        </script>
+        <noscript>
+            <img height="1" width="1" alt="" style="display:none" src="https://www.facebook.com/offsite_event.php?id=6011740116912&amp;value=0&amp;currency=USD" />
+        </noscript>
+        <???>
