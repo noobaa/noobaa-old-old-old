@@ -25,9 +25,10 @@
                 };
                 var scope = $scope.$new();
                 scope.sources = [
+                    video_source('buddy', 'webm'),
+                    video_source('buddy', 'ogv'),
                     video_source('buddy', 'm4v'),
-                    video_source('buddy', 'mp4'),
-                    video_source('buddy', 'webm')
+                    // video_source('buddy2', 'mp4'),
                 ];
                 nbUtil.modal($templateCache.get('video_modal.html'), scope, 'fullscreen');
             };
@@ -51,28 +52,6 @@
                 });
                 return false;
             });
-
-            function toggle_curtains() {
-                var wtop = $(window).scrollTop();
-                var wheight = $(window).height();
-                var wbottom = wtop + wheight;
-                var wgap = wheight < 400 ? wheight : wheight * 0.6;
-                var wpad = (wheight - wgap) / 2;
-                var wtop_mark = wtop + wpad;
-                var wbottom_mark = wbottom - wpad;
-                $('.curtain').each(function() {
-                    var top = $(this).offset().top;
-                    var bottom = top + $(this).height();
-                    var open = wbottom_mark > top && wtop_mark < bottom;
-                    if (open) {
-                        $(this).addClass('open-curtain');
-                    } else {
-                        $(this).removeClass('open-curtain');
-                    }
-                });
-            }
-            $(window).scroll(toggle_curtains);
-            toggle_curtains();
 
             // $('body').children().hide().fadeIn(2000);
 
