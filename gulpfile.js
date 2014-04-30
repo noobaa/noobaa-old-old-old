@@ -147,7 +147,7 @@ gulp.task('assets', function() {
     ]);
 });
 
-gulp.task('css', function() {
+gulp.task('css', ['bower'], function() {
     var DEST = 'build/public/css';
     var NAME = 'styles.css';
     var NAME_MIN = 'styles.min.css';
@@ -190,7 +190,7 @@ gulp.task('jshint', function() {
         .pipe(gulp_jshint.reporter('fail'));
 });
 
-gulp.task('client', function() {
+gulp.task('client', ['bower'], function() {
     var DEST = 'build/public/js';
     var NAME = 'bundle.js';
     var NAME_MIN = 'bundle.min.js';
