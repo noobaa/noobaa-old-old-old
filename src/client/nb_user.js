@@ -168,7 +168,8 @@
                     email: email,
                     password: password
                 }).then(function() {
-                    alertify.alert('Thank you! Currently we only support sign in with Facebook or Google+. ' +
+                    alertify.alert('Thank you for signing up! We are working on email registration.' +
+                        ' Currently we only support sign in with Facebook or Google+.' +
                         ' We will let you know once we implement sign in with email.');
                 });
             };

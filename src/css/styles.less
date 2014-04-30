@@ -1,7 +1,7 @@
 @import (less)"../../bower_components/bootstrap/less/bootstrap.less";
  @import (less)"../../bower_components/font-awesome/less/font-awesome.less";
- @import (less)"../../bower_components/alertify.js/themes/alertify.default.css";
  @import (less)"../../bower_components/alertify.js/themes/alertify.core.css";
+ @import (less)"../../bower_components/alertify.js/themes/alertify.default.css";
  @import (inline)"../../node_modules/video.js/dist/video-js/video-js.css";
  @import (less)"../../bower_components/animate.css/animate.min.css";
  @import (less)"../../vendor/animations.css";
@@ -199,6 +199,10 @@ button.close {
 }
 a[ng-click], a[role=button] {
     cursor: pointer;
+}
+.alertify-button.alertify-button-ok {
+    .btn;
+    .btn-primary;
 }
 /*
 .btn-link, .navbar-link {
