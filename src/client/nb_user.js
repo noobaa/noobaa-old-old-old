@@ -152,7 +152,7 @@
 
 			$scope.logout = function() {
 				nbUtil.track_event('logout').then(function() {
-					$window.location.href = '/auth/logout/?state=/home/';
+					$window.location.href = '/auth/logout/';
 				});
 			};
 
