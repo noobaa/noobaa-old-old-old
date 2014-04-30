@@ -90,25 +90,28 @@ function simple_bower() {
     var done;
     var stream = through.obj(function(file, enc, callback) {
         // console.log('BOWER', JSON.stringify(file));
-        if (!done) {
-            done = true;
-            // run bower but send events on the stream
-            bower.commands.install([], {}, {
-                directory: './bower_components'
-            })
-                .on('log', function(result) {
-                    gutil.log('bower', gutil.colors.cyan(result.id), result.message);
-                })
-                .on('error', function(error) {
-                    stream.emit('error', new gutil.PluginError('simple_bower', error));
-                    stream.end();
-                })
-                .on('end', function() {
-                    stream.end();
-                });
+        var self = this;
+        if (done) {
+            self.push(file);
+            callback();
         }
-        this.push(file);
-        callback();
+        done = true;
+        // run bower but send events on the stream
+        bower.commands.install([], {}, {
+            directory: './bower_components'
+        })
+            .on('log', function(result) {
+                gutil.log('bower', gutil.colors.cyan(result.id), result.message);
+            })
+            .on('error', function(error) {
+                stream.emit('error', new gutil.PluginError('simple_bower', error));
+                stream.end();
+            })
+            .on('end', function() {
+                self.push(file);
+                callback();
+                stream.end();
+            });
     });
     return stream;
 }
