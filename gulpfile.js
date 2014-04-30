@@ -130,7 +130,7 @@ gulp.task('bower', function() {
         .pipe(gulp.dest(DEST));
 });
 
-gulp.task('assets', function() {
+gulp.task('assets', ['bower'], function() {
     var DEST = 'build/public';
     var FONTS_DEST = 'build/public/fonts';
     var FONTS2_DEST = 'build/public/css/font';
