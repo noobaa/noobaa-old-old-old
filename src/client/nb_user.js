@@ -139,6 +139,14 @@
                 }, 1000);
             };
 
+            $scope.signin_if_needed = function() {
+                if ($scope.user) {
+                    return false;
+                }
+                $scope.open_signin();
+                return true;
+            };
+
             $scope.login_facebook = function() {
                 nbUtil.track_event('login.fb').then(function() {
                     $window.location.href = '/auth/facebook/login/';

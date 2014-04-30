@@ -317,7 +317,7 @@ app.get('/blog', function(req, res) {
     return res.redirect('/blog/');
 });
 
-app.get('/home/*', function(req, res) {
+app.get('/home/*', redirect_no_user, function(req, res) {
     var ctx = common_api.page_context(req);
     if (req.session.signup) {
         ctx.signup = req.session.signup;

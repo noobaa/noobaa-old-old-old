@@ -2,89 +2,90 @@
 <html ng-app="nb_thankyou" xmlns:fb="http://ogp.me/ns/fb#" lang="en">
 
 <head>
-	<?# def.include( 'common_head.html') ?>
-		<style>
-		body {
-			background-image: url('/public/images/bg_rock.jpg');
-			background-repeat: no-repeat;
-			background-attachment: fixed;
-			background-size: cover;
-		}
-		</style>
+    <?# def.include( 'common_head.html') ?>
+        <style>
+        body {
+            background-image: url('/public/images/bg_rock.jpg');
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-size: cover;
+        }
+        </style>
 </head>
 
 <body ng-cloak ng-controller="ThankYouCtrl">
 
-	<nav class="navbar navbar-default" role="navigation">
-		<div class="container">
-			<div class="navbar-header">
-				<a class="navbar-brand" href="/">
-					<img src="/public/images/noobaa_logo.png"></img>
-				</a>
-			</div>
-		</div>
-	</nav>
+    <nav class="navbar navbar-default" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="/">
+                    <img src="/public/images/noobaa_logo.png"></img>
+                </a>
+            </div>
+        </div>
+    </nav>
 
-	<div class="container">
-		<div class="col-md-8" style="padding-left: 0">
-			<br/>
-			<h1 class="H1 fntpaint">
-				Hey
-				<?! it.user.first_name ?>
-			</h1>
-			<br/>
-			<h1>Thank you for joining!</h1>
-			<br/>
-			<p class="lead">
-				NooBaa is still in <b>Alpha</b>.
-			</p>
-			<p class="lead">
-				We will contact you as soon as we can accept more users.
-			</p>
-			<p class="lead">
-				If your email address below is not correct please change it:
-			</p>
-			<div class="text-center">
-				<div class="input-group">
-					<span class="input-group-btn">
-						<button class="btn btn-default" type="button" ng-disabled="submitting || submitted" ng-click="submit()">
-							<i style="display: none" class="fa fa-spinner fa-spin fa-lg"></i>
-							<b>Change</b>
-						</button>
-					</span>
-					<input ng-model="new_email" id="email_input" class="form-control" type="email" ng-disabled="submitting || submitted" placeholder="<?! it.user.email ?>">
-					</input>
-				</div>
-				<div class="alert alert-error" hidden="hidden"></div>
-				<div class="alert alert-success" hidden="hidden"></div>
-			</div>
-			<br/>
-			<p class="lead">
-				Feel free to drop us a note:
-				<a href="mailto:info@noobaa.com" target="_blank" style="color:black">info@noobaa.com</a>
-			</p>
-			<p class="lead">Yours truly</p>
-			<p class="lead">The NooBaa Team</p>
-		</div>
-	</div>
+    <div class="container">
+        <div class="col-md-8" style="padding-left: 0">
+            <br/>
+            <h1 class="H1 fntpaint">
+                Hey
+                <?! it.user.first_name ?>
+            </h1>
+            <br/>
+            <h1>Thank you for joining!</h1>
+            <br/>
+            <p class="lead">
+                NooBaa is still in <b>Alpha</b>.
+            </p>
+            <p class="lead">
+                We will contact you as soon as we can accept more users.
+            </p>
+            <p class="lead">
+                If your email address below is not correct please change it:
+            </p>
+            <div class="text-center">
+                <div class="input-group">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="button" ng-disabled="submitting || submitted" ng-click="submit()">
+                            <i style="display: none" class="fa fa-cog fa-spin fa-lg"></i>
+                            <b>Change</b>
+                        </button>
+                    </span>
+                    <input ng-model="new_email" id="email_input" class="form-control" type="email" ng-disabled="submitting || submitted" placeholder="<?! it.user.email ?>">
+                    </input>
+                </div>
+                <div class="alert alert-error" hidden="hidden"></div>
+                <div class="alert alert-success" hidden="hidden"></div>
+            </div>
+            <br/>
+            <p class="lead">
+                Feel free to drop us a note:
+                <a href="mailto:info@noobaa.com" target="_blank" style="color:black">info@noobaa.com</a>
+            </p>
+            <p class="lead">Yours truly</p>
+            <p class="lead">The NooBaa Team</p>
+        </div>
+    </div>
 
 
-	<div>
-		<?# def.include( 'common_scripts.html') ?>
-	</div>
+    <div>
+        <?# def.include( 'common_scripts.html') ?>
+    </div>
 
-	<!-- server data is safely embedded in a JSON type script -->
-	<script id="user_data" type="application/json">
-	<?= JSON.stringify(it.user) ?>
-	</script>
+    <!-- server data is safely embedded in a JSON type script -->
+    <script id="user_data" type="application/json">
+    <?= JSON.stringify(it.user) ?>
+    </script>
 
-	<script type="text/javascript">
-	<?? it.user ?>
-	var noobaa_user = JSON.parse($('#user_data').html()); 
-	<????>
-	var noobaa_user = null; 
-	<???>
-	</script>
+    <script type="text/javascript">
+    <?
+    if (it.user) { ?>
+        var noobaa_user = JSON.parse($('#user_data').html()); <?
+    } else { ?>
+        var noobaa_user = null; <?
+    } ?>
+    </script>
 
 </body>
 
