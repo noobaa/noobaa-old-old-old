@@ -408,6 +408,7 @@ function error_404(req, res, next) {
 }
 
 function error_403(req, res, next) {
+    console.log('NO USER', req.originalMethod, req.originalUrl);
     if (req.accepts('html')) {
         return res.redirect(URL.format({
             pathname: '/auth/facebook/login/',
