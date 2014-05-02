@@ -1,5 +1,9 @@
 db.trackevents.find({
-	event: 'login.email'
+	$or: [{
+		event: 'user.login_email'
+	}, {
+		event: 'login.email'
+	}]
 }).sort({
 	time: 1
 }).forEach(function(e) {
