@@ -291,7 +291,7 @@ gulp.task('start_prod', function() {
     require(paths.server_main);
 });
 
-if (process.env.DEV_MODE === 'dev') {
+if (process.env.DEV_MODE === 'true') {
     gulp.task('start', ['start_dev']);
 } else {
     gulp.task('start', ['start_prod']);
