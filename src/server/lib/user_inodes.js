@@ -388,7 +388,7 @@ function users_notify_by_email_job() {
 			return async.eachLimit(users, 3, function(user, next) {
 
 				if (user.email_policy === 'silent') {
-					console.log('silent email for user', user.get_name());
+					// console.log('silent email for user', user.get_name());
 					return next();
 				}
 				// if not yet filled the tz, assuming GMT+2 (ISRAEL TIME)
@@ -398,7 +398,7 @@ function users_notify_by_email_job() {
 				var user_hour = user_time_now.getUTCHours();
 				// send mails on 8pm
 				if (user_hour !== 20) {
-					console.log('not yet time on user clock', user_hour, user.get_name());
+					// console.log('not yet time on user clock', user_hour, user.get_name());
 					return next();
 				}
 
