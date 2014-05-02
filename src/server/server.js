@@ -55,6 +55,7 @@ var express_minify = require('express-minify');
 var uglifyjs = require('uglify-js');
 var passport = require('passport');
 var mongoose = require('mongoose');
+var _ = require('underscore');
 var fs = require('fs');
 var mime = require('mime');
 // var fbapi = require('facebook-api');
@@ -73,7 +74,7 @@ var adminoobaa = require('./lib/adminoobaa');
 
 
 var rootdir = path.join(__dirname, '..', '..');
-var dev_mode = (process.env.DEV_MODE === 'dev');
+var dev_mode = (process.env.DEV_MODE === 'true');
 var debug_mode = (process.env.DEBUG_MODE === 'true');
 
 
@@ -371,12 +372,13 @@ app.use('/', express.static(path.join(rootdir, 'public')));
 app.use(error_404);
 app.use(function(err, req, res, next) {
     console.error('ERROR:', err);
-    var e = {};
-    if (debug_mode) {
+    var e;
+    if (dev_mode) {
         // show internal info only on development
         e = err;
+    } else {
+        e = _.pick(err, 'status', 'message', 'reload');
     }
-    e.data = e.data || e.message;
     e.status = err.status || res.statusCode;
     if (e.status < 400) {
         e.status = 500;
@@ -384,22 +386,24 @@ app.use(function(err, req, res, next) {
     res.status(e.status);
 
     if (can_accept_html(req)) {
-        return res.render('error.html', {
-            data: e.data,
-            status: e.status,
-            stack: e.stack
-        });
+        var ctx = common_api.common_server_data(req);
+        if (dev_mode) {
+            e.data = _.extend(ctx.data, e.data);
+        } else {
+            e.data = ctx.data;
+        }
+        return res.render('error.html', e);
     } else if (req.accepts('json')) {
         return res.json(e);
     } else {
-        return res.type('txt').send(e.data || e.toString());
+        return res.type('txt').send(e.message || e.toString());
     }
 });
 
 function error_404(req, res, next) {
-    next({
+    return next({
         status: 404, // not found
-        data: 'We dug the earth, but couldn\'t find ' + req.originalUrl
+        message: 'We dug the earth, but couldn\'t find ' + req.originalUrl
     });
 }
 
@@ -413,17 +417,25 @@ function error_403(req, res, next) {
             }
         }));
     }
-    next({
+    var err = {
         status: 403, // forbidden
-        data: 'NO USER',
+        message: 'NO USER',
         reload: true
-    });
+    };
+    if (req.originalUrl.indexOf('/api/device') === 0) {
+        // TEMP FIX:
+        // when device api fails on no user, we send the error as success status (200)
+        // because old planet code was not reloading on error.
+        console.log('FORCE RELOAD DEVICE', req.originalUrl);
+        return res.json(200, err);
+    }
+    return next(err);
 }
 
 function error_501(req, res, next) {
-    next({
+    return next({
         status: 501, // not implemented
-        data: 'Working on it... ' + req.originalUrl
+        message: 'Working on it... ' + req.originalUrl
     });
 }
 

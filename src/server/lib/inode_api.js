@@ -210,7 +210,7 @@ function get_inode_fobj(req, inode_id, callback) {
                 if (!fobj) {
                     return next({
                         status: 404,
-                        data: 'FOBJ NOT FOUND'
+                        message: 'FOBJ NOT FOUND'
                     });
                 }
                 return next(err, inode, fobj);
@@ -518,7 +518,7 @@ exports.inode_read = function(req, res) {
                 if (err) {
                     return next({
                         status: 403, // forbidden
-                        data: err
+                        message: err
                     });
                 } else {
                     return next(null, inode);
@@ -531,7 +531,7 @@ exports.inode_read = function(req, res) {
             if (!inode) {
                 return next({
                     status: 404, // HTTP Not Found
-                    data: 'Not Found'
+                    message: 'Not Found'
                 });
             }
             if (req.query.getattr) {
@@ -562,7 +562,7 @@ exports.inode_read = function(req, res) {
             if (!inode.fobj) {
                 return next({
                     status: 404, // HTTP Not Found
-                    data: 'Not Found'
+                    message: 'Not Found'
                 });
             }
             // support head request
@@ -803,7 +803,7 @@ exports.inode_update = function(req, res) {
             if (!inode.fobj) {
                 return next({
                     status: 404,
-                    data: 'File Object Not Found'
+                    message: 'File Object Not Found'
                 });
             }
             console.log('FOBJ UPDATE:', inode_id, inode.fobj, fobj_args);
@@ -860,7 +860,7 @@ function inode_delete_action(inode_id, user_id, callback) {
             if (inode.parent === null) {
                 return next({
                     status: 400,
-                    data: 'Cannot Delete Root'
+                    message: 'Cannot Delete Root'
                 });
             }
             return next(null, inode);
@@ -874,7 +874,7 @@ function inode_delete_action(inode_id, user_id, callback) {
             if (inode.isdir && has_sons) {
                 return next({
                     status: 400,
-                    data: 'Directory Not Empty'
+                    message: 'Directory Not Empty'
                 });
             }
             return next(null, inode);
@@ -1045,7 +1045,7 @@ exports.inode_multipart = function(req, res) {
             if (fobj.size <= 0) {
                 return next({
                     status: 400,
-                    data: 'FOBJ INVALID SIZE'
+                    message: 'FOBJ INVALID SIZE'
                 });
             }
             // create the multipart upload id at S3 if not already created
@@ -1359,7 +1359,7 @@ exports.inode_set_share_list = function(req, res) {
             } else {
                 return next({
                     status: 400, // bad request
-                    data: 'INVALID SHR'
+                    message: 'INVALID SHR'
                 });
             }
             console.log('shr', shr, 'new_nb_ids', new_nb_ids, 'old_nb_ids', old_nb_ids);
@@ -1512,11 +1512,7 @@ function validate_inode_creation_conditions(inode, fobj, user, callback) {
                     console.log("User reached quota limitaion ", rejection);
                     return next({
                         status: 507, // HTTP Insufficient Storage
-                        data: {
-                            quota: user.quota,
-                            usage: usage,
-                            file_size: fobj.size
-                        }
+                        message: 'Out of space'
                     });
                 }
                 return next();
@@ -1538,7 +1534,7 @@ function validate_access_to_inode(user_id, inode, callback) {
             if (err || !ghost_ref) {
                 return callback({
                     status: 403,
-                    data: 'Access Denied'
+                    message: 'Access Denied'
                 });
             }
             // fix the parent to trace back to the ghost ref, 

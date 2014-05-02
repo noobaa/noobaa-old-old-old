@@ -105,7 +105,7 @@ exports.delete_inode_message = function(req, res) {
 			if (!is_message_mine(user_id, message)) {
 				return next({
 					status: 403, // HTTP Forbidden
-					data: 'User Not Owner'
+					message: 'User Not Owner'
 				});
 			}
 			message.removed_by = req.user.id;

@@ -116,13 +116,13 @@ function check_ownership(user_id, obj, next) {
     if (!obj) {
         return next({
             status: 404, // HTTP Not Found
-            data: 'Not Found'
+            message: 'Not Found'
         });
     }
     if (!mongoose.Types.ObjectId(user_id).equals(obj.owner)) {
         return next({
             status: 403, // HTTP Forbidden
-            data: 'User Not Owner'
+            message: 'User Not Owner'
         });
     }
     return next(null, obj);
