@@ -77,7 +77,7 @@ exports.admin_get_users = function(req, res) {
 				if (u) {
 					u.files = f.my;
 					u.files_swm = f.swm;
-					console.log('MY', f.my, 'SWM', f.swm, u.name);
+					// console.log('MY', f.my, 'SWM', f.swm, u.name);
 				}
 			});
 			return next(null, merge_users);
