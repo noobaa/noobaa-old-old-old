@@ -123,17 +123,12 @@ app.use(function(req, res, next) {
     }
     return next();
 });
-var COOKIE_SECRET =
-    '.9n>(3(Tl.~8Q4mL9fhzqFnD;*vbd\\8cI!&3r#I!y&kP>' +
-    'PkAksV4&SNLj+iXl?^{O)XIrRDAFr+CTOx1Gq/B/sM+=P&' +
-    'j)|X|cI}c>jmEf@2TZmQJhEMk_WZMT:l6Z(4rQK$\\NT*G' +
-    'cnv.0F9<c<&?E>Uj(x!z_~%075:%DHRhL"3w-0W+r)bV!)x)Ya*i]QReP"T+e@;_';
-app.use(express_cookie_parser(COOKIE_SECRET));
+app.use(express_cookie_parser(process.env.COOKIE_SECRET));
 app.use(express_body_parser());
 app.use(express_method_override());
 app.use(express_cookie_session({
     key: 'noobaa_session',
-    secret: COOKIE_SECRET,
+    secret: process.env.COOKIE_SECRET,
     // TODO: setting max-age for all sessions although we prefer only for /auth.html
     // but express/connect seems broken to accept individual session maxAge,
     // although documented to work. people also report it fails.
@@ -233,7 +228,7 @@ app.all('/track/pixel/', track_api.track_event_pixel);
 // setup admin pages
 
 app.get('/adminoobaa/', function(req, res) {
-    return res.render('adminoobaa.html', common_api.page_context(req));
+    return res.render('adminoobaa.html', common_api.common_server_data(req));
 });
 app.get('/adminoobaa/user/', adminoobaa.admin_get_users);
 app.get('/adminoobaa/user/:user_id/usage/', adminoobaa.admin_get_user_usage);
@@ -248,7 +243,10 @@ app.get('/adminoobaa/pull_inodes_shr/', adminoobaa.admin_pull_inodes_shr);
 // setup planet pages
 
 app.get('/planet', function(req, res) {
-    return res.render('planet_boot.html', common_api.page_context(req));
+    return res.render('planet_boot.html', common_api.common_server_data(req));
+});
+app.get('/planet/window', redirect_no_user, function(req, res) {
+    return res.redirect('/home/');
 });
 
 
@@ -290,15 +288,15 @@ function redirect_no_user(req, res, next) {
 
 app.get('/welcome', function(req, res) {
     // return res.redirect('/home/');
-    return res.render('welcome.html', common_api.page_context(req));
+    return res.render('welcome.html', common_api.common_server_data(req));
 });
 
 /*
 app.get('/gopro', function(req, res) {
-    return res.render('welcome.html', common_api.page_context(req));
+    return res.render('welcome.html', common_api.common_server_data(req));
 });
 app.get('/info', function(req, res) {
-    return res.render('info.html', common_api.page_context(req));
+    return res.render('info.html', common_api.common_server_data(req));
 });
 */
 
@@ -306,25 +304,25 @@ app.get('/thankyou', function(req, res) {
     if (!req.user) {
         return res.redirect(welcome_path);
     }
-    return res.render('thankyou.html', common_api.page_context(req));
+    return res.render('thankyou.html', common_api.common_server_data(req));
 });
 
 
 app.get('/blog/*', function(req, res) {
-    return res.render('blog.html', common_api.page_context(req));
+    return res.render('blog.html', common_api.common_server_data(req));
 });
 app.get('/blog', function(req, res) {
     return res.redirect('/blog/');
 });
 
 app.get('/home/*', redirect_no_user, function(req, res) {
-    var ctx = common_api.page_context(req);
+    var ctx = common_api.common_server_data(req);
     if (req.session.signup) {
-        ctx.signup = req.session.signup;
+        ctx.data.signup = req.session.signup;
         delete req.session.signup;
     }
     if (req.session.signin) {
-        ctx.signin = req.session.signin;
+        ctx.data.signin = req.session.signin;
         delete req.session.signin;
     }
     return res.render('home.html', ctx);
@@ -385,9 +383,7 @@ app.use(function(err, req, res, next) {
     }
     res.status(e.status);
 
-    if (req.xhr) {
-        return res.json(e);
-    } else if (req.accepts('html')) {
+    if (can_accept_html(req)) {
         return res.render('error.html', {
             data: e.data,
             status: e.status,
@@ -409,7 +405,7 @@ function error_404(req, res, next) {
 
 function error_403(req, res, next) {
     console.log('NO USER', req.originalMethod, req.originalUrl);
-    if (req.accepts('html')) {
+    if (can_accept_html(req)) {
         return res.redirect(URL.format({
             pathname: '/auth/facebook/login/',
             query: {
@@ -419,7 +415,8 @@ function error_403(req, res, next) {
     }
     next({
         status: 403, // forbidden
-        data: 'Forgot to login?'
+        data: 'NO USER',
+        reload: true
     });
 }
 
@@ -428,6 +425,16 @@ function error_501(req, res, next) {
         status: 501, // not implemented
         data: 'Working on it... ' + req.originalUrl
     });
+}
+
+// decide if the client can accept html reply.
+// the xhr flag in the request (X-Requested-By header) is not commonly sent
+// see https://github.com/angular/angular.js/commit/3a75b1124d062f64093a90b26630938558909e8d
+// the accept headers from angular http contain */* so will match anything.
+// so finally we fallback to check the url.
+
+function can_accept_html(req) {
+    return !req.xhr && req.accepts('html') && req.originalUrl.indexOf('/api/') !== 0;
 }
 
 

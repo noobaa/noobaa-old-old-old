@@ -30,7 +30,7 @@
             <br/>
             <h1 class="H1 fntpaint">
                 Hey
-                <?! it.user.first_name ?>
+                <?! it.data.user.first_name ?>
             </h1>
             <br/>
             <h1>Thank you for joining!</h1>
@@ -52,7 +52,7 @@
                             <b>Change</b>
                         </button>
                     </span>
-                    <input ng-model="new_email" id="email_input" class="form-control" type="email" ng-disabled="submitting || submitted" placeholder="<?! it.user.email ?>">
+                    <input ng-model="new_email" id="email_input" class="form-control" type="email" ng-disabled="submitting || submitted" placeholder="<?! it.data.user.email ?>">
                     </input>
                 </div>
                 <div class="alert alert-error" hidden="hidden"></div>
@@ -75,16 +75,11 @@
 
     <!-- server data is safely embedded in a JSON type script -->
     <script id="user_data" type="application/json">
-    <?= JSON.stringify(it.user) ?>
+    <?= JSON.stringify(it.data.user) ?>
     </script>
 
     <script type="text/javascript">
-    <?
-    if (it.user) { ?>
-        var noobaa_user = JSON.parse($('#user_data').html()); <?
-    } else { ?>
-        var noobaa_user = null; <?
-    } ?>
+        var noobaa_user = JSON.parse($('#user_data').html());
     </script>
 
 </body>

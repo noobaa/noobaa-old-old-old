@@ -13,7 +13,7 @@
 <meta content="http://www.noobaa.com/public/images/noobaa_logo.png" property="og:image" />
 <meta content="NooBaa" property="og:site_name" />
 <meta content="NooBaa - Share Your Media With Your Friends" property="og:description" />
-<meta content="<?= it.app_id ?>" property="fb:app_id" />
+<meta content="<?= it.data.app_id ?>" property="fb:app_id" />
 <meta name="google-site-verification" content="b9-qjbu-C0OP5e7s-CzA0z02i-xggvWs-Op9hlJikL0" />
 
 <link rel="shortcut icon" href="/public/images/noobaa_icon16.ico" />
@@ -137,8 +137,8 @@ ga('send', 'pageview');
         b.__SV = 1.2
     }
 })(document, window.mixpanel || []);
-if ( <?= !! it.mixpanel_token ?> ) {
-    mixpanel.init("<?= it.mixpanel_token ?>");
+if ( <?= !! it.data.mixpanel_token ?> ) {
+    mixpanel.init("<?= it.data.mixpanel_token ?>");
     window.nb_mixpanel = true;
 }
 </script>
@@ -152,8 +152,8 @@ if ( <?= !! it.mixpanel_token ?> ) {
     // Facebook initialization code
     window.fbAsyncInit = function() {
         FB.init({
-            appId: '<?= it.app_id ?>', // App ID
-            channelUrl: '<?= it.channel_url ?>', // Channel File
+            appId: '<?= it.data.app_id ?>', // App ID
+            channelUrl: '<?= it.data.channel_url ?>', // Channel File
             status: true, // check login status
             cookie: true, // enable cookies to allow the server to access the session
             xfbml: true // parse XFBML
@@ -178,7 +178,7 @@ if ( <?= !! it.mixpanel_token ?> ) {
 
 
     <!-- Facebook Conversion Code for FB sign in -->
-    <?? it.signup ?>
+    <?? it.data.signup ?>
         <script type="text/javascript">
         console.log('FB CONV');
         var fb_param = {};

@@ -6,9 +6,11 @@
     nb_welcome.controller('WelcomeCtrl', [
         '$scope', '$location', '$anchorScroll',
         '$timeout', '$interval', '$templateCache', '$sce',
-        'nbUser', 'nbUtil',
+        'nbUser', 'nbUtil', 'nbPlanet',
+        function($scope, $location, $anchorScroll,
+            $timeout, $interval, $templateCache, $sce,
+            nbUser, nbUtil, nbPlanet) {
 
-        function($scope, $location, $anchorScroll, $timeout, $interval, $templateCache, $sce, nbUser, nbUtil) {
             $scope.nbUser = nbUser;
             $scope.need_chrome_ref = !nbUtil.bowser.chrome;
 
