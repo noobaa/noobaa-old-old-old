@@ -181,6 +181,9 @@ app.get('/auth/logout/', auth.logout);
 
 app.get('/auth/facebook/login/', auth.provider_login.bind(null, 'facebook'));
 app.get('/auth/google/login/', auth.provider_login.bind(null, 'google'));
+app.post('/auth/email/login/', auth.provider_login.bind(null, 'local'), function(req, res) {
+    res.send(200);
+});
 
 
 // setup star API routes
@@ -260,12 +263,12 @@ function redirect_no_user(req, res, next) {
         res.redirect(welcome_path);
         return;
     }
-    if (!req.session.accessToken || !req.session.tokens) {
-        console.log('NO TOKENS FORCE LOGOUT', req.user);
-        res.redirect('/auth/logout/?state=/home/#join');
-        return;
-    }
-    if (req.user.alpha_tester) {
+    // if (!req.session.tokens) {
+    //     console.log('NO TOKENS FORCE LOGOUT', req.user);
+    //     res.redirect('/auth/logout/');
+    //     return;
+    // }
+    if (true || req.user.alpha_tester) {
         return next();
     }
 

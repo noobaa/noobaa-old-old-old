@@ -4,114 +4,136 @@
 var mongoose = require('mongoose');
 var Device = require('./device');
 var _ = require('underscore');
+var bcrypt = require('bcrypt');
 
-var providers = ['fb', 'google', 'local'];
+var providers = ['fb', 'google'];
 
 var user_schema = new mongoose.Schema({
-	fb: {}, // facebook info has free form
-	google: {},
-	local: {},
-	email: String, //this is used when the user updates a different email than the one in FB.
-	email_policy: String, // silent
-	email_last_notify_time: Date,
-	last_access_time: Date,
-	tz_offset: Number, // timezone minutes offset from utc
-	usage: Number, // cached usage value
-	quota: {
-		type: Number,
-		default: Math.pow(1024, 3)
-	}, //default quota is 1GB for now
-	alpha_tester: Boolean, // true to allow login to alpha testing
+    fb: {}, // facebook profile
+    google: {}, // google plus profile
+    email: String, //this is used when the user updates a different email than the one in FB.
+    password: String,
+    name: String,
+    email_verified: Boolean,
+    email_policy: String, // silent
+    email_last_notify_time: Date,
+    last_access_time: Date,
+    tz_offset: Number, // timezone minutes offset from utc
+    usage: Number, // cached usage value
+    quota: {
+        type: Number,
+        default: Math.pow(1024, 3)
+    }, //default quota is 1GB for now
+    alpha_tester: Boolean, // true to allow login to alpha testing
 });
 
 // create a unique index on the facebook id field
 user_schema.index({
-	'fb.id': 1
+    'fb.id': 1
 }, {
-	unique: true,
-	//sparse option explained:
-	//since we might have users who logged in via google, they won't have the FB
-	//http://docs.mongodb.org/manual/tutorial/create-a-unique-index/
-	sparse: true,
+    unique: true,
+    //sparse option explained:
+    //since we might have users who logged in via google, they won't have the FB
+    //http://docs.mongodb.org/manual/tutorial/create-a-unique-index/
+    sparse: true,
 });
 
 user_schema.index({
-	'google.id': 1
+    'google.id': 1
 }, {
-	unique: true,
-	//sparse option - same as the above only for google users.
-	sparse: true,
+    unique: true,
+    sparse: true, // sparse because the field is not required
 });
 
-user_schema.methods.get_used_provider = function() {
-	var me = this;
-	return _.find(providers, function(provider) {
-		return ( !! me[provider]);
-	});
-};
+user_schema.index({
+    'email': 1
+}, {
+    unique: true,
+    sparse: true, // sparse because the field is not required
+});
 
-user_schema.methods.get_provider_field = function(field) {
-	var me = this;
-	var lprov = this.get_used_provider();
-	if (lprov && me[lprov][field]) {
-		return me[lprov][field];
-	}
-	return null;
+user_schema.methods.get_property = function(key) {
+    if (this[key]) {
+        return this[key];
+    }
+    for (var i = 0; i < providers.length; i++) {
+        var p = this[providers[i]];
+        var v = p && p[key];
+        if (v) {
+            return v;
+        }
+    }
+    return null;
 };
 
 user_schema.methods.get_email = function() {
-	return this.email || this.get_provider_field('email');
+    return this.get_property('email');
 };
 
 user_schema.methods.get_name = function() {
-	return this.get_provider_field('name');
-};
-
-user_schema.methods.get_provider_id = function() {
-	return this.get_provider_field('id');
+    return this.get_property('name');
 };
 
 user_schema.methods.get_first_name = function() {
-	return this.get_name().split(" ")[0];
-};
-
-user_schema.methods.get_last_name = function() {
-	return _.last(this.get_name().split(" "));
+    return this.get_name().split(" ")[0];
 };
 
 user_schema.methods.get_user_identity_info = function(object) {
-	var user = this;
-	object = object || {};
-	object.id = user._id;
-	object.name = user.get_name();
-	object.first_name = user.get_first_name();
-	providers.forEach(function(provider) {
-		if ( !! user[provider]) {
-			object[provider + 'id'] = user[provider].id;
-		}
-	});
-	return object;
+    var user = this;
+    object = object || {};
+    object.id = user._id;
+    object.name = user.get_name();
+    object.first_name = user.get_first_name();
+    providers.forEach(function(provider) {
+        var p = user[provider];
+        if ( !! p) {
+            object[provider + 'id'] = p.id;
+        }
+    });
+    return object;
 };
 
 user_schema.methods.get_pic_url = function() {
-	var user = this;
-	if (user.fb && user.fb.id) {
-		return 'https://graph.facebook.com/' + user.fb.id + '/picture';
-	}
-	if (user.google && user.google.id) {
-		return 'https://plus.google.com/s2/photos/profile/' + user.google.id + '?sz=50';
-	}
+    var user = this;
+    if (user.fb && user.fb.id) {
+        return 'https://graph.facebook.com/' + user.fb.id + '/picture';
+    }
+    if (user.google && user.google.id) {
+        return 'https://plus.google.com/s2/photos/profile/' + user.google.id + '?sz=50';
+    }
 };
 
 user_schema.methods.get_social_url = function() {
-	var user = this;
-	if (user.fb.id) {
-		return 'http://facebook.com/profile.php?id=' + user.fb.id;
-	}
-	if (user.google.id) {
-		return 'https://plus.google.com/' + user.google.id;
-	}
+    var user = this;
+    if (user.fb.id) {
+        return 'http://facebook.com/profile.php?id=' + user.fb.id;
+    }
+    if (user.google.id) {
+        return 'https://plus.google.com/' + user.google.id;
+    }
 };
+
+// password verification - callback is function(err,is_matching)
+user_schema.methods.verify_password = function(password, callback) {
+    bcrypt.compare(password, this.password, callback);
+};
+
+// bcrypt middleware - replace passwords with hash before saving user
+user_schema.pre('save', function(callback) {
+    var user = this;
+    if (!user.isModified('password')) {
+        return callback();
+    }
+    bcrypt.genSalt(10, function(err, salt) {
+        if (err) return callback(err);
+        bcrypt.hash(user.password, salt, function(err, hash) {
+            if (err) return callback(err);
+            user.password = hash;
+            return callback();
+        });
+    });
+});
+
 
 var User = mongoose.model('User', user_schema);
 exports.User = User;

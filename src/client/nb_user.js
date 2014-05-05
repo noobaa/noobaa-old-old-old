@@ -164,14 +164,22 @@
                 if (!email || !password) {
                     return;
                 }
-                nbUtil.track_event('user.login_email', {
+                var params = {
                     email: email,
                     password: password
+                };
+                nbUtil.track_event('user.login_email', params).then(function() {
+                    return $http.post('/auth/email/login/', params);
                 }).then(function() {
-                    alertify.alert('Thank you for signing up! We are working on email registration.' +
-                        ' Currently we only support sign in with Facebook or Google+.' +
-                        ' We will let you know once we implement sign in with email.');
+                    $window.location.href = '/home/';
+                }).then(null, function(err) {
+                    alertify.error('Sign in failed. <a>Did you forget your password?</a>');
                 });
+                /*
+                alertify.alert('Thank you for signing up! We are working on email registration.' +
+                    ' Currently we only support sign in with Facebook or Google+.' +
+                    ' We will let you know once we implement sign in with email.');
+                */
             };
 
             $scope.logout = function() {
@@ -183,10 +191,10 @@
             $scope.invite_friends = function() {
                 if (window.fb_init_complete) {
                     // return FB.ui({
-                    // 	method: 'apprequests',
-                    // 	message: 'Invite to share videos with friends on NooBaa'
+                    //  method: 'apprequests',
+                    //  message: 'Invite to share videos with friends on NooBaa'
                     // }, function(res) {
-                    // 	console.log('FB REQUEST', res);
+                    //  console.log('FB REQUEST', res);
                     // });
                     FB.ui({
                         method: 'send',
