@@ -149,31 +149,36 @@
             };
 
             $scope.login_facebook = function() {
+                $scope.running_signin = true; // navigation will stop the cog anyway
                 nbUtil.track_event('user.login_fb').then(function() {
                     $window.location.href = '/auth/facebook/login/';
                 });
             };
 
             $scope.login_google = function() {
+                $scope.running_signin = true; // navigation will stop the cog anyway
                 nbUtil.track_event('user.login_google').then(function() {
                     $window.location.href = '/auth/google/login/';
                 });
             };
 
             $scope.login_email = function(email, password) {
-                if (!email || !password) {
+                if (!email || !password || $scope.running_signin) {
                     return;
                 }
                 var params = {
                     email: email,
                     password: password
                 };
+                $scope.running_signin = true;
                 nbUtil.track_event('user.login_email', params).then(function() {
                     return $http.post('/auth/email/login/', params);
                 }).then(function() {
                     $window.location.href = '/home/';
                 }).then(null, function(err) {
                     alertify.error('Sign in failed. <a>Did you forget your password?</a>');
+                })['finally'](function() {
+                    $scope.running_signin = false;
                 });
                 /*
                 alertify.alert('Thank you for signing up! We are working on email registration.' +
