@@ -276,6 +276,9 @@ exports.viewback = function(err, data) {
 
 
 function get_friends(tokens, callback) {
+    if (!tokens) {
+        return callback(null, {});
+    }
     return async.parallel({
         fb: function(cb) {
             if (!tokens.facebook) {
