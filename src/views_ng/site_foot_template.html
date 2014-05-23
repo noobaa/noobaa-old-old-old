@@ -1,54 +1,86 @@
-<div class="bgdark">
-	<div class="container" style="padding-top: 30px; padding-bottom: 30px">
-		<div class="row">
-			<div class="col-xs-11 col-xs-offset-1 col-sm-5 col-sm-offset-0 col-md-4">
-				<a href="/">
-					<img src="/public/images/noobaa_logo.png" height="50px"></img>
-					<div class="text-muted" style="padding-left: 30px">
-						<small>connecting the dots</small>
-					</div>
-				</a>
-				<div style="padding: 15px 0">
-					<a href="https://www.facebook.com/NoobaaTeam" target="_blank" style="text-decoration: none">
-						<div style="display: inline-block; width: 34px; height: 34px; background: url('/public/images/sprite_social.png') no-repeat 0 0 transparent"></div>
-					</a>&nbsp;
-					<a href="https://twitter.com/NooBaaTeam" target="_blank" style="text-decoration: none">
-						<div style="display: inline-block; width: 34px; height: 34px; background: url('/public/images/sprite_social.png') no-repeat -39px 0 transparent"></div>
-					</a>&nbsp;
-					<a href="https://www.google.com/+Noobaa" target="_blank" style="text-decoration: none">
-						<div style="display: inline-block; width: 34px; height: 34px; background: url('/public/images/sprite_social.png') no-repeat -159px 0 transparent"></div>
-					</a>&nbsp;
-					<a href="https://www.youtube.com/user/TheNoobaa" target="_blank" style="text-decoration: none">
-						<div style="display: inline-block; width: 34px; height: 34px; background: url('/public/images/sprite_social.png') no-repeat -79px 0 transparent"></div>
-					</a>&nbsp;
-				</div>
-			</div>
-			<div class="col-xs-11 col-xs-offset-1 col-sm-5 col-sm-offset-0 col-md-4">
-				<h3>About</h3>
-				<div style="padding-top: 4px">
-					<a href="/blog/item/faq">
-						<h5 class="text-muted">FAQ</h5>
-					</a>
-				</div>
-				<div style="padding-top: 4px">
-					<a href="/blog">
-						<h5 class="text-muted">BLOG</h5>
-					</a>
-				</div>
-			</div>
-			<div ng-show="false" style="margin: 10px; padding: 5px 10px" class="pull-left">
-				<h5>PARTNERS</h5>
-				<div style="padding-bottom: 5px">
-					<a href="http://gopro.com" target="_blank" style="text-decoration: none">
-						<img src="/public/images/gopro.png" height="40" />
-					</a>
-				</div>
-				<div>
-					<a href="https://mixpanel.com/f/partner" target="_blank" style="text-decoration: none">
-						<img src="//cdn.mxpnl.com/site_media/images/partner/badge_blue.png" height="20" />
-					</a>
-				</div>
-			</div>
-		</div>
-	</div>
+<div style="border-top: 1px solid hsl(0,0%,90%)">
+    <div class="container">
+        <div class="row">
+
+            <div class="col-xs-4" style="padding-bottom: 5px; padding-top: 5px">
+                <a href="/blog/item/faq">
+                    <small class="text-muted">FAQ</small>
+                </a>
+                &nbsp;&middot;&nbsp;
+                <a href="/blog">
+                    <small class="text-muted">BLOG</small>
+                </a>
+                <!-- 
+			        &nbsp;&middot;&nbsp;
+			        <a href="/theteam">
+			            <small class="text-muted">TEAM</small>
+			        </a>
+        		 -->
+            </div>
+
+            <div class="col-xs-4 text-center" style="padding-bottom: 5px; padding-top: 5px">
+                <a href="/">
+                    <img src="/public/images/noobaa_logo.png" height="20px"></img>
+                    <!-- <i class="text-muted">NooBaa</i> -->
+                </a>
+            </div>
+
+            <div class="col-xs-4 text-right" style="padding-bottom: 5px; padding-top: 5px">
+                <style>
+                .social-sprite {
+                    display: inline-block;
+                    width: 22px;
+                    height: 22px;
+                    background-position: 0 0;
+                    background-size: 160px 22px;
+                    background-image: url('/public/images/sprite_social.png');
+                    background-repeat: no-repeat;
+                    background-color: transparent;
+                    vertical-align: middle;
+                }
+                .social-sprite-fb {
+                    background-position: 0 0;
+                }
+                .social-sprite-twitter {
+                    background-position: 15% 0;
+                }
+                .social-sprite-google {
+                    background-position: 66% 0;
+                }
+                .social-sprite-youtube {
+                    background-position: 32% 0;
+                }
+                </style>
+                <a href="https://www.facebook.com/NoobaaTeam" target="_blank" style="text-decoration: none">
+                    <div class="social-sprite social-sprite-fb"></div>
+                </a>
+                <a href="https://twitter.com/NooBaaTeam" target="_blank" style="text-decoration: none">
+                    <div class="social-sprite social-sprite-twitter"></div>
+                </a>
+                <!-- 
+	            <a href="https://www.google.com/+Noobaa" target="_blank" style="text-decoration: none">
+	                <div class="social-sprite social-sprite-google"></div>
+	            </a>
+	            <a href="https://www.youtube.com/user/TheNoobaa" target="_blank" style="text-decoration: none">
+	                <div class="social-sprite social-sprite-youtube"></div>
+	            </a>
+	             -->
+            </div>
+
+            <div style="display: none">
+                <h5>PARTNERS</h5>
+                <div style="padding-bottom: 5px">
+                    <a href="http://gopro.com" target="_blank" style="text-decoration: none">
+                        <img src="/public/images/gopro.png" height="40" />
+                    </a>
+                </div>
+                <div>
+                    <a href="https://mixpanel.com/f/partner" target="_blank" style="text-decoration: none">
+                        <img src="//cdn.mxpnl.com/site_media/images/partner/badge_blue.png" height="20" />
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
 </div>
