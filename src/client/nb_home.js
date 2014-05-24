@@ -47,6 +47,15 @@
                         $scope.set_current_item($routeParams.item_id);
                     }
                 ]
+            }).when('/chats/', {
+                templateUrl: 'chats_container.html',
+                controller: ['$scope',
+                    function($scope) {
+                        if (!$scope.chats) {
+                            $scope.refresh_chats();
+                        }
+                    }
+                ]
             }).when('/friends/', {
                 templateUrl: 'friends_template.html',
                 controller: ['$scope',
@@ -777,6 +786,56 @@
                     return;
                 }
                 nbUploadSrv.open_dir_input();
+            };
+
+            function refresh_chats() {
+                var yuval = {};
+
+                function sample_chat() {
+                    return {
+                        title: 'Yuval',
+                        messages: [{
+                            user: yuval,
+                            text: 'hula, there?'
+                        }, {
+                            user: yuval,
+                            text: 'i have some great news...'
+                        }, {
+                            text: 'i\'m here. what\'s the news???'
+                        }]
+                    };
+                }
+                $scope.chats = [sample_chat(), sample_chat(), sample_chat(), sample_chat()];
+            }
+
+            $scope.refresh_chats = refresh_chats;
+
+            $scope.open_chat = function(chat) {
+                $scope.chat = chat;
+            };
+
+            $scope.send_message = function() {
+                if (!$scope.chat || !$scope.chat.message_input.length) {
+                    return;
+                }
+                $scope.chat.messages.push({
+                    text: $scope.chat.message_input
+                });
+                $scope.chat.message_input = '';
+                $timeout(scroll_chat_to_bottom, 0);
+            };
+
+            function scroll_chat_to_bottom() {
+                var div = $('#chat-messages');
+                if (!div.length) {
+                    return;
+                }
+                console.log('div', div[0].scrollTop, div[0].scrollHeight);
+                div[0].scrollTop = div[0].scrollHeight;
+            }
+
+            $scope.attach_files = function() {
+
             };
 
         }

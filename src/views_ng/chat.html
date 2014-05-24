@@ -1,0 +1,33 @@
+<div class="hfill">
+
+    <div class="clearfix">
+        <button class="btn btn-link pull-left" ng-click="open_chat()">
+            <i class="fa fa-angle-left fa-3x"></i>
+        </button>
+        <div class="text-center" style="overflow: hidden; padding: 10px">
+            <img class="img-thumbnail" style="width: 40px; height: 40px; margin-right: 10px; vertical-align: middle" ng-src="{{nbUser.user_pic_url(chat.user)}}" />
+            <b>{{chat.title}}</b>
+        </div>
+    </div>
+
+    <div id="chat-messages" class="hfill" style="border: 1px solid hsl(0,0%,90%); border-radius: 10px; height: 400px; overflow-y: auto; padding: 10px 10px 0 10px">
+
+        <div ng-repeat="msg in chat.messages track by $index" class="clearfix" style="padding-bottom: 10px">
+            <div class="{{msg.user && 'chat-msg-user' || 'chat-msg-mine'}}">
+                <small class="text-overflow">{{msg.text}}</small>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="clearfix" style="border: 1px solid hsl(0,0%,90%); border-radius: 10px">
+        <div class="pull-right" style="padding: 10px">
+            <button ng-if="!chat.message_input.length" ng-click="attach_files()" class="btn btn-default">Attach Files</button>
+            <button ng-if="chat.message_input.length" ng-click="send_message()" class="btn btn-success">Send</button>
+        </div>
+        <div style="overflow: hidden; padding-top: 10px">
+            <textarea class="form-control Xinput-lg" placeholder="Enter message" ng-model="chat.message_input" nb-enter="send_message()" style="resize: none; border: none; box-shadow: none; background-color: transparent" nb-auto-height nb-focus="true"></textarea>
+        </div>
+    </div>
+
+</div>

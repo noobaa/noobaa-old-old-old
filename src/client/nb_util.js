@@ -704,26 +704,31 @@
 
     nb_util.directive('nbAutoHeight', ['$timeout',
         function($timeout) {
-            function update_height(elem, min, pad) {
-                elem.height(0);
-                var height = elem[0].scrollHeight;
+            function update_height(e, min) {
+                e.height(0);
+                var height = e[0].scrollHeight;
                 if (height < min) {
-                    height = min + pad;
+                    height = min;
                 }
-                elem.height(height - pad);
+                e.height(height);
+                e.focus();
             }
             return {
                 restrict: 'A',
                 link: function(scope, element, attr) {
                     var e = $(element);
-                    var min = e.outerHeight();
-                    var pad = 0;
-                    element.bind('keyup', function(event) {
-                        update_height($(event.target), min, pad);
+                    var tmp = e.val();
+                    e.val('');
+                    e.height(0);
+                    var min = e[0].scrollHeight;
+                    e.val(tmp);
+                    tmp = null;
+                    element.bind('keydown', function(event) {
+                        update_height($(event.target), min);
                     });
                     // Expand as soon as it is added to the DOM
                     $timeout(function() {
-                        update_height(e, min, pad);
+                        update_height(e, min);
                     }, 0);
                 }
             };
@@ -749,6 +754,19 @@
             };
         }
     ]);
+
+    nb_util.directive('nbEnter', function() {
+        return function(scope, element, attrs) {
+            element.bind("keydown keypress", function(event) {
+                if (event.which === 13 && !event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey) {
+                    scope.$apply(function() {
+                        scope.$eval(attrs.nbEnter);
+                    });
+                    event.preventDefault();
+                }
+            });
+        };
+    });
 
     nb_util.directive('nbResizable', function() {
         return {
