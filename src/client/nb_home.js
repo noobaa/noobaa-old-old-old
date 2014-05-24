@@ -827,7 +827,7 @@
             };
 
             function scroll_chat_to_bottom() {
-                var div = $('#chat-messages');
+                var div = $('.chat-messages');
                 if (!div.length) {
                     return;
                 }

@@ -10,14 +10,12 @@
         </div>
     </div>
 
-    <div id="chat-messages" class="hfill" style="border: 1px solid hsl(0,0%,90%); border-top-left-radius: 10px; border-top-right-radius: 10px; height: 400px; overflow-y: auto; padding: 10px 10px 0 10px">
-
-        <div ng-repeat="msg in chat.messages track by $index" class="clearfix" style="padding-bottom: 10px">
+    <div class="chat-messages hfill">
+        <div ng-repeat="msg in chat.messages track by $index" class="clearfix">
             <div class="{{msg.user && 'chat-msg-user' || 'chat-msg-mine'}}">
-                <small class="text-overflow">{{msg.text}}</small>
+                <span class="text-overflow" style="white-space: pre-wrap" ng-bind-html="msg.text | linky:'_blank'"></span>
             </div>
         </div>
-
     </div>
 
     <div class="clearfix" style="border: 1px solid hsl(0,0%,90%); border-bottom-left-radius: 10px; border-bottom-right-radius: 10px">
