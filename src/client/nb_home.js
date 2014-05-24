@@ -835,7 +835,11 @@
                 div[0].scrollTop = div[0].scrollHeight;
             }
 
-            $scope.attach_files = function() {
+            $scope.upload_files_to_chat = function() {
+
+            };
+
+            $scope.select_files_to_chat = function() {
 
             };
 

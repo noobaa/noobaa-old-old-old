@@ -20,8 +20,29 @@
 
     <div class="clearfix" style="border: 1px solid hsl(0,0%,90%); border-bottom-left-radius: 10px; border-bottom-right-radius: 10px">
         <div class="pull-right" style="padding: 10px">
-            <button ng-if="!chat.message_input.length" ng-click="attach_files()" class="btn btn-default">Attach Files</button>
-            <button ng-if="chat.message_input.length" ng-click="send_message()" class="btn btn-success">Send</button>
+            <div class="btn-group dropup">
+                <button ng-if="!chat.message_input.length" class="btn btn-default dropdown-toggle" data-toggle="dropdown" type="button">
+                	<i class="fa fa-paperclip fa-lg fa-fw"></i>
+                </button>
+                <ul class="dropdown-menu pull-right" role="menu">
+                    <li>
+                        <a ng-click="upload_files_to_chat()" style="padding-left: 10px">
+                            <i class="fa fa-cloud-upload fa-lg fa-fw"></i>
+                            Upload from desktop
+                        </a>
+                    </li>
+                    <li class="divider"></li>
+                    <li>
+                        <a ng-click="select_files_to_chat()" style="padding-left: 10px">
+                            <i class="fa fa-cloud fa-lg fa-fw"></i>
+                            Select from cloud
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <button ng-if="chat.message_input.length" ng-click="send_message()" class="btn btn-success">
+            	<i class="fa fa-paper-plane fa-lg fa-fw"></i>
+            </button>
         </div>
         <div style="overflow: hidden; padding-top: 10px">
             <textarea class="form-control Xinput-lg" placeholder="Enter message" ng-model="chat.message_input" nb-enter="send_message()" style="resize: none; border: none; box-shadow: none; background-color: transparent" nb-auto-height nb-focus="true"></textarea>
