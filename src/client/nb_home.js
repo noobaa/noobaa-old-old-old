@@ -812,6 +812,7 @@
 
             $scope.open_chat = function(chat) {
                 $scope.chat = chat;
+                $timeout(scroll_chat_to_bottom, 0);
             };
 
             $scope.send_message = function() {

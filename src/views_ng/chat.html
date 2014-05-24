@@ -10,7 +10,7 @@
         </div>
     </div>
 
-    <div id="chat-messages" class="hfill" style="border: 1px solid hsl(0,0%,90%); border-radius: 10px; height: 400px; overflow-y: auto; padding: 10px 10px 0 10px">
+    <div id="chat-messages" class="hfill" style="border: 1px solid hsl(0,0%,90%); border-top-left-radius: 10px; border-top-right-radius: 10px; height: 400px; overflow-y: auto; padding: 10px 10px 0 10px">
 
         <div ng-repeat="msg in chat.messages track by $index" class="clearfix" style="padding-bottom: 10px">
             <div class="{{msg.user && 'chat-msg-user' || 'chat-msg-mine'}}">
@@ -20,7 +20,7 @@
 
     </div>
 
-    <div class="clearfix" style="border: 1px solid hsl(0,0%,90%); border-radius: 10px">
+    <div class="clearfix" style="border: 1px solid hsl(0,0%,90%); border-bottom-left-radius: 10px; border-bottom-right-radius: 10px">
         <div class="pull-right" style="padding: 10px">
             <button ng-if="!chat.message_input.length" ng-click="attach_files()" class="btn btn-default">Attach Files</button>
             <button ng-if="chat.message_input.length" ng-click="send_message()" class="btn btn-success">Send</button>
