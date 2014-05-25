@@ -840,7 +840,34 @@
             };
 
             $scope.select_files_to_chat = function() {
+                var modal;
+                var choose_scope = $scope.$new();
+                choose_scope.count = 0;
+                choose_scope.context = {
+                    current_inode: $scope.home_context.current_inode,
+                    dir_only: false
+                };
+                choose_scope.run_disabled = function() {
+                    return nbInode.is_not_mine(choose_scope.context.current_inode);
+                };
+                choose_scope.run = function() {
+                    modal.modal('hide');
+                    $scope.chat.messages.push({
+                        inode: choose_scope.context.current_inode
+                    });
+                };
+                var hdr = $('<div class="modal-header">')
+                    .append($('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">').html('&times;'))
+                    .append($('<h4>').text('Attach Files'));
+                var body = $('<div class="modal-body" nb-chooser context="context">').css('padding', 0);
+                var foot = $('<div class="modal-footer">').css('margin-top', 0)
+                    .append($('<button type="button" class="btn btn-default" data-dismiss="modal">').text('Close'))
+                    .append($('<button type="button" class="btn btn-primary" ng-click="run()" ng-disabled="run_disabled()">').text('OK'));
+                modal = nbUtil.modal($('<div>').append(hdr, body, foot), choose_scope);
+            };
 
+            $scope.open_chat_inode = function(inode) {
+                $location.path('/items/' + inode.id);
             };
 
         }

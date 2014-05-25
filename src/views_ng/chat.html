@@ -14,6 +14,21 @@
         <div ng-repeat="msg in chat.messages track by $index" class="clearfix">
             <div class="{{msg.user && 'chat-msg-user' || 'chat-msg-mine'}}">
                 <span class="text-overflow" style="white-space: pre-wrap" ng-bind-html="msg.text | linky:'_blank'"></span>
+                <div ng-if="msg.inode" style="cursor: pointer" ng-click="open_chat_inode(msg.inode)">
+                    <div class="pull-left" style="Xborder: 1px solid hsl(0,0%,40%); Xborder-radius: 10px; Xpadding: 5px; margin-right: 10px">
+                        <i class="fa fa-{{nbUtil.icon_by_kind(msg.inode.content_kind)}} fa-fw fa-3x" style="color: hsl(0,0%,30%)"></i>
+                    </div>
+                    <div style="overflow: hidden">
+                        <div class="text-ellipses" rel="tooltip" ng-attr-title="{{msg.inode.name}}">
+                            <b><span style="white-space: pre-wrap">{{msg.inode.name}}</span></b>
+                        </div>
+                        <div class="text-muted">
+                            <span ng-show="!msg.inode.isdir">
+                                {{human_size(msg.inode.size)}}
+                            </span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -22,7 +37,7 @@
         <div class="pull-right" style="padding: 10px">
             <div class="btn-group dropup">
                 <button ng-if="!chat.message_input.length" class="btn btn-default dropdown-toggle" data-toggle="dropdown" type="button">
-                	<i class="fa fa-paperclip fa-lg fa-fw"></i>
+                    <i class="fa fa-paperclip fa-lg fa-fw"></i>
                 </button>
                 <ul class="dropdown-menu pull-right" role="menu">
                     <li>
@@ -41,7 +56,7 @@
                 </ul>
             </div>
             <button ng-if="chat.message_input.length" ng-click="send_message()" class="btn btn-success">
-            	<i class="fa fa-paper-plane fa-lg fa-fw"></i>
+                <i class="fa fa-paper-plane fa-lg fa-fw"></i>
             </button>
         </div>
         <div style="overflow: hidden; padding-top: 10px">
