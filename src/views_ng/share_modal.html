@@ -14,7 +14,7 @@
                             <div>Comments:</div>
                             <div style="margin: 5px 0">
                                 <div ng-repeat="msg in share_inode.messages" class="clearfix hover-target" style="margin-bottom: 5px">
-                                    <img class="img-circle pull-left" ng-src="{{nbUser.user_pic_url(msg.user)}}" style="width: 32px; height: 32px; margin-right: 5px; vertical-align: top" />
+                                    <img class="user-image pull-left" ng-src="{{nbUser.user_pic_url(msg.user)}}" style="margin-right: 5px; vertical-align: top" />
                                     <div style="overflow: hidden">
                                         <div>
                                             <small class="text-primary"><b>{{msg.user.first_name}}</b>
@@ -54,7 +54,7 @@
                             <div style="padding: 0 20px 10px 20px; max-height: 300px; overflow-y: scroll; overflow-x: hidden">
                                 <div ng-repeat="friend in share_list | filter:{name: filter_friend_name} | orderBy:'name'" class="text-ellipses {{friend.shared && 'label-warning'}}" style="display: inline-block; Xborder-radius: 20px; width: 260px; margin: 0 2px; padding: 5px 10px; cursor: pointer; text-align: left" ng-click="friend.shared = !friend.shared">
                                     <i class="fa fa-{{friend.shared && 'check' || 'plus-square'}} fa-fw"></i>&nbsp;
-                                    <img width="32" height="32" ng-src="{{nbUser.user_pic_url(friend)}}" class="img-circle" />&nbsp;
+                                    <img width="32" height="32" ng-src="{{nbUser.user_pic_url(friend)}}" class="user-image" />&nbsp;
                                     <span>{{friend.name}}</span>
                                 </div>
                             </div>

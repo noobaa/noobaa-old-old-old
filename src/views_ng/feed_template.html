@@ -75,7 +75,7 @@
                     <div ng-show="feed.expanded" class="pullDown">
                         <div ng-repeat="feed_inode in feed.inodes track by $index" style="padding: 7px; border-top: 1px solid hsl(210,10%,90%)" ng-init="comment_box={inode: feed_inode}">
                             <div style="overflow: hidden">
-                                <img class="img-circle" ng-src="{{nbUser.user_pic_url(feed_inode.ref_owner || nbUser.user)}}" style="width: 30px; height: 30px; margin-right: 5px; vertical-align: top" />
+                                <img class="user-image" ng-src="{{nbUser.user_pic_url(feed_inode.ref_owner || nbUser.user)}}" style="width: 30px; height: 30px; margin-right: 5px; vertical-align: top" />
                                 <small class="text-primary"><b>{{(feed_inode.ref_owner || nbUser.user).first_name}}</b>
                                 </small>
                                 <a class="btn btn-link btn-lg pull-right" ng-click="show_comment_box(comment_box)" title="Add comment" rel="tooltip" nb-tooltip="{placement: 'bottom'}" style="padding: 2px 7px">
@@ -87,7 +87,7 @@
                             </div>
                             <div style="margin: 5px 0 0 15px">
                                 <div ng-repeat="msg in feed_inode.messages" class="clearfix hover-target">
-                                    <img class="img-circle pull-left" ng-src="{{nbUser.user_pic_url(msg.user)}}" style="width: 30px; height: 30px; margin-right: 5px; vertical-align: top" />
+                                    <img class="user-image pull-left" ng-src="{{nbUser.user_pic_url(msg.user)}}" style="width: 30px; height: 30px; margin-right: 5px; vertical-align: top" />
                                     <div style="overflow: hidden">
                                         <div class="Xtext-wrap">
                                             <small class="text-primary"><b>{{msg.user.first_name}}</b>
@@ -107,7 +107,7 @@
                                     </div>
                                 </div>
                                 <div ng-if="comment_box.show" class="clearfix">
-                                    <img class="img-circle pull-left" ng-src="{{nbUser.user_pic_url(nbUser.user)}}" style="width: 30px; height: 30px; margin-right: 5px" />
+                                    <img class="user-image pull-left" ng-src="{{nbUser.user_pic_url(nbUser.user)}}" style="width: 30px; height: 30px; margin-right: 5px" />
                                     <div style="overflow: hidden">
                                         <textarea ng-model="comment_box.text" rows="1" class="form-control" style="resize: none" placeholder="Write about it..." nb-focus="comment_box.show" ng-attr-tabindex="{{($index*10)+100}}" nb-auto-height></textarea>
                                         <div class="text-center" style="padding-top: 5px">
@@ -134,7 +134,7 @@
                             <!-- &nbsp; -->
                             <span ng-if="!feed.expanded">
                                 <span ng-repeat="feed_inode in feed.inodes track by $index | limitTo:10">
-                                    <img class="img-circle" ng-src="{{nbUser.user_pic_url(feed_inode.ref_owner || nbUser.user)}}" style="width: 28px; height: 28px; vertical-align: top; margin-right: -2px; margin-left: 12px" />
+                                    <img class="user-image" ng-src="{{nbUser.user_pic_url(feed_inode.ref_owner || nbUser.user)}}" style="width: 28px; height: 28px; vertical-align: top; margin-right: -2px; margin-left: 12px" />
                                     <span class="label label-info" style="margin-right: -2px">{{feed_inode.messages && feed_inode.messages.length || ''}}</span>
                                 </span>
                                 <i class="fa fa-caret-down fa-fw text-muted" style="margin-left: 10px"></i>
