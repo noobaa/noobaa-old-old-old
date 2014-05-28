@@ -1,0 +1,7 @@
+{
+    "browser": true,
+    "jquery": true,
+    "devel": true,
+    "node": true,
+    "predef": ["angular", "FB", "mixpanel", "videojs", "alertify", "requestAnimationFrame", "Masonry"]
+}

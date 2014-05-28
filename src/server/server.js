@@ -1,4 +1,3 @@
-/* jshint node:true */
 'use strict';
 
 process.on('uncaughtException', function(err) {
