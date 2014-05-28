@@ -6,9 +6,11 @@ var moment = require('moment');
 var nb_util = angular.module('nb_util');
 
 nb_util.factory('nbUser', [
-    '$http', '$timeout', '$interval', '$q', '$templateCache', '$compile',
+    '$http', '$timeout', '$interval',
+    '$q', '$templateCache', '$compile',
     '$rootScope', '$window', '$location', 'nbUtil',
-    function($http, $timeout, $interval, $q, $templateCache, $compile,
+    function($http, $timeout, $interval,
+        $q, $templateCache, $compile,
         $rootScope, $window, $location, nbUtil) {
 
         var $scope = $rootScope.$new();

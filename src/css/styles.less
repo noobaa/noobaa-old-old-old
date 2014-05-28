@@ -8,32 +8,93 @@
 
 /* LAYOUTS */
  html, body {
-    margin: 0 !important;
-    padding: 0 !important;
+    margin: 0;
+    padding: 0;
     width: 100%;
     height: 100%;
     min-height: 100%;
 }
-.navbar {
-    background-color: transparent;
-    border-radius: 0;
-    margin: 0;
-    /*border-bottom: 1px solid hsl(0, 0%, 90%);*/
-    /*margin-bottom: 10px;*/
+.home-body {
+    background-color: hsl(0, 0%, 97%);
+    padding-top: 100px;
 }
-.navbar .navbar-brand {
+.home-body .navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1;
+}
+.navbar {
+    background-color: white;
+    border-radius: 0;
+    border: none;
+    margin: 0;
+    padding: 0;
+    border-bottom: 1px solid @gray-lighter;
+}
+.navbar .navbar-top {
+    background-color: @gray-light;
+}
+.navbar .navbar-top span, .navbar .navbar-top small {
+    color: white;
+}
+.navbar-brand {
     margin-top: 0;
-    padding: 8px 15px;
+    padding: 5px;
+    display: inline-block;
+    float: none;
     height: auto;
 }
-.navbar .navbar-brand img {
-    height: 32px;
+.navbar-brand img {
+    height: 28px;
+}
+.navbar-user span {
+    max-width: 120px;
+    vertical-align: middle;
+    height: 100%;
+    display: inline-block;
+    margin-left: 5px;
+}
+.navbar-user {
+    padding: 3px 0;
 }
 .navbar .navbar-brand small {
     font-size: 12px;
 }
-.navbar .nav-pills li a {
-    border-radius: 0;
+.navbar .navbar-menubar {
+    background-color: white;
+    padding: 0;
+}
+.navbar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    /* font size 0 to avoid auto margins of inline blocks */
+    font-size: 0;
+    display: table;
+    width: 100%;
+}
+.navbar-menu > li {
+    display: table-cell;
+    margin: 0;
+    padding: 0;
+    font-size: 14px;
+    overflow: hidden;
+    border-bottom-style: solid;
+    border-bottom-width: 3px;
+    border-bottom-color: transparent;
+}
+.navbar-menu > li > a {
+    margin: 0;
+    padding: 10px;
+    display: block;
+}
+.navbar-menu > li.active {
+    border-bottom-color: @brand-primary;
+}
+.navbar-menu > li:hover {
+    background-color: hsl(0, 0%, 95%);
 }
 /**/
 
@@ -459,7 +520,7 @@ input, textarea {
     height: 400px;
     overflow-y: auto;
     padding: 10px 10px 0 10px;
-    background-color: hsl(0,0%,96%);
+    background-color: hsl(0, 0%, 96%);
 }
 .chat-msg {
     padding: 8px 13px;
@@ -769,8 +830,7 @@ input, textarea {
     right: 0;
 }
 /**/
-
-.tour .popover-content {
+ .tour .popover-content {
     /*background-color: rgba(50,50,50,1);*/
     /*color: white;*/
     /*background-color: rgba(255,200,0,0.6);*/

@@ -6,7 +6,7 @@
         <base href="/home/">
 </head>
 
-<body ng-cloak ng-controller="HomeCtrl">
+<body ng-cloak ng-controller="HomeCtrl" class="home-body">
 
     <div>
         <?# def.facebook_init_body ?>
@@ -16,7 +16,6 @@
 
         <div class="table-row">
             <div ng-include="'home_navbar.html'"></div>
-            <div style="height: 30px"></div>
         </div>
 
         <div ng-show="nbUploadSrv.has_uploads()" class="table-row fadeIn">
@@ -27,12 +26,6 @@
             <div class="container hfill">
                 <div ng-view class="hfill"></div>
             </div>
-        </div>
-
-
-        <div class="table-foot">
-            <div style="height: 30px"></div>
-            <div ng-include="'site_foot_template.html'"></div>
         </div>
 
     </div>
