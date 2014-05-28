@@ -15,7 +15,7 @@
     min-height: 100%;
 }
 .home-body {
-    background-color: hsl(0, 0%, 97%);
+    background-color: hsl(0, 0%, 95%);
     padding-top: 100px;
     .navbar {
         position: fixed;
@@ -34,13 +34,18 @@
     border: none;
     margin: 0;
     padding: 0;
-    border-bottom: 1px solid @gray-lighter;
 }
 .navbar .navbar-top {
-    background-color: hsl(0, 0%, 25%);
+    background-color: hsl(0, 0%, 100%);
+    border-bottom: 1px solid hsl(0, 0%, 95%);
+}
+.navbar .navbar-menubar {
+    background-color: hsl(0, 0%, 73%);
+    border-bottom: 1px solid hsl(0, 0%, 95%);
+    padding: 0;
 }
 .navbar .navbar-top span, .navbar .navbar-top small {
-    color: white;
+    // color: white;
 }
 .navbar-brand {
     margin-top: 0;
@@ -65,10 +70,6 @@
 .navbar .navbar-brand small {
     font-size: 12px;
 }
-.navbar .navbar-menubar {
-    background-color: white;
-    padding: 0;
-}
 .navbar-menu {
     list-style: none;
     padding: 0;
@@ -85,23 +86,23 @@
     font-size: 14px;
     overflow: hidden;
     border-bottom-style: solid;
-    border-bottom-width: 4px;
+    border-bottom-width: 5px;
     border-bottom-color: transparent;
 }
 .navbar-menu > li > a {
     margin: 0;
     padding: 10px;
     display: block;
-    color: black;
+    color: hsl(0, 0%, 35%);
     .fa {
-        color: @gray-light;
+        color: hsl(0, 0%, 100%);
     }
 }
 .navbar-menu > li.active {
-    border-bottom-color: @brand-primary;
+    border-bottom-color: darken(@brand-primary, 0%);
 }
 .navbar-menu > li:hover {
-    background-color: hsl(0, 0%, 95%);
+    background-color: hsl(0, 0%, 65%);
 }
 /**/
 
@@ -126,11 +127,8 @@
 .navbar-default .navbar-nav > .active > a {
     background-color: hsl(0, 0%, 93%);
 }
-.bggrey hr, .navbar {
+.bggrey hr {
     border-color: hsl(0, 0%, 80%);
-}
-.bggrey .navbar {
-    background-color: white;
 }
 .bgdark {
     background-color: hsl(0, 0%, 20%);
@@ -378,8 +376,11 @@ input, textarea {
 .bgnoise1 {
     background-image: url('/public/images/pattern-noise1.png');
 }
-.feed_item .panel, .feed_item .panel-footer {
+.bgnoise2 {
     background-image: url('/public/images/pattern-noise2.png');
+}
+.feed_item .panel, .feed_item .panel-footer {
+    .bgnoise2;
     background-color: hsl(0, 0%, 90%);
     border: none;
 }
