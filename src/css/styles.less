@@ -14,9 +14,12 @@
     height: 100%;
     min-height: 100%;
 }
-.home-body {
-    background-color: hsl(0, 0%, 95%);
-    padding-top: 100px;
+@homebg: hsl(0, 0%, 93%);
+ @navbg: white;
+ //hsl(170, 7%, 83%);
+ .home-body {
+    background-color: @homebg;
+    padding-top: 70px;
     .navbar {
         position: fixed;
         top: 0;
@@ -29,80 +32,82 @@
     }
 }
 .navbar {
-    background-color: white;
+    background-color: @navbg;
     border-radius: 0;
     border: none;
     margin: 0;
     padding: 0;
-}
-.navbar .navbar-top {
-    background-color: hsl(0, 0%, 100%);
-    border-bottom: 1px solid hsl(0, 0%, 95%);
-}
-.navbar .navbar-menubar {
-    background-color: hsl(0, 0%, 73%);
-    border-bottom: 1px solid hsl(0, 0%, 95%);
-    padding: 0;
-}
-.navbar .navbar-top span, .navbar .navbar-top small {
-    // color: white;
-}
-.navbar-brand {
-    margin-top: 0;
-    padding: 5px;
-    display: inline-block;
-    float: none;
-    height: auto;
-}
-.navbar-brand img {
-    height: 28px;
-}
-.navbar-user span {
-    max-width: 120px;
-    vertical-align: middle;
-    height: 100%;
-    display: inline-block;
-    margin-left: 5px;
-}
-.navbar-user {
-    padding: 3px 0;
-}
-.navbar .navbar-brand small {
-    font-size: 12px;
-}
-.navbar-menu {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    /* font size 0 to avoid auto margins of inline blocks */
-    font-size: 0;
-    display: table;
-    width: 100%;
-}
-.navbar-menu > li {
-    display: table-cell;
-    margin: 0;
-    padding: 0;
-    font-size: 14px;
-    overflow: hidden;
-    border-bottom-style: solid;
-    border-bottom-width: 5px;
-    border-bottom-color: transparent;
-}
-.navbar-menu > li > a {
-    margin: 0;
-    padding: 10px;
-    display: block;
-    color: hsl(0, 0%, 35%);
-    .fa {
-        color: hsl(0, 0%, 100%);
+    .navbar-top {
+        border-bottom: 1px solid darken(@homebg, 8%);
+        padding: 0;
+    }
+    .navbar-brand {
+        margin-top: 0;
+        padding: 10px;
+        display: inline-block;
+        float: none;
+        height: auto;
+        > img {
+            height: 28px;
+        }
+        > small {
+            font-size: 12px;
+        }
+    }
+    .navbar-user {
+        text-decoration: none;
+        padding: 8px 10px;
+        > span {
+            max-width: 120px;
+            vertical-align: middle;
+            height: 100%;
+            display: inline-block;
+            margin-left: 5px;
+        }
+        &:hover .user-menu, &:active .user-menu, &:focus .user-menu {
+            left: 0;
+        }
     }
 }
-.navbar-menu > li.active {
-    border-bottom-color: darken(@brand-primary, 0%);
-}
-.navbar-menu > li:hover {
-    background-color: hsl(0, 0%, 65%);
+.user-menu {
+    &:hover {
+        left: 0;
+    }
+    .transition-fast;
+    background-color: @navbg;
+    border-right: 1px solid darken(@homebg, 8%);
+    position: fixed;
+    top: 51px;
+    bottom: 0;
+    overflow: auto;
+    width: 160px;
+    left: -170px;
+    ul {
+        .nav;
+        padding: 0;
+        margin: 0;
+        > li {
+            font-size: 13px;
+            > a {
+                margin: 0;
+                padding: 15px 10px 10px 10px;
+                color: hsl(0, 0%, 35%);
+                > .fa {
+                    font-size: 1.4em;
+                    .fa-fw;
+                }
+            }
+            &.active a {
+                color: @brand-primary;
+            }
+            &:hover > a {
+                background-color: transparent;
+            }
+            &:hover {
+                background-color: lighten(@navbg, 5%);
+            }
+        }
+    }
 }
 /**/
 

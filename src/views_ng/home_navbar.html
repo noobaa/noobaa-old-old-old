@@ -1,132 +1,31 @@
 <nav class="navbar navbar-default" role="navigation">
 
     <div class="navbar-top">
-        <div class="container">
-            <div class="row">
-                <div class="col-sm-4 col-xs-6 text-left">
-                    <button class="navbar-user navbar-link btn btn-link" nb-popover="{element: '#user_menu', container: 'body', placement: 'bottom'}">
-                        <img ng-src="{{nbUser.user_pic_url(nbUser.user)}}" class="user-image">
-                        <span class="text-ellipses">
-                            {{nbUser.user.first_name}}
-                        </span>
-                    </button>
-                </div>
+        <div class="row">
+            <div class="col-sm-4 col-xs-5 text-left">
+                <button class="navbar-user navbar-link btn btn-link">
+                    <img ng-src="{{nbUser.user_pic_url(nbUser.user)}}" class="user-image">
+                    <span class="text-ellipses">
+                        {{nbUser.user.first_name}}
+                    </span>
+                    <div ng-include="'user_menu.html'"></div>
+                </button>
+            </div>
 
-                <div class="visible-xs col-xs-6 text-right">
-                    <a class="navbar-brand" href="/">
-                        <img src="/public/images/noobaa_logo.png"></img>
+            <div class="visible-xs col-xs-7 text-right">
+                <a class="navbar-brand" href="/">
+                    <img src="/public/images/noobaa_logo.png"></img>
+                    <small>
                         <small>BETA</small>
-                    </a>
-                </div>
-                <div class="hidden-xs col-sm-4 text-center">
-                    <a class="navbar-brand" href="/">
-                        <img src="/public/images/noobaa_logo.png"></img>
-                        <small>BETA</small>
-                    </a>
-                </div>
+                    </small>
+                </a>
             </div>
-        </div>
-    </div>
-
-    <div class="navbar-menubar">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-8 col-md-offset-2">
-                    <ul class="navbar-menu text-center">
-                        <li ng-class="nbUtil.active_link('/home/chat/')">
-                            <a ng-click="click_my_feed()">
-                                <i class="fa fa-comment fa-lg fa-fw"></i>
-                                <span class="hidden-xs hidden-sm">CHATS</span>
-                            </a>
-                        </li>
-                        <li ng-class="nbUtil.active_link('/home/feed/')">
-                            <a ng-click="click_my_feed()">
-                                <i class="fa {{fetching_feeds && 'fa-refresh fa-spin' || 'fa-rss'}} fa-lg fa-fw"></i>
-                                <span class="hidden-xs hidden-sm">FEED</span>
-                            </a>
-                        </li>
-                        <li ng-class="nbUtil.active_link('/home/items/')">
-                            <a ng-click="click_my_items()">
-                                <i class="fa fa-folder-open fa-lg fa-fw"></i>
-                                <span class="hidden-xs hidden-sm">FOLDERS</span>
-                            </a>
-                        </li>
-                        <li ng-class="nbUtil.active_link('/home/upload/')">
-                            <a ng-click="open_upload_file()">
-                                <i class="fa fa-cloud-upload fa-lg fa-fw"></i>
-                                <span class="hidden-xs hidden-sm">UPLOAD</span>
-                                <span class="badge" ng-show="nbUploadSrv.root.total_sons - nbUploadSrv.root.total_completed">
-                                    {{nbUploadSrv.root.total_sons - nbUploadSrv.root.total_completed}}
-                                    <i class="fa fa-cog fa-spin"></i>
-                                </span>
-                            </a>
-                        </li>
-                        <li ng-if="nbPlanet.on" ng-class="nbUtil.active_link('/home/upload/')">
-                            <a ng-click="open_upload_dir()">
-                                <i class="fa fa-folder fa-lg fa-fw"></i>
-                                <span class="hidden-xs hidden-sm">UPLOAD A FOLDER</span>
-                            </a>
-                        </li>
-                        <li ng-if="!nbPlanet.on" ng-class="nbUtil.active_link('/home/install/')">
-                            <a ng-click="show_client_installation()">
-                                <i class="fa fa-wrench fa-lg fa-fw"></i>
-                                <span class="hidden-xs hidden-sm">INSTALL</span>
-                            </a>
-                        </li>
-                        <li ng-if="nbPlanet.on" ng-class="nbUtil.active_link('/home/expand/')">
-                            <a ng-click="show_client_expansion()">
-                                <i class="fa fa-wrench fa-lg fa-fw"></i>
-                                <span class="hidden-xs hidden-sm">EXPAND SPACE</span>
-                            </a>
-                        </li>
-                        <li ng-class="nbUtil.active_link('/home/friends/')">
-                            <a href="/home/friends/">
-                                <i class="fa fa-user fa-lg fa-fw"></i>
-                                <span class="hidden-xs hidden-sm">FRIENDS</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
+            <div class="hidden-xs col-sm-4 text-center">
+                <a class="navbar-brand" href="/">
+                    <img src="/public/images/noobaa_logo.png"></img>
+                    <small>BETA</small>
+                </a>
             </div>
-        </div>
-    </div>
-
-    <div style="display: none" ng-non-bindable>
-        <div id="user_menu">
-            <div class="text-center">
-                <small>
-                    <span class="text-muted">Using</span>
-                    <span>{{human_size(nbUser.user_usage)}} / {{human_size(nbUser.user_quota)}}</span>
-                </small>
-            </div>
-            <div class="progress text-center bggrey" style="vertical-align: middle; margin: 0">
-                <div class="progress-bar progress-bar-{{nbUser.usage_percents < 70 && 'success' || usage_percents < 90 && 'warning' || 'danger'}}" role="progressbar" aria-valuenow="{{nbUser.usage_percents}}" aria-valuemin="0" aria-valuemax="100" style="width: {{nbUser.usage_percents}}%">
-                    <!-- <span ng-show="usage_percents >= 15" style="height: 100%; vertical-align: middle">{{usage_percents}}% Used</span> -->
-                </div>
-                <!-- <small ng-show="usage_percents < 85" style="height: 100%; color: black">{{100-usage_percents}}% Free</small> -->
-            </div>
-            <hr style="margin: 10px 0 5px 0" />
-            <ul class="nav Xnav-pills Xnav-stacked" style="padding: 0; margin: 0">
-                <li class="divider"></li>
-                <li>
-                    <a id="feedback_button" role="button" ng-click="nbUserFeedback.show()">
-                        <i class="fa fa-comments fa-fw"></i>
-                        Give feedback
-                    </a>
-                </li>
-                <li ng-if="nbUser.user">
-                    <a ng-click="nbUser.logout()" Xhref="/auth/logout/?state=/home/" Xtarget="_self">
-                        <i class="fa fa-sign-out fa-fw"></i>
-                        Logout
-                    </a>
-                </li>
-                <li ng-if="!nbUser.user">
-                    <a ng-click="nbUser.open_signin()">
-                        <i class="fa fa-sign-in fa-fw"></i>
-                        Sign In
-                    </a>
-                </li>
-            </ul>
         </div>
     </div>
 

@@ -59,7 +59,7 @@ nb_util.factory('nbUtil', [
 
 
         function active_link(link) {
-            return link === $window.location.pathname ? 'active' : '';
+            return link === $window.location.pathname.substring(0, link.length) ? 'active' : '';
         }
 
         function make_modal(opt) {
