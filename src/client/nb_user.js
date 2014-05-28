@@ -133,8 +133,10 @@ nb_util.factory('nbUser', [
         $scope.open_signin = function() {
             nbUtil.track_event('user.open_signin');
             var scope = $scope.$new();
-            nbUtil.content_modal('<h4>Start using your account</h4>',
-                $templateCache.get('signin_dialog.html'), scope);
+            nbUtil.make_modal({
+                template: 'signin_dialog.html',
+                scope: scope
+            });
             // simulate some preparation work
             scope.ready = false;
             $timeout(function() {
@@ -339,5 +341,3 @@ nb_util.factory('nbUser', [
 
     }
 ]);
-
-

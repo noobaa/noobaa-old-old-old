@@ -32,7 +32,11 @@ nb_welcome.controller('WelcomeCtrl', [
                 video_source('buddy', 'm4v'),
                 // video_source('buddy2', 'mp4'),
             ];
-            nbUtil.modal($templateCache.get('video_modal.html'), scope, 'fullscreen');
+            nbUtil.make_modal({
+                template: 'video_modal.html',
+                scope: scope,
+                size: 'fullscreen'
+            });
         };
 
         // $anchorScroll();

@@ -3,10 +3,10 @@
 var _ = require('underscore');
 var moment = require('moment');
 
-var nb_home = angular.module('nb_home');
+var nb_util = angular.module('nb_util');
 
 
-nb_home.factory('nbFeed', [
+nb_util.factory('nbFeed', [
     '$http', '$timeout', '$interval', '$q', '$window', '$location', '$rootScope', '$sce', '$sanitize',
     'LinkedList', 'JobQueue', 'nbUtil', 'nbUser', 'nbInode',
 
@@ -182,12 +182,12 @@ nb_home.factory('nbFeed', [
 /////////////////////
 
 
-nb_home.controller('FeedCtrl', [
+nb_util.controller('FeedCtrl', [
     '$scope', '$q', '$location', '$timeout', 'nbUtil', 'nbUser', 'nbInode',
     function($scope, $q, $location, $timeout, nbUtil, nbUser, nbInode) {}
 ]);
 
-nb_home.controller('FeedItemCtrl', [
+nb_util.controller('FeedItemCtrl', [
     '$scope', '$q', '$location', '$timeout', 'nbUtil', 'nbUser', 'nbInode',
     function($scope, $q, $location, $timeout, nbUtil, nbUser, nbInode) {
         $scope.reload_feed = reload_feed;

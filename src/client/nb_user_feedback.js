@@ -73,7 +73,7 @@ nb_util.factory('nbUserFeedback', [
             template: 'user_feedback.html',
             scope: $scope,
             persist: true,
-            show: false
+            noshow: true
         });
 
         $scope.show = function() {

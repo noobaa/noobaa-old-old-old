@@ -144,9 +144,12 @@ nb_home.config(['$routeProvider', '$locationProvider',
 
 nb_home.controller('HomeCtrl', [
     '$scope', '$http', '$timeout', '$interval', '$q', '$window', '$location', '$compile',
-    'nbUtil', 'nbMultiSelect', 'nbUser', 'nbUserFeedback', 'nbInode', 'nbUploadSrv', 'nbPlanet', 'nbFeed',
+    'nbUtil', 'nbMultiSelect', 'nbUser', 'nbUserFeedback',
+    'nbInode', 'nbUploadSrv', 'nbPlanet', 'nbFeed', 'nbChat',
     function($scope, $http, $timeout, $interval, $q, $window, $location, $compile,
-        nbUtil, nbMultiSelect, nbUser, nbUserFeedback, nbInode, nbUploadSrv, nbPlanet, nbFeed) {
+        nbUtil, nbMultiSelect, nbUser, nbUserFeedback,
+        nbInode, nbUploadSrv, nbPlanet, nbFeed, nbChat) {
+
         $scope.nbUtil = nbUtil;
         $scope.nbMultiSelect = nbMultiSelect;
         $scope.nbUser = nbUser;
@@ -160,6 +163,7 @@ nb_home.controller('HomeCtrl', [
 
         // TODO temp.
         var refresh_feeds = $scope.refresh_feeds = nbFeed.refresh_feeds;
+        var refresh_chats = $scope.refresh_chats = nbChat.refresh_chats;
 
         $scope.home_context = {
             current_inode: $scope.root_dir,
@@ -437,12 +441,18 @@ nb_home.controller('HomeCtrl', [
 
         $scope.show_client_installation = function() {
             nbUtil.track_event('home.install.show');
-            nbUtil.content_modal('<h4>Install Client</h4>', $('#client_installation').html(), $scope);
+            nbUtil.make_modal({
+                template: 'install_modal.html',
+                scope: $scope
+            });
         };
 
         $scope.show_client_expansion = function() {
             nbUtil.track_event('home.space.show');
-            nbUtil.content_modal('<h4>Choose Space Plan</h4>', $('#client_expansion').html(), $scope);
+            nbUtil.make_modal({
+                template: 'coshare_modal.html',
+                scope: $scope
+            });
         };
 
 
@@ -636,14 +646,11 @@ nb_home.directive('nbBrowse', function() {
                             refresh_current();
                         });
                     };
-                    var hdr = $('<div class="modal-header">')
-                        .append($('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">').html('&times;'))
-                        .append($('<h4>').text('Move to ...'));
-                    var body = $('<div class="modal-body" nb-chooser context="context">').css('padding', 0);
-                    var foot = $('<div class="modal-footer">').css('margin-top', 0)
-                        .append($('<button type="button" class="btn btn-default" data-dismiss="modal">').text('Close'))
-                        .append($('<button type="button" class="btn btn-primary" ng-click="run()" ng-disabled="run_disabled()">').text('OK'));
-                    modal = nbUtil.modal($('<div>').append(hdr, body, foot), mv_scope);
+                    mv_scope.title = 'Move to ...';
+                    modal = nbUtil.make_modal({
+                        template: 'chooser_modal.html',
+                        scope: mv_scope,
+                    });
                 }
 
                 function keep_inode(inode) {

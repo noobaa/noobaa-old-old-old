@@ -91,14 +91,11 @@ nb_util.factory('nbChat', [
                     inode: choose_scope.context.current_inode
                 });
             };
-            var hdr = $('<div class="modal-header">')
-                .append($('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">').html('&times;'))
-                .append($('<h4>').text('Attach Files'));
-            var body = $('<div class="modal-body" nb-chooser context="context">').css('padding', 0);
-            var foot = $('<div class="modal-footer">').css('margin-top', 0)
-                .append($('<button type="button" class="btn btn-default" data-dismiss="modal">').text('Close'))
-                .append($('<button type="button" class="btn btn-primary" ng-click="run()" ng-disabled="run_disabled()">').text('OK'));
-            modal = nbUtil.modal($('<div>').append(hdr, body, foot), choose_scope);
+            choose_scope.title = 'Attach Files';
+            modal = nbUtil.make_modal({
+                template: 'chooser_modal.html',
+                scope: choose_scope,
+            });
         }
 
         return $scope;

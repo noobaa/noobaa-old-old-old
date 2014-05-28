@@ -737,7 +737,10 @@ nb_util.factory('nbInode', [
                 });
             }
             share_scope.get_messages();
-            modal = nbUtil.modal($('#share_modal').html(), share_scope);
+            modal = nbUtil.make_modal({
+                template: 'share_modal.html',
+                scope: share_scope
+            });
         }
 
         function unshare_inode(inode) {
@@ -768,21 +771,6 @@ nb_util.factory('nbInode', [
                 // notify_message += ' (' + copy_scope.count + ' items)';
                 // }
                 alertify.success(notify_message);
-                /*
-                $.bootstrapGrowl(notify_message, {
-                    ele: 'body',
-                    type: 'info',
-                    offset: {
-                        from: 'top',
-                        amount: 30
-                    },
-                    align: 'right',
-                    // width: 'auto',
-                    delay: 5000,
-                    allow_dismiss: true,
-                    stackup_spacing: 10
-                });
-                */
                 return new_keep_inode_promise;
             }, function(err) {
                 inode.running_keep--;
@@ -904,7 +892,11 @@ nb_util.factory('nbInode', [
                 // }
                 play_scope.selected.item = inode;
             }
-            nbUtil.modal($('#play_dialog').html(), play_scope, 'fullscreen');
+            nbUtil.make_modal({
+                template: 'media_modal.html',
+                scope: play_scope,
+                size: 'fullscreen'
+            });
             return true;
         }
 
