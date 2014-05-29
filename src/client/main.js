@@ -9,6 +9,7 @@ require('./nb_inode.js');
 require('./nb_upload.js');
 require('./nb_chat.js');
 require('./nb_feed.js');
+require('./nb_scenes.js');
 
 // page modules
 require('./nb_home.js');
