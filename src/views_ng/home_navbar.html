@@ -4,10 +4,10 @@
         <div class="row">
             <div class="col-sm-4 col-xs-5 text-left">
                 <div class="navbar-user text-ellipses">
-                    <button class="navbar-btn btn btn-hover-only" onclick="$(this).focus(false)">
+                    <button class="navbar-btn btn" onclick="$(this).toggleClass('active')">
                         <i class="fa fa-bars"></i>
                         <i class="fa fa-caret-down"></i>
-                        <div ng-include="'user_menu.html'"></div>
+                        <div ng-include="'user_menu.html'" onclick="event.stopPropagation() && false"></div>
                     </button>
                     <img ng-src="{{nbUser.user_pic_url(nbUser.user)}}" class="user-image">
                     <span class="">
