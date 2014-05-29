@@ -15,48 +15,93 @@ nb_util.factory('nbChat', [
         LinkedList, JobQueue, nbUtil, nbUser, nbInode) {
 
         var $scope = {
-            chats: [], // all chats
-            chat: null, // current chat
+            chats: [],
+            chats_map: {},
+            get_chat_by_id: get_chat_by_id,
             refresh_chats: refresh_chats,
-            open_chat: open_chat,
-            send_chat_text: send_chat_text,
         };
 
+
+        function get_chat_by_id(id) {
+            return $scope.chats_map[id];
+        }
+
         function refresh_chats() {
-            var yuval = {};
-
-            function sample_chat() {
-                return {
-                    title: 'Yuval',
-                    messages: [{
-                        user: yuval,
-                        text: 'hula, there?'
-                    }, {
-                        user: yuval,
-                        text: 'i have some great news...'
-                    }, {
-                        text: 'i\'m here. what\'s the news???'
-                    }]
-                };
-            }
-            $scope.chats = [sample_chat(), sample_chat(), sample_chat(), sample_chat()];
-        }
-
-
-        function open_chat(chat) {
-            $scope.chat = chat;
-            scroll_chat_to_bottom();
-        }
-
-        function send_chat_text() {
-            if (!$scope.chat || !$scope.chat.message_input.length) {
+            if ($scope.chats.length) {
                 return;
             }
-            add_chat_message({
-                text: $scope.chat.message_input
-            });
-            $scope.chat.message_input = '';
+            $scope.chats.length = 0;
+            for (var i = 0; i < 5; i++) {
+                add_chat(sample_chat());
+            }
         }
+
+
+        function add_chat(chat) {
+            if ($scope.chats_map[chat.id]) {
+                // TODO
+            }
+            $scope.chats.push(chat);
+            $scope.chats_map[chat.id] = chat;
+        }
+
+        var yuval = {};
+        var chat_id_gen = 1;
+
+        function sample_chat() {
+            return {
+                id: chat_id_gen++,
+                title: 'Yuval',
+                messages: [{
+                    user: yuval,
+                    text: 'hula, there?'
+                }, {
+                    user: yuval,
+                    text: 'i have some great news...'
+                }, {
+                    text: 'i\'m here. what\'s the news???'
+                }]
+            };
+        }
+
+        return $scope;
+    }
+]);
+
+nb_util.controller('ChatsCtrl', [
+    '$scope', '$q', '$location', '$timeout', 'nbUtil', 'nbUser', 'nbInode', 'nbChat',
+    function($scope, $q, $location, $timeout, nbUtil, nbUser, nbInode, nbChat) {
+
+        nbChat.refresh_chats();
+
+        $scope.chats = nbChat.chats;
+
+        $scope.open_chat = function(chat) {
+            $location.path('/chat/' + chat.id);
+        };
+    }
+]);
+
+nb_util.controller('ChatCtrl', [
+    '$scope', '$q', '$location', '$timeout', '$routeParams',
+    'nbUtil', 'nbUser', 'nbInode', 'nbChat',
+    function($scope, $q, $location, $timeout, $routeParams,
+        nbUtil, nbUser, nbInode, nbChat) {
+
+        $scope.chat = nbChat.get_chat_by_id($routeParams.id);
+        $scope.send_chat_text = send_chat_text;
+        $scope.select_files_to_chat = select_files_to_chat;
+        $scope.upload_files_to_chat = upload_files_to_chat;
+
+        $scope.open_chat_inode = function(inode) {
+            $location.path('/items/' + inode.id);
+        };
+        $scope.open_chats = function(inode) {
+            $location.path('/chat/');
+        };
+
+        scroll_chat_to_bottom();
+
 
         function scroll_chat_to_bottom() {
             $timeout(function() {
@@ -72,6 +117,16 @@ nb_util.factory('nbChat', [
         function add_chat_message(msg) {
             $scope.chat.messages.push(msg);
             scroll_chat_to_bottom();
+        }
+
+        function send_chat_text() {
+            if (!$scope.chat || !$scope.chat.message_input.length) {
+                return;
+            }
+            add_chat_message({
+                text: $scope.chat.message_input
+            });
+            $scope.chat.message_input = '';
         }
 
         function select_files_to_chat() {
@@ -98,17 +153,6 @@ nb_util.factory('nbChat', [
             });
         }
 
-        return $scope;
-    }
-]);
-
-nb_util.controller('ChatCtrl', [
-    '$scope', '$q', '$location', '$timeout', 'nbUtil', 'nbUser', 'nbInode', 'nbChat',
-    function($scope, $q, $location, $timeout, nbUtil, nbUser, nbInode, nbChat) {
-        $scope.select_files_to_chat = nbChat.select_files_to_chat;
-        $scope.upload_files_to_chat = nbChat.upload_files_to_chat;
-        $scope.open_chat_inode = function(inode) {
-            $location.path('/items/' + inode.id);
-        };
+        function upload_files_to_chat() {}
     }
 ]);

@@ -3,16 +3,16 @@
     <div class="navbar-top">
         <div class="row">
             <div class="col-sm-4 col-xs-5 text-left">
-                <div class="navbar-user text-ellipses">
-                    <button class="navbar-btn btn" onclick="$(this).toggleClass('active')">
+                <div class="navbar-user text-ellipses" onclick="$(this).toggleClass('active')">
+                    <button class="navbar-btn btn">
                         <i class="fa fa-bars"></i>
                         <i class="fa fa-caret-down"></i>
-                        <div ng-include="'user_menu.html'" onclick="event.stopPropagation() && false"></div>
                     </button>
                     <img ng-src="{{nbUser.user_pic_url(nbUser.user)}}" class="user-image">
                     <span class="">
                         {{nbUser.user.first_name}}
                     </span>
+                    <div ng-include="'user_menu.html'" onclick="$(this).parent().addClass('active')"></div>
                 </div>
             </div>
 

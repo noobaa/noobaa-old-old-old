@@ -6,6 +6,23 @@
  @import (less)"../../bower_components/animate.css/animate.min.css";
  @import (less)"../../vendor/animations.css";
 
+/* COLORS */
+ @body-bg: hsl(0, 0%, 30%);
+ @text-color: hsl(0, 0%, 13%);
+ @navbar-default-bg: white;
+ @brand-primary: hsl(200, 100%, 43%);
+ @brand-success: hsl(115, 100%, 48%);
+ @brand-info: hsl(190, 100%, 48%);
+ @brand-danger: hsl(350, 100%, 45%);
+ @brand-warning: hsl(60, 98%, 48%);
+ .text-danger {
+    color: darken(@brand-danger, 3%);
+}
+.text-warning {
+    color: darken(@brand-warning, 3%);
+}
+/**/
+
 /* LAYOUTS */
  html, body {
     margin: 0;
@@ -14,11 +31,9 @@
     height: 100%;
     min-height: 100%;
 }
-@homebg: hsl(0, 0%, 93%);
- @navbg: white;
- //hsl(170, 7%, 83%);
+//hsl(170, 7%, 83%);
  .home-body {
-    background-color: @homebg;
+    background-color: @body-bg;
     padding-top: 70px;
     .navbar {
         position: fixed;
@@ -27,18 +42,15 @@
         right: 0;
         z-index: 1;
     }
-    .panel-default .panel-heading {
-        background-color: white;
-    }
 }
 .navbar {
-    background-color: @navbg;
+    background-color: @navbar-default-bg;
     border-radius: 0;
     border: none;
     margin: 0;
     padding: 0;
     .navbar-top {
-        border-bottom: 1px solid darken(@homebg, 8%);
+        border-bottom: 1px solid darken(@body-bg, 8%);
         padding: 0;
     }
     .navbar-brand {
@@ -75,23 +87,26 @@
         }
         &:hover > button {
             .btn-default;
-            color: @brand-primary;
-        } 
-        > button.active {
-            .btn-primary;
         }
-        &:hover .user-menu, > button.active .user-menu {
-            left: 0;
+        &.active {
+            > button {
+                .btn-primary;
+            }
+            .user-menu {
+                left: 0;
+            }
         }
     }
 }
 .user-menu {
+    /*
     &:hover {
         left: 0;
     }
+    */
     .transition-fast;
-    background-color: @navbg;
-    border-right: 1px solid darken(@homebg, 8%);
+    background-color: @navbar-default-bg;
+    border-right: 1px solid darken(@body-bg, 8%);
     position: fixed;
     top: 51px;
     bottom: 0;
@@ -123,7 +138,7 @@
                 background-color: transparent;
             }
             &:hover {
-                background-color: darken(@navbg, 5%);
+                background-color: darken(@navbar-default-bg, 5%);
             }
         }
     }
@@ -131,25 +146,11 @@
 /**/
 
 /* BOOTSTRAP */
- .text-warning {
-    /*lumen*/
-    /*color: hsl(28, 100%, 55%);*/
-    /*readable*/
-    color: hsl(35, 84%, 62%);
+ .well, .panel-default .panel-heading, .panel-default .panel-footer {
+    background-color: white;
 }
-.text-success {
-    /*cyborg*/
-    /*color: hsl(140, 100%, 38%);*/
-    /*lumen*/
-    /*color: hsl(122, 64%, 44%);*/
-    /*readable*/
-    /*color: hsl(124, 47%, 46%); */
-}
-.well, .panel-default .panel-heading, .panel-default .panel-footer, .bggrey, .progress-bar-grey, .bggrey-hover-only:hover {
+.bggrey, .progress-bar-grey, .bggrey-hover-only:hover {
     background-color: hsl(0, 0%, 97%);
-}
-.navbar-default .navbar-nav > .active > a {
-    background-color: hsl(0, 0%, 93%);
 }
 .bggrey hr {
     border-color: hsl(0, 0%, 80%);
@@ -305,13 +306,8 @@ input, textarea {
     font-weight: normal !important;
 }
 */
- .fnt, body, h1, h2, h3, h4, h5, h6, .ui-widget, button, a, p, input, textarea, .panel-header, .panel-body, .panel-footer {
-    /*font-family:"Droid Sans", Arial, Helvetica, sans-serif !important;*/
-}
-.fntserif {
-    font-family:"Times New Roman", Times, serif !important;
-}
-.fntlight {
+ // @font-family-sans-serif:"Noto Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+ .fntlight {
     font-weight: lighter;
 }
 .blog-content p {
@@ -319,12 +315,6 @@ input, textarea {
     line-height: 1.5em;
     letter-spacing: 0.02em;
     text-align: justify;
-}
-.fntpaint {
-    /*font-family:'Finger Paint', cursive !important;*/
-    /*font-family:'Architects Daughter', cursive !important;*/
-    /*font-family:'Salsa', cursive !important;*/
-    /*font-weight: bold;*/
 }
 .fntmd {
     /* normal font is 14px and line 1.428em by bootstrap */
@@ -436,6 +426,8 @@ input, textarea {
         position: relative !important;
     }
 }
+/**/
+
 /* WELCOME */
  .welcome-page {
     position: relative;
@@ -546,13 +538,11 @@ input, textarea {
     }
 }
 .chat-messages {
-    border: 1px solid hsl(0, 0%, 90%);
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
     height: 400px;
     overflow-y: auto;
+    overflow-x: hidden;
     padding: 10px 10px 0 10px;
-    background-color: hsl(0, 0%, 96%);
+    background-color: hsl(0, 0%, 95%);
 }
 .chat-msg {
     padding: 8px 13px;
@@ -581,7 +571,7 @@ input, textarea {
 .chat-msg-mine {
     .chat-msg;
     float: left;
-    @c: lighten(@brand-success, 35%);
+    @c: lighten(@brand-success, 30%);
     border-color: @c;
     background-color: @c;
     box-shadow: 1px 1px 2px hsl(0, 0%, 60%);

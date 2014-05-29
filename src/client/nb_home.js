@@ -32,24 +32,21 @@ nb_home.config(['$routeProvider', '$locationProvider',
                     }
                 }
             ]
-        }).when('/items/:item_id*?', {
+        }).when('/items/:id*?', {
             template: [
                 '<div nb-browse context="home_context"></div>'
             ].join('\n'),
             controller: ['$scope', '$routeParams',
                 function($scope, $routeParams) {
-                    $scope.set_current_item($routeParams.item_id);
+                    $scope.set_current_item($routeParams.id);
                 }
             ]
         }).when('/chat/', {
-            templateUrl: 'chats_container.html',
-            controller: ['$scope',
-                function($scope) {
-                    if (!$scope.chats) {
-                        $scope.refresh_chats();
-                    }
-                }
-            ]
+            templateUrl: 'chats_list.html',
+            controller: 'ChatsCtrl'
+        }).when('/chat/:id*', {
+            templateUrl: 'chat.html',
+            controller: 'ChatCtrl'
         }).when('/friends/', {
             templateUrl: 'friends_template.html',
             controller: ['$scope',
@@ -99,7 +96,6 @@ nb_home.controller('HomeCtrl', [
 
         // TODO temp.
         var refresh_feeds = $scope.refresh_feeds = nbFeed.refresh_feeds;
-        var refresh_chats = $scope.refresh_chats = nbChat.refresh_chats;
 
         $scope.home_context = {
             current_inode: $scope.root_dir,
@@ -237,6 +233,9 @@ nb_home.controller('HomeCtrl', [
         };
         $scope.click_my_items = function() {
             $location.path('/items/');
+        };
+        $scope.click_friends = function() {
+            $location.path('/friends/');
         };
 
         $scope.set_current_item = function(inode_id) {
