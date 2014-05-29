@@ -1,23 +1,32 @@
 <div class="user-menu text-left">
     <ul>
         <li ng-class="nbUtil.active_link('/home/chat/')">
-            <a ng-click="click_my_feed()">
+            <a ng-click="click_chats()">
                 <i class="fa fa-comment"></i>
-                <span>CHATS</span>
+                <span>CHAT</span>
             </a>
         </li>
-        <li ng-class="nbUtil.active_link('/home/feed/')">
+        <li ng-class="nbUtil.active_link('/home/watch/')">
             <a ng-click="click_my_feed()">
-                <i class="fa {{fetching_feeds && 'fa-refresh fa-spin' || 'fa-rss'}}"></i>
-                <span>FEED</span>
+                <i class="fa {{fetching_feeds && 'fa-refresh fa-spin' || 'fa-play'}}"></i>
+                <span>WATCH</span>
             </a>
         </li>
         <li ng-class="nbUtil.active_link('/home/items/')">
             <a ng-click="click_my_items()">
                 <i class="fa fa-folder-open"></i>
-                <span>FOLDERS</span>
+                <span>FILES</span>
             </a>
         </li>
+        <li ng-class="nbUtil.active_link('/home/friends/')">
+            <a href="/home/friends/">
+                <i class="fa fa-user"></i>
+                <span>FRIENDS</span>
+            </a>
+        </li>
+    </ul>
+    <hr />
+    <ul>
         <li ng-class="nbUtil.active_link('/home/upload/')">
             <a ng-click="open_upload_file()">
                 <i class="fa fa-cloud-upload"></i>
@@ -46,14 +55,8 @@
                 <span>EXPAND SPACE</span>
             </a>
         </li>
-        <li ng-class="nbUtil.active_link('/home/friends/')">
-            <a href="/home/friends/">
-                <i class="fa fa-user"></i>
-                <span>FRIENDS</span>
-            </a>
-        </li>
     </ul>
-    <hr style="margin: 10px 0 5px 0" />
+    <hr/>
     <div class="text-center" style="padding: 10px">
         <small>
             <span class="text-muted">Using</span>
@@ -66,7 +69,7 @@
             <!-- <small ng-show="usage_percents < 85" style="height: 100%; color: black">{{100-usage_percents}}% Free</small> -->
         </div>
     </div>
-    <hr style="margin: 10px 0 5px 0" />
+    <hr />
     <ul>
         <li>
             <a id="feedback_button" role="button" ng-click="nbUserFeedback.show()">

@@ -26,13 +26,12 @@ nb_util.factory('nbFeed', [
         };
 
         function refresh_feeds() {
-            if (!$scope.swm || !$scope.sbm || $scope.fetching_feeds) {
+            if ($scope.fetching_feeds) {
                 return;
             }
             $scope.feeds.length = 0;
             $scope.feeds_limit = 0;
             $scope.has_more_feeds = true;
-            $scope.safe_apply();
             fetch_feeds(feeds_per_page);
         }
 
@@ -75,7 +74,6 @@ nb_util.factory('nbFeed', [
                         }
                     }
                 });
-                $scope.safe_apply();
             }).then(function() {
                 rebuild_layout();
                 $scope.fetching_feeds = false;
@@ -183,8 +181,10 @@ nb_util.factory('nbFeed', [
 
 
 nb_util.controller('FeedCtrl', [
-    '$scope', '$q', '$location', '$timeout', 'nbUtil', 'nbUser', 'nbInode',
-    function($scope, $q, $location, $timeout, nbUtil, nbUser, nbInode) {}
+    '$scope', '$q', '$location', '$timeout', 'nbUtil', 'nbUser', 'nbFeed',
+    function($scope, $q, $location, $timeout, nbUtil, nbUser, nbFeed) {
+        $scope.feeds = nbFeed.feeds;
+    }
 ]);
 
 nb_util.controller('FeedItemCtrl', [

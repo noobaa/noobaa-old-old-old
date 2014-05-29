@@ -41,7 +41,7 @@ nb_home.config(['$routeProvider', '$locationProvider',
                     $scope.set_current_item($routeParams.item_id);
                 }
             ]
-        }).when('/chats/', {
+        }).when('/chat/', {
             templateUrl: 'chats_container.html',
             controller: ['$scope',
                 function($scope) {
@@ -353,6 +353,9 @@ nb_home.controller('HomeCtrl', [
             }
         };
 
+        $scope.click_chats = function() {
+            $location.path('/chat/');
+        };
         $scope.click_my_items = function() {
             $location.path('/items/');
         };
