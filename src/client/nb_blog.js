@@ -36,8 +36,13 @@ nb_blog.config(['$routeProvider', '$locationProvider',
     }
 ]);
 
-nb_blog.controller('BlogCtrl', ['$scope', '$http', '$timeout', '$location', '$sce', 'nbUtil',
-    function($scope, $http, $timeout, $location, $sce, nbUtil) {
+nb_blog.controller('BlogCtrl', [
+    '$scope', '$http', '$timeout', '$window', '$location', '$sce', 'nbUtil', 'nbUser',
+    function($scope, $http, $timeout, $window, $location, $sce, nbUtil, nbUser) {
+        $scope.nbUser = nbUser;
+        $scope.click_profile = function() {
+            $window.location = '/';
+        };
         $scope.moment = moment;
 
         nbUtil.track_event('blog.load');
@@ -56,20 +61,20 @@ nb_blog.controller('BlogCtrl', ['$scope', '$http', '$timeout', '$location', '$sc
             };
             $scope.blogs = [{
                 /*
-				headline: 'why-we-make-noobaa',
-				subject: 'Why We Make NooBaa',
-				// image_url: '/public/images/cloud.png',
-				image_url: '/public/images/bg5.jpg',
-				time: moment("20140407", "YYYYMMDD").toDate(),
-				author: {
-					name: 'Guy Margalit',
-					title: 'NooBaa\'s Co-Founder & CTO',
-				},
-				summary: [
-					''
-				].join('')
-			}, {
-				*/
+                headline: 'why-we-make-noobaa',
+                subject: 'Why We Make NooBaa',
+                // image_url: '/public/images/cloud.png',
+                image_url: '/public/images/bg5.jpg',
+                time: moment("20140407", "YYYYMMDD").toDate(),
+                author: {
+                    name: 'Guy Margalit',
+                    title: 'NooBaa\'s Co-Founder & CTO',
+                },
+                summary: [
+                    ''
+                ].join('')
+            }, {
+                */
                 headline: 'trash-the-welcome-page-part-1',
                 subject: 'Trash The Welcome Page',
                 image_url: '/public/images/yoda.png',
@@ -91,18 +96,18 @@ nb_blog.controller('BlogCtrl', ['$scope', '$http', '$timeout', '$location', '$sc
             }];
             $scope.blogs_by_headline = _.indexBy($scope.blogs, 'headline');
             /*
-			console.log('LOAD BLOGS');
-			return $http({
-				method: 'GET',
-				url: '/public_api/blog/'
-			}).then(function(res) {
-				console.log('LOADED BLOGS', res);
-				$scope.blogs = res.data.blogs;
-			}).then(null, function(err) {
-				console.error('FAILED LIST BLOGS', err);
-				throw err;
-			});
-			*/
+            console.log('LOAD BLOGS');
+            return $http({
+                method: 'GET',
+                url: '/public_api/blog/'
+            }).then(function(res) {
+                console.log('LOADED BLOGS', res);
+                $scope.blogs = res.data.blogs;
+            }).then(null, function(err) {
+                console.error('FAILED LIST BLOGS', err);
+                throw err;
+            });
+            */
         };
 
         $scope.load_blog_item = function(headline) {
@@ -122,25 +127,25 @@ nb_blog.controller('BlogCtrl', ['$scope', '$http', '$timeout', '$location', '$sc
             }
 
             /*
-			console.log('LOAD BLOG ITEM', headline);
-			return $http({
-				method: 'GET',
-				url: '/public_api/blog/' + headline
-			}).then(function(res) {
-				console.log('LOADED BLOG ITEM', res);
-				$scope.blog = res.data.blog;
-				if (!$scope.blog) {
-					$scope.blog_not_found = true;
-					$timeout(function() {
-						$location.path('/');
-					}, 3000);
-				}
-				$scope.blog_content_html = $sce.trustAsHtml($scope.blog.content_html);
-			}).then(null, function(err) {
-				console.error('FAILED GET BLOG', err);
-				throw err;
-			});
-			*/
+            console.log('LOAD BLOG ITEM', headline);
+            return $http({
+                method: 'GET',
+                url: '/public_api/blog/' + headline
+            }).then(function(res) {
+                console.log('LOADED BLOG ITEM', res);
+                $scope.blog = res.data.blog;
+                if (!$scope.blog) {
+                    $scope.blog_not_found = true;
+                    $timeout(function() {
+                        $location.path('/');
+                    }, 3000);
+                }
+                $scope.blog_content_html = $sce.trustAsHtml($scope.blog.content_html);
+            }).then(null, function(err) {
+                console.error('FAILED GET BLOG', err);
+                throw err;
+            });
+            */
         };
 
         $scope.blog_location = function() {

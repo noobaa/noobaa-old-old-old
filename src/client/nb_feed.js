@@ -248,7 +248,7 @@ nb_util.controller('FeedItemCtrl', [
         $scope.$watch('feed.expanded', $scope.notify_layout);
 
         $scope.open_feed_inode = function(inode) {
-            $location.path('/items/' + inode.id);
+            $location.path('/files/' + inode.id);
         };
 
         $scope.play_feed_inode = function(inode) {

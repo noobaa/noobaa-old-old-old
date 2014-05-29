@@ -32,7 +32,7 @@ nb_home.config(['$routeProvider', '$locationProvider',
                     }
                 }
             ]
-        }).when('/items/:id*?', {
+        }).when('/files/:id*?', {
             template: [
                 '<div nb-browse context="home_context"></div>'
             ].join('\n'),
@@ -47,7 +47,7 @@ nb_home.config(['$routeProvider', '$locationProvider',
         }).when('/chat/:id*', {
             templateUrl: 'chat.html',
             controller: 'ChatCtrl'
-        }).when('/friends/', {
+        }).when('/profile/', {
             templateUrl: 'friends_template.html',
             controller: ['$scope',
                 function($scope) {
@@ -231,11 +231,34 @@ nb_home.controller('HomeCtrl', [
         $scope.click_chats = function() {
             $location.path('/chat/');
         };
-        $scope.click_my_items = function() {
-            $location.path('/items/');
+        $scope.click_files = function() {
+            $location.path('/files/');
         };
-        $scope.click_friends = function() {
-            $location.path('/friends/');
+        $scope.click_profile = function() {
+            $location.path('/profile/');
+        };
+
+        var location_paths = [
+            'chat',
+            'watch',
+            'files',
+            // 'uploads',
+            'profile'
+        ];
+
+        $scope.swipe_left = function() {
+            var path = $location.path().split('/')[1];
+            var index = _.indexOf(location_paths, path);
+            if (index >= 0 && index < location_paths.length - 1) {
+                $location.path('/' + location_paths[index + 1] + '/');
+            }
+        };
+        $scope.swipe_right = function() {
+            var path = $location.path().split('/')[1];
+            var index = _.indexOf(location_paths, path);
+            if (index > 0 && index < location_paths.length) {
+                $location.path('/' + location_paths[index - 1] + '/');
+            }
         };
 
         $scope.set_current_item = function(inode_id) {
@@ -424,7 +447,7 @@ nb_home.directive('nbBrowse', function() {
                 };
 
                 function go_up_level() {
-                    $location.path('/items/' + ($scope.current_inode.parent_id || ''));
+                    $location.path('/files/' + ($scope.current_inode.parent_id || ''));
                 }
 
                 function has_parent(dir_inode) {
@@ -454,7 +477,7 @@ nb_home.directive('nbBrowse', function() {
                         });
                     }
                     if (inode.isdir) {
-                        $location.path('/items/' + inode.id);
+                        $location.path('/files/' + inode.id);
                     } else {
                         nbInode.load_inode(inode);
                         if ((inode.is_selected && !inode.is_previewing) ||

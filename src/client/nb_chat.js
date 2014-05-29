@@ -94,7 +94,7 @@ nb_util.controller('ChatCtrl', [
         $scope.upload_files_to_chat = upload_files_to_chat;
 
         $scope.open_chat_inode = function(inode) {
-            $location.path('/items/' + inode.id);
+            $location.path('/files/' + inode.id);
         };
         $scope.open_chats = function(inode) {
             $location.path('/chat/');

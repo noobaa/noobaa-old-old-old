@@ -334,10 +334,6 @@ app.get('/home', function(req, res) {
     return res.redirect('/home/');
 });
 
-app.get('/player', function(req, res) {
-    return res.render('player.html');
-});
-
 app.all('/', redirect_no_user, function(req, res) {
     return res.redirect('/home/');
 });

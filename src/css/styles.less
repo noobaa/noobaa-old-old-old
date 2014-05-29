@@ -7,7 +7,7 @@
  @import (less)"../../vendor/animations.css";
 
 /* COLORS */
- @body-bg: hsl(0, 0%, 30%);
+ @body-bg: hsl(0, 0%, 40%);
  @text-color: hsl(0, 0%, 13%);
  @navbar-default-bg: white;
  @brand-primary: hsl(200, 100%, 43%);
@@ -21,44 +21,52 @@
 .text-warning {
     color: darken(@brand-warning, 3%);
 }
+@navheight: 60px;
+
 /**/
 
 /* LAYOUTS */
- html, body {
+ html {
+    /* 
+    for some bizzare reason it only works 
+    when using min-height 100% without height 100% 
+    */
+    min-height: 100%;
+    width: 100%;
     margin: 0;
     padding: 0;
+}
+body {
     width: 100%;
     height: 100%;
     min-height: 100%;
-}
-//hsl(170, 7%, 83%);
- .home-body {
-    background-color: @body-bg;
-    padding-top: 70px;
-    .navbar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 1;
-    }
-}
-.navbar {
-    background-color: @navbar-default-bg;
-    border-radius: 0;
-    border: none;
     margin: 0;
     padding: 0;
-    .navbar-top {
-        border-bottom: 1px solid darken(@body-bg, 8%);
-        padding: 0;
-    }
+    .bgnoise2;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+body.navbar-top-pad {
+    padding-top: @navheight;
+}
+body.navbar-bottom-pad {
+    padding-bottom: @navheight;
+}
+.navbar {
+    height: @navheight;
+    background-color: @navbar-default-bg;
+    margin: 0;
+    padding: 0;
+    border-style: solid;
+    border-color: darken(@body-bg, 8%);
+    border-width: 0;
+    border-radius: 0;
+}
+.navbar.navbar-fixed-top {
+    border-bottom-width: 1px;
     .navbar-brand {
-        margin-top: 0;
-        padding: 10px;
         display: inline-block;
         float: none;
-        height: auto;
         > img {
             height: 28px;
         }
@@ -67,47 +75,57 @@
         }
     }
     .navbar-user {
-        text-decoration: none;
-        padding: 8px 10px;
-        > span {
-            max-width: 120px;
-            vertical-align: middle;
-            height: 100%;
-            display: inline-block;
-            margin-left: 5px;
+        a {
+            text-decoration: none;
         }
-        > button {
-            margin: 0;
-            .transition-fast;
-            background-color: transparent;
-            color: inherit;
-            &, &:focus, &:active {
-                outline: none;
-            }
+        .user-image {
+            width: auto;
+            height: 38px;
         }
-        &:hover > button {
-            .btn-default;
+    }
+}
+.navbar.navbar-fixed-bottom {
+    border-top-width: 1px;
+    > ul {
+        .nav;
+        .nav-pills;
+        width: 100%;
+        padding: 0;
+        margin: 0;
+        display: table;
+        &:before {
+            content:"";
+            display: table-row;
         }
-        &.active {
-            > button {
-                .btn-primary;
-            }
-            .user-menu {
-                left: 0;
+        // table-layout: fixed;
+        > li {
+            display: table-cell;
+            float: none;
+            font-size: 13px;
+            border-left: 1px solid hsl(0, 0%, 90%);
+            .text-center;
+            > a {
+                border-radius: 0;
+                margin: 0;
+                padding: 10px;
+                color: @body-bg;
+                line-height: 3em;
+                > .fa {
+                    font-size: 3em;
+                    .fa-fw;
+                }
+                span {
+                    .hidden-xs;
+                }
             }
         }
     }
 }
 .user-menu {
-    /*
-    &:hover {
-        left: 0;
-    }
-    */
-    .transition-fast;
+    .fadeIn;
     background-color: @navbar-default-bg;
     border-right: 1px solid darken(@body-bg, 8%);
-    position: fixed;
+    position: absolute;
     top: 51px;
     bottom: 0;
     overflow: auto;
@@ -538,11 +556,12 @@ input, textarea {
     }
 }
 .chat-messages {
-    height: 400px;
+    min-height: 200px;
     overflow-y: auto;
     overflow-x: hidden;
     padding: 10px 10px 0 10px;
-    background-color: hsl(0, 0%, 95%);
+    .bgnoise2;
+    background-color: lighten(@body-bg, 20%);
 }
 .chat-msg {
     padding: 8px 13px;

@@ -1,0 +1,38 @@
+<nav class="navbar navbar-default navbar-fixed-bottom" role="navigation">
+    <ul>
+        <li ng-class="nbUtil.active_link('/home/chat/')">
+            <a ng-click="click_chats()">
+                <i class="fa fa-comment"></i>
+                <span>CHAT</span>
+            </a>
+        </li>
+        <li ng-class="nbUtil.active_link('/home/watch/')">
+            <a ng-click="click_my_feed()">
+                <i class="fa {{fetching_feeds && 'fa-refresh fa-spin' || 'fa-play'}}"></i>
+                <span>WATCH</span>
+            </a>
+        </li>
+        <li ng-class="nbUtil.active_link('/home/files/')">
+            <a ng-click="click_files()">
+                <i class="fa fa-folder-open"></i>
+                <span>FILES</span>
+            </a>
+        </li>
+        <li ng-class="nbUtil.active_link('/home/upload/')">
+            <a ng-click="open_upload_file()">
+                <i class="fa fa-cloud-upload"></i>
+                <span>UPLOAD</span>
+                <span class="badge" ng-show="nbUploadSrv.root.total_sons - nbUploadSrv.root.total_completed">
+                    {{nbUploadSrv.root.total_sons - nbUploadSrv.root.total_completed}}
+                    <i class="fa fa-cog fa-spin"></i>
+                </span>
+            </a>
+        </li>
+        <li ng-class="nbUtil.active_link('/home/profile/')">
+            <a ng-click="click_profile()">
+                <i class="fa fa-user"></i>
+                <span>PROFILE</span>
+            </a>
+        </li>
+    </ul>
+</nav>
