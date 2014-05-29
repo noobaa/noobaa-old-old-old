@@ -63,7 +63,7 @@ nb_home.config(['$routeProvider', '$locationProvider',
             templateUrl: 'scene_template.html',
             controller: 'GuyScenesCtrl'
         }).otherwise({
-            redirectTo: '/watch/'
+            redirectTo: '/chat/'
         });
     }
 ]);

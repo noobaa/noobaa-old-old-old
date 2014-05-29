@@ -21,7 +21,8 @@
 .text-warning {
     color: darken(@brand-warning, 3%);
 }
-@navheight: 60px;
+@navbar-top-height: 50px;
+ @navbar-bottom-height: 60px;
 
 /**/
 
@@ -47,13 +48,12 @@ body {
     overflow-y: auto;
 }
 body.navbar-top-pad {
-    padding-top: @navheight;
+    padding-top: @navbar-top-height;
 }
 body.navbar-bottom-pad {
-    padding-bottom: @navheight;
+    padding-bottom: @navbar-bottom-height;
 }
 .navbar {
-    height: @navheight;
     background-color: @navbar-default-bg;
     margin: 0;
     padding: 0;
@@ -63,28 +63,32 @@ body.navbar-bottom-pad {
     border-radius: 0;
 }
 .navbar.navbar-fixed-top {
+    height: @navbar-top-height;
     border-bottom-width: 1px;
     .navbar-brand {
         display: inline-block;
         float: none;
+        padding: 11px 10px;
         > img {
-            height: 28px;
+            height: 26px;
         }
-        > small {
+        > span {
             font-size: 12px;
         }
     }
     .navbar-user {
         a {
+            padding: 8px 10px;
             text-decoration: none;
         }
         .user-image {
             width: auto;
-            height: 38px;
+            height: 32px;
         }
     }
 }
 .navbar.navbar-fixed-bottom {
+    height: @navbar-bottom-height;
     border-top-width: 1px;
     > ul {
         .nav;
