@@ -9,8 +9,8 @@
 /* COLORS */
  @body-bg: hsl(0, 0%, 40%);
  @text-color: hsl(0, 0%, 13%);
- @navbar-default-bg: white;
- @brand-primary: hsl(200, 100%, 43%);
+ @navbar-default-bg: hsl(202, 5%, 100%);
+ @brand-primary: hsl(202, 70%, 55%);
  @brand-success: hsl(115, 100%, 48%);
  @brand-info: hsl(190, 100%, 48%);
  @brand-danger: hsl(350, 100%, 45%);
@@ -29,7 +29,7 @@
 }
  .dark-background {
     .bgnoise1;
-    background-color: darken(@body-bg, 20%);
+    background-color: darken(@body-bg, 15%);
 }
 /**/
 
@@ -104,7 +104,7 @@ body.navbar-bottom-pad {
             display: table-cell;
             float: none;
             font-size: 13px;
-            border-left: 1px solid hsl(0, 0%, 90%);
+            border-left: 1px solid hsla(0, 0%, 100%, 0.1);
             .text-center;
             > a {
                 border-radius: 0;
