@@ -23,7 +23,14 @@
 }
 @navbar-top-height: 50px;
  @navbar-bottom-height: 50px;
-
+ .light-background {
+    .bgnoise2;
+    background-color: @body-bg;
+}
+ .dark-background {
+    .bgnoise1;
+    background-color: darken(@body-bg, 20%);
+}
 /**/
 
 /* LAYOUTS */
@@ -34,7 +41,7 @@
     padding: 0;
 }
 body {
-    .bgnoise2;
+    .light-background;
     overflow-x: hidden;
     overflow-y: auto;
 }
@@ -550,10 +557,9 @@ input, textarea {
     height: 100%;
     border-radius: 0;
     .panel-body {
+        .dark-background;
         overflow-y: scroll;
         padding: 10px 10px 0 10px;
-        .bgnoise1;
-        background-color: darken(@body-bg, 20%);
     }
     .chat-msg {
         padding: 8px 13px;
