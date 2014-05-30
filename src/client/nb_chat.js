@@ -105,11 +105,10 @@ nb_util.controller('ChatCtrl', [
 
         function scroll_chat_to_bottom() {
             $timeout(function() {
-                var div = $('.chat-messages');
+                var div = $('.chat-panel .panel-body');
                 if (!div.length) {
                     return;
                 }
-                console.log('div', div[0].scrollTop, div[0].scrollHeight);
                 div[0].scrollTop = div[0].scrollHeight;
             }, 0);
         }
