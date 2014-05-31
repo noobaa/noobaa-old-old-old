@@ -1,4 +1,4 @@
-<div class="chat-list panel panel-default hfill" style="margin: 0">
+<div class="chat-list panel panel-default hfill">
 
     <div class="panel-heading" style="padding: 10px">
         <button class="btn btn-default btn-lg pull-right" style="margin-left: 20px" rel="tooltip" title="Create Group">
@@ -9,7 +9,7 @@
         </div>
     </div>
 
-    <div ng-if="!start_chat_input" class="panel-body" style="padding: 0">
+    <div ng-if="!start_chat_input" class="panel-body">
         <div ng-repeat="chat in nbChat.chats track by $index" class="clearfix chatline" ng-click="nbChat.open_chat(chat)">
             <img class="pull-left user-image" ng-src="{{nbUser.user_pic_url(chat.user)}}" />
             <div class="pull-right text-center" style="padding: 10px 5px; width: 55px">
@@ -25,7 +25,7 @@
         </div>
     </div>
 
-    <div ng-if="start_chat_input" class="panel-body" style="padding: 0">
+    <div ng-if="start_chat_input" class="panel-body">
         <div ng-repeat="friend in nbUser.friends.users | filter:{name:start_chat_input} | orderBy:'name' track by $index" class="clearfix chatline" ng-click="nbChat.start_chat_with_friend(friend)">
             <img class="pull-left user-image" ng-src="{{nbUser.user_pic_url(friend)}}" />
             <div style="overflow: hidden; padding: 5px 0 0 10px">
