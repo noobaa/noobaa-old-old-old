@@ -40,8 +40,8 @@ nb_util.run(['$rootScope',
 
 
 nb_util.factory('nbUtil', [
-    '$http', '$timeout', '$interval', '$window', '$q', '$rootScope', '$compile', '$templateCache',
-    function($http, $timeout, $interval, $window, $q, $rootScope, $compile, $templateCache) {
+    '$http', '$timeout', '$interval', '$window', '$location', '$q', '$rootScope', '$compile', '$templateCache',
+    function($http, $timeout, $interval, $window, $location, $q, $rootScope, $compile, $templateCache) {
 
         var $scope = {
             bowser: require('bowser'),
@@ -74,8 +74,20 @@ nb_util.factory('nbUtil', [
                     e.modal('hide');
                 }
             });
+            e.on('shown.bs.modal', function() {
+                $location.hash('modal');
+                $(window).on('popstate.nbutil_modal', function(event) {
+                    console.log('popstate', event);
+                    e.modal('hide');
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return false;
+                });
+            });
             e.on('hidden.bs.modal', function() {
                 $(window).off('keydown.nbutil_modal');
+                $(window).off('popstate.nbutil_modal');
+                $location.hash('');
                 if (!opt.persist) {
                     e.remove();
                 }
