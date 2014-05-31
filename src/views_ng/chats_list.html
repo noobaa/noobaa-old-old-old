@@ -9,7 +9,7 @@
         </div>
     </div>
 
-    <div ng-if="!start_chat_input" class="panel-body">
+    <div ng-if="!start_chat_input.length" class="panel-body">
         <div ng-repeat="chat in nbChat.chats track by $index" class="clearfix chatline" ng-click="nbChat.open_chat(chat)">
             <img class="pull-left user-image" ng-src="{{nbUser.user_pic_url(chat.user)}}" />
             <div class="pull-right text-center" style="padding: 10px 5px; width: 55px">
@@ -25,7 +25,7 @@
         </div>
     </div>
 
-    <div ng-if="start_chat_input" class="panel-body">
+    <div ng-if="start_chat_input.length" class="panel-body">
         <div ng-repeat="friend in filtered_friends = (nbUser.friends.users | filter:{name:start_chat_input} | orderBy:'name') track by $index" class="clearfix chatline" ng-click="nbChat.start_chat_with_friend(friend)">
             <img class="pull-left user-image" ng-src="{{nbUser.user_pic_url(friend)}}" />
             <div style="overflow: hidden; padding: 5px 0 0 10px">
