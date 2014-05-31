@@ -39,18 +39,18 @@
                 <button ng-if="!chat.message_input.length" class="btn btn-default dropdown-toggle" data-toggle="dropdown" type="button">
                     <i class="fa fa-paperclip fa-lg fa-fw"></i>
                 </button>
-                <ul class="dropdown-menu pull-right" role="menu">
+                <ul class="dropdown-menu pull-right nav" role="menu">
                     <li>
-                        <a ng-click="upload_files_to_chat()" style="padding-left: 10px">
-                            <i class="fa fa-cloud-upload fa-lg fa-fw"></i>
-                            Upload from desktop
+                        <a ng-click="select_files_to_chat()" style="padding-left: 10px">
+                            <i class="fa fa-folder-open fa-lg fa-fw"></i>
+                            Select from files
                         </a>
                     </li>
                     <li class="divider"></li>
                     <li>
-                        <a ng-click="select_files_to_chat()" style="padding-left: 10px">
-                            <i class="fa fa-cloud fa-lg fa-fw"></i>
-                            Select from cloud
+                        <a ng-click="upload_files_to_chat()" style="padding-left: 10px">
+                            <i class="fa fa-cloud-upload fa-lg fa-fw"></i>
+                            Upload from desktop
                         </a>
                     </li>
                 </ul>

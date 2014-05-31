@@ -26,12 +26,17 @@
     </div>
 
     <div ng-if="start_chat_input" class="panel-body">
-        <div ng-repeat="friend in nbUser.friends.users | filter:{name:start_chat_input} | orderBy:'name' track by $index" class="clearfix chatline" ng-click="nbChat.start_chat_with_friend(friend)">
+        <div ng-repeat="friend in filtered_friends = (nbUser.friends.users | filter:{name:start_chat_input} | orderBy:'name') track by $index" class="clearfix chatline" ng-click="nbChat.start_chat_with_friend(friend)">
             <img class="pull-left user-image" ng-src="{{nbUser.user_pic_url(friend)}}" />
             <div style="overflow: hidden; padding: 5px 0 0 10px">
                 <div class="text-ellipses"><b><small>{{friend.name}}</small></b>
                 </div>
             </div>
+        </div>
+        <div class="text-center chatline">
+            <button class="btn btn-success btn-lg" ng-click="nbChat.start_chat_with_email(start_chat_input)" ng-disabled="!nbChat.valid_email(nbChat.guess_email(start_chat_input))">
+                Invite {{nbChat.guess_email(start_chat_input)}}
+            </button>
         </div>
     </div>
 

@@ -21,6 +21,9 @@ nb_util.factory('nbChat', [
             refresh_chats: refresh_chats,
             open_chat: open_chat,
             start_chat_with_friend: start_chat_with_friend,
+            start_chat_with_email: start_chat_with_email,
+            valid_email: valid_email,
+            guess_email: guess_email,
         };
 
 
@@ -54,6 +57,36 @@ nb_util.factory('nbChat', [
                 messages: []
             });
             open_chat_by_id(friend.id);
+        }
+
+        var EMAIL_REGEX = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+        function valid_email(email) {
+            return EMAIL_REGEX.test(email);
+        }
+
+        function guess_email(email) {
+            email = email.replace(' ', '_');
+            if (email.indexOf('@') < 0) {
+                email = email + '@gmail.com';
+            }
+            return email;
+        }
+
+        function start_chat_with_email(email) {
+            email = guess_email(email);
+            var id = chat_id_gen++;
+            add_chat({
+                id: id,
+                title: email,
+                user: {
+                    email: email,
+                    name: email,
+                    first_name: email.split('@')[0].split('.')[0].split('_')[0],
+                },
+                messages: []
+            });
+            open_chat_by_id(id);
         }
 
         function add_chat(chat) {
