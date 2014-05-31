@@ -19,6 +19,8 @@ nb_util.factory('nbChat', [
             chats_map: {},
             get_chat_by_id: get_chat_by_id,
             refresh_chats: refresh_chats,
+            open_chat: open_chat,
+            start_chat_with_friend: start_chat_with_friend,
         };
 
 
@@ -31,17 +33,34 @@ nb_util.factory('nbChat', [
                 return;
             }
             $scope.chats.length = 0;
-            for (var i = 0; i < 5; i++) {
+            for (var i = 0; i < 1; i++) {
                 add_chat(sample_chat());
             }
         }
 
+        function open_chat(chat) {
+            open_chat_by_id(chat.id);
+        }
+
+        function open_chat_by_id(id) {
+            $location.path('/chat/' + id);
+        }
+
+        function start_chat_with_friend(friend) {
+            add_chat({
+                id: friend.id,
+                title: friend.name,
+                user: friend,
+                messages: []
+            });
+            open_chat_by_id(friend.id);
+        }
 
         function add_chat(chat) {
             if ($scope.chats_map[chat.id]) {
                 // TODO
             }
-            $scope.chats.push(chat);
+            $scope.chats.unshift(chat);
             $scope.chats_map[chat.id] = chat;
         }
 
@@ -71,14 +90,10 @@ nb_util.factory('nbChat', [
 nb_util.controller('ChatsCtrl', [
     '$scope', '$q', '$location', '$timeout', 'nbUtil', 'nbUser', 'nbInode', 'nbChat',
     function($scope, $q, $location, $timeout, nbUtil, nbUser, nbInode, nbChat) {
-
+        $scope.nbUser = nbUser;
+        $scope.nbChat = nbChat;
+        nbUser.init_friends();
         nbChat.refresh_chats();
-
-        $scope.chats = nbChat.chats;
-
-        $scope.open_chat = function(chat) {
-            $location.path('/chat/' + chat.id);
-        };
     }
 ]);
 

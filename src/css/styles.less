@@ -27,7 +27,7 @@
     .bgnoise2;
     background-color: @body-bg;
 }
- .dark-background {
+.dark-background {
     .bgnoise1;
     background-color: darken(@body-bg, 15%);
 }
@@ -56,7 +56,7 @@ body.navbar-bottom-pad {
     margin: 0;
     padding: 0;
     border-style: solid;
-    border-color: darken(@body-bg, 8%);
+    border-color: lighten(@body-bg, 8%);
     border-width: 0;
     border-radius: 0;
 }
@@ -66,12 +66,15 @@ body.navbar-bottom-pad {
     .navbar-brand {
         display: inline-block;
         float: none;
-        padding: 11px 10px;
+        padding: 10px 10px;
         > img {
-            height: 26px;
+            height: 22px;
+            width: 70px;
         }
-        > span {
-            font-size: 12px;
+        > div {
+            .text-center;
+            font-size: 10px;
+            line-height: 8px;
         }
     }
     .navbar-user {
@@ -104,7 +107,7 @@ body.navbar-bottom-pad {
             display: table-cell;
             float: none;
             font-size: 13px;
-            border-left: 1px solid hsla(0, 0%, 100%, 0.1);
+            border-left: 1px solid hsla(0, 0%, 0%, 0.1);
             .text-center;
             > a {
                 border-radius: 0;
@@ -549,9 +552,19 @@ input, textarea {
     }
 }
 .chat-list {
+    border-radius: 0;
     .chatline {
+        padding: 10px;
+        border-bottom: 1px solid hsl(0, 0%, 90%);
+        position: relative;
+        cursor: pointer;
         &:hover {
             background-color: hsl(0, 0%, 96%);
+        }
+        > .user-image {
+            width: 50px;
+            height: 50px;
+            vertical-align: top;
         }
     }
 }

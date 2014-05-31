@@ -9,17 +9,27 @@
         </div>
     </div>
 
-    <div class="panel-body" style="padding: 0">
-        <div ng-repeat="chat in chats track by $index" class="clearfix chatline" style="padding: 10px;  {{$first || 'border-top: 1px solid hsl(0,0%,90%);'}} position: relative; cursor: pointer" ng-click="open_chat(chat)">
-            <img class="pull-left user-image" style="width: 50px; height: 50px; vertical-align: top" ng-src="{{nbUser.user_pic_url(chat.user)}}" />
+    <div ng-if="!start_chat_input" class="panel-body" style="padding: 0">
+        <div ng-repeat="chat in nbChat.chats track by $index" class="clearfix chatline" ng-click="nbChat.open_chat(chat)">
+            <img class="pull-left user-image" ng-src="{{nbUser.user_pic_url(chat.user)}}" />
             <div class="pull-right text-center" style="padding: 10px 5px; width: 55px">
-                <span class="label label-success">2</span>
+                <span class="label label-success">{{chat.messages.length}}</span>
             </div>
             <div style="overflow: hidden; padding: 5px 0 0 10px">
                 <div class="text-ellipses"><b><small>{{chat.title}}</small></b>
                 </div>
                 <div class="text-ellipses" ng-if="chat.messages.length">
                     <small>{{chat.messages[chat.messages.length-1].text}}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div ng-if="start_chat_input" class="panel-body" style="padding: 0">
+        <div ng-repeat="friend in nbUser.friends.users | filter:{name:start_chat_input} | orderBy:'name' track by $index" class="clearfix chatline" ng-click="nbChat.start_chat_with_friend(friend)">
+            <img class="pull-left user-image" ng-src="{{nbUser.user_pic_url(friend)}}" />
+            <div style="overflow: hidden; padding: 5px 0 0 10px">
+                <div class="text-ellipses"><b><small>{{friend.name}}</small></b>
                 </div>
             </div>
         </div>

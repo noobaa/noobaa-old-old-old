@@ -30,6 +30,8 @@ nb_util.factory('nbUser', [
 
         $scope.update_user_info = update_user_info;
         $scope.user_pic_url = user_pic_url;
+        $scope.refresh_friends = refresh_friends;
+        $scope.init_friends = init_friends;
         $scope.set_fb_invites = set_fb_invites;
         $scope.send_fb_invites = send_fb_invites;
         $scope.set_google_invites = set_google_invites;
@@ -234,6 +236,7 @@ nb_util.factory('nbUser', [
         if ($scope.user && $scope.user.first_name) {
             $scope.invite_options.text += '\n' + $scope.user.first_name;
         }
+        refresh_friends();
 
         function refresh_friends() {
             nbUtil.track_event('home.friends.show');
@@ -241,7 +244,7 @@ nb_util.factory('nbUser', [
             $scope.google_invites = {};
             $scope.sending_fb_invites = false;
             $scope.refreshing_friends++;
-            $http({
+            return $http({
                 method: 'GET',
                 url: '/api/user/friends/'
             }).then(function(res) {
@@ -251,6 +254,17 @@ nb_util.factory('nbUser', [
             }, function(err) {
                 $scope.refreshing_friends--;
                 console.error('FAILED GET FRIENDS', err);
+            });
+        }
+
+        function init_friends() {
+            if ($scope.friends) {
+                return $scope.friends;
+            }
+            return refresh_friends().then(function() {
+                return $scope.friends;
+            }, function() {
+                return $timeout(init_friends, 5000);
             });
         }
 
@@ -341,5 +355,13 @@ nb_util.factory('nbUser', [
 
         return $scope;
 
+    }
+]);
+
+nb_util.controller('ProfileCtrl', [
+    '$scope', '$q', '$location', '$timeout', 'nbUtil', 'nbUser', 'nbInode',
+    function($scope, $q, $location, $timeout, nbUtil, nbUser, nbInode) {
+        $scope.nbUser = nbUser;
+        nbUser.init_friends();
     }
 ]);

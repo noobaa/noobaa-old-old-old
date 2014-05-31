@@ -7,13 +7,13 @@
         </p>
     </div>
 
-    <div class="panel panel-primary" style="margin-bottom: 20px" ng-show="friends.users.length">
+    <div class="panel panel-primary" style="margin-bottom: 20px" ng-show="nbUser.friends.users.length">
         <div class="panel-heading">
             <div class="text-center">
                 <h3>Your NooBaa Friends</h3>
             </div>
             <div>
-                <div ng-repeat="friend in friends.users | orderBy:'name'" class="text-ellipses" style="display: inline-block; width: 260px; margin: 0 2px; padding: 5px; cursor: pointer" ng-click="send_friend_message(friend)">
+                <div ng-repeat="friend in nbUser.friends.users | orderBy:'name'" class="text-ellipses" style="display: inline-block; width: 260px; margin: 0 2px; padding: 5px; cursor: pointer" ng-click="send_friend_message(friend)">
                     <img ng-src="{{nbUser.user_pic_url(friend)}}" class="user-image" />&nbsp;
                     <span>{{friend.name}}</span>
                 </div>
@@ -25,7 +25,7 @@
         <iframe width="400" height="225" style="max-width: 100%" src="//www.youtube.com/embed/9KeVa3IOn78?rel=0" frameborder="0" allowfullscreen></iframe>
     </div>
 
-    <div class="panel panel-default" ng-show="friends.fb.length" style="margin-bottom: 20px">
+    <div class="panel panel-default" ng-show="nbUser.friends.fb.length" style="margin-bottom: 20px">
         <div class="panel-heading text-center">
             <h3>Select and Invite your Facebook friends</h3>
             <div style="padding-bottom: 10px; max-width: 400px" class="center-block">
@@ -52,7 +52,7 @@
             </div>
 
             <div style="max-height: 300px; overflow-y: scroll">
-                <div ng-repeat="friend in friends.fb | filter:{name: fb_filter_friend_name} | orderBy:'name'" class="text-ellipses {{fb_invites[friend.fbid] && 'label-warning'}}" style="display: inline-block; Xborder-radius: 20px; width: 175px; margin: 0 2px; padding: 5px; cursor: pointer; text-align: left" ng-click="set_fb_invites(friend.fbid)">
+                <div ng-repeat="friend in nbUser.friends.fb | filter:{name: fb_filter_friend_name} | orderBy:'name'" class="text-ellipses {{fb_invites[friend.fbid] && 'label-warning'}}" style="display: inline-block; Xborder-radius: 20px; width: 175px; margin: 0 2px; padding: 5px; cursor: pointer; text-align: left" ng-click="set_fb_invites(friend.fbid)">
                     <i class="fa fa-{{fb_invites[friend.fbid] && 'check' || 'plus-square'}} fa-fw"></i>&nbsp;
                     <img width="32" height="32" ng-src="{{nbUser.user_pic_url(friend)}}" class="user-image" />&nbsp;
                     <small>{{friend.name}}</small>
@@ -61,7 +61,7 @@
         </div>
     </div>
 
-    <div class="panel panel-default" ng-show="friends.google.length" style="margin-bottom: 20px">
+    <div class="panel panel-default" ng-show="nbUser.friends.google.length" style="margin-bottom: 20px">
         <div class="panel-heading text-center">
             <h3>Select and Invite your Google+ friends</h3>
             <div style="padding-bottom: 10px; max-width: 400px" class="center-block">
@@ -87,7 +87,7 @@
                 </div>
             </div>
             <div style="max-height: 300px; overflow-y: scroll">
-                <div ng-repeat="friend in friends.google | filter:{name: google_filter_friend_name} | orderBy:'name'" class="text-ellipses {{google_invites[friend.googleid] && 'label-warning'}}" style="display: inline-block; Xborder-radius: 20px; width: 175px; margin: 0 2px; padding: 5px; cursor: pointer; text-align: left" ng-click="set_google_invites(friend.googleid)">
+                <div ng-repeat="friend in nbUser.friends.google | filter:{name: google_filter_friend_name} | orderBy:'name'" class="text-ellipses {{google_invites[friend.googleid] && 'label-warning'}}" style="display: inline-block; Xborder-radius: 20px; width: 175px; margin: 0 2px; padding: 5px; cursor: pointer; text-align: left" ng-click="set_google_invites(friend.googleid)">
                     <i class="fa fa-{{google_invites[friend.googleid] && 'check' || 'plus-square'}} fa-fw"></i>&nbsp;
                     <img width="32" height="32" ng-src="{{nbUser.user_pic_url(friend)}}" class="user-image" />&nbsp;
                     <small>{{friend.name}}</small>

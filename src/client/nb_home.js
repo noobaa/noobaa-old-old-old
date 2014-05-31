@@ -49,13 +49,7 @@ nb_home.config(['$routeProvider', '$locationProvider',
             controller: 'ChatCtrl'
         }).when('/profile/', {
             templateUrl: 'friends_template.html',
-            controller: ['$scope',
-                function($scope) {
-                    if (!$scope.friends) {
-                        $scope.refresh_friends();
-                    }
-                }
-            ]
+            controller: 'ProfileCtrl'
         }).when('/yuval/', {
             templateUrl: 'scene_template.html',
             controller: 'YuvalScenesCtrl'
