@@ -251,6 +251,8 @@ nb_util.factory('nbUser', [
                 $scope.refreshing_friends--;
                 // console.log('GOT FRIENDS', res);
                 $scope.friends = res.data;
+                $scope.friends.all = $scope.friends.users.concat(
+                    $scope.friends.fb, $scope.friends.google);
             }, function(err) {
                 $scope.refreshing_friends--;
                 console.error('FAILED GET FRIENDS', err);

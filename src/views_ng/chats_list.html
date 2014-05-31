@@ -1,4 +1,4 @@
-<div class="chat-list panel panel-default hfill">
+<div class="chat-list panel panel-default hfill" nb-panel-hfill>
 
     <div class="panel-heading" style="padding: 10px">
         <button class="btn btn-default btn-lg pull-right" style="margin-left: 20px" rel="tooltip" title="Create Group">
@@ -9,35 +9,77 @@
         </div>
     </div>
 
-    <div ng-if="!start_chat_input.length" class="panel-body">
-        <div ng-repeat="chat in nbChat.chats track by $index" class="clearfix chatline" ng-click="nbChat.open_chat(chat)">
-            <img class="pull-left user-image" ng-src="{{nbUser.user_pic_url(chat.user)}}" />
-            <div class="pull-right text-center" style="padding: 10px 5px; width: 55px">
-                <span class="label label-success">{{chat.messages.length}}</span>
+    <div class="panel-body">
+        <div ng-show="start_chat_input.length && filtered_chats.length">
+            <a class="category-button" ng-click="hide_recent_chats=!hide_recent_chats">
+                <i class="fa fa-fw fa-{{hide_recent_chats && 'caret-right' || 'caret-down'}}"></i>
+                recent chats
+            </a>
+        </div>
+        <div ng-hide="start_chat_input.length && hide_recent_chats">
+            <div ng-repeat="chat in filtered_chats = (nbChat.chats | filter:{title:start_chat_input}) track by $index" class="clearfix chatline clickline" ng-click="nbChat.open_chat(chat)">
+                <img class="pull-left user-image" ng-src="{{nbUser.user_pic_url(chat.user)}}" />
+                <div class="pull-right text-center" style="padding: 10px 5px; width: 55px">
+                    <span class="label label-success">{{chat.messages.length}}</span>
+                </div>
+                <div style="overflow: hidden; padding: 5px 0 0 10px">
+                    <div class="text-ellipses"><b><small>{{chat.title}}</small></b>
+                    </div>
+                    <div class="text-ellipses" ng-if="chat.messages.length">
+                        <small>{{chat.messages[chat.messages.length-1].text}}</small>
+                    </div>
+                </div>
             </div>
-            <div style="overflow: hidden; padding: 5px 0 0 10px">
-                <div class="text-ellipses"><b><small>{{chat.title}}</small></b>
+        </div>
+        <div ng-if="start_chat_input.length">
+            <div ng-if="start_chat_input.length < 2">
+                <div>
+                    <a class="category-button">
+                        <i class="fa fa-fw fa-exclamation"></i>
+                        friends
+                    </a>
                 </div>
-                <div class="text-ellipses" ng-if="chat.messages.length">
-                    <small>{{chat.messages[chat.messages.length-1].text}}</small>
+                <div class="well text-warning">Type at least 2 characters to search friends...</div>
+            </div>
+            <div ng-if="start_chat_input.length >= 2">
+                <div>
+                    <a class="category-button" ng-click="hide_friends=!hide_friends">
+                        <i class="fa fa-fw fa-{{hide_friends && 'caret-right' || 'caret-down'}}"></i>
+                        friends
+                    </a>
                 </div>
+                <div ng-hide="hide_friends">
+                    <div ng-repeat="friend in filtered_friends = (nbUser.friends.all | filter:{name:start_chat_input} | orderBy:'name') track by $index" class="clearfix chatline clickline" ng-click="nbChat.start_chat_with_friend(friend)">
+                        <img class="pull-left user-image" ng-src="{{nbUser.user_pic_url(friend)}}" />
+                        <div style="overflow: hidden; padding: 5px 0 0 10px">
+                            <div class="text-ellipses"><b><small>{{friend.name}}</small></b>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div ng-hide="filtered_friends.length">
+                    <div class="well">No matching friends</div>
+                </div>
+            </div>
+            <div>
+                <a class="category-button">
+                    <i class="fa fa-fw fa-envelope-o"></i>
+                    invite by email
+                </a>
+            </div>
+            <div ng-show="nbChat.valid_email(start_chat_input)">
+                <div class="text-center chatline">
+                    <button class="btn btn-success btn-lg" ng-click="nbChat.start_chat_with_email(start_chat_input)">
+                        Invite {{start_chat_input}}
+                    </button>
+                </div>
+            </div>
+            <div ng-hide="nbChat.valid_email(start_chat_input)">
+                <div class="well">Enter email address to invite</div>
             </div>
         </div>
     </div>
 
-    <div ng-if="start_chat_input.length" class="panel-body">
-        <div ng-repeat="friend in filtered_friends = (nbUser.friends.users | filter:{name:start_chat_input} | orderBy:'name') track by $index" class="clearfix chatline" ng-click="nbChat.start_chat_with_friend(friend)">
-            <img class="pull-left user-image" ng-src="{{nbUser.user_pic_url(friend)}}" />
-            <div style="overflow: hidden; padding: 5px 0 0 10px">
-                <div class="text-ellipses"><b><small>{{friend.name}}</small></b>
-                </div>
-            </div>
-        </div>
-        <div class="text-center chatline">
-            <button class="btn btn-success btn-lg" ng-click="nbChat.start_chat_with_email(start_chat_input)" ng-disabled="!nbChat.valid_email(nbChat.guess_email(start_chat_input))">
-                Invite {{nbChat.guess_email(start_chat_input)}}
-            </button>
-        </div>
-    </div>
+    <div class="panel-footer"></div>
 
 </div>

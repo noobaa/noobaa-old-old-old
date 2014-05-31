@@ -23,7 +23,6 @@ nb_util.factory('nbChat', [
             start_chat_with_friend: start_chat_with_friend,
             start_chat_with_email: start_chat_with_email,
             valid_email: valid_email,
-            guess_email: guess_email,
         };
 
 
@@ -74,7 +73,6 @@ nb_util.factory('nbChat', [
         }
 
         function start_chat_with_email(email) {
-            email = guess_email(email);
             var id = chat_id_gen++;
             add_chat({
                 id: id,
