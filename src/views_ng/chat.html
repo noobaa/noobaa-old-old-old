@@ -31,6 +31,12 @@
                 </div>
             </div>
         </div>
+        <div ng-if="chat.user && !chat.user.id" class="clearfix">
+            <div class="alert alert-info">
+                Waiting for {{chat.user.name}} to join...
+                <a ng-click="nbUser.send_friend_reminder(chat.user)"><b>Send a reminder</b></a>
+            </div>
+        </div>
     </div>
 
     <div class="panel-footer clearfix" style="padding: 0">
@@ -50,7 +56,7 @@
                     <li>
                         <a ng-click="upload_files_to_chat()" style="padding-left: 10px">
                             <i class="fa fa-cloud-upload fa-lg fa-fw"></i>
-                            Upload from desktop
+                            Upload files
                         </a>
                     </li>
                 </ul>

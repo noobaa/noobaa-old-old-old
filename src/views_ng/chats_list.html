@@ -67,13 +67,13 @@
                 find friends
             </div>
             <div class="well">
-                <button class="btn btn-primary" ng-hide="nbUser.user.fbid">
+                <button class="btn btn-primary" ng-hide="nbUser.user.fbid" ng-click="nbUser.connect_facebook()">
                     Connect Facebook
                 </button>
                 <button class="btn btn-default disabled" ng-show="nbUser.user.fbid">
                     Connected with Facebook
                 </button>
-                <button class="btn btn-danger" ng-hide="nbUser.user.googleid">
+                <button class="btn btn-danger" ng-hide="nbUser.user.googleid" ng-click="nbUser.connect_google()">
                     Connect Google+
                 </button>
                 <button class="btn btn-default disabled" ng-show="nbUser.user.googleid">

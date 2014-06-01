@@ -198,6 +198,8 @@ nb_util.controller('ChatCtrl', [
             });
         }
 
-        function upload_files_to_chat() {}
+        function upload_files_to_chat() {
+            alertify.log('TODO upload_files_to_chat');
+        }
     }
 ]);

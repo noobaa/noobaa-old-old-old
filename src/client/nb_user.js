@@ -37,6 +37,9 @@ nb_util.factory('nbUser', [
         $scope.set_google_invites = set_google_invites;
         $scope.send_google_invites = send_google_invites;
         $scope.send_friend_message = send_friend_message;
+        $scope.connect_facebook = connect_facebook;
+        $scope.connect_google = connect_google;
+        $scope.send_friend_reminder = send_friend_reminder;
 
 
         function set_user_usage(quota, usage) {
@@ -352,6 +355,18 @@ nb_util.factory('nbUser', [
             } else {
                 console.log('TODO send_friend_message to googleid');
             }
+        }
+
+        function connect_facebook() {
+            alertify.log('TODO connect_facebook');
+        }
+
+        function connect_google() {
+            alertify.log('TODO connect_google');
+        }
+
+        function send_friend_reminder(friend) {
+            alertify.log('TODO send_friend_reminder');
         }
 
 

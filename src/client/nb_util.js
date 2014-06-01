@@ -74,6 +74,7 @@ nb_util.factory('nbUtil', [
                     e.modal('hide');
                 }
             });
+            /* TODO doesn't work well with the file chooser
             e.on('shown.bs.modal', function() {
                 $location.hash('modal');
                 $(window).on('popstate.nbutil_modal', function(event) {
@@ -84,10 +85,11 @@ nb_util.factory('nbUtil', [
                     return false;
                 });
             });
+            */
             e.on('hidden.bs.modal', function() {
                 $(window).off('keydown.nbutil_modal');
-                $(window).off('popstate.nbutil_modal');
-                $location.hash('');
+                // $(window).off('popstate.nbutil_modal');
+                // $location.hash('');
                 if (!opt.persist) {
                     e.remove();
                 }
