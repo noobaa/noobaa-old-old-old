@@ -15,7 +15,16 @@
  @brand-info: hsl(190, 100%, 48%);
  @brand-danger: hsl(350, 100%, 45%);
  @brand-warning: hsl(45, 95%, 55%);
- .text-danger {
+ .text-primary {
+    color: darken(@brand-primary, 3%);
+}
+.text-success {
+    color: darken(@brand-success, 3%);
+}
+.text-info {
+    color: darken(@brand-info, 3%);
+}
+.text-danger {
     color: darken(@brand-danger, 3%);
 }
 .text-warning {
@@ -593,20 +602,24 @@ input, textarea {
                 height: 50px;
                 vertical-align: top;
             }
-        }
-        .clickline {
             cursor: pointer;
             &:hover {
                 background-color: hsl(0, 0%, 96%);
             }
         }
-        .category-button {
+        .category-line {
             .btn;
             .btn-default;
             .bgnoise2;
             background-color: hsl(0, 0%, 90%);
             display: block;
             text-align: left;
+        }
+        div.category-line {
+            cursor: default;
+        }
+        .well {
+            margin: 0;
         }
     }
     .panel-footer {
