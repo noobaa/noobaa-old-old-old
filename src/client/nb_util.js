@@ -392,15 +392,16 @@ nb_util.directive('nbPanelHfill', ['$timeout',
                 body.on('resize', handle_resize);
                 foot.on('resize', handle_resize);
                 $(window).on('resize', handle_resize);
-                // Expand as soon as it is added to the DOM
-                $timeout(handle_resize, 0);
+                handle_resize(); // Expand as soon as it is added to the DOM
 
                 function handle_resize() {
-                    var h = e.innerHeight();
-                    var hh = head.outerHeight();
-                    var fh = foot.outerHeight();
-                    var remain = h - hh - fh;
-                    body.outerHeight(remain);
+                    $timeout(function() {
+                        var h = e.innerHeight();
+                        var hh = head.outerHeight();
+                        var fh = foot.outerHeight();
+                        var remain = h - hh - fh;
+                        body.outerHeight(remain);
+                    }, 0);
                 }
             }
         };

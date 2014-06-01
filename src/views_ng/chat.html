@@ -31,10 +31,11 @@
                 </div>
             </div>
         </div>
-        <div ng-if="chat.user && !chat.user.id" class="clearfix">
-            <div class="alert alert-info">
-                Waiting for {{chat.user.name}} to join...
-                <a ng-click="nbUser.send_friend_reminder(chat.user)"><b>Send a reminder</b></a>
+        <div class="clearfix">
+            <div class="alert alert-info text-center" ng-if="chat.user && !chat.user.id && chat.messages.length">
+                <a ng-click="nbUser.send_friend_reminder(chat.user)">
+                	Send {{chat.user.name}} a reminder to join
+                </a>
             </div>
         </div>
     </div>

@@ -1,4 +1,4 @@
-<div class="chat-list panel panel-default hfill" nb-panel-hfill>
+<div class="chat-list panel panel-default" nb-panel-hfill>
 
     <div class="panel-heading" style="padding: 10px">
         <button class="btn btn-default btn-lg pull-right" style="margin-left: 20px" rel="tooltip" title="Create Group">
@@ -64,37 +64,42 @@
 
             <div class="category-line">
                 <i class="fa fa-fw fa-smile-o"></i>
-                find friends
+                find more friends
             </div>
             <div class="well">
-                <button class="btn btn-primary" ng-hide="nbUser.user.fbid" ng-click="nbUser.connect_facebook()">
-                    Connect Facebook
-                </button>
-                <button class="btn btn-default disabled" ng-show="nbUser.user.fbid">
-                    Connected with Facebook
-                </button>
-                <button class="btn btn-danger" ng-hide="nbUser.user.googleid" ng-click="nbUser.connect_google()">
-                    Connect Google+
-                </button>
-                <button class="btn btn-default disabled" ng-show="nbUser.user.googleid">
-                    Connected with Google+
-                </button>
+                <p>
+                    <a class="text-success" ng-click="nbChat.start_chat_with_email(start_chat_input)">
+                        <i class="fa fa-envelope-o fa-fw"></i>
+                        <span ng-show="nbChat.valid_email(start_chat_input)">
+                            Invite {{start_chat_input}}
+                        </span>
+                        <span ng-hide="nbChat.valid_email(start_chat_input)">
+                            Invite by email
+                        </span>
+                    </a>
+                </p>
+                <p>
+                    <a class="text-primary" ng-click="nbUser.connect_facebook()" ng-hide="nbUser.user.fbid">
+                        <i class="fa fa-facebook-square fa-fw"></i>
+                        Connect Facebook
+                    </a>
+                    <span class="text-muted" ng-show="nbUser.user.fbid">
+                        <i class="fa fa-check fa-fw"></i>
+                        Connected with Facebook
+                    </span>
+                </p>
+                <p>
+                    <a class="text-danger" ng-click="nbUser.connect_google()" ng-hide="nbUser.user.googleid">
+                        <i class="fa fa-google-plus-square fa-fw"></i>
+                        Connect Google+
+                    </a>
+                    <span class="text-muted" ng-show="nbUser.user.googleid">
+                        <i class="fa fa-check fa-fw"></i>
+                        Connected with Google+
+                    </span>
+                </p>
             </div>
 
-            <div class="category-line">
-                <i class="fa fa-fw fa-envelope-o"></i>
-                invite by email
-            </div>
-            <div class="well">
-                <div ng-show="nbChat.valid_email(start_chat_input)">
-                    <button class="btn btn-success" ng-click="nbChat.start_chat_with_email(start_chat_input)">
-                        Invite {{start_chat_input}}
-                    </button>
-                </div>
-                <div ng-hide="nbChat.valid_email(start_chat_input)" class="text-muted">
-                    Enter valid email address to invite
-                </div>
-            </div>
         </div>
     </div>
 

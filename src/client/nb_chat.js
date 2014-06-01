@@ -73,6 +73,22 @@ nb_util.factory('nbChat', [
         }
 
         function start_chat_with_email(email) {
+            if (valid_email(email)) {
+                add_email_chat(email);
+            }
+            alertify.prompt('Invite email address', function(e, email) {
+                if (!e) {
+                    return;
+                }
+                if (!valid_email(email)) {
+                    alertify.error('Not a valid email address');
+                    return;
+                }
+                add_email_chat(email);
+            }, email);
+        }
+
+        function add_email_chat(email) {
             var id = chat_id_gen++;
             add_chat({
                 id: id,
