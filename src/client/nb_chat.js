@@ -35,7 +35,7 @@ nb_util.factory('nbChat', [
                 return;
             }
             $scope.chats.length = 0;
-            for (var i = 0; i < 1; i++) {
+            for (var i = 0; i < 0; i++) {
                 add_chat(sample_chat());
             }
         }
@@ -75,6 +75,7 @@ nb_util.factory('nbChat', [
         function start_chat_with_email(email) {
             if (valid_email(email)) {
                 add_email_chat(email);
+                return;
             }
             alertify.prompt('Invite email address', function(e, email) {
                 if (!e) {
@@ -85,6 +86,7 @@ nb_util.factory('nbChat', [
                     return;
                 }
                 add_email_chat(email);
+                $rootScope.safe_apply();
             }, email);
         }
 
@@ -150,20 +152,27 @@ nb_util.controller('ChatCtrl', [
     function($scope, $q, $location, $timeout, $routeParams,
         nbUtil, nbUser, nbInode, nbChat) {
 
-        $scope.chat = nbChat.get_chat_by_id($routeParams.id);
+        var chat = nbChat.get_chat_by_id($routeParams.id);
+        if (!chat) {
+            open_chats();
+        }
+
+        $scope.chat = chat;
         $scope.send_chat_text = send_chat_text;
         $scope.select_files_to_chat = select_files_to_chat;
         $scope.upload_files_to_chat = upload_files_to_chat;
 
-        $scope.open_chat_inode = function(inode) {
-            $location.path('/files/' + inode.id);
-        };
-        $scope.open_chats = function(inode) {
-            $location.path('/chat/');
-        };
-
+        $scope.open_chat_inode = open_chat_inode;
+        $scope.open_chats = open_chats;
         scroll_chat_to_bottom();
 
+        function open_chat_inode(inode) {
+            $location.path('/files/' + inode.id);
+        }
+
+        function open_chats(inode) {
+            $location.path('/chat/');
+        }
 
         function scroll_chat_to_bottom() {
             $timeout(function() {
@@ -176,18 +185,18 @@ nb_util.controller('ChatCtrl', [
         }
 
         function add_chat_message(msg) {
-            $scope.chat.messages.push(msg);
+            chat.messages.push(msg);
             scroll_chat_to_bottom();
         }
 
         function send_chat_text() {
-            if (!$scope.chat || !$scope.chat.message_input.length) {
+            if (!chat.message_input.length) {
                 return;
             }
             add_chat_message({
-                text: $scope.chat.message_input
+                text: chat.message_input
             });
-            $scope.chat.message_input = '';
+            chat.message_input = '';
         }
 
         function select_files_to_chat() {
