@@ -93,7 +93,7 @@ nb_util.factory('nbChat', [
 
         function add_chat(chat) {
             if ($scope.chats_map[chat.id]) {
-                // TODO
+                return;
             }
             $scope.chats.unshift(chat);
             $scope.chats_map[chat.id] = chat;
