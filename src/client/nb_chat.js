@@ -22,7 +22,6 @@ nb_util.factory('nbChat', [
             open_chat: open_chat,
             start_chat_with_friend: start_chat_with_friend,
             start_chat_with_email: start_chat_with_email,
-            valid_email: valid_email,
         };
 
 
@@ -58,22 +57,9 @@ nb_util.factory('nbChat', [
             open_chat_by_id(friend.id);
         }
 
-        var EMAIL_REGEX = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-
-        function valid_email(email) {
-            return EMAIL_REGEX.test(email);
-        }
-
-        function guess_email(email) {
-            email = email.replace(' ', '_');
-            if (email.indexOf('@') < 0) {
-                email = email + '@gmail.com';
-            }
-            return email;
-        }
 
         function start_chat_with_email(email) {
-            if (valid_email(email)) {
+            if (nbUtil.valid_email(email)) {
                 add_email_chat(email);
                 return;
             }
@@ -81,7 +67,7 @@ nb_util.factory('nbChat', [
                 if (!e) {
                     return;
                 }
-                if (!valid_email(email)) {
+                if (!nbUtil.valid_email(email)) {
                     alertify.error('Not a valid email address');
                     return;
                 }
@@ -139,6 +125,7 @@ nb_util.factory('nbChat', [
 nb_util.controller('ChatsCtrl', [
     '$scope', '$q', '$location', '$timeout', 'nbUtil', 'nbUser', 'nbInode', 'nbChat',
     function($scope, $q, $location, $timeout, nbUtil, nbUser, nbInode, nbChat) {
+        $scope.nbUtil = nbUtil;
         $scope.nbUser = nbUser;
         $scope.nbChat = nbChat;
         nbUser.init_friends();

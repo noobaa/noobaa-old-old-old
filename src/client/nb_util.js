@@ -51,6 +51,7 @@ nb_util.factory('nbUtil', [
             make_modal: make_modal,
             track_event: track_event,
             icon_by_kind: icon_by_kind,
+            valid_email: valid_email,
             coming_soon: function(feature) {
                 // TODO send event log
                 alert('Coming soon...');
@@ -165,6 +166,12 @@ nb_util.factory('nbUtil', [
 
         function icon_by_kind(kind) {
             return ICONS_BY_KIND[kind] || 'file';
+        }
+
+        var EMAIL_REGEX = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+        function valid_email(email) {
+            return EMAIL_REGEX.test(email);
         }
 
         return $scope;

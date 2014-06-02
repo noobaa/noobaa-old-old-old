@@ -70,10 +70,10 @@
                 <p>
                     <a class="text-success" ng-click="nbChat.start_chat_with_email(start_chat_input)">
                         <i class="fa fa-envelope-o fa-fw"></i>
-                        <span ng-show="nbChat.valid_email(start_chat_input)">
+                        <span ng-show="nbUtil.valid_email(start_chat_input)">
                             Invite {{start_chat_input}}
                         </span>
-                        <span ng-hide="nbChat.valid_email(start_chat_input)">
+                        <span ng-hide="nbUtil.valid_email(start_chat_input)">
                             Invite by email
                         </span>
                     </a>
