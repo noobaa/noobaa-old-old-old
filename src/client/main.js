@@ -8,6 +8,7 @@ require('./nb_planet.js');
 require('./nb_inode.js');
 require('./nb_upload.js');
 require('./nb_chat.js');
+require('./nb_files.js');
 require('./nb_feed.js');
 require('./nb_scenes.js');
 
