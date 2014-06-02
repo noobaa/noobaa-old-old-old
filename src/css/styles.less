@@ -7,14 +7,14 @@
  @import (less)"../../vendor/animations.css";
 
 /* COLORS */
- @body-bg: hsl(0, 0%, 40%);
- @text-color: hsl(0, 0%, 13%);
- @navbar-default-bg: hsl(202, 5%, 100%);
- @brand-primary: hsl(202, 70%, 55%);
- @brand-success: hsl(115, 100%, 48%);
- @brand-info: hsl(190, 100%, 48%);
+ @body-bg: hsl(0, 0%, 30%);
+ @text-color: hsl(0, 0%, 16%);
+ @navbar-default-bg: hsl(0, 0%, 25%);
+ @brand-primary: hsl(202, 83%, 47%);
+ @brand-success: hsl(147, 72%, 49%);
+ @brand-info: hsl(188, 90%, 48%);
  @brand-danger: hsl(350, 100%, 45%);
- @brand-warning: hsl(45, 95%, 55%);
+ @brand-warning: hsl(48, 89%, 50%);
  .text-primary {
     color: darken(@brand-primary, 3%);
 }
@@ -38,7 +38,7 @@
 }
 .dark-background {
     .bgnoise1;
-    background-color: darken(@body-bg, 15%);
+    background-color: darken(@body-bg, 10%);
 }
 /**/
 
@@ -99,31 +99,40 @@ body.navbar-bottom-pad {
 }
 .navbar.navbar-fixed-bottom {
     height: @navbar-bottom-height;
-    border-top-width: 1px;
+    @c: @brand-success;
+    border-top-width: 3px;
+    border-top-color: @c;
     > ul {
-        .nav;
-        .nav-pills;
+        display: table;
+        // table-layout: fixed;
+        border-collapse: separate;
+        border-spacing: 0;
         width: 100%;
         padding: 0;
         margin: 0;
-        display: table;
-        &:before {
-            content:"";
-            display: table-row;
-        }
-        // table-layout: fixed;
+        height: 100%;
         > li {
             display: table-cell;
+            height: 100%;
             float: none;
             font-size: 13px;
-            border-left: 1px solid hsla(0, 0%, 0%, 0.1);
             .text-center;
+            border-bottom-right-radius: 10px;
+            border-bottom-left-radius: 10px;
+            padding-top: 9px;
+            &.active, &.active:hover {
+                background-color: @c;
+            }
+            &:hover {
+                background-color: lighten(@navbar-default-bg, 10%);
+            }
+            &:not(:first_child) {
+                border-left: 1px solid hsla(0, 0%, 0%, 0.1);
+            }
             > a {
-                border-radius: 0;
-                margin: 0;
-                padding: 10px;
-                color: @body-bg;
-                line-height: 2.5em;
+                display: block;
+                text-decoration: none;
+                color: @text-color;
                 > .fa {
                     font-size: 2.5em;
                     .fa-fw;
@@ -321,6 +330,10 @@ a[ng-click], a[role=button] {
 .alertify {
     border-width: 1px;
 }
+.alertify-text {
+    .form-control;
+    .input-lg;
+}
 /*
 .btn-link, .navbar-link {
     transition: all 0.6s;
@@ -402,7 +415,7 @@ input, textarea {
     border-right-width: 7px;
     padding-left: 3px;
     padding-right: 3px;
-    border-color: hsl(210, 16%, 56%);
+    border-color: lighten(desaturate(@brand-primary, 60%), 10%);
 }
 /**/
 
@@ -585,6 +598,7 @@ input, textarea {
         padding: 0;
         > .panel {
             border-radius: 0;
+            border-width: 0;
         }
     }
 }
@@ -656,7 +670,7 @@ input, textarea {
     .chat-msg-mine {
         .chat-msg;
         float: right;
-        @c: lighten(@brand-success, 30%);
+        @c: lighten(@brand-success, 20%);
         box-shadow: 1px 1px 2px hsl(0, 0%, 60%);
         border-color: @c;
         background-color: @c;
