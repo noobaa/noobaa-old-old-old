@@ -16,8 +16,8 @@
  @gray-dark: darken(@gray, 15%);
  @gray-darker: darken(@gray-dark, 10%);
  @gray-light: lighten(@gray, 25%);
- @gray-lighter: lighten(@gray-light, 10%);
- @body-bg: hsl(0, 0%, 100%);
+ @gray-lighter: lighten(@gray-light, 20%);
+ @body-bg: @gray;
  @text-color: hsl(0, 0%, 10%);
  @brand-primary: hsl(202, 83%, 47%);
  @brand-success: hsl(147, 72%, 49%);
@@ -34,7 +34,7 @@
  @panel-bg: transparent;
  @panel-footer-bg: transparent;
  @panel-default-heading-bg: transparent;
- @modal-content-bg: transparent;
+ // @modal-content-bg: white;
  @navbar-default-bg: @gray-dark;
  @navbar-top-height: 50px;
  @navbar-bottom-height: 50px;
@@ -43,7 +43,7 @@
 
 /**/
  .panel, .panel .panel-heading, .panel .panel-footer {
-    border-color: @gray-lighter;
+    border-color: lighten(@gray, 15%);
 }
 .bggrey {
     background-color: @gray-light;

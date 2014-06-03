@@ -11,6 +11,7 @@
     padding: 0;
 }
 body {
+    .bgnoise1;
     overflow-x: hidden;
     overflow-y: auto;
 }
@@ -60,7 +61,7 @@ body.navbar-bottom-pad {
 .navbar.navbar-fixed-bottom {
     height: @navbar-bottom-height;
     @c: @brand-success;
-    border-top-width: 3px;
+    border-top-width: 2px;
     border-top-color: @c;
     > ul {
         display: table;
@@ -82,6 +83,9 @@ body.navbar-bottom-pad {
             padding-top: 9px;
             &.active, &.active:hover {
                 background-color: @c;
+                > a {
+                    color: @gray-darker;
+                }
             }
             &:hover {
                 background-color: lighten(@navbar-default-bg, 10%);
@@ -92,7 +96,7 @@ body.navbar-bottom-pad {
             > a {
                 display: block;
                 text-decoration: none;
-                color: @gray-darker;
+                color: @gray-light;
                 > .fa {
                     font-size: 2.5em;
                     .fa-fw;
@@ -192,6 +196,7 @@ body.navbar-bottom-pad {
             cursor: pointer;
             &:hover {
                 background-color: @gray-lighter;
+                .bgnoise2;
             }
         }
         .category-line {
@@ -218,7 +223,7 @@ body.navbar-bottom-pad {
     height: 100%;
     margin: 0;
     .panel-body {
-        .bgnoise1;
+        .bgnoise2;
         background-color: @gray-dark;
         overflow-y: auto;
         padding: 10px 10px 0 10px;
@@ -369,8 +374,8 @@ body.navbar-bottom-pad {
 .feed_item .panel, .feed_item .panel-footer {
     // .bgnoise2;
     // background-color: hsl(0, 0%, 90%);
-    // background-color: white;
-    // border: none;
+    background-color: @gray-lighter;
+    border: none;
 }
 .feed_item .panel {
     /*
