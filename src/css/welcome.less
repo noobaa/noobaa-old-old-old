@@ -1,0 +1,266 @@
+/******************************************************************************
+    WELCOME 
+ ******************************************************************************/
+ .welcome-page {
+    position: relative;
+    margin-bottom: 1px;
+    padding-bottom: 100px;
+    overflow: hidden;
+    min-width: 100%;
+    min-height: 95%;
+    @c: hsl(0, 0%, 5%);
+    color: @c;
+    .col-left {
+        max-width: 100%;
+        width: 500px;
+    }
+    .curtain {
+        position: relative;
+        top: 0;
+        bottom: 0;
+        padding-top: 40px;
+        padding-bottom: 40px;
+    }
+    h1 {
+        text-transform: uppercase;
+        margin-bottom: 30px;
+        font-size: 50px;
+        font-weight: 200;
+        color: @c;
+    }
+    p {
+        font-size: 20px;
+        text-align: justify;
+        margin-bottom: 20px;
+        color: @c;
+    }
+    .fa-play {
+        border-radius: 50%;
+        border-width: 2px;
+        border-style: solid;
+        border-color: inherit;
+        padding: 12px 10px 8px 26px;
+        min-width: 97px;
+        min-height: 96px;
+    }
+    .btn {
+        color: @c;
+        &:hover {
+            color: darken(@c, 5%);
+            .pulse;
+        }
+    }
+    @media all and (min-width: 0px) and (max-width: 700px) {
+        .col-left {
+            width: 100%;
+        }
+        img.logo {
+            height: 30px;
+        }
+        h1 {
+            font-size: 40px;
+        }
+        p {
+            font-size: 16px;
+        }
+    }
+    .poster {
+        z-index: -1;
+        overflow: hidden;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: hsl(0, 0%, 45%);
+    }
+    .poster img {
+        position: absolute;
+        right: 0;
+        top: 0;
+        left: auto;
+        bottom: auto;
+        min-width: 100%;
+        min-height: 100%;
+        max-width: 150%;
+        opacity: 0.5;
+    }
+    .nb-facepile {
+        .transition-fast;
+        overflow: hidden;
+        opacity: 0.6;
+        padding: 8px;
+        border-radius: 5px;
+        background-color: hsla(0, 0%, 0%, 0.1);
+        &:hover {
+            opacity: 1;
+            background-color: hsla(0, 0%, 0%, 0.25);
+        }
+    }
+}
+/*
+@-webkit-keyframes opacity-fader {
+    0% {
+        opacity: 0;
+    }
+    25% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+@keyframes opacity-fader {
+    0% {
+        opacity: 0;
+    }
+    25% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+@-webkit-keyframes opacity-fader-2 {
+    0% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 0;
+    }
+    75% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+@keyframes opacity-fader-2 {
+    0% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 0;
+    }
+    75% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+.color-background {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: -1;
+    background: #8edcda;
+    background: -webkit-linear-gradient(#8edcda 0%, #59addb 100%);
+    background: linear-gradient(#8edcda 0%, #59addb 100%);
+    background: -ms-linear-gradient(top, #8edcda 0%, #59addb 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#8edcda', endColorstr='#59addb', GradientType=0);
+}
+.color-background::after {
+    content:"";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: -webkit-linear-gradient(#ffeb83 0%, #ffa749 100%);
+    background: linear-gradient(#ffeb83 0%, #ffa749 100%);
+    // z-index: -1;
+    -webkit-animation-name: opacity-fader;
+    animation-name: opacity-fader;
+    -webkit-animation-iteration-count: infinite;
+    animation-iteration-count: infinite;
+    -webkit-animation-timing-function: ease-in-out;
+    animation-timing-function: ease-in-out;
+    -webkit-animation-duration: 20s;
+    animation-duration: 20s;
+}
+.color-background::before {
+    content:"";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: -webkit-linear-gradient(#ff81f8 0%, #af55d2 100%);
+    background: linear-gradient(#ff81f8 0%, #af55d2 100%);
+    // z-index: -1;
+    -webkit-animation-name: opacity-fader-2;
+    animation-name: opacity-fader-2;
+    -webkit-animation-iteration-count: infinite;
+    animation-iteration-count: infinite;
+    -webkit-animation-timing-function: ease-in-out;
+    animation-timing-function: ease-in-out;
+    -webkit-animation-duration: 20s;
+    animation-duration: 20s;
+}
+*/
+ #clouds-viewport {
+    background-color: #87ceeb;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    overflow: hidden;
+    -webkit-perspective: 1000px;
+    -moz-perspective: 1000px;
+    -o-perspective: 1000px;
+    perspective: 1000px;
+}
+#clouds-world {
+    position: absolute;
+    top: 50%;
+    right: 30%;
+    height: 512px;
+    width: 512px;
+    margin-left: -256px;
+    margin-top: -256px;
+    -webkit-transform-style: preserve-3d;
+    -moz-transform-style: preserve-3d;
+    -o-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+}
+.cloudBase {
+    position: absolute;
+    top: 256px;
+    left: 256px;
+    height: 20px;
+    width: 20px;
+    margin-left: -10px;
+    margin-top: -10px;
+    -webkit-transform-style: preserve-3d;
+    -moz-transform-style: preserve-3d;
+    -o-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+}
+.cloudLayer {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 256px;
+    height: 256px;
+    margin-left: -128px;
+    margin-top: -128px;
+    -webkit-transition: opacity .5s ease-out;
+    -moz-transition: opacity .5s ease-out;
+    -o-transition: opacity .5s ease-out;
+    transition: opacity .5s ease-out;
+    opacity: 0.5;
+    -webkit-transform-style: preserve-3d;
+    -moz-transform-style: preserve-3d;
+    -o-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+}

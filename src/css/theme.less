@@ -1,0 +1,371 @@
+/******************************************************************************
+    IMPORTS 
+ ******************************************************************************/
+ @import (less)"../../bower_components/bootstrap/less/bootstrap.less";
+ @import (less)"../../bower_components/font-awesome/less/font-awesome.less";
+ @import (less)"../../bower_components/alertify.js/themes/alertify.core.css";
+ @import (less)"../../bower_components/alertify.js/themes/alertify.default.css";
+ @import (inline)"../../node_modules/video.js/dist/video-js/video-js.css";
+ @import (less)"../../bower_components/animate.css/animate.min.css";
+ @import (less)"../../vendor/animations.css";
+
+/******************************************************************************
+    THEME 
+ ******************************************************************************/
+ @gray: hsl(0, 0%, 30%);
+ @gray-dark: darken(@gray, 8%);
+ @gray-darker: darken(@gray-dark, 8%);
+ @gray-light: lighten(@gray, 15%);
+ @gray-lighter: lighten(@gray-light, 15%);
+ @body-bg: @gray;
+ @navbar-default-bg: @gray-dark;
+ @text-color: hsl(0, 0%, 85%);
+ @brand-primary: hsl(202, 83%, 47%);
+ @brand-success: hsl(147, 72%, 49%);
+ @brand-info: hsl(188, 90%, 48%);
+ @brand-danger: hsl(350, 100%, 45%);
+ @brand-warning: hsl(48, 89%, 50%);
+ @state-primary-text: @brand-primary;
+ @state-success-text: @brand-success;
+ @state-info-text: @brand-info;
+ @state-danger-text: @brand-danger;
+ @state-warning-text: @brand-warning;
+ @well-bg: transparent;
+ @well-border: @gray-light;
+ @panel-bg: transparent;
+ @panel-footer-bg: transparent;
+ @panel-default-heading-bg: white;
+ @navbar-top-height: 50px;
+ @navbar-bottom-height: 50px;
+
+/**/
+
+/**/
+ .gray-background {
+    .bgnoise2;
+    background-color: @gray;
+}
+.gray-dark-background {
+    .bgnoise1;
+    background-color: @gray-dark;
+}
+.panel, .panel .panel-heading, .panel .panel-footer {
+    border-color: @gray-light;
+}
+.bggrey {
+    background-color: @gray-light;
+    hr {
+        border-color: @gray-lighter;
+    }
+}
+.bgdark {
+    background-color: @gray-dark;
+    color: white;
+}
+.hover-target:not(:hover) .visible-hover-only {
+    visibility: hidden;
+}
+.hover-target:not(:hover) .opaque-hover-only {
+    opacity: 0;
+}
+.hover-target:not(:hover) .show-hover-only {
+    display: none;
+}
+.hover-target:hover .hide-hover-only {
+    display: none;
+}
+.hover-target:hover .hover-grow {
+    transform: scale(1.2);
+    -ms-transform: scale(1.2);
+    -webkit-transform: scale(1.2);
+}
+.btn-trans {
+    // .transition-fast;
+    .btn-default;
+    background-color: transparent;
+    border: none;
+    &:hover {
+        background-color: transparent;
+        border: none;
+        // .btn-default;
+    }
+}
+.btn-hover-only {
+    .transition-fast;
+}
+.btn-hover-only:not(:hover) {
+    background-color: transparent !important;
+    /*border-color: transparent !important;*/
+    color: inherit !important;
+}
+.transition-fast {
+    transition: all 0.5s;
+    -o-transition: all 0.5s;
+    -moz-transition: all 0.5s;
+    -webkit-transition: all 0.5s;
+}
+.transition-normal {
+    transition: all 1s;
+    -o-transition: all 1s;
+    -moz-transition: all 1s;
+    -webkit-transition: all 1s;
+}
+.transition-slow {
+    transition: all 1.5s;
+    -o-transition: all 1.5s;
+    -moz-transition: all 1.5s;
+    -webkit-transition: all 1.5s;
+}
+button.close {
+    font-size: 40px;
+    /*line-height: 25px;*/
+    font-weight: 100;
+}
+.text-white {
+    color: hsl(0, 0%, 95%) !important;
+}
+.text-black {
+    color: hsl(0, 0%, 5%) !important;
+}
+.bg-white {
+    background-color: hsl(0, 0%, 100%) !important;
+}
+.btn-white {
+    background-color: hsl(0, 0%, 100%) !important;
+}
+.btn-white:hover {
+    background-color: hsl(0, 0%, 95%) !important;
+}
+.bottom-radius {
+    border-bottom-left-radius: 20px !important;
+    border-bottom-right-radius: 20px !important;
+}
+.normal-radius {
+    border-radius: 20px !important;
+}
+.dropdown-hover:hover > .dropdown-menu {
+    visibility: visible;
+}
+.dropdown-hover > .dropdown-menu {
+    visibility: hidden;
+    display: block;
+}
+.user-image {
+    .img-rounded;
+    width: 32px;
+    height: 32px;
+}
+:-webkit-full-screen-ancestor:not(iframe) {
+    float: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    overflow: auto !important;
+    overflow-y: auto !important;
+    overflow-x: auto !important;
+    height: 100% !important;
+}
+:-webkit-full-screen-ancestor > *:not(:-webkit-full-screen):not(:-webkit-full-screen-ancestor) {
+    display: none !important;
+}
+a[ng-click], a[role=button] {
+    cursor: pointer;
+}
+.alertify-button {
+    text-shadow: none;
+    box-shadow: none;
+}
+.alertify-button.alertify-button-ok {
+    .btn;
+    .btn-primary;
+}
+.alertify-button.alertify-button-cancel {
+    .btn;
+    .btn-default;
+}
+.alertify-cover {
+    .modal-backdrop;
+    .modal-backdrop.in;
+}
+.alertify {
+    border-width: 1px;
+}
+.alertify-text {
+    .form-control;
+    .input-lg;
+}
+/*
+.btn-link, .navbar-link {
+    transition: all 0.6s;
+    -o-transition: all 0.6s;
+    -moz-transition: all 0.6s;
+    -webkit-transition: all 0.6s;
+}
+.btn:not(.btn-link) {
+    transition: all 0.6s;
+    -o-transition: all 0.6s;
+    -moz-transition: all 0.6s;
+    -webkit-transition: all 0.6s;
+}
+input, textarea {
+    font-weight: normal !important;
+}
+*/
+ // @font-family-sans-serif:"Noto Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+ .fntlight {
+    font-weight: lighter;
+}
+.blog-content p {
+    font-size: 18px;
+    line-height: 1.5em;
+    letter-spacing: 0.02em;
+    text-align: justify;
+}
+.fntmd {
+    /* normal font is 14px and line 1.428em by bootstrap */
+    font-size: 16px;
+    line-height: 1.5em;
+}
+.shades {
+    text-shadow: 1px 3px 3px inherit;
+}
+.H1 {
+    font-size: 60px;
+}
+@media all and (max-width: 480px) {
+    .H1 {
+        font-size: 50px;
+    }
+}
+.notextselect {
+    /* begin disable text selection highlight */
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.pad(@h) {
+    height: @h;
+}
+.pad-10 {
+    .pad(10px);
+}
+.pad-20 {
+    .pad(20px);
+}
+.pad-30 {
+    .pad(30px);
+}
+.pad-40 {
+    .pad(40px);
+}
+.pad-50 {
+    .pad(50px);
+}
+.text-ellipses {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.text-wrap {
+    /*overflow: hidden;*/
+    word-break: break-all;
+    word-wrap: break-word;
+}
+.cover {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+.fill {
+    .hfill;
+    .wfill;
+}
+.hfill {
+    min-height: 100%;
+}
+.hfill-scroll {
+    height: 100%;
+    overflow-y: auto;
+}
+.wfill {
+    min-width: 100%;
+}
+.table-layout {
+    display: table;
+    .fill;
+}
+.table-row {
+    display: table-row;
+    height: 1px;
+    position: relative;
+}
+.table-row-expand {
+    .table-row;
+    height: auto;
+}
+.table-foot {
+    display: table-footer-group;
+    height: 1px;
+}
+.bottom-abs {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+.view-animate.ng-enter {
+    opacity: 0;
+}
+.view-animate.ng-enter.ng-enter-active {
+    opacity: 1;
+}
+.view-animate.ng-leave {
+    opacity: 1;
+}
+.view-animate.ng-leave.ng-leave-active {
+    opacity: 0;
+}
+.view-animate {
+    transition: opacity 0.5s linear;
+    -o-transition: opacity 0.5s linear;
+    -moz-transition: opacity 0.5s linear;
+    -webkit-transition: opacity 0.5s linear;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+}
+/**/
+
+/*
+    Allow angular.js to be loaded in body, hiding cloaked elements until 
+    templates compile.  The !important is important given that there may be 
+    other selectors that are more specific or come later and might alter display.  
+*/
+[ng\:cloak], [ng-cloak], .ng-cloak {
+    display: none !important;
+}
+/**/
+
+/**/
+ .fileinput-button {
+    position: relative;
+    overflow: hidden;
+}
+.fileinput-button input {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 0;
+    opacity: 0;
+    filter: alpha(opacity=0);
+    transform: translate(-300px, 0) scale(4);
+    font-size: 23px;
+    direction: ltr;
+    cursor: pointer;
+}

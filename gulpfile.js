@@ -26,7 +26,7 @@ var fs = require('fs');
 var path = require('path');
 var child_process = require('child_process');
 var dotenv = require('dotenv');
-var through = require('through2');
+var through2 = require('through2');
 var bower = require('bower');
 var Q = require('q');
 
@@ -58,6 +58,7 @@ process.on("SIGTERM", leave_no_wounded);
 
 var paths = {
     css: './src/css/**/*',
+    css_candidates: ['./src/css/styles.less'],
     fonts: [
         './bower_components/bootstrap/dist/fonts/*',
         './bower_components/font-awesome/fonts/*',
@@ -90,30 +91,45 @@ function gulp_size_log(title) {
 function simple_bower() {
     // create a pass through stream
     var done;
-    var stream = through.obj(function(file, enc, callback) {
-        // console.log('BOWER', JSON.stringify(file));
+    var stream = through2.obj(function(file, enc, callback) {
         var self = this;
         if (done) {
             self.push(file);
             callback();
+            return;
         }
         done = true;
-        // run bower but send events on the stream
         bower.commands.install([], {}, {
             directory: './bower_components'
-        })
-            .on('log', function(result) {
-                gutil.log('bower', gutil.colors.cyan(result.id), result.message);
-            })
-            .on('error', function(error) {
-                stream.emit('error', new gutil.PluginError('simple_bower', error));
-                stream.end();
-            })
-            .on('end', function() {
-                self.push(file);
-                callback();
-                stream.end();
-            });
+        }).on('log', function(result) {
+            gutil.log('bower', gutil.colors.cyan(result.id), result.message);
+        }).on('error', function(error) {
+            stream.emit('error', new gutil.PluginError('simple_bower', error));
+            stream.end();
+            callback();
+        }).on('end', function() {
+            self.push(file);
+            stream.end();
+            callback();
+        });
+    });
+    return stream;
+}
+
+function candidate(candidate_src) {
+    var done;
+    var stream = through2.obj(function(file, enc, callback) {
+        var self = this;
+        if (done) {
+            return callback();
+        }
+        done = true;
+        gulp.src(candidate_src).pipe(through2.obj(function(c_file, c_enc, c_callback) {
+            self.push(c_file);
+            c_callback();
+        }, function() {
+            callback();
+        }));
     });
     return stream;
 }
@@ -156,9 +172,13 @@ gulp.task('css', ['bower'], function() {
     var DEST = 'build/public/css';
     var NAME = 'styles.css';
     var NAME_MIN = 'styles.min.css';
-    return gulp.src(paths.css)
+    var dont_read = {
+        read: false
+    };
+    return gulp.src(paths.css, dont_read)
         .pipe(gulp_plumber(plumb_conf))
         .pipe(gulp_newer(path.join(DEST, NAME)))
+        .pipe(candidate(paths.css_candidates))
         .pipe(gulp_less())
         .pipe(gulp_rename(NAME))
         .pipe(gulp_size_log(NAME))
