@@ -91,7 +91,7 @@
         </div>
 
         <div class="panel-body">
-            <div ng-repeat="inode in filter_entries = ( current_inode.entries | filter:{name: search_in_folder} )" class="clearfix file_line notextselect {{inode.is_selected && 'bggrey' || ''}}" style="border-bottom-width: 1px; border-top-width: 1px">
+            <div ng-repeat="inode in filter_entries = ( current_inode.entries | filter:{name: search_in_folder} )" class="clearfix file_line notextselect {{inode.is_selected && 'active' || ''}}" style="border-bottom-width: 1px; border-top-width: 1px">
                 <div class="Xanimated XfadeIn Xclearfix" ng-click="select_inode(inode, $index, $event)" style="cursor: pointer">
                     <span class="text-wrap">
                         <i ng-show="inode.is_selected" class="fa fa-check fa-fw fa-lg"></i>

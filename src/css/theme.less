@@ -12,14 +12,13 @@
 /******************************************************************************
     THEME 
  ******************************************************************************/
- @gray: hsl(0, 0%, 30%);
- @gray-dark: darken(@gray, 8%);
- @gray-darker: darken(@gray-dark, 8%);
- @gray-light: lighten(@gray, 15%);
- @gray-lighter: lighten(@gray-light, 15%);
- @body-bg: @gray;
- @navbar-default-bg: @gray-dark;
- @text-color: hsl(0, 0%, 85%);
+ @gray: hsl(0, 0%, 40%);
+ @gray-dark: darken(@gray, 15%);
+ @gray-darker: darken(@gray-dark, 10%);
+ @gray-light: lighten(@gray, 25%);
+ @gray-lighter: lighten(@gray-light, 10%);
+ @body-bg: hsl(0, 0%, 100%);
+ @text-color: hsl(0, 0%, 10%);
  @brand-primary: hsl(202, 83%, 47%);
  @brand-success: hsl(147, 72%, 49%);
  @brand-info: hsl(188, 90%, 48%);
@@ -30,27 +29,21 @@
  @state-info-text: @brand-info;
  @state-danger-text: @brand-danger;
  @state-warning-text: @brand-warning;
- @well-bg: transparent;
+ @well-bg: @body-bg;
  @well-border: @gray-light;
- @panel-bg: transparent;
+ @panel-bg: @body-bg;
  @panel-footer-bg: transparent;
- @panel-default-heading-bg: white;
+ @panel-default-heading-bg: @body-bg;
+ @modal-content-bg: @body-bg;
+ @navbar-default-bg: @gray-dark;
  @navbar-top-height: 50px;
  @navbar-bottom-height: 50px;
 
 /**/
 
 /**/
- .gray-background {
-    .bgnoise2;
-    background-color: @gray;
-}
-.gray-dark-background {
-    .bgnoise1;
-    background-color: @gray-dark;
-}
-.panel, .panel .panel-heading, .panel .panel-footer {
-    border-color: @gray-light;
+ .panel, .panel .panel-heading, .panel .panel-footer {
+    border-color: @gray-lighter;
 }
 .bggrey {
     background-color: @gray-light;
@@ -189,6 +182,9 @@ a[ng-click], a[role=button] {
 }
 .alertify {
     border-width: 1px;
+    border-color: @modal-content-border-color;
+    background-color: @modal-content-bg;
+    color: @gray-darker;
 }
 .alertify-text {
     .form-control;
