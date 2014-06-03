@@ -362,6 +362,7 @@ nb_util.directive('nbAutoHeight', ['$timeout',
             }
             e.height(height);
             e.focus();
+            e.parent().trigger('resize');
         }
         return {
             restrict: 'A',

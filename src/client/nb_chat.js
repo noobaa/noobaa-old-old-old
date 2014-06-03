@@ -34,7 +34,7 @@ nb_util.factory('nbChat', [
                 return;
             }
             $scope.chats.length = 0;
-            for (var i = 0; i < 0; i++) {
+            for (var i = 0; i < 1; i++) {
                 add_chat(sample_chat());
             }
         }
@@ -48,13 +48,14 @@ nb_util.factory('nbChat', [
         }
 
         function start_chat_with_friend(friend) {
+            var id = friend.id || chat_id_gen++;
             add_chat({
-                id: friend.id,
+                id: id,
                 title: friend.name,
                 user: friend,
                 messages: []
             });
-            open_chat_by_id(friend.id);
+            open_chat_by_id(id);
         }
 
 

@@ -183,7 +183,7 @@ body.navbar-bottom-pad {
         overflow-y: auto;
         .chatline {
             padding: 10px;
-            border-bottom: 1px solid hsl(0, 0%, 40%);
+            border-bottom: 1px solid @gray-light;
             position: relative;
             > .user-image {
                 width: 50px;
@@ -192,7 +192,7 @@ body.navbar-bottom-pad {
             }
             cursor: pointer;
             &:hover {
-                background-color: hsl(0, 0%, 90%);
+                background-color: @gray-light;
             }
         }
         .category-line {
@@ -227,6 +227,7 @@ body.navbar-bottom-pad {
         textarea {
             padding: 10px 10px 0 10px;
             display: block;
+            width: 100%;
             outline: none;
             resize: none;
             border: none;
