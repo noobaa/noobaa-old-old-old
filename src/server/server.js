@@ -69,6 +69,7 @@ var email = require('./lib/email');
 var device_api = require('./lib/device_api');
 var track_api = require('./lib/track_api');
 // var blog_api = require('./lib/blog_api');
+var chat_api = require('./lib/chat_api');
 var adminoobaa = require('./lib/adminoobaa');
 
 
@@ -208,6 +209,14 @@ app.post('/api/inode/:inode_id/message/', message_api.post_inode_message);
 app.del('/api/inode/:inode_id/message/:message_id', message_api.delete_inode_message);
 
 app.get('/api/feed/', inode_api.feed_query);
+
+app.post('/api/chat/', chat_api.create);
+app.put('/api/chat/:chat_id', chat_api.update);
+app.del('/api/chat/:chat_id', chat_api.leave);
+app.post('/api/chat/:chat_id/msg', chat_api.send);
+app.get('/api/chat/:chat_id/msg', chat_api.read);
+app.get('/api/chat/', chat_api.list);
+app.get('/api/chat/poll/', chat_api.poll);
 
 app.get('/api/user/', user_api.user_read);
 app.put('/api/user/', user_api.user_update);

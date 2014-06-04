@@ -11,7 +11,7 @@
     </div>
 
     <div class="panel-body">
-        <div ng-repeat="msg in chat.messages track by $index" class="clearfix">
+        <div ng-repeat="msg in chat.msgs track by $index" class="clearfix">
             <div class="{{msg.user && 'chat-msg-user' || 'chat-msg-mine'}}">
                 <span class="text-overflow" style="white-space: pre-wrap" ng-bind-html="msg.text | linky:'_blank'"></span>
                 <div ng-if="msg.inode" style="cursor: pointer" ng-click="open_chat_inode(msg.inode)">
@@ -32,7 +32,7 @@
             </div>
         </div>
         <div class="clearfix">
-            <div class="alert alert-info text-center" ng-if="chat.user && !chat.user.id && chat.messages.length">
+            <div class="alert alert-info text-center" ng-if="chat.user && !chat.user.id && chat.msgs.length">
                 <a ng-click="nbUser.send_friend_reminder(chat.user)">
                 	Send {{chat.user.name}} a reminder to join
                 </a>

@@ -17,45 +17,106 @@ nb_util.factory('nbChat', [
         var $scope = {
             chats: [],
             chats_map: {},
+            poll_time: 0,
             get_chat_by_id: get_chat_by_id,
-            refresh_chats: refresh_chats,
             open_chat: open_chat,
             start_chat_with_friend: start_chat_with_friend,
             start_chat_with_email: start_chat_with_email,
         };
 
 
+        function list_chats() {
+            return $http({
+                method: 'GET',
+                url: '/api/chat/'
+            }).then(function(res) {
+                $scope.chats = res.data;
+                $scope.chats_map = _.indexBy($scope.chats, '_id');
+            }).then(null, function(err) {
+                console.error('FAILED LIST CHATS', err);
+                return $timeout(list_chats, 5000);
+            });
+        }
+
+
+        function poll_chats() {
+            var new_poll_time;
+            return $http({
+                method: 'GET',
+                url: '/api/chat/poll/',
+                params: {
+                    last: $scope.poll_time
+                }
+            }).then(function(res) {
+                new_poll_time = res.data.time;
+                return $q.all(_.map(res.data.chat_ids, read_chat));
+            }).then(function() {
+                $scope.poll_time = new_poll_time;
+            })['finally'](function() {
+                $timeout(poll_chats, 10000);
+            });
+        }
+
+        function read_chat(chat_id) {
+            var chat = get_chat_by_id(chat_id);
+            return $http({
+                method: 'GET',
+                url: '/api/chat/' + chat_id + '/msg',
+                params: {
+                    ctime: chat ? chat.ctime : null,
+                }
+            }).then(function(res) {
+                if (!chat) {
+                    chat = add_chat(res.data.chat);
+                }
+                chat.msgs = res.data.msgs;
+            });
+        }
+
+        // init chats - read list and start polling
+        list_chats().then(poll_chats);
+
         function get_chat_by_id(id) {
             return $scope.chats_map[id];
         }
 
-        function refresh_chats() {
-            if ($scope.chats.length) {
-                return;
-            }
-            $scope.chats.length = 0;
-            for (var i = 0; i < 1; i++) {
-                add_chat(sample_chat());
-            }
-        }
 
         function open_chat(chat) {
-            open_chat_by_id(chat.id);
+            open_chat_by_id(chat._id);
         }
 
         function open_chat_by_id(id) {
             $location.path('/chat/' + id);
         }
 
+        function add_chat(chat) {
+            var existing = $scope.chats_map[chat.id];
+            if (existing) {
+                // TODO merge objects?
+                return existing;
+            }
+            $scope.chats.unshift(chat);
+            $scope.chats_map[chat.id] = chat;
+            return chat;
+        }
+
         function start_chat_with_friend(friend) {
-            var id = friend.id || chat_id_gen++;
-            add_chat({
-                id: id,
-                title: friend.name,
-                user: friend,
-                messages: []
+            var chat_id;
+            return $http({
+                method: 'POST',
+                url: '/api/chat/',
+                data: {
+                    title: friend.name,
+                    users_list: [nbUser.user.id, friend.id]
+                }
+            }).then(function(res) {
+                chat_id = res.data.chat_id;
+                return read_chat(chat_id);
+            }).then(function() {
+                open_chat_by_id(chat_id);
+            }).then(null, function(err) {
+                console.error('FAILED CREATE CHAT', err);
             });
-            open_chat_by_id(id);
         }
 
 
@@ -87,18 +148,11 @@ nb_util.factory('nbChat', [
                     name: email,
                     first_name: email.split('@')[0].split('.')[0].split('_')[0],
                 },
-                messages: []
+                msgs: []
             });
             open_chat_by_id(id);
         }
 
-        function add_chat(chat) {
-            if ($scope.chats_map[chat.id]) {
-                return;
-            }
-            $scope.chats.unshift(chat);
-            $scope.chats_map[chat.id] = chat;
-        }
 
         var yuval = {};
         var chat_id_gen = 1;
@@ -107,7 +161,7 @@ nb_util.factory('nbChat', [
             return {
                 id: chat_id_gen++,
                 title: 'Yuval',
-                messages: [{
+                msgs: [{
                     user: yuval,
                     text: 'hula, there?'
                 }, {
@@ -130,7 +184,6 @@ nb_util.controller('ChatsCtrl', [
         $scope.nbUser = nbUser;
         $scope.nbChat = nbChat;
         nbUser.init_friends();
-        nbChat.refresh_chats();
     }
 ]);
 
@@ -173,7 +226,7 @@ nb_util.controller('ChatCtrl', [
         }
 
         function add_chat_message(msg) {
-            chat.messages.push(msg);
+            chat.msgs.push(msg);
             scroll_chat_to_bottom();
         }
 
