@@ -24,15 +24,19 @@ exports.create = function(req, res) {
 
     async.waterfall([
         function(next) {
+            console.log('CREATE set_chat_users', req.body.users_list);
             return set_chat_users(chat, req.body.users_list, next);
         },
         function(next) {
+            console.log('CREATE verify_chat_update', chat);
             return verify_chat_update(chat, user_id, next);
         },
         function(next) {
+            console.log('CREATE save', chat);
             return chat.save(next);
         },
         function(chat_arg, num_arg, next) {
+            console.log('CREATE done', chat);
             return next(null, {
                 chat_id: chat.id
             });
@@ -122,7 +126,7 @@ exports.send = function(req, res) {
             chat.mtime = new Date(); // touch mtime
             return chat.save(next);
         },
-        function(chat_arg, next) {
+        function(chat_arg, num_arg, next) {
             return next();
         }
     ], common_api.reply_callback(req, res, 'CHAT SEND'));
@@ -138,10 +142,12 @@ exports.read = function(req, res) {
     var chat;
     async.waterfall([
         function(next) {
+            console.log('READ findById', chat_id);
             return Chat.findById(chat_id, next);
         },
         function(chat_arg, next) {
             chat = chat_arg;
+            console.log('READ verify_chat_access', chat, user_id);
             if (!chat) {
                 return next({
                     status: 404,
@@ -151,15 +157,23 @@ exports.read = function(req, res) {
             return verify_chat_access(chat, user_id, next);
         },
         function(next) {
-            return ChatMsg.find({
-                chat: chat.id,
-                time: {
-                    $gte: start_time,
-                    $lt: end_time
-                }
-            }).limit(limit).exec(next);
+            console.log('READ ChatMsg.find', chat.id, start_time, end_time);
+            var q = ChatMsg.find({
+                chat: chat.id
+            });
+            if (start_time) {
+                q.where('time').gte(start_time);
+            }
+            if (end_time) {
+                q.where('time').lt(end_time);
+            }
+            if (limit) {
+                q.limit(limit);
+            }
+            return q.exec(next);
         },
         function(msgs, next) {
+            console.log('READ done', msgs, req.query.ctime, chat.ctime);
             return next(null, {
                 chat: req.query.ctime !== chat.ctime ? chat_reply(chat) : null,
                 msgs: msgs
@@ -186,20 +200,43 @@ exports.list = function(req, res) {
 exports.poll = function(req, res) {
     console.log('POLL USER ID', req.user.id);
     var user_id = mongoose.Types.ObjectId(req.user.id);
-    var time = new Date(); // take time before query
+    var last_poll = new Date(req.query.last_poll || 0);
+    var chats;
     async.waterfall([
         function(next) {
             return Chat.find({
                 'users.user': user_id,
                 mtime: {
-                    $gte: req.query.last
+                    $gt: last_poll
                 }
-            }, '_id');
+            }).sort('-mtime').exec(next);
         },
-        function(chat_ids, next) {
+        function(chats_arg, next) {
+            chats = chats_arg;
+            if (!chats.length) {
+                return next(null, null);
+            }
+            return ChatMsg.find({
+                chat: {
+                    $in: _.pluck(chats, '_id')
+                },
+                time: {
+                    $gt: last_poll
+                }
+            }).sort('time').exec(next);
+        },
+        function(msgs, next) {
+            if (!chats.length) {
+                return next();
+            }
+            var msgs_by_chat = _.groupBy(msgs, 'chat');
+            var chats_reply = _.map(chats, function(chat) {
+                var c = chat_reply(chat);
+                c.msgs = msgs_by_chat[chat.id];
+                return c;
+            });
             return next(null, {
-                chat_ids: chat_ids,
-                time: time
+                chats: chats_reply,
             });
         }
     ], common_api.reply_callback(req, res, 'CHAT POLL'));

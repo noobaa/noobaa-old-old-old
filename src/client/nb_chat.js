@@ -15,47 +15,95 @@ nb_util.factory('nbChat', [
         LinkedList, JobQueue, nbUtil, nbUser, nbInode) {
 
         var $scope = {
-            chats: [],
-            chats_map: {},
-            poll_time: 0,
+            chats: {},
+            last_poll: 0,
             get_chat_by_id: get_chat_by_id,
             open_chat: open_chat,
             start_chat_with_friend: start_chat_with_friend,
             start_chat_with_email: start_chat_with_email,
+            send_chat_message: send_chat_message,
         };
 
+        $rootScope.$watch(function() {
+            // the watch function checks change by max mtime
+            return _.max($scope.chats, function(c) {
+                return c.mtime_date.getTime();
+            }).mtime_date;
+        }, function() {
+            // sort the chats by mtime
+            $scope.chats_arr = _.sortBy($scope.chats, function(c) {
+                return -c.mtime_date.getTime();
+            });
+        });
 
+
+        function poll_chats() {
+            var new_last_poll;
+            if ($scope.poll_in_progress) {
+                return $scope.poll_in_progress;
+            }
+            if ($scope.poll_timeout) {
+                $timeout.cancel($scope.poll_timeout);
+                $scope.poll_timeout = null;
+            }
+            $scope.poll_in_progress = $http({
+                method: 'GET',
+                url: '/api/chat/poll/',
+                params: {
+                    last_poll: $scope.last_poll
+                }
+            }).then(function(res) {
+                var chats = res.data.chats;
+                if (!chats || !chats.length) {
+                    return;
+                }
+                _.each(chats, update_chat);
+                $scope.last_poll = chats[0].mtime;
+                console.log('POLL', chats.length, $scope.last_poll);
+            })['finally'](function() {
+                $scope.poll_in_progress = null;
+                $scope.poll_timeout = $timeout(poll_chats, 10000);
+            });
+            return $scope.poll_in_progress;
+        }
+
+        function update_chat(chat) {
+            chat.mtime_date = new Date(chat.mtime);
+            var c = $scope.chats[chat._id];
+            if (c) {
+                var msgs = c.msgs.concat(chat.msgs);
+                msgs = _.sortBy(msgs, function(m) {
+                    return m._id;
+                });
+                msgs = _.uniq(msgs, true, function(m) {
+                    return m._id;
+                });
+                _.extend(c, chat);
+                c.msgs = msgs;
+                console.log('UPDATE EXISTING CHAT', c);
+            } else {
+                c = chat;
+                $scope.chats[c._id] = c;
+                console.log('UPDATE NEW CHAT', c);
+            }
+            return c;
+        }
+
+        poll_chats();
+
+        /*
         function list_chats() {
             return $http({
                 method: 'GET',
                 url: '/api/chat/'
             }).then(function(res) {
-                $scope.chats = res.data;
-                $scope.chats_map = _.indexBy($scope.chats, '_id');
+                $scope.chats = _.indexBy(res.data, '_id');
             }).then(null, function(err) {
                 console.error('FAILED LIST CHATS', err);
                 return $timeout(list_chats, 5000);
             });
         }
 
-
-        function poll_chats() {
-            var new_poll_time;
-            return $http({
-                method: 'GET',
-                url: '/api/chat/poll/',
-                params: {
-                    last: $scope.poll_time
-                }
-            }).then(function(res) {
-                new_poll_time = res.data.time;
-                return $q.all(_.map(res.data.chat_ids, read_chat));
-            }).then(function() {
-                $scope.poll_time = new_poll_time;
-            })['finally'](function() {
-                $timeout(poll_chats, 10000);
-            });
-        }
 
         function read_chat(chat_id) {
             var chat = get_chat_by_id(chat_id);
@@ -72,12 +120,11 @@ nb_util.factory('nbChat', [
                 chat.msgs = res.data.msgs;
             });
         }
+        */
 
-        // init chats - read list and start polling
-        list_chats().then(poll_chats);
 
         function get_chat_by_id(id) {
-            return $scope.chats_map[id];
+            return $scope.chats[id];
         }
 
 
@@ -89,16 +136,6 @@ nb_util.factory('nbChat', [
             $location.path('/chat/' + id);
         }
 
-        function add_chat(chat) {
-            var existing = $scope.chats_map[chat.id];
-            if (existing) {
-                // TODO merge objects?
-                return existing;
-            }
-            $scope.chats.unshift(chat);
-            $scope.chats_map[chat.id] = chat;
-            return chat;
-        }
 
         function start_chat_with_friend(friend) {
             var chat_id;
@@ -111,7 +148,7 @@ nb_util.factory('nbChat', [
                 }
             }).then(function(res) {
                 chat_id = res.data.chat_id;
-                return read_chat(chat_id);
+                return poll_chats();
             }).then(function() {
                 open_chat_by_id(chat_id);
             }).then(null, function(err) {
@@ -140,7 +177,7 @@ nb_util.factory('nbChat', [
 
         function add_email_chat(email) {
             var id = chat_id_gen++;
-            add_chat({
+            update_chat({
                 id: id,
                 title: email,
                 user: {
@@ -152,6 +189,18 @@ nb_util.factory('nbChat', [
             });
             open_chat_by_id(id);
         }
+
+        function send_chat_message(chat, msg) {
+            return $http({
+                method: 'POST',
+                url: '/api/chat/' + chat._id + '/msg',
+                data: {
+                    text: msg.text,
+                    inode: msg.inode
+                }
+            }).then(poll_chats);
+        }
+
 
 
         var yuval = {};
@@ -227,17 +276,26 @@ nb_util.controller('ChatCtrl', [
 
         function add_chat_message(msg) {
             chat.msgs.push(msg);
-            scroll_chat_to_bottom();
+        }
+
+        function send_chat_message(msg) {
+            $scope.sending_message = true;
+            return nbChat.send_chat_message(chat, msg).then(function() {
+                scroll_chat_to_bottom();
+            })['finally'](function() {
+                $scope.sending_message = false;
+            });
         }
 
         function send_chat_text() {
             if (!chat.message_input.length) {
                 return;
             }
-            add_chat_message({
+            return send_chat_message({
                 text: chat.message_input
+            }).then(function() {
+                chat.message_input = '';
             });
-            chat.message_input = '';
         }
 
         function select_files_to_chat() {
@@ -253,8 +311,8 @@ nb_util.controller('ChatCtrl', [
             };
             choose_scope.run = function() {
                 modal.modal('hide');
-                add_chat_message({
-                    inode: choose_scope.context.current_inode
+                send_chat_message({
+                    inode: choose_scope.context.current_inode._id
                 });
             };
             choose_scope.title = 'Attach Files';

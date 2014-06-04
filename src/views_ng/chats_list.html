@@ -22,7 +22,7 @@
         </div>
 
         <div ng-hide="start_chat_input.length && hide_recent_chats">
-            <div ng-repeat="chat in filtered_chats = (nbChat.chats | filter:{title:start_chat_input}) track by $index" class="clearfix chatline" ng-click="nbChat.open_chat(chat)">
+            <div ng-repeat="chat in filtered_chats = (nbChat.chats_arr | filter:{title:start_chat_input}) track by $index" class="clearfix chatline" ng-click="nbChat.open_chat(chat)">
                 <img class="pull-left user-image" ng-src="{{nbUser.user_pic_url(chat.user)}}" />
                 <div class="pull-right text-center" style="padding: 10px 5px; width: 55px">
                     <span class="label label-success">{{chat.messages.length}}</span>
