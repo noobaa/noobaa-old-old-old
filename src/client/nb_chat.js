@@ -282,7 +282,7 @@ nb_util.controller('ChatsCtrl', [
         $scope.nbUtil = nbUtil;
         $scope.nbUser = nbUser;
         $scope.nbChat = nbChat;
-        
+
         nbUser.init_friends();
 
         $scope.starting_chat = false;
@@ -295,6 +295,14 @@ nb_util.controller('ChatsCtrl', [
             $scope.starting_chat = false;
             $scope.start_chat_input = '';
         };
+
+        $scope.$on('$locationChangeStart', function(event) {
+            if (!$scope.starting_chat) {
+                return;
+            }
+            $scope.clear_start_chat();
+            event.preventDefault();
+        });
     }
 ]);
 

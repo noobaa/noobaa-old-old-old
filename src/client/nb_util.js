@@ -75,22 +75,19 @@ nb_util.factory('nbUtil', [
                     e.modal('hide');
                 }
             });
-            /* TODO doesn't work well with the file chooser
+            // close modal on mobile back key or browser history back
+            var back_unsubscribe;
             e.on('shown.bs.modal', function() {
-                $location.hash('modal');
-                $(window).on('popstate.nbutil_modal', function(event) {
-                    console.log('popstate', event);
+                back_unsubscribe = scope.$on('$locationChangeStart', function(event) {
                     e.modal('hide');
                     event.preventDefault();
-                    event.stopPropagation();
-                    return false;
                 });
             });
-            */
             e.on('hidden.bs.modal', function() {
+                if (back_unsubscribe) {
+                    back_unsubscribe();
+                }
                 $(window).off('keydown.nbutil_modal');
-                // $(window).off('popstate.nbutil_modal');
-                // $location.hash('');
                 if (!opt.persist) {
                     e.remove();
                 }
@@ -526,13 +523,41 @@ nb_util.directive('nbKey', ['$parse',
             restrict: 'A', // use as attribute
             link: function(scope, element, attr) {
                 var fn = $parse(attr.nbKey);
-                // element.bind('keydown', handler);
-                $(document).on('keydown', function(event) {
+                var handler = function(event) {
                     return scope.$apply(function() {
                         return fn(scope, {
                             $event: event
                         });
                     });
+                };
+                $(document).on('keydown', handler);
+                element.on('remove', function() {
+                    $(document).off('keydown', handler);
+                });
+            }
+        };
+    }
+]);
+
+nb_util.directive('nbEscape', ['$parse',
+    function($parse) {
+        return {
+            restrict: 'A', // use as attribute
+            link: function(scope, element, attr) {
+                var fn = $parse(attr.nbEscape);
+                var handler = function(event) {
+                    if (event.which !== 27) {
+                        return;
+                    }
+                    return scope.$apply(function() {
+                        return fn(scope, {
+                            $event: event
+                        });
+                    });
+                };
+                $(document).on('keydown', handler);
+                element.on('remove', function() {
+                    $(document).off('keydown', handler);
                 });
             }
         };

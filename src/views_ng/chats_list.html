@@ -1,7 +1,7 @@
-<div class="chat-list panel Xpanel-default" nb-panel-hfill>
+<div class="chat-list panel Xpanel-default" nb-panel-hfill nb-escape="clear_start_chat()">
 
     <div class="panel-heading" style="padding: 10px">
-        <div class="form-control input-lg">
+        <div class="form-control input-lg" style="{{starting_chat || 'background-color: transparent'}}">
             <a ng-hide="starting_chat" class="pull-right" style="margin-left: 10px" rel="tooltip" title="Start chat" ng-click="start_chat()">
                 <i class="fa fa-comment-o fa-lg text-muted"></i>
             </a>
