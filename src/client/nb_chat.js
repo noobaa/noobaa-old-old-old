@@ -282,7 +282,19 @@ nb_util.controller('ChatsCtrl', [
         $scope.nbUtil = nbUtil;
         $scope.nbUser = nbUser;
         $scope.nbChat = nbChat;
+        
         nbUser.init_friends();
+
+        $scope.starting_chat = false;
+
+        $scope.start_chat = function() {
+            $scope.starting_chat = true;
+        };
+
+        $scope.clear_start_chat = function() {
+            $scope.starting_chat = false;
+            $scope.start_chat_input = '';
+        };
     }
 ]);
 

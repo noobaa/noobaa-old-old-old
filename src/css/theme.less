@@ -43,14 +43,25 @@
  @border-radius-base: 0;
  @border-radius-large: 0;
  @border-radius-small: 0;
-@line-height-a: 3em;
+ @line-height-tall: 3em;
+
 /**/
 
 /**/
-a {
-    line-height: @line-height-a; // ~40px
+ .tall-line {
+    line-height: @line-height-tall;
+    // ~40px
 }
- .panel, .panel .panel-heading, .panel .panel-footer {
+.inner-input {
+    display: block;
+    width: 100%;
+    outline: none;
+    resize: none;
+    border: none;
+    box-shadow: none;
+    background-color: transparent;
+}
+.panel, .panel .panel-heading, .panel .panel-footer {
     border-color: @border-color;
 }
 .rounded {

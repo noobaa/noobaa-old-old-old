@@ -352,6 +352,19 @@ nb_util.directive('nbFocus', function() {
     };
 });
 
+nb_util.directive('nbOnFocus', function() {
+    return {
+        restrict: 'A', // use as attribute
+        link: function(scope, element, attr) {
+            element.on('focus', function() {
+                scope.safe_apply(function() {
+                    scope.$eval(attr.nbOnFocus);
+                });
+            });
+        }
+    };
+});
+
 nb_util.directive('nbAutoHeight', ['$timeout',
     function($timeout) {
         function update_height(e, min) {

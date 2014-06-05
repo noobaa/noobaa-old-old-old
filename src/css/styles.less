@@ -212,6 +212,15 @@ body.navbar-bottom-pad {
                 background-color: @gray-lighter;
                 .bgnoise2;
             }
+            .fa-caret-right {
+                text-align: left;
+                margin-left: 2px;
+                width: 10px;
+            }
+            .fa-check {
+                text-align: left;
+                font-style: italic;
+            }
         }
         .category-line {
             .btn;
@@ -225,7 +234,7 @@ body.navbar-bottom-pad {
             font-size: 0.9em;
             display: block;
             text-align: left;
-            line-height: @line-height-a;
+            line-height: @line-height-tall;
         }
         div.category-line {
             cursor: default;
@@ -250,13 +259,7 @@ body.navbar-bottom-pad {
     .panel-footer {
         textarea {
             padding: 10px 10px 0 10px;
-            display: block;
-            width: 100%;
-            outline: none;
-            resize: none;
-            border: none;
-            box-shadow: none;
-            background-color: transparent;
+            .inner-input;
         }
     }
     .chat-msg {
