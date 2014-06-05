@@ -4,6 +4,7 @@
             <a ng-click="click_chats()">
                 <i class="fa fa-comment"></i>
                 <span>CHAT</span>
+                <i ng-show="nbChat.total_new_msgs" class="fa fa-bell"></i>
             </a>
         </li>
         <li ng-class="nbUtil.active_link('/home/watch/')">
@@ -24,7 +25,7 @@
                 <span>UPLOAD</span>
                 <span class="badge" ng-show="nbUploadSrv.root.total_sons - nbUploadSrv.root.total_completed">
                     {{nbUploadSrv.root.total_sons - nbUploadSrv.root.total_completed}}
-                    <i class="fa fa-cog fa-spin"></i>
+                    <i class="fa fa-circle-o-notch fa-spin"></i>
                 </span>
             </a>
         </li>

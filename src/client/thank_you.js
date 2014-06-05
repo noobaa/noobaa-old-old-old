@@ -20,7 +20,7 @@ nb_thankyou.controller('ThankYouCtrl', [
 
         $scope.submit = function() {
             $scope.submitting = true;
-            $('.fa-cog').show();
+            $('.fa-circle-o-notch').show();
             $('.alert').html('').hide();
 
             if (!$scope.new_email) {
@@ -45,7 +45,7 @@ nb_thankyou.controller('ThankYouCtrl', [
 
         $scope.finished_with_error = function(text) {
             $scope.submitting = false;
-            $('.fa-cog').hide();
+            $('.fa-circle-o-notch').hide();
             $('.alert-success').html('').hide();
             $('.alert-error').html(text).show().effect('bounce', 'slow');
         };
@@ -53,7 +53,7 @@ nb_thankyou.controller('ThankYouCtrl', [
         $scope.finished_with_success = function(text) {
             $scope.submitting = false;
             $scope.submitted = true;
-            $('.fa-cog').hide();
+            $('.fa-circle-o-notch').hide();
             $('.alert-error').html('').hide();
             $('.alert-success').html(text).show('fade', 'slow');
         };

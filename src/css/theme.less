@@ -12,12 +12,13 @@
 /******************************************************************************
     THEME 
  ******************************************************************************/
- @gray: hsl(0, 0%, 40%);
- @gray-dark: darken(@gray, 15%);
+ @gray: hsl(0, 0%, 50%);
+ @gray-dark: darken(@gray, 20%);
  @gray-darker: darken(@gray-dark, 10%);
- @gray-light: lighten(@gray, 25%);
+ @gray-light: lighten(@gray, 20%);
  @gray-lighter: lighten(@gray-light, 20%);
- @body-bg: @gray;
+ // @body-bg: @gray;
+ @body-bg: hsl(0, 0%, 95%);
  @text-color: hsl(0, 0%, 10%);
  @brand-primary: hsl(202, 83%, 47%);
  @brand-success: hsl(147, 72%, 49%);
@@ -29,8 +30,9 @@
  @state-info-text: @brand-info;
  @state-danger-text: @brand-danger;
  @state-warning-text: @brand-warning;
- @well-bg: transparent;
- @well-border: @gray-light;
+ @border-color: lighten(@gray, 35%);
+ @well-bg: white;
+ @well-border: @border-color;
  @panel-bg: transparent;
  @panel-footer-bg: transparent;
  @panel-default-heading-bg: transparent;
@@ -38,17 +40,26 @@
  @navbar-default-bg: @gray-dark;
  @navbar-top-height: 50px;
  @navbar-bottom-height: 50px;
-
+ @border-radius-base: 0;
+ @border-radius-large: 0;
+ @border-radius-small: 0;
+@line-height-a: 3em;
 /**/
 
 /**/
+a {
+    line-height: @line-height-a; // ~40px
+}
  .panel, .panel .panel-heading, .panel .panel-footer {
-    border-color: lighten(@gray, 15%);
+    border-color: @border-color;
+}
+.rounded {
+    border-radius: 50%;
 }
 .bggrey {
     background-color: @gray-light;
     hr {
-        border-color: @gray-lighter;
+        border-color: @border-color;
     }
 }
 .bgdark {
@@ -144,7 +155,6 @@ button.close {
     display: block;
 }
 .user-image {
-    .img-rounded;
     width: 32px;
     height: 32px;
 }
@@ -181,6 +191,7 @@ a[ng-click], a[role=button] {
     .modal-backdrop.in;
 }
 .alertify {
+    border-radius: @border-radius-base;
     border-width: 1px;
     border-color: @modal-content-border-color;
     background-color: @modal-content-bg;

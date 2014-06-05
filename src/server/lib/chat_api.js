@@ -16,6 +16,54 @@ var email = require('./email');
 var common_api = require('./common_api');
 var track_api = require('./track_api');
 
+
+
+exports.poll = function(req, res) {
+    console.log('POLL USER ID', req.user.id);
+    var user_id = mongoose.Types.ObjectId(req.user.id);
+    var last_poll = new Date(req.query.last_poll || 0);
+    var chats;
+    async.waterfall([
+        function(next) {
+            return Chat.find({
+                'users.user': user_id,
+                mtime: {
+                    $gt: last_poll
+                }
+            }).sort('-mtime').exec(next);
+        },
+        function(chats_arg, next) {
+            chats = chats_arg;
+            if (!chats.length) {
+                return next(null, null);
+            }
+            return ChatMsg.find({
+                chat: {
+                    $in: _.pluck(chats, '_id')
+                },
+                time: {
+                    $gt: last_poll
+                }
+            }).sort('time').exec(next);
+        },
+        function(msgs, next) {
+            if (!chats.length) {
+                return next();
+            }
+            var msgs_by_chat = _.groupBy(msgs, 'chat');
+            var chats_reply = _.map(chats, function(chat) {
+                var c = chat_reply(chat, user_id);
+                c.msgs = msgs_by_chat[chat.id];
+                return c;
+            });
+            return next(null, {
+                chats: chats_reply,
+            });
+        }
+    ], common_api.reply_callback(req, res, 'CHAT POLL'));
+};
+
+
 exports.create = function(req, res) {
     var user_id = mongoose.Types.ObjectId(req.user.id);
     var chat = new Chat();
@@ -86,7 +134,8 @@ exports.leave = function(req, res) {
         function(next) {
             return Chat.findById(chat_id, next);
         },
-        function(next) {
+        function(chat_arg, next) {
+            chat = chat_arg;
             for (var i = 0; i < chat.users.length; i++) {
                 if (chat.users[i].user.equals(user_id)) {
                     chat.users.splice(i, 1);
@@ -99,8 +148,36 @@ exports.leave = function(req, res) {
         function(chat_arg, num_arg, next) {
             return next();
         }
-    ], common_api.reply_callback(req, res, 'CHAT REMOVE'));
+    ], common_api.reply_callback(req, res, 'CHAT LEAVE'));
 };
+
+exports.mark_seen = function(req, res) {
+    var user_id = mongoose.Types.ObjectId(req.user.id);
+    var chat_id = mongoose.Types.ObjectId(req.params.chat_id);
+    var seen_msg = mongoose.Types.ObjectId(req.body.seen_msg);
+    var chat;
+    async.waterfall([
+        function(next) {
+            return Chat.findById(chat_id, next);
+        },
+        function(chat_arg, next) {
+            chat = chat_arg;
+            for (var i = 0; i < chat.users.length; i++) {
+                if (chat.users[i].user.equals(user_id)) {
+                    chat.users[i].seen_msg = seen_msg;
+                    // dont update mtime, because only the calling user needs to update
+                    // and can do once this request returns
+                    return chat.save(next);
+                }
+            }
+            return next(null, null, null);
+        },
+        function(chat_arg, num_arg, next) {
+            return next();
+        }
+    ], common_api.reply_callback(req, res, 'CHAT SEEN'));
+};
+
 
 exports.send = function(req, res) {
     var user_id = mongoose.Types.ObjectId(req.user.id);
@@ -175,7 +252,7 @@ exports.read = function(req, res) {
         function(msgs, next) {
             console.log('READ done', msgs, req.query.ctime, chat.ctime);
             return next(null, {
-                chat: req.query.ctime !== chat.ctime ? chat_reply(chat) : null,
+                chat: req.query.ctime !== chat.ctime ? chat_reply(chat, user_id) : null,
                 msgs: msgs
             });
         }
@@ -192,54 +269,11 @@ exports.list = function(req, res) {
             }, next);
         },
         function(chats, next) {
-            return next(null, _.map(chats, chat_reply));
+            return next(null, _.map(chats, function(chat) {
+                return chat_reply(chat, user_id);
+            }));
         }
     ], common_api.reply_callback(req, res, 'CHAT LIST'));
-};
-
-exports.poll = function(req, res) {
-    console.log('POLL USER ID', req.user.id);
-    var user_id = mongoose.Types.ObjectId(req.user.id);
-    var last_poll = new Date(req.query.last_poll || 0);
-    var chats;
-    async.waterfall([
-        function(next) {
-            return Chat.find({
-                'users.user': user_id,
-                mtime: {
-                    $gt: last_poll
-                }
-            }).sort('-mtime').exec(next);
-        },
-        function(chats_arg, next) {
-            chats = chats_arg;
-            if (!chats.length) {
-                return next(null, null);
-            }
-            return ChatMsg.find({
-                chat: {
-                    $in: _.pluck(chats, '_id')
-                },
-                time: {
-                    $gt: last_poll
-                }
-            }).sort('time').exec(next);
-        },
-        function(msgs, next) {
-            if (!chats.length) {
-                return next();
-            }
-            var msgs_by_chat = _.groupBy(msgs, 'chat');
-            var chats_reply = _.map(chats, function(chat) {
-                var c = chat_reply(chat);
-                c.msgs = msgs_by_chat[chat.id];
-                return c;
-            });
-            return next(null, {
-                chats: chats_reply,
-            });
-        }
-    ], common_api.reply_callback(req, res, 'CHAT POLL'));
 };
 
 
@@ -300,11 +334,15 @@ function set_chat_users(chat, users_list, callback) {
     return callback();
 }
 
-function chat_reply(chat) {
+function chat_reply(chat, user_id) {
     // convert from mongoose to plain obj
     var c = chat.toObject();
     // remove user info that shouldn't be open to other users
     c.users = _.map(c.users, function(u) {
+        // propagate the seen_msg info of current user to the chat scope
+        if (u.user.equals(user_id)) {
+            c.seen_msg = u.seen_msg;
+        }
         return u.user;
     });
     return c;

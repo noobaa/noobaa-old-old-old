@@ -210,13 +210,14 @@ app.del('/api/inode/:inode_id/message/:message_id', message_api.delete_inode_mes
 
 app.get('/api/feed/', inode_api.feed_query);
 
+app.get('/api/chat/', chat_api.poll);
 app.post('/api/chat/', chat_api.create);
 app.put('/api/chat/:chat_id', chat_api.update);
 app.del('/api/chat/:chat_id', chat_api.leave);
 app.post('/api/chat/:chat_id/msg', chat_api.send);
+app.put('/api/chat/:chat_id/msg', chat_api.mark_seen);
 app.get('/api/chat/:chat_id/msg', chat_api.read);
-app.get('/api/chat/', chat_api.list);
-app.get('/api/chat/poll/', chat_api.poll);
+app.get('/api/chat/list/', chat_api.list);
 
 app.get('/api/user/', user_api.user_read);
 app.put('/api/user/', user_api.user_update);

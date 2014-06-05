@@ -8,20 +8,25 @@ var nb_util = angular.module('nb_util');
 
 
 nb_util.factory('nbChat', [
-    '$http', '$timeout', '$interval', '$q', '$window', '$location', '$rootScope', '$sce', '$sanitize',
-    'LinkedList', 'JobQueue', 'nbUtil', 'nbUser', 'nbInode',
+    '$http', '$timeout', '$interval', '$q',
+    '$window', '$location', '$rootScope',
+    'nbUtil', 'nbUser', 'nbInode',
 
-    function($http, $timeout, $interval, $q, $window, $location, $rootScope, $sce, $sanitize,
-        LinkedList, JobQueue, nbUtil, nbUser, nbInode) {
+    function($http, $timeout, $interval, $q,
+        $window, $location, $rootScope,
+        nbUtil, nbUser, nbInode) {
 
         var $scope = {
             chats: {},
             last_poll: 0,
-            get_chat_by_id: get_chat_by_id,
+            get_chat: get_chat,
+            open_chats: open_chats,
             open_chat: open_chat,
+            activate_chat: activate_chat,
             start_chat_with_friend: start_chat_with_friend,
             start_chat_with_email: start_chat_with_email,
             send_chat_message: send_chat_message,
+            scroll_chat_to_bottom: scroll_chat_to_bottom,
         };
 
         $rootScope.$watch(function() {
@@ -48,7 +53,7 @@ nb_util.factory('nbChat', [
             }
             $scope.poll_in_progress = $http({
                 method: 'GET',
-                url: '/api/chat/poll/',
+                url: '/api/chat/',
                 params: {
                     last_poll: $scope.last_poll
                 }
@@ -86,55 +91,113 @@ nb_util.factory('nbChat', [
                 $scope.chats[c._id] = c;
                 console.log('UPDATE NEW CHAT', c);
             }
+            count_new_msgs(c);
+            if ($scope.active_chat === c) {
+                touch_chat();
+            }
             return c;
         }
 
         poll_chats();
 
-        /*
-        function list_chats() {
-            return $http({
-                method: 'GET',
-                url: '/api/chat/'
-            }).then(function(res) {
-                $scope.chats = _.indexBy(res.data, '_id');
-            }).then(null, function(err) {
-                console.error('FAILED LIST CHATS', err);
-                return $timeout(list_chats, 5000);
-            });
-        }
 
-
-        function read_chat(chat_id) {
-            var chat = get_chat_by_id(chat_id);
-            return $http({
-                method: 'GET',
-                url: '/api/chat/' + chat_id + '/msg',
-                params: {
-                    ctime: chat ? chat.ctime : null,
-                }
-            }).then(function(res) {
-                if (!chat) {
-                    chat = add_chat(res.data.chat);
-                }
-                chat.msgs = res.data.msgs;
-            });
-        }
-        */
-
-
-        function get_chat_by_id(id) {
+        function get_chat(id) {
             return $scope.chats[id];
         }
 
-
-        function open_chat(chat) {
-            open_chat_by_id(chat._id);
+        function open_chats() {
+            $scope.active_chat = null;
+            $location.path('/chat/');
         }
 
-        function open_chat_by_id(id) {
-            $location.path('/chat/' + id);
+        function open_chat(chat_id) {
+            $location.path('/chat/' + chat_id);
         }
+
+        function activate_chat(chat_id) {
+            $scope.active_chat = get_chat(chat_id);
+            if (!$scope.active_chat) {
+                open_chats();
+                return;
+            }
+            touch_chat();
+            return $scope.active_chat;
+        }
+
+        function touch_chat() {
+            $q.when(mark_seen($scope.active_chat)).then(scroll_chat_to_bottom);
+        }
+
+        function send_chat_message(chat, msg) {
+            return $http({
+                method: 'POST',
+                url: '/api/chat/' + chat._id + '/msg',
+                data: {
+                    text: msg.text,
+                    inode: msg.inode
+                }
+            }).then(poll_chats).then(scroll_chat_to_bottom).then(touch_chat);
+        }
+
+        function mark_seen(chat) {
+            if (!chat.msgs.length) {
+                return;
+            }
+            var last_msg_id = chat.msgs[chat.msgs.length - 1]._id;
+            var prev_msg_id = chat.seen_msg;
+            if (prev_msg_id === last_msg_id) {
+                return;
+            }
+            console.log('MARK SEEN', prev_msg_id, '->', last_msg_id);
+            return $http({
+                method: 'PUT',
+                url: '/api/chat/' + chat._id + '/msg',
+                data: {
+                    seen_msg: last_msg_id
+                }
+            }).then(function() {
+                if (chat.seen_msg === prev_msg_id) {
+                    chat.seen_msg = last_msg_id;
+                    count_new_msgs(chat);
+                }
+            });
+        }
+
+        $scope.total_new_msgs = 0;
+
+        function count_new_msgs(chat) {
+            if (!chat.msgs) {
+                return;
+            }
+            $scope.total_new_msgs -= (chat.new_msgs || 0);
+            if (!chat.seen_msg) {
+                chat.new_msgs = chat.msgs.length;
+                $scope.total_new_msgs += chat.new_msgs;
+                return;
+            }
+            for (var i = 0; i < chat.msgs.length; i++) {
+                if (chat.msgs[chat.msgs.length - i - 1]._id === chat.seen_msg) {
+                    break;
+                }
+            }
+            chat.new_msgs = i;
+            $scope.total_new_msgs += chat.new_msgs;
+        }
+
+
+
+        function scroll_chat_to_bottom() {
+            return $timeout(function() {
+                var chat_body = $('.chat-panel .panel-body')[0];
+                if (!chat_body) {
+                    return;
+                }
+                console.log('scroll_chat_to_bottom', chat_body.scrollTop, chat_body.scrollHeight);
+                chat_body.scrollTop = chat_body.scrollHeight;
+            }, 0);
+        }
+
+
 
 
         function start_chat_with_friend(friend) {
@@ -150,7 +213,7 @@ nb_util.factory('nbChat', [
                 chat_id = res.data.chat_id;
                 return poll_chats();
             }).then(function() {
-                open_chat_by_id(chat_id);
+                open_chat(chat_id);
             }).then(null, function(err) {
                 console.error('FAILED CREATE CHAT', err);
             });
@@ -187,21 +250,8 @@ nb_util.factory('nbChat', [
                 },
                 msgs: []
             });
-            open_chat_by_id(id);
+            open_chat(id);
         }
-
-        function send_chat_message(chat, msg) {
-            return $http({
-                method: 'POST',
-                url: '/api/chat/' + chat._id + '/msg',
-                data: {
-                    text: msg.text,
-                    inode: msg.inode
-                }
-            }).then(poll_chats);
-        }
-
-
 
         var yuval = {};
         var chat_id_gen = 1;
@@ -241,48 +291,24 @@ nb_util.controller('ChatCtrl', [
     'nbUtil', 'nbUser', 'nbInode', 'nbChat',
     function($scope, $q, $location, $timeout, $routeParams,
         nbUtil, nbUser, nbInode, nbChat) {
+        $scope.nbUtil = nbUtil;
+        $scope.nbUser = nbUser;
+        $scope.nbChat = nbChat;
 
-        var chat = nbChat.get_chat_by_id($routeParams.id);
-        if (!chat) {
-            open_chats();
-        }
-
+        var chat = nbChat.activate_chat($routeParams.id);
         $scope.chat = chat;
         $scope.send_chat_text = send_chat_text;
         $scope.select_files_to_chat = select_files_to_chat;
         $scope.upload_files_to_chat = upload_files_to_chat;
-
         $scope.open_chat_inode = open_chat_inode;
-        $scope.open_chats = open_chats;
-        scroll_chat_to_bottom();
 
         function open_chat_inode(inode) {
             $location.path('/files/' + inode.id);
         }
 
-        function open_chats(inode) {
-            $location.path('/chat/');
-        }
-
-        function scroll_chat_to_bottom() {
-            $timeout(function() {
-                var div = $('.chat-panel .panel-body');
-                if (!div.length) {
-                    return;
-                }
-                div[0].scrollTop = div[0].scrollHeight;
-            }, 0);
-        }
-
-        function add_chat_message(msg) {
-            chat.msgs.push(msg);
-        }
-
         function send_chat_message(msg) {
             $scope.sending_message = true;
-            return nbChat.send_chat_message(chat, msg).then(function() {
-                scroll_chat_to_bottom();
-            })['finally'](function() {
+            return nbChat.send_chat_message(chat, msg)['finally'](function() {
                 $scope.sending_message = false;
             });
         }

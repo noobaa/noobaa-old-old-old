@@ -84,6 +84,7 @@ nb_home.controller('HomeCtrl', [
         $scope.nbInode = nbInode;
         $scope.nbUploadSrv = nbUploadSrv;
         $scope.nbPlanet = nbPlanet;
+        $scope.nbChat = nbChat;
         $scope.moment = moment;
 
         $scope.root_dir = nbInode.get_inode();

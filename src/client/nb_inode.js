@@ -824,20 +824,20 @@ nb_util.factory('nbInode', [
         }
 
         function delete_inode_message(inode, msg) {
-            if (!$window.confirm('Remove this comment?')) {
-                return;
-            }
-            return $http({
-                method: 'DELETE',
-                url: '/api/inode/' + inode.id + '/message/' + msg.id,
-            }).then(function(res) {
-                console.log('DELETED MSG', inode.id, msg.id);
-                return res;
-            }, function(err) {
-                console.error('FAILED DEL MSG', inode.id, msg.id, err);
-                throw err;
-            }).then(function() {
-                return get_inode_messages(inode);
+            alertify.confirm('Remove this comment?', function(e) {
+                if (!e) return;
+                return $http({
+                    method: 'DELETE',
+                    url: '/api/inode/' + inode.id + '/message/' + msg.id,
+                }).then(function(res) {
+                    console.log('DELETED MSG', inode.id, msg.id);
+                    return res;
+                }, function(err) {
+                    console.error('FAILED DEL MSG', inode.id, msg.id, err);
+                    throw err;
+                }).then(function() {
+                    return get_inode_messages(inode);
+                });
             });
         }
 
