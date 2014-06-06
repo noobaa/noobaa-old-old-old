@@ -2,14 +2,14 @@
 
     <div class="panel-heading" style="padding: 10px">
         <div class="form-control input-lg" style="{{starting_chat || 'background-color: transparent'}}">
-            <a ng-hide="starting_chat" class="pull-right" style="margin-left: 10px" rel="tooltip" title="Click to start chat" ng-click="start_chat()">
+            <a ng-hide="starting_chat" class="pull-right" style="margin-left: 10px" rel="tooltip" title="Click to start chat" ng-click="set_start_chat()">
                 <i class="fa fa-comment-o fa-lg text-muted"></i>
             </a>
             <a ng-show="starting_chat" class="pull-right" style="margin-left: 10px" rel="tooltip" title="Clear" ng-click="clear_start_chat()">
                 <i class="fa fa-times fa-lg"></i>
             </a>
             <div style="overflow: hidden; position: relative">
-                <input type="text" class="inner-input" placeholder="Enter name or email to start" ng-model="start_chat_input" nb-on-focus="start_chat()" />
+                <input type="text" class="inner-input" placeholder="Enter name or email to start chat" ng-model="start_chat_input" nb-on-focus="set_start_chat()" />
             </div>
         </div>
     </div>
@@ -34,7 +34,7 @@
                     <span class="label label-success" ng-show="chat.new_msgs">{{chat.new_msgs}}</span>
                 </div>
                 <div style="overflow: hidden; padding: 5px 0 0 10px">
-                    <div class="text-ellipses">{{nbUser.user_name(chat.user) || chat.title}}</div>
+                    <div class="text-ellipses">{{chat.title}}</div>
                     <div class="text-ellipses {{chat.new_msgs && 'text-success' || 'text-muted'}}" ng-if="chat.msgs.length">
                         <i class="fa fa-fw {{chat.msgs[chat.msgs.length-1].user != nbUser.user.id && 'fa-caret-right fa-lg' || 'fa-check'}}"></i>
                         <span>{{chat.msgs[chat.msgs.length-1].text}}</span>
@@ -55,7 +55,7 @@
                 <div ng-hide="filtered_friends.length">
                     <div class="well text-muted">No matching friends</div>
                 </div>
-                <div ng-repeat="friend in filtered_friends = (nbUser.friends.all | filter:{name:start_chat_input} | orderBy:'name') track by $index" class="clearfix chatline" ng-click="nbChat.start_chat_with_friend(friend)">
+                <div ng-repeat="friend in filtered_friends = (nbUser.friends.all | filter:{name:start_chat_input} | orderBy:'name' | limitTo:100) track by $index" class="clearfix chatline" ng-click="start_chat_with_friend(friend)">
                     <img class="pull-left user-image" ng-src="{{nbUser.user_pic_url(friend)}}" />
                     <div class="pull-right text-center" style="padding: 10px 5px; width: 55px">
                         <i ng-show="!friend.id && friend.fbid" class="fa fa-lg fa-facebook-square text-primary"></i>
@@ -74,7 +74,7 @@
                 <hr />
             </div>
             <div class="action-line">
-                <a ng-click="nbChat.start_chat_with_email(start_chat_input)">
+                <a ng-click="start_chat_with_email(start_chat_input)">
                     <i class="fa fa-envelope fa-lg fa-fw"></i>
                     <span ng-show="nbUtil.valid_email(start_chat_input)">
                         Invite {{start_chat_input}}

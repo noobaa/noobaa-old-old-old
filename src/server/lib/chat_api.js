@@ -337,20 +337,20 @@ function chat_reply(chat, user_id) {
     // convert from mongoose to plain obj
     var c = chat.toObject();
     // remove user info that shouldn't be open to other users
-    var users = [];
+    var user_ids = [];
     _.each(c.users, function(u) {
         // propagate the seen_msg info of current user to the chat scope
         if (u.user.equals(user_id)) {
             c.seen_msg = u.seen_msg;
         } else {
-            users.push(u.user);
+            user_ids.push(u.user);
         }
     });
     if (c.group) {
-        c.users = users;
+        c.user_ids = user_ids;
     } else {
         delete c.users;
-        c.user = users[0];
+        c.user_id = user_ids[0];
     }
     return c;
 }

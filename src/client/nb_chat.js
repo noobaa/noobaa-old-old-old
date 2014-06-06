@@ -18,6 +18,7 @@ nb_util.factory('nbChat', [
 
         var $scope = {
             chats: {},
+            chats_by_user: {},
             last_poll: 0,
             get_chat: get_chat,
             open_chats: open_chats,
@@ -91,6 +92,16 @@ nb_util.factory('nbChat', [
                 c = chat;
                 $scope.chats[c._id] = c;
                 console.log('UPDATE NEW CHAT', c);
+            }
+            if (c.user_id) {
+                var cc = $scope.chats_by_user[c.user_id];
+                if (!cc || cc.mtime_date.getTime() < c.mtime_date.getTime()) {
+                    $scope.chats_by_user[c.user_id] = c;
+                }
+                $q.when(nbUser.init_friends()).then(function() {
+                    c.user = nbUser.get_friend_by_id(c.user_id);
+                    c.title = c.user ? c.user.name : '';
+                });
             }
             count_new_msgs(c);
             if ($scope.active_chat === c) {
@@ -202,12 +213,16 @@ nb_util.factory('nbChat', [
 
 
         function start_chat_with_friend(friend) {
+            var chat = $scope.chats_by_user[friend.id];
+            if (chat) {
+                open_chat(chat._id);
+                return;
+            }
             var chat_id;
             return $http({
                 method: 'POST',
                 url: '/api/chat/',
                 data: {
-                    title: friend.name,
                     users_list: [nbUser.user.id, friend.id]
                 }
             }).then(function(res) {
@@ -288,7 +303,7 @@ nb_util.controller('ChatsCtrl', [
 
         $scope.starting_chat = false;
 
-        $scope.start_chat = function() {
+        $scope.set_start_chat = function() {
             $scope.starting_chat = true;
         };
 
@@ -308,6 +323,14 @@ nb_util.controller('ChatsCtrl', [
         $scope.open_chat = function(chat_id) {
             $scope.starting_chat = false;
             nbChat.open_chat(chat_id);
+        };
+        $scope.start_chat_with_friend = function(friend) {
+            $scope.starting_chat = false;
+            nbChat.start_chat_with_friend(friend);
+        };
+        $scope.start_chat_with_email = function(email) {
+            $scope.starting_chat = false;
+            nbChat.start_chat_with_email(email);
         };
     }
 ]);
