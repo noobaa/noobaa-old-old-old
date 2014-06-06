@@ -76,7 +76,8 @@ nb_util.factory('nbChat', [
             chat.mtime_date = new Date(chat.mtime);
             var c = $scope.chats[chat._id];
             if (c) {
-                var msgs = c.msgs.concat(chat.msgs);
+                var msgs = c.msgs || [];
+                msgs = msgs.concat(chat.msgs);
                 msgs = _.sortBy(msgs, function(m) {
                     return m._id;
                 });
@@ -140,7 +141,7 @@ nb_util.factory('nbChat', [
         }
 
         function mark_seen(chat) {
-            if (!chat.msgs.length) {
+            if (!chat.msgs || !chat.msgs.length) {
                 return;
             }
             var last_msg_id = chat.msgs[chat.msgs.length - 1]._id;
@@ -303,6 +304,11 @@ nb_util.controller('ChatsCtrl', [
             $scope.clear_start_chat();
             event.preventDefault();
         });
+
+        $scope.open_chat = function(chat_id) {
+            $scope.starting_chat = false;
+            nbChat.open_chat(chat_id);
+        };
     }
 ]);
 

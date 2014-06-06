@@ -2,14 +2,14 @@
 
     <div class="panel-heading" style="padding: 10px">
         <div class="form-control input-lg" style="{{starting_chat || 'background-color: transparent'}}">
-            <a ng-hide="starting_chat" class="pull-right" style="margin-left: 10px" rel="tooltip" title="Start chat" ng-click="start_chat()">
+            <a ng-hide="starting_chat" class="pull-right" style="margin-left: 10px" rel="tooltip" title="Click to start chat" ng-click="start_chat()">
                 <i class="fa fa-comment-o fa-lg text-muted"></i>
             </a>
-            <a ng-show="starting_chat" class="pull-right" style="margin-left: 10px" rel="tooltip" title="Clear chat search" ng-click="clear_start_chat()">
-                <i class="fa fa-times fa-lg text-muted"></i>
+            <a ng-show="starting_chat" class="pull-right" style="margin-left: 10px" rel="tooltip" title="Clear" ng-click="clear_start_chat()">
+                <i class="fa fa-times fa-lg"></i>
             </a>
             <div style="overflow: hidden; position: relative">
-                <input type="text" class="inner-input" placeholder="Enter name or email to chat" ng-model="start_chat_input" nb-on-focus="start_chat()" />
+                <input type="text" class="inner-input" placeholder="Enter name or email to start" ng-model="start_chat_input" nb-on-focus="start_chat()" />
             </div>
         </div>
     </div>
@@ -17,9 +17,10 @@
     <div class="panel-body">
 
         <div ng-show="starting_chat">
-            <a class="category-line" ng-click="hide_recent_chats=!hide_recent_chats">
+            <a class="header-line" ng-click="hide_recent_chats=!hide_recent_chats">
                 <i class="fa fa-fw {{hide_recent_chats && 'fa-plus-square-o' || 'fa-minus-square-o'}}"></i>
                 <span>recent chats</span>
+                <hr />
             </a>
             <div ng-hide="filtered_chats.length || hide_recent_chats">
                 <div class="well text-muted">No matching chats</div>
@@ -27,26 +28,28 @@
         </div>
 
         <div ng-hide="starting_chat && hide_recent_chats">
-            <div ng-repeat="chat in filtered_chats = (nbChat.chats_arr | filter:{title:start_chat_input}) track by $index" class="clearfix chatline" ng-click="nbChat.open_chat(chat._id)">
+            <div ng-repeat="chat in filtered_chats = (nbChat.chats_arr | filter:{title:start_chat_input}) track by $index" class="clearfix chatline" ng-click="open_chat(chat._id)">
                 <img class="pull-left user-image" ng-src="{{nbUser.user_pic_url(chat.user)}}" />
                 <div class="pull-right text-center" style="padding: 15px 5px 0 5px; width: 55px">
                     <span class="label label-success" ng-show="chat.new_msgs">{{chat.new_msgs}}</span>
                 </div>
                 <div style="overflow: hidden; padding: 5px 0 0 10px">
-                    <div class="text-ellipses"><b><small>{{chat.title}}</small></b>
-                    </div>
+                    <div class="text-ellipses">{{nbUser.user_name(chat.user) || chat.title}}</div>
                     <div class="text-ellipses {{chat.new_msgs && 'text-success' || 'text-muted'}}" ng-if="chat.msgs.length">
                         <i class="fa fa-fw {{chat.msgs[chat.msgs.length-1].user != nbUser.user.id && 'fa-caret-right fa-lg' || 'fa-check'}}"></i>
-                        <small>{{chat.msgs[chat.msgs.length-1].text}}</small>
+                        <span>{{chat.msgs[chat.msgs.length-1].text}}</span>
                     </div>
                 </div>
+                <div class="clearfix"></div>
+                <hr />
             </div>
         </div>
 
         <div ng-if="starting_chat">
-            <a class="category-line" ng-click="hide_friends=!hide_friends">
+            <a class="header-line" ng-click="hide_friends=!hide_friends">
                 <i class="fa fa-fw {{hide_friends && 'fa-plus-square-o' || 'fa-minus-square-o'}}"></i>
                 <span>friends</span>
+                <hr />
             </a>
             <div ng-hide="hide_friends">
                 <div ng-hide="filtered_friends.length">
@@ -59,48 +62,53 @@
                         <i ng-show="!friend.id && friend.googleid" class="fa fa-lg fa-google-plus-square text-danger"></i>
                     </div>
                     <div style="overflow: hidden; padding: 5px 0 0 10px">
-                        <div class="text-ellipses"><b><small>{{friend.name}}</small></b>
-                        </div>
+                        <div class="text-ellipses">{{friend.name}}</div>
                     </div>
+                    <div class="clearfix"></div>
+                    <hr />
                 </div>
             </div>
 
-            <a class="category-line" ng-click="hide_find_friends=!hide_find_friends">
-                <i class="fa fa-fw {{hide_find_friends && 'fa-frown-o' || 'fa-smile-o'}}"></i>
+            <div class="header-line">
                 find more friends
-            </a>
-            <div ng-hide="hide_find_friends" class="well">
-                <p class="tall-line">
-                    <a class="text-success" ng-click="nbChat.start_chat_with_email(start_chat_input)">
-                        <i class="fa fa-envelope-o fa-fw"></i>
-                        <span ng-show="nbUtil.valid_email(start_chat_input)">
-                            Invite {{start_chat_input}}
-                        </span>
-                        <span ng-hide="nbUtil.valid_email(start_chat_input)">
-                            Invite by email
-                        </span>
-                    </a>
-                </p>
-                <p class="tall-line">
-                    <a class="text-primary" ng-click="nbUser.connect_facebook()" ng-hide="nbUser.user.fbid">
-                        <i class="fa fa-facebook-square fa-fw"></i>
-                        Connect Facebook
-                    </a>
-                    <span class="text-muted" ng-show="nbUser.user.fbid">
-                        <i class="fa fa-check fa-fw"></i>
-                        Connected with Facebook
+                <hr />
+            </div>
+            <div class="action-line">
+                <a ng-click="nbChat.start_chat_with_email(start_chat_input)">
+                    <i class="fa fa-envelope fa-lg fa-fw"></i>
+                    <span ng-show="nbUtil.valid_email(start_chat_input)">
+                        Invite {{start_chat_input}}
                     </span>
-                </p>
-                <p class="tall-line">
-                    <a class="text-danger" ng-click="nbUser.connect_google()" ng-hide="nbUser.user.googleid">
-                        <i class="fa fa-google-plus-square fa-fw"></i>
-                        Connect Google+
-                    </a>
-                    <span class="text-muted" ng-show="nbUser.user.googleid">
-                        <i class="fa fa-check fa-fw"></i>
-                        Connected with Google+
+                    <span ng-hide="nbUtil.valid_email(start_chat_input)">
+                        Invite by email
                     </span>
-                </p>
+                </a>
+                <div class="clearfix"></div>
+                <hr />
+            </div>
+            <div class="action-line">
+                <a ng-click="nbUser.connect_facebook()" ng-hide="nbUser.user.fbid">
+                    <i class="fa fa-facebook-square fa-lg fa-fw"></i>
+                    Connect Facebook
+                </a>
+                <span ng-show="nbUser.user.fbid">
+                    <i class="fa fa-check fa-fw"></i>
+                    Connected with Facebook
+                </span>
+                <div class="clearfix"></div>
+                <hr />
+            </div>
+            <div class="action-line">
+                <a ng-click="nbUser.connect_google()" ng-hide="nbUser.user.googleid">
+                    <i class="fa fa-google-plus-square fa-lg fa-fw"></i>
+                    Connect Google+
+                </a>
+                <span ng-show="nbUser.user.googleid">
+                    <i class="fa fa-check fa-fw"></i>
+                    Connected with Google+
+                </span>
+                <div class="clearfix"></div>
+                <hr />
             </div>
 
         </div>

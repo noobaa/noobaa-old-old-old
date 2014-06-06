@@ -16,10 +16,11 @@
  @gray-dark: darken(@gray, 20%);
  @gray-darker: darken(@gray-dark, 10%);
  @gray-light: lighten(@gray, 20%);
- @gray-lighter: lighten(@gray-light, 20%);
+ @gray-lighter: lighten(@gray-light, 15%);
  // @body-bg: @gray;
  @body-bg: hsl(0, 0%, 95%);
  @text-color: hsl(0, 0%, 10%);
+ @link-color: hsl(0, 0%, 20%);
  @brand-primary: hsl(202, 83%, 47%);
  @brand-success: hsl(147, 72%, 49%);
  @brand-info: hsl(188, 90%, 48%);
@@ -48,11 +49,7 @@
 /**/
 
 /**/
- .tall-line {
-    line-height: @line-height-tall;
-    // ~40px
-}
-.btn {
+a, button, .btn {
     &, &:active, &:focus, &:hover {
         outline: none !important;
     }

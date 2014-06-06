@@ -197,11 +197,19 @@ body.navbar-bottom-pad {
     .panel-body {
         padding: 0;
         overflow-y: auto;
+        .chatline, .header-line, .action-line {
+            padding: 10px 20px 0 20px;
+            hr {
+                margin: 10px -10px 0 -10px;
+                border-color: @gray-lighter;
+            }
+        }
         .chatline {
-            background-color: @well-bg;
-            padding: 10px;
-            border-bottom: 1px solid @border-color;
             position: relative;
+            padding: 10px 10px 0 10px;
+            hr {
+                margin: 10px 0 0 0;
+            }
             > .user-image {
                 width: 50px;
                 height: 50px;
@@ -222,24 +230,46 @@ body.navbar-bottom-pad {
                 font-style: italic;
             }
         }
-        .category-line {
-            .btn;
-            .btn-default;
-            .text-muted;
-            &, &:hover {
-                text-transform: uppercase;
-                background-color: transparent;
-                border-color: transparent;
-            }
-            font-size: 0.9em;
+        .header-line {
+            padding-top: 25px;
+            font-size: 1em;
+            line-height: 2em;
+            font-weight: bold;
             display: block;
             text-align: left;
-            line-height: @line-height-tall;
+            vertical-align: bottom;
+            text-transform: uppercase;
+            &, &:hover {
+                // .text-muted;
+            }
+            hr {
+                border-width: 3px;
+            }
         }
-        div.category-line {
-            cursor: default;
+        a.header-line {
+            cursor: pointer;
+        }
+        .action-line {
+            line-height: 2em;
+            padding-top: 15px;
+            .text-muted;
+            a {
+                display: block;
+            }
+            .fa-envelope {
+                .text-success;
+            }
+            .fa-facebook-square {
+                .text-primary;
+            }
+            .fa-google-plus-square {
+                .text-danger;
+            }
         }
         .well {
+            background-color: transparent;
+            border: none;
+            box-shadow: none;
             margin: 0;
         }
     }

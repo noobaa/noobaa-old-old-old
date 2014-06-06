@@ -17,7 +17,6 @@ var common_api = require('./common_api');
 var track_api = require('./track_api');
 
 
-
 exports.poll = function(req, res) {
     console.log('POLL USER ID', req.user.id);
     var user_id = mongoose.Types.ObjectId(req.user.id);
@@ -338,12 +337,20 @@ function chat_reply(chat, user_id) {
     // convert from mongoose to plain obj
     var c = chat.toObject();
     // remove user info that shouldn't be open to other users
-    c.users = _.map(c.users, function(u) {
+    var users = [];
+    _.each(c.users, function(u) {
         // propagate the seen_msg info of current user to the chat scope
         if (u.user.equals(user_id)) {
             c.seen_msg = u.seen_msg;
+        } else {
+            users.push(u.user);
         }
-        return u.user;
     });
+    if (c.group) {
+        c.users = users;
+    } else {
+        delete c.users;
+        c.user = users[0];
+    }
     return c;
 }

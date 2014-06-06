@@ -6,7 +6,7 @@
         </button>
         <div class="text-center text-ellipses" style="overflow: hidden; padding: 5px">
             <img class="user-image" style="margin-right: 10px; vertical-align: middle" ng-src="{{nbUser.user_pic_url(chat.user)}}" />
-            <b>{{chat.title}}</b>
+            <b>{{nbUser.user_name(chat.user) || chat.title}}</b>
         </div>
     </div>
 
@@ -32,17 +32,19 @@
                     </div>
                 </div>
             </div>
-            <div ng-if="chat.seen_msg == msg._id && !$last" class="alert alert-default text-center">
-                New messages
+            <div ng-if="chat.seen_msg == msg._id && !$last" class="text-center">
+                <span class="label label-default">New messages</span>
             </div>
         </div>
+        <!-- 
         <div class="clearfix">
             <div class="alert alert-info text-center" ng-if="chat.user && !chat.user.id && chat.msgs.length">
                 <a ng-click="nbUser.send_friend_reminder(chat.user)">
-                	Send {{chat.user.name}} a reminder to join
+                	Send {{nbUser.user_first_name(chat.user)}} a reminder to join
                 </a>
             </div>
         </div>
+         -->
     </div>
 
     <div class="panel-footer clearfix" style="padding: 0">

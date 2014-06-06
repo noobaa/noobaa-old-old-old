@@ -29,17 +29,22 @@ nb_util.factory('nbUser', [
         $scope.usage_percents = -1;
 
         $scope.update_user_info = update_user_info;
-        $scope.user_pic_url = user_pic_url;
+        $scope.connect_facebook = connect_facebook;
+        $scope.connect_google = connect_google;
+        
         $scope.refresh_friends = refresh_friends;
         $scope.init_friends = init_friends;
+        $scope.get_friend_by_id = get_friend_by_id;
+        $scope.user_pic_url = user_pic_url;
+        $scope.user_name = user_name;
+        $scope.user_first_name = user_first_name;
+        
         $scope.set_fb_invites = set_fb_invites;
         $scope.send_fb_invites = send_fb_invites;
         $scope.set_google_invites = set_google_invites;
         $scope.send_google_invites = send_google_invites;
         $scope.send_friend_message = send_friend_message;
-        $scope.connect_facebook = connect_facebook;
-        $scope.connect_google = connect_google;
-        $scope.send_friend_reminder = send_friend_reminder;
+        $scope.send_friend_reminder = send_friend_reminder;        
 
 
         function set_user_usage(quota, usage) {
@@ -74,19 +79,6 @@ nb_util.factory('nbUser', [
         function reset_update_user_info(unset) {
             $timeout.cancel($scope.timeout_update_user_info);
             $scope.timeout_update_user_info = unset ? null : $timeout(update_user_info, 300000);
-        }
-
-        function user_pic_url(user) {
-            if (!user) {
-                return '/public/images/user_silhouette.png';
-            }
-            if (user.fbid) {
-                return 'https://graph.facebook.com/' + user.fbid + '/picture';
-            }
-            if (user.googleid) {
-                return 'https://plus.google.com/s2/photos/profile/' + user.googleid + '?sz=50';
-            }
-            return '/public/images/user_silhouette.png';
         }
 
         function on_fb_state_change(res) {
@@ -256,11 +248,13 @@ nb_util.factory('nbUser', [
                 $scope.friends = res.data;
                 $scope.friends.all = $scope.friends.users.concat(
                     $scope.friends.fb, $scope.friends.google);
+                $scope.friends.by_id = _.indexBy($scope.friends.users, 'id');
             }, function(err) {
                 $scope.refreshing_friends--;
                 console.error('FAILED GET FRIENDS', err);
             });
         }
+
 
         function init_friends() {
             if ($scope.friends) {
@@ -271,6 +265,43 @@ nb_util.factory('nbUser', [
             }, function() {
                 return $timeout(init_friends, 5000);
             });
+        }
+
+        function get_friend_by_id(id) {
+            if (!$scope.friends || !$scope.friends.by_id) {
+                return null;
+            }
+            return $scope.friends.by_id[id];
+        }
+
+        function user_pic_url(user) {
+            if (typeof(user) === 'string') {
+                user = get_friend_by_id(user);
+            }
+            if (!user) {
+                return '/public/images/user_silhouette.png';
+            }
+            if (user.fbid) {
+                return 'https://graph.facebook.com/' + user.fbid + '/picture';
+            }
+            if (user.googleid) {
+                return 'https://plus.google.com/s2/photos/profile/' + user.googleid + '?sz=50';
+            }
+            return '/public/images/user_silhouette.png';
+        }
+
+        function user_name(user) {
+            if (typeof(user) === 'string') {
+                user = get_friend_by_id(user);
+            }
+            return user ? user.name : '';
+        }
+        
+        function user_first_name(user) {
+            if (typeof(user) === 'string') {
+                user = get_friend_by_id(user);
+            }
+            return user ? user.first_name : '';
         }
 
         function present_map(list, key) {
