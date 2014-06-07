@@ -349,10 +349,29 @@ nb_util.controller('ChatCtrl', [
         $scope.send_chat_text = send_chat_text;
         $scope.select_files_to_chat = select_files_to_chat;
         $scope.upload_files_to_chat = upload_files_to_chat;
-        $scope.open_chat_inode = open_chat_inode;
+        $scope.open_msg_inode = open_msg_inode;
 
-        function open_chat_inode(inode) {
-            $location.path('/files/' + inode.id);
+        function open_msg_inode(msg) {
+            if (!msg) {
+                return;
+            }
+            var inode = msg.ref_inode || msg.inode;
+            if (!msg.inode) {
+                return;
+            }
+            if (!msg.inode.not_mine) {
+                $location.path('/files/' + msg.inode.id);
+                return;
+            }
+            msg.original_inode = msg.inode;
+            nbInode.get_ref_inode(msg.inode.id).then(function(inode) {
+                if (!inode) {
+                    alertify.error('File doesn\'t exist');
+                    return;
+                }
+                msg.inode = inode;
+                $location.path('/files/' + msg.inode.id);
+            });
         }
 
         function send_chat_message(msg) {
@@ -387,7 +406,7 @@ nb_util.controller('ChatCtrl', [
             choose_scope.run = function() {
                 modal.modal('hide');
                 send_chat_message({
-                    inode: choose_scope.context.current_inode._id
+                    inode: choose_scope.context.current_inode.id
                 });
             };
             choose_scope.title = 'Attach Files';

@@ -194,6 +194,7 @@ app.get('/api/inode/:inode_id', inode_api.inode_read);
 app.put('/api/inode/:inode_id', inode_api.inode_update);
 app.put('/api/inode/:inode_id/copy', inode_api.inode_copy);
 app.del('/api/inode/:inode_id', inode_api.inode_delete);
+app.get('/api/inode/:inode_id/ref', inode_api.inode_get_ref);
 
 app.get('/api/inode/src_dev/:device_id', inode_api.inode_source_device);
 app.post('/api/inode/:inode_id/multipart/', inode_api.inode_multipart);

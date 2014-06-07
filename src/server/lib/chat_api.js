@@ -11,7 +11,7 @@ var User = require('../models/user').User;
 var chat_models = require('../models/chat');
 var Chat = chat_models.Chat;
 var ChatMsg = chat_models.ChatMsg;
-var user_inodes = require('./user_inodes');
+var inode_api = require('./inode_api');
 var email = require('./email');
 var common_api = require('./common_api');
 var track_api = require('./track_api');
@@ -43,7 +43,7 @@ exports.poll = function(req, res) {
                 time: {
                     $gt: last_poll
                 }
-            }).sort('time').exec(next);
+            }).sort('time').populate('inode').exec(next);
         },
         function(msgs, next) {
             if (!chats.length) {
@@ -51,9 +51,7 @@ exports.poll = function(req, res) {
             }
             var msgs_by_chat = _.groupBy(msgs, 'chat');
             var chats_reply = _.map(chats, function(chat) {
-                var c = chat_reply(chat, user_id);
-                c.msgs = msgs_by_chat[chat.id];
-                return c;
+                return chat_reply(chat, req.user, msgs_by_chat[chat.id]);
             });
             return next(null, {
                 chats: chats_reply,
@@ -246,13 +244,15 @@ exports.read = function(req, res) {
             if (limit) {
                 q.limit(limit);
             }
-            return q.exec(next);
+            return q.populate('inode').exec(next);
         },
         function(msgs, next) {
             console.log('READ done', msgs, req.query.ctime, chat.ctime);
             return next(null, {
-                chat: req.query.ctime !== chat.ctime ? chat_reply(chat, user_id) : null,
-                msgs: msgs
+                chat: req.query.ctime !== chat.ctime ? chat_reply(chat, req.user) : null,
+                msgs: _.map(msgs, function(m) {
+                    return msg_reply(m, req.user);
+                })
             });
         }
     ], common_api.reply_callback(req, res, 'CHAT READ'));
@@ -269,7 +269,7 @@ exports.list = function(req, res) {
         },
         function(chats, next) {
             return next(null, _.map(chats, function(chat) {
-                return chat_reply(chat, user_id);
+                return chat_reply(chat, req.user);
             }));
         }
     ], common_api.reply_callback(req, res, 'CHAT LIST'));
@@ -333,14 +333,14 @@ function set_chat_users(chat, users_list, callback) {
     return callback();
 }
 
-function chat_reply(chat, user_id) {
+function chat_reply(chat, user, msgs) {
     // convert from mongoose to plain obj
     var c = chat.toObject();
     // remove user info that shouldn't be open to other users
     var user_ids = [];
     _.each(c.users, function(u) {
         // propagate the seen_msg info of current user to the chat scope
-        if (u.user.equals(user_id)) {
+        if (u.user.equals(user.id)) {
             c.seen_msg = u.seen_msg;
         } else {
             user_ids.push(u.user);
@@ -352,5 +352,20 @@ function chat_reply(chat, user_id) {
         delete c.users;
         c.user_id = user_ids[0];
     }
+    if (msgs) {
+        c.msgs = _.map(msgs, function(m) {
+            return msg_reply(m, user);
+        });
+    }
     return c;
+}
+
+function msg_reply(msg, user) {
+    var m = msg.toObject();
+    if (msg.populated('inode')) {
+        m.inode = inode_api.inode_to_entry(m.inode, {
+            user: user
+        });
+    }
+    return m;
 }

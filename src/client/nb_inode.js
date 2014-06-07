@@ -56,6 +56,7 @@ nb_util.factory('nbInode', [
             post_inode_message: post_inode_message,
             delete_inode_message: delete_inode_message,
             play_inode: play_inode,
+            get_ref_inode: get_ref_inode,
         };
 
         function inode_api_url(inode_id) {
@@ -898,6 +899,18 @@ nb_util.factory('nbInode', [
                 size: 'fullscreen'
             });
             return true;
+        }
+
+        function get_ref_inode(inode_id) {
+            return $http({
+                method: 'GET',
+                url: '/api/inode/' + inode_id + '/ref'
+            }).then(function(res) {
+                return res.data.entry;
+            }).then(null, function(err) {
+                console.error('FAILED GET INODE REF', err);
+                throw err;
+            });
         }
 
         return $scope;
