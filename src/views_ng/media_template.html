@@ -8,7 +8,7 @@
 		</h4>
 		<img ng-switch-when="image" ng-src="{{media_url(inode)}}" class="content-item img-responsive center-block" style="vertical-align: middle; max-height: 100%" nb-events="media_events" />
 		<div ng-switch-when="video">
-			<video controls autoplay ng-src="{{media_url(inode)}}" class="content-item img-responsive center-block" nb-events="media_events" nb-video="{{inode.content_type}}">
+			<video controls ng-attr-autoplay="autoplay" ng-src="{{media_url(inode)}}" class="content-item img-responsive center-block" nb-events="media_events" nb-video="{{inode.content_type}}">
 				<source ng-src="{{media_url(inode)}}" ng-attr-type="{{inode.content_type}}" />
 				<object ng-attr-data="{{media_url(inode)}}" ng-attr-type="{{inode.content_type}}">
 					<embed ng-src="{{media_url(inode)}}">
@@ -17,7 +17,7 @@
 			</video>
 		</div>
 		<div ng-switch-when="audio">
-			<audio controls autoplay ng-src="{{media_url(inode)}}" style="padding: 30px 5px 5px 5px" class="content-item img-responsive center-block" nb-events="media_events">
+			<audio controls ng-attr-autoplay="autoplay" ng-src="{{media_url(inode)}}" style="padding: 30px 5px 5px 5px" class="content-item img-responsive center-block" nb-events="media_events">
 				<source ng-src="{{media_url(inode)}}" ng-attr-type="{{inode.content_type}}">
 			</audio>
 		</div>

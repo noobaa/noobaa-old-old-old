@@ -17,19 +17,18 @@
                     <span ng-bind-html="msg.text | linky:'_blank'" style="white-space: pre-wrap"></span>
                     <span class="chat-msg-time">&nbsp;{{moment(msg.time).format('HH:mm')}}</span>
                 </span>
-                <div ng-if="msg.inode" style="cursor: pointer" ng-click="open_msg_inode(msg)">
-                    <div class="pull-left" style="margin-right: 10px">
-                        <i class="fa fa-{{nbUtil.icon_by_kind(msg.inode.content_kind)}} fa-fw fa-3x" style="color: hsl(0,0%,30%)"></i>
-                    </div>
-                    <div style="overflow: hidden">
-                        <div class="text-ellipses" rel="tooltip" ng-attr-title="{{msg.inode.name}}">
+                <div ng-if="msg.inode">
+                    <div nb-media="msg.inode" show-content="true" autoplay="false"></div>
+                    <a ng-click="open_msg_inode(msg)">
+                        <div class="text-ellipses">
+                            <i class="fa fa-{{nbUtil.icon_by_kind(msg.inode.content_kind)}} fa-fw chat-msg-muted" style="margin-right: 5px"></i>
                             <b><span style="white-space: pre-wrap">{{msg.inode.name}}</span></b>
                         </div>
                         <div>
                             <span ng-show="!msg.inode.isdir" class="chat-msg-muted">{{human_size(msg.inode.size)}}</span>
                             <span class="chat-msg-time">&nbsp;{{moment(msg.time).format('HH:mm')}}</span>
                         </div>
-                    </div>
+                    </a>
                 </div>
             </div>
             <div ng-if="chat.seen_msg == msg._id && !$last" class="text-center">

@@ -220,6 +220,7 @@ nb_util.factory('nbInode', [
                 inode.entries.sort(inode.sorting_func || default_sort_func);
                 inode.entries_by_kind = _.groupBy(inode.entries, 'content_kind');
             }
+            inode.loaded = Date.now();
             return inode;
         }
 
@@ -259,7 +260,6 @@ nb_util.factory('nbInode', [
                 params: params
             }).then(function(res) {
                 inode.is_loading = false;
-                inode.loaded = Date.now();
                 var entry = res.data;
                 if (!inode.id) {
                     entry.entries.push(inodes_cache.sbm);

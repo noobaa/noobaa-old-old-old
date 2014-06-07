@@ -132,6 +132,7 @@ nb_util.factory('nbChat', [
                 open_chats();
                 return;
             }
+            merge_chat_inodes($scope.active_chat);
             touch_chat();
             return $scope.active_chat;
         }
@@ -196,6 +197,30 @@ nb_util.factory('nbChat', [
             $scope.total_new_msgs += chat.new_msgs;
         }
 
+        function merge_chat_inodes(chat) {
+            _.each(chat.msgs, function(m) {
+                if (!m.inode) {
+                    return;
+                }
+                m.inode = nbInode.merge_inode(m.inode);
+                if (!m.inode.not_mine) {
+                    return;
+                }
+                if (m.original_inode) {
+                    return;
+                }
+                m.original_inode = m.inode;
+                nbInode.get_ref_inode(m.inode.id).then(function(inode) {
+                    if (!inode) {
+                        console.error('no file ref', m.inode.id);
+                        return;
+                    }
+                    m.inode = nbInode.merge_inode(inode);
+                }).then(null, function(err) {
+                    m.original_inode = null;
+                });
+            });
+        }
 
 
         function scroll_chat_to_bottom() {
@@ -352,26 +377,10 @@ nb_util.controller('ChatCtrl', [
         $scope.open_msg_inode = open_msg_inode;
 
         function open_msg_inode(msg) {
-            if (!msg) {
+            if (!msg || !msg.inode) {
                 return;
             }
-            var inode = msg.ref_inode || msg.inode;
-            if (!msg.inode) {
-                return;
-            }
-            if (!msg.inode.not_mine) {
-                $location.path('/files/' + msg.inode.id);
-                return;
-            }
-            msg.original_inode = msg.inode;
-            nbInode.get_ref_inode(msg.inode.id).then(function(inode) {
-                if (!inode) {
-                    alertify.error('File doesn\'t exist');
-                    return;
-                }
-                msg.inode = inode;
-                $location.path('/files/' + msg.inode.id);
-            });
+            $location.path('/files/' + msg.inode.id);
         }
 
         function send_chat_message(msg) {
