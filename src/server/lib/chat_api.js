@@ -12,6 +12,7 @@ var chat_models = require('../models/chat');
 var Chat = chat_models.Chat;
 var ChatMsg = chat_models.ChatMsg;
 var inode_api = require('./inode_api');
+var user_inodes = require('./user_inodes');
 var email = require('./email');
 var common_api = require('./common_api');
 var track_api = require('./track_api');
@@ -185,23 +186,52 @@ exports.send = function(req, res) {
     msg.text = req.body.text;
     msg.inode = req.body.inode;
     var chat;
+    var inode;
     async.waterfall([
         function(next) {
-            return Chat.findById(chat_id, next);
+            return async.parallel({
+                chat: function(callback) {
+                    return Chat.findById(chat_id, callback);
+                },
+                inode: function(callback) {
+                    if (!msg.inode) {
+                        return callback(null, null);
+                    }
+                    return Inode.findById(msg.inode, callback);
+                }
+            }, next);
         },
-        function(chat_arg, next) {
-            chat = chat_arg;
-            return verify_chat_access(chat, user_id, next);
+        function(results, next) {
+            chat = results.chat;
+            inode = results.inode;
+            return verify_chat_access(chat, user_id, common_api.err_only(next));
         },
         function(next) {
-            return msg.save(next);
+            if (!inode) {
+                return next();
+            }
+            return common_api.check_ownership(
+                user_id.toString(), inode, common_api.err_only(next));
         },
-        function(msg_arg, num_arg, next) {
+        function(next) {
+            return msg.save(common_api.err_only(next));
+        },
+        function(next) {
             chat.mtime = new Date(); // touch mtime
-            return chat.save(next);
+            return chat.save(common_api.err_only(next));
         },
-        function(chat_arg, num_arg, next) {
-            return next();
+        function(next) {
+            if (!inode) {
+                return next();
+            }
+            var user_ids = [];
+            _.each(chat.users, function(u) {
+                if (!u.user.equals(user_id)) {
+                    user_ids.push(u.user);
+                }
+            });
+            console.log('SEND create ghost refs', user_ids);
+            return user_inodes.add_inode_ghost_refs(inode, user_ids, next);
         }
     ], common_api.reply_callback(req, res, 'CHAT SEND'));
 };

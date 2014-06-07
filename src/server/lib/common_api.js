@@ -7,6 +7,14 @@ var crypto = require('crypto');
 var StarLog = require('../models/starlog.js').StarLog;
 
 
+// simple builder function to return a callback that onlt propagates the first err arg
+
+function err_only(next) {
+    return function(err) {
+        return next(err);
+    };
+}
+
 // add data to the request starlog, which will be attached
 // to the log record that reply callback will write to the DB.
 // TODO: add info in the relevant routes - tests code complicates stuff because req is not available
@@ -55,17 +63,17 @@ function submit_starlog(err, req) {
 
 // Convinient callback maker for handling the reply of async control flows.
 // Example usage:
-//		async.waterfall([
-//			...
-//		], reply_callback(req, res, debug_info));
+//      async.waterfall([
+//          ...
+//      ], reply_callback(req, res, debug_info));
 
 function reply_callback(req, res, debug_info, skip_starlog) {
     return function(err, reply) {
         /* unused for now
-		if (skip_starlog !== 'skip_starlog') {
-			submit_starlog(err, req);
-		}
-		*/
+        if (skip_starlog !== 'skip_starlog') {
+            submit_starlog(err, req);
+        }
+        */
         if (err) {
             var status = err.status || err.statusCode;
             var data = err.data || err.message;
@@ -130,9 +138,9 @@ function check_ownership(user_id, obj, next) {
 
 // Convinient callback maker to check the object owner matching to the req.user
 // Example usage:
-//		async.waterfall([
-//			req_ownership_checker(req),
-//		], reply_callback(req, res, debug_info));
+//      async.waterfall([
+//          req_ownership_checker(req),
+//      ], reply_callback(req, res, debug_info));
 
 function req_ownership_checker(req) {
     return function(obj, next) {
@@ -153,6 +161,7 @@ function common_server_data(req) {
 }
 
 
+exports.err_only = err_only;
 exports.starlog = starlog;
 exports.reply_callback = reply_callback;
 exports.json_encode_sign = json_encode_sign;

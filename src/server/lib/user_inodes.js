@@ -160,6 +160,7 @@ function new_inode_ref(user_id, parent_id, inode) {
 
 
 // add ghosts which refer to the inode and belong to the users in the list
+exports.add_inode_ghost_refs = add_inode_ghost_refs;
 
 function add_inode_ghost_refs(inode, user_ids, callback) {
     if (!user_ids || !user_ids.length) {
@@ -168,6 +169,16 @@ function add_inode_ghost_refs(inode, user_ids, callback) {
     console.log("add_inode_ghost_refs", inode.id, inode.name, user_ids);
 
     return async.waterfall([
+
+        function(next) {
+            if (inode.shr === 'r' || inode.shr === 'f') {
+                return next();
+            }
+            inode.shr = 'r';
+            return inode.save(function(err) {
+                return next(err);
+            });
+        },
 
         function(next) {
             var uids = user_ids.concat([inode.owner]);
