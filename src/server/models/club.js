@@ -6,7 +6,7 @@ var types = mongoose.Schema.Types;
 var _ = require('underscore');
 
 
-var chat_schema = new mongoose.Schema({
+var club_schema = new mongoose.Schema({
     ctime: {
         type: Date,
         default: Date.now
@@ -24,19 +24,19 @@ var chat_schema = new mongoose.Schema({
         },
         seen_msg: {
             type: types.ObjectId,
-            ref: 'ChatMsg'
+            ref: 'ClubMsg'
         }
     }],
 });
 
-var chat_msg_schema = new mongoose.Schema({
+var club_msg_schema = new mongoose.Schema({
     time: {
         type: Date,
         default: Date.now
     },
-    chat: {
+    club: {
         type: types.ObjectId,
-        ref: 'Chat'
+        ref: 'Club'
     },
     user: {
         type: types.ObjectId,
@@ -49,7 +49,7 @@ var chat_msg_schema = new mongoose.Schema({
     }
 });
 
-chat_schema.index({
+club_schema.index({
     'users.user': 1,
     ctime: 1,
     mtime: 1
@@ -57,15 +57,15 @@ chat_schema.index({
     unique: false
 });
 
-chat_msg_schema.index({
-    chat: 1,
+club_msg_schema.index({
+    club: 1,
     time: 1
 }, {
     unique: false
 });
 
 
-var Chat = mongoose.model('Chat', chat_schema);
-var ChatMsg = mongoose.model('ChatMsg', chat_msg_schema);
-exports.Chat = Chat;
-exports.ChatMsg = ChatMsg;
+var Club = mongoose.model('Club', club_schema);
+var ClubMsg = mongoose.model('ClubMsg', club_msg_schema);
+exports.Club = Club;
+exports.ClubMsg = ClubMsg;

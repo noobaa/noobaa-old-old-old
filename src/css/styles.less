@@ -189,22 +189,22 @@ body.navbar-bottom-pad {
 /**/
 
 /******************************************************************************
-    CHAT 
+    CLUB 
  ******************************************************************************/
- .chat-list {
+ .club-list {
     height: 100%;
     margin: 0;
     .panel-body {
         padding: 0;
         overflow-y: auto;
-        .chatline, .header-line, .action-line {
+        .clubline, .header-line, .action-line {
             padding: 10px 20px 0 20px;
             hr {
                 margin: 10px -10px 0 -10px;
                 border-color: @gray-lighter;
             }
         }
-        .chatline {
+        .clubline {
             position: relative;
             padding: 10px 10px 0 10px;
             hr {
@@ -277,7 +277,7 @@ body.navbar-bottom-pad {
         padding: 0;
     }
 }
-.chat-panel {
+.club-panel {
     height: 100%;
     margin: 0;
     .panel-body {
@@ -292,7 +292,7 @@ body.navbar-bottom-pad {
             .inner-input;
         }
     }
-    .chat-msg {
+    .club-msg {
         padding: 8px 13px;
         border-radius: 8px;
         margin-bottom: 13px;
@@ -301,24 +301,24 @@ body.navbar-bottom-pad {
         position: relative;
     }
     .alert {
-        .chat-msg;
+        .club-msg;
         margin: 20px;
     }
-    .chat-triangle-base {
+    .club-triangle-base {
         width: 0;
         height: 0;
         border-style: solid;
         position: absolute;
     }
-    .chat-msg-muted {
+    .club-msg-muted {
         color: lighten(@gray, 10%);
     }
-    .chat-msg-time {
-        .chat-msg-muted;
+    .club-msg-time {
+        .club-msg-muted;
         font-size: 0.7em;
     }
-    .chat-msg-mine {
-        .chat-msg;
+    .club-msg-mine {
+        .club-msg;
         float: right;
         @c: lighten(@brand-success, 35%);
         color: @gray-darker;
@@ -327,15 +327,15 @@ body.navbar-bottom-pad {
         background-color: @c;
         &::after {
             content:"";
-            .chat-triangle-base;
+            .club-triangle-base;
             top: 10px;
             right: -9px;
             border-width: 7px 0 7px 8px;
             border-color: transparent transparent transparent @c;
         }
     }
-    .chat-msg-user {
-        .chat-msg;
+    .club-msg-user {
+        .club-msg;
         float: left;
         @c: hsl(0, 0%, 100%);
         color: @gray-darker;
@@ -343,7 +343,7 @@ body.navbar-bottom-pad {
         border-color: @c;
         background-color: @c;
         &::after {
-            .chat-triangle-base;
+            .club-triangle-base;
             content:"";
             top: 10px;
             left: -9px;

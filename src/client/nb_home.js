@@ -41,12 +41,12 @@ nb_home.config(['$routeProvider', '$locationProvider',
                     $scope.set_current_item($routeParams.id);
                 }
             ]
-        }).when('/chat/', {
-            templateUrl: 'chats_list.html',
-            controller: 'ChatsCtrl'
-        }).when('/chat/:id*', {
-            templateUrl: 'chat.html',
-            controller: 'ChatCtrl'
+        }).when('/club/', {
+            templateUrl: 'clubs_list.html',
+            controller: 'ClubsCtrl'
+        }).when('/club/:id*', {
+            templateUrl: 'club.html',
+            controller: 'ClubCtrl'
         }).when('/profile/', {
             templateUrl: 'friends_template.html',
             controller: 'ProfileCtrl'
@@ -57,7 +57,7 @@ nb_home.config(['$routeProvider', '$locationProvider',
             templateUrl: 'scene_template.html',
             controller: 'GuyScenesCtrl'
         }).otherwise({
-            redirectTo: '/chat/'
+            redirectTo: '/club/'
         });
     }
 ]);
@@ -72,10 +72,10 @@ nb_home.config(['$routeProvider', '$locationProvider',
 nb_home.controller('HomeCtrl', [
     '$scope', '$http', '$timeout', '$interval', '$q', '$window', '$location', '$compile',
     'nbUtil', 'nbMultiSelect', 'nbUser', 'nbUserFeedback',
-    'nbInode', 'nbUploadSrv', 'nbPlanet', 'nbFeed', 'nbChat',
+    'nbInode', 'nbUploadSrv', 'nbPlanet', 'nbFeed', 'nbClub',
     function($scope, $http, $timeout, $interval, $q, $window, $location, $compile,
         nbUtil, nbMultiSelect, nbUser, nbUserFeedback,
-        nbInode, nbUploadSrv, nbPlanet, nbFeed, nbChat) {
+        nbInode, nbUploadSrv, nbPlanet, nbFeed, nbClub) {
 
         $scope.nbUtil = nbUtil;
         $scope.nbMultiSelect = nbMultiSelect;
@@ -84,7 +84,7 @@ nb_home.controller('HomeCtrl', [
         $scope.nbInode = nbInode;
         $scope.nbUploadSrv = nbUploadSrv;
         $scope.nbPlanet = nbPlanet;
-        $scope.nbChat = nbChat;
+        $scope.nbClub = nbClub;
         $scope.moment = moment;
 
         $scope.root_dir = nbInode.get_inode();
@@ -223,8 +223,8 @@ nb_home.controller('HomeCtrl', [
             }
         };
 
-        $scope.click_chats = function() {
-            $location.path('/chat/');
+        $scope.click_clubs = function() {
+            $location.path('/club/');
         };
         $scope.click_files = function() {
             $location.path('/files/');
@@ -234,7 +234,7 @@ nb_home.controller('HomeCtrl', [
         };
 
         var location_paths = [
-            'chat',
+            'club',
             'watch',
             'files',
             // 'uploads',

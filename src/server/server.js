@@ -69,7 +69,7 @@ var email = require('./lib/email');
 var device_api = require('./lib/device_api');
 var track_api = require('./lib/track_api');
 // var blog_api = require('./lib/blog_api');
-var chat_api = require('./lib/chat_api');
+var club_api = require('./lib/club_api');
 var adminoobaa = require('./lib/adminoobaa');
 
 
@@ -211,14 +211,14 @@ app.del('/api/inode/:inode_id/message/:message_id', message_api.delete_inode_mes
 
 app.get('/api/feed/', inode_api.feed_query);
 
-app.get('/api/chat/', chat_api.poll);
-app.post('/api/chat/', chat_api.create);
-app.put('/api/chat/:chat_id', chat_api.update);
-app.del('/api/chat/:chat_id', chat_api.leave);
-app.post('/api/chat/:chat_id/msg', chat_api.send);
-app.put('/api/chat/:chat_id/msg', chat_api.mark_seen);
-app.get('/api/chat/:chat_id/msg', chat_api.read);
-app.get('/api/chat/list/', chat_api.list);
+app.get('/api/club/', club_api.poll);
+app.post('/api/club/', club_api.create);
+app.put('/api/club/:club_id', club_api.update);
+app.del('/api/club/:club_id', club_api.leave);
+app.post('/api/club/:club_id/msg', club_api.send);
+app.put('/api/club/:club_id/msg', club_api.mark_seen);
+app.get('/api/club/:club_id/msg', club_api.read);
+app.get('/api/club/list/', club_api.list);
 
 app.get('/api/user/', user_api.user_read);
 app.put('/api/user/', user_api.user_update);
