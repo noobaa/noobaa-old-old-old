@@ -23,24 +23,11 @@
     <div class="panel-body">
 
         <div ng-hide="filtered_friends.length || nbUtil.valid_email(friend_input)">
-            <div class="line padline text-muted">
-                <span ng-show="friend_input.length" class="lead">NO FRIENDS MATCH</span>
-                <span ng-hide="friend_input.length" class="lead">NO FRIENDS</span>
+            <div class="headline text-center">
+                <div class="line padline text-muted">
+                    <span class="lead">NO FRIENDS FOUND</span>
+                </div>
             </div>
-            <div class="line padline">
-                <p>Hint 1 - import friends from <b>Facebook</b> and <b>Google+</b>
-                </p>
-                <p>Hint 2 - enter valid <b>email address</b>
-                </p>
-            </div>
-        </div>
-
-        <div ng-show="!filtered_friends.length || nbUtil.valid_email(friend_input)">
-            <a class="line padline clickable" ng-click="choose_friend_email(friend_input)">
-                <i class="fa fa-envelope fa-lg fa-2x"></i>
-                Invite {{friend_input}}
-            </a>
-            <hr />
         </div>
 
         <div ng-repeat="friend in filtered_friends = (nbUser.friends.all | filter:{name:friend_input} | orderBy:'name' | limitTo:100) track by $index">
@@ -57,31 +44,41 @@
             <hr />
         </div>
 
-    </div>
-
-    <div class="panel-footer ">
-        <div class="row">
-            <div class="col-xs-6 text-center">
-                <a ng-click="nbUser.connect_facebook()" ng-hide="nbUser.user.fbid">
-                    <i class="fa fa-facebook-square fa-lg fa-2x"></i>
-                    Connect Facebook
-                </a>
-                <span ng-show="nbUser.user.fbid" class="text-muted">
-                    <i class="fa fa-check fa-fw"></i>
-                    Facebook Connected
-                </span>
+        <div class="headline">
+            <div class="line padline">
+                <b>FIND MORE FRIENDS</b>
             </div>
-            <div class="col-xs-6 text-center">
-                <a ng-click="nbUser.connect_google()" ng-hide="nbUser.user.googleid">
-                    <i class="fa fa-google-plus-square fa-lg fa-2x"></i>
-                    Connect Google+
-                </a>
-                <span ng-show="nbUser.user.googleid" class="text-muted">
-                    <i class="fa fa-check fa-fw"></i>
-                    Google+ Connected
-                </span>
-            </div>
+            <hr />
         </div>
+        <a ng-click="choose_friend_email(friend_input)" class="line padline clickable">
+            <i class="fa fa-envelope fa-lg fa-fw"></i>
+            <span ng-show="nbUtil.valid_email(friend_input)">
+                Invite {{friend_input}}
+            </span>
+            <span ng-hide="nbUtil.valid_email(friend_input)">
+                Invite by email
+            </span>
+        </a>
+        <hr />
+        <a ng-click="nbUser.connect_facebook()" ng-hide="nbUser.user.fbid" class="line padline clickable">
+            <i class="fa fa-facebook-square fa-lg fa-fw"></i>
+            Connect Facebook
+        </a>
+        <div ng-show="nbUser.user.fbid" class="line padline text-muted">
+            <i class="fa fa-check fa-fw"></i>
+            Connected with Facebook
+        </div>
+        <hr />
+        <a ng-click="nbUser.connect_google()" ng-hide="nbUser.user.googleid" class="line padline clickable">
+            <i class="fa fa-google-plus-square fa-lg fa-fw"></i>
+            Connect Google+
+        </a>
+        <div ng-show="nbUser.user.googleid" class="line padline text-muted">
+            <i class="fa fa-check fa-fw"></i>
+            Connected with Google+
+        </div>
+        <hr />
+
     </div>
 
 </div>

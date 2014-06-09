@@ -336,22 +336,6 @@ nb_util.directive('nbEvents', ['$parse',
     }
 ]);
 
-nb_util.directive('nbTriggers', ['$parse',
-    function($parse) {
-        return {
-            restrict: 'A', // use as attribute
-            link: function(scope, element, attr) {
-                var triggers = scope.$eval(attr.nbTriggers) || {};
-                for (var t in triggers) {
-                    scope.$watch(triggers[t], function() {
-                        $(element).trigger(t);
-                    });
-                }
-            }
-        };
-    }
-]);
-
 nb_util.directive('nbFocus', ['$timeout',
     function($timeout) {
         return {

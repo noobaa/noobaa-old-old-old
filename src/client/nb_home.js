@@ -42,9 +42,14 @@ nb_home.config(['$routeProvider', '$locationProvider',
                 }
             ]
         }).when('/club/', {
-            // templateUrl: 'clubs_list.html',
-            templateUrl: 'friend_chooser.html',
+            templateUrl: 'clubs_list.html',
             controller: 'ClubsCtrl'
+        }).when('/club/new', {
+            templateUrl: 'club_create.html',
+            controller: 'ClubCreateCtrl'
+        }).when('/club/member', {
+            templateUrl: 'friend_chooser.html',
+            // controller: 'ClubCreateCtrl'
         }).when('/club/:id*', {
             templateUrl: 'club.html',
             controller: 'ClubCtrl'
