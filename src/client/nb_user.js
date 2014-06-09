@@ -31,20 +31,20 @@ nb_util.factory('nbUser', [
         $scope.update_user_info = update_user_info;
         $scope.connect_facebook = connect_facebook;
         $scope.connect_google = connect_google;
-        
+
         $scope.refresh_friends = refresh_friends;
         $scope.init_friends = init_friends;
         $scope.get_friend_by_id = get_friend_by_id;
         $scope.user_pic_url = user_pic_url;
         $scope.user_name = user_name;
         $scope.user_first_name = user_first_name;
-        
+
         $scope.set_fb_invites = set_fb_invites;
         $scope.send_fb_invites = send_fb_invites;
         $scope.set_google_invites = set_google_invites;
         $scope.send_google_invites = send_google_invites;
         $scope.send_friend_message = send_friend_message;
-        $scope.send_friend_reminder = send_friend_reminder;        
+        $scope.send_friend_reminder = send_friend_reminder;
 
 
         function set_user_usage(quota, usage) {
@@ -296,7 +296,7 @@ nb_util.factory('nbUser', [
             }
             return user ? user.name : '';
         }
-        
+
         function user_first_name(user) {
             if (typeof(user) === 'string') {
                 user = get_friend_by_id(user);
@@ -411,5 +411,40 @@ nb_util.controller('ProfileCtrl', [
     function($scope, $q, $location, $timeout, nbUtil, nbUser, nbInode) {
         $scope.nbUser = nbUser;
         nbUser.init_friends();
+    }
+]);
+
+
+nb_util.controller('FriendChooserCtrl', [
+    '$scope', '$q', '$location', '$timeout', 'nbUtil', 'nbUser', 'nbInode',
+    function($scope, $q, $location, $timeout, nbUtil, nbUser, nbInode) {
+        $scope.nbUser = nbUser;
+        nbUser.init_friends();
+
+
+        $scope.start_search_friend = function() {
+            $scope.search_friend = true;
+        };
+
+        $scope.reset_search_friend = function() {
+            $scope.search_friend = false;
+            $scope.friend_input = '';
+        };
+
+        $scope.$on('$locationChangeStart', function(event) {
+            if ($scope.search_friend) {
+                event.preventDefault();
+            }
+            $scope.reset_search_friend();
+        });
+
+        $scope.choose_friend = function(friend) {
+            $scope.reset_search_friend();
+        };
+        $scope.choose_friend_email = function(email) {
+            $scope.reset_search_friend();
+        };
+
+        $scope.reset_search_friend();
     }
 ]);

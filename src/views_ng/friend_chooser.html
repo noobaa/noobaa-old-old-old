@@ -1,0 +1,87 @@
+<div ng-controller="FriendChooserCtrl" class="friend-chooser panel" nb-panel-hfill nb-escape="back()">
+
+    <div class="panel-heading clearfix">
+        <a ng-click="back()" class="btn btn-link btn-lg pull-left" style="padding: 5px 10px">
+            <i class="fa fa-angle-left fa-3x text-primary"></i>
+        </a>
+        <div class="hflow" style="padding: 10px">
+            <div class="search-control form-control input-lg clearfix">
+                <a class="btn btn-link pull-left" style="padding: 0 10px 0 0" ng-click="start_search_friend()">
+                    <i class="fa fa-search fa-lg text-muted"></i>
+                </a>
+                <a ng-show="friend_input" class="btn btn-link pull-right" style="padding: 0" ng-click="reset_search_friend()">
+                    <span class="fa fa-2x closer"></span>
+                </a>
+                <div class="hflow relpos">
+                    <input type="text" class="inner-input" placeholder="Friend Name or Email" ng-model="friend_input" nb-focus="search_friend" ng-focus="start_search_friend()" />
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="panel-body">
+
+        <div ng-hide="filtered_friends.length || nbUtil.valid_email(friend_input)">
+            <div class="line padline text-muted">
+                <span ng-show="friend_input.length" class="lead">NO FRIENDS MATCH</span>
+                <span ng-hide="friend_input.length" class="lead">NO FRIENDS</span>
+            </div>
+            <div class="line padline">
+                <p>Hint 1 - import friends from <b>Facebook</b> and <b>Google+</b>
+                </p>
+                <p>Hint 2 - enter valid <b>email address</b>
+                </p>
+            </div>
+        </div>
+
+        <div ng-show="!filtered_friends.length || nbUtil.valid_email(friend_input)">
+            <a class="line padline clickable" ng-click="choose_friend_email(friend_input)">
+                <i class="fa fa-envelope fa-lg fa-2x"></i>
+                Invite {{friend_input}}
+            </a>
+            <hr />
+        </div>
+
+        <div ng-repeat="friend in filtered_friends = (nbUser.friends.all | filter:{name:friend_input} | orderBy:'name' | limitTo:100) track by $index">
+            <a class="line clickable" ng-click="choose_friend(friend)">
+                <img class="pull-left user-image" ng-src="{{nbUser.user_pic_url(friend)}}" />
+                <div class="pull-right text-center" style="padding: 10px 5px; width: 55px">
+                    <i ng-show="!friend.id && friend.fbid" class="fa fa-lg fa-facebook-square text-primary"></i>
+                    <i ng-show="!friend.id && friend.googleid" class="fa fa-lg fa-google-plus-square text-danger"></i>
+                </div>
+                <div class="hflow" style="padding: 5px 0 0 10px">
+                    <div class="text-ellipses">{{friend.name}}</div>
+                </div>
+            </a>
+            <hr />
+        </div>
+
+    </div>
+
+    <div class="panel-footer ">
+        <div class="row">
+            <div class="col-xs-6 text-center">
+                <a ng-click="nbUser.connect_facebook()" ng-hide="nbUser.user.fbid">
+                    <i class="fa fa-facebook-square fa-lg fa-2x"></i>
+                    Connect Facebook
+                </a>
+                <span ng-show="nbUser.user.fbid" class="text-muted">
+                    <i class="fa fa-check fa-fw"></i>
+                    Facebook Connected
+                </span>
+            </div>
+            <div class="col-xs-6 text-center">
+                <a ng-click="nbUser.connect_google()" ng-hide="nbUser.user.googleid">
+                    <i class="fa fa-google-plus-square fa-lg fa-2x"></i>
+                    Connect Google+
+                </a>
+                <span ng-show="nbUser.user.googleid" class="text-muted">
+                    <i class="fa fa-check fa-fw"></i>
+                    Google+ Connected
+                </span>
+            </div>
+        </div>
+    </div>
+
+</div>

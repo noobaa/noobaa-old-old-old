@@ -189,6 +189,66 @@ body.navbar-bottom-pad {
 /**/
 
 /******************************************************************************
+    FRIENDS 
+ ******************************************************************************/
+ .friend-chooser {
+    height: 100%;
+    margin: 0;
+    .panel-heading {
+        padding: 0;
+    }
+    .panel-body {
+        padding: 0;
+        overflow-y: auto;
+    }
+    hr {
+        margin: 0 10px;
+        border-color: @gray-lighter;
+    }
+    .well {
+        background-color: transparent;
+        border: none;
+        box-shadow: none;
+        margin: 0;
+    }
+    .line {
+        .clearfix;
+        display: block;
+        position: relative;
+        padding: 10px;
+        &.clickable:hover {
+            background-color: @gray-lighter;
+            .bgnoise2;
+        }
+        &.padline {
+            padding: 20px;
+        }
+    }
+    .user-image {
+        width: 50px;
+        height: 50px;
+        vertical-align: top;
+    }
+    .fa-caret-right {
+        text-align: left;
+        margin-left: 2px;
+        width: 10px;
+    }
+    .fa-check {
+        text-align: left;
+        font-style: italic;
+    }
+    .fa-envelope {
+        .text-success;
+    }
+    .fa-facebook-square {
+        .text-primary;
+    }
+    .fa-google-plus-square {
+        .text-danger;
+    }
+}
+/******************************************************************************
     CLUB 
  ******************************************************************************/
  .club-list {

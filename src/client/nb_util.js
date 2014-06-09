@@ -329,25 +329,48 @@ nb_util.directive('nbEvents', ['$parse',
             link: function(scope, element, attr) {
                 var events = scope.$eval(attr.nbEvents) || {};
                 for (var e in events) {
-                    $(element).on(e, events[e]);
+                    $(element).on(e, scope.safe_callback(events[e]));
                 }
             }
         };
     }
 ]);
 
-nb_util.directive('nbFocus', function() {
-    return {
-        restrict: 'A', // use as attribute
-        link: function(scope, element, attr) {
-            scope.$watch(attr.nbFocus, function(val) {
-                if (val) {
-                    element.focus();
+nb_util.directive('nbTriggers', ['$parse',
+    function($parse) {
+        return {
+            restrict: 'A', // use as attribute
+            link: function(scope, element, attr) {
+                var triggers = scope.$eval(attr.nbTriggers) || {};
+                for (var t in triggers) {
+                    scope.$watch(triggers[t], function() {
+                        $(element).trigger(t);
+                    });
                 }
-            }, true);
-        }
-    };
-});
+            }
+        };
+    }
+]);
+
+nb_util.directive('nbFocus', ['$timeout',
+    function($timeout) {
+        return {
+            restrict: 'A', // use as attribute
+            link: function(scope, element, attr) {
+                scope.$watch(attr.nbFocus, function(val) {
+                    // submit to allow elements to be added to dom if needed
+                    $timeout(function() {
+                        if (val) {
+                            element.focus();
+                        } else {
+                            element.blur();
+                        }
+                    }, 0);
+                }, true);
+            }
+        };
+    }
+]);
 
 nb_util.directive('nbOnFocus', function() {
     return {

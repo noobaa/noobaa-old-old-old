@@ -49,7 +49,7 @@
 /**/
 
 /**/
-a, button, .btn {
+ a, button, .btn {
     &, &:active, &:focus, &:hover {
         outline: none !important;
     }
@@ -62,12 +62,38 @@ a, button, .btn {
     border: none;
     box-shadow: none;
     background-color: transparent;
+    padding: 0;
+    margin: 0;
 }
 .panel, .panel .panel-heading, .panel .panel-footer {
     border-color: @border-color;
 }
 .rounded {
     border-radius: 50%;
+}
+.clickable {
+    cursor: pointer;
+}
+.hflow {
+    overflow: hidden;
+}
+.relpos {
+    position: relative;
+}
+.closer {
+    &:before {
+        content:"x";
+        font-size: 130%;
+        line-height: 75%;
+        font-weight: lighter;
+    }
+    .close;
+}
+.search-control {
+    background-color: transparent;
+    // border: none;
+    // box-shadow: none;
+    // border-bottom: 1px solid @brand-primary;
 }
 .bggrey {
     background-color: @gray-light;
