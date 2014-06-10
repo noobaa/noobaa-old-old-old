@@ -29,27 +29,32 @@
             <hr />
         </div>
 
-        <div ng-repeat="member in members = (chat.members) track by $index">
-            <a class="line">
+        <div ng-repeat="member in club.members track by $index">
+            <div class="line">
                 <img class="pull-left user-image-lg" ng-src="{{nbUser.user_pic_url(member)}}" />
-                <div class="pull-right text-center" style="padding: 10px 5px; width: 55px">
-                    <i ng-show="!member.id && member.fbid" class="fa fa-lg fa-facebook-square text-primary"></i>
-                    <i ng-show="!member.id && member.googleid" class="fa fa-lg fa-google-plus-square text-danger"></i>
+                <div class="pull-right">
+                    <a ng-click="remove_member($index)">
+                        <span class="fa fa-2x closer"></span>
+                    </a>
                 </div>
                 <div class="hflow" style="padding: 5px 0 0 10px">
                     <div class="text-ellipses">{{member.name}}</div>
+                    <div>
+                        <i ng-show="!member.id && member.fbid" class="fa fa-lg fa-facebook-square text-primary"></i>
+                        <i ng-show="!member.id && member.googleid" class="fa fa-lg fa-google-plus-square text-danger"></i>
+                    </div>
                 </div>
-            </a>
+            </div>
             <hr />
         </div>
 
         <a class="line padline clickable" ng-click="nbClub.add_member()">
             <div class="pull-left">
                 <i class="fa fa-user fa-2x text-muted"></i>
-                <i class="fa fa-plus" style="margin-left: -7px; vertical-align: 10px"></i>
+                <i class="fa fa-plus text-success" style="margin-left: -7px; vertical-align: 14px"></i>
             </div>
-            <div class="hflow" style="padding-left: 10px">
-                Add friend
+            <div class="hflow" style="padding: 5px 0 0 10px">
+                ADD FRIEND
             </div>
         </a>
         <hr />

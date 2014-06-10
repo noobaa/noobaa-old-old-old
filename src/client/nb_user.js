@@ -441,13 +441,13 @@ nb_util.controller('FriendChooserCtrl', [
         var orig_choose_friend = $scope.choose_friend;
         $scope.choose_friend = function(friend) {
             $scope.reset_search_friend();
-            orig_choose_friend();
+            orig_choose_friend(friend);
         };
 
         var orig_choose_friend_email = $scope.orig_choose_friend_email;
         $scope.choose_friend_email = function(email) {
             $scope.reset_search_friend();
-            orig_choose_friend_email();
+            orig_choose_friend_email(email);
         };
 
         $scope.reset_search_friend();

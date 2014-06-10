@@ -386,6 +386,14 @@ nb_util.controller('NewClubCtrl', [
             });
         };
 
+        $scope.remove_member = function(index) {
+            alertify.confirm('Remove member?', function(e) {
+                if (!e) return;
+                $scope.club.members.splice(index, 1);
+                $scope.safe_apply();
+            });
+        };
+
         $scope.save_club = nbClub.create_new_club;
     }
 ]);
@@ -398,6 +406,12 @@ nb_util.controller('ClubMemberCtrl', [
         $scope.nbClub = nbClub;
 
         $scope.back = nbClub.goto_new_club;
+
+        $scope.choose_friend = function(friend) {
+            console.log('CHOOSE FRIEND', friend);
+            nbClub.new_club.members.push(friend);
+            nbClub.goto_new_club();
+        };
     }
 ]);
 

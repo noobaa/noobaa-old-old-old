@@ -1,13 +1,17 @@
 <div class="club-list panel" nb-panel-hfill>
 
-    <div class="panel-heading" style="padding: 10px">
-        <button class="btn btn-default btn-lg text-light" ng-click="nbClub.start_new_club()">
-            <i class="fa fa-plus fa-lg"></i>
-            NEW CLUB
-        </button>
-    </div>
-
     <div class="panel-body">
+
+        <a class="line padline clickable" ng-click="nbClub.start_new_club()">
+            <div class="pull-left">
+                <i class="fa fa-cube fa-2x text-muted"></i>
+                <i class="fa fa-plus text-success" style="margin-left: -7px; vertical-align: 14px"></i>
+            </div>
+            <div class="hflow" style="padding: 5px 0 0 10px">
+                NEW CLUB
+            </div>
+        </a>
+        <hr/>
 
         <div ng-repeat="club in filtered_clubs = (nbClub.clubs_arr | filter:{title:club_search_input}) track by $index">
             <a class="line clickable" ng-click="nbClub.open_club(club._id)">
