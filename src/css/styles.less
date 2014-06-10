@@ -172,6 +172,47 @@ body.navbar-bottom-pad {
         border-radius: 0;
         border-top-width: 0;
         border-bottom-width: 0;
+        height: 100%;
+        margin-top: 0;
+        margin-bottom: 0;
+        .panel-heading, .panel-body, .panel-footer {
+            .clearfix;
+            padding: 0;
+        }
+        .panel-body {
+            overflow-y: auto;
+        }
+        hr {
+            margin: 0 10px;
+            border-color: @gray-lighter;
+        }
+        .well {
+            background-color: transparent;
+            border: none;
+            box-shadow: none;
+            margin: 0;
+        }
+        .line {
+            .clearfix;
+            display: block;
+            position: relative;
+            padding: 10px;
+            &.clickable:hover {
+                background-color: @gray-lighter;
+                .bgnoise2;
+            }
+            &.padline {
+                padding: 20px;
+            }
+        }
+        .headline {
+            .line {
+                padding-top: 30px;
+            }
+            hr {
+                border-width: 3px;
+            }
+        }
     }
     .feed-panel {
         max-width: 100%;
@@ -189,54 +230,9 @@ body.navbar-bottom-pad {
 /**/
 
 /******************************************************************************
-    FRIENDS 
+    CLUB 
  ******************************************************************************/
- .friend-chooser {
-    height: 100%;
-    margin: 0;
-    .panel-heading {
-        padding: 0;
-    }
-    .panel-body {
-        padding: 0;
-        overflow-y: auto;
-    }
-    hr {
-        margin: 0 10px;
-        border-color: @gray-lighter;
-    }
-    .well {
-        background-color: transparent;
-        border: none;
-        box-shadow: none;
-        margin: 0;
-    }
-    .line {
-        .clearfix;
-        display: block;
-        position: relative;
-        padding: 10px;
-        &.clickable:hover {
-            background-color: @gray-lighter;
-            .bgnoise2;
-        }
-        &.padline {
-            padding: 20px;
-        }
-    }
-    .headline {
-        .line {
-            padding-top: 30px;
-        }
-        hr {
-            border-width: 3px;
-        }
-    }
-    .user-image {
-        width: 64px;
-        height: 64px;
-        vertical-align: top;
-    }
+ .club-list {
     .fa-caret-right {
         text-align: left;
         margin-left: 2px;
@@ -246,112 +242,11 @@ body.navbar-bottom-pad {
         text-align: left;
         font-style: italic;
     }
-    .fa-envelope {
-        .text-success;
-    }
-    .fa-facebook-square {
-        .text-primary;
-    }
-    .fa-google-plus-square {
-        .text-danger;
-    }
-}
-/******************************************************************************
-    CLUB 
- ******************************************************************************/
- .club-list {
-    height: 100%;
-    margin: 0;
-    .panel-body {
-        padding: 0;
-        overflow-y: auto;
-        .clubline, .header-line, .action-line {
-            padding: 10px 20px 0 20px;
-            hr {
-                margin: 10px -10px 0 -10px;
-                border-color: @gray-lighter;
-            }
-        }
-        .clubline {
-            position: relative;
-            padding: 10px 10px 0 10px;
-            hr {
-                margin: 10px 0 0 0;
-            }
-            > .user-image {
-                width: 50px;
-                height: 50px;
-                vertical-align: top;
-            }
-            cursor: pointer;
-            &:hover {
-                background-color: @gray-lighter;
-                .bgnoise2;
-            }
-            .fa-caret-right {
-                text-align: left;
-                margin-left: 2px;
-                width: 10px;
-            }
-            .fa-check {
-                text-align: left;
-                font-style: italic;
-            }
-        }
-        .header-line {
-            padding-top: 25px;
-            font-size: 1em;
-            line-height: 2em;
-            font-weight: bold;
-            display: block;
-            text-align: left;
-            vertical-align: bottom;
-            text-transform: uppercase;
-            &, &:hover {
-                // .text-muted;
-            }
-            hr {
-                border-width: 3px;
-            }
-        }
-        a.header-line {
-            cursor: pointer;
-        }
-        .action-line {
-            line-height: 2em;
-            padding-top: 15px;
-            .text-muted;
-            a {
-                display: block;
-            }
-            .fa-envelope {
-                .text-success;
-            }
-            .fa-facebook-square {
-                .text-primary;
-            }
-            .fa-google-plus-square {
-                .text-danger;
-            }
-        }
-        .well {
-            background-color: transparent;
-            border: none;
-            box-shadow: none;
-            margin: 0;
-        }
-    }
-    .panel-footer {
-        padding: 0;
-    }
 }
 .club-panel {
-    height: 100%;
-    margin: 0;
     .panel-body {
         .bgnoise2;
         background-color: @gray;
-        overflow-y: auto;
         padding: 10px 10px 0 10px;
     }
     .panel-footer {
@@ -422,6 +317,34 @@ body.navbar-bottom-pad {
 }
 /**/
 
+/******************************************************************************
+    FRIENDS 
+ ******************************************************************************/
+ .friend-chooser {
+    .user-image {
+        width: 64px;
+        height: 64px;
+        vertical-align: top;
+    }
+    .fa-caret-right {
+        text-align: left;
+        margin-left: 2px;
+        width: 10px;
+    }
+    .fa-check {
+        text-align: left;
+        font-style: italic;
+    }
+    .fa-envelope {
+        .text-success;
+    }
+    .fa-facebook-square {
+        .text-primary;
+    }
+    .fa-google-plus-square {
+        .text-danger;
+    }
+}
 /******************************************************************************
     FILES 
  ******************************************************************************/

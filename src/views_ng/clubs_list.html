@@ -1,119 +1,31 @@
-<div class="club-list panel Xpanel-default" nb-panel-hfill nb-escape="clear_start_club()">
+<div class="club-list panel" nb-panel-hfill>
 
     <div class="panel-heading" style="padding: 10px">
-        <div class="form-control input-lg" style="{{starting_club || 'background-color: transparent'}}">
-            <a ng-hide="starting_club" class="pull-right" style="margin-left: 10px" rel="tooltip" title="Click to start club" ng-click="set_start_club()">
-                <i class="fa fa-comment-o fa-lg text-muted"></i>
-            </a>
-            <a ng-show="starting_club" class="pull-right" style="margin-left: 10px" rel="tooltip" title="Clear" ng-click="clear_start_club()">
-                <i class="fa fa-times fa-lg"></i>
-            </a>
-            <div style="overflow: hidden; position: relative">
-                <input type="text" class="inner-input" placeholder="Enter name or email to start club" ng-model="start_club_input" nb-on-focus="set_start_club()" />
-            </div>
-        </div>
+        <button class="btn btn-default btn-lg text-light" ng-click="nbClub.start_new_club()">
+            <i class="fa fa-plus fa-lg"></i>
+            NEW CLUB
+        </button>
     </div>
 
     <div class="panel-body">
 
-        <div ng-show="starting_club">
-            <a class="header-line" ng-click="hide_recent_clubs=!hide_recent_clubs">
-                <i class="fa fa-fw {{hide_recent_clubs && 'fa-plus-square-o' || 'fa-minus-square-o'}}"></i>
-                <span>recent clubs</span>
-                <hr />
-            </a>
-            <div ng-hide="filtered_clubs.length || hide_recent_clubs">
-                <div class="well text-muted">No matching clubs</div>
-            </div>
-        </div>
-
-        <div ng-hide="starting_club && hide_recent_clubs">
-            <div ng-repeat="club in filtered_clubs = (nbClub.clubs_arr | filter:{title:start_club_input}) track by $index" class="clearfix clubline" ng-click="open_club(club._id)">
-                <img class="pull-left user-image" ng-src="{{nbUser.user_pic_url(club.user)}}" />
+        <div ng-repeat="club in filtered_clubs = (nbClub.clubs_arr | filter:{title:club_search_input}) track by $index">
+            <a class="line clickable" ng-click="nbClub.open_club(club._id)">
+                <img class="pull-left user-image-lg" ng-src="{{nbUser.user_pic_url(club.user)}}" />
                 <div class="pull-right text-center" style="padding: 15px 5px 0 5px; width: 55px">
                     <span class="label label-success" ng-show="club.new_msgs">{{club.new_msgs}}</span>
                 </div>
-                <div style="overflow: hidden; padding: 5px 0 0 10px">
+                <div class="hflow" style="padding: 5px 0 0 10px">
                     <div class="text-ellipses">{{club.title}}</div>
                     <div class="text-ellipses {{club.new_msgs && 'text-success' || 'text-muted'}}" ng-if="club.msgs.length">
                         <i class="fa fa-fw {{club.msgs[club.msgs.length-1].user != nbUser.user.id && 'fa-caret-right fa-lg' || 'fa-check'}}"></i>
                         <span>{{club.msgs[club.msgs.length-1].text}}</span>
                     </div>
                 </div>
-                <div class="clearfix"></div>
-                <hr />
-            </div>
-        </div>
-
-        <div ng-if="starting_club">
-            <a class="header-line" ng-click="hide_friends=!hide_friends">
-                <i class="fa fa-fw {{hide_friends && 'fa-plus-square-o' || 'fa-minus-square-o'}}"></i>
-                <span>friends</span>
-                <hr />
             </a>
-            <div ng-hide="hide_friends">
-                <div ng-hide="filtered_friends.length">
-                    <div class="well text-muted">No matching friends</div>
-                </div>
-                <div ng-repeat="friend in filtered_friends = (nbUser.friends.all | filter:{name:start_club_input} | orderBy:'name' | limitTo:100) track by $index" class="clearfix clubline" ng-click="start_club_with_friend(friend)">
-                    <img class="pull-left user-image" ng-src="{{nbUser.user_pic_url(friend)}}" />
-                    <div class="pull-right text-center" style="padding: 10px 5px; width: 55px">
-                        <i ng-show="!friend.id && friend.fbid" class="fa fa-lg fa-facebook-square text-primary"></i>
-                        <i ng-show="!friend.id && friend.googleid" class="fa fa-lg fa-google-plus-square text-danger"></i>
-                    </div>
-                    <div style="overflow: hidden; padding: 5px 0 0 10px">
-                        <div class="text-ellipses">{{friend.name}}</div>
-                    </div>
-                    <div class="clearfix"></div>
-                    <hr />
-                </div>
-            </div>
-
-            <div class="header-line">
-                find more friends
-                <hr />
-            </div>
-            <div class="action-line">
-                <a ng-click="start_club_with_email(start_club_input)">
-                    <i class="fa fa-envelope fa-lg fa-fw"></i>
-                    <span ng-show="nbUtil.valid_email(start_club_input)">
-                        Invite {{start_club_input}}
-                    </span>
-                    <span ng-hide="nbUtil.valid_email(start_club_input)">
-                        Invite by email
-                    </span>
-                </a>
-                <div class="clearfix"></div>
-                <hr />
-            </div>
-            <div class="action-line">
-                <a ng-click="nbUser.connect_facebook()" ng-hide="nbUser.user.fbid">
-                    <i class="fa fa-facebook-square fa-lg fa-fw"></i>
-                    Connect Facebook
-                </a>
-                <span ng-show="nbUser.user.fbid">
-                    <i class="fa fa-check fa-fw"></i>
-                    Connected with Facebook
-                </span>
-                <div class="clearfix"></div>
-                <hr />
-            </div>
-            <div class="action-line">
-                <a ng-click="nbUser.connect_google()" ng-hide="nbUser.user.googleid">
-                    <i class="fa fa-google-plus-square fa-lg fa-fw"></i>
-                    Connect Google+
-                </a>
-                <span ng-show="nbUser.user.googleid">
-                    <i class="fa fa-check fa-fw"></i>
-                    Connected with Google+
-                </span>
-                <div class="clearfix"></div>
-                <hr />
-            </div>
-
+            <hr />
         </div>
-    </div>
 
-    <div class="panel-footer"></div>
+    </div>
 
 </div>

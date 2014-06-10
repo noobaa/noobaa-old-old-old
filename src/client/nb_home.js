@@ -45,11 +45,11 @@ nb_home.config(['$routeProvider', '$locationProvider',
             templateUrl: 'clubs_list.html',
             controller: 'ClubsCtrl'
         }).when('/club/new', {
-            templateUrl: 'club_create.html',
-            controller: 'ClubCreateCtrl'
+            templateUrl: 'club_edit.html',
+            controller: 'NewClubCtrl'
         }).when('/club/member', {
             templateUrl: 'friend_chooser.html',
-            // controller: 'ClubCreateCtrl'
+            controller: 'ClubMemberCtrl'
         }).when('/club/:id*', {
             templateUrl: 'club.html',
             controller: 'ClubCtrl'
@@ -63,7 +63,7 @@ nb_home.config(['$routeProvider', '$locationProvider',
             templateUrl: 'scene_template.html',
             controller: 'GuyScenesCtrl'
         }).otherwise({
-            redirectTo: '/club/'
+            redirectTo: '/club'
         });
     }
 ]);

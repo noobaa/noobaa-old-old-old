@@ -23,6 +23,10 @@ nb_util.factory('nbClub', [
             get_club: get_club,
             open_clubs: open_clubs,
             open_club: open_club,
+            start_new_club: start_new_club,
+            goto_new_club: goto_new_club,
+            create_new_club: create_new_club,
+            add_member: add_member,
             activate_club: activate_club,
             start_club_with_friend: start_club_with_friend,
             start_club_with_email: start_club_with_email,
@@ -125,6 +129,27 @@ nb_util.factory('nbClub', [
         function open_club(club_id) {
             $location.path('/club/' + club_id);
         }
+
+        $scope.NEW_CLUB_OBJ = {
+            title: '',
+            members: []
+        };
+
+        function start_new_club() {
+            console.log('NEW CLUB', $location.path());
+            $scope.new_club = angular.copy($scope.NEW_CLUB_OBJ);
+            goto_new_club();
+        }
+
+        function goto_new_club() {
+            $rootScope.safe_apply();
+            $location.path('/club/new');
+        }
+
+        function add_member() {
+            $location.path('/club/member');
+        }
+
 
         function activate_club(club_id) {
             $scope.active_club = get_club(club_id);
@@ -235,7 +260,21 @@ nb_util.factory('nbClub', [
         }
 
 
-
+        function create_new_club(club) {
+            var club_id;
+            return $http({
+                method: 'POST',
+                url: '/api/club/',
+                data: $scope.new_club
+            }).then(function(res) {
+                club_id = res.data.club_id;
+                return poll_clubs();
+            }).then(function() {
+                open_club(club_id);
+            }).then(null, function(err) {
+                console.error('FAILED CREATE CLUB', err);
+            });
+        }
 
         function start_club_with_friend(friend) {
             var club = $scope.clubs_by_user[friend.id];
@@ -323,40 +362,42 @@ nb_util.controller('ClubsCtrl', [
         $scope.nbUtil = nbUtil;
         $scope.nbUser = nbUser;
         $scope.nbClub = nbClub;
+    }
+]);
 
-        nbUser.init_friends();
+nb_util.controller('NewClubCtrl', [
+    '$scope', '$q', '$location', '$timeout', 'nbUtil', 'nbUser', 'nbInode', 'nbClub',
+    function($scope, $q, $location, $timeout, nbUtil, nbUser, nbInode, nbClub) {
+        $scope.nbUtil = nbUtil;
+        $scope.nbUser = nbUser;
+        $scope.nbClub = nbClub;
 
-        $scope.starting_club = false;
+        $scope.club = nbClub.new_club;
 
-        $scope.set_start_club = function() {
-            $scope.starting_club = true;
-        };
-
-        $scope.clear_start_club = function() {
-            $scope.starting_club = false;
-            $scope.start_club_input = '';
-        };
-
-        $scope.$on('$locationChangeStart', function(event) {
-            if (!$scope.starting_club) {
+        $scope.back = function() {
+            if (angular.equals($scope.club, nbClub.NEW_CLUB_OBJ)) {
+                nbClub.open_clubs();
                 return;
             }
-            $scope.clear_start_club();
-            event.preventDefault();
-        });
+            alertify.confirm('Discard changes?', function(e) {
+                if (!e) return;
+                nbClub.open_clubs();
+                $scope.safe_apply();
+            });
+        };
 
-        $scope.open_club = function(club_id) {
-            $scope.starting_club = false;
-            nbClub.open_club(club_id);
-        };
-        $scope.start_club_with_friend = function(friend) {
-            $scope.starting_club = false;
-            nbClub.start_club_with_friend(friend);
-        };
-        $scope.start_club_with_email = function(email) {
-            $scope.starting_club = false;
-            nbClub.start_club_with_email(email);
-        };
+        $scope.save_club = nbClub.create_new_club;
+    }
+]);
+
+nb_util.controller('ClubMemberCtrl', [
+    '$scope', '$q', '$location', '$timeout', 'nbUtil', 'nbUser', 'nbInode', 'nbClub',
+    function($scope, $q, $location, $timeout, nbUtil, nbUser, nbInode, nbClub) {
+        $scope.nbUtil = nbUtil;
+        $scope.nbUser = nbUser;
+        $scope.nbClub = nbClub;
+
+        $scope.back = nbClub.goto_new_club;
     }
 ]);
 

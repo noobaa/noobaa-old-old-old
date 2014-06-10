@@ -66,7 +66,6 @@ exports.create = function(req, res) {
     var user_id = mongoose.Types.ObjectId(req.user.id);
     var club = new Club();
     club.title = req.body.title;
-    club.group = req.body.group;
 
     async.waterfall([
         function(next) {
@@ -376,12 +375,7 @@ function club_reply(club, user, msgs) {
             user_ids.push(u.user);
         }
     });
-    if (c.group) {
-        c.user_ids = user_ids;
-    } else {
-        delete c.users;
-        c.user_id = user_ids[0];
-    }
+    c.user_ids = user_ids;
     if (msgs) {
         c.msgs = _.map(msgs, function(m) {
             return msg_reply(m, user);
