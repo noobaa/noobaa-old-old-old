@@ -69,7 +69,7 @@ var paths = {
     assets: [
         './node_modules/video.js/dist/video-js/video-js.swf',
     ],
-    views_ng: './src/views_ng/**/*',
+    ngview: './src/ngview/**/*',
     scripts: ['./src/server/**/*.js', './src/client/**/*.js', './gulpfile.js'],
     server_main: './src/server/server.js',
     client_main: './src/client/main.js',
@@ -193,7 +193,7 @@ gulp.task('ng', function() {
     var DEST = 'build/public/js';
     var NAME = 'templates.js';
     var NAME_MIN = 'templates.min.js';
-    return gulp.src(paths.views_ng)
+    return gulp.src(paths.ngview)
         .pipe(gulp_plumber(plumb_conf))
         .pipe(gulp_newer(path.join(DEST, NAME)))
         .pipe(gulp_ng_template())
@@ -303,7 +303,7 @@ gulp.task('install_server_and_serve', ['jshint'], serve);
 
 gulp.task('start_dev', ['install_and_serve'], function() {
     gulp.watch('src/css/**/*', ['install_css_and_serve']);
-    gulp.watch('src/views_ng/**/*', ['install_ng_and_serve']);
+    gulp.watch('src/ngview/**/*', ['install_ng_and_serve']);
     gulp.watch('src/client/**/*', ['install_client_and_serve']);
     gulp.watch(['src/server/**/*', 'src/views/**/*', 'src/utils/**/*'], ['install_server_and_serve']);
 });
