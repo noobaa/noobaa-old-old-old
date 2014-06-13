@@ -344,6 +344,15 @@ body.navbar-bottom-pad {
     .fa-google-plus-square {
         .text-danger;
     }
+    .line {
+        &.disabled {
+            .text-muted;
+            cursor: default;
+        }
+        &:not(.disabled) .show-on-disabled {
+            display: none;
+        }
+    }
 }
 /******************************************************************************
     FILES 

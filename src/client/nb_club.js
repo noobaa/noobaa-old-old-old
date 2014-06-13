@@ -375,7 +375,7 @@ nb_util.controller('NewClubCtrl', [
         $scope.club = nbClub.new_club;
 
         $scope.back = function() {
-            if (angular.equals($scope.club, nbClub.NEW_CLUB_OBJ)) {
+            if (!$scope.club || angular.equals($scope.club, nbClub.NEW_CLUB_OBJ)) {
                 nbClub.open_clubs();
                 return;
             }
@@ -407,11 +407,32 @@ nb_util.controller('ClubMemberCtrl', [
 
         $scope.back = nbClub.goto_new_club;
 
+        var members_by_id = _.indexBy(nbClub.new_club.members, 'id');
+        var members_by_fbid = _.indexBy(nbClub.new_club.members, 'fbid');
+        var members_by_googleid = _.indexBy(nbClub.new_club.members, 'googleid');
+
+        $scope.was_chosen = function(friend) {
+            if (friend.id) {
+                return !!members_by_id[friend.id];
+            }
+            if (friend.fbid) {
+                return !!members_by_fbid[friend.fbid];
+            }
+            if (friend.googleid) {
+                return !!members_by_googleid[friend.googleid];
+            }
+            return false;
+        };
+
         $scope.choose_friend = function(friend) {
+            if ($scope.was_chosen(friend)) {
+                return;
+            }
             console.log('CHOOSE FRIEND', friend);
             nbClub.new_club.members.push(friend);
             nbClub.goto_new_club();
         };
+
     }
 ]);
 
