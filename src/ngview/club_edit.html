@@ -4,7 +4,7 @@
         <a ng-click="back()" class="btn btn-link btn-lg pull-left" style="padding: 5px 10px">
             <i class="fa fa-angle-left fa-3x text-muted"></i>
         </a>
-        <a ng-click="save_club()" class="btn btn-success pull-right" style="margin: 10px">
+        <a ng-click="save_club()" class="btn btn-success pull-right" style="margin: 11px">
             <i class="fa fa-check fa-2x"></i>
             SAVE
         </a>
@@ -19,7 +19,7 @@
             <br/>
             <img class="pull-left user-image-lg" ng-src="{{nbUser.user_pic_url(club.user)}}" />
             <div class="hflow" style="padding-left: 10px">
-                <input type="text" class="form-control input-lg" ng-model="club.title" placeholder="Enter club title (e.g. fight club)" nb-focus="true" />
+                <input type="text" class="form-control input-lg" ng-model="club.title" placeholder="Enter club title (e.g. fight club)" nb-focus="false" />
             </div>
         </div>
 

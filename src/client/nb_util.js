@@ -426,6 +426,17 @@ nb_util.directive('nbPanelHfill', ['$timeout',
                         var fh = foot.outerHeight();
                         var remain = h - hh - fh;
                         body.outerHeight(remain);
+                        if (remain < 180) {
+                            if (!e.hasClass('panel-too-small')) {
+                                e.addClass('panel-too-small');
+                                handle_resize();
+                            }
+                        } else if (remain > 320) {
+                            if (e.hasClass('panel-too-small')) {
+                                e.removeClass('panel-too-small');
+                                handle_resize();
+                            }
+                        }
                         // console.log('nbPanelHfill', remain, body);
                     }, 0);
                 }
