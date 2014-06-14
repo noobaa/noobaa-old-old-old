@@ -13,10 +13,10 @@
     <div class="panel-body">
         <div ng-repeat="msg in club.msgs track by $index" class="clearfix">
             <div class="{{(msg.user != nbUser.user.id) && 'club-msg-user' || 'club-msg-mine'}}">
-                <span ng-if="msg.text" class="text-overflow">
+                <div ng-if="msg.text" class="text-wrap">
                     <span ng-bind-html="msg.text | linky:'_blank'" style="white-space: pre-wrap"></span>
                     <span class="club-msg-time">&nbsp;{{moment(msg.time).format('HH:mm')}}</span>
-                </span>
+                </div>
                 <div ng-if="msg.inode">
                     <div nb-media="msg.inode" show-content="true" autoplay="false"></div>
                     <a ng-click="open_msg_inode(msg)">
