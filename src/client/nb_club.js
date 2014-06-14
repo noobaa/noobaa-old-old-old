@@ -28,7 +28,6 @@ nb_util.factory('nbClub', [
             create_new_club: create_new_club,
             add_member: add_member,
             activate_club: activate_club,
-            start_club_with_friend: start_club_with_friend,
             start_club_with_email: start_club_with_email,
             send_club_message: send_club_message,
             scroll_club_to_bottom: scroll_club_to_bottom,
@@ -260,12 +259,23 @@ nb_util.factory('nbClub', [
         }
 
 
-        function create_new_club(club) {
+        function create_new_club() {
+            var c = $scope.new_club;
+            if (!c.title) {
+                return alertify.error('Missing title');
+            }
+            if (!c.members.length) {
+                return alertify.error('Missing members');
+            }
+            var club_data = {
+                title: c.title,
+                users_list: [nbUser.user.id].concat(_.pluck(c.members, 'id'))
+            };
             var club_id;
             return $http({
                 method: 'POST',
                 url: '/api/club/',
-                data: $scope.new_club
+                data: club_data
             }).then(function(res) {
                 club_id = res.data.club_id;
                 return poll_clubs();
@@ -276,28 +286,6 @@ nb_util.factory('nbClub', [
             });
         }
 
-        function start_club_with_friend(friend) {
-            var club = $scope.clubs_by_user[friend.id];
-            if (club) {
-                open_club(club._id);
-                return;
-            }
-            var club_id;
-            return $http({
-                method: 'POST',
-                url: '/api/club/',
-                data: {
-                    users_list: [nbUser.user.id, friend.id]
-                }
-            }).then(function(res) {
-                club_id = res.data.club_id;
-                return poll_clubs();
-            }).then(function() {
-                open_club(club_id);
-            }).then(null, function(err) {
-                console.error('FAILED CREATE CLUB', err);
-            });
-        }
 
 
         function start_club_with_email(email) {
