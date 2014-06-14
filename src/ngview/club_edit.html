@@ -1,15 +1,13 @@
-<div class="panel" nb-panel-hfill>
+<div class="club-edit panel" nb-panel-hfill>
 
     <div class="panel-heading">
         <a ng-click="back()" class="btn btn-link btn-lg pull-left" style="padding: 5px 10px">
             <i class="fa fa-angle-left fa-3x text-muted"></i>
         </a>
-        <!--
-        <a ng-click="save_club()" class="btn btn-success btn-lg pull-right" style="margin: 10px">
-            <i class="fa fa-check fa-lg"></i>
+        <a ng-click="save_club()" class="btn btn-success pull-right" style="margin: 10px">
+            <i class="fa fa-check fa-2x"></i>
             SAVE
         </a>
-         -->
         <div class="hflow" style="padding: 10px">
             <h4 class="text-light" style="margin-top: 15px">CLUB INFO</h4>
         </div>
@@ -35,9 +33,7 @@
             <div class="line">
                 <img class="pull-left user-image-lg" ng-src="{{nbUser.user_pic_url(member)}}" />
                 <div class="pull-right">
-                    <a ng-click="remove_member($index)">
-                        <span class="fa fa-2x closer"></span>
-                    </a>
+                    <button ng-click="remove_member($index)" class="close">&times;</button>
                 </div>
                 <div class="hflow" style="padding: 5px 0 0 10px">
                     <div class="text-ellipses">{{member.name}}</div>
@@ -57,16 +53,6 @@
             </div>
             <div class="hflow" style="padding: 5px 0 0 10px">
                 ADD FRIEND
-            </div>
-        </a>
-        <hr />
-        
-        <a class="line padline clickable" ng-click="save_club()">
-            <div class="pull-left">
-                <i class="fa fa-check fa-2x text-success"></i>
-            </div>
-            <div class="hflow" style="padding: 5px 0 0 10px">
-                SAVE
             </div>
         </a>
         <hr />

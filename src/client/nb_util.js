@@ -409,9 +409,9 @@ nb_util.directive('nbPanelHfill', ['$timeout',
             restrict: 'A',
             link: function(scope, element, attr) {
                 var e = $(element);
-                var head = e.find('.panel-heading');
-                var body = e.find('.panel-body');
-                var foot = e.find('.panel-footer');
+                var head = e.find('> .panel-heading');
+                var body = e.find('> .panel-body');
+                var foot = e.find('> .panel-footer');
                 e.on('resize', handle_resize);
                 head.on('resize', handle_resize);
                 body.on('resize', handle_resize);
@@ -426,6 +426,7 @@ nb_util.directive('nbPanelHfill', ['$timeout',
                         var fh = foot.outerHeight();
                         var remain = h - hh - fh;
                         body.outerHeight(remain);
+                        // console.log('nbPanelHfill', remain, body);
                     }, 0);
                 }
             }

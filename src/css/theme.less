@@ -68,6 +68,40 @@
 .panel, .panel .panel-heading, .panel .panel-footer {
     border-color: @border-color;
 }
+hr {
+    border-color: @gray-lighter;
+}
+.well {
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    margin: 0;
+}
+.line {
+    .clearfix;
+    display: block;
+    position: relative;
+    padding: 10px;
+    &:not(.active).clickable:hover {
+        background-color: @gray-lighter;
+        .bgnoise2;
+    }
+    &.active {
+        background-color: @gray-light;
+        .bgnoise2;
+    }
+}
+.padline {
+    padding: 20px;
+}
+.headline {
+    .line {
+        padding-top: 30px;
+    }
+    hr {
+        border-width: 3px;
+    }
+}
 .rounded {
     border-radius: 50%;
 }
@@ -115,6 +149,33 @@
     transform: scale(1.2);
     -ms-transform: scale(1.2);
     -webkit-transform: scale(1.2);
+}
+.bgnoise1 {
+    background-image: url('/public/images/pattern-noise1.png');
+}
+.bgnoise2 {
+    background-image: url('/public/images/pattern-noise2.png');
+}
+.play-btn {
+    background-color: hsla(0, 0%, 0%, 0.2) !important;
+    color: #eee !important;
+    border: white solid 2px !important;
+    border-radius: 50%;
+    padding: 10px 10px 8px 18px;
+    outline: none;
+    -webkit-box-shadow: 0 0 7px 7px hsla(0, 0%, 100%, 0.3) !important;
+    -moz-box-shadow: 0 0 7px 7px hsla(0, 0%, 100%, 0.3) !important;
+    box-shadow: 0 0 7px 7px hsla(0, 0%, 100%, 0.3) !important;
+}
+.play-btn:hover {
+    background-color: hsla(0, 0%, 40%, 0.2) !important;
+    color: white !important;
+    border: white solid 2px !important;
+}
+.video-js {
+    > video {
+        position: relative !important;
+    }
 }
 .btn-trans {
     // .transition-fast;

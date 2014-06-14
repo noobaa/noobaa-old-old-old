@@ -6,14 +6,14 @@
         <base href="/home/">
 </head>
 
-<body ng-cloak ng-controller="HomeCtrl" class="navbar-top-pad navbar-bottom-pad" Xng-swipe-left="swipe_left()" Xng-swipe-right="swipe_right()">
+<body ng-cloak ng-controller="HomeCtrl" class="Xnavbar-top-pad Xnavbar-bottom-pad" Xng-swipe-left="swipe_left()" Xng-swipe-right="swipe_right()">
 
     <div>
         <?# def.facebook_init_body ?>
     </div>
 
-    <div ng-include="'navbar_top.html'"></div>
-
+    <!-- <div ng-include="'navbar_top.html'"></div> -->
+    <!-- 
     <div ng-show="nbUploadSrv.has_uploads()" class="table-row fadeIn">
         <div class="container">
             <div class="row">
@@ -23,10 +23,26 @@
             </div>
         </div>
     </div>
+ -->
+    <div class="home-area">
+        <div class="home-panel panel" nb-panel-hfill>
 
-    <div ng-view class="home-view hfill-scroll"></div>
+            <div class="panel-heading">
+                <div ng-include="'navbar_top.html'"></div>
+            </div>
 
-    <div ng-include="'navbar_bottom.html'"></div>
+            <div class="panel-body">
+                <div ng-view class="home-view hfill-scroll"></div>
+            </div>
+
+            <div class="panel-footer">
+                <div ng-include="'navbar_bottom.html'"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- <div ng-include="'navbar_bottom.html'"></div> -->
 
 
     <div>

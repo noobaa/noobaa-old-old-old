@@ -9,9 +9,7 @@
                 <a class="btn btn-link pull-left" style="padding: 0 10px 0 0" ng-click="start_search_friend()">
                     <i class="fa fa-search fa-lg text-muted"></i>
                 </a>
-                <a ng-show="friend_input" class="btn btn-link pull-right" style="padding: 0" ng-click="reset_search_friend()">
-                    <span class="fa fa-2x closer"></span>
-                </a>
+                <button ng-show="friend_input" class="pull-right close" ng-click="reset_search_friend()" style="margin: -10px -10px 0 0">&times;</button>
                 <div class="hflow relpos">
                     <input type="text" class="inner-input" placeholder="Friend Name or Email" ng-model="friend_input" nb-focus="search_friend" ng-focus="start_search_friend()" />
                 </div>

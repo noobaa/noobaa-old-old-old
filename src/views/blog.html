@@ -6,15 +6,15 @@
         <base href="/blog/">
 </head>
 
-<body ng-cloak ng-controller="BlogCtrl" class="bggrey navbar-top-pad">
+<body ng-cloak ng-controller="BlogCtrl" class="bggrey">
 
     <div>
         <?# def.facebook_init_body ?>
     </div>
 
-    <div ng-include="'navbar_top.html'"></div>
 
     <div class="table-layout hfill">
+        <div class="table-row" ng-include="'navbar_top.html'"></div>
         <div class="table-row-expand">
             <div style="padding-top: 15px">
                 <div ng-view></div>

@@ -5,7 +5,7 @@
 
             <div class="clearfix">
 
-                <div class="clearfix pull-left" style="padding-top: 8px">
+                <div class="clearfix Xpull-left" style="padding-top: 8px">
                     <a class="btn btn-default" ng-click="go_up_level()" ng-disabled="!has_parent(current_inode)" title="Back to previous folder" rel="tooltip" nb-tooltip="{container: 'body'}">
                         <i class="fa fa-caret-left fa-fw fa-lg"></i>
                     </a>
@@ -38,7 +38,7 @@
                     </span>
                 </div>
 
-                <div class="pull-right text-right" ng-show="has_parent(current_inode)" style="padding-top: 8px">
+                <div class="Xpull-right Xtext-right" ng-show="has_parent(current_inode)" style="padding-top: 8px">
                     <!-- <div class="btn-group"></div> -->
                     <a class="btn btn-primary" ng-click="play_inode(current_inode)" title="Play" rel="tooltip" nb-tooltip="{container: 'body'}">
                         <i class="fa fa-play fa-fw fa-lg"></i>
@@ -91,8 +91,8 @@
         </div>
 
         <div class="panel-body">
-            <div ng-repeat="inode in filter_entries = ( current_inode.entries | filter:{name: search_in_folder} )" class="clearfix file_line notextselect {{inode.is_selected && 'active' || ''}}" style="border-bottom-width: 1px; border-top-width: 1px">
-                <div class="Xanimated XfadeIn Xclearfix" ng-click="select_inode(inode, $index, $event)" style="cursor: pointer">
+            <div ng-repeat="inode in filter_entries = ( current_inode.entries | filter:{name: search_in_folder} )" class="clearfix Xfile_line notextselect" style="border-bottom-width: 1px; border-top-width: 1px">
+                <div class="line clickable {{inode.is_selected && 'active'}}" ng-click="select_inode(inode, $index, $event)" style="cursor: pointer">
                     <span class="text-wrap">
                         <i ng-show="inode.is_selected" class="fa fa-check fa-fw fa-lg"></i>
                         <i class="fa fa-{{nbUtil.icon_by_kind(inode.content_kind)}} fa-fw fa-lg"></i>
@@ -155,6 +155,7 @@
                         </a>
                     </span>
                 </div>
+                <hr/>
                 <div ng-if="inode.is_previewing && inode.is_selected" style="padding: 5px 0">
                     <div nb-media="inode" media-events="media_events" show-content="true" class="Xanimated XfadeIn"></div>
                 </div>
@@ -173,7 +174,7 @@
         </div>
 
         <div class="panel-footer text-center">
-        	<small class="text-muted">{{current_inode.entries.length}} items</small>
+            <small class="text-muted">{{current_inode.entries.length}} items</small>
         </div>
     </div>
 </div>
