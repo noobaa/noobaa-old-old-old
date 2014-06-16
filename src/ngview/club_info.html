@@ -8,7 +8,7 @@
             <i class="fa fa-check fa-lg"></i>
             {{is_new && 'CREATE' || 'SAVE'}}
         </button>
-        <a class="text-center text-ellipses hflow" style="padding: 12px; text-decoration: none" ng-href="club/{{club._id}}" title="Open club info" rel="tooltip" nb-tooltip="{container: 'body'}">
+        <a class="text-center text-ellipses hflow" style="padding: 12px; text-decoration: none" ng-href="{{club._id && ('club/'+club._id)}}">
             <img ng-show="club.logo" class="user-image" style="margin-right: 10px; vertical-align: middle" ng-src="{{nbUser.user_pic_url(club.user)}}" />
             <span class="club-title">
                 {{club.title}}
