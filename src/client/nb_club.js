@@ -435,58 +435,31 @@ nb_util.controller('ClubCtrl', [
     }
 ]);
 
-nb_util.controller('NewClubCtrl', [
-    '$scope', '$q', '$location', '$timeout', 'nbUtil', 'nbUser', 'nbInode', 'nbClub',
-    function($scope, $q, $location, $timeout, nbUtil, nbUser, nbInode, nbClub) {
-        $scope.nbUtil = nbUtil;
-        $scope.nbUser = nbUser;
-        $scope.nbClub = nbClub;
-
-        var club = angular.copy(nbClub.NEW_CLUB_OBJ);
-        $scope.club = club;
-        $scope.is_new = true;
-
-        $scope.back = function() {
-            if (angular.equals(club, nbClub.NEW_CLUB_OBJ)) {
-                nbClub.goto_clubs();
-                return;
-            }
-            alertify.confirm('Discard changes?', function(e) {
-                if (!e) return;
-                nbClub.goto_clubs();
-                $scope.safe_apply();
-            });
-        };
-
-        $scope.remove_member = function(index) {
-            alertify.confirm('Remove member?', function(e) {
-                if (!e) return;
-                club.members.splice(index, 1);
-                $scope.safe_apply();
-            });
-        };
-
-        $scope.save_club = function() {
-            return nbClub.create_new_club(club);
-        };
-    }
-]);
 
 nb_util.controller('ClubInfoCtrl', [
-    '$scope', '$q', '$location', '$timeout', '$routeParams', 'nbUtil', 'nbUser', 'nbInode', 'nbClub',
-    function($scope, $q, $location, $timeout, $routeParams, nbUtil, nbUser, nbInode, nbClub) {
+    '$scope', '$q', '$location', '$timeout', '$routeParams', '$templateCache', 'nbUtil', 'nbUser', 'nbInode', 'nbClub',
+    function($scope, $q, $location, $timeout, $routeParams, $templateCache, nbUtil, nbUser, nbInode, nbClub) {
         $scope.nbUtil = nbUtil;
         $scope.nbUser = nbUser;
         $scope.nbClub = nbClub;
 
-        var edit_club = nbClub.set_active_club($routeParams.id);
-        if (!edit_club) {
+        var original_club = nbClub.NEW_CLUB_OBJ;
+        var is_new = true;
+        if ($routeParams.id) {
+            original_club = nbClub.set_active_club($routeParams.id);
+            is_new = false;
+        }
+        if (!original_club) {
             return;
         }
-        var club = $scope.club = angular.copy(edit_club);
+        var club = angular.copy(original_club);
+
+        $scope.club = club;
+        $scope.original_club = original_club;
+        $scope.is_new = is_new;
 
         $scope.back = function() {
-            if (angular.equals(club, edit_club)) {
+            if (angular.equals(club, original_club)) {
                 nbClub.goto_clubs();
                 return;
             }
@@ -494,6 +467,25 @@ nb_util.controller('ClubInfoCtrl', [
                 if (!e) return;
                 nbClub.goto_clubs();
                 $scope.safe_apply();
+            });
+        };
+
+        $scope.add_member = function() {
+            var m = ['<div class="modal" ng-controller="ClubMemberCtrl">',
+                '<div class="modal-dialog">',
+                '<div class="modal-content">',
+                '<div class="modal-body" style="padding: 0">',
+                $templateCache.get('friend_chooser.html'),
+                '</div>',
+                '</div>',
+                '</div>',
+                '</div>'
+            ].join('\n');
+
+            nbUtil.make_modal({
+                // template: 'friend_chooser.html',
+                html: m,
+                scope: $scope
             });
         };
 
@@ -506,7 +498,11 @@ nb_util.controller('ClubInfoCtrl', [
         };
 
         $scope.save_club = function() {
-            nbClub.save_club(club);
+            if (is_new) {
+                return nbClub.create_new_club(club);
+            } else {
+                return nbClub.save_club(club);
+            }
         };
     }
 ]);
@@ -518,11 +514,11 @@ nb_util.controller('ClubMemberCtrl', [
         $scope.nbUser = nbUser;
         $scope.nbClub = nbClub;
 
-        var club = nbClub.active_club;
+        var club = $scope.club;
 
-        var members_by_id = _.indexBy(club.members, 'id');
-        var members_by_fbid = _.indexBy(club.members, 'fbid');
-        var members_by_googleid = _.indexBy(club.members, 'googleid');
+        var members_by_id = _.indexBy(club.members, 'user');
+        var members_by_fbid = _.indexBy(club.members, 'user_data.fbid');
+        var members_by_googleid = _.indexBy(club.members, 'user_data.googleid');
 
         $scope.was_chosen = function(friend) {
             if (friend.id) {
@@ -546,7 +542,10 @@ nb_util.controller('ClubMemberCtrl', [
                 return;
             }
             console.log('CHOOSE FRIEND', friend);
-            club.members.push(friend);
+            club.members.push({
+                user: friend.id,
+                user_info: friend
+            });
             $scope.back();
         };
 

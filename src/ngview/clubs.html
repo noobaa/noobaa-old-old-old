@@ -16,7 +16,7 @@
                     <span class="label label-success" ng-show="club.new_msgs">{{club.new_msgs}}</span>
                 </div>
                 <div class="hflow" style="padding: 5px 0 0 10px">
-                    <div class="text-ellipses">{{club.title}}</div>
+                    <div class="text-ellipses club-title">{{club.title}}</div>
                     <div class="text-ellipses {{club.new_msgs && 'text-success' || 'text-muted'}}" ng-if="club.msgs.length">
                         <i class="fa fa-fw {{club.msgs[club.msgs.length-1].user != nbUser.user.id && 'fa-caret-right fa-lg' || 'fa-check'}}"></i>
                         <span>{{club.msgs[club.msgs.length-1].text}}</span>

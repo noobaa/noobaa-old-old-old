@@ -1,33 +1,45 @@
-<div class="club-edit panel" nb-panel-hfill>
+<div class="club-info panel" ng-controller="ClubInfoCtrl" nb-panel-hfill>
 
     <div class="panel-heading">
         <button ng-click="back()" class="btn btn-link pull-left" style="padding: 5px 10px">
             <i class="fa fa-angle-left fa-3x text-muted"></i>
         </button>
-        <button ng-click="save_club()" ng-if="club.admin" class="btn btn-success pull-right" style="margin: 5px 10px">
-            <i class="fa fa-check fa-2x"></i>
+        <button ng-click="save_club()" ng-if="club.admin" class="btn btn-success pull-right" style="margin: 6px 10px; height: 40px">
+            <i class="fa fa-check fa-lg"></i>
             {{is_new && 'CREATE' || 'SAVE'}}
         </button>
-        <div class="hflow" style="padding: 12px">
-            <h3 class="text-light text-ellipses" style="margin: 0">
+        <a class="text-center text-ellipses hflow" style="padding: 12px; text-decoration: none" ng-href="club/{{club._id}}" title="Open club info" rel="tooltip" nb-tooltip="{container: 'body'}">
+            <img ng-show="club.logo" class="user-image" style="margin-right: 10px; vertical-align: middle" ng-src="{{nbUser.user_pic_url(club.user)}}" />
+            <span class="club-title">
                 {{club.title}}
-                <small ng-show="!club.title" class="text-muted">CLUB TITLE</small>
-            </h3>
-        </div>
+                <small ng-show="!club.title.length" class="text-muted">NEW CLUB</small>
+            </span>
+            <i ng-hide="club.admin" class="fa fa-cube fa-2x text-muted pull-right" style="margin-top: 3px"></i>
+        </a>
     </div>
 
     <div class="panel-body">
 
-        <div class="line">
-            <img class="pull-left user-image-lg" ng-src="{{nbUser.user_pic_url(club.user)}}" />
-            <div class="hflow" style="padding-left: 10px">
-                <input ng-if="club.admin" type="text" class="form-control input-lg" ng-model="club.title" placeholder="Enter club title (e.g. fight club)" nb-focus="false" />
-                <h4 ng-if="!club.admin">{{club.title}}</h4>
+        <div ng-if="club.admin">
+            <div class="headline">
+                <div class="line"><b>title &amp; logo</b>
+                </div>
+                <hr />
             </div>
+            <div class="line">
+                <input type="text" class="form-control input-lg" ng-model="club.title" placeholder="Enter club title (e.g. fight club)" nb-focus="false" />
+            </div>
+            <hr/>
+            <a class="line line-p1 clickable text-center">
+                <i class="fa fa-paw fa-2x text-muted"></i>
+                CHOOSE LOGO
+                <img ng-show="club.logo" class="user-image-lg" ng-src="{{nbUser.user_pic_url(club.user)}}" />
+            </a>
+            <hr/>
         </div>
 
         <div class="headline">
-            <div class="line"><b>MEMBERS</b>
+            <div class="line"><b>members</b>
             </div>
             <hr />
         </div>
@@ -43,7 +55,7 @@
                     <div>
                         <i ng-show="!member.user_info.id && member.user_info.fbid" class="fa fa-lg fa-facebook-square text-primary"></i>
                         <i ng-show="!member.user_info.id && member.user_info.googleid" class="fa fa-lg fa-google-plus-square text-danger"></i>
-                        <span ng-show="member.admin" class="text-muted">Club Admin</span>
+                        <span ng-show="member.admin" class="text-success">CLUB ADMIN</span>
                     </div>
                 </div>
             </div>
@@ -51,7 +63,7 @@
         </div>
 
         <div ng-if="club.admin">
-            <a class="line line-p1 clickable text-center" ng-click="nbClub.open_add_member()">
+            <a class="line line-p1 clickable text-center" ng-click="add_member()">
                 <i class="fa fa-user fa-2x text-muted"></i>
                 <i class="fa fa-plus text-success" style="margin-left: -7px; vertical-align: 14px"></i>
                 ADD FRIEND

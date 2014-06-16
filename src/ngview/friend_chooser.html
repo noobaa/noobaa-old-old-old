@@ -22,7 +22,7 @@
 
         <div ng-hide="filtered_friends.length || nbUtil.valid_email(friend_input)">
             <div class="headline text-center">
-                <div class="line line-p2 text-muted">
+                <div class="line line-p1 text-muted">
                     <span class="lead">NO FRIENDS FOUND</span>
                 </div>
             </div>
@@ -46,12 +46,12 @@
         </div>
 
         <div class="headline">
-            <div class="line line-p2">
+            <div class="line line-p1">
                 <b>FIND MORE FRIENDS</b>
             </div>
             <hr />
         </div>
-        <a ng-click="choose_friend_email(friend_input)" class="line line-p2 clickable">
+        <a ng-click="choose_friend_email(friend_input)" class="line line-p1 clickable">
             <i class="fa fa-envelope fa-lg fa-fw"></i>
             <span ng-show="nbUtil.valid_email(friend_input)">
                 Invite {{friend_input}}
@@ -61,20 +61,20 @@
             </span>
         </a>
         <hr />
-        <a ng-click="nbUser.connect_facebook()" ng-hide="nbUser.user.fbid" class="line line-p2 clickable">
+        <a ng-click="nbUser.connect_facebook()" ng-hide="nbUser.user.fbid" class="line line-p1 clickable">
             <i class="fa fa-facebook-square fa-lg fa-fw"></i>
             Connect Facebook
         </a>
-        <div ng-show="nbUser.user.fbid" class="line line-p2 text-muted">
+        <div ng-show="nbUser.user.fbid" class="line line-p1 text-muted">
             <i class="fa fa-check fa-fw"></i>
             Connected with Facebook
         </div>
         <hr />
-        <a ng-click="nbUser.connect_google()" ng-hide="nbUser.user.googleid" class="line line-p2 clickable">
+        <a ng-click="nbUser.connect_google()" ng-hide="nbUser.user.googleid" class="line line-p1 clickable">
             <i class="fa fa-google-plus-square fa-lg fa-fw"></i>
             Connect Google+
         </a>
-        <div ng-show="nbUser.user.googleid" class="line line-p2 text-muted">
+        <div ng-show="nbUser.user.googleid" class="line line-p1 text-muted">
             <i class="fa fa-check fa-fw"></i>
             Connected with Google+
         </div>

@@ -444,7 +444,7 @@ nb_util.controller('FriendChooserCtrl', [
             orig_choose_friend.apply(null, arguments);
         };
 
-        var orig_choose_friend_email = $scope.orig_choose_friend_email;
+        var orig_choose_friend_email = $scope.choose_friend_email;
         $scope.choose_friend_email = function() {
             $scope.reset_search_friend();
             orig_choose_friend_email.apply(null, arguments);

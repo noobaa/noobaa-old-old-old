@@ -1,12 +1,13 @@
 <div class="club-panel panel" nb-panel-hfill>
 
-    <div class="panel-heading clearfix" style="padding: 6px 20px 3px 0">
-        <a class="btn btn-link pull-left" href="club/" style="padding: 0 10px">
+    <div class="panel-heading clearfix">
+        <a class="btn btn-link pull-left" href="club/" style="padding: 5 10px">
             <i class="fa fa-angle-left fa-3x text-muted"></i>
         </a>
-        <a class="text-center text-ellipses hflow" style="padding: 5px; text-decoration: none" ng-href="club/info/{{club._id}}" title="Open club info" rel="tooltip" nb-tooltip="{container: 'body'}">
+        <a class="text-center text-ellipses hflow" style="padding: 12px; text-decoration: none" ng-href="club/info/{{club._id}}" title="Open club info" rel="tooltip" nb-tooltip="{container: 'body'}">
             <img class="user-image" style="margin-right: 10px; vertical-align: middle" ng-src="{{nbUser.user_pic_url(club.user)}}" />
-            <b>{{club.title}}</b>
+            <span class="club-title">{{club.title}}</span>
+            <i class="fa fa-ellipsis-v fa-2x text-muted pull-right" style="margin-top: 3px"></i>
         </a>
     </div>
 
