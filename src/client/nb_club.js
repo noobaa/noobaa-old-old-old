@@ -164,7 +164,7 @@ nb_util.factory('nbClub', [
         }
 
         function goto_club(club_id) {
-            $location.path('/club/' + club_id);
+            $location.path('/club/' + (club_id || ''));
         }
 
         function goto_club_info(club_id) {
@@ -460,12 +460,12 @@ nb_util.controller('ClubInfoCtrl', [
 
         $scope.back = function() {
             if (angular.equals(club, original_club)) {
-                nbClub.goto_clubs();
+                nbClub.goto_club(club._id);
                 return;
             }
             alertify.confirm('Discard changes?', function(e) {
                 if (!e) return;
-                nbClub.goto_clubs();
+                nbClub.goto_club(club._id);
                 $scope.safe_apply();
             });
         };

@@ -1,41 +1,44 @@
 <div class="club-info panel" ng-controller="ClubInfoCtrl" nb-panel-hfill>
 
     <div class="panel-heading">
-        <button ng-click="back()" class="btn btn-link pull-left" style="padding: 5px 10px">
-            <i class="fa fa-angle-left fa-3x text-muted"></i>
+        <button ng-click="back()" class="btn btn-link pull-left" title="Back" rel="tooltip" nb-tooltip="{container: 'body'}">
+            <i class="fa fa-angle-left fa-3x pull-left"></i>
+            <i class="fa fa-cube fa-2x pull-left" style="margin-top: 7px; margin-left: 3px"></i>
+            <div class="pull-left club-title" style="padding: 5px; vertical-align: top">
+                {{is_new && 'NEW CLUB' || 'CLUB INFO'}}
+            </div>
         </button>
         <button ng-click="save_club()" ng-if="club.admin" class="btn btn-success pull-right" style="margin: 6px 10px; height: 40px">
             <i class="fa fa-check fa-lg"></i>
             {{is_new && 'CREATE' || 'SAVE'}}
         </button>
-        <a class="text-center text-ellipses hflow" style="padding: 12px; text-decoration: none" ng-href="{{club._id && ('club/'+club._id)}}">
-            <img ng-show="club.logo" class="user-image" style="margin-right: 10px; vertical-align: middle" ng-src="{{nbUser.user_pic_url(club.user)}}" />
-            <span class="club-title">
-                {{club.title}}
-                <small ng-show="!club.title.length" class="text-muted">NEW CLUB</small>
-            </span>
-            <i ng-hide="club.admin" class="fa fa-cube fa-2x text-muted pull-right" style="margin-top: 3px"></i>
-        </a>
     </div>
 
     <div class="panel-body">
 
-        <div ng-if="club.admin">
-            <div class="headline">
-                <div class="line"><b>title &amp; logo</b>
+        <div class="line bgnoise2 bggray-lighter" ng-init="edit_mode={on: is_new}">
+            <button class="btn btn-link pull-left" style="padding: 0; margin-right: 10px" ng-click="" title="Choose logo" rel="tooltip" nb-tooltip="{container: 'body'}">
+                <img class="user-image-lg" ng-src="{{club.logo}}" />
+                <!-- <i class="fa fa-paw fa-2x text-muted"></i> -->
+            </button>
+            <div class="animate-switch-container" style="height: 50px" ng-switch="edit_mode.on">
+                <div ng-switch-when="true" class="animate-switch">
+                    <button class="btn btn-link pull-right" style="padding-right:0" ng-click="edit_mode.on=false" ng-hide="is_new">
+                        <i class="fa fa-check fa-2x"></i>
+                    </button>
+                    <div class="hflow">
+                        <input type="text" class="form-control input-lg" ng-model="club.title" placeholder="Enter club title (e.g. fight club)" nb-focus="true" />
+                    </div>
                 </div>
-                <hr />
+                <div ng-switch-when="false" class="animate-switch">
+                    <a class="btn btn-link btn-block" ng-click="edit_mode.on=true" title="Edit title" rel="tooltip" nb-tooltip="{container: 'body'}">
+                        <i class="fa fa-pencil fa-2x pull-right"></i>
+                        <div class="hflow club-title text-left text-ellipses" Xstyle="line-height: 50px">
+                            {{club.title}}
+                        </div>
+                    </a>
+                </div>
             </div>
-            <div class="line">
-                <input type="text" class="form-control input-lg" ng-model="club.title" placeholder="Enter club title (e.g. fight club)" nb-focus="false" />
-            </div>
-            <hr/>
-            <a class="line line-p1 clickable text-center">
-                <i class="fa fa-paw fa-2x text-muted"></i>
-                CHOOSE LOGO
-                <img ng-show="club.logo" class="user-image-lg" ng-src="{{nbUser.user_pic_url(club.user)}}" />
-            </a>
-            <hr/>
         </div>
 
         <div class="headline">

@@ -1,14 +1,16 @@
 <div class="club-panel panel" nb-panel-hfill>
 
     <div class="panel-heading clearfix">
-        <a class="btn btn-link pull-left" href="club/" style="padding: 5 10px">
-            <i class="fa fa-angle-left fa-3x text-muted"></i>
+        <a class="btn btn-link pull-left" href="club/">
+            <i class="fa fa-angle-left fa-3x pull-left"></i>
+            <img class="user-image pull-left" style="margin-top: 5px" ng-src="{{club.logo}}" />
         </a>
-        <a class="text-center text-ellipses hflow" style="padding: 12px; text-decoration: none" ng-href="club/info/{{club._id}}" title="Open club info" rel="tooltip" nb-tooltip="{container: 'body'}">
-            <img class="user-image" style="margin-right: 10px; vertical-align: middle" ng-src="{{nbUser.user_pic_url(club.user)}}" />
-            <span class="club-title">{{club.title}}</span>
-            <i class="fa fa-ellipsis-v fa-2x text-muted pull-right" style="margin-top: 3px"></i>
-        </a>
+        <div class="hflow">
+            <a class="btn btn-link btn-block" style="padding: 10px 0" ng-href="club/info/{{club._id}}">
+                <i class="fa fa-ellipsis-v fa-2x pull-right" style="margin: 3px 10px" title="Open club info" rel="tooltip" nb-tooltip="{container: 'body'}"></i>
+                <div class="club-title text-left text-ellipses" title="Open club info" rel="tooltip" nb-tooltip="{container: 'body'}">{{club.title}}</div>
+            </a>
+        </div>
     </div>
 
     <div class="panel-body">

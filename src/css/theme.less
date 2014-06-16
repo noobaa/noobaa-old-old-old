@@ -52,6 +52,13 @@
  a, button, .btn {
     &, &:active, &:focus, &:hover {
         outline: none !important;
+        text-decoration: none !important;
+    }
+}
+.btn-link {
+    color: @gray-light;
+    &:hover {
+        color: @gray;
     }
 }
 .inner-input {
@@ -104,6 +111,21 @@ hr {
     hr {
         border-width: 3px;
     }
+}
+.bggray {
+    background-color: @gray;
+}
+.bggray-light {
+    background-color: @gray-light;
+}
+.bggray-lighter {
+    background-color: @gray-lighter;
+}
+.bggray-dark {
+    background-color: @gray-dark;
+}
+.bggray-darker {
+    background-color: @gray-darker;
 }
 .rounded {
     border-radius: 50%;
@@ -461,6 +483,29 @@ input, textarea {
 .view-animate-container {
     height: 100%;
     position: relative;
+}
+.animate-switch-container {
+    position: relative;
+    overflow: hidden;
+}
+.animate-switch {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 100%;
+    width: 100%;
+}
+.animate-switch.ng-animate {
+    -webkit-transition: all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+    transition: all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+}
+.animate-switch.ng-leave.ng-leave-active, .animate-switch.ng-enter {
+    top: -100%;
+}
+.animate-switch.ng-leave, .animate-switch.ng-enter.ng-enter-active {
+    top: 0;
 }
 /**/
 
