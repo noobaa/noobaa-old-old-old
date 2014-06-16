@@ -91,12 +91,15 @@ hr {
         .bgnoise2;
     }
 }
-.padline {
-    padding: 20px;
+.line-p1 {
+    padding: 15px;
+}
+.line-p2 {
+    padding: 25px;
 }
 .headline {
     .line {
-        padding-top: 30px;
+        padding-top: 25px;
     }
     hr {
         border-width: 3px;
@@ -107,6 +110,9 @@ hr {
 }
 .clickable {
     cursor: pointer;
+}
+a.clickable {
+    text-decoration: none;
 }
 .closer {
     &:before {
@@ -403,6 +409,7 @@ input, textarea {
     min-width: 100%;
 }
 .hflow {
+    display: block;
     overflow: hidden;
 }
 .relpos {
@@ -444,14 +451,16 @@ input, textarea {
     opacity: 0;
 }
 .view-animate {
-    transition: opacity 0.5s linear;
-    -o-transition: opacity 0.5s linear;
-    -moz-transition: opacity 0.5s linear;
-    -webkit-transition: opacity 0.5s linear;
+    .transition-fast;
     position: absolute;
     top: 0;
+    bottom: 0;
     left: 0;
     right: 0;
+}
+.view-animate-container {
+    height: 100%;
+    position: relative;
 }
 /**/
 

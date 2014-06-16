@@ -17,20 +17,32 @@ nb_util.factory('nbClub', [
         nbUtil, nbUser, nbInode) {
 
         var $scope = {
-            clubs: {},
-            clubs_by_user: {},
-            last_poll: 0,
             get_club: get_club,
-            open_clubs: open_clubs,
-            open_club: open_club,
-            start_new_club: start_new_club,
-            goto_new_club: goto_new_club,
-            create_new_club: create_new_club,
-            add_member: add_member,
+            reset_active_club: reset_active_club,
+            set_active_club: set_active_club,
             activate_club: activate_club,
+            goto_clubs: goto_clubs,
+            goto_club: goto_club,
+            goto_club_info: goto_club_info,
+            goto_add_member: goto_add_member,
+            create_new_club: create_new_club,
+            save_club: save_club,
             start_club_with_email: start_club_with_email,
             send_club_message: send_club_message,
             scroll_club_to_bottom: scroll_club_to_bottom,
+            // objects
+            clubs: {},
+            last_poll: 0,
+            NEW_CLUB_OBJ: {
+                title: '',
+                admin: true,
+                members: [{
+                    user: nbUser.user.id,
+                    user_info: nbUser.user,
+                    admin: true
+                }]
+            },
+            total_new_msgs: 0,
         };
 
         $rootScope.$watch(function() {
@@ -44,6 +56,9 @@ nb_util.factory('nbClub', [
                 return -c.mtime_date.getTime();
             });
         });
+
+        poll_clubs();
+
 
 
         function poll_clubs() {
@@ -96,16 +111,18 @@ nb_util.factory('nbClub', [
                 $scope.clubs[c._id] = c;
                 console.log('UPDATE NEW CLUB', c);
             }
-            if (c.user_id) {
-                var cc = $scope.clubs_by_user[c.user_id];
-                if (!cc || cc.mtime_date.getTime() < c.mtime_date.getTime()) {
-                    $scope.clubs_by_user[c.user_id] = c;
-                }
-                $q.when(nbUser.init_friends()).then(function() {
-                    c.user = nbUser.get_friend_by_id(c.user_id);
-                    c.title = c.user ? c.user.name : '';
+            $q.when(nbUser.init_friends()).then(function() {
+                _.each(club.members, function(m) {
+                    if (m.user_info) {
+                        return;
+                    }
+                    if (m.user == nbUser.user.id) {
+                        m.user_info = nbUser.user;
+                    } else {
+                        m.user_info = nbUser.get_friend_by_id(m.user);
+                    }
                 });
-            }
+            });
             count_new_msgs(c);
             if ($scope.active_club === c) {
                 touch_club();
@@ -113,53 +130,51 @@ nb_util.factory('nbClub', [
             return c;
         }
 
-        poll_clubs();
 
 
         function get_club(id) {
             return $scope.clubs[id];
         }
 
-        function open_clubs() {
+        function reset_active_club() {
             $scope.active_club = null;
-            $location.path('/club/');
         }
 
-        function open_club(club_id) {
-            $location.path('/club/' + club_id);
-        }
-
-        $scope.NEW_CLUB_OBJ = {
-            title: '',
-            members: []
-        };
-
-        function start_new_club() {
-            console.log('NEW CLUB', $location.path());
-            $scope.new_club = angular.copy($scope.NEW_CLUB_OBJ);
-            goto_new_club();
-        }
-
-        function goto_new_club() {
-            $rootScope.safe_apply();
-            $location.path('/club/new');
-        }
-
-        function add_member() {
-            $location.path('/club/member');
-        }
-
-
-        function activate_club(club_id) {
+        function set_active_club(club_id) {
             $scope.active_club = get_club(club_id);
             if (!$scope.active_club) {
-                open_clubs();
+                $location.path('/club/');
+                return;
+            }
+            return $scope.active_club;
+        }
+
+        function activate_club(club_id) {
+            if (!set_active_club(club_id)) {
                 return;
             }
             merge_club_inodes($scope.active_club);
             touch_club();
             return $scope.active_club;
         }
+
+
+        function goto_clubs() {
+            $location.path('/club/');
+        }
+
+        function goto_club(club_id) {
+            $location.path('/club/' + club_id);
+        }
+
+        function goto_club_info(club_id) {
+            $location.path('/club/info/' + club_id);
+        }
+
+        function goto_add_member() {
+            $location.path('/club/member');
+        }
+
 
         function touch_club() {
             $q.when(mark_seen($scope.active_club)).then(scroll_club_to_bottom);
@@ -200,7 +215,6 @@ nb_util.factory('nbClub', [
             });
         }
 
-        $scope.total_new_msgs = 0;
 
         function count_new_msgs(club) {
             if (!club.msgs) {
@@ -259,31 +273,30 @@ nb_util.factory('nbClub', [
         }
 
 
-        function create_new_club() {
-            var c = $scope.new_club;
-            if (!c.title) {
-                return alertify.error('Missing title');
+        function create_new_club(club) {
+            if (!club.title) {
+                return alertify.error('Missing club title');
             }
-            if (!c.members.length) {
-                return alertify.error('Missing members');
+            if (!club.members.length) {
+                return alertify.error('Missing club members');
             }
-            var club_data = {
-                title: c.title,
-                users_list: [nbUser.user.id].concat(_.pluck(c.members, 'id'))
-            };
             var club_id;
             return $http({
                 method: 'POST',
                 url: '/api/club/',
-                data: club_data
+                data: club
             }).then(function(res) {
                 club_id = res.data.club_id;
                 return poll_clubs();
             }).then(function() {
-                open_club(club_id);
+                goto_club(club_id);
             }).then(null, function(err) {
                 console.error('FAILED CREATE CLUB', err);
             });
+        }
+
+        function save_club(club) {
+            alertify.log('TODO save_club');
         }
 
 
@@ -318,7 +331,7 @@ nb_util.factory('nbClub', [
                 },
                 msgs: []
             });
-            open_club(id);
+            goto_club(id);
         }
 
         var yuval = {};
@@ -350,77 +363,8 @@ nb_util.controller('ClubsCtrl', [
         $scope.nbUtil = nbUtil;
         $scope.nbUser = nbUser;
         $scope.nbClub = nbClub;
-    }
-]);
 
-nb_util.controller('NewClubCtrl', [
-    '$scope', '$q', '$location', '$timeout', 'nbUtil', 'nbUser', 'nbInode', 'nbClub',
-    function($scope, $q, $location, $timeout, nbUtil, nbUser, nbInode, nbClub) {
-        $scope.nbUtil = nbUtil;
-        $scope.nbUser = nbUser;
-        $scope.nbClub = nbClub;
-
-        $scope.club = nbClub.new_club;
-
-        $scope.back = function() {
-            if (!$scope.club || angular.equals($scope.club, nbClub.NEW_CLUB_OBJ)) {
-                nbClub.open_clubs();
-                return;
-            }
-            alertify.confirm('Discard changes?', function(e) {
-                if (!e) return;
-                nbClub.open_clubs();
-                $scope.safe_apply();
-            });
-        };
-
-        $scope.remove_member = function(index) {
-            alertify.confirm('Remove member?', function(e) {
-                if (!e) return;
-                $scope.club.members.splice(index, 1);
-                $scope.safe_apply();
-            });
-        };
-
-        $scope.save_club = nbClub.create_new_club;
-    }
-]);
-
-nb_util.controller('ClubMemberCtrl', [
-    '$scope', '$q', '$location', '$timeout', 'nbUtil', 'nbUser', 'nbInode', 'nbClub',
-    function($scope, $q, $location, $timeout, nbUtil, nbUser, nbInode, nbClub) {
-        $scope.nbUtil = nbUtil;
-        $scope.nbUser = nbUser;
-        $scope.nbClub = nbClub;
-
-        $scope.back = nbClub.goto_new_club;
-
-        var members_by_id = _.indexBy(nbClub.new_club.members, 'id');
-        var members_by_fbid = _.indexBy(nbClub.new_club.members, 'fbid');
-        var members_by_googleid = _.indexBy(nbClub.new_club.members, 'googleid');
-
-        $scope.was_chosen = function(friend) {
-            if (friend.id) {
-                return !!members_by_id[friend.id];
-            }
-            if (friend.fbid) {
-                return !!members_by_fbid[friend.fbid];
-            }
-            if (friend.googleid) {
-                return !!members_by_googleid[friend.googleid];
-            }
-            return false;
-        };
-
-        $scope.choose_friend = function(friend) {
-            if ($scope.was_chosen(friend)) {
-                return;
-            }
-            console.log('CHOOSE FRIEND', friend);
-            nbClub.new_club.members.push(friend);
-            nbClub.goto_new_club();
-        };
-
+        nbClub.reset_active_club();
     }
 ]);
 
@@ -434,18 +378,14 @@ nb_util.controller('ClubCtrl', [
         $scope.nbClub = nbClub;
 
         var club = nbClub.activate_club($routeParams.id);
+        if (!club) {
+            return;
+        }
         $scope.club = club;
         $scope.send_club_text = send_club_text;
         $scope.select_files_to_club = select_files_to_club;
         $scope.upload_files_to_club = upload_files_to_club;
-        $scope.open_msg_inode = open_msg_inode;
 
-        function open_msg_inode(msg) {
-            if (!msg || !msg.inode) {
-                return;
-            }
-            $location.path('/files/' + msg.inode.id);
-        }
 
         function send_club_message(msg) {
             $scope.sending_message = true;
@@ -492,5 +432,123 @@ nb_util.controller('ClubCtrl', [
         function upload_files_to_club() {
             alertify.log('TODO upload_files_to_club');
         }
+    }
+]);
+
+nb_util.controller('NewClubCtrl', [
+    '$scope', '$q', '$location', '$timeout', 'nbUtil', 'nbUser', 'nbInode', 'nbClub',
+    function($scope, $q, $location, $timeout, nbUtil, nbUser, nbInode, nbClub) {
+        $scope.nbUtil = nbUtil;
+        $scope.nbUser = nbUser;
+        $scope.nbClub = nbClub;
+
+        var club = angular.copy(nbClub.NEW_CLUB_OBJ);
+        $scope.club = club;
+        $scope.is_new = true;
+
+        $scope.back = function() {
+            if (angular.equals(club, nbClub.NEW_CLUB_OBJ)) {
+                nbClub.goto_clubs();
+                return;
+            }
+            alertify.confirm('Discard changes?', function(e) {
+                if (!e) return;
+                nbClub.goto_clubs();
+                $scope.safe_apply();
+            });
+        };
+
+        $scope.remove_member = function(index) {
+            alertify.confirm('Remove member?', function(e) {
+                if (!e) return;
+                club.members.splice(index, 1);
+                $scope.safe_apply();
+            });
+        };
+
+        $scope.save_club = function() {
+            return nbClub.create_new_club(club);
+        };
+    }
+]);
+
+nb_util.controller('ClubInfoCtrl', [
+    '$scope', '$q', '$location', '$timeout', '$routeParams', 'nbUtil', 'nbUser', 'nbInode', 'nbClub',
+    function($scope, $q, $location, $timeout, $routeParams, nbUtil, nbUser, nbInode, nbClub) {
+        $scope.nbUtil = nbUtil;
+        $scope.nbUser = nbUser;
+        $scope.nbClub = nbClub;
+
+        var edit_club = nbClub.set_active_club($routeParams.id);
+        if (!edit_club) {
+            return;
+        }
+        var club = $scope.club = angular.copy(edit_club);
+
+        $scope.back = function() {
+            if (angular.equals(club, edit_club)) {
+                nbClub.goto_clubs();
+                return;
+            }
+            alertify.confirm('Discard changes?', function(e) {
+                if (!e) return;
+                nbClub.goto_clubs();
+                $scope.safe_apply();
+            });
+        };
+
+        $scope.remove_member = function(index) {
+            alertify.confirm('Remove member?', function(e) {
+                if (!e) return;
+                club.members.splice(index, 1);
+                $scope.safe_apply();
+            });
+        };
+
+        $scope.save_club = function() {
+            nbClub.save_club(club);
+        };
+    }
+]);
+
+nb_util.controller('ClubMemberCtrl', [
+    '$scope', '$q', '$location', '$timeout', 'nbUtil', 'nbUser', 'nbInode', 'nbClub',
+    function($scope, $q, $location, $timeout, nbUtil, nbUser, nbInode, nbClub) {
+        $scope.nbUtil = nbUtil;
+        $scope.nbUser = nbUser;
+        $scope.nbClub = nbClub;
+
+        var club = nbClub.active_club;
+
+        var members_by_id = _.indexBy(club.members, 'id');
+        var members_by_fbid = _.indexBy(club.members, 'fbid');
+        var members_by_googleid = _.indexBy(club.members, 'googleid');
+
+        $scope.was_chosen = function(friend) {
+            if (friend.id) {
+                return !!members_by_id[friend.id];
+            }
+            if (friend.fbid) {
+                return !!members_by_fbid[friend.fbid];
+            }
+            if (friend.googleid) {
+                return !!members_by_googleid[friend.googleid];
+            }
+            return false;
+        };
+
+        $scope.back = function() {
+            nbClub.goto_club_info(club.id);
+        };
+
+        $scope.choose_friend = function(friend) {
+            if ($scope.was_chosen(friend)) {
+                return;
+            }
+            console.log('CHOOSE FRIEND', friend);
+            club.members.push(friend);
+            $scope.back();
+        };
+
     }
 ]);

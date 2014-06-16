@@ -16,11 +16,12 @@ var club_schema = new mongoose.Schema({
         default: Date.now
     },
     title: String,
-    users: [{
+    members: [{
         user: {
             type: types.ObjectId,
             ref: 'User'
         },
+        admin: Boolean,
         seen_msg: {
             type: types.ObjectId,
             ref: 'ClubMsg'
@@ -49,7 +50,7 @@ var club_msg_schema = new mongoose.Schema({
 });
 
 club_schema.index({
-    'users.user': 1,
+    'members.user': 1,
     ctime: 1,
     mtime: 1
 }, {

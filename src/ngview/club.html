@@ -1,49 +1,51 @@
 <div class="club-panel panel" nb-panel-hfill>
 
     <div class="panel-heading clearfix" style="padding: 6px 20px 3px 0">
-        <button class="btn btn-link pull-left" ng-click="nbClub.open_clubs()" style="padding: 0 10px">
+        <a class="btn btn-link pull-left" href="club/" style="padding: 0 10px">
             <i class="fa fa-angle-left fa-3x text-muted"></i>
-        </button>
-        <div class="text-center text-ellipses" style="overflow: hidden; padding: 5px">
+        </a>
+        <a class="text-center text-ellipses hflow" style="padding: 5px; text-decoration: none" ng-href="club/info/{{club._id}}" title="Open club info" rel="tooltip" nb-tooltip="{container: 'body'}">
             <img class="user-image" style="margin-right: 10px; vertical-align: middle" ng-src="{{nbUser.user_pic_url(club.user)}}" />
             <b>{{club.title}}</b>
-        </div>
+        </a>
     </div>
 
     <div class="panel-body">
-        <div ng-repeat="msg in club.msgs track by $index" class="clearfix">
-            <div class="{{(msg.user != nbUser.user.id) && 'club-msg-user' || 'club-msg-mine'}}">
-                <div ng-if="msg.text" class="text-wrap">
-                    <span ng-bind-html="msg.text | linky:'_blank'" style="white-space: pre-wrap"></span>
-                    <span class="club-msg-time">&nbsp;{{moment(msg.time).format('HH:mm')}}</span>
+        <div class="club-content hfill-scroll">
+            <div ng-repeat="msg in club.msgs track by $index" class="clearfix">
+                <div class="{{(msg.user != nbUser.user.id) && 'club-msg-user' || 'club-msg-mine'}}">
+                    <div ng-if="msg.text" class="text-wrap">
+                        <span ng-bind-html="msg.text | linky:'_blank'" style="white-space: pre-wrap"></span>
+                        <span class="club-msg-time">&nbsp;{{moment(msg.time).format('HH:mm')}}</span>
+                    </div>
+                    <div ng-if="msg.inode">
+                        <div nb-media="msg.inode" show-content="true" autoplay="false"></div>
+                        <a ng-href="files/{{msg.inode.id}}">
+                            <div class="text-ellipses">
+                                <i class="fa fa-{{nbUtil.icon_by_kind(msg.inode.content_kind)}} fa-fw club-msg-muted" style="margin-right: 5px"></i>
+                                <b><span style="white-space: pre-wrap">{{msg.inode.name}}</span></b>
+                            </div>
+                            <div>
+                                <span ng-show="!msg.inode.isdir" class="club-msg-muted">{{human_size(msg.inode.size)}}</span>
+                                <span class="club-msg-time">&nbsp;{{moment(msg.time).format('HH:mm')}}</span>
+                            </div>
+                        </a>
+                    </div>
                 </div>
-                <div ng-if="msg.inode">
-                    <div nb-media="msg.inode" show-content="true" autoplay="false"></div>
-                    <a ng-click="open_msg_inode(msg)">
-                        <div class="text-ellipses">
-                            <i class="fa fa-{{nbUtil.icon_by_kind(msg.inode.content_kind)}} fa-fw club-msg-muted" style="margin-right: 5px"></i>
-                            <b><span style="white-space: pre-wrap">{{msg.inode.name}}</span></b>
-                        </div>
-                        <div>
-                            <span ng-show="!msg.inode.isdir" class="club-msg-muted">{{human_size(msg.inode.size)}}</span>
-                            <span class="club-msg-time">&nbsp;{{moment(msg.time).format('HH:mm')}}</span>
-                        </div>
-                    </a>
+                <div ng-if="club.seen_msg == msg._id && !$last" class="text-center">
+                    <span class="label label-default">New messages</span>
                 </div>
             </div>
-            <div ng-if="club.seen_msg == msg._id && !$last" class="text-center">
-                <span class="label label-default">New messages</span>
-            </div>
-        </div>
-        <!-- 
+            <!-- 
         <div class="clearfix">
             <div class="alert alert-info text-center" ng-if="club.user && !club.user.id && club.msgs.length">
                 <a ng-click="nbUser.send_friend_reminder(club.user)">
-                	Send {{nbUser.user_first_name(club.user)}} a reminder to join
+                    Send {{nbUser.user_first_name(club.user)}} a reminder to join
                 </a>
             </div>
         </div>
          -->
+        </div>
     </div>
 
     <div class="panel-footer clearfix" style="padding: 0">

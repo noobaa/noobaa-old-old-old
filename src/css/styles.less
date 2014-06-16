@@ -168,9 +168,14 @@ body {
             }
         }
     }
+    .club-panel {
+        > .panel-body {
+            padding: 0 !important;
+        }
+    }
 }
 .home-panel.panel-too-small {
-    .panel-heading, .panel-footer {
+    > .panel-heading, > .panel-footer {
         height: 0;
         overflow: hidden;
     }
@@ -247,16 +252,26 @@ body {
 .club-edit {
 }
 .club-panel {
-    .panel-body {
-        .bgnoise2;
-        background-color: @gray;
-        padding: 10px 10px 0 10px;
+    border: none;
+    > .panel-heading {
+        border: 1px solid @border-color;
+        background-color: white;
     }
-    .panel-footer {
+    > .panel-body {
+        padding: 20px 0;
+    }
+    > .panel-footer {
+        border: 1px solid @border-color;
+        background-color: white;
         textarea {
             .inner-input;
             padding: 10px 10px 0 10px;
         }
+    }
+    .club-content {
+        .bgnoise2;
+        background-color: @gray;
+        padding: 10px 10px 0 10px;
     }
     .club-msg {
         padding: 8px 13px;

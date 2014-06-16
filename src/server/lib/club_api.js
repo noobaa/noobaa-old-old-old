@@ -26,7 +26,7 @@ exports.poll = function(req, res) {
     async.waterfall([
         function(next) {
             return Club.find({
-                'users.user': user_id,
+                'members.user': user_id,
                 mtime: {
                     $gt: last_poll
                 }
@@ -69,8 +69,8 @@ exports.create = function(req, res) {
 
     async.waterfall([
         function(next) {
-            console.log('CREATE set_club_users', req.body.users_list);
-            return set_club_users(club, req.body.users_list, next);
+            console.log('CREATE set_club_members', req.body.members);
+            return set_club_members(club, req.body.members, next);
         },
         function(next) {
             console.log('CREATE verify_club_update', club);
@@ -105,8 +105,8 @@ exports.update = function(req, res) {
             if (req.body.title) {
                 club.title = req.body.title;
             }
-            if (req.body.users_list) {
-                return set_club_users(club, req.body.users_list, next);
+            if (req.body.members) {
+                return set_club_members(club, req.body.members, next);
             }
             club.mtime = club.ctime = new Date(); // touch times
             return next();
@@ -133,9 +133,9 @@ exports.leave = function(req, res) {
         },
         function(club_arg, next) {
             club = club_arg;
-            for (var i = 0; i < club.users.length; i++) {
-                if (club.users[i].user.equals(user_id)) {
-                    club.users.splice(i, 1);
+            for (var i = 0; i < club.members.length; i++) {
+                if (club.members[i].user.equals(user_id)) {
+                    club.members.splice(i, 1);
                     club.mtime = club.ctime = new Date(); // touch times
                     return club.save(next);
                 }
@@ -159,9 +159,9 @@ exports.mark_seen = function(req, res) {
         },
         function(club_arg, next) {
             club = club_arg;
-            for (var i = 0; i < club.users.length; i++) {
-                if (club.users[i].user.equals(user_id)) {
-                    club.users[i].seen_msg = seen_msg;
+            for (var i = 0; i < club.members.length; i++) {
+                if (club.members[i].user.equals(user_id)) {
+                    club.members[i].seen_msg = seen_msg;
                     // dont update mtime, because only the calling user needs to update
                     // and can do once this request returns
                     return club.save(next);
@@ -223,11 +223,10 @@ exports.send = function(req, res) {
             if (!inode) {
                 return next();
             }
-            var user_ids = [];
-            _.each(club.users, function(u) {
-                if (!u.user.equals(user_id)) {
-                    user_ids.push(u.user);
-                }
+            var user_ids = _.pluck(club.members, 'user');
+            // remove current user from ids
+            user_ids = _.reject(user_ids, function(member_user_id) {
+                return member_user_id.equals(user_id);
             });
             console.log('SEND create ghost refs', user_ids);
             return user_inodes.add_inode_ghost_refs(inode, user_ids, next);
@@ -293,7 +292,7 @@ exports.list = function(req, res) {
     async.waterfall([
         function(next) {
             return Club.find({
-                'users.user': user_id
+                'members.user': user_id
             }, next);
         },
         function(clubs, next) {
@@ -307,12 +306,10 @@ exports.list = function(req, res) {
 
 
 function verify_club_update(club, user_id, callback) {
-    var first_user = club.users[0] && club.users[0].user && mongoose.Types.ObjectId(club.users[0].user.id);
-    console.error('club update - club ', club.id,
-        'user', user_id, typeof(user_id), 'first_user', first_user, typeof(first_user));
-    if (!first_user || !user_id.equals(first_user)) {
+    var m = find_member(club, user_id);
+    if (!m || !m.admin) {
         console.error('ERROR FORBIDDEN CLUB UPDATE - club ',
-            club.id, 'user', user_id, 'club users', club.users);
+            club.id, 'user', user_id, 'club members', club.members);
         return callback({
             status: 403,
             message: 'Forbidden'
@@ -322,13 +319,10 @@ function verify_club_update(club, user_id, callback) {
 }
 
 function verify_club_access(club, user_id, callback) {
-    var u = _.find(club.users, function(u) {
-        var id = u.user && mongoose.Types.ObjectId(u.user.id);
-        return id && user_id.equals(id);
-    });
-    if (!u) {
+    var m = find_member(club, user_id);
+    if (!m) {
         console.error('ERROR FORBIDDEN CLUB ACCESS - club ',
-            club.id, 'user', user_id, 'club users', club.users);
+            club.id, 'user', user_id, 'club members', club.members);
         return callback({
             status: 403,
             message: 'Forbidden'
@@ -337,12 +331,18 @@ function verify_club_access(club, user_id, callback) {
     return callback();
 }
 
-function set_club_users(club, users_list, callback) {
-    // console.log('set_club_users', users_list, typeof(users_list));
-    if (typeof(users_list) === 'string') {
-        users_list = [users_list];
-    } else if (_.uniq(users_list).length !== users_list.length) {
-        console.error('ERROR DUPLICATE USERS', users_list);
+function find_member(club, user_id) {
+    return _.find(club.members, function(m) {
+        var id = m.user && mongoose.Types.ObjectId(m.user.id);
+        return id && user_id.equals(id);
+    });
+}
+
+function set_club_members(club, members, callback) {
+    // console.log('set_club_members', members, typeof(members));
+    var user_ids = _.pluck(members, 'user');
+    if (_.uniq(user_ids).length !== user_ids.length) {
+        console.error('ERROR DUPLICATE USERS', members);
         return callback({
             status: 500,
             message: 'Duplicates'
@@ -350,32 +350,30 @@ function set_club_users(club, users_list, callback) {
     }
     // TODO verify all users exist
     // TODO check if users block current user from adding them
-    var existing_users = _.indexBy(club.users, 'user');
-    var new_users = [];
-    _.each(users_list, function(user_id) {
-        var u = existing_users[user_id] || {
-            user: mongoose.Types.ObjectId(user_id)
-        };
-        new_users.push(u);
+    var old_members = _.indexBy(club.members, 'user');
+    _.each(members, function(m) {
+        var om = old_members[m.user];
+        // keep the seen_msg info for remaining members
+        m.seen_msg = om ? om.seen_msg : undefined;
     });
-    club.users = new_users;
+    club.members = members;
     return callback();
 }
 
 function club_reply(club, user, msgs) {
     // convert from mongoose to plain obj
     var c = club.toObject();
-    // remove user info that shouldn't be open to other users
-    var user_ids = [];
-    _.each(c.users, function(u) {
-        // propagate the seen_msg info of current user to the club scope
-        if (u.user.equals(user.id)) {
-            c.seen_msg = u.seen_msg;
+    _.each(c.members, function(m) {
+        if (m.user.equals(user.id)) {
+            // propagate the current user info to the club scope 
+            // to make it easier to reach
+            c.seen_msg = m.seen_msg;
+            c.admin = m.admin;
         } else {
-            user_ids.push(u.user);
+            // don't return the private info of other members
+            delete m.seen_msg;
         }
     });
-    c.user_ids = user_ids;
     if (msgs) {
         c.msgs = _.map(msgs, function(m) {
             return msg_reply(m, user);

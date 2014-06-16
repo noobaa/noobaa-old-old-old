@@ -1,0 +1,64 @@
+<div class="club-edit panel" nb-panel-hfill>
+
+    <div class="panel-heading">
+        <button ng-click="back()" class="btn btn-link pull-left" style="padding: 5px 10px">
+            <i class="fa fa-angle-left fa-3x text-muted"></i>
+        </button>
+        <button ng-click="save_club()" ng-if="club.admin" class="btn btn-success pull-right" style="margin: 5px 10px">
+            <i class="fa fa-check fa-2x"></i>
+            {{is_new && 'CREATE' || 'SAVE'}}
+        </button>
+        <div class="hflow" style="padding: 12px">
+            <h3 class="text-light text-ellipses" style="margin: 0">
+                {{club.title}}
+                <small ng-show="!club.title" class="text-muted">CLUB TITLE</small>
+            </h3>
+        </div>
+    </div>
+
+    <div class="panel-body">
+
+        <div class="line">
+            <img class="pull-left user-image-lg" ng-src="{{nbUser.user_pic_url(club.user)}}" />
+            <div class="hflow" style="padding-left: 10px">
+                <input ng-if="club.admin" type="text" class="form-control input-lg" ng-model="club.title" placeholder="Enter club title (e.g. fight club)" nb-focus="false" />
+                <h4 ng-if="!club.admin">{{club.title}}</h4>
+            </div>
+        </div>
+
+        <div class="headline">
+            <div class="line"><b>MEMBERS</b>
+            </div>
+            <hr />
+        </div>
+
+        <div ng-repeat="member in club.members track by $index">
+            <div class="line line-p1">
+                <img class="pull-left user-image-lg" ng-src="{{nbUser.user_pic_url(member.user_info)}}" />
+                <div class="pull-right">
+                    <button ng-click="remove_member($index)" ng-if="club.admin && !member.admin" class="close">&times;</button>
+                </div>
+                <div class="hflow" style="padding: 5px 0 0 10px">
+                    <div class="text-ellipses">{{member.user_info.name}}</div>
+                    <div>
+                        <i ng-show="!member.user_info.id && member.user_info.fbid" class="fa fa-lg fa-facebook-square text-primary"></i>
+                        <i ng-show="!member.user_info.id && member.user_info.googleid" class="fa fa-lg fa-google-plus-square text-danger"></i>
+                        <span ng-show="member.admin" class="text-muted">Club Admin</span>
+                    </div>
+                </div>
+            </div>
+            <hr />
+        </div>
+
+        <div ng-if="club.admin">
+            <a class="line line-p1 clickable text-center" ng-click="nbClub.open_add_member()">
+                <i class="fa fa-user fa-2x text-muted"></i>
+                <i class="fa fa-plus text-success" style="margin-left: -7px; vertical-align: 14px"></i>
+                ADD FRIEND
+            </a>
+            <hr />
+        </div>
+
+    </div>
+
+</div>
