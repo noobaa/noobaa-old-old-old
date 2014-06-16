@@ -6,9 +6,9 @@
             <img class="user-image pull-left" style="margin-top: 5px" ng-src="{{club.logo}}" />
         </a>
         <div class="hflow">
-            <a class="btn btn-link btn-block" style="padding: 10px 0" ng-href="club/info/{{club._id}}">
-                <i class="fa fa-ellipsis-v fa-2x pull-right" style="margin: 3px 10px" title="Open club info" rel="tooltip" nb-tooltip="{container: 'body'}"></i>
-                <div class="club-title text-left text-ellipses" title="Open club info" rel="tooltip" nb-tooltip="{container: 'body'}">{{club.title}}</div>
+            <a class="btn btn-link btn-block" style="padding: 10px 0" ng-href="club/info/{{club._id}}" title="Open club info" rel="tooltip" nb-tooltip="{container: 'body'}">
+                <i class="fa fa-ellipsis-v fa-2x pull-right" style="margin: 3px 15px"></i>
+                <div class="club-title text-left text-ellipses">{{club.title}}</div>
             </a>
         </div>
     </div>
@@ -35,8 +35,12 @@
                         </a>
                     </div>
                 </div>
-                <div ng-if="club.seen_msg == msg._id && !$last" class="text-center">
-                    <span class="label label-default">New messages</span>
+                <div ng-if="club.seen_msg == msg._id && !$last" class="text-center club-bottom-margin">
+                    <div class="clearfix"></div>
+                    <div class="label label-default hflow">
+                        <span class="lead">new messages</span>
+                        <i class="fa fa-caret-down fa-lg"></i>
+                    </div>
                 </div>
             </div>
             <!-- 

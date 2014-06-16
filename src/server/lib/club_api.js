@@ -102,14 +102,15 @@ exports.update = function(req, res) {
             return verify_club_update(club, user_id, next);
         },
         function(next) {
+            club.mtime = club.ctime = new Date(); // touch times
             if (req.body.title) {
                 club.title = req.body.title;
             }
             if (req.body.members) {
                 return set_club_members(club, req.body.members, next);
+            } else {
+                return next();
             }
-            club.mtime = club.ctime = new Date(); // touch times
-            return next();
         },
         function(next) {
             return verify_club_update(club, user_id, next);
