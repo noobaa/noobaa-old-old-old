@@ -20,7 +20,7 @@
  // @body-bg: @gray;
  @body-bg: hsl(0, 0%, 96%);
  @text-color: hsl(0, 0%, 10%);
- @link-color: hsl(0, 0%, 20%);
+ @link-color: hsl(0, 0%, 50%);
  @brand-primary: hsl(202, 83%, 47%);
  @brand-success: hsl(147, 72%, 49%);
  @brand-info: hsl(188, 90%, 48%);
@@ -45,6 +45,7 @@
  @border-radius-large: 0;
  @border-radius-small: 0;
  @line-height-tall: 3em;
+ @font-family-sans-serif:'Averia Sans Libre', "Helvetica Neue", Helvetica, Arial, sans-serif;
 
 /**/
 
@@ -55,11 +56,8 @@
         text-decoration: none !important;
     }
 }
-.btn-link {
-    color: @gray-light;
-    &:hover {
-        color: @gray;
-    }
+.btn-link:hover {
+    color: darken(@link-color, 20%);
 }
 .inner-input {
     display: block;
@@ -133,6 +131,9 @@ hr {
 }
 .bggray-darker {
     background-color: @gray-darker;
+}
+.text-color {
+    color: @text-color;
 }
 .rounded {
     border-radius: 50%;
@@ -330,7 +331,8 @@ a[ng-click], a[role=button] {
     border-width: 1px;
     border-color: @modal-content-border-color;
     background-color: @modal-content-bg;
-    color: @gray-darker;
+    color: @text-color;
+    font-family: @font-family-sans-serif;
 }
 .alertify-text {
     .form-control;

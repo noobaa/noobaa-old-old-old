@@ -4,12 +4,12 @@
         <button ng-click="back()" class="btn btn-link pull-left" title="Back" rel="tooltip" nb-tooltip="{container: 'body'}">
             <i class="fa fa-angle-left fa-3x pull-left"></i>
             <i class="fa fa-cube fa-2x pull-left" style="margin-top: 7px; margin-left: 3px"></i>
-            <div class="pull-left club-title" style="padding: 7px; vertical-align: top">
+            <div class="pull-left" style="padding: 12px 7px; vertical-align: top">
                 {{is_new && 'NEW CLUB' || 'CLUB INFO'}}
             </div>
         </button>
-        <button ng-hide="club.saving" ng-click="save_club()" ng-if="is_new" class="btn btn-success pull-right" style="margin: 6px 10px; height: 40px">
-            <i class="fa fa-check fa-lg"></i>
+        <button ng-hide="club.saving" ng-click="save_club()" ng-if="is_new" class="btn btn-success pull-right" style="margin: 8px 10px; height: 40px">
+            <!-- <i class="fa fa-check fa-lg"></i> -->
             CREATE
         </button>
         <div ng-show="club.saving" class="pull-right" style="margin: 15px">
@@ -38,7 +38,7 @@
                     <div ng-switch-when="false" class="animate-switch">
                         <a class="btn btn-link btn-block" ng-click="edit_title.on=true" title="Edit title" rel="tooltip" nb-tooltip="{container: 'body'}">
                             <i class="fa fa-pencil fa-2x pull-right"></i>
-                            <div class="hflow club-title text-left text-ellipses text-black">
+                            <div class="hflow club-title text-left text-ellipses text-color">
                                 {{club.title}}
                             </div>
                         </a>
@@ -50,7 +50,7 @@
                     <img class="user-image-lg" ng-src="{{club.logo}}" />
                 </button>
                 <a class="btn btn-link btn-block" style="cursor: default">
-                    <div class="club-title text-left text-ellipses text-black">
+                    <div class="club-title text-left text-ellipses text-color">
                         {{club.title}}
                     </div>
                 </a>
