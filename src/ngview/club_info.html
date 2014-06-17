@@ -4,7 +4,7 @@
         <button ng-click="back()" class="btn btn-link pull-left" title="Back" rel="tooltip" nb-tooltip="{container: 'body'}">
             <i class="fa fa-angle-left fa-3x pull-left"></i>
             <i class="fa fa-cube fa-2x pull-left" style="margin-top: 7px; margin-left: 3px"></i>
-            <div class="pull-left club-title" style="padding: 5px; vertical-align: top">
+            <div class="pull-left club-title" style="padding: 7px; vertical-align: top">
                 {{is_new && 'NEW CLUB' || 'CLUB INFO'}}
             </div>
         </button>
@@ -20,7 +20,7 @@
     <div class="panel-body">
         <div ng-show="club.saving" class="modal-backdrop in"></div>
 
-        <div class="line bgnoise2 bggray-lighter">
+        <div class="line bgnoise2 bggray">
             <div ng-if="club.admin">
                 <button class="btn btn-link pull-left" style="padding: 0; margin-right: 10px" ng-click="choose_logo()" title="Choose logo" rel="tooltip" nb-tooltip="{container: 'body'}">
                     <img class="user-image-lg" ng-src="{{club.logo}}" />
@@ -65,16 +65,16 @@
 
         <div ng-repeat="member in club.members track by $index">
             <div class="line line-p1">
-                <img class="pull-left user-image-lg" ng-src="{{nbUser.user_pic_url(member.user_info)}}" />
-                <div class="pull-right">
-                    <button ng-click="remove_member($index)" ng-if="club.admin && !member.admin" class="close">&times;</button>
+                <img class="pull-left user-image" ng-src="{{nbUser.user_pic_url(member.user_info)}}" />
+                <div class="pull-right" style="padding: 10px 0 0 10px">
+                    <button ng-click="remove_member($index)" ng-if="club.admin && !member.admin" class="close" style="margin-top: -15px">&times;</button>
+                    <span ng-show="member.admin" class="text-success">ADMIN</span>
                 </div>
-                <div class="hflow" style="padding: 5px 0 0 10px">
+                <div class="hflow" style="padding: 10px 0 0 10px">
                     <div class="text-ellipses">{{member.user_info.name}}</div>
                     <div>
                         <i ng-show="!member.user_info.id && member.user_info.fbid" class="fa fa-lg fa-facebook-square text-primary"></i>
                         <i ng-show="!member.user_info.id && member.user_info.googleid" class="fa fa-lg fa-google-plus-square text-danger"></i>
-                        <span ng-show="member.admin" class="text-success">CLUB ADMIN</span>
                     </div>
                 </div>
             </div>

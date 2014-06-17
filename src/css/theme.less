@@ -114,6 +114,13 @@ hr {
 }
 .bggray {
     background-color: @gray;
+    color: @gray-dark;
+    .btn-link {
+        color: @gray-light;
+        &:hover {
+            color: @gray-dark;
+        }
+    }
 }
 .bggray-light {
     background-color: @gray-light;
