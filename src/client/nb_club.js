@@ -58,8 +58,8 @@ nb_util.factory('nbClub', [
             });
         });
 
-        poll_clubs();
 
+        $q.when(nbUser.init_friends()).then(poll_clubs);
 
 
         function poll_clubs() {
@@ -82,7 +82,7 @@ nb_util.factory('nbClub', [
                 if (!clubs || !clubs.length) {
                     return;
                 }
-                _.each(clubs, update_club);
+                _.each(clubs, merge_club);
                 $scope.last_poll = clubs[0].mtime;
                 console.log('POLL', clubs.length, $scope.last_poll);
             })['finally'](function() {
@@ -92,40 +92,39 @@ nb_util.factory('nbClub', [
             return $scope.poll_in_progress;
         }
 
-        function update_club(club) {
+        function merge_club(club) {
             club.mtime_date = new Date(club.mtime);
+            _.each(club.msgs, set_user_info);
             var c = $scope.clubs[club._id];
             if (c) {
                 var msgs = c.msgs || [];
                 msgs = msgs.concat(club.msgs || []);
-                console.log('MSGS', msgs);
                 msgs = _.uniq(msgs, function(m) {
                     return m._id;
                 });
                 _.extend(c, club);
                 c.msgs = msgs;
-                console.log('UPDATE EXISTING CLUB', c);
+                console.log('GOT EXISTING CLUB', c);
             } else {
                 c = club;
                 $scope.clubs[c._id] = c;
-                console.log('UPDATE NEW CLUB', c);
+                console.log('GOT NEW CLUB', c);
             }
-            $q.when(nbUser.init_friends()).then(function() {
-                _.each(c.members, function(m) {
-                    if (m.user_info) {
-                        return;
-                    }
-                    if (m.user == nbUser.user.id) {
-                        m.user_info = nbUser.user;
-                    } else {
-                        m.user_info = nbUser.get_friend_by_id(m.user);
-                    }
-                });
-            });
+            _.each(c.members, set_user_info);
             count_new_msgs(c);
             return c;
         }
 
+        function set_user_info(item) {
+            if (item.user_info) {
+                return;
+            }
+            if (item.user == nbUser.user.id) {
+                item.user_info = nbUser.user;
+            } else {
+                item.user_info = nbUser.get_friend_by_id(item.user);
+            }
+        }
 
 
         function get_club(club_id) {
@@ -338,7 +337,7 @@ nb_util.factory('nbClub', [
 
         function add_email_club(email) {
             var id = club_id_gen++;
-            update_club({
+            merge_club({
                 id: id,
                 title: email,
                 user: {
@@ -402,7 +401,6 @@ nb_util.controller('ClubCtrl', [
         $scope.send_club_text = send_club_text;
         $scope.select_files_to_club = select_files_to_club;
         $scope.upload_files_to_club = upload_files_to_club;
-
 
         function send_club_message(msg) {
             $scope.sending_message = true;
@@ -590,8 +588,8 @@ nb_util.controller('ClubMemberCtrl', [
         var club = $scope.club;
 
         var members_by_id = _.indexBy(club.members, 'user');
-        var members_by_fbid = _.indexBy(club.members, 'user_data.fbid');
-        var members_by_googleid = _.indexBy(club.members, 'user_data.googleid');
+        var members_by_fbid = _.indexBy(club.members, 'user_info.fbid');
+        var members_by_googleid = _.indexBy(club.members, 'user_info.googleid');
 
         $scope.was_chosen = function(friend) {
             if (friend.id) {

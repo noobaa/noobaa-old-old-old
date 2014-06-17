@@ -233,8 +233,10 @@ nb_util.factory('nbUser', [
         }
         refresh_friends();
 
+        // TODO move this event to the relevant place
+        // nbUtil.track_event('home.friends.show'); 
+
         function refresh_friends() {
-            nbUtil.track_event('home.friends.show');
             $scope.fb_invites = {};
             $scope.google_invites = {};
             $scope.sending_fb_invites = false;
@@ -249,6 +251,11 @@ nb_util.factory('nbUser', [
                 $scope.friends.all = $scope.friends.users.concat(
                     $scope.friends.fb, $scope.friends.google);
                 $scope.friends.by_id = _.indexBy($scope.friends.users, 'id');
+
+                _.each($scope.friends.all, function(u) {
+                    u.first_name = u.first_name || u.name.match(/\S+/)[0] || u.name;
+                    u.color = Math.floor(Math.random() * 360);
+                });
             }, function(err) {
                 $scope.refreshing_friends--;
                 console.error('FAILED GET FRIENDS', err);

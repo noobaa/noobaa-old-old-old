@@ -17,6 +17,9 @@
         <div class="club-content hfill-scroll">
             <div ng-repeat="msg in club.msgs track by $index" class="clearfix">
                 <div class="{{(msg.user != nbUser.user.id) && 'club-msg-user' || 'club-msg-mine'}}">
+                    <div ng-show="msg.user != nbUser.user.id" style="color: hsl({{msg.user_info.color}}, 70%, 55%)">
+                        {{msg.user_info.first_name}}
+                    </div>
                     <div ng-if="msg.text" class="text-wrap">
                         <span ng-bind-html="msg.text | linky:'_blank'" style="white-space: pre-wrap"></span>
                         <span class="club-msg-time">&nbsp;{{moment(msg.time).format('HH:mm')}}</span>
@@ -37,8 +40,8 @@
                 </div>
                 <div ng-if="club.seen_msg == msg._id && !$last" class="text-center club-bottom-margin">
                     <div class="clearfix"></div>
-                    <div class="label label-default hflow">
-                        <span class="lead">new messages</span>
+                    <div class="alert alert-info hflow">
+                        <span>new messages</span>
                         <i class="fa fa-caret-down fa-lg"></i>
                     </div>
                 </div>
