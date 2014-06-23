@@ -18,7 +18,8 @@
  @gray-light: lighten(@gray, 20%);
  @gray-lighter: lighten(@gray-light, 15%);
  // @body-bg: @gray;
- @body-bg: hsl(0, 0%, 96%);
+ // @body-bg: hsl(0, 0%, 5%);
+ @body-bg: hsl(0, 0%, 99%);
  @text-color: hsl(0, 0%, 10%);
  @link-color: hsl(0, 0%, 50%);
  @brand-primary: hsl(202, 83%, 47%);
@@ -37,7 +38,7 @@
  @panel-bg: transparent;
  @panel-footer-bg: transparent;
  @panel-default-heading-bg: transparent;
- // @modal-content-bg: white;
+ @modal-content-bg: lighten(@body-bg, 5%);
  @navbar-default-bg: @gray-dark;
  @navbar-top-height: 50px;
  @navbar-bottom-height: 50px;
@@ -72,9 +73,10 @@
 }
 .panel, .panel .panel-heading, .panel .panel-footer {
     border-color: @border-color;
+    box-shadow: none;
 }
 hr {
-    border-color: @gray-lighter;
+    border-color: @border-color;
 }
 .well {
     background-color: transparent;

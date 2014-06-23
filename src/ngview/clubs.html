@@ -11,15 +11,16 @@
 
         <div ng-repeat="club in filtered_clubs = (nbClub.clubs_arr | filter:{title:club_search_input}) track by $index">
             <a class="line line-p1 clickable" ng-href="club/{{club._id}}">
-                <img class="pull-left user-image-lg" ng-src="{{nbUser.user_pic_url(club.user)}}" />
-                <div class="pull-right text-center" style="padding: 15px 5px 0 5px; width: 55px">
-                    <span class="label label-success" ng-show="club.new_msgs">{{club.new_msgs}}</span>
-                </div>
-                <div class="hflow" style="padding: 5px 0 0 10px">
+                <img class="pull-left user-image-lg" ng-src="{{club.logo}}" style="margin: 0 10px"/>
+                <!-- <div class="pull-right text-center" style="padding: 15px 5px 0 5px; width: 55px"></div> -->
+                <div class="hflow" style="padding: 5px 0 0 20px">
                     <div class="text-ellipses club-title">{{club.title}}</div>
-                    <div class="text-ellipses {{club.new_msgs && 'text-success' || 'text-muted'}}" ng-if="club.msgs.length">
-                        <i class="fa fa-fw {{club.msgs[club.msgs.length-1].user != nbUser.user.id && 'fa-caret-right fa-lg' || 'fa-check'}}"></i>
-                        <span>{{club.msgs[club.msgs.length-1].text}}</span>
+                    <div>
+                        <span class="label label-success pull-right" ng-show="club.new_msgs">{{club.new_msgs}}</span>
+                        <div class="text-ellipses {{club.new_msgs && 'text-success' || 'text-muted'}}" ng-if="club.msgs.length">
+                            <i class="fa fa-fw {{club.msgs[club.msgs.length-1].user != nbUser.user.id && 'fa-caret-right fa-lg' || 'fa-check'}}"></i>
+                            <span>{{club.msgs[club.msgs.length-1].text}}</span>
+                        </div>
                     </div>
                 </div>
             </a>

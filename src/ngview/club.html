@@ -16,9 +16,10 @@
     <div class="panel-body">
         <div class="club-content hfill-scroll">
             <div ng-repeat="msg in club.msgs track by $index" class="clearfix">
-                <div class="{{(msg.user != nbUser.user.id) && 'club-msg-user' || 'club-msg-mine'}}">
-                    <div ng-show="msg.user != nbUser.user.id" style="color: hsl({{msg.user_info.color}}, 70%, 55%)">
-                        {{msg.user_info.first_name}}
+                <div class="{{(msg.user != nbUser.user.id) && 'club-msg-user' || 'club-msg-mine'}}" ng-init="show_img = false">
+                    <div ng-show="msg.user != nbUser.user.id" class="clearfix" style="color: hsl({{msg.user_info.color}}, 70%, 55%)" ng-click="show_img=!show_img">
+                        <img ng-show="show_img" class="pull-left user-image" style="margin-right: 10px" ng-src="{{nbUser.user_pic_url(msg.user_info)}}" />
+                        <span>{{msg.user_info.first_name}}</span>
                     </div>
                     <div ng-if="msg.text" class="text-wrap">
                         <span ng-bind-html="msg.text | linky:'_blank'" style="white-space: pre-wrap"></span>

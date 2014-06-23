@@ -20,9 +20,9 @@
     <div class="panel-body">
         <div ng-show="club.saving" class="modal-backdrop in"></div>
 
-        <div class="line bgnoise1 bggray-lighter">
-            <div ng-if="club.admin">
-                <button class="btn btn-link pull-left" style="padding: 0; margin-right: 10px" ng-click="choose_logo()" title="Choose logo" rel="tooltip" nb-tooltip="{container: 'body'}">
+        <div class="line">
+            <div ng-if="club.admin" style="padding: 10px">
+                <button class="btn btn-link pull-left" style="padding: 0; margin-right: 20px" ng-click="choose_logo()" title="Choose logo" rel="tooltip" nb-tooltip="{container: 'body'}">
                     <img class="user-image-lg" ng-src="{{club.logo}}" />
                     <!-- <i class="fa fa-paw fa-2x text-muted"></i> -->
                 </button>
@@ -32,7 +32,7 @@
                             <i class="fa fa-check fa-2x"></i>
                         </button>
                         <div class="hflow">
-                            <input type="text" class="form-control input-lg" ng-model="edit_title.value" placeholder="Enter club title (e.g. fight club)" nb-focus="true" />
+                            <input type="text" class="form-control input-lg" style="height: 50px" ng-model="edit_title.value" placeholder="Enter club title (e.g. fight club)" nb-focus="true" />
                         </div>
                     </div>
                     <div ng-switch-when="false" class="animate-switch">
@@ -45,8 +45,8 @@
                     </div>
                 </div>
             </div>
-            <div ng-if="!club.admin">
-                <button class="btn btn-link pull-left" style="padding: 0; margin-right: 10px; cursor: default">
+            <div ng-if="!club.admin" style="padding: 10px">
+                <button class="btn btn-link pull-left" style="padding: 0; margin-right: 20px; cursor: default">
                     <img class="user-image-lg" ng-src="{{club.logo}}" />
                 </button>
                 <a class="btn btn-link btn-block" style="cursor: default">
@@ -58,7 +58,7 @@
         </div>
 
         <div class="headline">
-            <div class="line"><b>members</b>
+            <div class="line"><b>MEMBERS</b>
             </div>
             <hr />
         </div>
