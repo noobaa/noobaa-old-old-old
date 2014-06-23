@@ -104,11 +104,11 @@ nb_util.factory('nbClub', [
                 });
                 _.extend(c, club);
                 c.msgs = msgs;
-                console.log('GOT EXISTING CLUB', c);
+                // console.log('GOT EXISTING CLUB', c);
             } else {
                 c = club;
                 $scope.clubs[c._id] = c;
-                console.log('GOT NEW CLUB', c);
+                // console.log('GOT NEW CLUB', c);
             }
             _.each(c.members, set_user_info);
             count_new_msgs(c);
@@ -205,7 +205,7 @@ nb_util.factory('nbClub', [
             if (prev_msg_id === last_msg_id) {
                 return;
             }
-            console.log('MARK SEEN', prev_msg_id, '->', last_msg_id);
+            // console.log('MARK SEEN', prev_msg_id, '->', last_msg_id);
             return $http({
                 method: 'PUT',
                 url: '/api/club/' + club._id + '/msg',
@@ -272,7 +272,7 @@ nb_util.factory('nbClub', [
                 if (!club_body) {
                     return;
                 }
-                console.log('scroll_club_to_bottom', club_body.scrollTop, club_body.scrollHeight);
+                // console.log('scroll_club_to_bottom', club_body.scrollTop, club_body.scrollHeight);
                 club_body.scrollTop = club_body.scrollHeight;
             }, 0);
         }
