@@ -121,11 +121,10 @@ body {
 }
 /**/
 
-
 /******************************************************************************
     HOME
  ******************************************************************************/
-@home-max-width: 600px;
+ @home-max-width: 600px;
  @home-max-height: 600px;
  .home-area {
     height: 100%;
@@ -389,19 +388,16 @@ body {
  ******************************************************************************/
  .browser {
     height: 100%;
-    .panel {
-        height: 100%;
-        margin-bottom: 0;
-        .panel-heading {
-            padding: 0 8px 8px 8px;
-        }
-        .panel-body {
-            overflow-y: auto;
-            padding: 0;
-        }
-        .panel-footer {
-            padding: 5px 10px;
-        }
+    margin-bottom: 0;
+    > .panel-heading {
+        padding: 0 8px 8px 8px;
+    }
+    > .panel-body {
+        overflow-y: auto;
+        padding: 0;
+    }
+    > .panel-footer {
+        padding: 5px 10px;
     }
     .content-item {
         border-radius: 4px;
