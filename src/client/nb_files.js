@@ -33,6 +33,7 @@ nb_util.directive('nbBrowse', function() {
                 $scope.refresh_current = refresh_current;
                 $scope.go_up_level = go_up_level;
                 $scope.has_parent = has_parent;
+                $scope.get_selection_leader = get_selection_leader;
                 $scope.is_selection_leader = is_selection_leader;
                 $scope.num_selected = num_selected;
                 $scope.open_inode = open_inode;
@@ -48,6 +49,7 @@ nb_util.directive('nbBrowse', function() {
 
                 $scope.select_inode = function(inode, $index, $event) {
                     nbMultiSelect.select_item(selection, inode, $index, $event);
+                    return stop_event($event);
                 };
 
                 $scope.$watch('context.current_inode', function(inode) {
@@ -79,8 +81,12 @@ nb_util.directive('nbBrowse', function() {
                     return !!dir_inode.id;
                 }
 
+                function get_selection_leader() {
+                    return selection.items[selection.items.length - 1];
+                }
+
                 function is_selection_leader(inode) {
-                    return selection.items[selection.items.length - 1] === inode;
+                    return get_selection_leader() === inode;
                 }
 
                 function num_selected() {

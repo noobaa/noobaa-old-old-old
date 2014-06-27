@@ -1,0 +1,73 @@
+<ul class="file-menu">
+    <li>
+        <div style="display: inline-block; max-width: 120px; vertical-align:middle">
+            <div ng-show="inode.isdir" Xclass="input-group" style="position: relative">
+                <input type="text" class="form-control {{search_in_folder && 'label-primary'}}" maxlength="100" placeholder="Search folder" ng-model="search_in_folder" />
+                <i ng-show="search_in_folder" class="fa fa-times fa-fw" style="cursor: pointer; position: absolute; right: 8px; top: 10px" ng-click="search_in_folder=''"></i>
+            </div>
+        </div>
+    </li>
+    <li ng-if="num_selected() <= 1">
+        <a ng-click="play_inode(inode)">
+            <i class="fa fa-play"></i>
+            <!-- <span>Open</span> -->
+        </a>
+    </li>
+    <li ng-if="num_selected() <= 1 && nbInode.can_share_inode(inode)">
+        <a ng-click="share_inode(inode)">
+            <i class="fa fa-share-square-o"></i>
+            <!-- <span>Invite</span> -->
+        </a>
+    </li>
+    <li ng-if="num_selected() == 1 && nbInode.can_upload_file(inode)">
+        <a ng-click="resume_upload(inode)">
+            <i class="fa fa-cloud-upload"></i>
+            <!-- <span>Resume Upload</span> -->
+        </a>
+    </li>
+    <li ng-if="num_selected() == 1 && nbInode.can_keep_inode(inode)">
+        <a ng-disabled="inode.running_keep || inode.done_keep" ng-click="keep_inode(inode)">
+            <i class="fa fa-{{inode.done_keep && 'check' || 'plus'}}"></i>
+            <!-- <span>Keep</span> -->
+        </a>
+    </li>
+    <li ng-if="num_selected() == 1 && !inode.isdir && !inode.uploading && inode.size">
+        <a href="{{nbInode.download_url(inode)}}" download="{{inode.name}}" target="_blank">
+            <i class="fa fa-cloud-download"></i>
+            <!-- <span>Download</span> -->
+        </a>
+    </li>
+    <li ng-show="num_selected() == 0 && nbInode.can_upload_to_dir(inode)">
+        <a ng-click="nbInode.new_folder(inode)">
+            <span class="fa-stack">
+                <i class="fa fa-folder fa-stack-2x"></i>
+                <i class="fa fa-plus fa-stack-1x fa-inverse"></i>
+            </span>
+            <!-- New Folder -->
+        </a>
+    </li>
+    <li ng-if="!current_inode.ref_owner && nbInode.can_change_inode(inode) && num_selected() == 1">
+        <a ng-click="nbInode.rename_inode(inode)">
+            <i class="fa fa-pencil fa-rotate-270"></i>
+            <!-- Rename -->
+        </a>
+    </li>
+    <li ng-if="!current_inode.ref_owner && nbInode.can_change_inode(inode) && num_selected() > 0">
+        <a ng-click="move_inodes()">
+            <i class="fa fa-arrows"></i>
+            <!-- Move {{num_selected()>1 && 'all' || ''}} -->
+        </a>
+    </li>
+    <li ng-if="!current_inode.ref_owner && nbInode.can_change_inode(inode) && num_selected() > 0">
+        <a ng-click="delete_inodes()">
+            <i class="fa fa-trash-o"></i>
+            <!-- Delete {{num_selected()>1 && 'all' || ''}} -->
+        </a>
+    </li>
+    <li>
+        <a ng-click="refresh_current('force')">
+            <i class="fa fa-refresh"></i>
+            <!-- Refresh -->
+        </a>
+    </li>
+</ul>

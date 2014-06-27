@@ -5,6 +5,9 @@
         <div class="clearfix">
 
             <div class="clearfix Xpull-left" style="padding-top: 8px">
+                <a class="btn btn-link pull-right" style="padding: 5px" ng-click="editing=!editing">
+                    <i class="fa fa-fw fa-2x {{editing && 'fa-check' || 'fa-ellipsis-v'}}"></i>
+                </a>
                 <a class="btn btn-default" ng-click="go_up_level()" ng-disabled="!has_parent(current_inode)" title="Back to previous folder" rel="tooltip" nb-tooltip="{container: 'body'}">
                     <i class="fa fa-caret-left fa-fw fa-lg"></i>
                 </a>
@@ -37,48 +40,12 @@
                 </span>
             </div>
 
-            <div class="Xpull-right Xtext-right" ng-show="has_parent(current_inode)" style="padding-top: 8px">
-                <!-- <div class="btn-group"></div> -->
-                <a class="btn btn-primary" ng-click="play_inode(current_inode)" title="Play" rel="tooltip" nb-tooltip="{container: 'body'}">
-                    <i class="fa fa-play fa-fw fa-lg"></i>
-                    <!-- Open -->
-                </a>
-                <a class="btn btn-warning" ng-if="nbInode.can_share_inode(current_inode)" ng-click="share_inode(current_inode)" Xtitle="Invite" Xrel="tooltip" nb-tooltip="{container: 'body'}">
-                    <i class="fa fa-share-square-o fa-fw fa-lg"></i>
-                    Invite
-                </a>
-                <a class="btn btn-info" ng-if="nbInode.can_upload_to_dir(current_inode)" ng-click="nbUploadSrv.open_file_input()" Xtitle="Upload" rel="tooltip" nb-tooltip="{container: 'body'}">
-                    <i class="fa fa-cloud-upload fa-fw fa-lg"></i>
-                    Upload
-                </a>
-                <a class="btn btn-default" ng-if="nbInode.can_upload_file(current_inode)" ng-click="resume_upload(current_inode)" title="Resume Upload" rel="tooltip" nb-tooltip="{container: 'body'}">
-                    <i class="fa fa-cloud-upload fa-fw fa-lg"></i>
-                    Resume Upload
-                </a>
-                <a class="btn btn-danger" ng-if="nbInode.can_keep_inode(current_inode)" ng-disabled="current_inode.running_keep || current_inode.done_keep" ng-click="keep_inode(current_inode)" Xtitle="Keep" Xrel="tooltip" Xnb-tooltip="{container: 'body'}">
-                    <i class="fa fa-{{current_inode.done_keep && 'check' || 'plus'}} fa-fw fa-lg"></i>
-                    Keep
-                </a>
-                <a class="btn btn-default" ng-if="!current_inode.isdir && !current_inode.uploading && current_inode.size" href="{{nbInode.download_url(current_inode)}}" download="{{current_inode.name}}" target="_blank" title="Download" rel="tooltip" nb-tooltip="{container: 'body'}">
-                    <i class="fa fa-cloud-download fa-fw fa-lg"></i>
-                    <!-- Download -->
-                </a>
-                <a class="btn btn-default" ng-if="nbInode.can_upload_to_dir(current_inode)" ng-click="nbInode.new_folder(current_inode)" title="New Folder" rel="tooltip" nb-tooltip="{container: 'body'}">
-                    <span class="fa-stack" style="font-size: 0.65em">
-                        <i class="fa fa-folder fa-stack-2x"></i>
-                        <i class="fa fa-plus fa-stack-1x fa-inverse"></i>
-                    </span>
-                    <!-- New Folder -->
-                </a>
-                <a ng-show="has_parent(current_inode) && current_inode.isdir" class="btn btn-default" ng-click="refresh_current('force')" title="Refresh" rel="tooltip" nb-tooltip="{container: 'body'}">
-                    <i class="fa fa-refresh fa-fw fa-lg"></i>
-                    <!-- Refresh -->
-                </a>
-                <div style="display: inline-block; max-width: 140px; vertical-align:middle">
-                    <div ng-show="current_inode.isdir" Xclass="input-group" style="position: relative">
-                        <input type="text" class="form-control {{search_in_folder && 'label-primary'}}" maxlength="100" placeholder="Search folder" ng-model="search_in_folder" />
-                        <i ng-show="search_in_folder" class="fa fa-times fa-fw" style="cursor: pointer; position: absolute; right: 8px; top: 10px" ng-click="search_in_folder=''"></i>
-                    </div>
+            <div ng-if="editing" style="padding-top: 5px">
+                <div ng-if="num_selected() != 0">
+                    <div class="club-msg-mine" ng-include="'file_menu.html'" ng-init="inode = get_selection_leader()"></div>
+                </div>
+                <div ng-if="num_selected() == 0">
+                    <div class="club-msg-mine" ng-include="'file_menu.html'" ng-init="inode = current_inode"></div>
                 </div>
             </div>
 
@@ -90,52 +57,13 @@
         <div ng-if="current_inode.is_previewing" Xstyle="padding-top: 8px">
             <div nb-media="current_inode" media-events="media_events" show-content="true"></div>
         </div>
-        <div ng-repeat="inode in filter_entries = ( current_inode.entries | filter:{name: search_in_folder} )" class="clearfix Xfile_line notextselect" style="border-bottom-width: 1px; border-top-width: 1px">
-            <div class="line clickable {{inode.is_selected && 'active'}}" ng-click="select_inode(inode, $index, $event)" style="cursor: pointer">
-                <span class="text-wrap">
-                    <i ng-show="inode.is_selected" class="fa fa-check fa-fw fa-lg"></i>
-                    <i class="fa fa-{{nbUtil.icon_by_kind(inode.content_kind)}} fa-fw fa-lg"></i>
-                    <a class="btn btn-link" ng-click="open_inode(inode, $index, $event)" style="padding-left: 0; display: inline">
-                        <span style="white-space: pre-wrap">{{inode.name}}</span>
-                    </a>
-                </span>
-                <span class="text-right pull-right" ng-click="$event.stopPropagation()">
-                    <span ng-if="is_selection_leader(inode)" style="margin-bottom: 8px">
-                        <span ng-show="num_selected()>1">
-                            &nbsp;&nbsp;{{num_selected()}} items:
-                        </span>
-                        <span ng-show="num_selected()==1" Xclass="btn-group">
-                            <a class="btn btn-danger" ng-show="nbInode.can_keep_inode(inode)" ng-disabled="inode.running_keep || inode.done_keep" ng-click="keep_inode(inode)" title="Keep" rel="tooltip" nb-tooltip="{container: 'body'}">
-                                <i class="fa fa-{{inode.done_keep && 'check' || 'plus'}} fa-fw fa-lg"></i>
-                                <!-- Keep -->
-                            </a>
-                            <a class="btn btn-primary" ng-click="play_inode(inode, $index, $event)" title="Play" rel="tooltip" nb-tooltip="{container: 'body'}">
-                                <i class="fa fa-play fa-fw fa-lg"></i>
-                                <!-- Open -->
-                            </a>
-                            <a class="btn btn-default" ng-if="!inode.isdir && !inode.uploading && inode.size" href="{{nbInode.download_url(inode)}}" download="{{inode.name}}" target="_blank" title="Download" rel="tooltip" nb-tooltip="{container: 'body'}">
-                                <i class="fa fa-cloud-download fa-fw fa-lg"></i>
-                                <!-- Download -->
-                            </a>
-                            <a class="btn btn-default" ng-show="!!inode.shr" ng-click="unshare_inode(inode)" title="Make Private" rel="tooltip" nb-tooltip="{container: 'body'}">
-                                <i class="fa fa-lock fa-fw fa-lg"></i>
-                            </a>
-                        </span>
-                        <span ng-show="!current_inode.ref_owner && nbInode.can_change_inode(inode)" class="btn-group">
-                            <a class="btn btn-default" ng-click="move_inodes()" title="Move" rel="tooltip" nb-tooltip="{container: 'body'}">
-                                <i class="fa fa-arrows fa-fw fa-lg"></i>
-                                <!-- Move {{num_selected()>1 && 'all' || ''}} -->
-                            </a>
-                            <a class="btn btn-default" ng-show="num_selected()==1" ng-click="nbInode.rename_inode(inode)" title="Rename" rel="tooltip" nb-tooltip="{container: 'body'}">
-                                <i class="fa fa-pencil fa-rotate-270 fa-fw fa-lg"></i>
-                                <!-- Rename -->
-                            </a>
-                            <a class="btn btn-default" ng-click="delete_inodes()" title="Delete" rel="tooltip" nb-tooltip="{container: 'body'}">
-                                <i class="fa fa-trash-o fa-fw fa-lg"></i>
-                                <!-- Delete {{num_selected()>1 && 'all' || ''}} -->
-                            </a>
-                        </span>
-                    </span>
+        <div ng-repeat="inode in filter_entries = ( current_inode.entries | filter:{name: search_in_folder} )">
+            <div class="line clickable {{inode.is_selected && 'active'}}" ng-click="open_inode(inode, $index, $event)">
+                <a ng-if="editing" class="pull-right btn btn-link" ng-click="select_inode(inode, $index, $event)">
+                    <i ng-hide="inode.is_selected" class="fa fa-square-o fa-fw"></i>
+                    <i ng-show="inode.is_selected" class="fa fa-check-square-o fa-fw"></i>
+                </a>
+                <div class="pull-right hidden-xs">
                     <span ng-show="inode.uploading">
                         <i title="Incomplete upload..." rel="tooltip" ng-click="inode_resume_upload(inode)" class="fa fa-cloud-upload fa-lg fa-fw"></i>
                     </span>
@@ -152,7 +80,13 @@
                     <a class="btn btn-sm {{!inode.shr && 'btn-link' || inode.shr=='f' && 'btn-warning' || 'btn-warning btn-hover-only'}}" ng-if="nbInode.can_share_inode(inode)" ng-click="share_inode(inode)" ng-attr-title="{{!inode.shr && 'Click to invite' || inode.shr=='f' && 'Invited all friends' || 'Invited some friends'}}" rel="tooltip" style="margin-left: 5px">
                         <i class="fa fa-{{!inode.shr && 'lock' || 'user'}} fa-lg fa-fw {{!inode.shr && 'text-muted'}}"></i>
                     </a>
-                </span>
+                </div>
+                <div class="text-wrap" style="cursor: pointer">
+                    <i class="fa fa-{{nbUtil.icon_by_kind(inode.content_kind)}} fa-fw fa-lg"></i>
+                    <a class="btn btn-link" style="padding-left: 0; display: inline">
+                        <span style="white-space: pre-wrap">{{inode.name}}</span>
+                    </a>
+                </div>
             </div>
             <hr/>
             <div ng-if="inode.is_previewing && inode.is_selected" style="padding: 5px 0">
@@ -173,6 +107,11 @@
     </div>
 
     <div class="panel-footer text-center">
-        <small class="text-muted">{{current_inode.entries.length}} items</small>
+        <div ng-if="num_selected() != 0" class="text-warning">
+            {{num_selected()}} items selected
+        </div>
+        <div ng-if="num_selected() == 0">
+            {{current_inode.entries.length}} items
+        </div>
     </div>
 </div>

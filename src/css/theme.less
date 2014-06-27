@@ -90,11 +90,11 @@ hr {
     position: relative;
     padding: 10px;
     &:not(.active).clickable:hover {
-        background-color: @gray-lighter;
+        background-color: lighten(@brand-warning, 40%);
         .bgnoise2;
     }
     &.active {
-        background-color: @gray-light;
+        background-color: lighten(@brand-warning, 20%);
         .bgnoise2;
     }
 }

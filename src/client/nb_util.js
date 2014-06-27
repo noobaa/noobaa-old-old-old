@@ -223,16 +223,7 @@ nb_util.factory('nbMultiSelect', [
         }
 
         function select_item(selection, item, index, event) {
-            if (event.ctrlKey || event.metaKey ||
-                (selection.items.length === 1 && selection.items[0] === item)) {
-                // console.log('SELECT TOGGLE', item.name, item.is_selected);
-                if (item.is_selected) {
-                    remove_selection(selection, item);
-                    return false;
-                } else {
-                    add_selection(selection, item, index);
-                }
-            } else if (event.shiftKey && selection.items.length) {
+            if (event.shiftKey && selection.items.length) {
                 var from = selection.items[selection.items.length - 1].select_source_index;
                 // console.log('SELECT FROM', from, 'TO', index);
                 var i;
@@ -244,6 +235,15 @@ nb_util.factory('nbMultiSelect', [
                     for (i = from; i >= index; i--) {
                         add_selection(selection, selection.source_index(i), i);
                     }
+                }
+            } else if (selection.append_mode || event.ctrlKey || event.metaKey ||
+                (selection.items.length === 1 && selection.items[0] === item)) {
+                // console.log('SELECT TOGGLE', item.name, item.is_selected);
+                if (item.is_selected) {
+                    remove_selection(selection, item);
+                    return false;
+                } else {
+                    add_selection(selection, item, index);
                 }
             } else {
                 // console.log('SELECT ONE', item.name);
@@ -276,6 +276,18 @@ nb_util.factory('$http_async', ['$http',
         };
     }
 ]);
+
+
+nb_util.directive('nbReplace', function() {
+    return {
+        // require: 'ngInclude',
+        restrict: 'A',
+        /* optional */
+        link: function(scope, element, attr) {
+            element.replaceWith(element.children());
+        }
+    };
+});
 
 nb_util.directive('nbVideo', ['$parse', '$timeout',
     function($parse, $timeout) {
@@ -413,32 +425,35 @@ nb_util.directive('nbPanelHfill', ['$timeout',
                 var body = e.find('> .panel-body');
                 var foot = e.find('> .panel-footer');
                 e.on('resize', handle_resize);
-                head.on('resize', handle_resize);
+                head.on('resize DOMNodeInserted DOMNodeRemoved', handle_resize);
                 body.on('resize', handle_resize);
-                foot.on('resize', handle_resize);
+                foot.on('resize DOMNodeInserted DOMNodeRemoved', handle_resize);
                 $(window).on('resize', handle_resize);
                 handle_resize(); // Expand as soon as it is added to the DOM
 
                 function handle_resize() {
-                    $timeout(function() {
-                        var h = e.innerHeight();
-                        var hh = head.outerHeight();
-                        var fh = foot.outerHeight();
-                        var remain = h - hh - fh;
-                        body.outerHeight(remain);
-                        if (remain < 180) {
-                            if (!e.hasClass('panel-too-small')) {
-                                e.addClass('panel-too-small');
-                                handle_resize();
-                            }
-                        } else if (remain > 320) {
-                            if (e.hasClass('panel-too-small')) {
-                                e.removeClass('panel-too-small');
-                                handle_resize();
-                            }
+                    do_resize();
+                    $timeout(do_resize, 0);
+                }
+
+                function do_resize() {
+                    var h = e.innerHeight();
+                    var hh = head.outerHeight();
+                    var fh = foot.outerHeight();
+                    var remain = h - hh - fh;
+                    body.outerHeight(remain);
+                    if (remain < 180) {
+                        if (!e.hasClass('panel-too-small')) {
+                            e.addClass('panel-too-small');
+                            handle_resize();
                         }
-                        // console.log('nbPanelHfill', remain, body);
-                    }, 0);
+                    } else if (remain > 320) {
+                        if (e.hasClass('panel-too-small')) {
+                            e.removeClass('panel-too-small');
+                            handle_resize();
+                        }
+                    }
+                    // console.log('nbPanelHfill', remain, body);
                 }
             }
         };
@@ -492,7 +507,14 @@ nb_util.directive('nbTooltip', function() {
         restrict: 'A', // use as attribute
         link: function(scope, element, attr) {
             scope.$watch(attr.nbTooltip, function(value) {
+                var always_show = (value.trigger === 'always');
+                if (always_show) {
+                    value.trigger = 'manual';
+                }
                 element.tooltip(value);
+                if (always_show) {
+                    element.tooltip('show');
+                }
             });
             $(element).on('remove', function() {
                 element.tooltip('destroy');

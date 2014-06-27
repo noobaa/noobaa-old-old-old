@@ -1,15 +1,15 @@
 <div class="club-panel panel" nb-panel-hfill>
 
     <div class="panel-heading clearfix">
-        <a class="btn btn-link pull-left" href="club/">
+        <a class="btn btn-link pull-left" style="padding: 2px 10px" href="club/">
             <i class="fa fa-angle-left fa-3x pull-left"></i>
             <img class="user-image pull-left" style="margin-top: 5px" ng-src="{{club.logo}}" />
         </a>
-        <div class="hflow">
-            <a class="btn btn-link btn-block" style="padding: 16px 0" ng-href="club/info/{{club._id}}" title="Open club info" rel="tooltip" nb-tooltip="{container: 'body'}">
-                <i class="fa fa-ellipsis-v fa-2x pull-right" style="margin: 0 20px"></i>
-                <div class="club-title text-left text-ellipses text-color">{{club.title}}</div>
-            </a>
+        <a class="btn btn-link pull-right" style="padding: 10px 20px" ng-href="club/info/{{club._id}}" title="Open club info" rel="tooltip" nb-tooltip="{container: 'body'}">
+            <i class="fa fa-ellipsis-v fa-2x"></i>
+        </a>
+        <div class="hflow" style="padding: 10px 0">
+            <div class="club-title text-left text-ellipses text-color">{{club.title}}</div>
         </div>
     </div>
 
@@ -59,11 +59,11 @@
         </div>
     </div>
 
-    <div class="panel-footer clearfix" style="padding: 0">
-        <div class="pull-right" style="padding: 5px">
+    <div class="panel-footer clearfix">
+        <div class="club-msg-btn pull-right">
             <div class="btn-group dropup">
-                <button ng-if="!club.message_input.length" class="btn btn-default dropdown-toggle" data-toggle="dropdown" type="button">
-                    <i class="fa fa-paperclip fa-lg fa-fw"></i>
+                <button ng-if="!club.message_input.length" class="btn btn-link dropdown-toggle" style="padding: 2px" data-toggle="dropdown" type="button">
+                    <i class="fa fa-paperclip fa-2x fa-rotate-90 fa-fw"></i>
                 </button>
                 <ul class="dropdown-menu pull-right nav" role="menu">
                     <li>

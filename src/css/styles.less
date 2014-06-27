@@ -158,6 +158,7 @@ body {
         .center-block;
     }
     .home-view > .panel {
+        background-color: white;
         margin: 0;
         height: 100%;
         > .panel-body {
@@ -269,6 +270,10 @@ body {
 }
 .club-panel {
     > .panel-footer {
+        padding: 0;
+        .club-msg-btn {
+            padding: 5px;
+        }
         textarea {
             .inner-input;
             padding: 10px 10px 0 10px;
@@ -279,26 +284,8 @@ body {
         background-color: @gray-darker;
         padding: 10px 10px 0 10px;
     }
-    .club-bottom-margin {
-        margin-bottom: 13px;
-    }
-    .club-msg {
-        .club-bottom-margin;
-        padding: 8px 13px;
-        border-radius: 8px;
-        border-style: solid;
-        border-width: 1px;
-        position: relative;
-        max-width: 100%;
-    }
     .alert {
         .club-msg;
-    }
-    .club-triangle-base {
-        width: 0;
-        height: 0;
-        border-style: solid;
-        position: absolute;
     }
     .club-msg-muted {
         color: lighten(@gray, 10%);
@@ -307,39 +294,59 @@ body {
         .club-msg-muted;
         font-size: 0.7em;
     }
-    .club-msg-mine {
-        .club-msg;
-        float: right;
-        @c: lighten(@brand-success, 35%);
-        color: @gray-darker;
-        box-shadow: 1px 1px 2px hsl(0, 0%, 60%);
-        border-color: @c;
-        background-color: @c;
-        &::after {
-            content:"";
-            .club-triangle-base;
-            top: 10px;
-            right: -9px;
-            border-width: 7px 0 7px 8px;
-            border-color: transparent transparent transparent @c;
-        }
+    .club-bottom-margin {
+        margin-bottom: 13px;
     }
-    .club-msg-user {
-        .club-msg;
-        float: left;
-        @c: hsl(0, 0%, 100%);
-        color: @gray-darker;
-        box-shadow: 0 1px 2px hsl(0, 0%, 60%);
-        border-color: @c;
-        background-color: @c;
-        &::after {
-            .club-triangle-base;
-            content:"";
-            top: 10px;
-            left: -9px;
-            border-width: 7px 8px 7px 0;
-            border-color: transparent @c transparent transparent;
-        }
+    .club-msg-user, .club-msg-mine {
+        .club-bottom-margin;
+    }
+}
+.club-msg {
+    padding: 8px 13px;
+    border-radius: 8px;
+    border-style: solid;
+    border-width: 1px;
+    position: relative;
+    max-width: 100%;
+}
+.club-triangle-base {
+    width: 0;
+    height: 0;
+    border-style: solid;
+    position: absolute;
+}
+.club-msg-mine {
+    .club-msg;
+    float: right;
+    @c: lighten(@brand-success, 35%);
+    color: @gray-darker;
+    box-shadow: 1px 1px 2px hsl(0, 0%, 60%);
+    border-color: @c;
+    background-color: @c;
+    &::after {
+        content:"";
+        .club-triangle-base;
+        top: 10px;
+        right: -9px;
+        border-width: 7px 0 7px 8px;
+        border-color: transparent transparent transparent @c;
+    }
+}
+.club-msg-user {
+    .club-msg;
+    float: left;
+    @c: hsl(0, 0%, 100%);
+    color: @gray-darker;
+    box-shadow: 0 1px 2px hsl(0, 0%, 60%);
+    border-color: @c;
+    background-color: @c;
+    &::after {
+        .club-triangle-base;
+        content:"";
+        top: 10px;
+        left: -9px;
+        border-width: 7px 8px 7px 0;
+        border-color: transparent @c transparent transparent;
     }
 }
 /**/
@@ -391,16 +398,62 @@ body {
     margin-bottom: 0;
     > .panel-heading {
         padding: 0 8px 8px 8px;
+        .club-msg-mine {
+            padding: 2px 5px;
+            @c: lighten(@brand-success, 35%);
+            &::after {
+                content:"";
+                .club-triangle-base;
+                right: 17px;
+                top: -9px;
+                border-width: 0 7px 8px 7px;
+                border-color: transparent transparent @c transparent;
+            }
+        }
     }
     > .panel-body {
         overflow-y: auto;
         padding: 0;
+        .line {
+            min-height: 50px;
+            > a {
+                margin: -9px -9px -9px 10px;
+                padding: 12px 15px;
+                border-left: 1px solid @border-color;
+            }
+        }
     }
     > .panel-footer {
-        padding: 5px 10px;
+        .bgnoise2;
     }
     .content-item {
         border-radius: 4px;
+    }
+    .file-menu {
+        list-style: none;
+        display: block;
+        padding: 0;
+        margin: 0;
+        .text-right;
+        > li {
+            display: inline-block;
+            float: none;
+            > a {
+                .btn;
+                .btn-default;
+                padding: 7px;
+                border: none;
+                background-color: transparent;
+                > .fa {
+                    .fa-fw;
+                    font-size: 1.8em;
+                }
+                > .fa-stack {
+                    font-size: 0.9em;
+                    vertical-align: -5px;
+                }
+            }
+        }
     }
 }
 .file_line {

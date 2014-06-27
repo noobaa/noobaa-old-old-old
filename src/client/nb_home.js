@@ -103,6 +103,7 @@ nb_home.controller('HomeCtrl', [
             current_inode: $scope.root_dir,
             selection: {
                 items: [],
+                append_mode: true,
                 source_index: function(i) {
                     return $scope.home_context.current_inode.entries[i];
                 }
