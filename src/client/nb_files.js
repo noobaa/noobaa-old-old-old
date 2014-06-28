@@ -36,9 +36,9 @@ nb_util.directive('nbBrowse', function() {
                 $scope.get_selection_leader = get_selection_leader;
                 $scope.is_selection_leader = is_selection_leader;
                 $scope.num_selected = num_selected;
-                $scope.open_inode = open_inode;
+                $scope.toggle_edit_mode = toggle_edit_mode;
+                $scope.click_inode = click_inode;
                 $scope.play_inode = play_inode;
-                $scope.toggle_preview = toggle_preview;
                 $scope.move_inodes = move_inodes;
                 $scope.delete_inodes = delete_inodes;
                 $scope.keep_inode = keep_inode;
@@ -47,10 +47,6 @@ nb_util.directive('nbBrowse', function() {
 
                 var selection = $scope.context.selection;
 
-                $scope.select_inode = function(inode, $index, $event) {
-                    nbMultiSelect.select_item(selection, inode, $index, $event);
-                    return stop_event($event);
-                };
 
                 $scope.$watch('context.current_inode', function(inode) {
                     $scope.current_inode = inode;
@@ -60,11 +56,7 @@ nb_util.directive('nbBrowse', function() {
                 function refresh_current(force_load) {
                     $scope.search_in_folder = '';
                     nbMultiSelect.reset_selection(selection);
-                    nbInode.load_inode($scope.current_inode, force_load).then(function() {
-                        if (!$scope.current_inode.isdir) {
-                            toggle_preview($scope.current_inode);
-                        }
-                    });
+                    nbInode.load_inode($scope.current_inode, force_load);
                 }
 
                 nbUploadSrv.notify_create_in_dir = function(dir_id) {
@@ -100,6 +92,28 @@ nb_util.directive('nbBrowse', function() {
                     return false;
                 }
 
+                function toggle_edit_mode() {
+                    if ($scope.edit_mode) {
+                        $scope.edit_mode = false;
+                        nbMultiSelect.reset_selection(selection);
+                    } else {
+                        $scope.edit_mode = true;
+                    }
+                }
+
+                function click_inode(inode, $index, $event) {
+                    if ($scope.edit_mode) {
+                        return select_inode(inode, $index, $event);
+                    } else {
+                        return open_inode(inode, $index, $event);
+                    }
+                }
+
+                function select_inode(inode, $index, $event) {
+                    nbMultiSelect.select_item(selection, inode, $index, $event, 'append');
+                    return stop_event($event);
+                }
+
                 function open_inode(inode, $index, $event) {
                     // must load in order to detect if dir at all
                     if (!inode.loaded) {
@@ -111,13 +125,7 @@ nb_util.directive('nbBrowse', function() {
                         $location.path('/files/' + inode.id);
                     } else {
                         nbInode.load_inode(inode);
-                        if ((inode.is_selected && !inode.is_previewing) ||
-                            nbMultiSelect.select_item(selection, inode, $index, $event)) {
-                            // inode.is_previewing = true;
-                            play_inode(inode);
-                        } else {
-                            inode.is_previewing = false;
-                        }
+                        play_inode(inode);
                         return stop_event($event);
                     }
                 }
@@ -131,13 +139,9 @@ nb_util.directive('nbBrowse', function() {
                     if (nbInode.play_inode(inode)) {
                         return;
                     }
-                    if ($event) {
+                    if (inode.isdir) {
                         open_inode(inode, $index, $event);
                     }
-                }
-
-                function toggle_preview(inode) {
-                    inode.is_previewing = !inode.is_previewing;
                 }
 
                 function delete_inodes() {

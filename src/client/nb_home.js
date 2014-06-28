@@ -10,7 +10,7 @@ var nb_home = angular.module('nb_home', [
     'ngRoute',
     'ngAnimate',
     'ngSanitize',
-    'ngTouch',
+    // 'ngTouch',
     'nb_util'
 ]);
 
@@ -103,7 +103,6 @@ nb_home.controller('HomeCtrl', [
             current_inode: $scope.root_dir,
             selection: {
                 items: [],
-                append_mode: true,
                 source_index: function(i) {
                     return $scope.home_context.current_inode.entries[i];
                 }

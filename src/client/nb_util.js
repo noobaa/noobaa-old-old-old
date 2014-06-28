@@ -222,7 +222,7 @@ nb_util.factory('nbMultiSelect', [
             }
         }
 
-        function select_item(selection, item, index, event) {
+        function select_item(selection, item, index, event, append) {
             if (event.shiftKey && selection.items.length) {
                 var from = selection.items[selection.items.length - 1].select_source_index;
                 // console.log('SELECT FROM', from, 'TO', index);
@@ -236,7 +236,7 @@ nb_util.factory('nbMultiSelect', [
                         add_selection(selection, selection.source_index(i), i);
                     }
                 }
-            } else if (selection.append_mode || event.ctrlKey || event.metaKey ||
+            } else if (append === 'append' || event.ctrlKey || event.metaKey ||
                 (selection.items.length === 1 && selection.items[0] === item)) {
                 // console.log('SELECT TOGGLE', item.name, item.is_selected);
                 if (item.is_selected) {

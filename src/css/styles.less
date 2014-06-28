@@ -158,7 +158,7 @@ body {
         .center-block;
     }
     .home-view > .panel {
-        background-color: white;
+        // background-color: white;
         margin: 0;
         height: 100%;
         > .panel-body {
@@ -397,14 +397,14 @@ body {
     height: 100%;
     margin-bottom: 0;
     > .panel-heading {
-        padding: 0 8px 8px 8px;
+        border: none;
         .club-msg-mine {
             padding: 2px 5px;
             @c: lighten(@brand-success, 35%);
             &::after {
                 content:"";
                 .club-triangle-base;
-                right: 17px;
+                right: 10px;
                 top: -9px;
                 border-width: 0 7px 8px 7px;
                 border-color: transparent transparent @c transparent;
@@ -419,12 +419,12 @@ body {
             > a {
                 margin: -9px -9px -9px 10px;
                 padding: 12px 15px;
-                border-left: 1px solid @border-color;
+                // border-left: 1px solid @border-color;
             }
         }
     }
     > .panel-footer {
-        .bgnoise2;
+        border: none;
     }
     .content-item {
         border-radius: 4px;

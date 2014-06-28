@@ -4,9 +4,9 @@
 
         <div class="clearfix">
 
-            <div class="clearfix Xpull-left" style="padding-top: 8px">
-                <a class="btn btn-link pull-right" style="padding: 5px" ng-click="editing=!editing">
-                    <i class="fa fa-fw fa-2x {{editing && 'fa-check' || 'fa-ellipsis-v'}}"></i>
+            <div class="clearfix Xpull-left" style="padding: 8px">
+                <a class="btn btn-link pull-right" style="padding-right: 0" ng-click="toggle_edit_mode()">
+                    <i class="fa fa-fw fa-2x {{edit_mode && 'fa-check' || 'fa-bars'}}"></i>
                 </a>
                 <a class="btn btn-default" ng-click="go_up_level()" ng-disabled="!has_parent(current_inode)" title="Back to previous folder" rel="tooltip" nb-tooltip="{container: 'body'}">
                     <i class="fa fa-caret-left fa-fw fa-lg"></i>
@@ -40,7 +40,7 @@
                 </span>
             </div>
 
-            <div ng-if="editing" style="padding-top: 5px">
+            <div ng-if="edit_mode" class="clearfix" style="padding: 0 10px 8px 10px">
                 <div ng-if="num_selected() != 0">
                     <div class="club-msg-mine" ng-include="'file_menu.html'" ng-init="inode = get_selection_leader()"></div>
                 </div>
@@ -51,15 +51,18 @@
 
         </div>
 
+        <div class="headline">
+            <hr/>
+        </div>
     </div>
 
     <div class="panel-body">
-        <div ng-if="current_inode.is_previewing" Xstyle="padding-top: 8px">
+        <div ng-if="!current_inode.isdir" Xstyle="padding-top: 8px">
             <div nb-media="current_inode" media-events="media_events" show-content="true"></div>
         </div>
         <div ng-repeat="inode in filter_entries = ( current_inode.entries | filter:{name: search_in_folder} )">
-            <div class="line clickable {{inode.is_selected && 'active'}}" ng-click="open_inode(inode, $index, $event)">
-                <a ng-if="editing" class="pull-right btn btn-link" ng-click="select_inode(inode, $index, $event)">
+            <div class="line clickable {{inode.is_selected && 'active'}}" ng-click="click_inode(inode, $index, $event)">
+                <a ng-if="edit_mode" class="pull-right btn btn-link">
                     <i ng-hide="inode.is_selected" class="fa fa-square-o fa-fw"></i>
                     <i ng-show="inode.is_selected" class="fa fa-check-square-o fa-fw"></i>
                 </a>
@@ -89,9 +92,6 @@
                 </div>
             </div>
             <hr/>
-            <div ng-if="inode.is_previewing && inode.is_selected" style="padding: 5px 0">
-                <div nb-media="inode" media-events="media_events" show-content="true" class="Xanimated XfadeIn"></div>
-            </div>
         </div>
         <div ng-if="current_inode.isdir && !filter_entries.length" style="padding-left: 20px; line-height: 60px; vertical-align: middle">
             <span ng-if="current_inode.is_loading">
