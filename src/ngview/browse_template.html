@@ -62,33 +62,38 @@
         </div>
         <div ng-repeat="inode in filter_entries = ( current_inode.entries | filter:{name: search_in_folder} )">
             <div class="line clickable {{inode.is_selected && 'active'}}" ng-click="click_inode(inode, $index, $event)">
-                <a ng-if="edit_mode" class="pull-right btn btn-link">
-                    <i ng-hide="inode.is_selected" class="fa fa-square-o fa-fw"></i>
-                    <i ng-show="inode.is_selected" class="fa fa-check-square-o fa-fw"></i>
-                </a>
-                <div class="pull-right hidden-xs">
-                    <span ng-show="inode.uploading">
-                        <i title="Incomplete upload..." rel="tooltip" ng-click="inode_resume_upload(inode)" class="fa fa-cloud-upload fa-lg fa-fw"></i>
-                    </span>
-                    <span ng-show="!inode.isdir" style="margin-right: 10px">
-                        {{human_size(inode.size)}}
-                    </span>
-                    <span ng-if="!!inode.ref_owner" style="margin-right: 10px">
-                        {{inode.ref_owner.first_name}} &nbsp;
-                        <img ng-src="{{nbUser.user_pic_url(inode.ref_owner)}}" class="user-image"></img>
-                    </span>
-                    <span>
-                        {{moment(inode.ctime).fromNow(true)}}
-                    </span>
-                    <a class="btn btn-sm {{!inode.shr && 'btn-link' || inode.shr=='f' && 'btn-warning' || 'btn-warning btn-hover-only'}}" ng-if="nbInode.can_share_inode(inode)" ng-click="share_inode(inode)" ng-attr-title="{{!inode.shr && 'Click to invite' || inode.shr=='f' && 'Invited all friends' || 'Invited some friends'}}" rel="tooltip" style="margin-left: 5px">
-                        <i class="fa fa-{{!inode.shr && 'lock' || 'user'}} fa-lg fa-fw {{!inode.shr && 'text-muted'}}"></i>
+                <div class="clearfix">
+                    <a ng-if="edit_mode" class="pull-right btn btn-link">
+                        <i ng-hide="inode.is_selected" class="fa fa-square-o fa-fw"></i>
+                        <i ng-show="inode.is_selected" class="fa fa-check-square-o fa-fw"></i>
                     </a>
+                    <div class="pull-right hidden-xs">
+                        <span ng-show="inode.uploading">
+                            <i title="Incomplete upload..." rel="tooltip" ng-click="inode_resume_upload(inode)" class="fa fa-cloud-upload fa-lg fa-fw"></i>
+                        </span>
+                        <span ng-show="!inode.isdir" style="margin-right: 10px">
+                            {{human_size(inode.size)}}
+                        </span>
+                        <span ng-if="!!inode.ref_owner" style="margin-right: 10px">
+                            {{inode.ref_owner.first_name}} &nbsp;
+                            <img ng-src="{{nbUser.user_pic_url(inode.ref_owner)}}" class="user-image"></img>
+                        </span>
+                        <span>
+                            {{moment(inode.ctime).fromNow(true)}}
+                        </span>
+                        <a class="btn btn-sm {{!inode.shr && 'btn-link' || inode.shr=='f' && 'btn-warning' || 'btn-warning btn-hover-only'}}" ng-if="nbInode.can_share_inode(inode)" ng-click="share_inode(inode)" ng-attr-title="{{!inode.shr && 'Click to invite' || inode.shr=='f' && 'Invited all friends' || 'Invited some friends'}}" rel="tooltip" style="margin-left: 5px">
+                            <i class="fa fa-{{!inode.shr && 'lock' || 'user'}} fa-lg fa-fw {{!inode.shr && 'text-muted'}}"></i>
+                        </a>
+                    </div>
+                    <div class="text-wrap" style="cursor: pointer">
+                        <i class="fa fa-{{nbUtil.icon_by_kind(inode.content_kind)}} fa-fw fa-lg"></i>
+                        <a class="btn btn-link" style="padding-left: 0; display: inline">
+                            <span style="white-space: pre-wrap">{{inode.name}}</span>
+                        </a>
+                    </div>
                 </div>
-                <div class="text-wrap" style="cursor: pointer">
-                    <i class="fa fa-{{nbUtil.icon_by_kind(inode.content_kind)}} fa-fw fa-lg"></i>
-                    <a class="btn btn-link" style="padding-left: 0; display: inline">
-                        <span style="white-space: pre-wrap">{{inode.name}}</span>
-                    </a>
+                <div class="clearfix" ng-if="inode.content_kind=='image'">
+                    <div nb-media="inode" media-events="media_events" show-content="true"></div>
                 </div>
             </div>
             <hr/>

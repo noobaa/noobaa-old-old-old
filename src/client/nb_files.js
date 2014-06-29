@@ -121,7 +121,7 @@ nb_util.directive('nbBrowse', function() {
                             open_inode(inode, $index, $event);
                         });
                     }
-                    if (inode.isdir) {
+                    if (true || inode.isdir) {
                         $location.path('/files/' + inode.id);
                     } else {
                         nbInode.load_inode(inode);
