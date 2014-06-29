@@ -8,6 +8,9 @@
                 <a class="btn btn-link pull-right" style="padding-right: 0" ng-click="toggle_edit_mode()">
                     <i class="fa fa-fw fa-2x {{edit_mode && 'fa-check' || 'fa-bars'}}"></i>
                 </a>
+                <a class="btn btn-link pull-right" style="padding-right: 0" ng-click="refresh_current('force')">
+                    <i class="fa fa-fw fa-2x fa-refresh {{current_inode.is_loading && 'fa-spin' || ''}}"></i>
+                </a>
                 <a class="btn btn-default" ng-click="go_up_level()" ng-disabled="!has_parent(current_inode)" title="Back to previous folder" rel="tooltip" nb-tooltip="{container: 'body'}">
                     <i class="fa fa-caret-left fa-fw fa-lg"></i>
                 </a>
@@ -35,9 +38,6 @@
                 <h2 style="display: inline; padding: 10px 5px; font-size: 1.5em; line-height: 1.5em; vertical-align: middle">
                     <span style="white-space: pre-wrap">{{current_inode.name}}</span>
                 </h2>
-                <span ng-if="current_inode.is_loading">
-                    <i class="fa fa-refresh fa-spin fa-fw"></i>
-                </span>
             </div>
 
             <div ng-if="edit_mode" class="clearfix" style="padding: 0 10px 8px 10px">
