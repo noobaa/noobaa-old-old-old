@@ -6,7 +6,7 @@
 
             <div class="clearfix Xpull-left" style="padding: 8px">
                 <a class="btn btn-link pull-right" style="padding-right: 0" ng-click="toggle_edit_mode()">
-                    <i class="fa fa-fw fa-2x {{edit_mode && 'fa-check' || 'fa-bars'}}"></i>
+                    <i class="fa fa-fw fa-2x fa-bars"></i>
                 </a>
                 <a class="btn btn-link pull-right" style="padding-right: 0" ng-click="refresh_current('force')">
                     <i class="fa fa-fw fa-2x fa-refresh {{current_inode.is_loading && 'fa-spin' || ''}}"></i>
@@ -52,7 +52,7 @@
         </div>
 
         <div class="headline">
-            <hr/>
+            <!-- <hr/> -->
         </div>
     </div>
 
@@ -61,7 +61,7 @@
             <div nb-media="current_inode" media-events="media_events" show-content="true"></div>
         </div>
         <div ng-repeat="inode in filter_entries = ( current_inode.entries | filter:{name: search_in_folder} )">
-            <div class="line clickable {{inode.is_selected && 'active'}}" ng-click="click_inode(inode, $index, $event)">
+            <div class="well line clickable {{inode.is_selected && 'active'}}" ng-click="click_inode(inode, $index, $event)">
                 <div class="clearfix">
                     <a ng-if="edit_mode" class="pull-right btn btn-link">
                         <i ng-hide="inode.is_selected" class="fa fa-square-o fa-fw"></i>
@@ -96,7 +96,7 @@
                     <div nb-media="inode" media-events="media_events" show-content="true"></div>
                 </div>
             </div>
-            <hr/>
+            <!-- <hr/> -->
         </div>
         <div ng-if="current_inode.isdir && !filter_entries.length" style="padding-left: 20px; line-height: 60px; vertical-align: middle">
             <span ng-if="current_inode.is_loading">

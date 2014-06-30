@@ -129,7 +129,6 @@ body {
  .home-area {
     height: 100%;
     width: 100%;
-    padding: 0 0 20px 0;
 }
 .home-body {
     hr {
@@ -151,6 +150,8 @@ body {
     }
     > .panel-body {
         overflow-y: auto;
+    }
+    > .panel-footer {
         padding: 20px 0;
     }
     > .panel-body, > .panel-footer {
@@ -171,9 +172,8 @@ body {
 }
 @media all and (max-height: @home-max-height), all and (max-width: @home-max-width) {
     .home-area {
-        padding: 0;
         .home-panel {
-            > .panel-body {
+            > .panel-footer {
                 padding: 0;
             }
             .home-view > .panel {
@@ -269,7 +269,7 @@ body {
     }
 }
 .club-panel {
-    > .panel-footer {
+    .club-input {
         padding: 0;
         .club-msg-btn {
             padding: 5px;
@@ -280,9 +280,9 @@ body {
         }
     }
     .club-content {
-        .bgnoise2;
-        background-color: @gray-darker;
-        padding: 10px 10px 0 10px;
+        // .bgnoise2;
+        // background-color: @gray-darker;
+        // padding: 10px 10px 0 10px;
     }
     .alert {
         .club-msg;
@@ -302,10 +302,11 @@ body {
     }
 }
 .club-msg {
+    .well;
     padding: 8px 13px;
-    border-radius: 8px;
-    border-style: solid;
-    border-width: 1px;
+    border-radius: 5px;
+    // border-style: solid;
+    // border-width: 1px;
     position: relative;
     max-width: 100%;
 }
@@ -317,27 +318,37 @@ body {
 }
 .club-msg-mine {
     .club-msg;
-    float: right;
-    @c: lighten(@brand-success, 35%);
+    float: left;
+    @c: lighten(@brand-success, 40%);
     color: @gray-darker;
-    box-shadow: 1px 1px 2px hsl(0, 0%, 60%);
+    // box-shadow: 1px 1px 2px hsl(0, 0%, 60%);
     border-color: @c;
     background-color: @c;
     &::after {
-        content:"";
         .club-triangle-base;
+        content:"";
+        top: 10px;
+        left: -9px;
+        border-width: 7px 8px 7px 0;
+        border-color: transparent @c transparent transparent;
+    }
+    /*
+    &::after {
+        .club-triangle-base;
+        content:"";
         top: 10px;
         right: -9px;
         border-width: 7px 0 7px 8px;
         border-color: transparent transparent transparent @c;
     }
+    */
 }
 .club-msg-user {
     .club-msg;
     float: left;
     @c: hsl(0, 0%, 100%);
     color: @gray-darker;
-    box-shadow: 0 1px 2px hsl(0, 0%, 60%);
+    // box-shadow: 0 1px 2px hsl(0, 0%, 60%);
     border-color: @c;
     background-color: @c;
     &::after {

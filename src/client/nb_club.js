@@ -30,7 +30,6 @@ nb_util.factory('nbClub', [
             get_club_for_update: get_club_for_update,
             start_club_with_email: start_club_with_email,
             send_club_message: send_club_message,
-            scroll_club_to_bottom: scroll_club_to_bottom,
             // objects
             clubs: {},
             last_poll: 0,
@@ -97,8 +96,8 @@ nb_util.factory('nbClub', [
             _.each(club.msgs, set_user_info);
             var c = $scope.clubs[club._id];
             if (c) {
-                var msgs = c.msgs || [];
-                msgs = msgs.concat(club.msgs || []);
+                var msgs = club.msgs || [];
+                msgs = msgs.concat(c.msgs || []);
                 msgs = _.uniq(msgs, function(m) {
                     return m._id;
                 });
@@ -182,7 +181,7 @@ nb_util.factory('nbClub', [
 
 
         function touch_club() {
-            $q.when(mark_seen($scope.active_club)).then(scroll_club_to_bottom);
+            $q.when(mark_seen($scope.active_club));
         }
 
         function send_club_message(club, msg) {
@@ -193,14 +192,14 @@ nb_util.factory('nbClub', [
                     text: msg.text,
                     inode: msg.inode
                 }
-            }).then(poll_clubs).then(scroll_club_to_bottom).then(touch_club);
+            }).then(poll_clubs).then(touch_club);
         }
 
         function mark_seen(club) {
             if (!club.msgs || !club.msgs.length) {
                 return;
             }
-            var last_msg_id = club.msgs[club.msgs.length - 1]._id;
+            var last_msg_id = club.msgs[0]._id;
             var prev_msg_id = club.seen_msg;
             if (prev_msg_id === last_msg_id) {
                 return;
@@ -232,7 +231,7 @@ nb_util.factory('nbClub', [
                 return;
             }
             for (var i = 0; i < club.msgs.length; i++) {
-                if (club.msgs[club.msgs.length - i - 1]._id === club.seen_msg) {
+                if (club.msgs[i]._id === club.seen_msg) {
                     break;
                 }
             }

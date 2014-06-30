@@ -44,7 +44,7 @@ exports.poll = function(req, res) {
                 time: {
                     $gt: last_poll
                 }
-            }).sort('time').populate('inode').exec(next);
+            }).sort('-time').populate('inode').exec(next);
         },
         function(msgs, next) {
             if (!clubs.length) {
@@ -263,7 +263,7 @@ exports.read = function(req, res) {
             console.log('READ ClubMsg.find', club.id, start_time, end_time);
             var q = ClubMsg.find({
                 club: club.id
-            });
+            }).sort('-time');
             if (start_time) {
                 q.where('time').gte(start_time);
             }

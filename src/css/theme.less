@@ -19,7 +19,7 @@
  @gray-lighter: lighten(@gray-light, 15%);
  // @body-bg: @gray;
  // @body-bg: hsl(0, 0%, 5%);
- @body-bg: hsl(0, 0%, 99%);
+ @body-bg: hsl(0, 0%, 90%);
  @text-color: hsl(0, 0%, 10%);
  @link-color: hsl(0, 0%, 50%);
  @brand-primary: hsl(202, 83%, 47%);
@@ -37,8 +37,8 @@
  @well-border: @border-color;
  @panel-bg: transparent;
  @panel-footer-bg: transparent;
- @panel-default-heading-bg: transparent;
- @modal-content-bg: lighten(@body-bg, 5%);
+ @panel-default-heading-bg: white;
+ @modal-content-bg: @body-bg;
  @navbar-default-bg: @gray-dark;
  @navbar-top-height: 50px;
  @navbar-bottom-height: 50px;
@@ -72,17 +72,15 @@
     margin: 0;
 }
 .panel, .panel .panel-heading, .panel .panel-footer {
-    border-color: @border-color;
+    // border-color: @border-color;
     box-shadow: none;
 }
 hr {
     border-color: @border-color;
 }
 .well {
-    background-color: transparent;
-    border: none;
-    box-shadow: none;
-    margin: 0;
+    margin: 10px;
+    box-shadow: 2px 2px 5px 5px @border-color;
 }
 .line {
     .clearfix;

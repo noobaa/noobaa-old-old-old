@@ -15,7 +15,46 @@
 
     <div class="panel-body">
         <div class="club-content hfill-scroll">
+
+            <div class="club-input well">
+                <div class="club-msg-btn pull-right">
+                    <div class="btn-group dropup">
+                        <button ng-if="!club.message_input.length" class="btn btn-link dropdown-toggle" style="padding: 2px" data-toggle="dropdown" type="button">
+                            <i class="fa fa-paperclip fa-2x fa-rotate-90 fa-fw"></i>
+                        </button>
+                        <ul class="dropdown-menu pull-right nav" role="menu">
+                            <li>
+                                <a ng-click="select_files_to_club()" style="padding-left: 10px">
+                                    <i class="fa fa-folder-open fa-lg fa-fw"></i>
+                                    Select from files
+                                </a>
+                            </li>
+                            <li class="divider"></li>
+                            <li>
+                                <a ng-click="upload_files_to_club()" style="padding-left: 10px">
+                                    <i class="fa fa-cloud-upload fa-lg fa-fw"></i>
+                                    Upload files
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <button ng-if="club.message_input.length" ng-click="send_club_text()" class="btn btn-success" ng-disabled="sending_message">
+                        <i class="fa fa-paper-plane fa-lg fa-fw"></i>
+                    </button>
+                </div>
+                <div style="overflow: hidden">
+                    <textarea placeholder="Enter message" ng-model="club.message_input" nb-enter="send_club_text()" nb-auto-height nb-focus="false" ng-disabled="sending_message"></textarea>
+                </div>
+            </div>
+
             <div ng-repeat="msg in club.msgs track by $index" class="clearfix">
+                <div ng-if="club.seen_msg == msg._id && !$first" class="text-center club-bottom-margin">
+                    <div class="clearfix"></div>
+                    <div class="alert alert-info hflow">
+                        <span>new messages</span>
+                        <i class="fa fa-caret-up fa-lg"></i>
+                    </div>
+                </div>
                 <div class="{{(msg.user != nbUser.user.id) && 'club-msg-user' || 'club-msg-mine'}}" ng-init="show_img = false">
                     <div ng-show="msg.user != nbUser.user.id" class="clearfix" style="color: hsl({{msg.user_info.color}}, 70%, 55%)" ng-click="show_img=!show_img">
                         <img ng-show="show_img" class="pull-left user-image" style="margin-right: 10px" ng-src="{{nbUser.user_pic_url(msg.user_info)}}" />
@@ -39,13 +78,6 @@
                         </a>
                     </div>
                 </div>
-                <div ng-if="club.seen_msg == msg._id && !$last" class="text-center club-bottom-margin">
-                    <div class="clearfix"></div>
-                    <div class="alert alert-info hflow">
-                        <span>new messages</span>
-                        <i class="fa fa-caret-down fa-lg"></i>
-                    </div>
-                </div>
             </div>
             <!-- 
         <div class="clearfix">
@@ -56,37 +88,6 @@
             </div>
         </div>
          -->
-        </div>
-    </div>
-
-    <div class="panel-footer clearfix">
-        <div class="club-msg-btn pull-right">
-            <div class="btn-group dropup">
-                <button ng-if="!club.message_input.length" class="btn btn-link dropdown-toggle" style="padding: 2px" data-toggle="dropdown" type="button">
-                    <i class="fa fa-paperclip fa-2x fa-rotate-90 fa-fw"></i>
-                </button>
-                <ul class="dropdown-menu pull-right nav" role="menu">
-                    <li>
-                        <a ng-click="select_files_to_club()" style="padding-left: 10px">
-                            <i class="fa fa-folder-open fa-lg fa-fw"></i>
-                            Select from files
-                        </a>
-                    </li>
-                    <li class="divider"></li>
-                    <li>
-                        <a ng-click="upload_files_to_club()" style="padding-left: 10px">
-                            <i class="fa fa-cloud-upload fa-lg fa-fw"></i>
-                            Upload files
-                        </a>
-                    </li>
-                </ul>
-            </div>
-            <button ng-if="club.message_input.length" ng-click="send_club_text()" class="btn btn-success" ng-disabled="sending_message">
-                <i class="fa fa-paper-plane fa-lg fa-fw"></i>
-            </button>
-        </div>
-        <div style="overflow: hidden">
-            <textarea placeholder="Enter message" ng-model="club.message_input" nb-enter="send_club_text()" nb-auto-height nb-focus="false" ng-disabled="sending_message"></textarea>
         </div>
     </div>
 
