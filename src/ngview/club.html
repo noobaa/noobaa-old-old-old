@@ -1,14 +1,14 @@
 <div class="club-panel panel" nb-panel-hfill>
 
     <div class="panel-heading clearfix">
-        <a class="btn btn-link pull-left" style="padding: 2px 10px" href="club/">
-            <i class="fa fa-angle-left fa-3x pull-left"></i>
-            <img class="user-image pull-left" style="margin-top: 5px" ng-src="{{club.logo}}" />
+        <a class="btn btn-link btn-back pull-left" href="club/">
+            <i class="fa fa-angle-left"></i>
         </a>
-        <a class="btn btn-link pull-right" style="padding: 10px 20px" ng-href="club/info/{{club._id}}" title="Open club info" rel="tooltip" nb-tooltip="{container: 'body'}">
-            <i class="fa fa-ellipsis-v fa-2x"></i>
+        <img class="user-image pull-left" ng-src="{{club.logo}}" />
+        <a class="btn btn-link pull-right" ng-href="club/info/{{club._id}}" title="Open club info" rel="tooltip" nb-tooltip="{container: 'body'}">
+            <i class="fa fa-bars fa-2x"></i>
         </a>
-        <div class="hflow" style="padding: 10px 0">
+        <div class="hflow">
             <div class="club-title text-left text-ellipses text-color">{{club.title}}</div>
         </div>
     </div>
@@ -18,7 +18,7 @@
 
             <div class="club-input well">
                 <div class="club-msg-btn pull-right">
-                    <div class="btn-group dropup">
+                    <div class="btn-group">
                         <button ng-if="!club.message_input.length" class="btn btn-link dropdown-toggle" style="padding: 2px" data-toggle="dropdown" type="button">
                             <i class="fa fa-paperclip fa-2x fa-rotate-90 fa-fw"></i>
                         </button>

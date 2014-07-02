@@ -3,56 +3,64 @@
     <div class="panel-heading clearfix">
 
         <div class="clearfix">
-
-            <div class="clearfix Xpull-left" style="padding: 8px">
-                <a class="btn btn-link pull-right" style="padding-right: 0" ng-click="toggle_edit_mode()">
-                    <i class="fa fa-fw fa-2x fa-bars"></i>
-                </a>
-                <a class="btn btn-link pull-right" style="padding-right: 0" ng-click="refresh_current('force')">
-                    <i class="fa fa-fw fa-2x fa-refresh {{current_inode.is_loading && 'fa-spin' || ''}}"></i>
-                </a>
-                <a class="btn btn-default" ng-click="go_up_level()" ng-disabled="!has_parent(current_inode)" title="Back to previous folder" rel="tooltip" nb-tooltip="{container: 'body'}">
-                    <i class="fa fa-caret-left fa-fw fa-lg"></i>
-                </a>
-                <div class="btn-group">
-                    <a class="btn btn-link dropdown-toggle" data-toggle="dropdown" title="Back to folder..." rel="tooltip" nb-tooltip="{container: 'body'}" ng-disabled="!has_parent(current_inode)">
-                        <span style="font-size: 1.2em; line-height: 1.2em; vertical-align: middle">
-                            <span ng-show="has_parent(current_inode)">
-                                . . .
-                                <span class="text-white">&nbsp;/</span>
-                            </span>
-                            <span ng-hide="has_parent(current_inode)" class="text-muted">
-                                <i class="fa fa-home fa-lg"></i>
-                            </span>
+            <a class="btn btn-link pull-right" ng-click="toggle_edit_mode()">
+                <i class="fa fa-fw fa-2x fa-bars"></i>
+            </a>
+            <a class="btn btn-link pull-right" ng-click="refresh_current('force')">
+                <i class="fa fa-fw fa-2x fa-repeat {{current_inode.is_loading && 'fa-spin' || ''}}"></i>
+            </a>
+            <a class="btn btn-link pull-left" style="padding-left: 10px; padding-right: 20px" ng-click="go_up_level()" ng-disabled="!has_parent(current_inode)">
+                <span ng-show="has_parent(current_inode)">
+                    <!-- <i class="fa fa-arrow-circle-o-up fa-2x"></i> -->
+                    
+                    <span class="fa-stack">
+                        <i class="fa fa-folder fa-stack-2x"></i>
+                        <i class="fa fa-arrow-up fa-stack-1x fa-inverse" style="font-size: 0.8em"></i>
+                    </span>
+                    
+                </span>
+                <span ng-hide="has_parent(current_inode)" class="text-muted">
+                    <i class="fa fa-home fa-2x"></i>
+                </span>
+            </a>
+            <!-- 
+            <div class="btn-group">
+                <a class="btn btn-link dropdown-toggle" data-toggle="dropdown" ng-disabled="!has_parent(current_inode)">
+                    <span ng-show="has_parent(current_inode)">
+                        <span class="fa-stack">
+                            <i class="fa fa-folder fa-stack-2x"></i>
+                            <i class="fa fa-caret-down fa-stack-1x text-success"></i>
                         </span>
-                    </a>
-                    <ul ng-if="has_parent(current_inode)" class="dropdown-menu" role="menu" style="border: 1px solid hsl(0,0%,50%)">
-                        <li ng-repeat="parent in path = nbInode.parents_path(current_inode)">
-                            <a ng-click="open_inode(parent)" style="padding-left: {{10+((path.length-1-$index) * 15)}}px; font-size: 1.1em">
-                                <i class="fa fa-{{!parent.id && 'home' || 'folder-open'}} fa-fw"></i>
-                                {{parent.name || '...'}}
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-                <h2 style="display: inline; padding: 10px 5px; font-size: 1.5em; line-height: 1.5em; vertical-align: middle">
-                    <span style="white-space: pre-wrap">{{current_inode.name}}</span>
-                </h2>
+                        <span class="text-muted">&nbsp;/</span>
+                    </span>
+                    <span ng-hide="has_parent(current_inode)" class="text-muted">
+                        <i class="fa fa-home fa-2x"></i>
+                    </span>
+                </a>
+                <ul ng-if="has_parent(current_inode)" class="dropdown-menu" role="menu" style="border: 1px solid hsl(0,0%,50%)">
+                    <li ng-repeat="parent in path = nbInode.parents_path(current_inode)">
+                        <a ng-click="open_inode(parent)" style="padding-left: {{10+((path.length-1-$index) * 15)}}px; font-size: 1.1em">
+                            <i class="fa {{!parent.id && 'fa-home' || 'fa-folder-open'}} fa-fw"></i>
+                            {{parent.name || '...'}}
+                        </a>
+                    </li>
+                </ul>
             </div>
-
-            <div ng-if="edit_mode" class="clearfix" style="padding: 0 10px 8px 10px">
-                <div ng-if="num_selected() != 0">
-                    <div class="club-msg-mine" ng-include="'file_menu.html'" ng-init="inode = get_selection_leader()"></div>
-                </div>
-                <div ng-if="num_selected() == 0">
-                    <div class="club-msg-mine" ng-include="'file_menu.html'" ng-init="inode = current_inode"></div>
+             -->
+            <div class="hflow">
+                <div class="club-title text-left text-ellipses text-color">
+                    {{current_inode.name}}
                 </div>
             </div>
-
         </div>
 
-        <div class="headline">
-            <!-- <hr/> -->
+        <div ng-if="edit_mode" class="clearfix" style="padding: 0 10px 8px 10px">
+            <div ng-if="num_selected() != 0">
+                <div class="club-msg-mine" ng-include="'file_menu.html'" ng-init="inode = get_selection_leader()"></div>
+            </div>
+            <div ng-if="num_selected() == 0">
+                <div class="club-msg-mine" ng-include="'file_menu.html'" ng-init="inode = current_inode"></div>
+            </div>
         </div>
     </div>
 

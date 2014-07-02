@@ -15,6 +15,127 @@ body {
 /**/
 
 /******************************************************************************
+    HOME
+ ******************************************************************************/
+ @home-max-width: 600px;
+ @home-max-height: 600px;
+ .home-container {
+    .center-block;
+    max-width: @home-max-width;
+}
+.home-bg {
+    background-color: darken(@body-bg, 10%);
+    .bgnoise2;
+}
+.home-body {
+    hr {
+        margin: 1px 10px;
+    }
+    .panel {
+        margin: 0;
+        .panel-heading, .panel-body, .panel-footer {
+            .clearfix;
+            padding: 0;
+        }
+    }
+    > .noobaa-logo {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+    }
+    .home-area {
+        height: 100%;
+        width: 100%;
+    }
+    .home-panel {
+        height: 100%;
+        margin-top: 0;
+        margin-bottom: 0;
+        padding: 0;
+        border: none;
+        > .panel-body {
+        }
+        > .panel-footer {
+            .home-container;
+            border: none;
+            padding: 10px 0;
+        }
+    }
+    .home-view > .panel {
+        height: 100%;
+        > .panel-heading {
+            .home-container;
+            line-height: 40px;
+            .btn-link {
+                padding: 10px 6px;
+            }
+            .btn-success {
+                margin: 10px;
+            }
+            .btn-back {
+                padding: 0 20px 0 10px;
+                .fa-angle-left {
+                    font-size: 45px;
+                }
+            }
+            img {
+                margin: 10px;
+            }
+            .club-title {
+                line-height: 50px;
+            }
+        }
+        > .panel-body {
+            .home-bg;
+            .home-container;
+            overflow-y: auto;
+        }
+    }
+    .feed-panel {
+        max-width: 100%;
+    }
+}
+@media all and (max-width: (@home-max-width+200px)) {
+    .home-body {
+        > .noobaa-logo {
+            display: none;
+        }
+    }
+}
+@media all and (max-height: @home-max-height), all and (max-width: @home-max-width) {
+    .home-body {
+        .home-area {
+            > .home-panel {
+                > .panel-footer {
+                    padding: 0;
+                }
+                .home-view > .panel {
+                    border-top-width: 0;
+                    border-bottom-width: 0;
+                }
+            }
+        }
+    }
+}
+.home-panel.panel-too-small {
+    > .panel-heading, > .panel-footer {
+        height: 0;
+        overflow: hidden;
+    }
+    /*
+    input:focus {
+        z-index: 1;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: white;
+    }*/
+}
+/**/
+
+/******************************************************************************
     NAVBAR 
  ******************************************************************************/
  .navbar {
@@ -28,22 +149,26 @@ body {
     position: static;
     z-index: 0;
 }
+.noobaa-logo {
+    // padding: 10px 10px;
+    > img {
+        height: 25px;
+        width: 80px;
+        vertical-align: top;
+    }
+    > div, > span {
+        .text-center;
+        font-size: 10px;
+        line-height: 8px;
+    }
+}
 .navbar.navbar-top {
     height: @navbar-top-height;
     border-bottom-width: 1px;
     .navbar-brand {
         display: inline-block;
         float: none;
-        padding: 10px 10px;
-        > img {
-            height: 22px;
-            width: 70px;
-        }
-        > div {
-            .text-center;
-            font-size: 10px;
-            line-height: 8px;
-        }
+        .noobaa-logo;
     }
     .navbar-user {
         a {
@@ -76,6 +201,9 @@ body {
             padding-top: 10px;
             border-bottom: 4px solid transparent;
             border-left: 1px solid hsla(0, 0%, 100%, 0.2);
+            > a {
+                color: @gray;
+            }
             &.active, &.active:hover {
                 background-color: darken(@navbar-default-bg, 15%);
                 border-bottom-color: @brand-success;
@@ -91,7 +219,7 @@ body {
                 position: relative;
                 display: block;
                 text-decoration: none;
-                color: @gray-light;
+                // color: @gray-light;
                 > .fa {
                     font-size: 30px;
                     .fa-fw;
@@ -118,86 +246,6 @@ body {
             }
         }
     }
-}
-/**/
-
-/******************************************************************************
-    HOME
- ******************************************************************************/
- @home-max-width: 600px;
- @home-max-height: 600px;
- .home-area {
-    height: 100%;
-    width: 100%;
-}
-.home-body {
-    hr {
-        margin: 1px 10px;
-    }
-    .panel {
-        margin: 0;
-    }
-}
-.home-panel {
-    height: 100%;
-    margin-top: 0;
-    margin-bottom: 0;
-    padding: 0;
-    border: none;
-    .panel-heading, .panel-body, .panel-footer {
-        .clearfix;
-        padding: 0;
-    }
-    > .panel-body {
-        overflow-y: auto;
-    }
-    > .panel-footer {
-        padding: 20px 0;
-    }
-    > .panel-body, > .panel-footer {
-        max-width: @home-max-width;
-        .center-block;
-    }
-    .home-view > .panel {
-        // background-color: white;
-        margin: 0;
-        height: 100%;
-        > .panel-body {
-            overflow-y: auto;
-        }
-    }
-    .feed-panel {
-        max-width: 100%;
-    }
-}
-@media all and (max-height: @home-max-height), all and (max-width: @home-max-width) {
-    .home-area {
-        .home-panel {
-            > .panel-footer {
-                padding: 0;
-            }
-            .home-view > .panel {
-                border-top-width: 0;
-                border-bottom-width: 0;
-            }
-        }
-    }
-}
-.home-panel.panel-too-small {
-    > .panel-heading, > .panel-footer {
-        height: 0;
-        overflow: hidden;
-    }
-    /*
-    input:focus {
-        z-index: 1;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: white;
-    }*/
 }
 /**/
 
@@ -363,45 +411,6 @@ body {
 /**/
 
 /******************************************************************************
-    FRIENDS 
- ******************************************************************************/
- .friend-chooser {
-    .user-image {
-        width: 64px;
-        height: 64px;
-        vertical-align: top;
-    }
-    .fa-caret-right {
-        text-align: left;
-        margin-left: 2px;
-        width: 10px;
-    }
-    .fa-check {
-        text-align: left;
-        font-style: italic;
-    }
-    .fa-envelope {
-        .text-success;
-    }
-    .fa-facebook-square {
-        .text-primary;
-    }
-    .fa-google-plus-square {
-        .text-danger;
-    }
-    .line {
-        &.disabled {
-            .text-muted;
-            cursor: default;
-        }
-        &:not(.disabled) .show-on-disabled {
-            display: none;
-        }
-    }
-}
-/**/
-
-/******************************************************************************
     FILES 
  ******************************************************************************/
  .browser {
@@ -485,6 +494,45 @@ body {
         padding-left: 3px;
         padding-right: 3px;
         border-color: lighten(desaturate(@brand-primary, 60%), 10%);
+    }
+}
+/**/
+
+/******************************************************************************
+    FRIENDS 
+ ******************************************************************************/
+ .friend-chooser {
+    .user-image {
+        width: 64px;
+        height: 64px;
+        vertical-align: top;
+    }
+    .fa-caret-right {
+        text-align: left;
+        margin-left: 2px;
+        width: 10px;
+    }
+    .fa-check {
+        text-align: left;
+        font-style: italic;
+    }
+    .fa-envelope {
+        .text-success;
+    }
+    .fa-facebook-square {
+        .text-primary;
+    }
+    .fa-google-plus-square {
+        .text-danger;
+    }
+    .line {
+        &.disabled {
+            .text-muted;
+            cursor: default;
+        }
+        &:not(.disabled) .show-on-disabled {
+            display: none;
+        }
     }
 }
 /**/

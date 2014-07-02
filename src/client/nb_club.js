@@ -19,6 +19,7 @@ nb_util.factory('nbClub', [
         var $scope = {
             get_club: get_club,
             get_club_or_redirect: get_club_or_redirect,
+            poll_clubs: poll_clubs,
             reset_active_club: reset_active_club,
             set_active_club: set_active_club,
             activate_club: activate_club,
