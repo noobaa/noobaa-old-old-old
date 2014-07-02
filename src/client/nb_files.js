@@ -40,6 +40,8 @@ nb_util.directive('nbBrowse', function() {
                 $scope.click_inode = click_inode;
                 $scope.right_click_inode = right_click_inode;
                 $scope.play_inode = play_inode;
+                $scope.share_inode_with_club = share_inode_with_club;
+                $scope.share_inodes_with_club = share_inodes_with_club;
                 $scope.move_inodes = move_inodes;
                 $scope.delete_inodes = delete_inodes;
                 $scope.keep_inode = keep_inode;
@@ -109,7 +111,7 @@ nb_util.directive('nbBrowse', function() {
                         return open_inode(inode, $index, $event);
                     }
                 }
-                
+
                 function right_click_inode(inode, $index, $event) {
                     if (!$scope.edit_mode) {
                         toggle_edit_mode();
@@ -223,6 +225,14 @@ nb_util.directive('nbBrowse', function() {
                         return;
                     }
                     return nbInode.unshare_inode(inode).then(refresh_current, refresh_current);
+                }
+
+                function share_inode_with_club() {
+                    alertify.log('TODO share_inode_with_club');
+                }
+
+                function share_inodes_with_club() {
+                    alertify.log('TODO share_inodes_with_club');
                 }
             }
         ]

@@ -16,7 +16,7 @@
                         <span class="badge">{{num_selected()}} items selected</span>
                     </li>
                     <li>
-                        <a ng-click="club_invite_inodes()">
+                        <a ng-click="share_inodes_with_club()">
                             <i class="fa fa-cube"></i>
                             <span>Share with CLUB</span>
                         </a>
@@ -65,7 +65,7 @@
                     </li>
                      -->
                     <li ng-if="nbInode.can_share_inode(current_inode)">
-                        <a ng-click="share_inode(current_inode)">
+                        <a ng-click="share_inode_with_club(current_inode)">
                             <i class="fa fa-cube"></i>
                             <span>Share with CLUB</span>
                         </a>
