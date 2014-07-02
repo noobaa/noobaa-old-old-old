@@ -22,10 +22,8 @@
     <div class="panel-body">
 
         <div ng-hide="filtered_friends.length || nbUtil.valid_email(friend_input)">
-            <div class="headline text-center">
-                <div class="line line-p1 text-muted">
-                    <span class="lead">NO FRIENDS FOUND</span>
-                </div>
+            <div class="line line-p1 headline text-center text-muted">
+                <span class="lead">NO FRIENDS FOUND</span>
             </div>
         </div>
 
@@ -46,12 +44,11 @@
             <hr />
         </div>
 
-        <div class="headline">
-            <div class="line line-p1">
-                <b>FIND MORE FRIENDS</b>
-            </div>
-            <hr />
+        <div class="line line-p1 headline">
+            <b>FIND MORE FRIENDS</b>
         </div>
+        <hr class="headline" />
+
         <a ng-click="choose_friend_email(friend_input)" class="line line-p1 clickable">
             <i class="fa fa-envelope fa-lg fa-fw"></i>
             <span ng-show="nbUtil.valid_email(friend_input)">

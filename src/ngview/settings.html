@@ -13,6 +13,48 @@
 
     <div class="panel-body clearfix">
 
+        <div class="line headline">
+            <b>ALLOCATED STORAGE</b>
+        </div>
+        <div ng-if="!nbPlanet.on">
+            <a class="btn-line" ng-click="show_client_installation()">
+                <i class="fa fa-wrench fa-fw fa-lg"></i>
+                <span>INSTALL DESKTOP CLIENT</span>
+            </a>
+        </div>
+        <div ng-if="nbPlanet.on">
+            <!-- 
+            <a class="btn-line" ng-click="show_client_expansion()">
+                <i class="fa fa-wrench fa-fw fa-lg"></i>
+                <span>ALLOCATE DESKTOP SPACE</span>
+            </a>
+             -->
+            <div class="text-center" style="padding: 10px">
+                <span ng-repeat="plan in nbPlanet.coshare_options">
+                    <button href="#" class="btn btn-lg Xbtn-block" ng-click="nbPlanet.select_coshare_option($index)" ng-class="nbPlanet.coshare_options_class($index)">
+                        {{plan.title}}
+                    </button>
+                </span>
+            </div>
+            <button ng-if="false" class="btn btn-link btn-block" ng-click="nbUtil.coming_soon()" Xonclick="$('#coshare_path').trigger('click')">
+                Advanced...
+            </button>
+            <input id="coshare_path" style="display: none" type="file" name="file" nwdirectory>
+            </input>
+        </div>
+
+
+        <div class="line headline">
+            <b>STORAGE USAGE</b>
+            <div class="progress text-center pull-right" style="width: 100px; margin: 0">
+                <div class="progress-bar progress-bar-{{nbUser.usage_percents < 70 && 'success' || usage_percents < 90 && 'warning' || 'danger'}}" role="progressbar" aria-valuenow="{{nbUser.usage_percents}}" aria-valuemin="0" aria-valuemax="100" style="width: {{nbUser.usage_percents}}%">
+                </div>
+            </div>
+        </div>
+
+        <div class="line">
+            Using {{human_size(nbUser.user_usage)}} out of {{human_size(nbUser.user_quota)}} in your account
+        </div>
 
         <div class="text-center" style="margin-bottom: 20px" ng-show="refreshing_friends">
             <p Xclass="lead">
@@ -21,10 +63,8 @@
             </p>
         </div>
 
-        <div class="headline">
-            <div class="line"><b>FRIENDS</b>
-            </div>
-            <!-- <hr /> -->
+        <div class="line headline">
+            <b>FRIENDS</b>
         </div>
 
 

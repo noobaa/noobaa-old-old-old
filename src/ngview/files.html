@@ -3,9 +3,6 @@
     <div class="panel-heading clearfix">
 
         <div class="navbar clearfix">
-            <a ng-if="edit_mode" class="btn btn-default pull-right" ng-click="toggle_edit_mode()">
-                DONE
-            </a>
             <div ng-if="edit_mode" class="btn-group pull-right">
                 <a ng-disabled="num_selected() <= 0 || current_inode.ref_owner || !nbInode.can_change_inode(get_selection_leader())" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                     ACTIONS
@@ -35,6 +32,9 @@
                     </li>
                 </ul>
             </div>
+            <a ng-if="edit_mode" class="btn btn-default pull-right" ng-click="toggle_edit_mode()">
+                CANCEL
+            </a>
             <div ng-if="!edit_mode" class="btn-group pull-right">
                 <a class="btn btn-link dropdown-toggle" data-toggle="dropdown" Xng-click="toggle_edit_mode()">
                     <i class="fa fa-fw fa-2x fa-bars"></i>
@@ -139,7 +139,7 @@
             <div nb-media="current_inode" media-events="media_events" show-content="true"></div>
         </div>
         <div ng-repeat="inode in filter_entries = ( current_inode.entries | filter:{name: search_in_folder} )">
-            <div class="well line clickable {{inode.is_selected && 'active'}} {{edit_mode && !inode.is_selected && 'select-pulse'}}" ng-click="click_inode(inode, $index, $event)" nb-right-click="right_click_inode(inode, $index, $event)">
+            <div class="btn-line {{inode.is_selected && 'active'}} {{edit_mode && !inode.is_selected && 'select-pulse'}}" ng-click="click_inode(inode, $index, $event)" nb-right-click="right_click_inode(inode, $index, $event)">
                 <div class="clearfix">
                     <a ng-if="edit_mode" class="pull-right btn btn-link">
                         <i ng-hide="inode.is_selected" class="fa fa-square-o fa-fw fa-lg"></i>

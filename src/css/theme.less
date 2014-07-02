@@ -32,7 +32,7 @@
  @state-info-text: @brand-info;
  @state-danger-text: @brand-danger;
  @state-warning-text: @brand-warning;
- @border-color: lighten(@gray, 35%);
+ @border-color: darken(@body-bg, 10%);
  @well-bg: white;
  @well-border: @border-color;
  @panel-bg: transparent;
@@ -59,6 +59,21 @@
 }
 .btn-link:hover {
     color: darken(@link-color, 20%);
+}
+.btn-line {
+    .btn;
+    .btn-default;
+    .btn-block;
+    .clearfix;
+    text-align: left;
+    padding: 15px;
+    margin: 10px;
+    width: auto;
+    height: auto;
+    &.active {
+        background-color: lighten(@brand-warning, 20%);
+        .bgnoise2;
+    }
 }
 .inner-input {
     display: block;
@@ -95,6 +110,9 @@ hr {
         background-color: lighten(@brand-warning, 20%);
         .bgnoise2;
     }
+    &.headline {
+        padding-top: 25px;
+    }
 }
 .line-p1 {
     padding: 15px;
@@ -102,13 +120,8 @@ hr {
 .line-p2 {
     padding: 25px;
 }
-.headline {
-    .line {
-        padding-top: 25px;
-    }
-    hr {
-        border-width: 3px;
-    }
+hr.headline {
+    border-width: 3px;
 }
 .dropdown-menu {
     > li > a {
