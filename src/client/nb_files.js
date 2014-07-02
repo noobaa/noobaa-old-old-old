@@ -38,6 +38,7 @@ nb_util.directive('nbBrowse', function() {
                 $scope.num_selected = num_selected;
                 $scope.toggle_edit_mode = toggle_edit_mode;
                 $scope.click_inode = click_inode;
+                $scope.right_click_inode = right_click_inode;
                 $scope.play_inode = play_inode;
                 $scope.move_inodes = move_inodes;
                 $scope.delete_inodes = delete_inodes;
@@ -108,10 +109,21 @@ nb_util.directive('nbBrowse', function() {
                         return open_inode(inode, $index, $event);
                     }
                 }
+                
+                function right_click_inode(inode, $index, $event) {
+                    if (!$scope.edit_mode) {
+                        toggle_edit_mode();
+                    }
+                    select_inode(inode, $index, $event);
+                    var selected = nbMultiSelect.selection_items(selection);
+                    if (!selected.length) {
+                        toggle_edit_mode();
+                    }
+                }
 
                 function select_inode(inode, $index, $event) {
                     nbMultiSelect.select_item(selection, inode, $index, $event, 'append');
-                    return stop_event($event);
+                    // return stop_event($event);
                 }
 
                 function open_inode(inode, $index, $event) {

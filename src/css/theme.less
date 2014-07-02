@@ -80,7 +80,7 @@ hr {
 }
 .well {
     margin: 10px;
-    box-shadow: 2px 2px 4px 1px @border-color;
+    box-shadow: 0 1px 1px @border-color, 1px 0 1px @border-color;
 }
 .line {
     .clearfix;
@@ -108,6 +108,19 @@ hr {
     }
     hr {
         border-width: 3px;
+    }
+}
+.dropdown-menu {
+    > li > a {
+        padding: 15px;
+        > .fa {
+            .fa-lg;
+            margin-right: 10px;
+        }
+        > .fa-stack {
+            font-size: 0.7em;
+            margin-right: 10px;
+        }
     }
 }
 .bggray {
