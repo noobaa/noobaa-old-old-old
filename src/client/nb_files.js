@@ -14,7 +14,7 @@ var nb_util = angular.module('nb_util');
 nb_util.directive('nbBrowse', function() {
     return {
         replace: true,
-        templateUrl: 'browse_template.html',
+        templateUrl: 'files.html',
         scope: { // isolated scope
             context: '='
         },

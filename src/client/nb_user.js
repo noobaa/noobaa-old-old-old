@@ -413,7 +413,7 @@ nb_util.factory('nbUser', [
     }
 ]);
 
-nb_util.controller('ProfileCtrl', [
+nb_util.controller('SettingsCtrl', [
     '$scope', '$q', '$location', '$timeout', 'nbUtil', 'nbUser', 'nbInode',
     function($scope, $q, $location, $timeout, nbUtil, nbUser, nbInode) {
         $scope.nbUser = nbUser;
