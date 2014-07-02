@@ -1,21 +1,22 @@
-<div ng-controller="FriendChooserCtrl" class="friend-chooser panel" nb-panel-hfill nb-escape="back()">
+<div ng-controller="FriendChooserCtrl" class="friend-chooser panel" Xnb-panel-hfill nb-escape="back()">
 
     <div class="panel-heading">
-        <a ng-click="back()" class="btn btn-link btn-lg pull-left" style="padding: 5px 10px">
-            <i class="fa fa-angle-left fa-3x text-muted"></i>
-        </a>
-        <div class="hflow" style="padding: 10px">
-            <div class="search-control form-control input-lg clearfix">
-                <a class="btn btn-link pull-left" style="padding: 0 10px 0 0" ng-click="start_search_friend()">
-                    <i class="fa fa-search fa-lg text-muted"></i>
-                </a>
-                <button ng-show="friend_input" class="pull-right close" ng-click="reset_search_friend()" style="margin: -10px -10px 0 0">&times;</button>
-                <div class="hflow relpos">
-                    <input type="text" class="inner-input" placeholder="Friend Name or Email" ng-model="friend_input" nb-focus="search_friend" ng-focus="start_search_friend()" />
+        <div class="navbar" style="padding: 10px; background: none">
+            <a ng-click="back()" class="btn btn-link btn-back pull-left">
+                <i class="fa fa-angle-left fa-3x text-muted"></i>
+            </a>
+            <div class="hflow">
+                <div class="search-control form-control input-lg clearfix">
+                    <a class="btn btn-link pull-left" style="padding: 0 10px 0 0" ng-click="start_search_friend()">
+                        <i class="fa fa-search fa-lg text-muted"></i>
+                    </a>
+                    <button ng-show="friend_input" class="pull-right close" ng-click="reset_search_friend()" style="margin: -10px -10px 0 0">&times;</button>
+                    <div class="hflow relpos">
+                        <input type="text" class="inner-input" placeholder="Friend Name or Email" ng-model="friend_input" nb-focus="search_friend" ng-focus="start_search_friend()" />
+                    </div>
                 </div>
             </div>
         </div>
-
     </div>
 
     <div class="panel-body">

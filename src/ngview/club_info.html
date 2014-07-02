@@ -1,17 +1,19 @@
 <div class="club-info panel" ng-controller="ClubInfoCtrl" nb-panel-hfill>
 
     <div class="panel-heading">
-        <button ng-click="back()" class="btn btn-link btn-back pull-left" title="Back" rel="tooltip" nb-tooltip="{container: 'body'}">
-            <i class="fa fa-angle-left"></i>
-        </button>
-        <div class="club-title pull-left">
-            {{is_new && 'NEW CLUB' || 'CLUB INFO'}}
-        </div>
-        <button ng-hide="club.saving" ng-click="save_club()" ng-if="is_new" class="btn btn-success pull-right">
-            CREATE
-        </button>
-        <div ng-show="club.saving" class="pull-right" style="margin: 15px">
-            <i class="fa fa-circle-o-notch fa-spin fa-lg"></i>
+        <div class="navbar">
+            <button ng-click="back()" class="btn btn-link btn-back pull-left" title="Back" rel="tooltip" nb-tooltip="{container: 'body'}">
+                <i class="fa fa-angle-left"></i>
+            </button>
+            <div class="navbar-text pull-left">
+                {{is_new && 'NEW CLUB' || 'CLUB INFO'}}
+            </div>
+            <button ng-hide="club.saving" ng-click="save_club()" ng-if="is_new" class="btn btn-success pull-right">
+                CREATE
+            </button>
+            <div ng-show="club.saving" class="pull-right" style="margin: 15px">
+                <i class="fa fa-circle-o-notch fa-spin fa-lg"></i>
+            </div>
         </div>
     </div>
 
@@ -20,7 +22,7 @@
 
         <div class="line">
             <div ng-if="club.admin" style="padding: 10px">
-                <button class="btn btn-link pull-left" style="padding: 0; margin-right: 20px" ng-click="choose_logo()" title="Choose logo" rel="tooltip" nb-tooltip="{container: 'body', placement: 'bottom'}">
+                <button class="btn btn-link pull-left" style="padding: 0; margin-right: 20px" ng-click="choose_logo()" title="Choose image" rel="tooltip" nb-tooltip="{container: 'body', placement: 'bottom'}">
                     <img class="user-image-lg" ng-src="{{club.logo}}" />
                     <!-- <i class="fa fa-paw fa-2x text-muted"></i> -->
                 </button>
@@ -80,13 +82,17 @@
             <!-- <hr /> -->
         </div>
 
-        <div ng-if="club.admin">
-            <a class="well line line-p1 clickable text-center" ng-click="add_member()">
-                <i class="fa fa-user fa-2x text-muted"></i>
-                <i class="fa fa-plus text-success" style="margin-left: -7px; vertical-align: 14px"></i>
+        <div ng-if="club.admin" class="line text-center">
+            <a class="btn btn-success" ng-click="add_member()">
+                <!-- <i class="fa fa-user fa-2x text-muted"></i> -->
+                <!-- <i class="fa fa-plus text-success" style="margin-left: -7px; vertical-align: 14px"></i> -->
                 ADD FRIEND
             </a>
-            <!-- <hr /> -->
+        </div>
+        <div ng-if="!is_new" class="line text-center">
+            <a class="btn btn-warning" ng-click="leave_club()">
+                LEAVE CLUB
+            </a>
         </div>
 
     </div>

@@ -574,7 +574,9 @@ nb_util.controller('ClubInfoCtrl', [
             });
         };
 
-
+        $scope.leave_club = function() {
+            alertify.log('TODO leave_club');
+        };
     }
 ]);
 

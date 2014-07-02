@@ -1,20 +1,22 @@
 <div class="club-panel panel" nb-panel-hfill>
 
     <div class="panel-heading clearfix">
-        <a class="btn btn-link btn-back pull-left" href="club/">
-            <i class="fa fa-angle-left"></i>
-        </a>
-        <img class="user-image pull-left" ng-src="{{club.logo}}" />
-        <a class="btn btn-link pull-right" ng-href="club/info/{{club._id}}" title="Open club info" rel="tooltip" nb-tooltip="{container: 'body'}">
-            <i class="fa fa-bars fa-2x"></i>
-        </a>
-        <div class="hflow">
-            <div class="club-title text-left text-ellipses text-color">{{club.title}}</div>
+        <div class="navbar">
+            <a class="btn btn-link btn-back pull-left" href="club/">
+                <i class="fa fa-angle-left"></i>
+            </a>
+            <img class="user-image pull-left" ng-src="{{club.logo}}" />
+            <a class="btn btn-link pull-right" ng-href="club/info/{{club._id}}" title="Open club info" rel="tooltip" nb-tooltip="{container: 'body'}">
+                <i class="fa fa-bars fa-2x"></i>
+            </a>
+            <div class="hflow">
+                <div class="navbar-text text-left text-ellipses text-color">{{club.title}}</div>
+            </div>
         </div>
     </div>
 
     <div class="panel-body">
-        <div class="club-content hfill-scroll">
+        <div class="club-content">
 
             <div class="club-input well">
                 <div class="club-msg-btn pull-right">
