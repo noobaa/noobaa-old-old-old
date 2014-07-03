@@ -1,7 +1,7 @@
 <div class="settings panel" nb-panel-hfill>
 
-    <div class="panel-heading clearfix">
-        <div class="navbar">
+    <div class="panel-heading navbar navbar-default clearfix">
+        <div>
             <img class="user-image pull-left" ng-src="{{nbUser.user_pic_url(nbUser.user)}}" />
             <div class="hflow">
                 <div class="navbar-text text-left text-ellipses text-color">
@@ -12,144 +12,153 @@
     </div>
 
     <div class="panel-body clearfix">
+        <div>
 
-        <div class="line headline">
-            <b>ALLOCATED STORAGE</b>
-        </div>
-        <div ng-if="!nbPlanet.on">
-            <a class="btn-line" ng-click="show_client_installation()">
-                <i class="fa fa-wrench fa-fw fa-lg"></i>
-                <span>INSTALL DESKTOP CLIENT</span>
+            <a class="line line-p1 clickable">
+                <b>FIND FRIENDS</b>
             </a>
-        </div>
-        <div ng-if="nbPlanet.on">
-            <!-- 
+            <hr />
+
+            <div class="line headline">
+                <b>STORAGE USAGE</b>
+                <div class="progress text-center pull-right" style="width: 100px; margin: 0">
+                    <div class="progress-bar progress-bar-{{nbUser.usage_percents < 70 && 'success' || usage_percents < 90 && 'warning' || 'danger'}}" role="progressbar" aria-valuenow="{{nbUser.usage_percents}}" aria-valuemin="0" aria-valuemax="100" style="width: {{nbUser.usage_percents}}%">
+                    </div>
+                </div>
+            </div>
+            <div class="line">
+                Using {{human_size(nbUser.user_usage)}} out of {{human_size(nbUser.user_quota)}} in your account
+            </div>
+            <hr />
+
+            <div class="line headline">
+                <b>ALLOCATED STORAGE</b>
+            </div>
+            <div ng-if="!nbPlanet.on">
+                <a class="btn-line" ng-click="show_client_installation()">
+                    <i class="fa fa-wrench fa-fw fa-lg"></i>
+                    <span>INSTALL DESKTOP CLIENT</span>
+                </a>
+            </div>
+            <div ng-if="nbPlanet.on">
+                <!-- 
             <a class="btn-line" ng-click="show_client_expansion()">
                 <i class="fa fa-wrench fa-fw fa-lg"></i>
                 <span>ALLOCATE DESKTOP SPACE</span>
             </a>
              -->
-            <div class="text-center" style="padding: 10px">
-                <span ng-repeat="plan in nbPlanet.coshare_options">
-                    <button href="#" class="btn btn-lg Xbtn-block" ng-click="nbPlanet.select_coshare_option($index)" ng-class="nbPlanet.coshare_options_class($index)">
-                        {{plan.title}}
-                    </button>
-                </span>
-            </div>
-            <button ng-if="false" class="btn btn-link btn-block" ng-click="nbUtil.coming_soon()" Xonclick="$('#coshare_path').trigger('click')">
-                Advanced...
-            </button>
-            <input id="coshare_path" style="display: none" type="file" name="file" nwdirectory>
-            </input>
-        </div>
-
-
-        <div class="line headline">
-            <b>STORAGE USAGE</b>
-            <div class="progress text-center pull-right" style="width: 100px; margin: 0">
-                <div class="progress-bar progress-bar-{{nbUser.usage_percents < 70 && 'success' || usage_percents < 90 && 'warning' || 'danger'}}" role="progressbar" aria-valuenow="{{nbUser.usage_percents}}" aria-valuemin="0" aria-valuemax="100" style="width: {{nbUser.usage_percents}}%">
+                <div class="text-center" style="padding: 10px">
+                    <span ng-repeat="plan in nbPlanet.coshare_options">
+                        <button href="#" class="btn btn-lg Xbtn-block" ng-click="nbPlanet.select_coshare_option($index)" ng-class="nbPlanet.coshare_options_class($index)">
+                            {{plan.title}}
+                        </button>
+                    </span>
                 </div>
+                <button ng-if="false" class="btn btn-link btn-block" ng-click="nbUtil.coming_soon()" Xonclick="$('#coshare_path').trigger('click')">
+                    Advanced...
+                </button>
+                <input id="coshare_path" style="display: none" type="file" name="file" nwdirectory>
+                </input>
             </div>
-        </div>
-
-        <div class="line">
-            Using {{human_size(nbUser.user_usage)}} out of {{human_size(nbUser.user_quota)}} in your account
-        </div>
-
-        <div class="text-center" style="margin-bottom: 20px" ng-show="refreshing_friends">
-            <p Xclass="lead">
-                Loading Your Friends
-                <i class="fa fa-circle-o-notch fa-spin fa-lg"></i>
-            </p>
-        </div>
-
-        <div class="line headline">
-            <b>FRIENDS</b>
-        </div>
+            <hr />
 
 
-        <div ng-repeat="friend in nbUser.friends.users | orderBy:'name'" class="line" ng-click="send_friend_message(friend)">
-            <img ng-src="{{nbUser.user_pic_url(friend)}}" class="user-image pull-left" />
-            <div class="hflow text-ellipses">{{friend.name}}</div>
-        </div>
 
-        <!-- 
+            <div class="text-center" style="margin-bottom: 20px" ng-show="refreshing_friends">
+                <p Xclass="lead">
+                    Loading Your Friends
+                    <i class="fa fa-circle-o-notch fa-spin fa-lg"></i>
+                </p>
+            </div>
+
+            <div class="line headline">
+                <b>FRIENDS</b>
+            </div>
+
+
+            <div ng-repeat="friend in nbUser.friends.users | orderBy:'name'" class="line" ng-click="send_friend_message(friend)">
+                <img ng-src="{{nbUser.user_pic_url(friend)}}" class="user-image pull-left" />
+                <div class="hflow text-ellipses">{{friend.name}}</div>
+            </div>
+
+            <!-- 
     <div class="text-center" style="margin-bottom: 20px">
         <iframe width="400" height="225" style="max-width: 100%" src="//www.youtube.com/embed/9KeVa3IOn78?rel=0" frameborder="0" allowfullscreen></iframe>
     </div>
     -->
 
-        <div class="panel panel-default" ng-show="nbUser.friends.fb.length" style="margin-bottom: 20px">
-            <div class="panel-heading text-center">
-                <h3>Select and Invite your Facebook friends</h3>
-                <div style="padding-bottom: 10px; max-width: 400px" class="center-block">
-                    Edit your invite message:
-                    <textarea ng-model="invite_options.text" class="form-control" rows="3"></textarea>
-                </div>
-                <div>
-                    <a class="btn btn-default btn-sm" ng-click="set_fb_invites(false)">Select None</a>
-                    <a class="btn btn-primary btn-lg" ng-click="send_fb_invites()" ng-disabled="sending_fb_invites">
-                        <span ng-show="sending_fb_invites">
-                            <i class="fa fa-circle-o-notch fa-spin"></i>
-                        </span>
-                        Invite
-                    </a>
-                    <a class="btn btn-warning btn-sm" ng-click="set_fb_invites(true)">Select All</a>
-                </div>
-            </div>
-            <div class="panel-body" style="padding: 0">
-                <div class="center-block" style="width: 160px; padding: 0 10px 10px 10px">
-                    <div class="Xinput-group input-group-sm" style="position: relative">
-                        <input type="text" class="form-control bottom-radius {{fb_filter_friend_name && 'label-primary'}}" placeholder="Search friends" ng-model="fb_filter_friend_name" />
-                        <i ng-show="fb_filter_friend_name" class="fa fa-times fa-fw" style="cursor: pointer; position: absolute; right: 8px; top: 8px" ng-click="fb_filter_friend_name=''"></i>
+            <div class="panel panel-default" ng-show="nbUser.friends.fb.length" style="margin-bottom: 20px">
+                <div class="panel-heading text-center">
+                    <h3>Select and Invite your Facebook friends</h3>
+                    <div style="padding-bottom: 10px; max-width: 400px" class="center-block">
+                        Edit your invite message:
+                        <textarea ng-model="invite_options.text" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div>
+                        <a class="btn btn-default btn-sm" ng-click="set_fb_invites(false)">Select None</a>
+                        <a class="btn btn-primary btn-lg" ng-click="send_fb_invites()" ng-disabled="sending_fb_invites">
+                            <span ng-show="sending_fb_invites">
+                                <i class="fa fa-circle-o-notch fa-spin"></i>
+                            </span>
+                            Invite
+                        </a>
+                        <a class="btn btn-warning btn-sm" ng-click="set_fb_invites(true)">Select All</a>
                     </div>
                 </div>
+                <div class="panel-body" style="padding: 0">
+                    <div class="center-block" style="width: 160px; padding: 0 10px 10px 10px">
+                        <div class="Xinput-group input-group-sm" style="position: relative">
+                            <input type="text" class="form-control bottom-radius {{fb_filter_friend_name && 'label-primary'}}" placeholder="Search friends" ng-model="fb_filter_friend_name" />
+                            <i ng-show="fb_filter_friend_name" class="fa fa-times fa-fw" style="cursor: pointer; position: absolute; right: 8px; top: 8px" ng-click="fb_filter_friend_name=''"></i>
+                        </div>
+                    </div>
 
-                <div style="max-height: 300px; overflow-y: scroll">
-                    <div ng-repeat="friend in nbUser.friends.fb | filter:{name: fb_filter_friend_name} | orderBy:'name'" class="text-ellipses {{fb_invites[friend.fbid] && 'label-warning'}}" style="display: inline-block; Xborder-radius: 20px; width: 175px; margin: 0 2px; padding: 5px; cursor: pointer; text-align: left" ng-click="set_fb_invites(friend.fbid)">
-                        <i class="fa fa-{{fb_invites[friend.fbid] && 'check' || 'plus-square'}} fa-fw"></i>&nbsp;
-                        <img width="32" height="32" ng-src="{{nbUser.user_pic_url(friend)}}" class="user-image" />&nbsp;
-                        <small>{{friend.name}}</small>
+                    <div style="max-height: 300px; overflow-y: scroll">
+                        <div ng-repeat="friend in nbUser.friends.fb | filter:{name: fb_filter_friend_name} | orderBy:'name'" class="text-ellipses {{fb_invites[friend.fbid] && 'label-warning'}}" style="display: inline-block; Xborder-radius: 20px; width: 175px; margin: 0 2px; padding: 5px; cursor: pointer; text-align: left" ng-click="set_fb_invites(friend.fbid)">
+                            <i class="fa fa-{{fb_invites[friend.fbid] && 'check' || 'plus-square'}} fa-fw"></i>&nbsp;
+                            <img width="32" height="32" ng-src="{{nbUser.user_pic_url(friend)}}" class="user-image" />&nbsp;
+                            <small>{{friend.name}}</small>
+                        </div>
                     </div>
                 </div>
             </div>
+
+            <div class="panel panel-default" ng-show="nbUser.friends.google.length" style="margin-bottom: 20px">
+                <div class="panel-heading text-center">
+                    <h3>Select and Invite your Google+ friends</h3>
+                    <div style="padding-bottom: 10px; max-width: 400px" class="center-block">
+                        Edit your invite message:
+                        <textarea ng-model="invite_options.text" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div>
+                        <a class="btn btn-default btn-sm" ng-click="set_google_invites(false)">Select None</a>
+                        <a class="btn btn-primary btn-lg" ng-click="send_google_invites()" ng-disabled="sending_google_invites">
+                            <span ng-show="sending_google_invites">
+                                <i class="fa fa-circle-o-notch fa-spin"></i>
+                            </span>
+                            Invite
+                        </a>
+                        <a class="btn btn-warning btn-sm" ng-click="set_google_invites(true)">Select All</a>
+                    </div>
+                </div>
+                <div class="panel-body" style="padding-top: 0">
+                    <div class="center-block" style="width: 160px; padding: 0 10px 10px 10px">
+                        <div class="Xinput-group input-group-sm" style="position: relative">
+                            <input type="text" class="form-control bottom-radius {{google_filter_friend_name && 'label-primary'}}" placeholder="Search friends" ng-model="google_filter_friend_name" />
+                            <i ng-show="google_filter_friend_name" class="fa fa-times fa-fw" style="cursor: pointer; position: absolute; right: 8px; top: 8px" ng-click="google_filter_friend_name=''"></i>
+                        </div>
+                    </div>
+                    <div style="max-height: 300px; overflow-y: scroll">
+                        <div ng-repeat="friend in nbUser.friends.google | filter:{name: google_filter_friend_name} | orderBy:'name'" class="text-ellipses {{google_invites[friend.googleid] && 'label-warning'}}" style="display: inline-block; Xborder-radius: 20px; width: 175px; margin: 0 2px; padding: 5px; cursor: pointer; text-align: left" ng-click="set_google_invites(friend.googleid)">
+                            <i class="fa fa-{{google_invites[friend.googleid] && 'check' || 'plus-square'}} fa-fw"></i>&nbsp;
+                            <img width="32" height="32" ng-src="{{nbUser.user_pic_url(friend)}}" class="user-image" />&nbsp;
+                            <small>{{friend.name}}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
-
-        <div class="panel panel-default" ng-show="nbUser.friends.google.length" style="margin-bottom: 20px">
-            <div class="panel-heading text-center">
-                <h3>Select and Invite your Google+ friends</h3>
-                <div style="padding-bottom: 10px; max-width: 400px" class="center-block">
-                    Edit your invite message:
-                    <textarea ng-model="invite_options.text" class="form-control" rows="3"></textarea>
-                </div>
-                <div>
-                    <a class="btn btn-default btn-sm" ng-click="set_google_invites(false)">Select None</a>
-                    <a class="btn btn-primary btn-lg" ng-click="send_google_invites()" ng-disabled="sending_google_invites">
-                        <span ng-show="sending_google_invites">
-                            <i class="fa fa-circle-o-notch fa-spin"></i>
-                        </span>
-                        Invite
-                    </a>
-                    <a class="btn btn-warning btn-sm" ng-click="set_google_invites(true)">Select All</a>
-                </div>
-            </div>
-            <div class="panel-body" style="padding-top: 0">
-                <div class="center-block" style="width: 160px; padding: 0 10px 10px 10px">
-                    <div class="Xinput-group input-group-sm" style="position: relative">
-                        <input type="text" class="form-control bottom-radius {{google_filter_friend_name && 'label-primary'}}" placeholder="Search friends" ng-model="google_filter_friend_name" />
-                        <i ng-show="google_filter_friend_name" class="fa fa-times fa-fw" style="cursor: pointer; position: absolute; right: 8px; top: 8px" ng-click="google_filter_friend_name=''"></i>
-                    </div>
-                </div>
-                <div style="max-height: 300px; overflow-y: scroll">
-                    <div ng-repeat="friend in nbUser.friends.google | filter:{name: google_filter_friend_name} | orderBy:'name'" class="text-ellipses {{google_invites[friend.googleid] && 'label-warning'}}" style="display: inline-block; Xborder-radius: 20px; width: 175px; margin: 0 2px; padding: 5px; cursor: pointer; text-align: left" ng-click="set_google_invites(friend.googleid)">
-                        <i class="fa fa-{{google_invites[friend.googleid] && 'check' || 'plus-square'}} fa-fw"></i>&nbsp;
-                        <img width="32" height="32" ng-src="{{nbUser.user_pic_url(friend)}}" class="user-image" />&nbsp;
-                        <small>{{friend.name}}</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-
     </div>
 
 </div>

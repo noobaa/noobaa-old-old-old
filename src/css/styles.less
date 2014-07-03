@@ -24,7 +24,7 @@ body {
     max-width: @home-max-width;
 }
 .home-bg {
-    background-color: darken(@body-bg, 20%);
+    background-color: @body-bg;
     .bgnoise2;
 }
 .home-body {
@@ -56,15 +56,23 @@ body {
         > .panel-body {
         }
         > .panel-footer {
-            .home-container;
             border: none;
             padding: 10px 0;
+            background-color: @navbar-inverse-bg;
+            .bgnoise2;
+            > div {
+                .home-container;
+                border: 1px solid @border-color;
+            }
         }
     }
     .home-view > .panel {
+        border: none;
         height: 100%;
         > .panel-heading {
-            .home-container;
+            > div {
+                .home-container;
+            }
         }
         > .panel-body {
             border-top: 1px solid @border-color;
@@ -93,10 +101,13 @@ body {
             > .home-panel {
                 > .panel-footer {
                     padding: 0;
+                    > div {
+                        border: none;
+                    }
                 }
-                .home-view > .panel {
-                    border-top-width: 0;
-                    border-bottom-width: 0;
+                .home-view > .panel > .panel-body {
+                    // border-top-width: 0;
+                    // border-bottom-width: 0;
                 }
             }
         }
@@ -153,6 +164,7 @@ body {
         font-size: 18px;
         line-height: 50px;
         margin: 0;
+        color: @text-color;
     }
 }
 .noobaa-logo {
@@ -206,19 +218,18 @@ body {
             .text-center;
             padding-top: 10px;
             border-bottom: 4px solid transparent;
-            border-left: 1px solid hsla(0, 0%, 100%, 0.2);
-            > a {
-                color: @gray;
+            &:not(:first-child) {
+                border-left: 1px solid @border-color;
             }
             &.active, &.active:hover {
-                background-color: darken(@navbar-default-bg, 15%);
+                background-color: darken(@navbar-inverse-bg, 15%);
                 border-bottom-color: @brand-success;
                 > a {
                     color: white;
                 }
             }
             &:hover {
-                background-color: darken(@navbar-default-bg, 7%);
+                background-color: darken(@navbar-inverse-bg, 7%);
             }
             > a {
                 line-height: 0;

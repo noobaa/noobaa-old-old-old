@@ -17,11 +17,10 @@
  @gray-darker: darken(@gray-dark, 10%);
  @gray-light: lighten(@gray, 20%);
  @gray-lighter: lighten(@gray-light, 15%);
- // @body-bg: @gray;
- // @body-bg: hsl(0, 0%, 5%);
- @body-bg: hsl(0, 0%, 89%);
- @text-color: hsl(0, 0%, 10%);
- @link-color: hsl(0, 0%, 40%);
+ @body-bg: hsl(0, 0%, 90%);
+ @border-color: darken(@body-bg, 50%);
+ @text-color: hsl(0, 0%, 5%);
+ @link-color: hsl(0, 0%, 25%);
  @brand-primary: hsl(202, 83%, 47%);
  @brand-success: hsl(147, 72%, 49%);
  @brand-info: hsl(188, 90%, 48%);
@@ -32,14 +31,18 @@
  @state-info-text: @brand-info;
  @state-danger-text: @brand-danger;
  @state-warning-text: @brand-warning;
- @border-color: darken(@body-bg, 10%);
  @well-bg: white;
  @well-border: @border-color;
  @panel-bg: transparent;
  @panel-footer-bg: transparent;
  @panel-default-heading-bg: white;
  @modal-content-bg: white;
- @navbar-default-bg: @gray-dark;
+ @navbar-default-color: @text-color;
+ @navbar-default-bg: darken(@body-bg, 30%);
+ @navbar-default-border: @border-color;
+ @navbar-inverse-color: @text-color;
+ @navbar-inverse-bg: darken(@body-bg, 30%);
+ @navbar-inverse-border: @border-color;
  @navbar-top-height: 50px;
  @navbar-bottom-height: 50px;
  @border-radius-base: 0;
@@ -101,9 +104,9 @@ hr {
     .clearfix;
     display: block;
     position: relative;
-    padding: 10px;
+    padding: 10px 20px;
     &:not(.active).clickable:hover {
-        background-color: lighten(@brand-warning, 40%);
+        background-color: darken(@gray-light, 10%);
         .bgnoise2;
     }
     &.active {
@@ -115,10 +118,10 @@ hr {
     }
 }
 .line-p1 {
-    padding: 15px;
+    padding: 15px 20px;
 }
 .line-p2 {
-    padding: 25px;
+    padding: 25px 20px;
 }
 hr.headline {
     border-width: 3px;
