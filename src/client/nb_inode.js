@@ -220,7 +220,10 @@ nb_util.factory('nbInode', [
                 inode.entries.sort(inode.sorting_func || default_sort_func);
                 inode.entries_by_kind = _.groupBy(inode.entries, 'content_kind');
             }
-            inode.loaded = Date.now();
+            if (!entry.isdir || entry.entries) {
+                // for dirs only mark loaded if the merge contained the entries
+                inode.loaded = Date.now();
+            }
             return inode;
         }
 
@@ -231,6 +234,7 @@ nb_util.factory('nbInode', [
         function load_inode(inode, force_load, retries) {
 
             if (!nbUser.user || (inode.id && inode.id[0] === 'v')) { // virtual inodes
+                // console.log('VIRTUAL LOAD', inode.name);
                 inode.loaded = Date.now();
                 return $q.when(inode);
             }

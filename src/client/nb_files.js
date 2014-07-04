@@ -129,6 +129,8 @@ nb_util.directive('nbBrowse', function() {
                 }
 
                 function open_inode(inode, $index, $event) {
+                    $location.path('/files/' + inode.id);
+                    /*
                     // must load in order to detect if dir at all
                     if (!inode.loaded) {
                         return nbInode.load_inode(inode).then(function() {
@@ -142,6 +144,7 @@ nb_util.directive('nbBrowse', function() {
                         play_inode(inode);
                         return stop_event($event);
                     }
+                    */
                 }
 
                 function play_inode(inode, $index, $event) {
