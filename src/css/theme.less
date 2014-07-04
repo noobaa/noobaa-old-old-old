@@ -63,6 +63,14 @@
 .btn-link:hover {
     color: darken(@link-color, 20%);
 }
+.hover-style {
+    background-color: lighten(@brand-success, 40%);
+    .bgnoise2;    
+}
+.active-style {
+    background-color: lighten(@brand-success, 20%);
+    .bgnoise2;    
+}
 .btn-line {
     .btn;
     .btn-default;
@@ -73,9 +81,11 @@
     margin: 10px;
     width: auto;
     height: auto;
+    &:hover {
+        .hover-style;
+    }
     &.active {
-        background-color: lighten(@brand-warning, 20%);
-        .bgnoise2;
+        .active-style;
     }
 }
 .inner-input {
@@ -106,16 +116,17 @@ hr {
     position: relative;
     padding: 10px 20px;
     &:not(.active).clickable:hover {
-        background-color: darken(@gray-light, 10%);
-        .bgnoise2;
+        .hover-style;
     }
     &.active {
-        background-color: lighten(@brand-warning, 20%);
-        .bgnoise2;
+        .active-style;
     }
     &.headline {
         padding-top: 25px;
     }
+}
+.btn.btn-default:hover {
+    .hover-style;
 }
 .line-p1 {
     padding: 15px 20px;
