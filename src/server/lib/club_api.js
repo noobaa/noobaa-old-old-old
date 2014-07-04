@@ -385,7 +385,7 @@ function club_reply(club, user, msgs) {
 
 function msg_reply(msg, user) {
     var m = msg.toObject();
-    if (msg.populated('inode')) {
+    if (msg.populated('inode') && m.inode) {
         m.inode = inode_api.inode_to_entry(m.inode, {
             user: user
         });
