@@ -92,14 +92,6 @@ nb_util.factory('nbPlanet', [
             gui.Shell.openExternal(url);
         };
 
-        $scope.open_settings = function() {
-            $scope.open_noobaa('/settings');
-        };
-
-        $scope.open_help = function() {
-            $scope.open_noobaa('/help');
-        };
-
         $scope.planet_confirm = function(q, callback) {
             $scope.show();
             alertify.confirm(q, callback);

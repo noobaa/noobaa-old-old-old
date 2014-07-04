@@ -54,9 +54,9 @@ nb_home.config(['$routeProvider', '$locationProvider',
         }).when('/club/:id*', {
             templateUrl: 'club.html',
             controller: 'ClubCtrl'
-        }).when('/settings/', {
-            templateUrl: 'settings.html',
-            controller: 'SettingsCtrl'
+        }).when('/account/', {
+            templateUrl: 'account.html',
+            controller: 'UserAccountCtrl'
         }).when('/yuval/', {
             templateUrl: 'scene_template.html',
             controller: 'YuvalScenesCtrl'
@@ -236,15 +236,15 @@ nb_home.controller('HomeCtrl', [
         $scope.click_files = function() {
             $location.path('/files/');
         };
-        $scope.click_settings = function() {
-            $location.path('/settings/');
+        $scope.click_account = function() {
+            $location.path('/account/');
         };
 
         var location_paths = [
             'club',
             'files',
             'uploads',
-            'settings'
+            'account'
         ];
 
         $scope.swipe_left = function() {
