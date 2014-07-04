@@ -18,7 +18,7 @@
  @gray-light: lighten(@gray, 20%);
  @gray-lighter: lighten(@gray-light, 15%);
  @body-bg: hsl(0, 0%, 90%);
- @border-color: darken(@body-bg, 50%);
+ @border-color: hsl(0, 0%, 40%);
  @text-color: hsl(0, 0%, 5%);
  @link-color: hsl(0, 0%, 25%);
  @brand-primary: hsl(202, 83%, 47%);
@@ -104,7 +104,7 @@
     box-shadow: none;
 }
 hr {
-    border-color: @border-color;
+    border-color: darken(@body-bg, 15%);
 }
 .well {
     margin: 10px;
@@ -122,7 +122,8 @@ hr {
         .active-style;
     }
     &.headline {
-        padding-top: 25px;
+        padding-top: 30px;
+        font-size: 1.15em;
     }
 }
 .btn.btn-default:hover {
@@ -135,7 +136,7 @@ hr {
     padding: 25px 20px;
 }
 hr.headline {
-    border-width: 3px;
+    border-width: 2px;
 }
 .dropdown-menu {
     > li > a {
