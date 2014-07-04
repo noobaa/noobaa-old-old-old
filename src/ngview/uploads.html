@@ -58,8 +58,9 @@
                     <div class="text-ellipses">{{upload.item.name}}</div>
                 </div>
             </div>
-            <div ng-hide="has_uploads()">
-                <div style="border: 1px dashed grey; border-radius: 10px; margin: 10px">
+            <div ng-hide="has_uploads()" style="padding-top: 20px">
+                <img src="/public/images/thedude.png" height="80" class="pull-left" style="vertical-align: top; margin-right: -20px" />
+                <div class="hflow">
                     <div class="line headline">
                         STARTING TO UPLOAD
                     </div>
@@ -78,7 +79,7 @@
         </div>
     </div>
 
-    <div class="panel-footer">
+    <div class="panel-footer" ng-show="has_uploads()">
         <div>
             <div class="progress pull-right text-center" style="vertical-align: middle; margin: 10px; height: 25px; width: 70px; position: relative">
                 <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{100 * upsrv.root.total_upsize / upsrv.root.total_size}}" aria-valuemin="0" aria-valuemax="100" style="width: {{100 * upsrv.root.total_upsize / upsrv.root.total_size}}%">
