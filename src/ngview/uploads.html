@@ -1,0 +1,126 @@
+<div class="uploads panel" nb-panel-hfill>
+
+    <div class="panel-heading navbar navbar-default">
+        <div>
+            <div class="btn-group pull-right">
+                <a class="btn btn-link dropdown-toggle" data-toggle="dropdown">
+                    <i class="fa fa-fw fa-2x fa-bars"></i>
+                </a>
+                <ul class="dropdown-menu" role="menu">
+                    <li>
+                        <a ng-click="upsrv.clear_completed()">
+                            <i class="fa fa-eraser fa-fw"></i>
+                            <span>Clear Completed</span>
+                        </a>
+                    </li>
+                    <!-- 
+            <div class="btn-group">
+                <button class="btn btn-link btn-xs" ng-click="upsrv.toggle_select_all()" title="Select All / None" rel="tooltip" nb-tooltip="{container: 'body'}">
+                    <i ng-hide="upsrv.selected_all" class="fa fa-square-o fa-fw"></i>
+                    <i ng-show="upsrv.selected_all" class="fa fa-check-square-o fa-fw"></i>
+                </button>
+                <button class="btn btn-link btn-xs" ng-click="upsrv.pause_selected()" title="Pause Selected" rel="tooltip" nb-tooltip="{container: 'body'}">
+                    <i class="fa fa-pause fa-fw"></i>
+                </button>
+                <button class="btn btn-link btn-xs" ng-click="upsrv.resume_selected()" title="Resume Selected" rel="tooltip" nb-tooltip="{container: 'body'}">
+                    <i class="fa fa-play fa-fw"></i>
+                </button>
+                <button class="btn btn-link btn-xs" ng-click="upsrv.remove_selected()" title="Remove Selected" rel="tooltip" nb-tooltip="{container: 'body'}">
+                    <i class="fa fa-times fa-fw"></i>
+                </button>
+                <button ng-if="false" class="btn btn-link btn-xs" ng-click="upsrv.pin_selected()" title="Pin Selected" rel="tooltip" nb-tooltip="{container: 'body'}">
+                    <i class="fa fa-thumb-tack fa-fw"></i>
+                </button>
+            </div>
+             -->
+
+                </ul>
+            </div>
+            <button class="btn btn-success navbar-btn pull-right" ng-click="upsrv.open_file_input()">
+                UPLOAD FILES
+            </button>
+            <div class="navbar-text">
+                <i class="fa fa-cloud-upload fa-lg fa-fw text-muted" style="margin-left: 10px; margin-right: 15px"></i>Uploads
+            </div>
+        </div>
+    </div>
+
+    <div class="panel-body">
+        <div>
+            <div ng-repeat="(id,upload) in (upload | upload_sons_filter)" class="btn-line">
+                <div class="pull-right" style="margin: 0 10px">
+                    {{upsrv.get_status(upload)}}
+                </div>
+                <div class="pull-right" style="margin: 0 10px">
+                    {{ human_size(upload.item.isDirectory && upload.total_size || upload.item.size) }}
+                </div>
+                <div class="hflow">
+                    <div class="text-ellipses">{{upload.item.name}}</div>
+                </div>
+            </div>
+            <div ng-hide="has_uploads()">
+                <div style="border: 1px dashed grey; border-radius: 10px; margin: 10px">
+                    <div class="line headline">
+                        STARTING TO UPLOAD
+                    </div>
+                    <hr class="headline" />
+                    <a class="line line-p1 clickable" ng-click="upsrv.open_file_input()">
+                    	Click to choose files from your computer
+                	</a>
+                    <hr/>
+                    <div class="line line-p1 text-muted">
+                        <i class="fa fa-copy fa-fw"></i>
+                        Drag &amp; Drop files from your computer
+                    </div>
+                </div>
+            </div>
+            <!-- <div ng-include="'upload_node_template.html'" style="margin: 0; font-size: 15px; width: 100%; height: auto; overflow: auto"></div> -->
+        </div>
+    </div>
+
+    <div class="panel-footer">
+        <div>
+            <div class="progress pull-right text-center" style="vertical-align: middle; margin: 10px; height: 25px; width: 70px; position: relative">
+                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{100 * upsrv.root.total_upsize / upsrv.root.total_size}}" aria-valuemin="0" aria-valuemax="100" style="width: {{100 * upsrv.root.total_upsize / upsrv.root.total_size}}%">
+                </div>
+                <div ng-show="upsrv.root.total_size-upsrv.root.total_upsize>0" class="cover">
+                    {{(100 * upsrv.root.total_upsize / upsrv.root.total_size).toFixed(0)}}%
+                </div>
+                <div ng-hide="upsrv.root.total_size-upsrv.root.total_upsize>0" class="cover">
+                    <i class="fa fa-check"></i>
+                </div>
+            </div>
+
+            <div class="pull-left text-center" style="margin: 5px 10px">
+                <div class="text-muted">items left</div>
+                <small>{{upsrv.root.total_sons- upsrv.root.total_completed}}</small>
+            </div>
+            <div class="pull-left text-center" style="margin: 5px 10px">
+                <div class="text-muted">size left</div>
+                <small>{{human_size(upsrv.root.total_size-upsrv.root.total_upsize)}}</small>
+            </div>
+            <div class="pull-left text-center" style="margin: 5px 10px">
+                <div class="text-muted">up speed</div>
+                <small>{{human_size(upsrv.speed)}}/sec</small>
+            </div>
+            <!-- 
+				<button ng-show="false" class="btn btn-default btn-sm"
+					ng-click="upsrv.show_advanced = !upsrv.show_advanced"
+					title="Advanced Stats">
+					<i style="color: black" class="icon-bar-chart"></i>
+				</button>
+				<div ng-show="upsrv.show_advanced">
+					<canvas width=50 height=20 id="upload_speed_gauge"></canvas>
+					<p><b>Load queue</b> {{upsrv.jobq_load.length}}</p>
+					<p><b>Small queue</b> {{upsrv.jobq_upload_small.length}}</p>
+					<p><b>Medium queue</b> {{upsrv.jobq_upload_medium.length}}</p>
+					<p><b>Large queue</b> {{upsrv.jobq_upload_large.length}}</p>
+					<p><b>Loading</b> {{upsrv.list_loading.length}}</p>
+					<p><b>Uploading</b> {{upsrv.list_uploading.length}}</p>
+					<p><b>Retrying</b> {{upsrv.list_retrying.length}}</p>
+				</div>
+				 -->
+
+        </div>
+    </div>
+</div>

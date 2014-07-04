@@ -71,7 +71,7 @@ function UploadSrv($q, $http, $timeout, $rootScope, nbUtil, LinkedList, JobQueue
         me.speed_t[last] = new Date().getTime();
         var dx = me.speed_x[last] - me.speed_x[0];
         var dt = me.speed_t[last] - me.speed_t[0];
-        me.speed = (dx * 1000) / (dt * 1024); // KB/s
+        me.speed = (dx * 1000) / dt; // bytes/s
     }), 2000);
 
     // check for active uploads before page unloads
@@ -1242,8 +1242,8 @@ nb_util.filter('upload_sons_filter', function() {
 
 nb_util.controller('UploadCtrl', ['$scope', 'nbUploadSrv',
     function($scope, nbUploadSrv) {
-        $scope.srv = nbUploadSrv;
-        $scope.upload = $scope.srv.root;
+        $scope.upsrv = nbUploadSrv;
+        $scope.upload = nbUploadSrv.root;
         $scope.show_upload_details = false;
         $scope.has_uploads = function() {
             return nbUploadSrv.has_uploads();
