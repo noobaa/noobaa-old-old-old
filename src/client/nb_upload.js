@@ -1156,7 +1156,7 @@ UploadSrv.prototype.clear_selection = function(leave_global) {
         had_any = true;
     }
     if (had_any) {
-        this.selection = [];
+        this.selection = {};
     }
     if (!leave_global) {
         this.selected_all = undefined;
@@ -1185,6 +1185,10 @@ UploadSrv.prototype.toggle_select = function(upload) {
         upload.is_selected = true;
         this.selection[upload.id] = upload;
     }
+};
+
+UploadSrv.prototype.has_selected = function() {
+    return this.selected_all || !_.isEmpty(this.selection);
 };
 
 UploadSrv.prototype.foreach_selected = function(func) {
@@ -1245,8 +1249,19 @@ nb_util.controller('UploadCtrl', ['$scope', 'nbUploadSrv',
         $scope.upsrv = nbUploadSrv;
         $scope.upload = nbUploadSrv.root;
         $scope.show_upload_details = false;
+
         $scope.has_uploads = function() {
             return nbUploadSrv.has_uploads();
+        };
+
+        $scope.click_upload = function(upload) {
+            nbUploadSrv.toggle_select(upload);
+            $scope.edit_mode = nbUploadSrv.has_selected();
+        };
+
+        $scope.toggle_edit_mode = function() {
+            nbUploadSrv.clear_selection();
+            $scope.edit_mode = false;
         };
 
         // console.log('SETUP DROP UPLOAD CTRL');
