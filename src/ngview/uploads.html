@@ -58,20 +58,22 @@
                     <div class="text-ellipses">{{upload.item.name}}</div>
                 </div>
             </div>
-            <div ng-hide="has_uploads()" style="padding-top: 20px">
-                <img src="/public/images/thedude.png" height="80" class="pull-left" style="vertical-align: top; margin-right: -20px" />
-                <div class="hflow">
-                    <div class="line headline">
-                        STARTING TO UPLOAD
-                    </div>
-                    <hr class="headline" />
-                    <a class="line line-p1 clickable" ng-click="upsrv.open_file_input()">
+            <div ng-hide="has_uploads()" Xstyle="padding-top: 20px">
+                <img src="/public/images/thedude.png" height="90" class="pull-left" style="vertical-align: middle; margin: 10px -10px" />
+                <div class="hflow" style="padding-top: 20px;">
+                    <div class="club-msg-user">
+                        <div class="line headline" style="padding-top: 10px">
+                            STARTING TO UPLOAD
+                        </div>
+                        <hr class="headline" />
+                        <a class="line line-p1 clickable" ng-click="upsrv.open_file_input()">
                     	Click to choose files from your computer
                 	</a>
-                    <hr/>
-                    <div class="line line-p1 text-muted">
-                        <i class="fa fa-copy fa-fw"></i>
-                        Drag &amp; Drop files from your computer
+                        <hr/>
+                        <div class="line line-p1 text-muted">
+                            <i class="fa fa-copy fa-fw"></i>
+                            Drag &amp; Drop files from your computer
+                        </div>
                     </div>
                 </div>
             </div>
