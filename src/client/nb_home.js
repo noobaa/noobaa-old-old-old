@@ -239,7 +239,7 @@ nb_home.controller('HomeCtrl', [
         $scope.click_files = function() {
             $location.path('/files/');
         };
-        $scope.click_upload = function() {
+        $scope.click_uploads = function() {
             $location.path('/upload/');
         };
         $scope.click_account = function() {
