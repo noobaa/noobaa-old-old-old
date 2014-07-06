@@ -3,7 +3,7 @@
     <div class="panel-heading navbar navbar-default clearfix">
         <div>
 
-            <div ng-if="edit_mode" class="btn-group pull-right">
+            <div ng-if="select_mode" class="btn-group pull-right">
                 <a ng-disabled="num_selected() <= 0 || current_inode.ref_owner || !nbInode.can_change_inode(get_selection_leader())" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                     ACTIONS
                     <i class="fa fa-caret-down"></i>
@@ -32,16 +32,16 @@
                     </li>
                 </ul>
             </div>
-            <button ng-if="edit_mode" class="btn btn-default pull-right" ng-click="toggle_edit_mode()">
+            <button ng-if="select_mode" class="btn btn-default pull-right" ng-click="clear_select_mode()">
                 CANCEL
             </button>
-            <div ng-if="!edit_mode" class="btn-group pull-right">
-                <a class="btn btn-link dropdown-toggle" data-toggle="dropdown" Xng-click="toggle_edit_mode()">
+            <div ng-if="!select_mode" class="btn-group pull-right">
+                <a class="btn btn-link dropdown-toggle" data-toggle="dropdown" Xng-click="toggle_select_mode()">
                     <i class="fa fa-fw fa-2x fa-bars"></i>
                 </a>
                 <ul class="dropdown-menu" role="menu">
                     <li ng-if="current_inode.isdir">
-                        <a ng-click="toggle_edit_mode()">
+                        <a ng-click="set_select_mode()">
                             <i class="fa fa-square-o"></i>
                             <span>Select items</span>
                         </a>
@@ -139,12 +139,12 @@
             <div nb-media="current_inode" media-events="media_events" show-content="true"></div>
         </div>
         <div ng-repeat="inode in filter_entries = ( current_inode.entries | filter:{name: search_in_folder} )">
-            <div class="btn-line {{inode.is_selected && 'active'}} {{edit_mode && !inode.is_selected && 'select-pulse'}}" ng-click="click_inode(inode, $index, $event)" nb-right-click="right_click_inode(inode, $index, $event)">
+            <div class="btn-line {{inode.is_selected && 'active'}} {{select_mode && !inode.is_selected && 'select-pulse'}}" ng-click="click_inode(inode, $index, $event)" nb-right-click="right_click_inode(inode, $index, $event)">
                 <div class="clearfix">
                     <span class="pull-right" style="margin-left: 10px">
-                        <i ng-show="edit_mode && !inode.is_selected" class="fa fa-square-o fa-fw fa-lg"></i>
-                        <i ng-show="edit_mode && inode.is_selected" class="fa fa-check-square-o fa-fw fa-lg"></i>
-                        <i ng-show="!edit_mode" class="fa fa-chevron-circle-right fa-fw fa-lg text-muted"></i>
+                        <i ng-show="select_mode && !inode.is_selected" class="fa fa-square-o fa-fw fa-lg"></i>
+                        <i ng-show="select_mode && inode.is_selected" class="fa fa-check-square-o fa-fw fa-lg"></i>
+                        <i ng-show="!select_mode" class="fa fa-chevron-circle-right fa-fw fa-lg text-muted"></i>
                     </span>
                     <div class="pull-right hidden-xs">
                         <span ng-show="inode.uploading">

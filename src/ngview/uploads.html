@@ -2,7 +2,7 @@
 
     <div class="panel-heading navbar navbar-default">
         <div>
-            <div ng-if="!edit_mode" class="btn-group pull-right">
+            <div ng-if="!select_mode" class="btn-group pull-right">
                 <a class="btn btn-link dropdown-toggle" data-toggle="dropdown">
                     <i class="fa fa-fw fa-2x fa-bars"></i>
                 </a>
@@ -15,37 +15,37 @@
                     </li>
                 </ul>
             </div>
-            <button ng-if="!edit_mode" class="btn btn-success navbar-btn pull-right" ng-click="upsrv.open_file_input()">
+            <button ng-if="!select_mode" class="btn btn-success navbar-btn pull-right" ng-click="upsrv.open_file_input()">
                 UPLOAD FILES
             </button>
-            <div ng-if="edit_mode" class="btn-group pull-right">
+            <div ng-if="select_mode" class="btn-group pull-right">
                 <a class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                     ACTIONS
                     <i class="fa fa-caret-down"></i>
                 </a>
                 <ul class="dropdown-menu" role="menu">
                     <li>
-                        <a ng-click="upsrv.pause_selected()">
+                        <a ng-click="pause_selected()">
                             <i class="fa fa-pause"></i>
                             <span>Pause Selected</span>
                         </a>
                     </li>
                     <li>
-                        <a ng-click="upsrv.resume_selected()">
+                        <a ng-click="resume_selected()">
                             <i class="fa fa-play"></i>
                             <span>Resume Selected</span>
                         </a>
                     </li>
                     <li class="divider"></li>
                     <li>
-                        <a ng-click="upsrv.remove_selected()">
+                        <a ng-click="remove_selected()">
                             <i class="fa fa-times"></i>
                             <span>Remove Selected</span>
                         </a>
                     </li>
                 </ul>
             </div>
-            <button ng-if="edit_mode" class="btn btn-default pull-right" ng-click="toggle_edit_mode()">
+            <button ng-if="select_mode" class="btn btn-default pull-right" ng-click="clear_select_mode()">
                 CANCEL
             </button>
             <div class="navbar-text">
@@ -56,7 +56,7 @@
 
     <div class="panel-body">
         <div>
-            <a ng-repeat="(id,upload) in (upload | upload_sons_filter)" class="btn-line {{(upload.is_selected || upsrv.selected_all) && 'active'}} {{edit_mode && !upload.is_selected && !upsrv.selected_all && 'select-pulse'}}" ng-click="click_upload(upload)">
+            <a ng-repeat="(id,upload) in (upload | upload_sons_filter)" class="btn-line {{(upload.is_selected || upsrv.selected_all) && 'active'}} {{select_mode && !upload.is_selected && !upsrv.selected_all && 'select-pulse'}}" ng-click="click_upload(upload)">
                 <span class="pull-right" style="margin-left: 10px">
                     <i ng-hide="upload.is_selected || upsrv.selected_all" class="fa fa-square-o fa-fw fa-lg"></i>
                     <i ng-show="upload.is_selected || upsrv.selected_all" class="fa fa-check-square-o fa-fw fa-lg"></i>
@@ -98,8 +98,8 @@
         </div>
     </div>
 
-    <div class="panel-footer" ng-show="has_uploads()">
-        <div>
+    <div class="panel-footer">
+        <div ng-if="has_uploads()">
             <div class="progress pull-right text-center" style="vertical-align: middle; margin: 10px; height: 25px; width: 70px; position: relative">
                 <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{100 * upsrv.root.total_upsize / upsrv.root.total_size}}" aria-valuemin="0" aria-valuemax="100" style="width: {{100 * upsrv.root.total_upsize / upsrv.root.total_size}}%">
                 </div>

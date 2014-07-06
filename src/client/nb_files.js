@@ -36,7 +36,8 @@ nb_util.directive('nbBrowse', function() {
                 $scope.get_selection_leader = get_selection_leader;
                 $scope.is_selection_leader = is_selection_leader;
                 $scope.num_selected = num_selected;
-                $scope.toggle_edit_mode = toggle_edit_mode;
+                $scope.set_select_mode = set_select_mode;
+                $scope.clear_select_mode = clear_select_mode;
                 $scope.click_inode = click_inode;
                 $scope.right_click_inode = right_click_inode;
                 $scope.play_inode = play_inode;
@@ -95,17 +96,17 @@ nb_util.directive('nbBrowse', function() {
                     return false;
                 }
 
-                function toggle_edit_mode() {
-                    if ($scope.edit_mode) {
-                        $scope.edit_mode = false;
-                        nbMultiSelect.reset_selection(selection);
-                    } else {
-                        $scope.edit_mode = true;
-                    }
+                function set_select_mode() {
+                    $scope.select_mode = true;
+                }
+
+                function clear_select_mode() {
+                    $scope.select_mode = false;
+                    nbMultiSelect.reset_selection(selection);
                 }
 
                 function click_inode(inode, $index, $event) {
-                    if ($scope.edit_mode) {
+                    if ($scope.select_mode) {
                         return select_inode(inode, $index, $event);
                     } else {
                         return open_inode(inode, $index, $event);
@@ -113,13 +114,11 @@ nb_util.directive('nbBrowse', function() {
                 }
 
                 function right_click_inode(inode, $index, $event) {
-                    if (!$scope.edit_mode) {
-                        toggle_edit_mode();
-                    }
+                    set_select_mode();
                     select_inode(inode, $index, $event);
                     var selected = nbMultiSelect.selection_items(selection);
                     if (!selected.length) {
-                        toggle_edit_mode();
+                        clear_select_mode();
                     }
                 }
 

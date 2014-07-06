@@ -1253,15 +1253,31 @@ nb_util.controller('UploadCtrl', ['$scope', 'nbUploadSrv',
         $scope.has_uploads = function() {
             return nbUploadSrv.has_uploads();
         };
-
         $scope.click_upload = function(upload) {
             nbUploadSrv.toggle_select(upload);
-            $scope.edit_mode = nbUploadSrv.has_selected();
+            $scope.select_mode = nbUploadSrv.has_selected();
         };
 
-        $scope.toggle_edit_mode = function() {
+        $scope.set_select_mode = function() {
             nbUploadSrv.clear_selection();
-            $scope.edit_mode = false;
+            $scope.select_mode = false;
+        };
+        $scope.clear_select_mode = function() {
+            nbUploadSrv.clear_selection();
+            $scope.select_mode = false;
+        };
+
+        $scope.remove_selected = function() {
+            nbUploadSrv.remove_selected();
+            $scope.clear_select_mode();
+        };
+        $scope.pause_selected = function() {
+            nbUploadSrv.pause_selected();
+            $scope.clear_select_mode();
+        };
+        $scope.resume_selected = function() {
+            nbUploadSrv.resume_selected();
+            $scope.clear_select_mode();
         };
 
         // console.log('SETUP DROP UPLOAD CTRL');
