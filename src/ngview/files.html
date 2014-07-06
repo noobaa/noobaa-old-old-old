@@ -46,14 +46,67 @@
                             <span>Share with CLUB</span>
                         </a>
                     </li>
-                    <li ng-if="nbInode.can_share_inode(current_inode)" class="divider"></li>
-
-                    <li ng-if="current_inode.isdir && !!current_inode.id && filter_entries.length">
-                        <a ng-click="set_select_mode()">
-                            <i class="fa fa-square-o"></i>
-                            <span>Select items</span>
+                    <li ng-if="nbInode.can_keep_inode(current_inode)">
+                        <a ng-disabled="current_inode.running_keep || current_inode.done_keep" ng-click="keep_inode(current_inode)">
+                            <i class="fa fa-{{current_inode.done_keep && 'check' || 'plus'}}"></i>
+                            <span>Keep</span>
                         </a>
                     </li>
+
+                    <li ng-if="nbInode.can_share_inode(current_inode) || nbInode.can_keep_inode(current_inode)" class="divider"></li>
+
+                    <div nb-if-replace="current_inode.isdir">
+                        <li ng-if="!!current_inode.id && filter_entries.length">
+                            <a ng-click="set_select_mode()">
+                                <i class="fa fa-square-o"></i>
+                                <span>Select Items</span>
+                            </a>
+                        </li>
+                        <li ng-if="nbInode.can_upload_to_dir(current_inode)">
+                            <a ng-click="nbUploadSrv.open_file_input()">
+                                <i class="fa fa-cloud-upload"></i>
+                                <span>Upload Files</span>
+                            </a>
+                        </li>
+                        <li ng-if="nbInode.can_upload_to_dir(current_inode)">
+                            <a ng-click="nbInode.new_folder(current_inode)">
+                                <span class="fa-stack">
+                                    <i class="fa fa-folder fa-stack-2x"></i>
+                                    <i class="fa fa-plus fa-stack-1x fa-inverse"></i>
+                                </span>
+                                <span>New Folder</span>
+                            </a>
+                        </li>
+                    </div>
+
+                    <li ng-if="!current_inode.isdir && !current_inode.uploading && current_inode.size">
+                        <a href="{{nbInode.download_url(current_inode)}}" download="{{current_inode.name}}" target="_blank">
+                            <i class="fa fa-cloud-download"></i>
+                            <span>Download</span>
+                        </a>
+                    </li>
+                    <li ng-if="nbInode.can_upload_file(current_inode)">
+                        <a ng-click="resume_upload(current_inode)">
+                            <i class="fa fa-cloud-upload"></i>
+                            <span>Resume Upload</span>
+                        </a>
+                    </li>
+                    <li ng-if="!current_inode.ref_owner && nbInode.can_change_inode(current_inode)">
+                        <a ng-click="nbInode.rename_inode(current_inode)">
+                            <i class="fa fa-pencil fa-rotate-270"></i>
+                            Rename
+                        </a>
+                    </li>
+
+                    <li ng-if="current_inode.isdir && !!current_inode.id" class="divider"></li>
+
+                    <li>
+                        <a ng-click="refresh_current('force')">
+                            <i class="fa fa-repeat"></i>
+                            <span>Refresh</span>
+                        </a>
+                    </li>
+
                     <!-- 
                     <li>
                         <div style="display: inline-block; max-width: 120px; vertical-align:middle">
@@ -72,53 +125,6 @@
                         </a>
                     </li>
                      -->
-                    <li ng-if="nbInode.can_upload_to_dir(current_inode)">
-                        <a ng-click="nbUploadSrv.open_file_input()">
-                            <i class="fa fa-cloud-upload"></i>
-                            <span>Upload files</span>
-                        </a>
-                    </li>
-                    <li ng-if="nbInode.can_upload_file(current_inode)">
-                        <a ng-click="resume_upload(current_inode)">
-                            <i class="fa fa-cloud-upload"></i>
-                            <span>Resume Upload</span>
-                        </a>
-                    </li>
-                    <li ng-if="nbInode.can_keep_inode(current_inode)">
-                        <a ng-disabled="current_inode.running_keep || current_inode.done_keep" ng-click="keep_inode(current_inode)">
-                            <i class="fa fa-{{current_inode.done_keep && 'check' || 'plus'}}"></i>
-                            <span>Keep</span>
-                        </a>
-                    </li>
-                    <li ng-if="!current_inode.isdir && !current_inode.uploading && current_inode.size">
-                        <a href="{{nbInode.download_url(current_inode)}}" download="{{current_inode.name}}" target="_blank">
-                            <i class="fa fa-cloud-download"></i>
-                            <span>Download</span>
-                        </a>
-                    </li>
-                    <li ng-show="!!current_inode.id" class="divider"></li>
-                    <li ng-show="nbInode.can_upload_to_dir(current_inode)">
-                        <a ng-click="nbInode.new_folder(current_inode)">
-                            <span class="fa-stack">
-                                <i class="fa fa-folder fa-stack-2x"></i>
-                                <i class="fa fa-plus fa-stack-1x fa-inverse"></i>
-                            </span>
-                            <span>New Folder</span>
-                        </a>
-                    </li>
-                    <li ng-if="!current_inode.ref_owner && nbInode.can_change_inode(current_inode)">
-                        <a ng-click="nbInode.rename_inode(current_inode)">
-                            <i class="fa fa-pencil fa-rotate-270"></i>
-                            Rename
-                        </a>
-                    </li>
-                    <li ng-if="current_inode.isdir && !!current_inode.id" class="divider"></li>
-                    <li ng-if="current_inode.isdir">
-                        <a ng-click="refresh_current('force')">
-                            <i class="fa fa-repeat"></i>
-                            <span>Refresh</span>
-                        </a>
-                    </li>
                 </ul>
             </div>
             <a class="btn btn-link pull-left" style="padding-left: 10px; padding-right: 20px" ng-click="go_up_level()" ng-disabled="!has_parent(current_inode)">
@@ -148,6 +154,9 @@
         </div>
         <div ng-repeat="inode in filter_entries = ( current_inode.entries | filter:{name: search_in_folder} | orderBy:'name')">
             <div class="btn-line {{inode.is_selected && 'active'}} {{select_mode && !inode.is_selected && 'select-pulse'}}" ng-click="click_inode(inode, $index, $event)" nb-right-click="right_click_inode(inode, $index, $event)">
+                <div ng-if="inode.content_kind=='image'" class="clearfix" style="max-width: 150px; margin-bottom: 5px">
+                    <div nb-media="inode" media-events="media_events" show-content="true"></div>
+                </div>
                 <div class="clearfix">
                     <span class="pull-right" style="margin-left: 10px">
                         <i ng-show="select_mode && !inode.is_selected" class="fa fa-square-o fa-fw fa-lg"></i>
@@ -181,9 +190,6 @@
                         </a>
                     </div>
                 </div>
-                <div ng-if="inode.content_kind=='image'" class="clearfix" style="max-width: 150px">
-                    <div nb-media="inode" media-events="media_events" show-content="true"></div>
-                </div>
             </div>
         </div>
         <div ng-if="current_inode.isdir && !filter_entries.length">
@@ -197,9 +203,9 @@
                     Folder is empty
                 </h3>
                 <div class="text-center" ng-if="nbInode.can_upload_to_dir(current_inode)">
-                    <a class="btn btn-link" ng-click="nbUploadSrv.open_file_input()">
+                    <a class="btn btn-default" ng-click="nbUploadSrv.open_file_input()">
                         <i class="fa fa-cloud-upload"></i>
-                        Start uploading
+                        Upload files
                     </a>
                 </div>
             </div>

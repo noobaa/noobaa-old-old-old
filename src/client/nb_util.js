@@ -277,17 +277,83 @@ nb_util.factory('$http_async', ['$http',
     }
 ]);
 
+/**
+ * Return the DOM siblings between the first and last node in the given array.
+ * @param {Array} array like object
+ * @returns {DOMElement} object containing the elements
+ */
 
-nb_util.directive('nbReplace', function() {
-    return {
-        // require: 'ngInclude',
-        restrict: 'A',
-        /* optional */
-        link: function(scope, element, attr) {
-            element.replaceWith(element.children());
-        }
-    };
-});
+function getBlockElements(nodes) {
+    var startNode = nodes[0],
+        endNode = nodes[nodes.length - 1];
+    if (startNode === endNode) {
+        return $(startNode);
+    }
+
+    var element = startNode;
+    var elements = [element];
+
+    do {
+        element = element.nextSibling;
+        if (!element) break;
+        elements.push(element);
+    } while (element !== endNode);
+
+    return $(elements);
+}
+
+// just like ng-if but replaces the element
+nb_util.directive('nbIfReplace', ['$animate',
+    function($animate) {
+        return {
+            transclude: true,
+            priority: 600,
+            terminal: true,
+            restrict: 'A',
+            $$tlb: true,
+            link: function($scope, $element, $attr, ctrl, $transclude) {
+                var block, childScope, previousElements;
+                $scope.$watch($attr.nbIfReplace, function ngIfWatchAction(value) {
+                    var comment_element = $('<!-- nbIfReplace -->');
+                    comment_element.insertAfter($element);
+                    $element.remove();
+                    $element = comment_element;
+                    if (value) {
+                        if (!childScope) {
+                            $transclude(function(clone, newScope) {
+                                childScope = newScope;
+                                clone[clone.length++] = document.createComment(' end nbIfReplace: ' + $attr.nbIfReplace + ' ');
+                                // Note: We only need the first/last node of the cloned nodes.
+                                // However, we need to keep the reference to the jqlite wrapper as it might be changed later
+                                // by a directive with templateUrl when its template arrives.
+                                block = {
+                                    clone: clone
+                                };
+                                $animate.enter(clone, $element.parent(), $element);
+                            });
+                        }
+                    } else {
+                        if (previousElements) {
+                            previousElements.remove();
+                            previousElements = null;
+                        }
+                        if (childScope) {
+                            childScope.$destroy();
+                            childScope = null;
+                        }
+                        if (block) {
+                            previousElements = getBlockElements(block.clone);
+                            $animate.leave(previousElements, function() {
+                                previousElements = null;
+                            });
+                            block = null;
+                        }
+                    }
+                });
+            }
+        };
+    }
+]);
 
 nb_util.directive('nbVideo', ['$parse', '$timeout',
     function($parse, $timeout) {
