@@ -283,23 +283,20 @@ a.clickable {
     /*border-color: transparent !important;*/
     color: inherit !important;
 }
+.transition-time(@time) {
+    transition: all @time;
+    -o-transition: all @time;
+    -moz-transition: all @time;
+    -webkit-transition: all @time;
+}
 .transition-fast {
-    transition: all 0.5s;
-    -o-transition: all 0.5s;
-    -moz-transition: all 0.5s;
-    -webkit-transition: all 0.5s;
+    .transition-time(0.5s);
 }
 .transition-normal {
-    transition: all 1s;
-    -o-transition: all 1s;
-    -moz-transition: all 1s;
-    -webkit-transition: all 1s;
+    .transition-time(1s);
 }
 .transition-slow {
-    transition: all 1.5s;
-    -o-transition: all 1.5s;
-    -moz-transition: all 1.5s;
-    -webkit-transition: all 1.5s;
+    .transition-time(1.5s);
 }
 button.close {
     font-size: 40px;
@@ -405,23 +402,6 @@ a[ng-click], a[role=button] {
         background-color: @brand-danger;
     }
 }
-/*
-.btn-link, .navbar-link {
-    transition: all 0.6s;
-    -o-transition: all 0.6s;
-    -moz-transition: all 0.6s;
-    -webkit-transition: all 0.6s;
-}
-.btn:not(.btn-link) {
-    transition: all 0.6s;
-    -o-transition: all 0.6s;
-    -moz-transition: all 0.6s;
-    -webkit-transition: all 0.6s;
-}
-input, textarea {
-    font-weight: normal !important;
-}
-*/
  // @font-family-sans-serif:"Noto Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
  .text-light {
     font-weight: 200;
@@ -549,7 +529,7 @@ input, textarea {
     opacity: 0;
 }
 .view-animate {
-    .transition-fast;
+    .transition-time(0.4s);
     position: absolute;
     top: 0;
     bottom: 0;
