@@ -159,7 +159,7 @@
             <div nb-media="current_inode" media-events="media_events" show-content="true"></div>
         </div>
         <div ng-repeat="inode in entries">
-            <div class="btn-line {{is_selected(inode) && 'active'}} {{select_mode && !is_selected(inode) && 'select-pulse'}}" ng-click="click_inode(inode, $index, $event)" nb-right-click="right_click_inode(inode, $index, $event)">
+            <div class="btn-line {{is_selected(inode) && 'active'}} {{select_mode && !is_selected(inode) && 'select-pulse'}} {{is_clickable(inode) || 'disabled'}}" ng-click="click_inode(inode, $index, $event)" nb-right-click="right_click_inode(inode, $index, $event)">
                 <div ng-if="inode.content_kind=='image'" class="clearfix" style="max-width: 150px; margin-bottom: 5px">
                     <div nb-media="inode" media-events="media_events" show-content="true"></div>
                 </div>

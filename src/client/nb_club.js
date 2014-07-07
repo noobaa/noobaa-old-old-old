@@ -428,8 +428,6 @@ nb_util.controller('ClubCtrl', [
                 current_inode: $scope.home_context.current_inode,
             };
             choose_scope.dialog = {
-                dir_only: false,
-                multi_select: true,
                 cancel: function() {
                     modal.modal('hide');
                 },

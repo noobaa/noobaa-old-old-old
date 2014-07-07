@@ -135,7 +135,7 @@ nb_util.factory('nbInode', [
         }
 
         function can_move_to_dir(inode) {
-            return !!inode && !inode.not_mine && !inode.ref_owner && !inode.ro;
+            return !!inode && inode.isdir && !inode.not_mine && !inode.ref_owner && !inode.ro;
         }
 
         var CONTENT_KINDS = {

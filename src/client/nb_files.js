@@ -40,6 +40,7 @@ nb_util.directive('nbBrowse', function() {
                 $scope.is_selected = is_selected;
                 $scope.set_select_mode = set_select_mode;
                 $scope.clear_select_mode = clear_select_mode;
+                $scope.is_clickable = is_clickable;
                 $scope.click_inode = click_inode;
                 $scope.right_click_inode = right_click_inode;
                 $scope.play_inode = play_inode;
@@ -122,12 +123,22 @@ nb_util.directive('nbBrowse', function() {
                 }
 
                 function set_select_mode() {
+                    if ($scope.dialog && $scope.dialog.dir_select) {
+                        return;
+                    }
                     $scope.select_mode = true;
                 }
 
                 function clear_select_mode() {
                     $scope.select_mode = false;
                     selection.reset();
+                }
+
+                function is_clickable(inode) {
+                    if ($scope.dialog && $scope.dialog.dir_select && !inode.isdir) {
+                        return false;
+                    }
+                    return true;
                 }
 
                 function click_inode(inode, $index, $event) {
@@ -140,6 +151,9 @@ nb_util.directive('nbBrowse', function() {
 
                 function right_click_inode(inode, $index, $event) {
                     set_select_mode();
+                    if (!$scope.select_mode) {
+                        return;
+                    }
                     select_inode(inode, $index, $event);
                     if (selection.is_empty()) {
                         clear_select_mode();
@@ -147,17 +161,15 @@ nb_util.directive('nbBrowse', function() {
                 }
 
                 function select_inode(inode, $index, $event) {
-                    var op;
-                    if ($scope.dialog && !$scope.dialog.multi_select) {
-                        op = 'single';
-                    } else {
-                        op = $event.shiftKey ? 'loop' : '';
-                    }
+                    var op = $event.shiftKey ? 'loop' : '';
                     selection.select(inode, $index, op);
                 }
 
                 function open_inode(inode, $index, $event) {
                     if ($scope.dialog) {
+                        if ($scope.dialog.dir_select && !inode.isdir) {
+                            return;
+                        }
                         set_current_item(inode.id);
                     } else {
                         $location.path('/files/' + inode.id);
@@ -219,8 +231,7 @@ nb_util.directive('nbBrowse', function() {
                         current_inode: $scope.current_inode,
                     };
                     mv_scope.dialog = {
-                        dir_only: true,
-                        multi_select: false,
+                        dir_select: true,
                         cancel: function() {
                             modal.modal('hide');
                         },
@@ -229,17 +240,15 @@ nb_util.directive('nbBrowse', function() {
                         },
                         run: function() {
                             modal.modal('hide');
-                            console.log('RUN', selected, mv_scope.context.current_inode);
+                            var to_dir = mv_scope.context.current_inode;
+                            console.log('RUN', selected, to_dir);
                             var promises = new Array(selected.length);
                             for (var i = 0; i < selected.length; i++) {
-                                promises[i] = nbInode.move_inode(selected[i], mv_scope.context.current_inode);
+                                promises[i] = nbInode.move_inode(selected[i], to_dir);
                             }
-                            $q.all(promises).then(function() {
-                                alertify.success('Moved');
-                            }, function(err) {
-                                alertify.error('Problem moving items');
-                            })['finally'](function() {
-                                refresh_current();
+                            $q.all(promises)['finally'](function() {
+                                refresh_current('force');
+                                nbInode.load_inode(to_dir, 'force');
                             });
                         }
                     };
