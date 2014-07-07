@@ -156,14 +156,14 @@ nb_util.directive('nbBrowse', function() {
                         return;
                     }
                     select_inode(inode, $index, $event);
-                    if (selection.is_empty()) {
-                        clear_select_mode();
-                    }
                 }
 
                 function select_inode(inode, $index, $event) {
                     var op = $event.shiftKey ? 'loop' : '';
                     selection.select(inode, $index, op);
+                    if (selection.is_empty()) {
+                        clear_select_mode();
+                    }
                 }
 
                 function open_inode(inode, $index, $event) {
