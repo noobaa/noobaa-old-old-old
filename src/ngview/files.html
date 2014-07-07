@@ -1,10 +1,10 @@
-<div class="browser panel" nb-panel-hfill ng-init="search_in_folder=''">
+<div class="panel files-panel {{dialog && 'files-dialog'}}" nb-panel-hfill>
 
     <div class="panel-heading navbar navbar-default clearfix">
         <div>
 
-            <div ng-if="select_mode" class="btn-group pull-right">
-                <a ng-disabled="num_selected() <= 0 || current_inode.ref_owner || !nbInode.can_change_inode(get_selection_leader())" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            <div ng-if="!dialog && select_mode" class="btn-group pull-right">
+                <a ng-disabled="selection_menu_disabled()" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                     ACTIONS
                     <i class="fa fa-caret-down"></i>
                 </a>
@@ -32,10 +32,16 @@
                     </li>
                 </ul>
             </div>
-            <button ng-if="select_mode" class="btn btn-default pull-right" ng-click="clear_select_mode()">
+            <button ng-if="!dialog && select_mode" class="btn btn-default pull-right" ng-click="clear_select_mode()">
                 CANCEL
             </button>
-            <div ng-if="!select_mode" class="btn-group pull-right">
+            <button ng-if="!!dialog" ng-click="dialog.run(selection)" ng-disabled="dialog.run_disabled(selection)" ng-if="has_selected()" class="btn btn-success pull-right">
+                OK
+            </button>
+            <button ng-if="!!dialog" class="btn btn-default pull-right" ng-click="dialog.cancel()">
+                CANCEL
+            </button>
+            <div ng-if="!dialog && !select_mode" class="btn-group pull-right">
                 <a class="btn btn-link dropdown-toggle" data-toggle="dropdown" Xng-click="toggle_select_mode()">
                     <i class="fa fa-fw fa-2x fa-bars"></i>
                 </a>
@@ -56,7 +62,7 @@
                     <li ng-if="nbInode.can_share_inode(current_inode) || nbInode.can_keep_inode(current_inode)" class="divider"></li>
 
                     <div nb-if-replace="current_inode.isdir">
-                        <li ng-if="!!current_inode.id && filter_entries.length">
+                        <li ng-if="!!current_inode.id && entries.length">
                             <a ng-click="set_select_mode()">
                                 <i class="fa fa-square-o"></i>
                                 <span>Select Items</span>
@@ -152,20 +158,20 @@
         <div ng-if="!current_inode.isdir" Xstyle="padding-top: 8px">
             <div nb-media="current_inode" media-events="media_events" show-content="true"></div>
         </div>
-        <div ng-repeat="inode in filter_entries = ( current_inode.entries | filter:{name: search_in_folder} | orderBy:'name')">
-            <div class="btn-line {{inode.is_selected && 'active'}} {{select_mode && !inode.is_selected && 'select-pulse'}}" ng-click="click_inode(inode, $index, $event)" nb-right-click="right_click_inode(inode, $index, $event)">
+        <div ng-repeat="inode in entries">
+            <div class="btn-line {{is_selected(inode) && 'active'}} {{select_mode && !is_selected(inode) && 'select-pulse'}}" ng-click="click_inode(inode, $index, $event)" nb-right-click="right_click_inode(inode, $index, $event)">
                 <div ng-if="inode.content_kind=='image'" class="clearfix" style="max-width: 150px; margin-bottom: 5px">
                     <div nb-media="inode" media-events="media_events" show-content="true"></div>
                 </div>
                 <div class="clearfix">
                     <span class="pull-right" style="margin-left: 10px">
-                        <i ng-show="select_mode && !inode.is_selected" class="fa fa-square-o fa-fw fa-lg"></i>
-                        <i ng-show="select_mode && inode.is_selected" class="fa fa-check-square-o fa-fw fa-lg"></i>
+                        <i ng-show="select_mode && !is_selected(inode)" class="fa fa-square-o fa-fw fa-lg"></i>
+                        <i ng-show="select_mode && is_selected(inode)" class="fa fa-check-square-o fa-fw fa-lg"></i>
                         <i ng-show="!select_mode" class="fa fa-chevron-circle-right fa-fw fa-lg text-muted"></i>
                     </span>
                     <div class="pull-right hidden-xs">
                         <span ng-show="inode.uploading">
-                            <i title="Incomplete upload..." rel="tooltip" ng-click="inode_resume_upload(inode)" class="fa fa-cloud-upload fa-lg fa-fw"></i>
+                            <i title="Incomplete upload..." rel="tooltip" class="fa fa-cloud-upload fa-lg fa-fw"></i>
                         </span>
                         <span ng-show="!inode.isdir" style="margin-right: 10px">
                             {{human_size(inode.size)}}
@@ -192,7 +198,7 @@
                 </div>
             </div>
         </div>
-        <div ng-if="current_inode.isdir && !filter_entries.length">
+        <div ng-if="current_inode.isdir && !entries.length">
             <div ng-if="!current_inode.loaded || current_inode.is_loading">
                 <h3 class="text-center text-muted">
                     Loading <i class="fa fa-circle-o-notch fa-spin"></i>

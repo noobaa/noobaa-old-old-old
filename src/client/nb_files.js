@@ -16,7 +16,8 @@ nb_util.directive('nbBrowse', function() {
         replace: true,
         templateUrl: 'files.html',
         scope: { // isolated scope
-            context: '='
+            context: '=',
+            dialog: '='
         },
         controller: [
             '$scope', '$http', '$timeout', '$q', '$compile', '$location', '$rootScope',
@@ -33,9 +34,10 @@ nb_util.directive('nbBrowse', function() {
                 $scope.refresh_current = refresh_current;
                 $scope.go_up_level = go_up_level;
                 $scope.has_parent = has_parent;
-                $scope.get_selection_leader = get_selection_leader;
-                $scope.is_selection_leader = is_selection_leader;
+                $scope.selection_menu_disabled = selection_menu_disabled;
                 $scope.num_selected = num_selected;
+                $scope.has_selected = has_selected;
+                $scope.is_selected = is_selected;
                 $scope.set_select_mode = set_select_mode;
                 $scope.clear_select_mode = clear_select_mode;
                 $scope.click_inode = click_inode;
@@ -49,17 +51,35 @@ nb_util.directive('nbBrowse', function() {
                 $scope.share_inode = share_inode;
                 $scope.unshare_inode = unshare_inode;
 
-                var selection = $scope.context.selection;
 
+
+                $scope.selection = new nbMultiSelect.Class(function(index) {
+                    return $scope.entries[index];
+                });
+                var selection = $scope.selection;
 
                 $scope.$watch('context.current_inode', function(inode) {
                     $scope.current_inode = inode;
                     refresh_current();
                 });
 
+                $scope.$watch('context.current_inode.entries', function(entries) {
+                    selection.reset_current();
+                    if (!entries) {
+                        $scope.entries = null;
+                    } else {
+                        $scope.entries = _.sortBy(entries, 'name');
+                    }
+                });
+
+                function set_current_item(inode_id) {
+                    // updating the context will trigger watch to refresh the files scope
+                    $scope.context.current_inode = nbInode.get_inode(inode_id);
+                }
+
                 function refresh_current(force_load) {
                     $scope.search_in_folder = '';
-                    nbMultiSelect.reset_selection(selection);
+                    selection.reset();
                     nbInode.load_inode($scope.current_inode, force_load);
                 }
 
@@ -70,30 +90,35 @@ nb_util.directive('nbBrowse', function() {
                 };
 
                 function go_up_level() {
-                    $location.path('/files/' + ($scope.current_inode.parent_id || ''));
+                    var parent_id = ($scope.current_inode.parent_id || '');
+                    if ($scope.dialog) {
+                        set_current_item(parent_id);
+                    } else {
+                        $location.path('/files/' + parent_id);
+                    }
                 }
 
                 function has_parent(dir_inode) {
                     return !!dir_inode.id;
                 }
 
-                function get_selection_leader() {
-                    return selection.items[selection.items.length - 1];
-                }
-
-                function is_selection_leader(inode) {
-                    return get_selection_leader() === inode;
+                function selection_menu_disabled() {
+                    var leader = selection.get_current();
+                    return selection.is_empty() || 
+                        $scope.current_inode.ref_owner || 
+                        !nbInode.can_change_inode(leader);
                 }
 
                 function num_selected() {
-                    return selection.items.length;
+                    return selection.get_count();
                 }
 
-                function stop_event(event) {
-                    if (event.stopPropagation) {
-                        event.stopPropagation();
-                    }
-                    return false;
+                function has_selected() {
+                    return selection.get_count();
+                }
+
+                function is_selected(inode) {
+                    return selection.is_selected(inode);
                 }
 
                 function set_select_mode() {
@@ -102,7 +127,7 @@ nb_util.directive('nbBrowse', function() {
 
                 function clear_select_mode() {
                     $scope.select_mode = false;
-                    nbMultiSelect.reset_selection(selection);
+                    selection.reset();
                 }
 
                 function click_inode(inode, $index, $event) {
@@ -116,19 +141,27 @@ nb_util.directive('nbBrowse', function() {
                 function right_click_inode(inode, $index, $event) {
                     set_select_mode();
                     select_inode(inode, $index, $event);
-                    var selected = nbMultiSelect.selection_items(selection);
-                    if (!selected.length) {
+                    if (selection.is_empty()) {
                         clear_select_mode();
                     }
                 }
 
                 function select_inode(inode, $index, $event) {
-                    nbMultiSelect.select_item(selection, inode, $index, $event, 'append');
-                    // return stop_event($event);
+                    var op;
+                    if ($scope.dialog && !$scope.dialog.multi_select) {
+                        op = 'single';
+                    } else {
+                        op = $event.shiftKey ? 'loop' : '';
+                    }
+                    selection.select(inode, $index, op);
                 }
 
                 function open_inode(inode, $index, $event) {
-                    $location.path('/files/' + inode.id);
+                    if ($scope.dialog) {
+                        set_current_item(inode.id);
+                    } else {
+                        $location.path('/files/' + inode.id);
+                    }
                     /*
                     // must load in order to detect if dir at all
                     if (!inode.loaded) {
@@ -161,13 +194,13 @@ nb_util.directive('nbBrowse', function() {
                 }
 
                 function delete_inodes() {
-                    var selected = nbMultiSelect.selection_items(selection); // copy array
+                    var selected = selection.get_items();
                     nbInode.delete_inodes(selected, $scope.current_inode);
                 }
 
                 function move_inodes() {
                     var modal;
-                    var selected = nbMultiSelect.selection_items(selection);
+                    var selected = selection.get_items();
                     if (!selected.length) {
                         return;
                     }
@@ -181,29 +214,37 @@ nb_util.directive('nbBrowse', function() {
                         }
                     }
                     var mv_scope = $scope.$new();
-                    mv_scope.count = 0;
+                    mv_scope.title = 'Select target folder';
                     mv_scope.context = {
                         current_inode: $scope.current_inode,
-                        dir_only: true
                     };
-                    mv_scope.run_disabled = function() {
-                        return mv_scope.running || !nbInode.can_move_to_dir(mv_scope.context.current_inode);
-                    };
-                    mv_scope.run = function() {
-                        console.log('RUN', selected);
-                        mv_scope.running = true;
-                        var promises = new Array(selected.length);
-                        for (var i = 0; i < selected.length; i++) {
-                            promises[i] = nbInode.move_inode(selected[i], mv_scope.context.current_inode);
-                        }
-                        $q.all(promises).then(function() {
+                    mv_scope.dialog = {
+                        dir_only: true,
+                        multi_select: false,
+                        cancel: function() {
                             modal.modal('hide');
-                            refresh_current();
-                        });
+                        },
+                        run_disabled: function() {
+                            return !nbInode.can_move_to_dir(mv_scope.context.current_inode);
+                        },
+                        run: function() {
+                            modal.modal('hide');
+                            console.log('RUN', selected, mv_scope.context.current_inode);
+                            var promises = new Array(selected.length);
+                            for (var i = 0; i < selected.length; i++) {
+                                promises[i] = nbInode.move_inode(selected[i], mv_scope.context.current_inode);
+                            }
+                            $q.all(promises).then(function() {
+                                alertify.success('Moved');
+                            }, function(err) {
+                                alertify.error('Problem moving items');
+                            })['finally'](function() {
+                                refresh_current();
+                            });
+                        }
                     };
-                    mv_scope.title = 'Move to ...';
                     modal = nbUtil.make_modal({
-                        template: 'chooser_modal.html',
+                        template: 'files_modal.html',
                         scope: mv_scope,
                     });
                 }
@@ -281,56 +322,6 @@ nb_util.directive('nbMedia', ['$parse', '$timeout', 'nbInode', 'nbPlanet',
                 });
             },
             templateUrl: 'media_template.html'
-        };
-    }
-]);
-
-
-
-///////////////////////
-// CHOOSER DIRECTIVE //
-///////////////////////
-
-
-nb_util.directive('nbChooser', ['$parse', '$timeout', 'nbInode',
-    function($parse, $timeout, nbInode) {
-        return {
-            replace: true,
-            templateUrl: 'chooser_template.html',
-            scope: { // isolated scope
-                context: '='
-            },
-            controller: [
-                '$scope', '$http', '$timeout', '$q', '$compile', '$rootScope', 'nbUtil', 'nbInode',
-                function($scope, $http, $timeout, $q, $compile, $rootScope, nbUtil, nbInode) {
-                    $scope.human_size = $rootScope.human_size;
-                    $scope.nbUtil = nbUtil;
-                    $scope.nbInode = nbInode;
-
-                    set_current_inode($scope.context.current_inode);
-
-                    function set_current_inode(inode) {
-                        $scope.context.current_inode = inode;
-                        $scope.current_inode = inode;
-                    }
-
-                    $scope.open_inode = function(inode) {
-                        set_current_inode(inode);
-                        nbInode.load_inode(inode);
-                    };
-
-                    $scope.has_parent = function(inode) {
-                        return !!inode.id;
-                    };
-
-                    $scope.go_up_level = function() {
-                        if ($scope.current_inode.id) {
-                            var parent = nbInode.get_inode($scope.current_inode.parent_id);
-                            $scope.open_inode(parent);
-                        }
-                    };
-                }
-            ]
         };
     }
 ]);

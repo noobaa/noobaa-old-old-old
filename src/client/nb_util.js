@@ -52,6 +52,7 @@ nb_util.factory('nbUtil', [
             track_event: track_event,
             icon_by_kind: icon_by_kind,
             valid_email: valid_email,
+            stop_event: stop_event,
             coming_soon: function(feature) {
                 // TODO send event log
                 alert('Coming soon...');
@@ -171,6 +172,13 @@ nb_util.factory('nbUtil', [
             return EMAIL_REGEX.test(email);
         }
 
+        function stop_event(event) {
+            if (event.stopPropagation) {
+                event.stopPropagation();
+            }
+            return false;
+        }
+
         return $scope;
 
     }
@@ -181,85 +189,97 @@ nb_util.factory('nbMultiSelect', [
     '$http', '$timeout', '$interval', '$q', '$rootScope',
     function($http, $timeout, $interval, $q, $rootScope) {
 
-        var $scope = {
-            add_selection: add_selection,
-            remove_selection: remove_selection,
-            reset_selection: reset_selection,
-            select_item: select_item,
-            selection_items: selection_items,
+        function MultiSelect(get_item_by_index_fn) {
+            this._items = {};
+            this._count = 0;
+            this._current_item = null;
+            this._current_index = -1;
+            this.get_item_by_index = get_item_by_index_fn;
+        }
+
+        MultiSelect.prototype.is_selected = function(item) {
+            return this._items[item.id];
         };
 
+        MultiSelect.prototype.is_empty = function() {
+            return _.isEmpty(this._items);
+        };
 
-        function add_selection(selection, item, index) {
-            if (item.is_selected) {
-                return;
-            }
-            selection.items.push(item);
-            item.is_selected = true;
-            item.select_source_index = index;
-        }
+        MultiSelect.prototype.get_items = function() {
+            return _.values(this._items);
+        };
 
-        function remove_selection(selection, item) {
-            if (!item.is_selected) {
-                return;
-            }
-            var pos = selection.items.indexOf(item);
-            if (pos >= 0) {
-                selection.items.splice(pos, 1);
-            }
-            item.is_selected = false;
-            item.select_source_index = null;
-        }
+        MultiSelect.prototype.get_count = function() {
+            return this._count;
+        };
 
-        function reset_selection(selection) {
-            var items = selection.items;
-            selection.items = [];
-            if (!items) {
-                return;
-            }
-            for (var i = 0; i < items.length; i++) {
-                remove_selection(selection, items[i]);
-            }
-        }
+        MultiSelect.prototype.get_current = function() {
+            return this._current_item;
+        };
 
-        function select_item(selection, item, index, event, append) {
-            if (event.shiftKey && selection.items.length) {
-                var from = selection.items[selection.items.length - 1].select_source_index;
+        MultiSelect.prototype.reset = function() {
+            this._items = {};
+            this._count = 0;
+            this.reset_current();
+        };
+
+        MultiSelect.prototype.reset_current = function() {
+            this._current_item = null;
+            this._current_index = -1;
+        };
+
+        MultiSelect.prototype.add = function(item, index) {
+            if (!this._items[item.id]) {
+                this._items[item.id] = item;
+                this._count++;
+            }
+            this._current_item = item;
+            this._current_index = index;
+        };
+
+        MultiSelect.prototype.remove = function(item) {
+            if (this._items[item.id]) {
+                delete this._items[item.id];
+                this._count--;
+            }
+            this.reset_current();
+        };
+
+        MultiSelect.prototype.select = function(item, index, op) {
+            if (op === 'single') {
+                // console.log('SELECT ONE', item.name);
+                this.reset();
+                this.add(item, index);
+                return true;
+            }
+            if (op === 'range' && this._current_index >= 0) {
+                var from = this._current_index;
                 // console.log('SELECT FROM', from, 'TO', index);
                 var i;
                 if (index >= from) {
                     for (i = from; i <= index; i++) {
-                        add_selection(selection, selection.source_index(i), i);
+                        this.add(this.get_item_by_index(i), i);
                     }
                 } else {
                     for (i = from; i >= index; i--) {
-                        add_selection(selection, selection.source_index(i), i);
+                        this.add(this.get_item_by_index(i), i);
                     }
                 }
-            } else if (append === 'append' || event.ctrlKey || event.metaKey ||
-                (selection.items.length === 1 && selection.items[0] === item)) {
-                // console.log('SELECT TOGGLE', item.name, item.is_selected);
-                if (item.is_selected) {
-                    remove_selection(selection, item);
-                    return false;
-                } else {
-                    add_selection(selection, item, index);
-                }
-            } else {
-                // console.log('SELECT ONE', item.name);
-                reset_selection(selection);
-                add_selection(selection, item, index);
+                return true;
             }
-            return true;
-        }
+            // console.log('SELECT TOGGLE', item.name, item.is_selected);
+            if (this.is_selected(item)) {
+                this.remove(item);
+                return false;
+            } else {
+                this.add(item, index);
+                return true;
+            }
+        };
 
-        function selection_items(selection) {
-            return selection.items.slice(0); // make copy of array
-        }
-
-
-        return $scope;
-
+        return {
+            Class: MultiSelect
+        };
     }
 ]);
 

@@ -66,11 +66,11 @@
 }
 .hover-style {
     background-color: lighten(@brand-success, 40%);
-    .bgnoise2;    
+    .bgnoise2;
 }
 .active-style {
     background-color: lighten(@brand-success, 20%);
-    .bgnoise2;    
+    .bgnoise2;
 }
 .btn-line {
     .btn;
@@ -151,6 +151,15 @@ hr.headline {
             margin-right: 10px;
         }
     }
+}
+.modal {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    overflow: auto;
+}
+.modal-dialog {
+    margin-top: 0;
+    margin-bottom: 0;
 }
 .bggray {
     background-color: @gray;
@@ -380,6 +389,21 @@ a[ng-click], a[role=button] {
 .alertify-text {
     .form-control;
     .input-lg;
+}
+.alertify-log {
+    font-family: @font-family-sans-serif;
+    text-shadow: none;
+    color: @text-color;
+    background-color: @brand-info;
+    border: 1px solid @border-color;
+    &.alertify-log-success {
+        color: @text-color;
+        background-color: @brand-success;
+    }
+    &.alertify-log-error {
+        color: @text-color;
+        background-color: @brand-danger;
+    }
 }
 /*
 .btn-link, .navbar-link {

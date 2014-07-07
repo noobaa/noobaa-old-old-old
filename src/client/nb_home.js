@@ -88,7 +88,6 @@ nb_home.controller('HomeCtrl', [
         nbInode, nbUploadSrv, nbPlanet, nbFeed, nbClub) {
 
         $scope.nbUtil = nbUtil;
-        $scope.nbMultiSelect = nbMultiSelect;
         $scope.nbUser = nbUser;
         $scope.nbUserFeedback = nbUserFeedback;
         $scope.nbInode = nbInode;
@@ -99,17 +98,11 @@ nb_home.controller('HomeCtrl', [
 
         $scope.root_dir = nbInode.get_inode();
 
-        // TODO temp.
+        // TODO remove this temp hack when organizing feeds code -
         var refresh_feeds = $scope.refresh_feeds = nbFeed.refresh_feeds;
 
         $scope.home_context = {
             current_inode: $scope.root_dir,
-            selection: {
-                items: [],
-                source_index: function(i) {
-                    return $scope.home_context.current_inode.entries[i];
-                }
-            }
         };
 
 

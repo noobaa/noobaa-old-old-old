@@ -423,23 +423,29 @@ nb_util.controller('ClubCtrl', [
         function select_files_to_club() {
             var modal;
             var choose_scope = $scope.$new();
-            choose_scope.count = 0;
+            choose_scope.title = 'Select items to share';
             choose_scope.context = {
                 current_inode: $scope.home_context.current_inode,
-                dir_only: false
             };
-            choose_scope.run_disabled = function() {
-                return nbInode.is_not_mine(choose_scope.context.current_inode);
+            choose_scope.dialog = {
+                dir_only: false,
+                multi_select: true,
+                cancel: function() {
+                    modal.modal('hide');
+                },
+                run_disabled: function() {
+                    return nbInode.is_not_mine(choose_scope.context.current_inode);
+                },
+                run: function(selection) {
+                    modal.modal('hide');
+                    // var selected = selection.get_items();
+                    send_club_message({
+                        inode: choose_scope.context.current_inode.id
+                    });
+                }
             };
-            choose_scope.run = function() {
-                modal.modal('hide');
-                send_club_message({
-                    inode: choose_scope.context.current_inode.id
-                });
-            };
-            choose_scope.title = 'Attach Files';
             modal = nbUtil.make_modal({
-                template: 'chooser_modal.html',
+                template: 'files_modal.html',
                 scope: choose_scope,
             });
         }
