@@ -133,18 +133,18 @@
                      -->
                 </ul>
             </div>
-            <a class="btn btn-link pull-left" style="padding-left: 10px; padding-right: 20px" ng-click="go_up_level()" ng-disabled="!has_parent(current_inode)">
+            <button class="btn btn-link btn-back pull-left" ng-click="go_up_level()" ng-disabled="!has_parent(current_inode)">
+                <!-- 
                 <span ng-show="has_parent(current_inode)">
                     <span class="fa-stack">
                         <i class="fa fa-folder fa-stack-2x"></i>
                         <i class="fa fa-arrow-up fa-stack-1x fa-inverse" style="font-size: 0.8em"></i>
                     </span>
-
                 </span>
-                <span ng-hide="has_parent(current_inode)" class="text-muted">
-                    <i class="fa fa-home fa-2x"></i>
-                </span>
-            </a>
+                -->
+                <i ng-show="has_parent(current_inode)" class="fa fa-angle-left"></i>
+                <i ng-hide="has_parent(current_inode)" class="fa fa-home text-muted"></i>
+            </button>
             <div class="hflow">
                 <div class="navbar-text text-left text-ellipses text-color">
                     {{current_inode.name}}
@@ -160,16 +160,19 @@
         </div>
         <div ng-repeat="inode in entries">
             <div class="btn-line {{is_selected(inode) && 'active'}} {{select_mode && !is_selected(inode) && 'select-pulse'}} {{is_clickable(inode) || 'disabled'}}" ng-click="click_inode(inode, $index, $event)" nb-right-click="right_click_inode(inode, $index, $event)">
-                <div ng-if="inode.content_kind=='image'" class="clearfix" style="max-width: 150px; margin-bottom: 5px">
-                    <div nb-media="inode" media-events="media_events" show-content="true"></div>
-                </div>
                 <div class="clearfix">
-                    <span class="pull-right" style="margin-left: 10px">
+                    <div class="pull-right" style="margin-left: 10px">
                         <i ng-show="select_mode && !is_selected(inode)" class="fa fa-square-o fa-fw fa-lg"></i>
                         <i ng-show="select_mode && is_selected(inode)" class="fa fa-check-square-o fa-fw fa-lg"></i>
-                        <i ng-show="!select_mode" class="fa fa-chevron-circle-right fa-fw fa-lg text-muted"></i>
-                    </span>
-                    <div class="pull-right hidden-xs">
+                        <i ng-hide="select_mode" class="fa fa-chevron-circle-right fa-fw fa-lg text-muted"></i>
+                    </div>
+                    <div class="pull-right text-center" ng-switch="inode.content_kind" style="margin: -5px 0 -5px 10px; max-height: 1.5cm; width: 1.5cm">
+                        <img ng-switch-when="image" ng-src="{{nbInode.fobj_get_url(inode)}}" style="vertical-align: top; max-width: 100%; max-height: 100%" />
+                        <!-- <i ng-switch-when="video" class="fa fa-play-circle text-muted" style="font-size: 1cm"></i> -->
+                        <!-- <i ng-switch-when="audio" class="fa fa-play-circle text-muted" style="font-size: 1cm"></i> -->
+                        <!-- <i ng-switch-default class="fa fa-chevron-circle-right text-muted" style="font-size: 1cm"></i> -->
+                    </div>
+                    <div class="pull-right hidden-xs hidden" style="margin-left: 10px">
                         <span ng-show="inode.uploading">
                             <i title="Incomplete upload..." rel="tooltip" class="fa fa-cloud-upload fa-lg fa-fw"></i>
                         </span>
@@ -181,7 +184,7 @@
                             <img ng-src="{{nbUser.user_pic_url(inode.ref_owner)}}" class="user-image"></img>
                         </span>
                         <span>
-                            {{moment(inode.ctime).fromNow(true)}}
+                            {{moment(inode.ctime).fromNow()}}
                         </span>
                         <!-- 
                         <a class="btn btn-sm {{!inode.shr && 'btn-link' || inode.shr=='f' && 'btn-warning' || 'btn-warning btn-hover-only'}}" ng-if="nbInode.can_share_inode(inode)" ng-click="share_inode(inode)" ng-attr-title="{{!inode.shr && 'Click to invite' || inode.shr=='f' && 'Invited all friends' || 'Invited some friends'}}" rel="tooltip" style="margin-left: 5px">
@@ -189,11 +192,9 @@
                         </a>
                          -->
                     </div>
-                    <div class="text-wrap" style="cursor: pointer">
+                    <div class="text-wrap">
                         <i class="fa fa-{{nbUtil.icon_by_kind(inode.content_kind)}} fa-fw fa-lg"></i>
-                        <a class="btn btn-link" style="padding-left: 0; display: inline">
-                            <span style="white-space: pre-wrap">{{inode.name}}</span>
-                        </a>
+                        <span style="white-space: pre-wrap">{{inode.name}}</span>
                     </div>
                 </div>
             </div>
@@ -208,7 +209,7 @@
                 <h3 class="text-center text-muted">
                     Folder is empty
                 </h3>
-                <div class="text-center" ng-if="nbInode.can_upload_to_dir(current_inode)">
+                <div class="text-center" ng-if="!dialog && nbInode.can_upload_to_dir(current_inode)">
                     <a class="btn btn-default" ng-click="nbUploadSrv.open_file_input()">
                         <i class="fa fa-cloud-upload"></i>
                         Upload files
