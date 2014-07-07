@@ -217,6 +217,15 @@ nb_util.factory('nbMultiSelect', [
             return this._current_item;
         };
 
+        MultiSelect.prototype.get_candidate = function() {
+            var candidate;
+            for (var id in this._items) {
+                candidate = this._items[id];
+                break;
+            }
+            return candidate;
+        };
+
         MultiSelect.prototype.reset = function() {
             this._items = {};
             this._count = 0;

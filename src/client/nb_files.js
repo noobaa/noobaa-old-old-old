@@ -104,10 +104,11 @@ nb_util.directive('nbBrowse', function() {
                 }
 
                 function selection_menu_disabled() {
-                    var leader = selection.get_current();
-                    return selection.is_empty() || 
-                        $scope.current_inode.ref_owner || 
-                        !nbInode.can_change_inode(leader);
+                    if (selection.is_empty() || $scope.current_inode.ref_owner) {
+                        return true;
+                    }
+                    var candidate = selection.get_candidate();
+                    return !nbInode.can_change_inode(candidate);
                 }
 
                 function num_selected() {
