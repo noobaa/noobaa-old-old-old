@@ -20,9 +20,10 @@
             <hr class="headline" />
             <div class="line line-p1">
                 <span class="text-muted">Using {{human_size(nbUser.user_usage)}} of {{human_size(nbUser.user_quota)}}</span>
-                <div class="progress text-center pull-right" style="width: 100px; margin: 0">
+                <div class="progress text-center pull-right" style="width: 100px; margin: 0; position: relative">
                     <div class="progress-bar progress-bar-{{nbUser.usage_percents < 70 && 'success' || usage_percents < 90 && 'warning' || 'danger'}}" role="progressbar" aria-valuenow="{{nbUser.usage_percents}}" aria-valuemin="0" aria-valuemax="100" style="width: {{nbUser.usage_percents}}%">
                     </div>
+                    <div class="cover">{{nbUser.usage_percents.toFixed(0)}}%</div>
                 </div>
             </div>
             <hr />
