@@ -80,7 +80,7 @@ nb_util.directive('nbBrowse', function() {
 
                 function refresh_current(force_load) {
                     $scope.search_in_folder = '';
-                    selection.reset();
+                    clear_select_mode();
                     nbInode.load_inode($scope.current_inode, force_load);
                 }
 
