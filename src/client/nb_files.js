@@ -303,7 +303,7 @@ nb_util.directive('nbBrowse', function() {
 nb_util.directive('nbMedia', ['$parse', '$timeout', 'nbInode', 'nbPlanet',
     function($parse, $timeout, nbInode, nbPlanet) {
         return {
-            replace: true,
+            templateUrl: 'media_template.html',
             link: function(scope, element, attr) {
                 scope.nbInode = nbInode;
                 scope.media_url = function(inode) {
@@ -330,8 +330,7 @@ nb_util.directive('nbMedia', ['$parse', '$timeout', 'nbInode', 'nbPlanet',
                         scope.media_events.load();
                     }
                 });
-            },
-            templateUrl: 'media_template.html'
+            }
         };
     }
 ]);
