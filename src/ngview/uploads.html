@@ -25,15 +25,16 @@
                 </a>
                 <ul class="dropdown-menu" role="menu">
                     <li>
-                        <a ng-click="pause_selected()">
-                            <i class="fa fa-pause"></i>
-                            <span>Pause Selected</span>
-                        </a>
-                    </li>
-                    <li>
                         <a ng-click="resume_selected()">
                             <i class="fa fa-play"></i>
                             <span>Resume Selected</span>
+                        </a>
+                    </li>
+                    <li class="divider"></li>
+                    <li>
+                        <a ng-click="pause_selected()">
+                            <i class="fa fa-pause"></i>
+                            <span>Pause Selected</span>
                         </a>
                     </li>
                     <li class="divider"></li>
@@ -46,7 +47,7 @@
                 </ul>
             </div>
             <button ng-if="select_mode" class="btn btn-default pull-right" ng-click="clear_select_mode()">
-                CANCEL
+                UNSELECT
             </button>
             <div class="navbar-text">
                 <i class="fa fa-cloud-upload fa-lg fa-fw text-muted" style="margin-left: 10px; margin-right: 15px"></i>Uploads
@@ -56,7 +57,7 @@
 
     <div class="panel-body">
         <div>
-            <a ng-repeat="(id,upload) in (upload | upload_sons_filter)" class="btn-line {{(upload.is_selected || upsrv.selected_all) && 'active'}} {{select_mode && !upload.is_selected && !upsrv.selected_all && 'select-pulse'}}" ng-click="click_upload(upload)">
+            <a ng-repeat="(id,upload) in (upload | upload_sons_filter)" class="btn-line {{(upload.is_selected || upsrv.selected_all) && 'active'}} {{select_mode && !upload.is_selected && !upsrv.selected_all && 'select-pulse'}}" ng-click="click_upload(upload)" nb-right-click="click_upload(upload)">
                 <span class="pull-right" style="margin-left: 10px">
                     <i ng-hide="upload.is_selected || upsrv.selected_all" class="fa fa-square-o fa-fw fa-lg"></i>
                     <i ng-show="upload.is_selected || upsrv.selected_all" class="fa fa-check-square-o fa-fw fa-lg"></i>
