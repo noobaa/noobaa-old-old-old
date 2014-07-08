@@ -418,6 +418,14 @@ nb_util.controller('UserAccountCtrl', [
     function($scope, $q, $location, $timeout, nbUtil, nbUser, nbInode) {
         $scope.nbUser = nbUser;
         nbUser.init_friends();
+
+        $scope.click_usage = function() {
+            var e = $('.account .progress');
+            e.removeClass('animated flip');
+            $timeout(function() {
+                e.addClass('animated flip');
+            }, 1);
+        };
     }
 ]);
 
