@@ -44,8 +44,10 @@
 <link href="/public/css/styles.min.css" type="text/css" rel="stylesheet" />
 
 <!-- Google Fonts -->
-<link href='//fonts.googleapis.com/css?family=Averia+Sans+Libre:400,700' rel='stylesheet' type='text/css'>
+<link href='//fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<!-- <link href='//fonts.googleapis.com/css?family=Averia+Sans+Libre:400,700' rel='stylesheet' type='text/css'> -->
 <!-- <link href='//fonts.googleapis.com/css?family=Noto+Sans:400,700' rel='stylesheet' type='text/css'> -->
+<!-- <link href='//fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'> -->
 <!-- <link href='//fonts.googleapis.com/css?family=Finger+Paint' rel='stylesheet' type='text/css'> -->
 <!-- <link href='//fonts.googleapis.com/css?family=Finger+Paint|Ubuntu' rel='stylesheet' type='text/css'> -->
 <!-- <link href='//fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'> -->
@@ -54,8 +56,6 @@
 <!-- <link href='//fonts.googleapis.com/css?family=Droid+Serif' rel='stylesheet' type='text/css'> -->
 <!-- <link href='//fonts.googleapis.com/css?family=Droid+Sans:400,700' rel='stylesheet' type='text/css'> -->
 <!-- <link href='//fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'> -->
-<!-- <link href='//fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'> -->
-<!-- <link href='//fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'> -->
 
 
 <!-- break out from iframe -->
@@ -80,7 +80,7 @@ if (top.location != self.location) {
         (i[r].q = i[r].q || []).push(arguments)
     }, i[r].l = 1 * new Date();
     a = s.createElement(o),
-    m = s.getElementsByTagName(o)[0];
+        m = s.getElementsByTagName(o)[0];
     a.async = 1;
     a.src = g;
     m.parentNode.insertBefore(a, m)
@@ -123,7 +123,7 @@ ga('send', 'pageview');
             }
             var c = b;
             "undefined" !==
-                typeof d ? c = b[d] = [] : d = "mixpanel";
+            typeof d ? c = b[d] = [] : d = "mixpanel";
             c.people = c.people || [];
             c.toString = function(b) {
                 var a = "mixpanel";
@@ -141,7 +141,7 @@ ga('send', 'pageview');
         b.__SV = 1.2
     }
 })(document, window.mixpanel || []);
-if ( <?= !! it.data.mixpanel_token ?> ) {
+if ( <?= !!it.data.mixpanel_token ?> ) {
     mixpanel.init("<?= it.data.mixpanel_token ?>");
     window.nb_mixpanel = true;
 }
