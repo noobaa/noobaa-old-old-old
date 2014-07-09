@@ -53,10 +53,7 @@ nb_util.factory('nbUtil', [
             icon_by_kind: icon_by_kind,
             valid_email: valid_email,
             stop_event: stop_event,
-            coming_soon: function(feature) {
-                // TODO send event log
-                alert('Coming soon...');
-            }
+            coming_soon: coming_soon,
         };
 
 
@@ -177,6 +174,12 @@ nb_util.factory('nbUtil', [
                 event.stopPropagation();
             }
             return false;
+        }
+
+        function coming_soon(event_name, description) {
+            track_event('coming_soon.' + event_name);
+            alertify.log('\'' + description + '\' is coming soon!' +
+                ' We will let you know as soon as it\'s available');
         }
 
         return $scope;
@@ -391,6 +394,9 @@ nb_util.directive('nbVideo', ['$parse', '$timeout',
             link: function(scope, element, attr) {
                 var content_type = attr.nbVideo;
                 console.log('VIDEO TYPE', content_type);
+                if (scope.autoplay) {
+                    element.attr('autoplay','autoplay');
+                }
                 if (content_type === 'video/x-matroska') {
                     return;
                 }
@@ -402,7 +408,9 @@ nb_util.directive('nbVideo', ['$parse', '$timeout',
                         height: 'auto',
                     }, function() {
                         // Player (this) is initialized and ready.
-                        this.play();
+                        if (scope.autoplay) {
+                            this.play();
+                        }
                     });
                 }, 1);
             }
