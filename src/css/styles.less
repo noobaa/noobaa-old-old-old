@@ -19,15 +19,15 @@ body {
  ******************************************************************************/
  @home-max-width: 600px;
  @home-max-height: 600px;
- .home-container {
+ .app-container {
     .center-block;
     max-width: @home-max-width;
 }
-.home-bg {
+.app-bg {
     background-color: @body-bg;
     .bgnoise2;
 }
-.home-body {
+.app-body {
     hr {
         margin: 1px 10px;
     }
@@ -43,11 +43,11 @@ body {
         top: 10px;
         left: 10px;
     }
-    .home-area {
+    .app-area {
         height: 100%;
         width: 100%;
     }
-    .home-panel {
+    .app-panel {
         height: 100%;
         margin-top: 0;
         margin-bottom: 0;
@@ -60,22 +60,22 @@ body {
             padding: 10px 0;
             background-color: @navbar-inverse-bg;
             .bgnoise2;
-            > div {
-                .home-container;
+            .navbar {
+                .app-container;
                 border: 1px solid @border-color;
             }
         }
     }
-    .home-view > .panel {
+    .app-view > .panel {
         border: none;
         height: 100%;
         > .panel-heading, > .panel-body, > .panel-footer {
             > div {
-                .home-container;
+                .app-container;
             }
         }
         > .panel-body {
-            .home-bg;
+            .app-bg;
             border-top: 1px solid @border-color-light;
             border-bottom: 1px solid @border-color-light;
             overflow-y: auto;
@@ -86,23 +86,23 @@ body {
     }
 }
 @media all and (max-width: (@home-max-width+200px)) {
-    .home-body {
+    .app-body {
         > .noobaa-logo {
             display: none;
         }
     }
 }
 @media all and (max-height: @home-max-height), all and (max-width: @home-max-width) {
-    .home-body {
-        .home-area {
-            > .home-panel {
+    .app-body {
+        .app-area {
+            > .app-panel {
                 > .panel-footer {
                     padding: 0;
-                    > div {
+                    .navbar {
                         border: none;
                     }
                 }
-                .home-view > .panel > .panel-body {
+                .app-view > .panel > .panel-body {
                     // border-top-width: 0;
                     // border-bottom-width: 0;
                 }
@@ -110,7 +110,7 @@ body {
         }
     }
 }
-.home-panel.panel-too-small {
+.app-panel.panel-too-small {
     > .panel-heading, > .panel-footer {
         height: 0;
         overflow: hidden;
@@ -142,8 +142,14 @@ body {
     position: static;
     z-index: 0;
     line-height: 40px;
+    .navbar-brand {
+        padding: 10px;
+    }
     .btn-link {
         padding: 10px 6px;
+        .user-image {
+            margin: 0;
+        }
     }
     .btn-success, .btn-default {
         margin: 10px;
@@ -160,7 +166,7 @@ body {
             line-height: 50px;
         }
     }
-    img {
+    .user-image {
         margin: 10px;
     }
     .navbar-text {
@@ -530,6 +536,24 @@ body {
     }
 }
 /**/
+
+/******************************************************************************
+    BLOG 
+ ******************************************************************************/
+.blog-item {
+    .well;
+    margin: 10px 10px;
+    hr {
+        margin: 10px -20px;
+        border-color: @border-color-light;
+    }
+    .blog-content p {
+        font-size: 18px;
+        line-height: 1.5em;
+        letter-spacing: 0.02em;
+        text-align: justify;
+    }
+}
 
 /******************************************************************************
     FEED 

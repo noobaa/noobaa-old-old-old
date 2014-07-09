@@ -17,14 +17,14 @@ nb_blog.config(['$routeProvider', '$locationProvider',
     function($routeProvider, $locationProvider) {
         $locationProvider.html5Mode(true);
         $routeProvider.when('/', {
-            templateUrl: 'blog_main_template.html',
+            templateUrl: 'blog_list.html',
             controller: ['$scope', '$routeParams',
                 function($scope, $routeParams) {
                     $scope.load_blogs();
                 }
             ]
         }).when('/item/:headline*?', {
-            templateUrl: 'blog_item_template.html',
+            templateUrl: 'blog_item.html',
             controller: ['$scope', '$routeParams',
                 function($scope, $routeParams) {
                     $scope.load_blog_item($routeParams.headline);

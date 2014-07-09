@@ -67,11 +67,11 @@
         <div ng-repeat="member in club.members track by $index">
             <div class="line line-p1">
                 <img class="pull-left user-image" ng-src="{{nbUser.user_pic_url(member.user_info)}}" />
-                <div class="pull-right" style="padding: 10px 0 0 10px">
+                <div class="pull-right" style="padding-left: 10px">
                     <button ng-click="remove_member($index)" ng-if="club.admin && !member.admin" class="close" style="margin-top: -15px">&times;</button>
                     <span ng-show="member.admin" Xclass="text-success">ADMIN</span>
                 </div>
-                <div class="hflow" style="padding: 10px 0 0 10px">
+                <div class="hflow" style="padding-left: 10px">
                     <div class="text-ellipses">{{member.user_info.name}}</div>
                     <div>
                         <i ng-show="!member.user_info.id && member.user_info.fbid" class="fa fa-lg fa-facebook-square text-primary"></i>
