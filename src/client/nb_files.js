@@ -233,6 +233,7 @@ nb_util.directive('nbBrowse', function() {
                     };
                     mv_scope.dialog = {
                         dir_select: true,
+                        run_caption: 'Move',
                         cancel: function() {
                             modal.modal('hide');
                         },

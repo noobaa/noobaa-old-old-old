@@ -428,6 +428,7 @@ nb_util.controller('ClubCtrl', [
                 current_inode: $scope.home_context.current_inode,
             };
             choose_scope.dialog = {
+                run_caption: 'Share',
                 cancel: function() {
                     modal.modal('hide');
                 },
