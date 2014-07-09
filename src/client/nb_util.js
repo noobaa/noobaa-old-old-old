@@ -178,8 +178,8 @@ nb_util.factory('nbUtil', [
 
         function coming_soon(event_name, description) {
             track_event('coming_soon.' + event_name);
-            alertify.log('\'' + description + '\' is coming soon!' +
-                ' We will let you know as soon as it\'s available');
+            alertify.log(description + 
+                ' will soon be available, we will let you know when.');
         }
 
         return $scope;

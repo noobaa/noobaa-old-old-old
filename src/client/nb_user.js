@@ -396,15 +396,15 @@ nb_util.factory('nbUser', [
         }
 
         function connect_facebook() {
-            alertify.log('TODO connect_facebook');
+            nbUtil.coming_soon('user.connect_facebook', 'Connecting Facebook');
         }
 
         function connect_google() {
-            alertify.log('TODO connect_google');
+            nbUtil.coming_soon('user.connect_google', 'Connecting Google');
         }
 
         function send_friend_reminder(friend) {
-            alertify.log('TODO send_friend_reminder');
+            nbUtil.coming_soon('user.send_friend_reminder', 'Sending friend reminder');
         }
 
 

@@ -450,7 +450,7 @@ nb_util.controller('ClubCtrl', [
         }
 
         function upload_files_to_club() {
-            alertify.log('TODO upload_files_to_club');
+            nbUtil.coming_soon('club.upload', 'Uploading files to club');
         }
     }
 ]);
@@ -580,7 +580,7 @@ nb_util.controller('ClubInfoCtrl', [
         };
 
         $scope.leave_club = function() {
-            alertify.log('TODO leave_club');
+            nbUtil.coming_soon('club.leave', 'Leaving club');
         };
     }
 ]);
