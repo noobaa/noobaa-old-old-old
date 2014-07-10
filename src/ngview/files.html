@@ -35,7 +35,7 @@
             <button ng-if="!dialog && select_mode" class="btn btn-default pull-right" ng-click="clear_select_mode()">
                 UNSELECT
             </button>
-            <button ng-if="!!dialog" ng-click="dialog.run(selection)" ng-disabled="dialog.run_disabled(selection)" ng-if="has_selected()" class="btn btn-success pull-right">
+            <button ng-if="!!dialog" ng-click="dialog.run(selection)" class="btn btn-success pull-right">
                 {{dialog.run_caption}}
             </button>
             <button ng-if="!!dialog" class="btn btn-default pull-right" ng-click="dialog.cancel()">

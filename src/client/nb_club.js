@@ -432,15 +432,24 @@ nb_util.controller('ClubCtrl', [
                 cancel: function() {
                     modal.modal('hide');
                 },
-                run_disabled: function() {
-                    return nbInode.is_not_mine(choose_scope.context.current_inode);
-                },
                 run: function(selection) {
+                    var i;
+                    var items = [choose_scope.context.current_inode];
+                    if (!selection.is_empty()) {
+                        items = selection.get_items();
+                    }
+                    for (i = 0; i < items.length; i++) {
+                        if (!nbInode.can_share_inode(items[i])) {
+                            alertify.error('Cannot share ' + items[i].name);
+                            return;
+                        }
+                    }
                     modal.modal('hide');
-                    // var selected = selection.get_items();
-                    send_club_message({
-                        inode: choose_scope.context.current_inode.id
-                    });
+                    for (i = 0; i < items.length; i++) {
+                        send_club_message({
+                            inode: items[i].id
+                        });
+                    }
                 }
             };
             modal = nbUtil.make_modal({

@@ -229,6 +229,15 @@ nb_util.factory('nbMultiSelect', [
             return candidate;
         };
 
+        MultiSelect.prototype.foreach = function(fn) {
+            for (var id in this._items) {
+                var ret = fn(this._items[id]);
+                if (ret) {
+                    break;
+                }
+            }
+        };
+
         MultiSelect.prototype.reset = function() {
             this._items = {};
             this._count = 0;

@@ -237,10 +237,11 @@ nb_util.directive('nbBrowse', function() {
                         cancel: function() {
                             modal.modal('hide');
                         },
-                        run_disabled: function() {
-                            return !nbInode.can_move_to_dir(mv_scope.context.current_inode);
-                        },
                         run: function() {
+                            if (!nbInode.can_move_to_dir(mv_scope.context.current_inode)) {
+                                alertify.error('Cannot move to ' + mv_scope.context.current_inode.name);
+                                return;
+                            }
                             modal.modal('hide');
                             var to_dir = mv_scope.context.current_inode;
                             console.log('RUN', selected, to_dir);
