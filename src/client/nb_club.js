@@ -58,8 +58,8 @@ nb_util.factory('nbClub', [
             });
         });
 
-
-        $q.when(nbUser.init_friends()).then(poll_clubs);
+        // a promise for controllers to know when the initial load is done
+        $scope.init_promise = $q.when(nbUser.init_friends()).then(poll_clubs);
 
 
         function poll_clubs() {
@@ -94,7 +94,7 @@ nb_util.factory('nbClub', [
 
         function merge_club(club) {
             club.mtime_date = new Date(club.mtime);
-            _.each(club.msgs, set_user_info);
+            _.each(club.msgs, set_message_info);
             var c = $scope.clubs[club._id];
             if (c) {
                 var msgs = club.msgs || [];
@@ -113,6 +113,11 @@ nb_util.factory('nbClub', [
             _.each(c.members, set_user_info);
             count_new_msgs(c);
             return c;
+        }
+
+        function set_message_info(m) {
+            set_user_info(m);
+            merge_club_inode(m);
         }
 
         function set_user_info(item) {
@@ -241,30 +246,33 @@ nb_util.factory('nbClub', [
         }
 
         function merge_club_inodes(club) {
-            _.each(club.msgs, function(m) {
-                if (!m.inode) {
-                    return;
-                }
-                m.inode = nbInode.merge_inode(m.inode);
-                if (!m.inode.not_mine) {
-                    return;
-                }
-                if (m.original_inode) {
-                    return;
-                }
-                m.original_inode = m.inode;
-                nbInode.get_ref_inode(m.inode.id).then(function(inode) {
-                    if (!inode) {
-                        console.error('no file ref', m.inode.id);
-                        return;
-                    }
-                    m.inode = nbInode.merge_inode(inode);
-                }).then(null, function(err) {
-                    m.original_inode = null;
-                });
-            });
+            _.each(club.msgs, merge_club_inode);
         }
 
+        function merge_club_inode(m) {
+            if (!m.inode) {
+                return;
+            }
+            m.inode = nbInode.merge_inode(m.inode);
+            if (!m.inode.not_mine) {
+                return;
+            }
+            if (m.original_inode) {
+                return;
+            }
+            m.original_inode = m.inode;
+            nbInode.get_ref_inode(m.inode.id).then(function(inode) {
+                if (!inode) {
+                    console.error('no file ref', m.inode.id);
+                    return;
+                }
+                m.inode = nbInode.merge_inode(inode);
+            }).then(null, function(err) {
+                console.error('FAIED MERGE CLUB INODE', err);
+                // TODO retry?
+                m.original_inode = null;
+            });
+        }
 
         function scroll_club_to_bottom() {
             return $timeout(function() {
@@ -393,14 +401,14 @@ nb_util.controller('ClubCtrl', [
         $scope.nbUser = nbUser;
         $scope.nbClub = nbClub;
 
-        var club = nbClub.activate_club($routeParams.id);
-        if (!club) {
-            return;
-        }
-        $scope.club = club;
         $scope.send_club_text = send_club_text;
         $scope.select_files_to_club = select_files_to_club;
         $scope.upload_files_to_club = upload_files_to_club;
+
+        var club;
+        nbClub.init_promise.then(function() {
+            club = $scope.club = nbClub.activate_club($routeParams.id);
+        });
 
         function send_club_message(msg) {
             $scope.sending_message = true;
@@ -472,13 +480,16 @@ nb_util.controller('ClubInfoCtrl', [
         $scope.nbUser = nbUser;
         $scope.nbClub = nbClub;
 
-
         var club;
         $scope.edit_title = {};
+
         $scope.$watch('club.title', function(value) {
             $scope.edit_title.value = value;
         });
-        init($routeParams.id);
+        
+        nbClub.init_promise.then(function() {
+            init($routeParams.id);
+        });
 
         function init(club_id) {
             if (club_id) {
@@ -605,6 +616,7 @@ nb_util.controller('ClubMemberCtrl', [
         $scope.nbUser = nbUser;
         $scope.nbClub = nbClub;
 
+        // this scope is assumed to work as an inner scope of a parent club scope
         var club = $scope.club;
 
         var members_by_id = _.indexBy(club.members, 'user');
