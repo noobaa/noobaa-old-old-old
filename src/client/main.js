@@ -11,6 +11,7 @@ require('./nb_club.js');
 require('./nb_files.js');
 require('./nb_feed.js');
 require('./nb_scenes.js');
+require('./nb_dedupe.js');
 
 // page modules
 require('./nb_home.js');

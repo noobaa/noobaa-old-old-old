@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html ng-app="nb_dedupe" lang="en">
+<head>
+    <?# def.include( 'common_head.html') ?>
+</head>
+<body>
+	 <div  ng-controller="dedupeCtrl">
+		<div>Buffer: <input type="text" ng-model="buffer" required></div>
+		<div>Hash value: {{ hasha }}</div>
+		<div>Hash value2: {{ get_hash() }}</div>
+		    <button class="btn" ng-click="get_hash()">hashhhhh</button>
+		<br/>
+	</div>
+	<div>
+	    <?# def.include( 'common_scripts.html') ?>
+	</div>
+</body>
+</html>

@@ -321,6 +321,12 @@ app.get('/thankyou', function(req, res) {
     return res.render('thankyou.html', common_api.common_server_data(req));
 });
 
+app.get('/dedupe', function(req, res) {
+    if (!req.user) {
+        return res.redirect(welcome_path);
+    }
+    return res.render('dedupe.html', common_api.common_server_data(req));
+});
 
 app.get('/blog/*', function(req, res) {
     return res.render('blog.html', common_api.common_server_data(req));
