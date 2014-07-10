@@ -556,7 +556,7 @@ nb_util.directive('nbPanelHfill', ['$timeout',
                             handle_resize();
                         }
                     }
-                    // console.log('nbPanelHfill', remain, body);
+                    // console.log('nbPanelHfill', h, hh, fh, remain, e);
                 }
             }
         };

@@ -1,7 +1,8 @@
 /******************************************************************************
     IMPORTS 
  ******************************************************************************/
- @import (less)"../../bower_components/bootstrap/less/bootstrap.less";
+
+@import (less)"../../bower_components/bootstrap/less/bootstrap.less";
  @import (less)"../../bower_components/font-awesome/less/font-awesome.less";
  @import (less)"../../bower_components/alertify.js/themes/alertify.core.css";
  @import (less)"../../bower_components/alertify.js/themes/alertify.default.css";
@@ -12,7 +13,8 @@
 /******************************************************************************
     THEME 
  ******************************************************************************/
- @gray: hsl(0, 0%, 50%);
+
+@gray: hsl(0, 0%, 50%);
  @gray-dark: darken(@gray, 20%);
  @gray-darker: darken(@gray-dark, 10%);
  @gray-light: lighten(@gray, 20%);
@@ -50,12 +52,14 @@
  @border-radius-large: 0;
  @border-radius-small: 0;
  @line-height-tall: 3em;
- // @font-family-sans-serif:'Averia Sans Libre', "Helvetica Neue", Helvetica, Arial, sans-serif;
+// @font-family-sans-serif:'Averia Sans Libre', "Helvetica Neue", Helvetica, Arial, sans-serif;
  @font-family-sans-serif:"Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+
 /**/
 
 /**/
- a, button, .btn {
+
+a, button, .btn {
     &, &:active, &:focus, &:hover {
         outline: none !important;
         text-decoration: none !important;
@@ -209,6 +213,7 @@ a.clickable {
     // border: none;
     // box-shadow: none;
     // border-bottom: 1px solid @brand-primary;
+
 }
 .bggrey {
     background-color: @gray-light;
@@ -273,6 +278,7 @@ a.clickable {
         background-color: transparent;
         border: none;
         // .btn-default;
+
     }
 }
 .btn-hover-only {
@@ -402,7 +408,7 @@ a[ng-click], a[role=button] {
         background-color: @brand-danger;
     }
 }
- .text-light {
+.text-light {
     font-weight: 200;
 }
 .fntmd {
@@ -470,7 +476,7 @@ a[ng-click], a[role=button] {
     .wfill;
 }
 .hfill {
-    min-height: 100%;
+    height: 100%;
 }
 .hfill-scroll {
     height: 100%;
@@ -563,13 +569,15 @@ a[ng-click], a[role=button] {
     templates compile.  The !important is important given that there may be 
     other selectors that are more specific or come later and might alter display.  
 */
+
 [ng\:cloak], [ng-cloak], .ng-cloak {
     display: none !important;
 }
 /**/
 
 /**/
- .fileinput-button {
+
+.fileinput-button {
     position: relative;
     overflow: hidden;
 }
@@ -588,7 +596,8 @@ a[ng-click], a[role=button] {
 /**/
 
 /**/
- .select-pulse {
+
+.select-pulse {
     opacity: 0.6;
     /*
     -webkit-animation-name: select-pulser;
@@ -691,3 +700,27 @@ a[ng-click], a[role=button] {
     }
 }
 /**/
+
+.social-sprite {
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    background-position: 0 0;
+    background-size: 160px 22px;
+    background-image: url('/public/images/sprite_social.png');
+    background-repeat: no-repeat;
+    background-color: transparent;
+    vertical-align: middle;
+}
+.social-sprite-fb {
+    background-position: 0 0;
+}
+.social-sprite-twitter {
+    background-position: 15% 0;
+}
+.social-sprite-google {
+    background-position: 66% 0;
+}
+.social-sprite-youtube {
+    background-position: 32% 0;
+}

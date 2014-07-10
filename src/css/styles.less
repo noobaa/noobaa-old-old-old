@@ -2,7 +2,8 @@
  @import (less)"welcome.less";
 
 /**/
- html, body {
+
+html, body {
     height: 100%;
     width: 100%;
     margin: 0;
@@ -17,7 +18,8 @@ body {
 /******************************************************************************
     HOME
  ******************************************************************************/
- @home-max-width: 600px;
+
+@home-max-width: 600px;
  @home-max-height: 600px;
  .app-container {
     .center-block;
@@ -105,6 +107,7 @@ body {
                 .app-view > .panel > .panel-body {
                     // border-top-width: 0;
                     // border-bottom-width: 0;
+
                 }
             }
         }
@@ -131,7 +134,8 @@ body {
 /******************************************************************************
     NAVBAR 
  ******************************************************************************/
- .navbar {
+
+.navbar {
     margin: 0;
     padding: 0;
     border-style: solid;
@@ -268,6 +272,7 @@ body {
                     // @s: 2px;
                     // @c: black;
                     // text-shadow: @d @d @s @c, -@d @d @s @c, @d -@d @s @c, -@d -@d @s @c;
+
                 }
             }
         }
@@ -276,7 +281,8 @@ body {
 /**/
 
 /* TODO remove? */
- .user-menu {
+
+.user-menu {
     .fadeIn;
     background-color: @navbar-default-bg;
     border-right: 1px solid @gray-dark;
@@ -321,7 +327,8 @@ body {
 /******************************************************************************
     CLUB 
  ******************************************************************************/
- .club-title {
+
+.club-title {
     font-size: 18px;
     line-height: 1.4em;
     vertical-align: middle;
@@ -357,6 +364,7 @@ body {
         // .bgnoise2;
         // background-color: @gray-darker;
         // padding: 10px 10px 0 10px;
+
     }
     .alert {
         .club-msg;
@@ -439,7 +447,8 @@ body {
 /******************************************************************************
     FILES 
  ******************************************************************************/
- .files-panel {
+
+.files-panel {
     height: 100%;
     margin-bottom: 0;
     > .panel-heading {
@@ -466,6 +475,7 @@ body {
                 margin: -9px -9px -9px 10px;
                 padding: 12px 15px;
                 // border-left: 1px solid @border-color;
+
             }
         }
     }
@@ -501,7 +511,8 @@ body {
 /******************************************************************************
     FRIENDS 
  ******************************************************************************/
- .friend-chooser {
+
+.friend-chooser {
     .user-image {
         width: 64px;
         height: 64px;
@@ -540,11 +551,38 @@ body {
 /******************************************************************************
     BLOG 
  ******************************************************************************/
+
+.blog-body {
+    .bgnoise2;
+    > .panel {
+        height: 100%;
+        margin-top: 0;
+        margin-bottom: 0;
+        padding: 0;
+        border: none;
+        > .panel-heading {
+            padding: 0;
+        }
+        > .panel-body {
+            padding: 0;
+            overflow-y: auto;
+            .container {
+                max-width: 1100px;
+            }
+        }
+    }
+}
 .blog-item {
     .well;
-    margin: 10px 10px;
+    border-color: @border-color-light;
+    box-shadow: none;
+    border-radius: 10px;
+    margin: 20px 0;
+    .blog-img {
+        max-width: 25%;
+    }
     hr {
-        margin: 10px -20px;
+        margin: 20px -20px;
         border-color: @border-color-light;
     }
     .blog-content p {
@@ -554,11 +592,11 @@ body {
         text-align: justify;
     }
 }
-
 /******************************************************************************
     FEED 
  ******************************************************************************/
- .feeds_container {
+
+.feeds_container {
 }
 .feed_item {
     width: 300px;
@@ -598,7 +636,8 @@ body {
 /******************************************************************************
     GENERAL 
  ******************************************************************************/
- .tour .popover-content {
+
+.tour .popover-content {
     /*background-color: rgba(50,50,50,1);*/
     /*color: white;*/
     /*background-color: rgba(255,200,0,0.6);*/

@@ -5,6 +5,9 @@ var moment = require('moment');
 
 var nb_blog = angular.module('nb_blog', [
     'ngRoute',
+    'ngAnimate',
+    'ngSanitize',
+    // 'ngTouch',
     'nb_util'
 ]);
 
@@ -121,9 +124,16 @@ nb_blog.controller('BlogCtrl', [
             $scope.blog = $scope.blogs_by_headline[headline];
             if (!$scope.blog) {
                 $scope.blog_not_found = true;
-                $timeout(function() {
-                    $location.path('/');
-                }, 3000);
+                $scope.time_to_redirect = 10;
+                var redirect_step = function() {
+                    if ($scope.time_to_redirect <= 0) {
+                        $location.path('/');
+                    } else {
+                        $scope.time_to_redirect--;
+                        $timeout(redirect_step, 1000);
+                    }
+                };
+                redirect_step();
             }
 
             /*
