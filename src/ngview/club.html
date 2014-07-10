@@ -63,7 +63,7 @@
             <div ng-repeat="msg in club.msgs track by $index" class="clearfix">
                 <div ng-if="club.seen_msg == msg._id && !$first" class="text-center club-bottom-margin">
                     <div class="clearfix"></div>
-                    <div class="alert alert-info hflow">
+                    <div class="bggray-lighter text-muted hflow">
                         <span>new messages</span>
                         <i class="fa fa-caret-up fa-lg"></i>
                     </div>
@@ -78,14 +78,11 @@
                         <span class="club-msg-time">&nbsp;{{moment(msg.time).format('HH:mm')}}</span>
                     </div>
                     <div ng-if="msg.inode">
-                        <div nb-media="msg.inode" show-content="true" autoplay="false"></div>
                         <a ng-href="files/{{msg.inode.id}}">
+                            <div nb-media="msg.inode" autoplay="false"></div>
                             <div class="text-ellipses">
                                 <i class="fa fa-{{nbUtil.icon_by_kind(msg.inode.content_kind)}} fa-fw club-msg-muted" style="margin-right: 5px"></i>
                                 <b><span style="white-space: pre-wrap">{{msg.inode.name}}</span></b>
-                            </div>
-                            <div>
-                                <span ng-show="!msg.inode.isdir" class="club-msg-muted">{{human_size(msg.inode.size)}}</span>
                                 <span class="club-msg-time">&nbsp;{{moment(msg.time).format('HH:mm')}}</span>
                             </div>
                         </a>

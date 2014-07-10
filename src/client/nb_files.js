@@ -314,7 +314,7 @@ nb_util.directive('nbMedia', ['$parse', '$timeout', 'nbInode', 'nbPlanet',
                 scope.media_open = function(inode) {
                     return nbInode.seamless_open_inode(inode);
                 };
-                scope.autoplay = scope.$eval(attr.Autoplay);
+                scope.autoplay = scope.$eval(attr.autoplay);
                 scope.media_events = scope.$eval(attr.mediaEvents) || {};
                 scope.$watch(attr.nbSubtitles, function(value) {
                     scope.media_subtitles = value;
