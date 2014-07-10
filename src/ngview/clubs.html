@@ -18,14 +18,23 @@
         <div ng-repeat="club in nbClub.clubs_arr track by $index">
             <a class="btn-line" ng-href="club/{{club._id}}">
                 <img class="pull-left user-image-lg" ng-src="{{club.logo}}" />
-                <!-- <div class="pull-right text-center" style="padding: 15px 5px 0 5px; width: 55px"></div> -->
-                <div class="hflow" style="padding-left: 20px">
+                <div class="pull-right club-num-msgs" ng-show="club.new_msgs">
+                    {{club.new_msgs}} new
+                </div>
+                <div class="hflow" style="padding: 0 20px">
                     <div class="text-ellipses club-title">{{club.title}}</div>
-                    <div>
-                        <span class="label label-success pull-right" ng-show="club.new_msgs">{{club.new_msgs}}</span>
-                        <div class="text-ellipses {{club.new_msgs && 'text-success' || 'text-muted'}}" ng-if="club.msgs.length">
-                            <i class="fa fa-fw {{club.msgs[0].user != nbUser.user.id && 'fa-caret-right fa-lg' || 'fa-check'}}"></i>
-                            <span>{{club.msgs[0].text}}</span>
+                    <div style="padding-top: 5px">
+                        <div class="text-ellipses" ng-if="club.msgs.length">
+                            <span ng-if="club.msgs[0].user==nbUser.user.id">me:</span>
+                            <span ng-if="club.msgs[0].user!=nbUser.user.id" style="color: hsl({{club.msgs[0].user_info.color}}, 70%, 55%)">
+                                {{club.msgs[0].user_info.first_name}}:
+                            </span>
+                            &nbsp;
+                            <span class="text-muted">{{club.msgs[0].text}}</span>
+                            <span class="text-muted" ng-if="club.msgs[0].inode">
+                                <i class="fa fa-{{nbUtil.icon_by_kind(club.msgs[0].inode.content_kind)}} fa-fw"></i>
+                                {{club.msgs[0].inode.name}}
+                            </span>
                         </div>
                     </div>
                 </div>
