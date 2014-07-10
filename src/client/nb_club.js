@@ -503,7 +503,11 @@ nb_util.controller('ClubInfoCtrl', [
             var update_club = nbClub.get_club_for_update(club);
             update_club.title = $scope.edit_title.value;
             return nbClub.save_club(update_club, club).then(function(saved_club) {
-                nbClub.goto_club(saved_club._id);
+                if ($scope.is_new) {
+                    nbClub.goto_clubs();
+                } else {
+                    nbClub.goto_club(saved_club._id);
+                }
             });
         };
 
