@@ -10,7 +10,7 @@ var nb_home = angular.module('nb_home', [
     'ngRoute',
     'ngAnimate',
     'ngSanitize',
-    // 'ngTouch',
+    'ngTouch',
     'nb_util'
 ]);
 

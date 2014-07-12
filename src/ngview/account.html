@@ -14,21 +14,9 @@
     <div class="panel-body clearfix">
         <div>
 
-            <div class="line headline">STORAGE</div>
+            <div class="line headline">ACCOUNT SETTINGS</div>
             <hr class="headline" />
-            <div class="line line-p1 clickable" ng-click="click_usage()">
-                <span>Using {{human_size(nbUser.user_usage)}} of {{human_size(nbUser.user_quota)}}</span>
-                <div class="progress text-center pull-right" style="width: 100px; margin: 0; position: relative">
-                    <div class="progress-bar progress-bar-{{nbUser.usage_percents < 70 && 'success' || usage_percents < 90 && 'warning' || 'danger'}}" role="progressbar" aria-valuenow="{{nbUser.usage_percents}}" aria-valuemin="0" aria-valuemax="100" style="width: {{nbUser.usage_percents}}%">
-                    </div>
-                    <div class="cover">{{nbUser.usage_percents.toFixed(0)}}%</div>
-                </div>
-            </div>
-            <hr />
 
-
-            <div class="line headline">CONNECTED DEVICES</div>
-            <hr class="headline" />
             <div ng-if="nbPlanet.on">
                 <a class="line line-p1 clickable" ng-click="show_client_expansion()">
                     <i class="fa fa-desktop fa-fw"></i>
@@ -41,18 +29,30 @@
             </div>
             <a class="line line-p1 clickable" ng-click="show_client_installation()">
                 Download desktop client
+                <div class="text-muted" style="padding-top: 10px">
+                    <i class="fa fa-angle-double-right fa-fw"></i>
+                    Install the client on your desktop to add co-shared storage to your account
+                </div>
             </a>
             <hr />
-            <div class="line line-p1 text-muted">
-                <i class="fa fa-info-circle fa-fw fa-lg"></i>
-                Install the client on your desktop to add co-shared storage to your account
+
+            <div class="line line-p1 clickable" ng-click="click_usage()">
+                <span>Using {{human_size(nbUser.user_usage)}} of {{human_size(nbUser.user_quota)}}</span>
+                <div class="progress text-center pull-right" style="width: 100px; margin: 0; position: relative">
+                    <div class="progress-bar progress-bar-{{nbUser.usage_percents < 70 && 'success' || usage_percents < 90 && 'warning' || 'danger'}}" role="progressbar" aria-valuenow="{{nbUser.usage_percents}}" aria-valuemin="0" aria-valuemax="100" style="width: {{nbUser.usage_percents}}%">
+                    </div>
+                    <div class="cover">{{nbUser.usage_percents.toFixed(0)}}%</div>
+                </div>
             </div>
+            <hr />
 
-
-            <div class="line headline">CONTACT US</div>
-            <hr class="headline" />
             <a class="line line-p1 clickable" ng-click="nbUserFeedback.show()">
                 Send Feedback
+            </a>
+            <hr />
+
+            <a class="line line-p1 clickable" ng-click="nbUser.logout()">
+                Log out
             </a>
             <hr />
 
