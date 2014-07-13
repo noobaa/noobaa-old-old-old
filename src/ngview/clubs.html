@@ -15,15 +15,23 @@
     </div>
 
     <div class="panel-body">
-        <div ng-repeat="club in nbClub.clubs_arr track by $index">
-            <a class="btn-line" ng-href="club/{{club._id}}">
-                <img class="pull-left user-image-lg" ng-src="{{club.logo}}" />
-                <div class="pull-right club-num-msgs" ng-show="club.new_msgs">
-                    {{club.new_msgs}} new
-                </div>
-                <div class="hflow" style="padding: 0 20px">
-                    <div class="text-ellipses club-title">{{club.title}}</div>
-                    <div style="padding-top: 5px">
+        <div>
+            <div ng-repeat="club in nbClub.clubs_arr track by $index">
+                <a ng-href="club/{{club._id}}" ng-style="club.style" style="display: block; padding: 20px" class="bgnoise2">
+                    <div class="text-center club-title" style="height: 40vh; vertical-align: middle">
+                        <img style="width: 0; height: 100%" />{{club.title}}
+                    </div>
+                    <div>
+                        <div class="pull-right" style="margin-left: 20px">
+                            <span ng-show="club.new_msgs">
+                                <i class="fa fa-bell fa-fw fa-lg"></i>
+                                {{club.new_msgs}} &nbsp;
+                            </span>
+                            <span ng-show="club.msgs.length">
+                                <i class="fa fa-comment fa-fw fa-lg"></i>
+                                {{club.msgs.length}}
+                            </span>
+                        </div>
                         <div class="text-ellipses" ng-if="club.msgs.length">
                             <span ng-if="club.msgs[0].user==nbUser.user.id">me:</span>
                             <span ng-if="club.msgs[0].user!=nbUser.user.id" style="color: hsl({{club.msgs[0].user_info.color}}, 70%, 55%)">
@@ -37,10 +45,10 @@
                             </span>
                         </div>
                     </div>
-                </div>
-            </a>
+                </a>
+                <hr/>
+            </div>
         </div>
-
     </div>
 
 </div>

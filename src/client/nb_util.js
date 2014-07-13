@@ -178,7 +178,7 @@ nb_util.factory('nbUtil', [
 
         function coming_soon(event_name, description) {
             track_event('coming_soon.' + event_name);
-            alertify.log(description + 
+            alertify.log(description +
                 ' will soon be available, we will let you know when.');
         }
 
@@ -404,7 +404,7 @@ nb_util.directive('nbVideo', ['$parse', '$timeout',
                 var content_type = attr.nbVideo;
                 console.log('VIDEO TYPE', content_type);
                 if (scope.autoplay) {
-                    element.attr('autoplay','autoplay');
+                    element.attr('autoplay', 'autoplay');
                 }
                 if (content_type === 'video/x-matroska') {
                     return;
@@ -502,7 +502,6 @@ nb_util.directive('nbAutoHeight', ['$timeout',
                 height = min;
             }
             e.height(height);
-            e.focus();
             e.parent().trigger('resize');
         }
         return {
@@ -515,13 +514,26 @@ nb_util.directive('nbAutoHeight', ['$timeout',
                 var min = e[0].scrollHeight;
                 e.val(tmp);
                 tmp = null;
-                element.bind('keydown', function(event) {
-                    update_height($(event.target), min);
-                });
-                // Expand as soon as it is added to the DOM
-                $timeout(function() {
-                    update_height(e, min);
-                }, 0);
+                var update_timeout = null;
+                var do_update = function() {
+                    if (!update_timeout) {
+                        update_timeout = $timeout(function() {
+                            update_height(e, min);
+                            update_timeout = null;
+                        }, 1);
+                    }
+                };
+                if (attr.nbAutoHeight) {
+                    scope.$watch(attr.nbAutoHeight, do_update);
+                } else {
+                    // Update on relevant element events
+                    e.on('keydown', do_update);
+                    e.on('change', do_update);
+                    e.on('focus', do_update);
+                    e.on('blur', do_update);
+                }
+                // Update as soon as it is added to the DOM
+                do_update();
             }
         };
     }

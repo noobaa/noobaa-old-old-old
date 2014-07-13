@@ -109,6 +109,10 @@ nb_util.factory('nbClub', [
                 c = club;
                 $scope.clubs[c._id] = c;
                 // console.log('GOT NEW CLUB', c);
+                c.style = {
+                    backgroundColor: 'hsl(' + Math.random() * 360 + ', 55%, 45%)',
+                    color: 'white'
+                };
             }
             _.each(c.members, set_user_info);
             count_new_msgs(c);
@@ -404,6 +408,7 @@ nb_util.controller('ClubCtrl', [
         $scope.send_club_text = send_club_text;
         $scope.select_files_to_club = select_files_to_club;
         $scope.upload_files_to_club = upload_files_to_club;
+        $scope.msg_style = msg_style;
 
         var club;
         nbClub.init_promise.then(function() {
@@ -469,6 +474,15 @@ nb_util.controller('ClubCtrl', [
         function upload_files_to_club() {
             nbUtil.coming_soon('club.upload', 'Uploading files to club');
         }
+
+        function msg_style(msg) {
+            var s = {};
+            if (msg.inode) {
+                s.background = 'center center/cover no-repeat scroll url(\'' +
+                    nbInode.fobj_get_url(msg.inode) + '\')';
+            }
+            return s;
+        }
     }
 ]);
 
@@ -486,7 +500,7 @@ nb_util.controller('ClubInfoCtrl', [
         $scope.$watch('club.title', function(value) {
             $scope.edit_title.value = value;
         });
-        
+
         nbClub.init_promise.then(function() {
             init($routeParams.id);
         });
