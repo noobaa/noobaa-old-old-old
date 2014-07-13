@@ -191,8 +191,13 @@ nb_util.factory('nbUser', [
         };
 
         $scope.logout = function() {
-            nbUtil.track_event('user.logout').then(function() {
-                $window.location.href = '/auth/logout/';
+            alertify.confirm('Are you sure you want to logout?', function(res) {
+                if (!res) {
+                    return;
+                }
+                nbUtil.track_event('user.logout').then(function() {
+                    $window.location.href = '/auth/logout/';
+                });
             });
         };
 
