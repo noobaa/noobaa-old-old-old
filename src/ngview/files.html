@@ -1,7 +1,7 @@
 <div class="panel files-panel {{dialog && 'files-dialog'}}" nb-panel-hfill>
 
-    <div class="panel-heading navbar navbar-default clearfix">
-        <div>
+    <div class="panel-heading navbar navbar-default">
+        <div class="clearfix">
 
             <div ng-if="!dialog && select_mode" class="btn-group pull-right">
                 <a ng-disabled="selection_menu_disabled()" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
@@ -151,6 +151,10 @@
                 </div>
             </div>
 
+        </div>
+        <div class="progress" style="height: 5px; margin: 0">
+            <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="{{current_inode.is_loading && '100' || '0'}}" aria-valuemin="0" aria-valuemax="100" style="width: {{current_inode.is_loading && '100' || '0'}}%">
+            </div>
         </div>
     </div>
 

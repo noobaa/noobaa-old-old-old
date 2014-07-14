@@ -2,7 +2,10 @@
 
     <div class="panel-heading navbar navbar-default clearfix">
         <div>
-            <img class="user-image pull-left" ng-src="{{nbUser.user_pic_url(nbUser.user)}}" />
+            <a class="btn btn-link pull-left" href="club/" style="margin-right: 10px">
+                <img class="user-image" ng-src="{{nbUser.user_pic_url(nbUser.user)}}" />
+            </a>
+            <a class="btn btn-link pull-right close" href="club/" style="margin-left: 10px">&times;</a>
             <div class="hflow">
                 <div class="navbar-text text-left text-ellipses text-color">
                     {{nbUser.user.name}}
@@ -18,7 +21,7 @@
             <hr class="headline" />
 
             <div ng-if="nbPlanet.on">
-                <a class="line line-p1 clickable" ng-click="show_client_expansion()">
+                <a class="line clickable" ng-click="show_client_expansion()">
                     <i class="fa fa-desktop fa-fw"></i>
                     <i>{{nbPlanet.planet_device.host_info.hostname}}</i>
                     <span class="badge pull-right" style="font-size: 15px">
@@ -27,7 +30,7 @@
                 </a>
                 <hr />
             </div>
-            <a class="line line-p1 clickable" ng-click="show_client_installation()">
+            <a class="line clickable" ng-click="show_client_installation()">
                 Download desktop client
                 <div class="text-muted" style="padding-top: 10px">
                     <i class="fa fa-angle-double-right fa-fw"></i>
@@ -36,7 +39,7 @@
             </a>
             <hr />
 
-            <div class="line line-p1 clickable" ng-click="click_usage()">
+            <div class="line clickable" ng-click="click_usage()">
                 <span>Using {{human_size(nbUser.user_usage)}} of {{human_size(nbUser.user_quota)}}</span>
                 <div class="progress text-center pull-right" style="width: 100px; margin: 0; position: relative">
                     <div class="progress-bar progress-bar-{{nbUser.usage_percents < 70 && 'success' || usage_percents < 90 && 'warning' || 'danger'}}" role="progressbar" aria-valuenow="{{nbUser.usage_percents}}" aria-valuemin="0" aria-valuemax="100" style="width: {{nbUser.usage_percents}}%">
@@ -46,12 +49,12 @@
             </div>
             <hr />
 
-            <a class="line line-p1 clickable" ng-click="nbUserFeedback.show()">
+            <a class="line clickable" ng-click="nbUserFeedback.show()">
                 Send Feedback
             </a>
             <hr />
 
-            <a class="line line-p1 clickable" ng-click="nbUser.logout()">
+            <a class="line clickable" ng-click="nbUser.logout()">
                 Log out
             </a>
             <hr />

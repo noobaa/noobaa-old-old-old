@@ -22,12 +22,14 @@ body {
 @home-max-width: 600px;
  @home-max-height: 600px;
  .app-container {
-    .center-block;
-    max-width: @home-max-width;
+    // .center-block;
+    // max-width: @home-max-width;
+
 }
 .app-bg {
-    background-color: @body-bg;
-    .bgnoise2;
+    // background-color: @body-bg;
+    // .bgnoise2;
+
 }
 .app-body {
     hr {
@@ -50,6 +52,8 @@ body {
         width: 100%;
     }
     .app-panel {
+        max-width: @home-max-width;
+        .center-block;
         height: 100%;
         margin-top: 0;
         margin-bottom: 0;
@@ -78,9 +82,14 @@ body {
         }
         > .panel-body {
             .app-bg;
-            border-top: 1px solid @border-color-light;
-            border-bottom: 1px solid @border-color-light;
+            // border-top: 1px solid @border-color-light;
+            // border-bottom: 1px solid @border-color-light;
             overflow-y: auto;
+            > div {
+                // border-left: 1px solid @border-color-light;
+                // border-right: 1px solid @border-color-light;
+
+            }
         }
     }
     .feed-panel {
@@ -138,11 +147,8 @@ body {
 .navbar {
     margin: 0;
     padding: 0;
-    border-style: solid;
-    border-color: @gray-light;
-    border-width: 0;
-    border-radius: 0;
-    .bgnoise2;
+    border: none;
+    .bgnoise1;
     position: static;
     z-index: 0;
     line-height: 40px;
@@ -343,6 +349,10 @@ body {
         text-align: left;
         font-style: italic;
     }
+    .club-title {
+        font-size: 24px;
+        line-height: 1.4em;
+    }
 }
 .club-info {
     > .panel-body {
@@ -351,7 +361,10 @@ body {
 }
 .club-panel {
     .club-input {
+        .clearfix;
+        border: 1px solid @border-color-light;
         padding: 0;
+        margin: 0;
         .club-msg-btn {
             padding: 5px;
         }
@@ -430,7 +443,7 @@ body {
 .club-msg-user {
     .club-msg;
     float: left;
-    @c: hsl(0, 0%, 100%);
+    @c: hsl(0, 0%, 99%);
     color: @gray-darker;
     // box-shadow: 0 1px 2px hsl(0, 0%, 60%);
     border-color: @c;

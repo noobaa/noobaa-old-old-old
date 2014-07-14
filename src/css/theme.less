@@ -19,9 +19,10 @@
  @gray-darker: darken(@gray-dark, 10%);
  @gray-light: lighten(@gray, 20%);
  @gray-lighter: lighten(@gray-light, 15%);
- @body-bg: hsl(0, 0%, 90%);
+// @body-bg: hsl(0, 0%, 90%);
+ @body-bg: hsl(0, 0%, 100%);
  @border-color: hsl(0, 0%, 40%);
- @border-color-light: darken(@body-bg, 15%);
+ @border-color-light: darken(@body-bg, 20%);
  @text-color: hsl(0, 0%, 5%);
  @link-color: hsl(0, 0%, 25%);
  @brand-primary: hsl(202, 83%, 47%);
@@ -41,7 +42,7 @@
  @panel-default-heading-bg: white;
  @modal-content-bg: white;
  @navbar-default-color: @text-color;
- @navbar-default-bg: darken(@body-bg, 30%);
+ @navbar-default-bg: white;
  @navbar-default-border: @border-color;
  @navbar-inverse-color: @text-color;
  @navbar-inverse-bg: darken(@body-bg, 30%);
@@ -69,7 +70,7 @@ a, button, .btn {
     color: darken(@link-color, 20%);
 }
 .hover-style {
-    background-color: lighten(@brand-success, 40%);
+    background-color: fade(black, 5%);
     .bgnoise2;
 }
 .active-style {
@@ -119,7 +120,7 @@ hr {
     .clearfix;
     display: block;
     position: relative;
-    padding: 10px 20px;
+    padding: 20px 10px;
     &:not(.active).clickable:hover {
         .hover-style;
     }
@@ -131,21 +132,22 @@ hr {
         font-size: 1.15em;
     }
 }
-.btn.btn-default:hover {
-    .hover-style;
-}
 .line-p1 {
-    padding: 15px 20px;
-}
-.line-p2 {
-    padding: 25px 20px;
+    padding: 30px 10px;
 }
 hr.headline {
     border-width: 3px;
 }
 .dropdown-menu {
+    padding: 0;
+    border: 1px solid @border-color-light;
+    box-shadow: 0 0 10px 3px @border-color;
+    > li.divider {
+        margin: 0;
+        border-color: @border-color-light;
+    }
     > li > a {
-        padding: 15px;
+        padding: 20px;
         > .fa {
             .fa-lg;
             margin-right: 10px;
@@ -307,7 +309,7 @@ a.clickable {
 .transition-slow {
     .transition-time(1.5s);
 }
-button.close {
+button.close, a.close {
     font-size: 40px;
     /*line-height: 25px;*/
     font-weight: 100;
@@ -342,6 +344,7 @@ button.close {
     display: block;
 }
 .user-image {
+    .img-circle;
     width: 32px;
     height: 32px;
     vertical-align: middle;

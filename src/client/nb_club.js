@@ -86,8 +86,10 @@ nb_util.factory('nbClub', [
                 $scope.last_poll = clubs[0].mtime;
                 console.log('POLL', clubs.length, $scope.last_poll);
             })['finally'](function() {
-                $scope.poll_in_progress = null;
-                $scope.poll_timeout = $timeout(poll_clubs, 10000);
+                $scope.poll_in_progress = $timeout(function() {
+                    $scope.poll_in_progress = null;
+                    $scope.poll_timeout = $timeout(poll_clubs, 10000);
+                }, 500); // short delay for view transitions
             });
             return $scope.poll_in_progress;
         }
@@ -480,6 +482,9 @@ nb_util.controller('ClubCtrl', [
             if (msg.inode) {
                 s.background = 'center center/cover no-repeat scroll url(\'' +
                     nbInode.fobj_get_url(msg.inode) + '\')';
+                s.color = 'white';
+                s.marginTop = s.marginBottom = '1px';
+                s.height = '2cm';
             }
             return s;
         }
