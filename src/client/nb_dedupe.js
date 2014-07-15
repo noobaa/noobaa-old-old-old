@@ -11,6 +11,7 @@ nb_dedupe.controller('dedupeCtrl', [
 
         $scope.mbuffer = $scope.buffer = "LORD FIRE";
         $scope.mhasha = $scope.hasha = dedupeSrv.calc_hash_for_buff($scope.buffer);
+        $scope.match_found = null;
 
         $scope.buff_change = function() {
             console.log('in buff change');
@@ -19,10 +20,8 @@ nb_dedupe.controller('dedupeCtrl', [
 
         $scope.check_hash = function(buff) {
             console.log(buff);
-            return dedupeSrv.check_hash_existance(
-                dedupeSrv.calc_hash_for_buff($scope.buffer),
-                buff.length
-            );
+            $scope.match_found = dedupeSrv.check_hash_existance(buff);
+            return;
         };
     }
 ]);
@@ -37,23 +36,57 @@ nb_dedupe.factory('dedupeSrv', [
 
         };
 
-        var check_hash_existance = function(hash, size) {
+        var check_hash_existance = function(buff) {
+            var lparams = {
+                hash: calc_hash_for_buff(buff),
+                size: buff.length
+            };
             return $http({
                 method: 'GET',
                 url: '/api/hash/',
-                params: {
-                    hash: hash,
-                    size: size
-                }
+                params: lparams
             }).then(function(res) {
                 console.log(res);
-                // if (!res.data.found_hash_match){
-                //     return false;
-                // }
-                
+                if (!res.data.found_hash_match) {
+                    console.log('Match not found. Need help on how to handle.');
+                    return;
+                }
+                // lparams.range_offset
+                check_buff_sample(buff,
+                    lparams.hash,
+                    res.data.range_offset,
+                    res.data.range_size);
             }, function(err) {
                 console.error('FAILED GET HASH', err);
             });
+        };
+
+        var check_buff_sample = function(buff, hash, range_offset, range_size) {
+            console.log('in check_buff_sample');
+            var lparams = {
+                hash: calc_hash_for_buff(buff),
+                size: buff.length,
+                sample: sample_buffer(buff, range_offset, range_size)
+            };
+            console.log(lparams);
+            return $http({
+                method: 'GET',
+                url: '/api/hash/',
+                params: lparams
+            }).then(function(res) {
+                console.log(res);
+                // if (!res.data.found_hash_match) {
+                //     console.log('Match not found. Need help on how to handle.');
+                //     return;
+                // }
+            }, function(err) {
+                console.error('FAILED GET HASH', err);
+            });
+
+        };
+        var sample_buffer = function(buff, offset, length) {
+            console.log('currently returning the buff as is. Need to cut it');
+            return buff;
         };
 
         return {

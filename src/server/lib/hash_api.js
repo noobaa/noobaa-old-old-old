@@ -21,12 +21,26 @@ exports.hash_query = function(req, res) {
 				.exec(next);
 		},
 		function(matching_fobj, next) {
-			var found = matching_fobj ? true : false;
+			// didn't find a matching object - no dedupe
+			if (!matching_fobj) {
+				return next(null, {
+					found_hash_match: false,
+				});
+			}
+			//found matching object - provide info to send sample
+			if (!req.query.sample) {
+				return next(null, {
+					found_hash_match: true,
+					range_offset: generate_range_offset_from_id(matching_fobj._id),
+					range_size: generate_range_size_from_id(matching_fobj._id),
+				});
+			}
+			//found matching object and sample provided
 			return next(null, {
-				found_hash_match: found,
-				range_offset: matching_fobj ? generate_range_offset_from_id(matching_fobj._id) : null,
-				range_size: matching_fobj ? generate_range_size_from_id(matching_fobj._id) : null,
+				found_hash_match: true,
+				sample_match: sample_compare(req.query.sample, matching_fobj.sample_data)
 			});
+
 		},
 	], common_api.reply_callback(req, res, 'Hash query'));
 };
@@ -37,4 +51,9 @@ function generate_range_offset_from_id(object_id) {
 
 function generate_range_size_from_id(object_id) {
 	return 4096;
+}
+
+function sample_compare(buff1, buff2){
+	//not sure how to compare
+	return false;
 }
