@@ -1,60 +1,35 @@
-<div class="club-panel Xpanel" Xnb-panel-hfill>
+<div class="club-panel navbar-top-pad">
 
-    <!-- 
-    <div class="Xpanel-heading">
-        <div class="navbar navbar-default navbar-fixed-top club-bg" ng-style="club.style">
-            <div class="clearfix">
-                <!- - 
-            <a class="btn btn-link btn-back pull-left" href="club/">
-                <i class="fa fa-angle-left"></i>
-            </a>
-            <img class="user-image pull-left" ng-src="{{club.logo}}" />
-
-            <div class="hflow">
-                <div class="navbar-text text-left text-ellipses text-color">{{club.title}}</div>
-            </div>
-         - ->
-                <div class="btn-group pull-right">
-                    <a class="btn navbar-btn btn-link dropdown-toggle" data-toggle="dropdown">
-                        <i class="fa fa-fw fa-lg fa-bars"></i>
-                    </a>
-                    <ul class="dropdown-menu" role="menu">
-                        <li>
-                            <!- - <a ng-href="club/info/{{club._id}}"> - ->
-                            <a ng-click="info_mode=!info_mode">
-                                <i class="fa fa-info-circle"></i>
-                                <span>Club info and members</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-                <div class="hflow text-center" ng-if="!info_mode">
-                    <div class="navbar-text text-ellipses">
-                        <span class="Xclub-title">{{club.title}}</span>
-                    </div>
-                </div>
-            </div>
-            <div class="progress">
-                <div class="progress-bar progress-bar-striped active {{nbClub.poll_in_progress || 'hidden'}}" role="progressbar" aria-valuenow="{{nbClub.poll_progress_percent}}" aria-valuemin="0" aria-valuemax="100" style="width: {{nbClub.poll_progress_percent}}%">
-                </div>
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="clearfix">
+            <div ng-include="'action_bar_nav.html'" class="pull-left"></div>
+            <div class="pull-right">
+                <button class="btn btn-link navbar-btn" ng-click="nbClub.poll_clubs()">
+                    <i class="fa fa-repeat fa-lg fa-lg"></i>
+                </button>
+                <a class="btn btn-link navbar-btn" href="club/">
+                    <span class="close">&times;</span>
+                </a>
             </div>
         </div>
-    </div>
- -->
+        <div ng-include="'action_bar_progress.html'"></div>
+    </nav>
 
-    <div class="Xpanel-body">
+    <div class="view-animate-area">
 
-        <div ng-style="club.style" class="club-bg clearfix" style="padding: 0 10px">
+        <div ng-style="club.style" class="club-bg clearfix" style="padding: 10px">
             <div class="pull-right">
-                <a ng-show="info_mode" ng-click="info_mode=!info_mode" class="close">&times;</a>
-                <a ng-hide="info_mode" ng-click="info_mode=!info_mode" class="close-nofont">
+                <a ng-show="info_mode" ng-click="info_mode=!info_mode">
+                    <i class="fa fa-check fa-lg"></i>
+                </a>
+                <a ng-hide="info_mode" ng-click="info_mode=!info_mode">
                     <span class="fa-stack">
                         <i class="fa fa-circle-thin fa-stack-2x"></i>
                         <i class="fa fa-info fa-stack-1x"></i>
                     </span>
                 </a>
             </div>
-            <div class="text-center club-title hflow" style="padding: 10px 0; vertical-align: middle">
+            <div class="text-center club-title hflow" style="vertical-align: middle">
                 <!-- <img style="width: 0; height: 100%" src="" /> -->
                 <textarea dir="auto" ng-if="info_mode && club.admin" placeholder="Enter club title (e.g. fight club)" ng-model="edit_title.value" nb-enter="update_title()" ng-blur="update_title()" nb-auto-height="edit_title.value" nb-focus="true" class="inner-input text-center" style="display: inline-block; width: 98%; background-color: hsla(0,0%,0%,0.1); min-height: 2cm"></textarea>
                 <span ng-if="!info_mode || !club.admin">{{club.title}}</span>
@@ -177,8 +152,7 @@
                 <!-- <hr /> -->
             </div>
         </div>
-    </div>
 
-</div>
+    </div>
 
 </div>

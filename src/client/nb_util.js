@@ -182,6 +182,14 @@ nb_util.factory('nbUtil', [
                 ' will soon be available, we will let you know when.');
         }
 
+        /*
+        function set_content_template(opt) {
+            var html = opt.html || $templateCache.get(opt.template);
+            var scope = opt.scope || $rootScope.$new();
+            $scope.content[opt.name] = $compile(html)(scope);
+        }
+        */
+
         return $scope;
 
     }

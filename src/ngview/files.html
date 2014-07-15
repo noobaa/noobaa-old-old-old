@@ -1,120 +1,131 @@
-<div class="Xpanel files-panel {{dialog && 'files-dialog'}}" Xnb-panel-hfill ng-init="activity={title:'FILES'}">
+<div class="files-panel navbar-top-pad {{dialog && 'hfill-scroll'}}">
 
-<!-- 
-    <div class="Xpanel-heading navbar navbar-default navbar-fixed-top">
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
         <div class="clearfix">
-
-            <div ng-if="!dialog && select_mode" class="btn-group pull-right">
-                <a ng-disabled="selection_menu_disabled()" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                    ACTIONS
-                    <i class="fa fa-caret-down"></i>
-                </a>
-                <ul class="dropdown-menu" role="menu">
-                    <li class="text-center">
-                        <span class="badge">{{num_selected()}} items selected</span>
-                    </li>
-                    <li>
-                        <a ng-click="share_inodes_with_club()">
-                            <i class="fa fa-cube"></i>
-                            <span>Share with CLUB</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a ng-click="move_inodes()">
-                            <i class="fa fa-arrows"></i>
-                            Move items
-                        </a>
-                    </li>
-                    <li>
-                        <a ng-click="delete_inodes()">
-                            <i class="fa fa-trash-o"></i>
-                            Delete items
-                        </a>
-                    </li>
-                </ul>
+            <div ng-if="!!dialog" class="text-center">
+                <button class="btn btn-default navbar-btn" ng-click="dialog.cancel()">
+                    CANCEL
+                </button>
+                <button ng-click="dialog.run(selection)" class="btn btn-success navbar-btn">
+                    {{dialog.run_caption}}
+                </button>
             </div>
-            <button ng-if="!dialog && select_mode" class="btn btn-default pull-right" ng-click="clear_select_mode()">
-                UNSELECT
-            </button>
-            <button ng-if="!!dialog" ng-click="dialog.run(selection)" class="btn btn-success pull-right">
-                {{dialog.run_caption}}
-            </button>
-            <button ng-if="!!dialog" class="btn btn-default pull-right" ng-click="dialog.cancel()">
-                CANCEL
-            </button>
-            <div ng-if="!dialog && !select_mode" class="btn-group pull-right">
-                <a class="btn btn-link dropdown-toggle" data-toggle="dropdown" Xng-click="toggle_select_mode()">
-                    <i class="fa fa-fw fa-2x fa-bars"></i>
-                </a>
-                <ul class="dropdown-menu" role="menu">
-                    <li ng-if="nbInode.can_share_inode(current_inode)">
-                        <a ng-click="share_inode_with_club(current_inode)">
-                            <i class="fa fa-cube"></i>
-                            <span>Share with CLUB</span>
-                        </a>
-                    </li>
-                    <li ng-if="nbInode.can_keep_inode(current_inode)">
-                        <a ng-disabled="current_inode.running_keep || current_inode.done_keep" ng-click="keep_inode(current_inode)">
-                            <i class="fa fa-{{current_inode.done_keep && 'check' || 'plus'}}"></i>
-                            <span>Keep</span>
-                        </a>
-                    </li>
 
-                    <li ng-if="nbInode.can_share_inode(current_inode) || nbInode.can_keep_inode(current_inode)" class="divider"></li>
+            <div ng-if="!dialog">
 
-                    <div nb-if-replace="current_inode.isdir">
-                        <li ng-if="!!current_inode.id && entries.length">
-                            <a ng-click="set_select_mode()">
-                                <i class="fa fa-square-o"></i>
-                                <span>Select Items</span>
+                <div ng-include="'action_bar_nav.html'" class="pull-left"></div>
+
+                <div class="pull-right">
+                    <div ng-if="select_mode">
+                        <button class="btn btn-link navbar-btn" ng-click="clear_select_mode()">
+                            <i class="fa fa-check fa-lg fa-fw text-lighter"></i>
+                        </button>
+                        <button class="btn btn-link navbar-btn" ng-click="share_inodes_with_club()">
+                            <i class="fa fa-share-alt fa-lg fa-fw"></i>
+                        </button>
+                        <div class="btn-group">
+                            <a ng-disabled="selection_menu_disabled()" class="btn btn-link navbar-btn dropdown-toggle" data-toggle="dropdown">
+                                <i class="fa fa-ellipsis-v fa-lg fa-fw"></i>
                             </a>
-                        </li>
-                        <li ng-if="nbInode.can_upload_to_dir(current_inode)">
-                            <a ng-click="nbUploadSrv.open_file_input()">
-                                <i class="fa fa-cloud-upload"></i>
-                                <span>Upload Files</span>
-                            </a>
-                        </li>
-                        <li ng-if="nbInode.can_upload_to_dir(current_inode)">
-                            <a ng-click="nbInode.new_folder(current_inode)">
-                                <span class="fa-stack">
-                                    <i class="fa fa-folder fa-stack-2x"></i>
-                                    <i class="fa fa-plus fa-stack-1x fa-inverse"></i>
-                                </span>
-                                <span>New Folder</span>
-                            </a>
-                        </li>
+                            <ul class="dropdown-menu pull-right" role="menu">
+                                <li class="text-center">
+                                    <span class="badge">{{num_selected()}} items selected</span>
+                                </li>
+                                <li>
+                                    <a ng-click="share_inodes_with_club()">
+                                        <i class="fa fa-cube"></i>
+                                        <span>Share with CLUB</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a ng-click="move_inodes()">
+                                        <i class="fa fa-arrows"></i>
+                                        Move items
+                                    </a>
+                                </li>
+                                <li>
+                                    <a ng-click="delete_inodes()">
+                                        <i class="fa fa-trash-o"></i>
+                                        Delete items
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
 
-                    <li ng-if="!current_inode.isdir && !current_inode.uploading && current_inode.size">
-                        <a href="{{nbInode.download_url(current_inode)}}" download="{{current_inode.name}}" target="_blank">
-                            <i class="fa fa-cloud-download"></i>
-                            <span>Download</span>
+                    <div ng-if="!select_mode" class="btn-group">
+                        <a class="btn btn-link navbar-btn dropdown-toggle" data-toggle="dropdown" Xng-click="toggle_select_mode()">
+                            <i class="fa fa-fw fa-lg fa-bars"></i>
                         </a>
-                    </li>
-                    <li ng-if="nbInode.can_upload_file(current_inode)">
-                        <a ng-click="resume_upload(current_inode)">
-                            <i class="fa fa-cloud-upload"></i>
-                            <span>Resume Upload</span>
-                        </a>
-                    </li>
-                    <li ng-if="!current_inode.ref_owner && nbInode.can_change_inode(current_inode)">
-                        <a ng-click="nbInode.rename_inode(current_inode)">
-                            <i class="fa fa-pencil fa-rotate-270"></i>
-                            Rename
-                        </a>
-                    </li>
+                        <ul class="dropdown-menu pull-right" role="menu">
+                            <li ng-if="nbInode.can_share_inode(current_inode)">
+                                <a ng-click="share_inode_with_club(current_inode)">
+                                    <i class="fa fa-cube"></i>
+                                    <span>Share with CLUB</span>
+                                </a>
+                            </li>
+                            <li ng-if="nbInode.can_keep_inode(current_inode)">
+                                <a ng-disabled="current_inode.running_keep || current_inode.done_keep" ng-click="keep_inode(current_inode)">
+                                    <i class="fa fa-{{current_inode.done_keep && 'check' || 'plus'}}"></i>
+                                    <span>Keep</span>
+                                </a>
+                            </li>
 
-                    <li ng-if="current_inode.isdir && !!current_inode.id" class="divider"></li>
+                            <li ng-if="nbInode.can_share_inode(current_inode) || nbInode.can_keep_inode(current_inode)" class="divider"></li>
 
-                    <li>
-                        <a ng-click="refresh_current('force')">
-                            <i class="fa fa-repeat"></i>
-                            <span>Refresh</span>
-                        </a>
-                    </li>
+                            <div nb-if-replace="current_inode.isdir">
+                                <li ng-if="!!current_inode.id && entries.length">
+                                    <a ng-click="set_select_mode()">
+                                        <i class="fa fa-square-o"></i>
+                                        <span>Select Items</span>
+                                    </a>
+                                </li>
+                                <li ng-if="nbInode.can_upload_to_dir(current_inode)">
+                                    <a ng-click="nbUploadSrv.open_file_input()">
+                                        <i class="fa fa-cloud-upload"></i>
+                                        <span>Upload Files</span>
+                                    </a>
+                                </li>
+                                <li ng-if="nbInode.can_upload_to_dir(current_inode)">
+                                    <a ng-click="nbInode.new_folder(current_inode)">
+                                        <span class="fa-stack">
+                                            <i class="fa fa-folder fa-stack-2x"></i>
+                                            <i class="fa fa-plus fa-stack-1x fa-inverse"></i>
+                                        </span>
+                                        <span>New Folder</span>
+                                    </a>
+                                </li>
+                            </div>
 
-                    <!- - 
+                            <li ng-if="!current_inode.isdir && !current_inode.uploading && current_inode.size">
+                                <a href="{{nbInode.download_url(current_inode)}}" download="{{current_inode.name}}" target="_blank">
+                                    <i class="fa fa-cloud-download"></i>
+                                    <span>Download</span>
+                                </a>
+                            </li>
+                            <li ng-if="nbInode.can_upload_file(current_inode)">
+                                <a ng-click="resume_upload(current_inode)">
+                                    <i class="fa fa-cloud-upload"></i>
+                                    <span>Resume Upload</span>
+                                </a>
+                            </li>
+                            <li ng-if="!current_inode.ref_owner && nbInode.can_change_inode(current_inode)">
+                                <a ng-click="nbInode.rename_inode(current_inode)">
+                                    <i class="fa fa-pencil fa-rotate-270"></i>
+                                    Rename
+                                </a>
+                            </li>
+
+                            <li ng-if="current_inode.isdir && !!current_inode.id" class="divider"></li>
+
+                            <li>
+                                <a ng-click="refresh_current('force')">
+                                    <i class="fa fa-repeat"></i>
+                                    <span>Refresh</span>
+                                </a>
+                            </li>
+
+                            <!-- 
                     <li>
                         <div style="display: inline-block; max-width: 120px; vertical-align:middle">
                             <div ng-show="inode.isdir" Xclass="input-group" style="position: relative">
@@ -123,17 +134,29 @@
                             </div>
                         </div>
                     </li>
-                     - ->
-                    <!- - 
+                     -->
+                            <!-- 
                     <li ng-if="num_selected() <= 1">
                         <a ng-click="play_inode(inode)">
                             <i class="fa fa-play"></i>
                             <span>Play</span>
                         </a>
                     </li>
-                     - ->
-                </ul>
+                     -->
+                        </ul>
+                    </div>
+
+                </div>
             </div>
+        </div>
+        <div ng-include="'action_bar_progress.html'"></div>
+    </nav>
+
+
+    <!-- 
+    <div class="Xpanel-heading navbar navbar-default navbar-fixed-top">
+        <div class="clearfix">
+
             <button class="btn btn-link btn-back pull-left" ng-click="go_up_level()" ng-disabled="!has_parent(current_inode)">
                 <!- - 
                 <span ng-show="has_parent(current_inode)">
@@ -160,7 +183,7 @@
     </div>
  -->
 
-    <div class="Xpanel-body">
+    <div class="view-animate-area hfill-scroll">
         <div class="hflow bggrey bgnoise2">
             <div class="text-center text-ellipses text-color">
                 {{current_inode.name}}
@@ -251,14 +274,4 @@
         </div>
     </div>
 
-    <!-- 
-    <div class="panel-footer text-center">
-        <div ng-if="num_selected() != 0" class="text-warning">
-            {{num_selected()}} items selected
-        </div>
-        <div ng-if="num_selected() == 0">
-            {{current_inode.entries.length}} items
-        </div>
-    </div>
-     -->
 </div>

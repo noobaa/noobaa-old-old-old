@@ -1,0 +1,19 @@
+<div>
+    <a ng-repeat="action in top_actions" ng-click="action.run()" class="btn btn-link navbar-btn">
+        <i class="fa fa-lg {{action.fa}}"></i>
+        {{action.title}}
+    </a>
+    <div class="btn-group" ng-if="sub_actions">
+        <a class="btn btn-link navbar-btn dropdown-toggle" data-toggle="dropdown">
+            <i class="fa fa-lg fa-fw fa-ellipsis-v"></i>
+        </a>
+        <ul class="dropdown-menu pull-right" role="menu">
+            <li ng-repeat="action in sub_actions">
+                <a ng-click="action.run()">
+                    <i class="fa fa-lg {{action.fa}}"></i>
+                    {{action.title}}
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>

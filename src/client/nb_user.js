@@ -424,6 +424,8 @@ nb_util.controller('UserAccountCtrl', [
         $scope.nbUser = nbUser;
         nbUser.init_friends();
 
+        $scope.action_bar_title = 'ACCOUNT';
+
         $scope.click_usage = function() {
             var e = $('.account .progress');
             e.removeClass('animated flip');

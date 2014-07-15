@@ -411,27 +411,13 @@ nb_util.controller('ClubsCtrl', [
         $scope.nbUser = nbUser;
         $scope.nbClub = nbClub;
 
-        var action_bar = $scope.home_context.action_bar = {
-            menu_title: 'CLUBS',
-            top_actions: [{
-                title: '+ CLUB',
-                run: function() {
-                    $location.path('club/new');
-                }
-            }, {
-                fa: 'fa-repeat',
-                // title: 'REFRESH',
-                run: nbClub.poll_clubs,
-            }],
-            // sub_actions: []
-        };
+        $scope.action_bar_title = 'CLUBS';
         $scope.$watch('nbClub.poll_progress_percent', function(val) {
-            action_bar.progress_percent = val;
+            $scope.action_bar_progress_percent = val;
         });
         $scope.$watch('nbClub.poll_in_progress', function(val) {
-            action_bar.progress_complete = !val;
+            $scope.action_bar_progress_complete = !val;
         });
-
 
         nbClub.reset_active_club();
     }
@@ -451,25 +437,12 @@ nb_util.controller('ClubCtrl', [
         $scope.upload_files_to_club = upload_files_to_club;
         $scope.msg_style = msg_style;
 
-        var action_bar = $scope.home_context.action_bar = {
-            menu_title: 'CLUBS',
-            top_actions: [{
-                title: 'BACK',
-                run: function() {
-                    $location.path('club/');
-                }
-            }, {
-                fa: 'fa-repeat',
-                // title: 'REFRESH',
-                run: nbClub.poll_clubs,
-            }],
-            // sub_actions: []
-        };
+        $scope.action_bar_title = 'CLUBS';
         $scope.$watch('nbClub.poll_progress_percent', function(val) {
-            action_bar.progress_percent = val;
+            $scope.action_bar_progress_percent = val;
         });
         $scope.$watch('nbClub.poll_in_progress', function(val) {
-            action_bar.progress_complete = !val;
+            $scope.action_bar_progress_complete = !val;
         });
 
 
@@ -526,7 +499,7 @@ nb_util.controller('ClubCtrl', [
                 current_inode: $scope.home_context.current_inode,
             };
             choose_scope.dialog = {
-                run_caption: 'Share',
+                run_caption: 'SHARE',
                 cancel: function() {
                     modal.modal('hide');
                 },

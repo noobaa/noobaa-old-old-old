@@ -52,7 +52,8 @@ nb_util.directive('nbBrowse', function() {
                 $scope.share_inode = share_inode;
                 $scope.unshare_inode = unshare_inode;
 
-                $scope.context.action_bar.menu_title = 'FILES';
+                $scope.action_bar_title = 'FILES';
+                // TODO handle action_bar_progress
 
                 $scope.selection = new nbMultiSelect.Class(function(index) {
                     return $scope.entries[index];
@@ -233,7 +234,7 @@ nb_util.directive('nbBrowse', function() {
                     };
                     mv_scope.dialog = {
                         dir_select: true,
-                        run_caption: 'Move',
+                        run_caption: 'MOVE',
                         cancel: function() {
                             modal.modal('hide');
                         },

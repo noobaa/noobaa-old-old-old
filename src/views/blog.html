@@ -6,43 +6,37 @@
         <base href="/blog/">
 </head>
 
-<body ng-cloak ng-controller="BlogCtrl" class="blog-body">
+<body ng-cloak ng-controller="BlogCtrl" class="blog-body navbar-top-pad">
 
     <div>
         <?# def.facebook_init_body ?>
     </div>
 
-    <div class="panel" nb-panel-hfill>
-        <div class="panel-heading">
-            <div ng-include="'navbar_top.html'"></div>
+    <div ng-include="'navbar_top.html'"></div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+                <a href="./">
+                    <div class="blog-item clearfix" style="margin-bottom: 0">
+                        <img src="/public/images/thedude.png" height="90" class="pull-left" style="vertical-align: middle; margin: 0 20px 0 0" />
+                        <h2 style="margin-top: 10px" class="Xtext-center Xpull-left">
+                            <small>The NooBaa</small>
+                            <div></div>
+                            Blog
+                        </h2>
+                        <!-- <img src="/public/images/walter_budha.png" height="80" class="pull-right" style="vertical-align: middle; margin: 0 0 0 20px" /> -->
+                    </div>
+                </a>
+            </div>
         </div>
-        <div class="panel-body">
-            <div class="hfill-scroll">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-md-8">
-                            <a href="./">
-                                <div class="blog-item clearfix" style="margin-bottom: 0">
-                                    <img src="/public/images/thedude.png" height="90" class="pull-left" style="vertical-align: middle; margin: 0 20px 0 0" />
-                                    <h2 style="margin-top: 10px" class="Xtext-center Xpull-left">
-                                        <small>The NooBaa</small>
-                                        <div></div>
-                                        Blog
-                                    </h2>
-                                    <!-- <img src="/public/images/walter_budha.png" height="80" class="pull-right" style="vertical-align: middle; margin: 0 0 0 20px" /> -->
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <div class="container">
-                    <div class="row">
-                        <div class="col-md-10">
-                            <div class="view-animate-container">
-                                <div ng-view class="view-animate"></div>
-                            </div>
-                        </div>
-                    </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-10">
+                <div class="view-animate-container">
+                    <div ng-view class="view-animate"></div>
                 </div>
             </div>
         </div>

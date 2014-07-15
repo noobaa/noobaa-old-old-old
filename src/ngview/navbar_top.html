@@ -1,115 +1,33 @@
 <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
 
     <div class="clearfix">
-
-        <div class="btn-group pull-left">
-            <a class="btn btn-link navbar-btn dropdown-toggle" data-toggle="dropdown">
-                <img class="user-image" ng-src="{{nbUser.user_pic_url(nbUser.user)}}" />
-                <span class="active-link">
-                    {{home_context.action_bar.menu_title}}
-                    <!-- <i class="fa fa-fw fa-lg fa-bars"></i> -->
-                    <i class="fa fa-caret-down"></i>
-                </span>
-            </a>
-            <ul class="dropdown-menu" role="menu">
-                <li>
-                    <a href="club/">
-                        <span class="{{nbUtil.active_link('/home/club/')}}-link">
-                            CLUBS
-                        </span>
-                    </a>
-                </li>
-                <li>
-                    <a href="files/">
-                        <span class="{{nbUtil.active_link('/home/files/')}}-link">
-                            FILES
-                        </span>
-                    </a>
-                </li>
-                <li>
-                    <a href="account/">
-                        <span class="{{nbUtil.active_link('/home/account/')}}-link">
-                            MY ACCOUNT
-                        </span>
-                    </a>
-                </li>
-            </ul>
-        </div>
-
+        <a class="btn btn-link navbar-btn navbar-brand" href="/">
+            <img src="/public/images/noobaa_logo.png"></img>
+            <span>beta</span>
+        </a>
+        <a class="btn btn-link navbar-btn" href="/blog">
+            <span class="{{nbUtil.active_link('/blog')}}-link">
+                BLOG
+            </span>
+        </a>
+        <a class="btn btn-link navbar-btn" href="/blog/item/faq">
+            <span class="{{nbUtil.active_link('/blog/item/faq')}}-link">
+                FAQ
+            </span>
+        </a>
         <div class="pull-right">
-            <a ng-repeat="action in home_context.action_bar.top_actions" ng-click="action.run()" class="btn btn-link navbar-btn">
-                <i class="fa fa-lg {{action.fa}}"></i>
-                {{action.title}}
-            </a>
-            <div class="btn-group" ng-if="home_context.action_bar.sub_actions">
-                <a class="btn btn-link navbar-btn dropdown-toggle" data-toggle="dropdown">
-                    <i class="fa fa-lg fa-fw fa-ellipsis-v"></i>
-                </a>
-                <ul class="dropdown-menu pull-right" role="menu">
-                    <li ng-repeat="action in home_context.action_bar.sub_actions">
-                        <a ng-click="action.run()">
-                            <i class="fa fa-lg {{action.fa}}"></i>
-                            {{action.title}}
-                        </a>
-                    </li>
-                </ul>
-            </div>
+            <button class="btn btn-default navbar-btn">
+                Login
+            </button>
+            <button class="btn btn-default navbar-btn">
+                Sign Up
+            </button>
         </div>
-        <!-- 
-        <a class="btn btn-link navbar-btn pull-right" href="club/new">
-            + CLUB
-        </a>
-        <a class="btn btn-link navbar-btn pull-right" ng-click="nbClub.poll_clubs()">
-            <i class="fa fa-repeat fa-lg"></i>
-        </a>
-         -->
-
     </div>
 
     <div class="progress">
         <div class="progress-bar progress-bar-striped active {{home_context.action_bar.progress_complete && 'hidden'}}" role="progressbar" aria-valuenow="{{home_context.action_bar.progress_percent}}" aria-valuemin="0" aria-valuemax="100" style="width: {{home_context.action_bar.progress_percent}}%">
         </div>
     </div>
-
-    <!-- 
-    <div class="row">
-
-        <div class="hidden-xs col-sm-4"></div>
-
-        <div class="hidden-xs col-sm-4 text-center">
-            <a class="navbar-brand" href="/">
-                <img src="/public/images/noobaa_logo.png"></img>
-                <span>beta</span>
-            </a>
-        </div>
-
-        <div class="visible-xs col-xs-6 text-left">
-            <a class="navbar-brand" href="/">
-                <img src="/public/images/noobaa_logo.png"></img>
-                <span>beta</span>
-            </a>
-        </div>
-
-        <div class="col-sm-4 col-xs-6 text-right">
-            <div class="navbar-user text-ellipses" ng-if="nbUser.user">
-                <a class="btn btn-link" ng-click="click_profile()">
-                    <img ng-src="{{nbUser.user_pic_url(nbUser.user)}}" class="user-image" />
-                    <span class="hidden-xs">
-                        {{nbUser.user.first_name}}
-                    </span>
-                </a>
-            </div>
-            <div ng-if="!nbUser.user" style="padding-top: 5px">
-                <button class="navbar-btn btn btn-default" style="margin-right: 10px">
-                    Login
-                </button>
-                <button class="navbar-btn btn btn-default" style="margin-right: 10px">
-                    Sign Up
-                </button>
-            </div>
-        </div>
-
-    </div>
- -->
 
 </nav>
