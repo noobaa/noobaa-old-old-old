@@ -211,8 +211,9 @@ gulp.task('jshint', function() {
         .pipe(gulp_plumber(plumb_conf))
         .pipe(gulp_cached('jshint'))
         .pipe(gulp_jshint())
-        .pipe(gulp_jshint.reporter(jshint_stylish))
-        .pipe(gulp_jshint.reporter('fail'));
+        .pipe(gulp_jshint.reporter(jshint_stylish));
+        // avoid failing for watch to continue
+        // .pipe(gulp_jshint.reporter('fail'));
 });
 
 gulp.task('client', ['bower'], function() {
