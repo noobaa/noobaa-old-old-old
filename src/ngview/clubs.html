@@ -1,69 +1,42 @@
-<div class="club-list Xpanel" Xnb-panel-hfill>
-
-<!-- 
-    <div class="Xpanel-heading navbar navbar-default navbar-fixed-top">
-        <div class="clearfix">
-            <a class="btn btn-link navbar-btn pull-right" href="club/new">
-                + CLUB
-            </a>
-            <a class="btn btn-link navbar-btn pull-left" href="account/">
-                <img class="user-image" ng-src="{{nbUser.user_pic_url(nbUser.user)}}" />
-            </a>
-            <div class="hflow text-center">
-                <a class="btn btn-link navbar-btn" ng-click="nbClub.poll_clubs()">
-                    <span style="background-color: hsla(0,0%,0%,0.05); padding: 5px 10px">
-                        CLUBS
+<div class="club-list">
+    <div ng-repeat="club in nbClub.clubs_arr track by $index">
+        <a ng-href="club/{{club._id}}" ng-style="club.style" style="display: block; padding: 20px" class="club-bg">
+            <div class="text-center club-title text-ellipses" style="height: 4cm; vertical-align: middle">
+                <img style="width: 0; height: 100%" src="" />
+                <span>{{club.title}}</span>
+            </div>
+            <div class="clearfix">
+                <div class="pull-right" style="margin-left: 20px">
+                    <span ng-show="club.new_msgs">
+                        <i class="fa fa-bell fa-fw fa-lg"></i>
+                        {{club.new_msgs}} &nbsp;
                     </span>
-                </a>
-                <a class="btn btn-link navbar-btn" href="files/">
-                    FILES
-                </a>
+                    <span ng-show="club.msgs.length">
+                        <i class="fa fa-comment fa-fw fa-lg"></i>
+                        {{club.msgs.length}}
+                    </span>
+                </div>
+                <div style="opacity: 0.7">
+                    <small><u>TOP SHARERS</u>
+                    </small>
+                    &nbsp;
+                    <span ng-repeat="member in club.members | orderBy:'share_rank' | limitTo:'3'">
+                        <img class="user-image" ng-src="{{nbUser.user_pic_url(member.user_info)}}" />
+                        <span>#{{$index+1}}</span>&nbsp;
+                    </span>
+                </div>
+                <!-- 
+                <div style="opacity: 0.7" class="text-ellipses" ng-if="club.msgs.length">
+                    <img class="user-image" ng-src="{{nbUser.user_pic_url(club.msgs[0].user_info)}}" />&nbsp;
+                    <span>{{club.msgs[0].text}}</span>
+                    <span ng-if="club.msgs[0].inode">
+                        <i class="fa fa-{{nbUtil.icon_by_kind(club.msgs[0].inode.content_kind)}} fa-fw"></i>
+                        {{club.msgs[0].inode.name}}
+                    </span>
+                </div>
+                 -->
             </div>
-        </div>
-        <div class="progress">
-            <div class="progress-bar progress-bar-striped active {{nbClub.poll_in_progress || 'hidden'}}" role="progressbar" aria-valuenow="{{nbClub.poll_progress_percent}}" aria-valuemin="0" aria-valuemax="100" style="width: {{nbClub.poll_progress_percent}}%">
-            </div>
-        </div>
+        </a>
+        <hr class="headline" />
     </div>
- -->
-
-    <div class="Xpanel-body">
-        <div>
-            <div ng-repeat="club in nbClub.clubs_arr track by $index">
-                <a ng-href="club/{{club._id}}" ng-style="club.style" style="display: block; padding: 20px" class="club-bg">
-                    <div class="text-center club-title" style="height: 4cm; vertical-align: middle">
-                        <img style="width: 0; height: 100%" src="" />
-                        <span class="text-ellipses">{{club.title}}</span>
-                        <!-- <div ng-include="'file_line.html'" ng-init="msg=club.last_new_msg_with_inode"></div> -->
-                    </div>
-                    <div>
-                        <div class="pull-right" style="margin-left: 20px">
-                            <span ng-show="club.new_msgs">
-                                <i class="fa fa-bell fa-fw fa-lg"></i>
-                                {{club.new_msgs}} &nbsp;
-                            </span>
-                            <span ng-show="club.msgs.length">
-                                <i class="fa fa-comment fa-fw fa-lg"></i>
-                                {{club.msgs.length}}
-                            </span>
-                        </div>
-                        <div class="text-ellipses" ng-if="club.msgs.length">
-                            <span ng-if="club.msgs[0].user==nbUser.user.id">me:</span>
-                            <span ng-if="club.msgs[0].user!=nbUser.user.id" style="color: hsl({{club.msgs[0].user_info.color}}, 70%, 55%)">
-                                {{club.msgs[0].user_info.first_name}}:
-                            </span>
-                            &nbsp;
-                            <span class="text-muted">{{club.msgs[0].text}}</span>
-                            <span class="text-muted" ng-if="club.msgs[0].inode">
-                                <i class="fa fa-{{nbUtil.icon_by_kind(club.msgs[0].inode.content_kind)}} fa-fw"></i>
-                                {{club.msgs[0].inode.name}}
-                            </span>
-                        </div>
-                    </div>
-                </a>
-                <hr class="headline" />
-            </div>
-        </div>
-    </div>
-
 </div>
