@@ -61,6 +61,7 @@ var mime = require('mime');
 var User = require('./models/user').User;
 var common_api = require('./lib/common_api');
 var auth = require('./lib/auth');
+var hash_api = require('./lib/hash_api');
 var inode_api = require('./lib/inode_api');
 var user_inodes = require('./lib/user_inodes');
 var message_api = require('./lib/message_api');
@@ -187,6 +188,9 @@ app.post('/auth/email/login/', auth.provider_login.bind(null, 'local'), function
 
 
 // setup star API routes
+
+app.get('/api/hash/', hash_api.hash_query);
+
 
 app.post('/api/inode/', inode_api.inode_create);
 app.get('/api/inode/', inode_api.inode_query);
@@ -322,9 +326,6 @@ app.get('/thankyou', function(req, res) {
 });
 
 app.get('/dedupe', function(req, res) {
-    if (!req.user) {
-        return res.redirect(welcome_path);
-    }
     return res.render('dedupe.html', common_api.common_server_data(req));
 });
 

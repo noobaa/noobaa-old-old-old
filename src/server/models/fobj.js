@@ -10,7 +10,11 @@ var fobj_schema = new mongoose.Schema({
 	s3_multipart: {
 		upload_id: String,
 		part_size: Number
-	}
+	},
+	hash: String,
+	sample_offset: Number,
+	sample_size: Number,
+	sample_data: Buffer,
 });
 
 exports.Fobj = mongoose.model('Fobj', fobj_schema);
