@@ -52,7 +52,7 @@ nb_util.directive('nbBrowse', function() {
                 $scope.share_inode = share_inode;
                 $scope.unshare_inode = unshare_inode;
 
-
+                $scope.context.action_bar.menu_title = 'FILES';
 
                 $scope.selection = new nbMultiSelect.Class(function(index) {
                     return $scope.entries[index];

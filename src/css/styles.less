@@ -12,6 +12,7 @@ html, body {
 body {
     overflow-x: hidden;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 /**/
 
@@ -32,6 +33,8 @@ body {
 
 }
 .app-body {
+    /* pad for navbar-fixed-top */
+    padding-top: 51px;
     hr {
         margin: 0;
     }
@@ -144,21 +147,21 @@ body {
     NAVBAR 
  ******************************************************************************/
 
-.navbar {
+.navbar2 {
     margin: 0;
     padding: 0;
     border: none;
     .bgnoise1;
-    position: static;
+    // position: static;
     z-index: 0;
     line-height: 40px;
     .navbar-brand {
         padding: 10px;
     }
     .btn-link {
-        padding: 10px 6px;
+        padding: 15px 6px;
         .user-image {
-            margin: 0;
+            margin: -5px 0;
         }
     }
     .btn-success, .btn-default {
@@ -183,7 +186,9 @@ body {
         font-size: 18px;
         line-height: 50px;
         margin: 0;
-        color: @text-color;
+        float: none;
+        // color: @text-color;
+
     }
 }
 .noobaa-logo {
@@ -199,7 +204,7 @@ body {
         line-height: 8px;
     }
 }
-.navbar.navbar-top {
+.navbar2.navbar-top {
     height: @navbar-top-height;
     border-bottom-width: 1px;
     .navbar-brand {
@@ -218,7 +223,7 @@ body {
         }
     }
 }
-.navbar.navbar-bottom {
+.navbar2.navbar-bottom {
     height: @navbar-bottom-height;
     > ul {
         display: table;
@@ -334,6 +339,15 @@ body {
     CLUB 
  ******************************************************************************/
 
+.club-bg {
+    .bgnoise2;
+    &, &:hover, .club-title, .navbar-text {
+        color: white;
+    }
+    .navbar-text {
+        float: none;
+    }
+}
 .club-title {
     font-size: 18px;
     line-height: 1.4em;
@@ -362,7 +376,8 @@ body {
 .club-panel {
     .club-input {
         .clearfix;
-        border: 1px solid @border-color-light;
+        border-top: 1px solid @border-color-light;
+        border-bottom: 1px solid @border-color-light;
         padding: 0;
         margin: 0;
         .club-msg-btn {

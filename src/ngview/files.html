@@ -1,6 +1,7 @@
-<div class="panel files-panel {{dialog && 'files-dialog'}}" nb-panel-hfill>
+<div class="Xpanel files-panel {{dialog && 'files-dialog'}}" Xnb-panel-hfill ng-init="activity={title:'FILES'}">
 
-    <div class="panel-heading navbar navbar-default">
+<!-- 
+    <div class="Xpanel-heading navbar navbar-default navbar-fixed-top">
         <div class="clearfix">
 
             <div ng-if="!dialog && select_mode" class="btn-group pull-right">
@@ -113,7 +114,7 @@
                         </a>
                     </li>
 
-                    <!-- 
+                    <!- - 
                     <li>
                         <div style="display: inline-block; max-width: 120px; vertical-align:middle">
                             <div ng-show="inode.isdir" Xclass="input-group" style="position: relative">
@@ -122,26 +123,26 @@
                             </div>
                         </div>
                     </li>
-                     -->
-                    <!-- 
+                     - ->
+                    <!- - 
                     <li ng-if="num_selected() <= 1">
                         <a ng-click="play_inode(inode)">
                             <i class="fa fa-play"></i>
                             <span>Play</span>
                         </a>
                     </li>
-                     -->
+                     - ->
                 </ul>
             </div>
             <button class="btn btn-link btn-back pull-left" ng-click="go_up_level()" ng-disabled="!has_parent(current_inode)">
-                <!-- 
+                <!- - 
                 <span ng-show="has_parent(current_inode)">
                     <span class="fa-stack">
                         <i class="fa fa-folder fa-stack-2x"></i>
                         <i class="fa fa-arrow-up fa-stack-1x fa-inverse" style="font-size: 0.8em"></i>
                     </span>
                 </span>
-                -->
+                - ->
                 <i ng-show="has_parent(current_inode)" class="fa fa-angle-left"></i>
                 <i ng-hide="has_parent(current_inode)" class="fa fa-home text-muted"></i>
             </button>
@@ -157,16 +158,25 @@
             </div>
         </div>
     </div>
+ -->
 
-    <div class="panel-body">
+    <div class="Xpanel-body">
+        <div class="hflow bggrey bgnoise2">
+            <div class="text-center text-ellipses text-color">
+                {{current_inode.name}}
+            </div>
+        </div>
         <div>
             <div ng-if="has_parent(current_inode)">
                 <div class="line clickable" ng-click="go_up_level()">
+                    <!-- 
                 <span class="fa-stack fa-fw">
                     <i class="fa fa-circle-thin fa-stack-2x"></i>
                     <i class="fa fa-arrow-up fa-stack-1x" style="top: -1px"></i>
                 </span>
-                Up to parent
+                 -->
+                    <i class="fa fa-angle-left fa-lg fa-fw"></i>
+                    <span class="text-muted">Back to parent</span>
                 </div>
                 <hr />
             </div>

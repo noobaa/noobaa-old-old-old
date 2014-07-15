@@ -34,6 +34,7 @@ nb_util.factory('nbClub', [
             // objects
             clubs: {},
             last_poll: 0,
+            poll_progress_percent: 0,
             NEW_CLUB_OBJ: {
                 title: '',
                 admin: true,
@@ -71,6 +72,12 @@ nb_util.factory('nbClub', [
                 $timeout.cancel($scope.poll_timeout);
                 $scope.poll_timeout = null;
             }
+            $scope.poll_progress_percent = 0;
+            $timeout(function() {
+                if ($scope.poll_progress_percent < 33) {
+                    $scope.poll_progress_percent = 33;
+                }
+            }, 500);
             $scope.poll_in_progress = $http({
                 method: 'GET',
                 url: '/api/club/',
@@ -78,6 +85,7 @@ nb_util.factory('nbClub', [
                     last_poll: $scope.last_poll
                 }
             }).then(function(res) {
+                $scope.poll_progress_percent = 66;
                 var clubs = res.data.clubs;
                 if (!clubs || !clubs.length) {
                     return;
@@ -86,10 +94,12 @@ nb_util.factory('nbClub', [
                 $scope.last_poll = clubs[0].mtime;
                 console.log('POLL', clubs.length, $scope.last_poll);
             })['finally'](function() {
+                $scope.poll_progress_percent = 100;
                 $scope.poll_in_progress = $timeout(function() {
+                    $scope.poll_progress_percent = 0;
                     $scope.poll_in_progress = null;
                     $scope.poll_timeout = $timeout(poll_clubs, 10000);
-                }, 500); // short delay for view transitions
+                }, 500); // short delay for progress animation
             });
             return $scope.poll_in_progress;
         }
@@ -112,8 +122,7 @@ nb_util.factory('nbClub', [
                 $scope.clubs[c._id] = c;
                 // console.log('GOT NEW CLUB', c);
                 c.style = {
-                    backgroundColor: 'hsl(' + Math.random() * 360 + ', 55%, 45%)',
-                    color: 'white'
+                    backgroundColor: 'hsl(' + Math.random() * 360 + ', 55%, 45%)'
                 };
             }
             _.each(c.members, set_user_info);
@@ -238,15 +247,23 @@ nb_util.factory('nbClub', [
             }
             $scope.total_new_msgs -= (club.new_msgs || 0);
             if (!club.seen_msg) {
+                // all messages are considered new
                 club.new_msgs = club.msgs.length;
                 $scope.total_new_msgs += club.new_msgs;
                 return;
             }
             for (var i = 0; i < club.msgs.length; i++) {
-                if (club.msgs[i]._id === club.seen_msg) {
+                // go back and look for the last seen msg
+                var m = club.msgs[i];
+                if (m.inode) {
+                    club.last_new_msg_with_inode = m;
+                }
+                if (m._id === club.seen_msg) {
                     break;
                 }
             }
+            // we counted the messages till the seen one, 
+            // each of these is considered an unseen message
             club.new_msgs = i;
             $scope.total_new_msgs += club.new_msgs;
         }
@@ -394,14 +411,36 @@ nb_util.controller('ClubsCtrl', [
         $scope.nbUser = nbUser;
         $scope.nbClub = nbClub;
 
+        var action_bar = $scope.home_context.action_bar = {
+            menu_title: 'CLUBS',
+            top_actions: [{
+                title: '+ CLUB',
+                run: function() {
+                    $location.path('club/new');
+                }
+            }, {
+                fa: 'fa-repeat',
+                // title: 'REFRESH',
+                run: nbClub.poll_clubs,
+            }],
+            // sub_actions: []
+        };
+        $scope.$watch('nbClub.poll_progress_percent', function(val) {
+            action_bar.progress_percent = val;
+        });
+        $scope.$watch('nbClub.poll_in_progress', function(val) {
+            action_bar.progress_complete = !val;
+        });
+
+
         nbClub.reset_active_club();
     }
 ]);
 
 nb_util.controller('ClubCtrl', [
-    '$scope', '$q', '$location', '$timeout', '$routeParams',
+    '$scope', '$q', '$location', '$timeout', '$routeParams', '$templateCache',
     'nbUtil', 'nbUser', 'nbInode', 'nbClub',
-    function($scope, $q, $location, $timeout, $routeParams,
+    function($scope, $q, $location, $timeout, $routeParams, $templateCache,
         nbUtil, nbUser, nbInode, nbClub) {
         $scope.nbUtil = nbUtil;
         $scope.nbUser = nbUser;
@@ -412,10 +451,54 @@ nb_util.controller('ClubCtrl', [
         $scope.upload_files_to_club = upload_files_to_club;
         $scope.msg_style = msg_style;
 
-        var club;
-        nbClub.init_promise.then(function() {
-            club = $scope.club = nbClub.activate_club($routeParams.id);
+        var action_bar = $scope.home_context.action_bar = {
+            menu_title: 'CLUBS',
+            top_actions: [{
+                title: 'BACK',
+                run: function() {
+                    $location.path('club/');
+                }
+            }, {
+                fa: 'fa-repeat',
+                // title: 'REFRESH',
+                run: nbClub.poll_clubs,
+            }],
+            // sub_actions: []
+        };
+        $scope.$watch('nbClub.poll_progress_percent', function(val) {
+            action_bar.progress_percent = val;
         });
+        $scope.$watch('nbClub.poll_in_progress', function(val) {
+            action_bar.progress_complete = !val;
+        });
+
+
+        var club;
+        $scope.edit_title = {};
+
+        $scope.$watch('club.title', function(value) {
+            $scope.edit_title.value = value;
+        });
+
+        nbClub.init_promise.then(function() {
+            init($routeParams.id);
+        });
+
+        function init(club_id) {
+            if (club_id === 'new') {
+                $scope.club = club = angular.copy(nbClub.NEW_CLUB_OBJ);
+                $scope.is_new = true;
+                $scope.info_mode = true;
+            } else {
+                $scope.club = club = nbClub.activate_club(club_id);
+                $scope.is_new = false;
+            }
+            if (club && club.admin) {
+                $scope.edit_title.on = $scope.is_new;
+            } else {
+                delete $scope.edit_title.on;
+            }
+        }
 
         function send_club_message(msg) {
             $scope.sending_message = true;
@@ -488,6 +571,94 @@ nb_util.controller('ClubCtrl', [
             }
             return s;
         }
+
+        $scope.save_club = function() {
+            var update_club = nbClub.get_club_for_update(club);
+            update_club.title = $scope.edit_title.value;
+            return nbClub.save_club(update_club, club).then(function(saved_club) {
+                if ($scope.is_new) {
+                    nbClub.goto_clubs();
+                } else {
+                    nbClub.goto_club(saved_club._id);
+                }
+            });
+        };
+
+        $scope.update_title = function() {
+            if ($scope.edit_title.value === club.title) {
+                $scope.edit_title.on = false;
+                return;
+            }
+            var update_club = nbClub.get_club_for_update(club);
+            update_club.title = $scope.edit_title.value;
+            return nbClub.save_club(update_club, club).then(function() {
+                init(club._id);
+            })['finally'](function() {
+                $scope.edit_title.on = false;
+            });
+        };
+
+        $scope.add_member = function() {
+            var html = ['<div class="modal" ng-controller="ClubMemberCtrl">',
+                '<div class="modal-dialog">',
+                '<div class="modal-content">',
+                '<div class="modal-body" style="padding: 0">',
+                $templateCache.get('friend_chooser.html'),
+                '</div>',
+                '</div>',
+                '</div>',
+                '</div>'
+            ].join('\n');
+            var modal;
+            var scope = $scope.$new();
+            scope.back = function() {
+                modal.modal('hide');
+            };
+            scope.choose = function(friend) {
+                modal.modal('hide');
+                if ($scope.is_new) {
+                    club.members.push({
+                        user: friend.id,
+                        user_info: friend
+                    });
+                    return;
+                }
+                var update_club = nbClub.get_club_for_update(club);
+                update_club.members.push({
+                    user: friend.id,
+                    user_info: friend
+                });
+                return nbClub.save_club(update_club, club).then(function() {
+                    init(club._id);
+                });
+            };
+            modal = nbUtil.make_modal({
+                // template: 'friend_chooser.html',
+                html: html,
+                scope: scope
+            });
+        };
+
+        $scope.remove_member = function(index) {
+            alertify.confirm('Remove member?', function(e) {
+                if (!e) return;
+                if ($scope.is_new) {
+                    club.members.splice(index, 1);
+                    $scope.safe_apply();
+                    return;
+                }
+                var update_club = nbClub.get_club_for_update(club);
+                update_club.members.splice(index, 1);
+                $scope.safe_apply();
+                return nbClub.save_club(update_club, club).then(function() {
+                    init(club._id);
+                });
+            });
+        };
+
+        $scope.leave_club = function() {
+            nbUtil.coming_soon('club.leave', 'Leaving club');
+        };
     }
 ]);
 

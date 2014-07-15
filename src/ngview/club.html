@@ -1,8 +1,10 @@
-<div class="club-panel panel" nb-panel-hfill>
+<div class="club-panel Xpanel" Xnb-panel-hfill>
 
-    <div class="panel-heading Xnavbar Xnavbar-default clearfix">
-        <div>
-            <!-- 
+    <!-- 
+    <div class="Xpanel-heading">
+        <div class="navbar navbar-default navbar-fixed-top club-bg" ng-style="club.style">
+            <div class="clearfix">
+                <!- - 
             <a class="btn btn-link btn-back pull-left" href="club/">
                 <i class="fa fa-angle-left"></i>
             </a>
@@ -11,34 +13,62 @@
             <div class="hflow">
                 <div class="navbar-text text-left text-ellipses text-color">{{club.title}}</div>
             </div>
-         -->
-            <div class="clearfix bgnoise2" ng-style="club.style">
+         - ->
                 <div class="btn-group pull-right">
-                    <a class="btn btn-link dropdown-toggle" data-toggle="dropdown">
-                        <i class="fa fa-fw fa-2x fa-bars"></i>
+                    <a class="btn navbar-btn btn-link dropdown-toggle" data-toggle="dropdown">
+                        <i class="fa fa-fw fa-lg fa-bars"></i>
                     </a>
                     <ul class="dropdown-menu" role="menu">
                         <li>
-                            <a ng-href="club/info/{{club._id}}">
+                            <!- - <a ng-href="club/info/{{club._id}}"> - ->
+                            <a ng-click="info_mode=!info_mode">
                                 <i class="fa fa-info-circle"></i>
                                 <span>Club info and members</span>
                             </a>
                         </li>
                     </ul>
                 </div>
-                <div class="hflow text-center">
-                    <div class="club-title text-ellipses">
-                        {{club.title}}
+                <div class="hflow text-center" ng-if="!info_mode">
+                    <div class="navbar-text text-ellipses">
+                        <span class="Xclub-title">{{club.title}}</span>
                     </div>
                 </div>
             </div>
+            <div class="progress">
+                <div class="progress-bar progress-bar-striped active {{nbClub.poll_in_progress || 'hidden'}}" role="progressbar" aria-valuenow="{{nbClub.poll_progress_percent}}" aria-valuemin="0" aria-valuemax="100" style="width: {{nbClub.poll_progress_percent}}%">
+                </div>
+            </div>
+        </div>
+    </div>
+ -->
+
+    <div class="Xpanel-body">
+
+        <div ng-style="club.style" class="club-bg clearfix" style="padding: 0 10px">
+            <div class="pull-right">
+                <a ng-show="info_mode" ng-click="info_mode=!info_mode" class="close">&times;</a>
+                <a ng-hide="info_mode" ng-click="info_mode=!info_mode" class="close-nofont">
+                    <span class="fa-stack">
+                        <i class="fa fa-circle-thin fa-stack-2x"></i>
+                        <i class="fa fa-info fa-stack-1x"></i>
+                    </span>
+                </a>
+            </div>
+            <div class="text-center club-title hflow" style="padding: 10px 0; vertical-align: middle">
+                <!-- <img style="width: 0; height: 100%" src="" /> -->
+                <textarea dir="auto" ng-if="info_mode && club.admin" placeholder="Enter club title (e.g. fight club)" ng-model="edit_title.value" nb-enter="update_title()" ng-blur="update_title()" nb-auto-height="edit_title.value" nb-focus="true" class="inner-input text-center" style="display: inline-block; width: 98%; background-color: hsla(0,0%,0%,0.1); min-height: 2cm"></textarea>
+                <span ng-if="!info_mode || !club.admin">{{club.title}}</span>
+            </div>
+        </div>
+
+        <div ng-if="!info_mode">
             <div class="club-input">
                 <div class="club-msg-btn pull-right">
                     <div class="btn-group">
-                        <button ng-if="!club.message_input.length" class="btn btn-default dropdown-toggle" Xstyle="padding: 2px" data-toggle="dropdown" type="button">
-                            <!-- <i class="fa fa-paperclip fa-2x fa-rotate-90 fa-fw"></i> -->
-                            ATTACH
-                            <i class="fa fa-caret-down"></i>
+                        <button ng-if="!club.message_input.length" class="btn btn-link dropdown-toggle" Xstyle="padding: 2px" data-toggle="dropdown" type="button">
+                            <i class="fa fa-paperclip fa-2x fa-rotate-90 fa-fw" style="line-height: 0; vertical-align: -5px"></i>
+                            <!-- ATTACH -->
+                            <!-- <i class="fa fa-caret-down"></i> -->
                         </button>
                         <ul class="dropdown-menu pull-right" role="menu">
                             <li>
@@ -61,49 +91,48 @@
                     </button>
                 </div>
                 <div style="overflow: hidden">
-                    <textarea placeholder="Say something interesting..." ng-model="club.message_input" nb-enter="send_club_text()" nb-auto-height="club.message_input" nb-focus="false" ng-disabled="sending_message"></textarea>
+                    <textarea placeholder="Share something..." ng-model="club.message_input" nb-enter="send_club_text()" nb-auto-height="club.message_input" nb-focus="false" ng-disabled="sending_message"></textarea>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="panel-body">
-        <div class="club-content">
-            <div ng-repeat="msg in club.msgs track by $index" class="clearfix">
-                <div ng-if="club.seen_msg == msg._id && !$first">
-                    <hr/>
-                    <div class="text-center">
-                        <div class="clearfix"></div>
-                        <div class="bggray-lighter text-muted hflow">
-                            <span>new messages</span>
-                            <i class="fa fa-caret-up fa-lg"></i>
-                        </div>
-                    </div>
-                    <hr/>
-                </div>
-                <div class="line" ng-style="msg_style(msg)">
-                    <!-- <img style="width: 0; min-height: 70px" src="" /> -->
-                    <img class="pull-left user-image" style="margin-right: 10px" ng-src="{{nbUser.user_pic_url(msg.user_info)}}" />
-                    <a class="pull-right" ng-click="msg.liked = !msg.liked" style="padding-left: 10px">
-                        <i class="fa fa-fw fa-2x {{msg.liked && 'fa-star text-danger' || msg.inode && 'fa-star text-white' || 'fa-star text-white'}} transition-fast"></i>
-                    </a>
-                    <a class="hflow hfill" ng-href="{{msg.inode && ('files/'+msg.inode.id) || ''}}">
-                        <span ng-if="msg.text.length" class="text-wrap">
-                            <span ng-bind-html="msg.text | linky:'_blank'" style="white-space: pre-wrap"></span>
-                        </span>
-                        <div ng-if="msg.inode && msg.inode.content_kind != 'image'" class="hflow">
-                            <div class="text-ellipses">
-                                <i class="fa fa-{{nbUtil.icon_by_kind(msg.inode.content_kind)}} fa-fw club-msg-muted" style="margin-right: 5px"></i>
-                                <span>{{msg.inode.name}}</span>
+        <div ng-if="!info_mode">
+            <div class="club-content">
+                <div ng-repeat="msg in club.msgs track by $index" class="clearfix">
+                    <div ng-if="club.seen_msg == msg._id && !$first">
+                        <hr/>
+                        <div class="text-center">
+                            <div class="clearfix"></div>
+                            <div class="bggray-lighter text-muted hflow">
+                                <span>new messages</span>
+                                <i class="fa fa-caret-up fa-lg"></i>
                             </div>
                         </div>
-                        <div>
-                            <span class="club-msg-time">
-                                {{msg.user == nbUser.user.id && 'me' || msg.user_info.first_name}} &middot; {{moment(msg.time).fromNow()}}
+                        <hr/>
+                    </div>
+                    <div class="line" ng-style="msg_style(msg)">
+                        <!-- <img style="width: 0; min-height: 70px" src="" /> -->
+                        <img class="pull-left user-image" style="margin-right: 10px" ng-src="{{nbUser.user_pic_url(msg.user_info)}}" />
+                        <a class="pull-right" ng-click="msg.liked = !msg.liked" style="padding-left: 10px">
+                            <i class="fa fa-fw fa-2x {{msg.liked && 'fa-star text-danger' || msg.inode && 'fa-star text-white' || 'fa-star text-white'}} transition-fast"></i>
+                        </a>
+                        <a class="hflow hfill" ng-href="{{msg.inode && ('files/'+msg.inode.id) || ''}}">
+                            <span ng-if="msg.text.length" class="text-wrap">
+                                <span ng-bind-html="msg.text | linky:'_blank'" style="white-space: pre-wrap"></span>
                             </span>
-                        </div>
-                    </a>
-                    <!--  
+                            <div ng-if="msg.inode && msg.inode.content_kind != 'image'" class="hflow">
+                                <div class="text-ellipses">
+                                    <i class="fa fa-{{nbUtil.icon_by_kind(msg.inode.content_kind)}} fa-fw club-msg-muted" style="margin-right: 5px"></i>
+                                    <span>{{msg.inode.name}}</span>
+                                </div>
+                            </div>
+                            <div>
+                                <span class="club-msg-time">
+                                    {{msg.user == nbUser.user.id && 'me' || msg.user_info.first_name}} &middot; {{moment(msg.time).fromNow()}}
+                                </span>
+                            </div>
+                        </a>
+                        <!--  
                     <a ng-if="msg.inode" ng-href="files/{{msg.inode.id}}" style="height: 80px">
                             <i class="fa fa-{{nbUtil.icon_by_kind(msg.inode.content_kind)}} fa-fw club-msg-muted" style="margin-right: 5px"></i>
                             <span style="white-space: pre-wrap">{{msg.inode.name}}</span>
@@ -111,9 +140,45 @@
                     </a>
                     -->
 
+                    </div>
                 </div>
             </div>
         </div>
+
+        <div ng-if="info_mode">
+            <hr class="headline" />
+            <div class="line headline">
+                <b>MEMBERS</b>
+                <a ng-if="club.admin" class="btn btn-success" ng-click="add_member()">
+                    <!-- <i class="fa fa-user fa-2x text-muted"></i> -->
+                    <!-- <i class="fa fa-plus text-success" style="margin-left: -7px; vertical-align: 14px"></i> -->
+                    ADD FRIEND
+                </a>
+                <a ng-if="!is_new" class="btn btn-link" ng-click="leave_club()">
+                    LEAVE CLUB
+                </a>
+            </div>
+
+            <div ng-repeat="member in club.members track by $index">
+                <div class="line">
+                    <img class="pull-left user-image" ng-src="{{nbUser.user_pic_url(member.user_info)}}" />
+                    <div class="pull-right" style="padding-left: 10px">
+                        <button ng-click="remove_member($index)" ng-if="club.admin && !member.admin" class="close" style="margin-top: -15px">&times;</button>
+                        <span ng-show="member.admin" Xclass="text-success">ADMIN</span>
+                    </div>
+                    <div class="hflow" style="padding-left: 10px">
+                        <div class="text-ellipses">{{member.user_info.name}}</div>
+                        <div>
+                            <i ng-show="!member.user_info.id && member.user_info.fbid" class="fa fa-lg fa-facebook-square text-primary"></i>
+                            <i ng-show="!member.user_info.id && member.user_info.googleid" class="fa fa-lg fa-google-plus-square text-danger"></i>
+                        </div>
+                    </div>
+                </div>
+                <!-- <hr /> -->
+            </div>
+        </div>
     </div>
+
+</div>
 
 </div>

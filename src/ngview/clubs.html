@@ -1,36 +1,40 @@
-<div class="club-list panel" nb-panel-hfill>
+<div class="club-list Xpanel" Xnb-panel-hfill>
 
-    <div class="panel-heading navbar navbar-default">
+<!-- 
+    <div class="Xpanel-heading navbar navbar-default navbar-fixed-top">
         <div class="clearfix">
-            <a class="btn btn-default btn-sm navbar-btn pull-right" href="club/new">
+            <a class="btn btn-link navbar-btn pull-right" href="club/new">
                 + CLUB
             </a>
-            <a class="btn btn-link pull-left" href="account/">
+            <a class="btn btn-link navbar-btn pull-left" href="account/">
                 <img class="user-image" ng-src="{{nbUser.user_pic_url(nbUser.user)}}" />
             </a>
             <div class="hflow text-center">
-                <a class="btn btn-link" ng-click="nbClub.poll_clubs()">
+                <a class="btn btn-link navbar-btn" ng-click="nbClub.poll_clubs()">
                     <span style="background-color: hsla(0,0%,0%,0.05); padding: 5px 10px">
                         CLUBS
                     </span>
                 </a>
-                <a class="btn btn-link" href="files/">
+                <a class="btn btn-link navbar-btn" href="files/">
                     FILES
                 </a>
             </div>
         </div>
-        <div class="progress" style="height: 5px; margin: 0">
-            <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="{{nbClub.poll_in_progress && '100' || '0'}}" aria-valuemin="0" aria-valuemax="100" style="width: {{nbClub.poll_in_progress && '100%' || '0'}}">
+        <div class="progress">
+            <div class="progress-bar progress-bar-striped active {{nbClub.poll_in_progress || 'hidden'}}" role="progressbar" aria-valuenow="{{nbClub.poll_progress_percent}}" aria-valuemin="0" aria-valuemax="100" style="width: {{nbClub.poll_progress_percent}}%">
             </div>
         </div>
     </div>
+ -->
 
-    <div class="panel-body">
+    <div class="Xpanel-body">
         <div>
             <div ng-repeat="club in nbClub.clubs_arr track by $index">
-                <a ng-href="club/{{club._id}}" ng-style="club.style" style="display: block; padding: 20px" class="bgnoise2">
-                    <div class="text-center club-title" style="height: 40vh; vertical-align: middle">
-                        <img style="width: 0; height: 100%" src="" />{{club.title}}
+                <a ng-href="club/{{club._id}}" ng-style="club.style" style="display: block; padding: 20px" class="club-bg">
+                    <div class="text-center club-title" style="height: 4cm; vertical-align: middle">
+                        <img style="width: 0; height: 100%" src="" />
+                        <span class="text-ellipses">{{club.title}}</span>
+                        <!-- <div ng-include="'file_line.html'" ng-init="msg=club.last_new_msg_with_inode"></div> -->
                     </div>
                     <div>
                         <div class="pull-right" style="margin-left: 20px">

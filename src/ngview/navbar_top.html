@@ -1,5 +1,77 @@
-<nav class="navbar navbar-default navbar-top" role="navigation">
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
 
+    <div class="clearfix">
+
+        <div class="btn-group pull-left">
+            <a class="btn btn-link navbar-btn dropdown-toggle" data-toggle="dropdown">
+                <img class="user-image" ng-src="{{nbUser.user_pic_url(nbUser.user)}}" />
+                <span class="active-link">
+                    {{home_context.action_bar.menu_title}}
+                    <!-- <i class="fa fa-fw fa-lg fa-bars"></i> -->
+                    <i class="fa fa-caret-down"></i>
+                </span>
+            </a>
+            <ul class="dropdown-menu" role="menu">
+                <li>
+                    <a href="club/">
+                        <span class="{{nbUtil.active_link('/home/club/')}}-link">
+                            CLUBS
+                        </span>
+                    </a>
+                </li>
+                <li>
+                    <a href="files/">
+                        <span class="{{nbUtil.active_link('/home/files/')}}-link">
+                            FILES
+                        </span>
+                    </a>
+                </li>
+                <li>
+                    <a href="account/">
+                        <span class="{{nbUtil.active_link('/home/account/')}}-link">
+                            MY ACCOUNT
+                        </span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="pull-right">
+            <a ng-repeat="action in home_context.action_bar.top_actions" ng-click="action.run()" class="btn btn-link navbar-btn">
+                <i class="fa fa-lg {{action.fa}}"></i>
+                {{action.title}}
+            </a>
+            <div class="btn-group" ng-if="home_context.action_bar.sub_actions">
+                <a class="btn btn-link navbar-btn dropdown-toggle" data-toggle="dropdown">
+                    <i class="fa fa-lg fa-fw fa-ellipsis-v"></i>
+                </a>
+                <ul class="dropdown-menu pull-right" role="menu">
+                    <li ng-repeat="action in home_context.action_bar.sub_actions">
+                        <a ng-click="action.run()">
+                            <i class="fa fa-lg {{action.fa}}"></i>
+                            {{action.title}}
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!-- 
+        <a class="btn btn-link navbar-btn pull-right" href="club/new">
+            + CLUB
+        </a>
+        <a class="btn btn-link navbar-btn pull-right" ng-click="nbClub.poll_clubs()">
+            <i class="fa fa-repeat fa-lg"></i>
+        </a>
+         -->
+
+    </div>
+
+    <div class="progress">
+        <div class="progress-bar progress-bar-striped active {{home_context.action_bar.progress_complete && 'hidden'}}" role="progressbar" aria-valuenow="{{home_context.action_bar.progress_percent}}" aria-valuemin="0" aria-valuemax="100" style="width: {{home_context.action_bar.progress_percent}}%">
+        </div>
+    </div>
+
+    <!-- 
     <div class="row">
 
         <div class="hidden-xs col-sm-4"></div>
@@ -38,5 +110,6 @@
         </div>
 
     </div>
+ -->
 
 </nav>

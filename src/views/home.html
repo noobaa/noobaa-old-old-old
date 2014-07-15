@@ -12,27 +12,29 @@
         <?# def.facebook_init_body ?>
     </div>
 
+    <div ng-include="'navbar_top.html'"></div>
+
+    <div class="view-animate-container hfill-scroll">
+        <div ng-view class="app-view hfill-scroll view-animate"></div>
+    </div>
+    <!-- 
     <div class="app-area">
         <div class="app-panel panel" nb-panel-hfill>
             <div class="panel-body">
-                <div class="view-animate-container hfill-scroll">
-                    <div ng-view class="app-view hfill-scroll view-animate"></div>
-                </div>
             </div>
-            <!-- 
             <div class="panel-footer">
                 <div ng-include="'navbar_bottom.html'"></div>
             </div>
-             -->
         </div>
     </div>
+    -->
 
-<!-- 
+    <!-- 
     <a class="noobaa-logo" href="/">
         <img src="/public/images/noobaa_logo.png" />
         <span>beta</span>
     </a>
- -->
+    -->
 
     <div>
         <?# def.include( 'common_scripts.html') ?>

@@ -44,10 +44,10 @@ nb_home.config(['$routeProvider', '$locationProvider',
         }).when('/club/', {
             templateUrl: 'clubs.html',
             controller: 'ClubsCtrl'
-        }).when('/club/new', {
-            templateUrl: 'club_info.html',
-        }).when('/club/info/:id*', {
-            templateUrl: 'club_info.html',
+                // }).when('/club/new', {
+                // templateUrl: 'club_info.html',
+                // }).when('/club/info/:id*', {
+                // templateUrl: 'club_info.html',
         }).when('/club/member', {
             templateUrl: 'friend_chooser.html',
             controller: 'ClubMemberCtrl'
@@ -103,6 +103,10 @@ nb_home.controller('HomeCtrl', [
 
         $scope.home_context = {
             current_inode: $scope.root_dir,
+            // an object with info about content and actions of the top action-bar
+            // each activity that starts under this controller willl update with it's actions
+            // and the navbar_top.html template will render as a fixed top bar.
+            action_bar: {},
         };
 
 
