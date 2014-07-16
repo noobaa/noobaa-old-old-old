@@ -447,11 +447,6 @@ nb_util.controller('ClubCtrl', [
 
 
         var club;
-        $scope.edit_title = {};
-
-        $scope.$watch('club.title', function(value) {
-            $scope.edit_title.value = value;
-        });
 
         nbClub.init_promise.then(function() {
             init($routeParams.id);
@@ -461,17 +456,18 @@ nb_util.controller('ClubCtrl', [
             if (club_id === 'new') {
                 $scope.club = club = angular.copy(nbClub.NEW_CLUB_OBJ);
                 $scope.is_new = true;
-                $scope.info_mode = true;
+                $scope.info_mode = true; // TODO REMOVE
+                $scope.edit_mode = true;
             } else {
                 $scope.club = club = nbClub.activate_club(club_id);
                 $scope.is_new = false;
             }
-            if (club && club.admin) {
-                $scope.edit_title.on = $scope.is_new;
-            } else {
-                delete $scope.edit_title.on;
-            }
         }
+
+        $scope.current_msg_idx = 0;
+        $scope.$watch('current_msg_idx', function() {
+            $scope.current_msg = club.msgs[$scope.current_msg_idx];
+        });
 
         function send_club_message(msg) {
             $scope.sending_message = true;
@@ -632,141 +628,8 @@ nb_util.controller('ClubCtrl', [
         $scope.leave_club = function() {
             nbUtil.coming_soon('club.leave', 'Leaving club');
         };
-    }
-]);
 
-
-nb_util.controller('ClubInfoCtrl', [
-    '$scope', '$q', '$location', '$timeout', '$routeParams', '$templateCache', 'nbUtil', 'nbUser', 'nbInode', 'nbClub',
-    function($scope, $q, $location, $timeout, $routeParams, $templateCache, nbUtil, nbUser, nbInode, nbClub) {
-        $scope.nbUtil = nbUtil;
-        $scope.nbUser = nbUser;
-        $scope.nbClub = nbClub;
-
-        var club;
-        $scope.edit_title = {};
-
-        $scope.$watch('club.title', function(value) {
-            $scope.edit_title.value = value;
-        });
-
-        nbClub.init_promise.then(function() {
-            init($routeParams.id);
-        });
-
-        function init(club_id) {
-            if (club_id) {
-                $scope.club = club = nbClub.get_club_or_redirect(club_id);
-                $scope.is_new = false;
-            } else {
-                $scope.club = club = angular.copy(nbClub.NEW_CLUB_OBJ);
-                $scope.is_new = true;
-            }
-            if (club && club.admin) {
-                $scope.edit_title.on = $scope.is_new;
-            } else {
-                delete $scope.edit_title.on;
-            }
-        }
-
-
-        $scope.back = function() {
-            if (!$scope.is_new || angular.equals(club, nbClub.NEW_CLUB_OBJ)) {
-                nbClub.goto_club(club._id);
-                return;
-            }
-            alertify.confirm('Discard changes?', function(e) {
-                if (!e) return;
-                nbClub.goto_club(club._id);
-                $scope.safe_apply();
-            });
-        };
-
-        $scope.save_club = function() {
-            var update_club = nbClub.get_club_for_update(club);
-            update_club.title = $scope.edit_title.value;
-            return nbClub.save_club(update_club, club).then(function(saved_club) {
-                if ($scope.is_new) {
-                    nbClub.goto_clubs();
-                } else {
-                    nbClub.goto_club(saved_club._id);
-                }
-            });
-        };
-
-        $scope.update_title = function() {
-            if ($scope.edit_title.value === club.title) {
-                $scope.edit_title.on = false;
-                return;
-            }
-            var update_club = nbClub.get_club_for_update(club);
-            update_club.title = $scope.edit_title.value;
-            return nbClub.save_club(update_club, club).then(function() {
-                init(club._id);
-            })['finally'](function() {
-                $scope.edit_title.on = false;
-            });
-        };
-
-        $scope.add_member = function() {
-            var html = ['<div class="modal" ng-controller="ClubMemberCtrl">',
-                '<div class="modal-dialog">',
-                '<div class="modal-content">',
-                '<div class="modal-body" style="padding: 0">',
-                $templateCache.get('friend_chooser.html'),
-                '</div>',
-                '</div>',
-                '</div>',
-                '</div>'
-            ].join('\n');
-            var modal;
-            var scope = $scope.$new();
-            scope.back = function() {
-                modal.modal('hide');
-            };
-            scope.choose = function(friend) {
-                modal.modal('hide');
-                if ($scope.is_new) {
-                    club.members.push({
-                        user: friend.id,
-                        user_info: friend
-                    });
-                    return;
-                }
-                var update_club = nbClub.get_club_for_update(club);
-                update_club.members.push({
-                    user: friend.id,
-                    user_info: friend
-                });
-                return nbClub.save_club(update_club, club).then(function() {
-                    init(club._id);
-                });
-            };
-            modal = nbUtil.make_modal({
-                // template: 'friend_chooser.html',
-                html: html,
-                scope: scope
-            });
-        };
-
-        $scope.remove_member = function(index) {
-            alertify.confirm('Remove member?', function(e) {
-                if (!e) return;
-                if ($scope.is_new) {
-                    club.members.splice(index, 1);
-                    $scope.safe_apply();
-                    return;
-                }
-                var update_club = nbClub.get_club_for_update(club);
-                update_club.members.splice(index, 1);
-                $scope.safe_apply();
-                return nbClub.save_club(update_club, club).then(function() {
-                    init(club._id);
-                });
-            });
-        };
-
-        $scope.leave_club = function() {
+        $scope.change_club_name = function() {
             nbUtil.coming_soon('club.leave', 'Leaving club');
         };
     }

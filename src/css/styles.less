@@ -146,185 +146,6 @@ body {
 /**/
 
 /******************************************************************************
-    NAVBAR 
- ******************************************************************************/
-
-.navbar2 {
-    margin: 0;
-    padding: 0;
-    border: none;
-    .bgnoise1;
-    // position: static;
-    z-index: 0;
-    line-height: 40px;
-    .navbar-brand {
-        padding: 10px;
-    }
-    .btn-link {
-        padding: 15px 6px;
-        .user-image {
-            margin: -5px 0;
-        }
-    }
-    .btn-success, .btn-default {
-        margin: 10px;
-    }
-    .btn-back {
-        padding: 0 20px 0 10px;
-        vertical-align: top;
-        .fa-angle-left {
-            font-size: 46px;
-            line-height: 46px;
-        }
-        .fa-home {
-            .fa-2x;
-            line-height: 50px;
-        }
-    }
-    .user-image {
-        margin: 10px;
-    }
-    .navbar-text {
-        font-size: 18px;
-        line-height: 50px;
-        margin: 0;
-        float: none;
-        // color: @text-color;
-
-    }
-}
-.navbar2.navbar-top {
-    height: @navbar-top-height;
-    border-bottom-width: 1px;
-    .navbar-brand {
-        display: inline-block;
-        float: none;
-        .noobaa-logo;
-    }
-    .navbar-user {
-        a {
-            padding: 8px 10px;
-            text-decoration: none;
-        }
-        .user-image {
-            width: auto;
-            height: 32px;
-        }
-    }
-}
-.navbar2.navbar-bottom {
-    height: @navbar-bottom-height;
-    > ul {
-        display: table;
-        // table-layout: fixed;
-        border-collapse: collapse;
-        border-spacing: 0;
-        width: 100%;
-        padding: 0;
-        margin: 0;
-        height: 100%;
-        > li {
-            display: table-cell;
-            height: 100%;
-            float: none;
-            font-size: 13px;
-            .text-center;
-            padding-top: 10px;
-            border-bottom: 4px solid transparent;
-            &:not(:first-child) {
-                border-left: 1px solid @border-color;
-            }
-            &.active, &.active:hover {
-                background-color: darken(@navbar-inverse-bg, 15%);
-                border-bottom-color: @brand-success;
-                > a {
-                    color: white;
-                }
-            }
-            &:hover {
-                background-color: darken(@navbar-inverse-bg, 7%);
-            }
-            > a {
-                line-height: 0;
-                position: relative;
-                display: block;
-                text-decoration: none;
-                // color: @gray-light;
-                > .fa {
-                    font-size: 30px;
-                    .fa-fw;
-                }
-                span {
-                    .hidden-xs;
-                }
-                > .fa-bell {
-                    .fa-fw;
-                    .text-success;
-                    // .tossing;
-                    .pulse;
-                    font-size: 1.4em;
-                    line-height: 0;
-                    position: absolute;
-                    top: 0;
-                    right: 0;
-                    margin: 4px 1px;
-                    // @d: 1px;
-                    // @s: 2px;
-                    // @c: black;
-                    // text-shadow: @d @d @s @c, -@d @d @s @c, @d -@d @s @c, -@d -@d @s @c;
-
-                }
-            }
-        }
-    }
-}
-/**/
-
-/* TODO remove? */
-
-.user-menu {
-    .fadeIn;
-    background-color: @navbar-default-bg;
-    border-right: 1px solid @gray-dark;
-    position: absolute;
-    top: 51px;
-    bottom: 0;
-    overflow: auto;
-    width: 160px;
-    left: -170px;
-    > hr {
-        margin: 10px 0 5px 0;
-    }
-    > ul {
-        .nav;
-        padding: 0;
-        margin: 0;
-        > li {
-            font-size: 13px;
-            > a {
-                margin: 0;
-                padding: 15px 10px 10px 10px;
-                color: hsl(0, 0%, 35%);
-                > .fa {
-                    font-size: 1.4em;
-                    .fa-fw;
-                }
-            }
-            &.active a {
-                color: @brand-primary;
-            }
-            &:hover > a {
-                background-color: transparent;
-            }
-            &:hover {
-                background-color: darken(@navbar-default-bg, 5%);
-            }
-        }
-    }
-}
-/**/
-
-/******************************************************************************
     CLUB 
  ******************************************************************************/
 
@@ -332,9 +153,6 @@ body {
     .bgnoise2;
     &, &:hover, .club-title, .navbar-text {
         color: white;
-    }
-    .navbar-text {
-        float: none;
     }
 }
 .club-title {
@@ -348,12 +166,10 @@ body {
         line-height: 1.4em;
     }
 }
-.club-info {
-    > .panel-body {
-        position: relative;
-    }
-}
 .club-panel {
+    .club-bg {
+        
+    }
     .club-input {
         .clearfix;
         border-top: 1px solid @border-color-light;
@@ -367,12 +183,6 @@ body {
             .inner-input;
             padding: 10px 10px 0 10px;
         }
-    }
-    .club-content {
-        // .bgnoise2;
-        // background-color: @gray-darker;
-        // padding: 10px 10px 0 10px;
-
     }
     .alert {
         .club-msg;

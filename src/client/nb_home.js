@@ -23,16 +23,7 @@ var nb_home = angular.module('nb_home', [
 nb_home.config(['$routeProvider', '$locationProvider',
     function($routeProvider, $locationProvider) {
         $locationProvider.html5Mode(true);
-        $routeProvider.when('/watch/', {
-            templateUrl: 'feed_template.html',
-            controller: ['$scope',
-                function($scope) {
-                    if (!$scope.feeds || !$scope.feeds.length) {
-                        $scope.refresh_feeds();
-                    }
-                }
-            ]
-        }).when('/files/:id*?', {
+        $routeProvider.when('/files/:id*?', {
             template: [
                 '<div nb-browse context="home_context"></div>'
             ].join('\n'),
@@ -44,13 +35,6 @@ nb_home.config(['$routeProvider', '$locationProvider',
         }).when('/club/', {
             templateUrl: 'clubs.html',
             controller: 'ClubsCtrl'
-                // }).when('/club/new', {
-                // templateUrl: 'club_info.html',
-                // }).when('/club/info/:id*', {
-                // templateUrl: 'club_info.html',
-        }).when('/club/member', {
-            templateUrl: 'friend_chooser.html',
-            controller: 'ClubMemberCtrl'
         }).when('/club/:id*', {
             templateUrl: 'club.html',
             controller: 'ClubCtrl'
@@ -60,12 +44,6 @@ nb_home.config(['$routeProvider', '$locationProvider',
         }).when('/upload/', {
             templateUrl: 'uploads.html',
             controller: 'UploadCtrl'
-        }).when('/yuval/', {
-            templateUrl: 'scene_template.html',
-            controller: 'YuvalScenesCtrl'
-        }).when('/guy/', {
-            templateUrl: 'scene_template.html',
-            controller: 'GuyScenesCtrl'
         }).otherwise({
             redirectTo: '/club'
         });

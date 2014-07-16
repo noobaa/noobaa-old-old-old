@@ -5,8 +5,21 @@
             <div ng-include="'action_bar_nav.html'" class="pull-left"></div>
             <div class="pull-right">
                 <button class="btn btn-link navbar-btn" ng-click="nbClub.poll_clubs()">
-                    <i class="fa fa-repeat fa-lg fa-lg"></i>
+                    <i class="fa fa-repeat fa-lg fa-fw"></i>
                 </button>
+                <div class="btn-group">
+                    <a class="btn btn-link navbar-btn dropdown-toggle" data-toggle="dropdown">
+                        <i class="fa fa-ellipsis-v fa-lg fa-fw"></i>
+                    </a>
+                    <ul class="dropdown-menu pull-right" role="menu">
+                        <li ng-if="club.admin">
+                            <a ng-click="change_club_name()">Change club title</a>
+                        </li>
+                        <li>
+                            <a ng-click="leave_club()">Leave club</a>
+                        </li>
+                    </ul>
+                </div>
                 <a class="btn btn-link navbar-btn" href="club/">
                     <span class="close">&times;</span>
                 </a>
@@ -18,25 +31,36 @@
     <div class="view-animate-area">
 
         <div ng-style="club.style" class="club-bg clearfix" style="padding: 10px">
-            <div class="pull-right">
-                <a ng-show="info_mode" ng-click="info_mode=!info_mode">
-                    <i class="fa fa-check fa-lg"></i>
-                </a>
-                <a ng-hide="info_mode" ng-click="info_mode=!info_mode">
-                    <span class="fa-stack">
-                        <i class="fa fa-circle-thin fa-stack-2x"></i>
-                        <i class="fa fa-info fa-stack-1x"></i>
-                    </span>
-                </a>
+            <div class="clearfix">
+                <div class="text-center club-title hflow" style="vertical-align: middle">
+                    <!-- <img style="width: 0; height: 100%" src="" /> -->
+                    <span>{{club.title}}</span>
+                </div>
             </div>
-            <div class="text-center club-title hflow" style="vertical-align: middle">
-                <!-- <img style="width: 0; height: 100%" src="" /> -->
-                <textarea dir="auto" ng-if="info_mode && club.admin" placeholder="Enter club title (e.g. fight club)" ng-model="edit_title.value" nb-enter="update_title()" ng-blur="update_title()" nb-auto-height="edit_title.value" nb-focus="true" class="inner-input text-center" style="display: inline-block; width: 98%; background-color: hsla(0,0%,0%,0.1); min-height: 2cm"></textarea>
-                <span ng-if="!info_mode || !club.admin">{{club.title}}</span>
+
+            <div class="clearfix">
+                <div ng-repeat="i in [0,1,2,3,4,5,6,7,8,9]">
+                    <a ng-click="click_club_member(i)">
+                        <div ng-if="club.members[i]" style="position: relative" class="pull-left">
+                            <div style="padding: 10px">
+                                <img class="user-image-lg" ng-src="{{nbUser.user_pic_url(club.members[i].user_info)}}" style="Xopacity: 0.3; vertical-align: top" />
+                            </div>
+                            <span class="label bg-white text-color" style="position: absolute; top: 0; right: 0">2</span>
+                        </div>
+                        <div ng-if="!club.members[i]" style="padding: 4px" class="pull-left">
+                            <div class="user-image-lg text-center" style="font-size: 30px; padding: 10px; background-color: hsl(0,0%,10%); border: 1px solid white; color: white">+</div>
+                        </div>
+                    </a>
+                    <div ng-if="i==4">
+                        <div class="clearfix"></div>
+                        <div style="height: 200px; background-color: black"></div>
+                    </div>
+                </div>
             </div>
+
         </div>
 
-        <div ng-if="!info_mode">
+        <div ng-if="!edit_mode">
             <div class="club-input">
                 <div class="club-msg-btn pull-right">
                     <div class="btn-group">
@@ -71,7 +95,7 @@
             </div>
         </div>
 
-        <div ng-if="!info_mode">
+        <div ng-if="!edit_mode">
             <div class="club-content">
                 <div ng-repeat="msg in club.msgs track by $index" class="clearfix">
                     <div ng-if="club.seen_msg == msg._id && !$first">
@@ -120,7 +144,7 @@
             </div>
         </div>
 
-        <div ng-if="info_mode">
+        <div ng-if="edit_mode">
             <hr class="headline" />
             <div class="line headline">
                 <b>MEMBERS</b>
