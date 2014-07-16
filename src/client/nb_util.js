@@ -65,7 +65,7 @@ nb_util.factory('nbUtil', [
             var html = opt.html || $templateCache.get(opt.template);
             var scope = opt.scope || $rootScope.$new();
             var e = $compile(html)(scope);
-            e.addClass('animated fadeInDown');
+            e.addClass('activity-animate');
             // close modal on ESC key
             $(window).off('keydown.nbutil_modal').on('keydown.nbutil_modal', function(event) {
                 if (event.which === 27 && !event.isDefaultPrevented()) {

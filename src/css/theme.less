@@ -600,16 +600,16 @@ a[ng-click], a[role=button] {
     right: 0;
 }
 .view-animate.ng-enter .view-animate-area {
-    opacity: 0;
+    &:extend(.activity-animate);
 }
 .view-animate.ng-enter.ng-enter-active .view-animate-area {
-    opacity: 1;
+    &:extend(.activity-animate.in);
 }
 .view-animate.ng-leave .view-animate-area {
-    opacity: 1;
+    &:extend(.activity-animate.in);
 }
 .view-animate.ng-leave.ng-leave-active .view-animate-area {
-    opacity: 0;
+    &:extend(.activity-animate);
 }
 .view-animate {
     .transition-time(0.4s);
@@ -618,6 +618,7 @@ a[ng-click], a[role=button] {
     left: 0;
     right: 0;
     // bottom: 0;
+
 }
 .view-animate-container {
     height: 100%;
@@ -807,4 +808,27 @@ a[ng-click], a[role=button] {
 }
 .social-sprite-youtube {
     background-position: 32% 0;
+}
+.activity-animate {
+    &, &.modal {
+        .transition-time(0.4s);
+        .activity-animate-off;
+        &.in {
+            .activity-animate-on;
+        }
+    }
+}
+.activity-animate-off {
+    opacity: 0;
+    @x: 5px;
+    @y: 10px;
+    transform: translate(@x, @y);
+    -ms-transform: translate(@x, @y);
+    -webkit-transform: translate(@x, @y);
+}
+.activity-animate-on {
+    opacity: 1;
+    transform: none;
+    -ms-transform: none;
+    -webkit-transform: none;
 }
