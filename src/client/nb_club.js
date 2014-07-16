@@ -641,6 +641,12 @@ nb_util.controller('ClubCtrl', [
             // TODO
             nbUtil.coming_soon(null, 'click_club_member');
         };
+
+        $scope.click_msg = function(msg_index) {
+            // wil trigger watch to update current_msg
+            $scope.current_msg_idx = msg_index;
+            window.scrollTo(0, 0);
+        };
     }
 ]);
 

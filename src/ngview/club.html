@@ -104,17 +104,17 @@
                     </div>
                     <hr/>
                 </div>
-                <div class="line" ng-style="msg_style(msg)">
+                <div class="line" Xng-style="msg_style(msg)">
                     <!-- <img style="width: 0; min-height: 70px" src="" /> -->
                     <img class="pull-left user-image" style="margin-right: 10px" ng-src="{{nbUser.user_pic_url(msg.user_info)}}" />
-                    <a class="pull-right" ng-click="msg.liked = !msg.liked" style="padding-left: 10px">
-                        <i class="fa fa-fw fa-2x {{msg.liked && 'fa-star text-danger' || msg.inode && 'fa-star text-white' || 'fa-star text-white'}} transition-fast"></i>
-                    </a>
-                    <a class="hflow hfill" ng-href="{{msg.inode && ('files/'+msg.inode.id) || ''}}">
+                    <a class="hflow hfill" Xng-href="{{msg.inode && ('files/'+msg.inode.id) || ''}}" ng-click="click_msg($index)">
+                        <div class="pull-right" style="padding-left: 10px">
+                            <i class="fa fa-chevron-circle-right fa-fw fa-lg text-muted"></i>
+                        </div>
                         <span ng-if="msg.text.length" class="text-wrap">
                             <span ng-bind-html="msg.text | linky:'_blank'" style="white-space: pre-wrap"></span>
                         </span>
-                        <div ng-if="msg.inode && msg.inode.content_kind != 'image'" class="hflow">
+                        <div ng-if="msg.inode" class="hflow">
                             <div class="text-ellipses">
                                 <i class="fa fa-{{nbUtil.icon_by_kind(msg.inode.content_kind)}} fa-fw club-msg-muted" style="margin-right: 5px"></i>
                                 <span>{{msg.inode.name}}</span>
