@@ -456,17 +456,15 @@ nb_util.controller('ClubCtrl', [
             if (club_id === 'new') {
                 $scope.club = club = angular.copy(nbClub.NEW_CLUB_OBJ);
                 $scope.is_new = true;
-                $scope.info_mode = true; // TODO REMOVE
-                $scope.edit_mode = true;
             } else {
                 $scope.club = club = nbClub.activate_club(club_id);
                 $scope.is_new = false;
             }
+            $scope.current_msg_idx = 0;
         }
 
-        $scope.current_msg_idx = 0;
         $scope.$watch('current_msg_idx', function() {
-            $scope.current_msg = club.msgs[$scope.current_msg_idx];
+            $scope.current_msg = club && club.msgs && club.msgs[$scope.current_msg_idx];
         });
 
         function send_club_message(msg) {
@@ -629,8 +627,19 @@ nb_util.controller('ClubCtrl', [
             nbUtil.coming_soon('club.leave', 'Leaving club');
         };
 
-        $scope.change_club_name = function() {
-            nbUtil.coming_soon('club.leave', 'Leaving club');
+        $scope.change_club_title = function() {
+            // TODO
+            nbUtil.coming_soon(null, 'change_club_title');
+        };
+
+        $scope.click_club_member = function(i) {
+            var member = club.members[i];
+            if (!member) {
+                $scope.add_member(i);
+                return;
+            }
+            // TODO
+            nbUtil.coming_soon(null, 'click_club_member');
         };
     }
 ]);
