@@ -435,7 +435,7 @@ nb_util.controller('ClubCtrl', [
         $scope.send_club_text = send_club_text;
         $scope.select_files_to_club = select_files_to_club;
         $scope.upload_files_to_club = upload_files_to_club;
-        $scope.msg_style = msg_style;
+        $scope.msg_image_style = msg_image_style;
 
         $scope.action_bar_title = 'CLUBS';
         $scope.$watch('nbClub.poll_progress_percent', function(val) {
@@ -527,7 +527,7 @@ nb_util.controller('ClubCtrl', [
             nbUtil.coming_soon('club.upload', 'Uploading files to club');
         }
 
-        function msg_style(msg) {
+        function msg_image_style(msg) {
             if (!msg || !msg.inode) {
                 return;
             }

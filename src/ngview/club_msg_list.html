@@ -1,5 +1,5 @@
 <div>
-    <a ng-repeat="msg in club.msgs track by $index" class="line clickable" ng-click="choose($index,msg)" Xng-style="msg_style(msg)" nb-scroll-into-view="$index==current_msg_index">
+    <a ng-repeat="msg in club.msgs track by $index" class="line clickable" ng-click="choose($index,msg)" Xng-style="msg_image_style(msg)" nb-scroll-into-view="$index==current_msg_index">
         <img class="pull-left user-image" style="margin-right: 10px" ng-src="{{nbUser.user_pic_url(msg.user_info)}}" />
         <div class="pull-right" style="padding-left: 10px">
             <i class="fa fa-chevron-circle-right fa-fw fa-lg text-muted"></i>

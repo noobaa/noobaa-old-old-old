@@ -36,6 +36,7 @@
                 <span>{{club.title}}</span>
             </div>
 
+            <!-- 
             <div class="club-table clearfix text-center">
                 <span ng-repeat="i in [0,1,2,3,4,5,6,7]">
                     <a ng-click="click_club_member(i)" class="Xpull-left {{i<=3 && 'club-member-top' || 'club-member-bottom'}}">
@@ -51,7 +52,7 @@
                         <div class="clearfix"></div>
                         <div style="height: 150px; padding: 5px; background-color: black; overflow: hidden">
 
-                            <div class="hfill" ng-style="msg_style(current_msg)">
+                            <div class="hfill" ng-style="msg_image_style(current_msg)">
                                 <img style="width: 0; height: 100%" src="" />
                                 <span ng-if="!current_msg" class="hfill">
                                     FIN
@@ -68,11 +69,13 @@
                                     </div>
                                 </a>
                             </div>
-                            <!-- <div nb-media="current_msg.inode" autoplay="false"></div> -->
+                            <!- - <div nb-media="current_msg.inode" autoplay="false"></div> - ->
                         </div>
                     </div>
                 </span>
             </div>
+            -->
+        </div>
 
 
         <div class="club-input">
@@ -108,6 +111,7 @@
             </div>
         </div>
 
+        <!-- 
         <div class="text-center">
             <button class="btn btn-link btn-lg" ng-click="prev_msg()">
                 <i class="fa fa-arrow-circle-o-left fa-2x text-muted"></i>
@@ -119,10 +123,10 @@
                 <i class="fa fa-arrow-circle-o-right fa-2x text-muted"></i>
             </button>
         </div>
+         -->
 
-        </div>
 
-        <div class="club-content" ng-if="false">
+        <div class="club-content">
             <div ng-repeat="msg in club.msgs track by $index" class="clearfix">
                 <div ng-if="club.seen_msg == msg._id && !$first">
                     <hr/>
@@ -135,21 +139,27 @@
                     </div>
                     <hr/>
                 </div>
-                <div class="line" Xng-style="msg_style(msg)">
+                <div class="line" Xng-style="msg_image_style(msg)">
                     <!-- <img style="width: 0; min-height: 70px" src="" /> -->
                     <img class="pull-left user-image" style="margin-right: 10px" ng-src="{{nbUser.user_pic_url(msg.user_info)}}" />
-                    <a class="hflow hfill" Xng-href="{{msg.inode && ('files/'+msg.inode.id) || ''}}" ng-click="click_msg($index)">
+                    <a class="hflow hfill" Xng-href="{{msg.inode && ('files/'+msg.inode.id) || ''}}" Xng-click="click_msg($index)">
+                        <!-- 
                         <div class="pull-right" style="padding-left: 10px">
                             <i class="fa fa-chevron-circle-right fa-fw fa-lg text-muted"></i>
                         </div>
+                         -->
                         <span ng-if="msg.text.length" class="text-wrap">
                             <span ng-bind-html="msg.text | linky:'_blank'" style="white-space: pre-wrap"></span>
                         </span>
                         <div ng-if="msg.inode" class="hflow">
-                            <div class="text-ellipses">
-                                <i class="fa {{nbUtil.icon_by_kind(msg.inode.content_kind)}} fa-fw club-msg-muted" style="margin-right: 5px"></i>
-                                <span>{{msg.inode.name}}</span>
+                            <div class="clearfix">
+                                <div class="pull-left" nb-media="msg.inode" autoplay="false"></div>
                             </div>
+                            <div class="text-ellipses club-msg-muted">
+                                <i class="fa {{nbUtil.icon_by_kind(msg.inode.content_kind)}} fa-fw" style="margin-right: 5px"></i>
+                                <small>{{msg.inode.name}}</small>
+                            </div>
+
                         </div>
                         <div>
                             <span class="club-msg-time">
@@ -157,14 +167,6 @@
                             </span>
                         </div>
                     </a>
-                    <!--  
-                    <a ng-if="msg.inode" ng-href="files/{{msg.inode.id}}" style="height: 80px">
-                            <i class="fa {{nbUtil.icon_by_kind(msg.inode.content_kind)}} fa-fw club-msg-muted" style="margin-right: 5px"></i>
-                            <span style="white-space: pre-wrap">{{msg.inode.name}}</span>
-                        <div nb-media="msg.inode" autoplay="false"></div>
-                    </a>
-                    -->
-
                 </div>
             </div>
         </div>
