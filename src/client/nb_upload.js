@@ -2,6 +2,8 @@
 
 var _ = require('underscore');
 var moment = require('moment');
+//var SHA256 = require("crypto-js/sha256");
+var CryptoJS = require("crypto-js");
 
 var nb_util = angular.module('nb_util');
 
@@ -90,10 +92,10 @@ UploadSrv.prototype.has_unfinished_uploads = function() {
     return (!this.list_loading.is_empty()) ||
         (!this.list_uploading.is_empty()) ||
         (!this.list_retrying.is_empty()) ||
-        ( !! this.jobq_load.length) ||
-        ( !! this.jobq_upload_small.length) ||
-        ( !! this.jobq_upload_medium.length) ||
-        ( !! this.jobq_upload_large.length);
+        (!!this.jobq_load.length) ||
+        (!!this.jobq_upload_small.length) ||
+        (!!this.jobq_upload_medium.length) ||
+        (!!this.jobq_upload_large.length);
 };
 
 
@@ -487,8 +489,8 @@ function find_existing_dirent_in_parent(upload) {
 }
 
 function fill_existing_dirent(upload, ent) {
-    var ent_isdir = !! ent.isdir;
-    var item_isdir = !! upload.item.isDirectory;
+    var ent_isdir = !!ent.isdir;
+    var item_isdir = !!upload.item.isDirectory;
     if (ent_isdir !== item_isdir) {
         return false;
     }
@@ -707,7 +709,16 @@ UploadSrv.prototype._mkfile = function(upload) {
 
     if (upload.dir_inode_id) {
         // create the file and receive upload location info
-        console.log('UPLOAD create', upload);
+        // console.log('UPLOAD create', upload);
+        // console.log('------------- yd ---------------');
+        // console.log(typeof item);
+        // console.log(item);
+
+        //calculate the has for this item
+        var local_hash = me._calc_hash(item);
+        console.log(typeof local_hash);
+        console.log(local_hash);
+
         return me.$http({
             method: 'POST',
             url: '/api/inode/',
@@ -728,6 +739,38 @@ UploadSrv.prototype._mkfile = function(upload) {
     }
 
     throw 'unknown target';
+};
+
+UploadSrv.prototype._calc_hash = function(item) {
+    var me = this;
+
+    var part_size = 1024;
+    var start = 0;
+    var end = start + part_size;
+    var sha256 = CryptoJS.algo.SHA256.create();
+
+    me._item_slice(item, start, end).then(function(data) {
+        //The reason for parsing as lating is that I got an error when reading binary files 
+        //such as images
+        //https://code.google.com/p/crypto-js/issues/detail?can=2&start=0&num=100&q=&colspec=ID%20Type%20Status%20Priority%20Milestone%20Owner%20Summary&groupby=&sort=&id=62
+        sha256.update(CryptoJS.enc.Latin1.parse(data));
+    });
+    start += part_size;
+    end += part_size;
+
+    /*jshint -W083 */
+    //this is due to a loop in funciton. Jshint screams on it.
+    //http://jslinterrors.com/dont-make-functions-within-a-loop
+    while (start = item.size) { //requires review
+        me._item_slice(item, start, end)
+            .then(function(data) {
+                sha256.update(CryptoJS.enc.Latin1.parse(data));
+            });
+        start += part_size;
+        end += part_size;
+    }
+
+    return sha256.finalize().toString(CryptoJS.enc.Hex);
 };
 
 

@@ -25,6 +25,7 @@
     "jquery": "global:$"
   },
   "dependencies": {
+    "npm-license": "0.2.2",
     "express": "~4.1.1",
     "static-favicon": "~1.0.2",
     "morgan": "~1.0.0",
@@ -92,6 +93,6 @@
     "gulp-notify": "~1.2.5",
     "passport-local": "~1.0.0",
     "bcrypt": "~0.7.8",
-    "crypto-js":"3.1.2-5"
+    "crypto-js": "3.1.2-5"
   }
 }

@@ -20,7 +20,9 @@ nb_dedupe.controller('dedupeCtrl', [
 
         $scope.check_hash = function(buff) {
             console.log(buff);
-            $scope.match_found = dedupeSrv.check_hash_existance(buff);
+            dedupeSrv.check_hash_existance(buff).then(function(res) {
+                $scope.match_found = res;
+            });
             return;
         };
     }
@@ -31,8 +33,29 @@ nb_dedupe.factory('dedupeSrv', [
     function($http) {
 
         var calc_hash_for_buff = function(buff) {
-            return SHA256(buff).toString(CryptoJS.enc.Hex);
-            // hash.toString(CryptoJS.enc.Hex)); // 2f77668a9dfbf8d5848b9eeb4a7145ca94c6ed9236e4a773f6dcafa5132b2f91
+            var sha256 = CryptoJS.algo.SHA256.create();
+            for (var i = 0, len = buff.length; i < len; i++) {
+                console.log(buff[i]);
+                sha256.update(buff[i]);
+            }
+            console.log(sha256.finalize().toString(CryptoJS.enc.Hex));
+
+            console.log(SHA256(buff).toString(CryptoJS.enc.Hex));
+            return;
+            // console.log('---------------------------');
+            // console.log(typeof SHA256);
+            // console.log(SHA256);
+            // console.log('---------------------------');
+
+            // return SHA256(buff).toString(CryptoJS.enc.Hex);
+
+            // var sha256 = CryptoJS.algo.SHA256.create();
+
+            // sha256.update("Message Part 1");
+            // sha256.update("Message Part 2");
+            // sha256.update("Message Part 3");
+
+            // var hash = sha256.finalize();
 
         };
 
@@ -49,15 +72,17 @@ nb_dedupe.factory('dedupeSrv', [
                 console.log(res);
                 if (!res.data.found_hash_match) {
                     console.log('Match not found. Need help on how to handle.');
-                    return;
+                    return false;
                 }
                 // lparams.range_offset
                 check_buff_sample(buff,
                     lparams.hash,
                     res.data.range_offset,
                     res.data.range_size);
+                return true;
             }, function(err) {
                 console.error('FAILED GET HASH', err);
+                throw err;
             });
         };
 

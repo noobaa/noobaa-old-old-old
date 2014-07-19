@@ -20,6 +20,7 @@ exports.hash_query = function(req, res) {
 				})
 				.exec(next);
 		},
+
 		function(matching_fobj, next) {
 			// didn't find a matching object - no dedupe
 			if (!matching_fobj) {
@@ -48,6 +49,7 @@ exports.hash_query = function(req, res) {
 function generate_range_offset_from_id(object_id) {
 	return 100;
 }
+
 
 function generate_range_size_from_id(object_id) {
 	return 4096;

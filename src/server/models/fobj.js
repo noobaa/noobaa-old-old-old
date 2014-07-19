@@ -12,9 +12,13 @@ var fobj_schema = new mongoose.Schema({
 		part_size: Number
 	},
 	hash: String,
-	sample_offset: Number,
-	sample_size: Number,
-	sample_data: Buffer,
+});
+
+// We query by the file hash to search for duplicates
+fobj_schema.index({
+	hash: 1
+}, {
+	unique: false
 });
 
 exports.Fobj = mongoose.model('Fobj', fobj_schema);
