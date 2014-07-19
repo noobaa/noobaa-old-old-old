@@ -152,15 +152,15 @@ nb_util.factory('nbUtil', [
         }
 
         var ICONS_BY_KIND = {
-            dir: 'folder-open',
-            video: 'video-camera',
-            audio: 'music',
-            image: 'picture-o',
-            text: 'file-text-o',
+            dir: 'fa-folder-open-o',
+            video: 'fa-film',
+            audio: 'fa-music',
+            image: 'fa-picture-o',
+            text: 'fa-file-text-o',
         };
 
         function icon_by_kind(kind) {
-            return ICONS_BY_KIND[kind] || 'file';
+            return ICONS_BY_KIND[kind] || 'fa-file-o';
         }
 
         var EMAIL_REGEX = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -464,6 +464,19 @@ nb_util.directive('nbEvents', ['$parse',
                 var events = scope.$eval(attr.nbEvents) || {};
                 for (var e in events) {
                     $(element).on(e, scope.safe_callback(events[e]));
+                }
+            }
+        };
+    }
+]);
+
+nb_util.directive('nbScrollIntoView', ['$timeout',
+    function($timeout) {
+        return {
+            restrict: 'A', // use as attribute
+            link: function(scope, element, attr) {
+                if (!attr.nbScrollIntoView || scope.$eval(attr.nbScrollIntoView)) {
+                    element.get(0).scrollIntoView();
                 }
             }
         };

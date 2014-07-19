@@ -37,7 +37,7 @@
                         <img class="user-image" ng-src="{{nbUser.user_pic_url(club.msgs[0].user_info)}}" />&nbsp;
                         <span>{{club.msgs[0].text}}</span>
                         <span ng-if="club.msgs[0].inode">
-                            <i class="fa fa-{{nbUtil.icon_by_kind(club.msgs[0].inode.content_kind)}} fa-fw"></i>
+                            <i class="fa {{nbUtil.icon_by_kind(club.msgs[0].inode.content_kind)}} fa-fw"></i>
                             {{club.msgs[0].inode.name}}
                         </span>
                     </div>

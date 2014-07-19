@@ -528,14 +528,13 @@ nb_util.controller('ClubCtrl', [
         }
 
         function msg_style(msg) {
-            var s = {};
-            if (msg.inode) {
-                s.background = 'center center/cover no-repeat scroll url(\'' +
-                    nbInode.fobj_get_url(msg.inode) + '\')';
-                s.color = 'white';
-                s.marginTop = s.marginBottom = '1px';
-                s.height = '2cm';
+            if (!msg || !msg.inode) {
+                return;
             }
+            var s = {};
+            s.background = 'center center/cover no-repeat scroll url(\'' +
+                nbInode.fobj_get_url(msg.inode) + '\')';
+            s.color = 'white';
             return s;
         }
 
@@ -646,6 +645,45 @@ nb_util.controller('ClubCtrl', [
             // wil trigger watch to update current_msg
             $scope.current_msg_idx = msg_index;
             window.scrollTo(0, 0);
+        };
+
+        $scope.prev_msg = function() {
+            if ($scope.current_msg_idx < 0) {
+                return;
+            }
+            $scope.current_msg_idx--;
+        };
+
+        $scope.next_msg = function() {
+            if ($scope.current_msg_idx >= club.msgs.length) {
+                return;
+            }
+            $scope.current_msg_idx++;
+        };
+
+        $scope.show_msg_list = function() {
+            var html = ['<div class="modal">',
+                '<div class="modal-dialog">',
+                '<div class="modal-content">',
+                '<div class="modal-body" style="padding: 0">',
+                $templateCache.get('club_msg_list.html'),
+                '</div>',
+                '</div>',
+                '</div>',
+                '</div>'
+            ].join('\n');
+            var modal;
+            var scope = $scope.$new();
+            scope.back = function() {
+                modal.modal('hide');
+            };
+            scope.choose = function(msg_index, msg) {
+                modal.modal('hide');$scope.current_msg_idx = msg_index;
+            };
+            modal = nbUtil.make_modal({
+                html: html,
+                scope: scope
+            });
         };
     }
 ]);

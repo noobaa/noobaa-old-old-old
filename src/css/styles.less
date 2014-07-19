@@ -10,8 +10,13 @@ html, body {
     padding: 0;
 }
 body {
+    // force y scroll to avoid screen flickers that occurs when
+    // switching from long modals to short page content or vice versa
+    // and then the addition of the vertical scroll changes the page available width.
+    overflow-y: scroll;
+    // set horizontal overflow to hide, to force our pages to only scroll vertically
     overflow-x: hidden;
-    overflow-y: auto;
+    // not sure if this helps at all -
     -webkit-overflow-scrolling: touch;
 }
 /**/
@@ -162,14 +167,14 @@ body {
 }
 .club-list {
     .club-title {
-        font-size: 24px;
+        font-size: 30px;
         line-height: 1.4em;
     }
 }
 .club-panel {
     .club-table {
         .club-table-noface {
-            opacity: 0.5;
+            opacity: 0.1;
             > div {
                 .user-image-lg;
                 .text-center;

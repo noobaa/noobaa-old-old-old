@@ -768,7 +768,7 @@ nb_util.factory('nbInode', [
                 var notify_message = [
                     '<p>Added to My-Data</p>',
                     '<p class="text-wrap">',
-                    ' <i class="fa fa-' + nbUtil.icon_by_kind(inode.content_kind) + ' fa-lg fa-fw"></i>',
+                    ' <i class="fa ' + nbUtil.icon_by_kind(inode.content_kind) + ' fa-lg fa-fw"></i>',
                     $sanitize(inode.name),
                     '</p>'
                 ].join('\n');

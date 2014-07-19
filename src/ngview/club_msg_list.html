@@ -1,0 +1,24 @@
+<div>
+    <a ng-repeat="msg in club.msgs track by $index" class="line clickable" ng-click="choose($index,msg)" Xng-style="msg_style(msg)" nb-scroll-into-view="$index==current_msg_index">
+        <img class="pull-left user-image" style="margin-right: 10px" ng-src="{{nbUser.user_pic_url(msg.user_info)}}" />
+        <div class="pull-right" style="padding-left: 10px">
+            <i class="fa fa-chevron-circle-right fa-fw fa-lg text-muted"></i>
+        </div>
+        <div class="hflow hfill">
+            <span ng-if="msg.text.length" class="text-wrap">
+                <span ng-bind-html="msg.text | linky:'_blank'" style="white-space: pre-wrap"></span>
+            </span>
+            <div ng-if="msg.inode" class="hflow">
+                <div class="text-ellipses">
+                    <i class="fa {{nbUtil.icon_by_kind(msg.inode.content_kind)}} fa-fw club-msg-muted" style="margin-right: 5px"></i>
+                    <span>{{msg.inode.name}}</span>
+                </div>
+            </div>
+            <div>
+                <span class="club-msg-time">
+                    {{msg.user == nbUser.user.id && 'me' || msg.user_info.first_name}} &middot; {{moment(msg.time).fromNow()}}
+                </span>
+            </div>
+        </div>
+    </a>
+</div>

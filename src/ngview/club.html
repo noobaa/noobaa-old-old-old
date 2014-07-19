@@ -1,4 +1,4 @@
-<div class="club-panel navbar-top-pad">
+<div class="club-panel navbar-top-pad" ng-swipe-left="next_msg()" ng-swipe-right="prev_msg()">
 
     <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
         <div class="clearfix">
@@ -37,26 +37,43 @@
             </div>
 
             <div class="club-table clearfix text-center">
-                <span ng-repeat="i in [0,1,2,3,4,5,6,7,8,9]">
-                    <a ng-click="click_club_member(i)" class="Xpull-left {{i<5 && 'club-member-top' || 'club-member-bottom'}}">
+                <span ng-repeat="i in [0,1,2,3,4,5,6,7]">
+                    <a ng-click="click_club_member(i)" class="Xpull-left {{i<=3 && 'club-member-top' || 'club-member-bottom'}}">
                         <div ng-if="!club.members[i]" class="club-table-noface">
-                            <div>+</div>
+                            <div></div>
                         </div>
                         <div ng-if="club.members[i]" class="club-table-face {{current_msg.user==club.members[i].user && 'active'}}">
                             <img class="user-image-lg" ng-src="{{nbUser.user_pic_url(club.members[i].user_info)}}" />
                             <span class="label bg-white text-color">2</span>
                         </div>
                     </a>
-                    <div ng-if="i==4">
+                    <div ng-if="i==3">
                         <div class="clearfix"></div>
-                        <div style="height: 150px; background-color: black; overflow: hidden">
-                            <div class="hfill" nb-media="current_msg.inode" autoplay="false"></div>
+                        <div style="height: 150px; padding: 5px; background-color: black; overflow: hidden">
+
+                            <div class="hfill" ng-style="msg_style(current_msg)">
+                                <img style="width: 0; height: 100%" src="" />
+                                <span ng-if="!current_msg" class="hfill">
+                                    FIN
+                                </span>
+                                <a ng-if="current_msg" Xng-href="{{current_msg.inode && ('files/'+current_msg.inode.id) || ''}}">
+                                    <span ng-if="current_msg.text.length" class="text-wrap">
+                                        <span ng-bind-html="current_msg.text | linky:'_blank'" style="white-space: pre-wrap"></span>
+                                    </span>
+                                    <div ng-if="current_msg.inode" class="hflow">
+                                        <div class="text-ellipses">
+                                            <i class="fa {{nbUtil.icon_by_kind(current_msg.inode.content_kind)}} fa-fw club-msg-muted" style="margin-right: 5px"></i>
+                                            <span>{{current_msg.inode.name}}</span>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <!-- <div nb-media="current_msg.inode" autoplay="false"></div> -->
                         </div>
                     </div>
                 </span>
             </div>
 
-        </div>
 
         <div class="club-input">
             <div class="club-msg-btn pull-right">
@@ -91,7 +108,21 @@
             </div>
         </div>
 
-        <div class="club-content">
+        <div class="text-center">
+            <button class="btn btn-link btn-lg" ng-click="prev_msg()">
+                <i class="fa fa-arrow-circle-o-left fa-2x text-muted"></i>
+            </button>
+            <button class="btn btn-link btn-lg" ng-click="show_msg_list()">
+                <i class="fa fa-th-list fa-3x text-white"></i>
+            </button>
+            <button class="btn btn-link btn-lg" ng-click="next_msg()">
+                <i class="fa fa-arrow-circle-o-right fa-2x text-muted"></i>
+            </button>
+        </div>
+
+        </div>
+
+        <div class="club-content" ng-if="false">
             <div ng-repeat="msg in club.msgs track by $index" class="clearfix">
                 <div ng-if="club.seen_msg == msg._id && !$first">
                     <hr/>
@@ -116,7 +147,7 @@
                         </span>
                         <div ng-if="msg.inode" class="hflow">
                             <div class="text-ellipses">
-                                <i class="fa fa-{{nbUtil.icon_by_kind(msg.inode.content_kind)}} fa-fw club-msg-muted" style="margin-right: 5px"></i>
+                                <i class="fa {{nbUtil.icon_by_kind(msg.inode.content_kind)}} fa-fw club-msg-muted" style="margin-right: 5px"></i>
                                 <span>{{msg.inode.name}}</span>
                             </div>
                         </div>
@@ -128,7 +159,7 @@
                     </a>
                     <!--  
                     <a ng-if="msg.inode" ng-href="files/{{msg.inode.id}}" style="height: 80px">
-                            <i class="fa fa-{{nbUtil.icon_by_kind(msg.inode.content_kind)}} fa-fw club-msg-muted" style="margin-right: 5px"></i>
+                            <i class="fa {{nbUtil.icon_by_kind(msg.inode.content_kind)}} fa-fw club-msg-muted" style="margin-right: 5px"></i>
                             <span style="white-space: pre-wrap">{{msg.inode.name}}</span>
                         <div nb-media="msg.inode" autoplay="false"></div>
                     </a>
