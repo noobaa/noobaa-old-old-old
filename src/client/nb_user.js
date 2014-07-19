@@ -427,7 +427,7 @@ nb_util.controller('UserAccountCtrl', [
         $scope.action_bar_title = 'ACCOUNT';
 
         $scope.click_usage = function() {
-            var e = $('.account .progress');
+            var e = $('#account_usage_progress');
             e.removeClass('animated flip');
             $timeout(function() {
                 e.addClass('animated flip');
