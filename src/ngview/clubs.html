@@ -4,12 +4,22 @@
         <div class="clearfix">
             <div ng-include="'action_bar_nav.html'" class="pull-left"></div>
             <div class="pull-right">
-                <button class="btn btn-link navbar-btn" ng-click="nbClub.poll_clubs()">
-                    <i class="fa fa-repeat fa-lg fa-lg"></i>
-                </button>
-                <a class="btn btn-link navbar-btn" href="club/new">
+                <a class="btn btn-link navbar-btn" ng-click="nbClub.create_new_club()">
                     NEW CLUB
                 </a>
+                <div class="btn-group">
+                    <a class="btn btn-link navbar-btn dropdown-toggle" data-toggle="dropdown">
+                        <i class="fa fa-ellipsis-v fa-lg fa-fw"></i>
+                    </a>
+                    <ul class="dropdown-menu pull-right" role="menu">
+                        <li>
+                            <a ng-click="nbClub.poll_clubs()">
+                                <i class="fa fa-repeat fa-lg fa-lg"></i>
+                                Refresh
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
         <div ng-include="'action_bar_progress.html'"></div>
@@ -17,30 +27,14 @@
 
     <div class="view-animate-area">
         <div ng-repeat="club in nbClub.clubs_arr track by $index">
-            <a ng-href="club/{{club._id}}" ng-style="club.style" style="display: block; padding: 20px" class="club-bg">
-                <div class="text-center club-title text-ellipses" style="height: 150px; vertical-align: middle">
-                    <img style="width: 0; height: 100%" src="" />
-                    <span>{{club.title}}</span>
-                </div>
-                <div class="clearfix">
-                    <div class="pull-right" style="margin-left: 20px">
-                        <span ng-show="club.new_msgs">
-                            <i class="fa fa-bell fa-fw fa-2x tossing"></i>
-                            {{club.new_msgs}} &nbsp;
-                        </span>
-                        <span ng-show="club.msgs.length">
-                            <i class="fa fa-film fa-fw fa-lg"></i>
-                            {{club.msgs.length}}
-                        </span>
-                    </div>
-                    <div style="opacity: 0.7" class="text-ellipses" ng-if="club.msgs.length">
-                        <img class="user-image" ng-src="{{nbUser.user_pic_url(club.msgs[0].user_info)}}" />&nbsp;
-                        <span>{{club.msgs[0].text}}</span>
-                        <span ng-if="club.msgs[0].inode">
-                            <i class="fa {{nbUtil.icon_by_kind(club.msgs[0].inode.content_kind)}} fa-fw"></i>
-                            {{club.msgs[0].inode.name}}
-                        </span>
-                    </div>
+            <a ng-href="club/{{club._id}}" class="club-bg line club-title" style="background-color: hsl({{club.bghue}},50%,45%); padding: 80px 20px">
+                <span ng-show="club.new_msgs">
+                    <!-- hidden bell on left for balance of title center -->
+                    <i class="pull-left fa fa-bell fa-fw fa-lg" style="visibility: hidden"></i>
+                    <i class="pull-right fa fa-bell fa-fw fa-lg tossing"></i>
+                </span>
+                <div class="hflow text-center text-ellipses">
+                    {{club.title}}
                 </div>
             </a>
             <hr class="headline" />

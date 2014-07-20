@@ -28,6 +28,7 @@ nb_util.factory('nbClub', [
             goto_club_info: goto_club_info,
             goto_add_member: goto_add_member,
             save_club: save_club,
+            create_new_club: create_new_club,
             get_club_for_update: get_club_for_update,
             start_club_with_email: start_club_with_email,
             send_club_message: send_club_message,
@@ -121,9 +122,8 @@ nb_util.factory('nbClub', [
                 c = club;
                 $scope.clubs[c._id] = c;
                 // console.log('GOT NEW CLUB', c);
-                c.style = {
-                    backgroundColor: 'hsl(' + Math.random() * 360 + ', 55%, 45%)'
-                };
+                // TODO save bghue in club
+                c.bghue = Math.random() * 360;
             }
             _.each(c.members, set_user_info);
             count_new_msgs(c);
@@ -346,6 +346,34 @@ nb_util.factory('nbClub', [
             });
         }
 
+        function create_new_club() {
+            alertify.prompt('Enter title for the new club:', function(res, title) {
+                if (!res) {
+                    return;
+                }
+                var club_data = angular.copy($scope.NEW_CLUB_OBJ);
+                club_data.title = title;
+                return create_club(club_data);
+            });
+        }
+
+        function create_club(club_data) {
+            var club_id;
+            return $http({
+                method: 'POST',
+                url: '/api/club/',
+                data: club_data
+            }).then(function(res) {
+                club_id = res.data.club_id;
+                return poll_clubs();
+            }).then(function() {
+                goto_club(club_id);
+            }).then(null, function(err) {
+                console.error('FAILED CREATE CLUB', err);
+                alertify.error('Oops, we failed to save the changes... internal error:', err);
+                throw err;
+            });
+        }
 
 
         function start_club_with_email(email) {
@@ -678,7 +706,8 @@ nb_util.controller('ClubCtrl', [
                 modal.modal('hide');
             };
             scope.choose = function(msg_index, msg) {
-                modal.modal('hide');$scope.current_msg_idx = msg_index;
+                modal.modal('hide');
+                $scope.current_msg_idx = msg_index;
             };
             modal = nbUtil.make_modal({
                 html: html,

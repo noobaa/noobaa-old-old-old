@@ -214,7 +214,7 @@
                             <i ng-show="select_mode && is_selected(inode)" class="fa fa-check-square-o fa-fw fa-lg"></i>
                             <i ng-hide="select_mode" class="fa fa-chevron-circle-right fa-fw fa-lg text-muted"></i>
                         </div>
-                        <div class="pull-right text-center" ng-switch="inode.content_kind" style="margin: -5px 0 -5px 10px; max-height: 50px; width: 50px">
+                        <div class="pull-right text-center" ng-switch="inode.content_kind" style="margin: -10px 0 -10px 10px; max-height: 40px; max-width: 80px">
                             <img ng-switch-when="image" ng-src="{{nbInode.fobj_get_url(inode)}}" style="vertical-align: top; max-width: 100%; max-height: 100%" />
                             <!-- <i ng-switch-when="video" class="fa fa-play-circle text-muted" style="font-size: 1cm"></i> -->
                             <!-- <i ng-switch-when="audio" class="fa fa-play-circle text-muted" style="font-size: 1cm"></i> -->
@@ -241,8 +241,8 @@
                          -->
                         </div>
                         <div class="text-wrap">
-                            <i class="fa {{nbUtil.icon_by_kind(inode.content_kind)}} fa-fw fa-2x text-muted" style="margin: 0 10px 0 5px"></i>
-                            <span style="white-space: pre-wrap; vertical-align: top; line-height: 2">{{inode.name}}</span>
+                            <i class="fa {{nbUtil.icon_by_kind(inode.content_kind)}} fa-fw fa-lg text-muted" style="margin: 0 10px 0 5px"></i>
+                            <span style="white-space: pre-wrap; vertical-align: top">{{inode.name}}</span>
                         </div>
                     </div>
                 </div>
