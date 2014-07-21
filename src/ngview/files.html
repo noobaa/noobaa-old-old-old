@@ -6,7 +6,7 @@
                 <button class="btn btn-default navbar-btn" ng-click="dialog.cancel()">
                     CANCEL
                 </button>
-                <button ng-click="dialog.run(selection)" class="btn btn-success navbar-btn">
+                <button ng-click="dialog.run(selection)" class="btn btn-primary navbar-btn">
                     {{dialog.run_caption}}
                 </button>
             </div>
@@ -241,7 +241,7 @@
                          -->
                         </div>
                         <div class="text-wrap">
-                            <i class="fa {{nbUtil.icon_by_kind(inode.content_kind)}} fa-fw fa-lg text-muted" style="margin: 0 10px 0 5px"></i>
+                            <i class="fa {{nbUtil.icon_by_kind(inode.content_kind)}} fa-fw fa-lg text-muted" style="margin: 0 10px 0 0"></i>
                             <span style="white-space: pre-wrap; vertical-align: top">{{inode.name}}</span>
                         </div>
                     </div>

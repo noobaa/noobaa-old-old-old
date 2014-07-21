@@ -1,7 +1,7 @@
 <div>
     <div class="line headline">
         MEMBERS
-        <a class="pull-right" ng-click="back()">
+        <a class="btn btn-link pull-right" ng-click="back()" style="padding-top: 0">
             <span class="close">&times;</span>
         </a>
     </div>
@@ -26,10 +26,11 @@
         <hr />
     </div>
     <div class="line text-center">
-        <a ng-if="club.admin" class="btn btn-info" ng-click="add_member()">
+        <a ng-if="club.admin" class="btn btn-default" ng-click="add_member()">
             <!-- <i class="fa fa-user fa-2x text-muted"></i> -->
             <!-- <i class="fa fa-plus text-success" style="margin-left: -7px; vertical-align: 14px"></i> -->
-            ADD FRIEND
+            <i class="fa fa-plus fa-fw fa-lg text-muted"></i>
+            ADD
         </a>
     </div>
 </div>

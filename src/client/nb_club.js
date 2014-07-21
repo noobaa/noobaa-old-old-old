@@ -462,6 +462,8 @@ nb_util.controller('ClubCtrl', [
                 });
                 return nbClub.update_club(club, {
                     members: members
+                }).then(function() {
+                    alertify.success(friend.first_name + ' is now a member')
                 });
             };
             modal = nbUtil.make_modal({
@@ -478,6 +480,8 @@ nb_util.controller('ClubCtrl', [
                     pick_member_fields);
                 return nbClub.update_club(club, {
                     members: members
+                }).then(function() {
+                    alertify.success(member.user_info.first_name + ' is no longer a member')
                 });
             });
         };

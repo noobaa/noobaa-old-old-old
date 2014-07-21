@@ -71,7 +71,7 @@
         <div class="club-input">
             <div class="club-msg-btn pull-right">
                 <div class="btn-group">
-                    <button ng-if="!club.message_input.length" class="btn btn-link dropdown-toggle" Xstyle="padding: 2px" data-toggle="dropdown" type="button">
+                    <button ng-if="!club.message_input.length" class="btn btn-default dropdown-toggle" Xstyle="padding: 2px" data-toggle="dropdown" type="button">
                         <i class="fa fa-paperclip fa-2x fa-rotate-90 fa-fw" style="line-height: 0; vertical-align: -5px"></i>
                         <!-- ATTACH -->
                         <!-- <i class="fa fa-caret-down"></i> -->
@@ -93,6 +93,7 @@
                     </ul>
                 </div>
                 <button ng-if="club.message_input.length" ng-click="send_club_text()" class="btn btn-default" ng-disabled="club.sending_message">
+                    <i class="fa fa-send fa-lg fa-fw text-muted"></i>
                     POST
                 </button>
             </div>
