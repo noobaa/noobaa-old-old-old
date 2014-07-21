@@ -1,22 +1,50 @@
-<div class="club-panel navbar-top-pad" ng-swipe-left="next_msg()" ng-swipe-right="prev_msg()">
+<div class="club-panel navbar-top-pad" Xng-swipe-left="next_club()" Xng-swipe-right="prev_club()">
 
     <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
         <div class="clearfix">
             <div ng-include="'action_bar_nav.html'" class="pull-left"></div>
             <div class="pull-right">
+                <!-- 
                 <button class="btn btn-link navbar-btn" ng-click="nbClub.poll_clubs()">
                     <i class="fa fa-repeat fa-lg fa-fw"></i>
                 </button>
+                 -->
                 <div class="btn-group">
                     <a class="btn btn-link navbar-btn dropdown-toggle" data-toggle="dropdown">
                         <i class="fa fa-ellipsis-v fa-lg fa-fw"></i>
                     </a>
                     <ul class="dropdown-menu pull-right" role="menu">
                         <li ng-if="club.admin">
-                            <a ng-click="change_club_title()">Change club title</a>
+                            <a ng-click="change_club_title()">
+                                <i class="fa fa-edit fa-lg fa-fw"></i>
+                                Change title
+                            </a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a ng-click="add_member()">
+                                <i class="fa fa-plus fa-lg fa-fw"></i>
+                                Add member
+                            </a>
                         </li>
                         <li>
-                            <a ng-click="leave_club()">Leave club</a>
+                            <a ng-click="show_members()">
+                                <i class="fa fa-th-list fa-lg fa-fw"></i>
+                                Show members
+                            </a>
+                        </li>
+                        <li ng-if="false">
+                            <a ng-click="leave_club()">
+                                <i class="fa fa-sign-out fa-lg fa-fw"></i>
+                                Leave club
+                            </a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a ng-click="nbClub.poll_clubs()">
+                                <i class="fa fa-repeat fa-lg fa-fw"></i>
+                                Refresh
+                            </a>
                         </li>
                     </ul>
                 </div>
@@ -30,53 +58,15 @@
 
     <div class="view-animate-area">
 
-        <div style="background-color: hsl({{club.bghue}},50%,45%)" class="club-bg clearfix">
-
+        <div class="club-bg" style="background-color: hsl({{club.bghue}},50%,45%)">
             <div class="text-center club-title" style="padding: 10px">
                 <span>{{club.title}}</span>
             </div>
-
-            <!-- 
-            <div class="club-table clearfix text-center">
-                <span ng-repeat="i in [0,1,2,3,4,5,6,7]">
-                    <a ng-click="click_club_member(i)" class="Xpull-left {{i<=3 && 'club-member-top' || 'club-member-bottom'}}">
-                        <div ng-if="!club.members[i]" class="club-table-noface">
-                            <div></div>
-                        </div>
-                        <div ng-if="club.members[i]" class="club-table-face {{current_msg.user==club.members[i].user && 'active'}}">
-                            <img class="user-image-lg" ng-src="{{nbUser.user_pic_url(club.members[i].user_info)}}" />
-                            <span class="label bg-white text-color">2</span>
-                        </div>
-                    </a>
-                    <div ng-if="i==3">
-                        <div class="clearfix"></div>
-                        <div style="height: 150px; padding: 5px; background-color: black; overflow: hidden">
-
-                            <div class="hfill" ng-style="msg_image_style(current_msg)">
-                                <img style="width: 0; height: 100%" src="" />
-                                <span ng-if="!current_msg" class="hfill">
-                                    FIN
-                                </span>
-                                <a ng-if="current_msg" Xng-href="{{current_msg.inode && ('files/'+current_msg.inode.id) || ''}}">
-                                    <span ng-if="current_msg.text.length" class="text-wrap">
-                                        <span ng-bind-html="current_msg.text | linky:'_blank'" style="white-space: pre-wrap"></span>
-                                    </span>
-                                    <div ng-if="current_msg.inode" class="hflow">
-                                        <div class="text-ellipses">
-                                            <i class="fa {{nbUtil.icon_by_kind(current_msg.inode.content_kind)}} fa-fw club-msg-muted" style="margin-right: 5px"></i>
-                                            <span>{{current_msg.inode.name}}</span>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                            <!- - <div nb-media="current_msg.inode" autoplay="false"></div> - ->
-                        </div>
-                    </div>
-                </span>
-            </div>
-            -->
         </div>
 
+        <a class="alert alert-info btn-block text-center" role="alert" ng-if="club.admin && club.members.length < 2" style="margin: 0" ng-click="add_member()">
+            <span class="alert-link">Add the first friend to your club</span>
+        </a>
 
         <div class="club-input">
             <div class="club-msg-btn pull-right">
@@ -102,33 +92,18 @@
                         </li>
                     </ul>
                 </div>
-                <button ng-if="club.message_input.length" ng-click="send_club_text()" class="btn btn-default" ng-disabled="sending_message">
+                <button ng-if="club.message_input.length" ng-click="send_club_text()" class="btn btn-default" ng-disabled="club.sending_message">
                     POST
                 </button>
             </div>
             <div style="overflow: hidden">
-                <textarea placeholder="Share something..." ng-model="club.message_input" nb-enter="send_club_text()" nb-auto-height="club.message_input" nb-focus="false" ng-disabled="sending_message"></textarea>
+                <textarea placeholder="Share something..." ng-model="club.message_input" nb-enter="send_club_text()" nb-auto-height="club.message_input" nb-focus="false" ng-disabled="club.sending_message"></textarea>
             </div>
         </div>
 
-        <!-- 
-        <div class="text-center">
-            <button class="btn btn-link btn-lg" ng-click="prev_msg()">
-                <i class="fa fa-arrow-circle-o-left fa-2x text-muted"></i>
-            </button>
-            <button class="btn btn-link btn-lg" ng-click="show_msg_list()">
-                <i class="fa fa-th-list fa-3x text-white"></i>
-            </button>
-            <button class="btn btn-link btn-lg" ng-click="next_msg()">
-                <i class="fa fa-arrow-circle-o-right fa-2x text-muted"></i>
-            </button>
-        </div>
-         -->
-
-
         <div class="club-content">
             <div ng-repeat="msg in club.msgs track by $index" class="clearfix">
-                <div ng-if="club.seen_msg == msg._id && !$first">
+                <div ng-if="last_seen_msg == msg._id && !$first">
                     <hr/>
                     <div class="text-center">
                         <div class="clearfix"></div>
@@ -139,7 +114,7 @@
                     </div>
                     <hr/>
                 </div>
-                <div class="line" Xng-style="msg_image_style(msg)">
+                <div class="line">
                     <!-- <img style="width: 0; min-height: 70px" src="" /> -->
                     <img class="pull-left user-image" style="margin-right: 10px" ng-src="{{nbUser.user_pic_url(msg.user_info)}}" />
                     <a class="hflow hfill" Xng-href="{{msg.inode && ('files/'+msg.inode.id) || ''}}" Xng-click="click_msg($index)">
@@ -168,39 +143,6 @@
                         </div>
                     </a>
                 </div>
-            </div>
-        </div>
-
-        <div ng-if="edit_mode">
-            <hr class="headline" />
-            <div class="line headline">
-                <b>MEMBERS</b>
-                <a ng-if="club.admin" class="btn btn-success" ng-click="add_member()">
-                    <!-- <i class="fa fa-user fa-2x text-muted"></i> -->
-                    <!-- <i class="fa fa-plus text-success" style="margin-left: -7px; vertical-align: 14px"></i> -->
-                    ADD FRIEND
-                </a>
-                <a ng-if="!is_new" class="btn btn-link" ng-click="leave_club()">
-                    LEAVE CLUB
-                </a>
-            </div>
-
-            <div ng-repeat="member in club.members track by $index">
-                <div class="line">
-                    <img class="pull-left user-image" ng-src="{{nbUser.user_pic_url(member.user_info)}}" />
-                    <div class="pull-right" style="padding-left: 10px">
-                        <button ng-click="remove_member($index)" ng-if="club.admin && !member.admin" class="close" style="margin-top: -15px">&times;</button>
-                        <span ng-show="member.admin" Xclass="text-success">ADMIN</span>
-                    </div>
-                    <div class="hflow" style="padding-left: 10px">
-                        <div class="text-ellipses">{{member.user_info.name}}</div>
-                        <div>
-                            <i ng-show="!member.user_info.id && member.user_info.fbid" class="fa fa-lg fa-facebook-square text-primary"></i>
-                            <i ng-show="!member.user_info.id && member.user_info.googleid" class="fa fa-lg fa-google-plus-square text-danger"></i>
-                        </div>
-                    </div>
-                </div>
-                <!-- <hr /> -->
             </div>
         </div>
 

@@ -172,6 +172,15 @@ body {
     }
 }
 .club-panel {
+    .club-member-noface {
+        opacity: 0.2;
+        .user-image;
+        .text-center;
+        background-color: white;
+        display: inline-block;
+        font-size: 20px;
+        line-height: 32px;
+    }
     .club-table {
         .club-table-noface {
             opacity: 0.1;
@@ -233,9 +242,6 @@ body {
             .inner-input;
             padding: 10px 10px 0 10px;
         }
-    }
-    .alert {
-        .club-msg;
     }
     .club-msg-muted {
         color: lighten(@gray, 10%);
@@ -382,11 +388,6 @@ body {
  ******************************************************************************/
 
 .friend-chooser {
-    .user-image {
-        width: 64px;
-        height: 64px;
-        vertical-align: top;
-    }
     .fa-caret-right {
         text-align: left;
         margin-left: 2px;

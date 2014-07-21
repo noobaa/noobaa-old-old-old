@@ -1,25 +1,23 @@
-<div ng-controller="FriendChooserCtrl" class="friend-chooser panel" Xnb-panel-hfill nb-escape="back()">
+<div ng-controller="FriendChooserCtrl" class="friend-chooser">
 
-    <div class="panel-heading">
-        <div class="navbar" style="padding: 10px; background: none">
-            <button ng-click="back()" class="btn btn-link btn-back pull-left">
-                <i class="fa fa-angle-left text-muted"></i>
-            </button>
-            <div class="hflow">
-                <div class="search-control form-control input-lg clearfix">
-                    <a class="btn btn-link pull-left" style="padding: 0 10px 0 0" ng-click="start_search_friend()">
-                        <i class="fa fa-search fa-lg text-muted"></i>
-                    </a>
-                    <button ng-show="friend_input" class="pull-right close" ng-click="reset_search_friend()" style="margin: -10px -10px 0 0">&times;</button>
-                    <div class="hflow relpos">
-                        <input type="text" class="inner-input" placeholder="Friend Name or Email" ng-model="friend_input" nb-focus="search_friend" ng-focus="start_search_friend()" />
-                    </div>
+    <div class="line">
+        <a ng-click="back()" class="btn btn-link pull-right">
+            <span class="close">&times;</span>
+        </a>
+        <div class="hflow">
+            <div class="Xsearch-control form-control input-lg clearfix">
+                <a class="btn btn-link pull-left" style="padding: 0 10px 0 0" ng-click="start_search_friend()">
+                    <i class="fa fa-search fa-lg text-muted"></i>
+                </a>
+                <button ng-show="friend_input" class="pull-right close" ng-click="reset_search_friend()" style="margin: -10px -10px 0 0">&times;</button>
+                <div class="hflow relpos">
+                    <input type="text" class="inner-input" placeholder="Friend Name or Email" ng-model="friend_input" nb-focus="search_friend" ng-focus="start_search_friend()" />
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="panel-body">
+    <div>
 
         <div ng-hide="filtered_friends.length || nbUtil.valid_email(friend_input)">
             <div class="line headline text-center text-muted">
@@ -29,7 +27,7 @@
 
         <div ng-repeat="friend in filtered_friends = (nbUser.friends.all | filter:{name:friend_input} | orderBy:'name' | limitTo:100) track by $index">
             <a class="line clickable {{was_chosen(friend) && 'disabled'}}" ng-click="choose_friend(friend)">
-                <img class="pull-left user-image-lg" ng-src="{{nbUser.user_pic_url(friend)}}" />
+                <img class="pull-left user-image" ng-src="{{nbUser.user_pic_url(friend)}}" />
                 <div class="pull-right show-on-disabled">
                     <i class="fa fa-lg fa-check"></i>
                 </div>

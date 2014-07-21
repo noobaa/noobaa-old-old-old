@@ -401,15 +401,15 @@ nb_util.factory('nbUser', [
         }
 
         function connect_facebook() {
-            nbUtil.coming_soon('user.connect_facebook', 'Connecting Facebook');
+            nbUtil.coming_soon('Connect Facebook', 'user.connect_facebook');
         }
 
         function connect_google() {
-            nbUtil.coming_soon('user.connect_google', 'Connecting Google');
+            nbUtil.coming_soon('Connect Google', 'user.connect_google');
         }
 
         function send_friend_reminder(friend) {
-            nbUtil.coming_soon('user.send_friend_reminder', 'Sending friend reminder');
+            nbUtil.coming_soon('Send friend reminder', 'user.send_friend_reminder');
         }
 
 

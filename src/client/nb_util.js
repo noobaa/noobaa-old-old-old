@@ -176,12 +176,11 @@ nb_util.factory('nbUtil', [
             return false;
         }
 
-        function coming_soon(event_name, description) {
+        function coming_soon(description, event_name) {
+            alertify.log('Coming soon - ' + description);
             if (event_name) {
                 track_event('coming_soon.' + event_name);
             }
-            alertify.log(description +
-                ' will soon be available, we will let you know when.');
         }
 
         /*

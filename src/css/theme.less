@@ -53,7 +53,7 @@
  @border-radius-large: 0;
  @border-radius-small: 0;
  @line-height-tall: 3em;
- // @font-family-sans-serif:"Averia Sans Libre", "Helvetica Neue", Helvetica, Arial, sans-serif;
+// @font-family-sans-serif:"Averia Sans Libre", "Helvetica Neue", Helvetica, Arial, sans-serif;
  @font-family-sans-serif:"Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 
 /**/
@@ -149,14 +149,22 @@ hr.headline {
     > li > a {
         padding: 20px;
         > .fa {
+            .text-muted;
             .fa-lg;
             margin-right: 10px;
         }
         > .fa-stack {
+            .text-muted;
             font-size: 0.7em;
             margin-right: 10px;
         }
     }
+}
+.bg-cover {
+    background-position: center center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: scroll
 }
 .progress-bar {
     min-width: initial !important;
@@ -464,6 +472,7 @@ a[ng-click], a[role=button] {
 .alertify-cover {
     .modal-backdrop;
     .modal-backdrop.in;
+    z-index: 1060;
 }
 .alertify {
     border-radius: @border-radius-base;

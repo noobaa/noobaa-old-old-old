@@ -284,11 +284,11 @@ nb_util.directive('nbBrowse', function() {
                 }
 
                 function share_inode_with_club() {
-                    nbUtil.coming_soon('files.share_inode_with_club', 'Sharing with club');
+                    nbUtil.coming_soon('Share with club', 'files.share_inode_with_club');
                 }
 
                 function share_inodes_with_club() {
-                    nbUtil.coming_soon('files.share_inodes_with_club', 'Sharing with club');
+                    nbUtil.coming_soon('Share with club', 'files.share_inodes_with_club');
                 }
             }
         ]
