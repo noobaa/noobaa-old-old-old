@@ -156,6 +156,15 @@ body {
 
 .club-bg {
     .bgnoise2;
+    &:active, &.ng-click-active {
+        position: relative;
+        &::after {
+            content:"";
+            .cover;
+            background-color: black;
+            opacity: 0.1;
+        }
+    }
     &, &:hover, .club-title, .navbar-text {
         color: white;
     }
@@ -236,11 +245,15 @@ body {
         padding: 0;
         margin: 0;
         .club-msg-btn {
-            padding: 5px;
+            height: 40px;
         }
-        textarea {
-            .inner-input;
-            padding: 10px 10px 0 10px;
+        .club-input-area {
+            overflow: hidden;
+            border-right: 1px solid @border-color-light;
+            textarea {
+                .inner-input;
+                padding: 10px 10px 0 10px;
+            }            
         }
     }
     .club-msg-muted {

@@ -4,6 +4,10 @@
         <div class="clearfix">
             <div ng-include="'action_bar_nav.html'" class="pull-left"></div>
             <div class="pull-right">
+                <a class="btn btn-link navbar-btn" href="club/">
+                    <i class="fa fa-angle-left"></i>
+                    BACK
+                </a>
                 <!-- 
                 <button class="btn btn-link navbar-btn" ng-click="nbClub.poll_clubs()">
                     <i class="fa fa-repeat fa-lg fa-fw"></i>
@@ -33,7 +37,7 @@
                                 Club members
                             </a>
                         </li>
-                        <li  ng-if="club.admin">
+                        <li ng-if="club.admin">
                             <a ng-click="add_member()">
                                 <i class="fa fa-user fa-lg fa-fw"></i>
                                 Add member
@@ -54,9 +58,6 @@
                         </li>
                     </ul>
                 </div>
-                <a class="btn btn-link navbar-btn" href="club/">
-                    <span class="close">&times;</span>
-                </a>
             </div>
         </div>
         <div ng-include="'action_bar_progress.html'"></div>
@@ -70,15 +71,11 @@
             </div>
         </div>
 
-        <a class="alert alert-info btn-block text-center" role="alert" ng-if="club.admin && club.members.length < 2" style="margin: 0" ng-click="add_member()">
-            <span class="alert-link">Add the first friend to your club</span>
-        </a>
-
         <div class="club-input">
             <div class="club-msg-btn pull-right">
-                <div class="btn-group">
-                    <button ng-if="!club.message_input.length" class="btn btn-default dropdown-toggle" Xstyle="padding: 2px" data-toggle="dropdown" type="button">
-                        <i class="fa fa-paperclip fa-2x fa-rotate-90 fa-fw" style="line-height: 0; vertical-align: -5px"></i>
+                <div class="btn-group" ng-if="!club.message_input.length">
+                    <button class="btn btn-link dropdown-toggle" data-toggle="dropdown" type="button">
+                        <i class="fa fa-paperclip fa-2x fa-rotate-90 fa-fw"></i>
                         <!-- ATTACH -->
                         <!-- <i class="fa fa-caret-down"></i> -->
                     </button>
@@ -98,14 +95,21 @@
                         </li>
                     </ul>
                 </div>
-                <button ng-if="club.message_input.length" ng-click="send_club_text()" class="btn btn-default" ng-disabled="club.sending_message">
+                <button ng-if="club.message_input.length" ng-click="send_club_text()" class="btn btn-link" ng-disabled="club.sending_message">
                     <i class="fa fa-send fa-lg fa-fw text-muted"></i>
                     POST
                 </button>
             </div>
-            <div style="overflow: hidden">
+            <div class="club-input-area">
                 <textarea placeholder="Share something..." ng-model="club.message_input" nb-enter="send_club_text()" nb-auto-height="club.message_input" nb-focus="false" ng-disabled="club.sending_message"></textarea>
             </div>
+        </div>
+
+        <div class="line text-center" ng-if="club.admin && club.members.length < 2">
+            <button class="btn btn-default Xbtn-block " ng-click="add_member()">
+                <i class="fa fa-plus text-muted"></i>
+                ADD A FRIEND TO YOUR CLUB
+            </button>
         </div>
 
         <div class="club-content">

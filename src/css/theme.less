@@ -202,7 +202,7 @@ hr.headline {
     &.navbar-fixed-top {
         margin: 0;
         // border: none;
-        .bgnoise2;
+        // .bgnoise2;
     }
     .navbar-brand {
         // display: inline-block;
@@ -366,16 +366,9 @@ a.clickable {
     }
 }
 .btn-trans {
-    // .transition-fast;
-    .btn-default;
+    &:extend(.btn-default);
     background-color: transparent;
     border: none;
-    &:hover {
-        background-color: transparent;
-        border: none;
-        // .btn-default;
-
-    }
 }
 .btn-hover-only {
     .transition-fast;

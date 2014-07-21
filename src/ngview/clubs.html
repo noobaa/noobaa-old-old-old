@@ -27,7 +27,7 @@
 
     <div class="view-animate-area">
         <div ng-repeat="club in nbClub.clubs_arr track by $index">
-            <a ng-href="club/{{club._id}}" class="club-bg line club-title" style="background-color: hsl({{club.color}},50%,45%); padding: 80px 20px">
+            <a ng-href="club/{{club._id}}" class="btn btn-trans btn-block club-bg club-title" style="background-color: hsl({{club.color}},50%,45%); padding: 80px 20px">
                 <span ng-show="club.new_msgs">
                     <!-- hidden bell on left for balance of title center -->
                     <i class="pull-left fa fa-bell fa-fw fa-lg" style="visibility: hidden"></i>
