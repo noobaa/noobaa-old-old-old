@@ -11,7 +11,7 @@
             <img class="pull-left user-image" ng-src="{{nbUser.user_pic_url(member.user_info)}}" />
             <div class="pull-right" style="padding-left: 10px">
                 <button ng-click="remove_member(member)" ng-if="club.admin && !member.admin" style="margin-top: -10px" class="btn btn-link">
-                    <i class="fa fa-trash-o fa-lg fa-fw"></i>
+                    <i class="fa fa-trash-o fa-lg fa-fw text-warning"></i>
                 </button>
                 <span ng-show="member.admin">ADMIN</span>
             </div>
@@ -25,8 +25,8 @@
         </div>
         <hr />
     </div>
-    <div class="line text-center">
-        <a ng-if="club.admin" class="btn btn-default" ng-click="add_member()">
+    <div class="line text-center" ng-if="club.admin">
+        <a class="btn btn-primary" ng-click="add_member()">
             <!-- <i class="fa fa-user fa-2x text-muted"></i> -->
             <!-- <i class="fa fa-plus text-success" style="margin-left: -7px; vertical-align: 14px"></i> -->
             <i class="fa fa-plus fa-fw fa-lg text-muted"></i>

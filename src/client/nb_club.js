@@ -114,9 +114,9 @@ nb_util.factory('nbClub', [
             } else {
                 c = club;
                 $scope.clubs[c._id] = c;
+                // TODO save color in club (DB)
+                c.color = Math.random() * 360;
                 // console.log('GOT NEW CLUB', c);
-                // TODO save bghue in club
-                c.bghue = Math.random() * 360;
             }
             _.each(c.members, set_user_info);
             count_new_msgs(c);
@@ -432,6 +432,18 @@ nb_util.controller('ClubCtrl', [
                     title: title
                 });
             }, club.title);
+        };
+
+        $scope.change_club_color = function(change) {
+            if (!club.admin) {
+                return;
+            }
+            // TODO save color in club (DB)
+            if (!change) {
+                club.color = Math.random() * 360;
+            } else {
+                club.color = (club.color + change) % 360;
+            }
         };
 
         function pick_member_fields(member) {

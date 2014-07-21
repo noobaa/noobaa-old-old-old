@@ -184,8 +184,8 @@
  -->
 
     <div class="view-animate-area hfill-scroll">
-        <div class="hflow bggrey bgnoise2">
-            <div class="text-center text-ellipses text-color">
+        <div class="hflow bggrey bgnoise2" style="padding: 5px 10px">
+            <div class="text-center text-wrap text-color">
                 {{current_inode.name}}
             </div>
         </div>
@@ -214,11 +214,8 @@
                             <i ng-show="select_mode && is_selected(inode)" class="fa fa-check-square-o fa-fw fa-lg"></i>
                             <i ng-hide="select_mode" class="fa fa-chevron-circle-right fa-fw fa-lg text-muted"></i>
                         </div>
-                        <div class="pull-right text-center" ng-switch="inode.content_kind" style="margin: -10px 0 -10px 10px; max-height: 40px; max-width: 80px">
-                            <img ng-switch-when="image" ng-src="{{nbInode.fobj_get_url(inode)}}" style="vertical-align: top; max-width: 100%; max-height: 100%" />
-                            <!-- <i ng-switch-when="video" class="fa fa-play-circle text-muted" style="font-size: 1cm"></i> -->
-                            <!-- <i ng-switch-when="audio" class="fa fa-play-circle text-muted" style="font-size: 1cm"></i> -->
-                            <!-- <i ng-switch-default class="fa fa-chevron-circle-right text-muted" style="font-size: 1cm"></i> -->
+                        <div class="pull-right text-center" ng-if="inode.content_kind=='image'" style="margin: -10px 0 -10px 10px; height: 40px; width: 60px">
+                            <img ng-src="{{nbInode.fobj_get_url(inode)}}" style="vertical-align: top; max-width: 100%; max-height: 100%" />
                         </div>
                         <div class="pull-right hidden-xs hidden" style="margin-left: 10px">
                             <span ng-show="inode.uploading">
@@ -240,9 +237,9 @@
                         </a>
                          -->
                         </div>
-                        <div class="text-wrap">
+                        <div class="text-ellipses">
                             <i class="fa {{nbUtil.icon_by_kind(inode.content_kind)}} fa-fw fa-lg text-muted" style="margin: 0 10px 0 0"></i>
-                            <span style="white-space: pre-wrap; vertical-align: top">{{inode.name}}</span>
+                            <span style="Xwhite-space: pre-wrap; vertical-align: top">{{inode.name}}</span>
                         </div>
                     </div>
                 </div>

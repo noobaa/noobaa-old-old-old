@@ -20,17 +20,23 @@
                                 Change title
                             </a>
                         </li>
-                        <li class="divider"></li>
-                        <li>
-                            <a ng-click="add_member()">
-                                <i class="fa fa-plus fa-lg fa-fw"></i>
-                                Add member
+                        <li ng-if="club.admin">
+                            <a ng-click="change_club_color()">
+                                <i class="fa fa-magic fa-lg fa-fw"></i>
+                                Change color
                             </a>
                         </li>
+                        <li class="divider"></li>
                         <li>
                             <a ng-click="show_members()">
                                 <i class="fa fa-th-list fa-lg fa-fw"></i>
-                                Show members
+                                Club members
+                            </a>
+                        </li>
+                        <li  ng-if="club.admin">
+                            <a ng-click="add_member()">
+                                <i class="fa fa-user fa-lg fa-fw"></i>
+                                Add member
                             </a>
                         </li>
                         <li ng-if="false">
@@ -58,7 +64,7 @@
 
     <div class="view-animate-area">
 
-        <div class="club-bg" style="background-color: hsl({{club.bghue}},50%,45%)">
+        <div class="club-bg" style="background-color: hsl({{club.color}},50%,45%)" ng-swipe-left="change_club_color(15)" ng-swipe-right="change_club_color(-15)">
             <div class="text-center club-title" style="padding: 10px">
                 <span>{{club.title}}</span>
             </div>
