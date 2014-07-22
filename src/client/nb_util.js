@@ -49,6 +49,7 @@ nb_util.factory('nbUtil', [
             moment: require('moment'),
             active_link: active_link,
             make_modal: make_modal,
+            modal_body_wrap: modal_body_wrap,
             track_event: track_event,
             icon_by_kind: icon_by_kind,
             valid_email: valid_email,
@@ -110,6 +111,22 @@ nb_util.factory('nbUtil', [
                 show: !opt.noshow
             });
             return e;
+        }
+
+        function modal_body_wrap(opt) {
+            return [
+                '<div class="modal"',
+                opt.controller ? ' ng-controller="' + opt.controller + '"' : '',
+                '>',
+                '<div class="modal-dialog">',
+                '<div class="modal-content">',
+                '<div class="modal-body" style="padding: 0">',
+                $templateCache.get(opt.template),
+                '</div>',
+                '</div>',
+                '</div>',
+                '</div>'
+            ].join('\n');
         }
 
 

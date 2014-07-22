@@ -115,8 +115,10 @@ nb_util.factory('nbClub', [
             } else {
                 c = club;
                 $scope.clubs[c._id] = c;
-                // TODO save color in club (DB)
-                c.color = Math.random() * 360;
+                if (!c.color) {
+                    // TODO save color in club (DB)
+                    c.color = Math.floor(Math.random() * 360);
+                }
                 // console.log('GOT NEW CLUB', c);
             }
             _.each(c.members, set_user_info);
@@ -437,16 +439,37 @@ nb_util.controller('ClubCtrl', [
             }, club.title);
         };
 
-        $scope.change_club_color = function(change) {
+        $scope.change_club_color = function() {
             if (!club.admin) {
                 return;
             }
-            // TODO save color in club (DB)
-            if (!change) {
-                club.color = Math.random() * 360;
-            } else {
-                club.color = (club.color + change) % 360;
-            }
+            var modal;
+            var scope = $scope.$new();
+            scope.color = club.color;
+            scope.back = function() {
+                modal.modal('hide');
+            };
+            scope.change_color = function(change) {
+                if (!change) {
+                    scope.color = Math.floor(Math.random() * 360);
+                } else {
+                    scope.color = Math.floor((scope.color + (5 * change)) % 360);
+                }
+            };
+            scope.choose = function() {
+                modal.modal('hide');
+                return nbClub.update_club(club, {
+                    color: scope.color
+                }).then(function() {
+                    club.color = scope.color
+                });
+            };
+            modal = nbUtil.make_modal({
+                scope: scope,
+                html: nbUtil.modal_body_wrap({
+                    template: 'color_chooser.html'
+                }),
+            });
         };
 
         function pick_member_fields(member) {
@@ -454,16 +477,6 @@ nb_util.controller('ClubCtrl', [
         }
 
         $scope.add_member = function() {
-            var html = ['<div class="modal" ng-controller="ClubMemberCtrl">',
-                '<div class="modal-dialog">',
-                '<div class="modal-content">',
-                '<div class="modal-body" style="padding: 0">',
-                $templateCache.get('friend_chooser.html'),
-                '</div>',
-                '</div>',
-                '</div>',
-                '</div>'
-            ].join('\n');
             var modal;
             var scope = $scope.$new();
             scope.back = function() {
@@ -482,8 +495,11 @@ nb_util.controller('ClubCtrl', [
                 });
             };
             modal = nbUtil.make_modal({
-                html: html,
-                scope: scope
+                scope: scope,
+                html: nbUtil.modal_body_wrap({
+                    template: 'friend_chooser.html',
+                    controller: 'ClubMemberCtrl',
+                }),
             });
         };
 
@@ -502,16 +518,6 @@ nb_util.controller('ClubCtrl', [
         };
 
         $scope.show_members = function() {
-            var html = ['<div class="modal">',
-                '<div class="modal-dialog">',
-                '<div class="modal-content">',
-                '<div class="modal-body" style="padding: 0">',
-                $templateCache.get('club_members.html'),
-                '</div>',
-                '</div>',
-                '</div>',
-                '</div>'
-            ].join('\n');
             var modal;
             var scope = $scope.$new();
             scope.back = function() {
@@ -522,8 +528,10 @@ nb_util.controller('ClubCtrl', [
                 $scope.add_member();
             };
             modal = nbUtil.make_modal({
-                html: html,
-                scope: scope
+                scope: scope,
+                html: nbUtil.modal_body_wrap({
+                    template: 'club_members.html',
+                }),
             });
         };
 

@@ -62,10 +62,14 @@ exports.poll = function(req, res) {
 };
 
 
+function pick_club_fields(obj) {
+    return _.pick(obj, 'title', 'color');
+}
+
 exports.create = function(req, res) {
     var user_id = mongoose.Types.ObjectId(req.user.id);
-    var club = new Club();
-    club.title = req.body.title;
+    var club_data = pick_club_fields(req.body);
+    var club = new Club(club_data);
 
     async.waterfall([
         function(next) {
@@ -92,6 +96,7 @@ exports.create = function(req, res) {
 exports.update = function(req, res) {
     var user_id = mongoose.Types.ObjectId(req.user.id);
     var club_id = mongoose.Types.ObjectId(req.params.club_id);
+    var club_data = pick_club_fields(req.body);
     var club;
     async.waterfall([
         function(next) {
@@ -103,9 +108,7 @@ exports.update = function(req, res) {
         },
         function(next) {
             club.mtime = club.ctime = new Date(); // touch times
-            if (req.body.title) {
-                club.title = req.body.title;
-            }
+            _.extend(club, club_data); // apply updates
             if (req.body.members) {
                 return set_club_members(club, req.body.members, next);
             } else {

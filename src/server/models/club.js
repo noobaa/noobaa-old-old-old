@@ -16,6 +16,7 @@ var club_schema = new mongoose.Schema({
         default: Date.now
     },
     title: String,
+    color: Number,
     members: [{
         user: {
             type: types.ObjectId,

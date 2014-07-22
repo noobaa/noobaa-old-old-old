@@ -74,8 +74,9 @@
 
     <div class="view-animate-area" ng-if="!!club">
 
-        <div class="club-bg" style="background-color: hsl({{club.color}},50%,45%)" ng-swipe-left="change_club_color(15)" ng-swipe-right="change_club_color(-15)">
+        <div class="club-bg" style="background-color: hsl({{club.color}},50%,45%)">
             <div class="text-center club-title" style="padding: 10px">
+                <img class="transition-fast" style="vertical-align: middle; width: 0; height: {{change_color_timeout && '200px' || '0'}}" src="" />
                 <span>{{club.title}}</span>
             </div>
         </div>
