@@ -8,6 +8,9 @@
                     <i class="fa fa-angle-left"></i>
                     BACK
                 </a>
+                <a class="btn btn-link navbar-btn" ng-click="show_members()">
+                    <i class="fa fa-th-list fa-lg fa-fw"></i>
+                </a>
                 <!-- 
                 <button class="btn btn-link navbar-btn" ng-click="nbClub.poll_clubs()">
                     <i class="fa fa-repeat fa-lg fa-fw"></i>
@@ -39,7 +42,7 @@
                         </li>
                         <li ng-if="club.admin">
                             <a ng-click="add_member()">
-                                <i class="fa fa-user fa-lg fa-fw"></i>
+                                <i class="fa fa-plus fa-lg fa-fw"></i>
                                 Add member
                             </a>
                         </li>
@@ -63,7 +66,13 @@
         <div ng-include="'action_bar_progress.html'"></div>
     </nav>
 
-    <div class="view-animate-area">
+    <div class="view-animate-area" ng-if="!club">
+        <div class="line headline text-center text-muted">
+            <i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>
+        </div>
+    </div>
+
+    <div class="view-animate-area" ng-if="!!club">
 
         <div class="club-bg" style="background-color: hsl({{club.color}},50%,45%)" ng-swipe-left="change_club_color(15)" ng-swipe-right="change_club_color(-15)">
             <div class="text-center club-title" style="padding: 10px">

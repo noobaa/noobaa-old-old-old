@@ -22,6 +22,7 @@ nb_util.factory('nbClub', [
             poll_clubs: poll_clubs,
             goto_clubs: goto_clubs,
             goto_club: goto_club,
+            mark_seen: mark_seen,
             create_new_club: create_new_club,
             update_club: update_club,
             send_club_message: send_club_message,
@@ -354,16 +355,18 @@ nb_util.controller('ClubCtrl', [
         });
         */
 
+        var club_id = $routeParams.id;
         var club;
 
         nbClub.init_promise.then(function() {
-            init($routeParams.id);
-        });
-
-        function init(club_id) {
             $scope.club = club = nbClub.get_club_or_redirect(club_id);
+            if (!club) {
+                // redirect is in progress
+                return;
+            }
             $scope.last_seen_msg = club.seen_msg;
-        }
+            nbClub.mark_seen(club);
+        });
 
         $scope.click_msg = function(msg_index) {
             // TODO
@@ -513,6 +516,10 @@ nb_util.controller('ClubCtrl', [
             var scope = $scope.$new();
             scope.back = function() {
                 modal.modal('hide');
+            };
+            scope.add_member = function() {
+                modal.modal('hide');
+                $scope.add_member();
             };
             modal = nbUtil.make_modal({
                 html: html,
