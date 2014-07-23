@@ -9,23 +9,10 @@
                         <i class="fa fa-ellipsis-v fa-lg fa-fw"></i>
                     </a>
                     <ul class="dropdown-menu pull-right" role="menu">
-                        <li ng-if="club.admin">
-                            <a ng-click="change_club_title()">
-                                <i class="fa fa-edit fa-lg fa-fw"></i>
-                                Change title
-                            </a>
-                        </li>
-                        <li ng-if="club.admin">
-                            <a ng-click="change_club_color()">
-                                <i class="fa fa-magic fa-lg fa-fw"></i>
-                                Change color
-                            </a>
-                        </li>
-                        <li class="divider"></li>
                         <li>
                             <a ng-click="show_members()">
                                 <i class="fa fa-user fa-lg fa-fw"></i>
-                                Club members
+                                Club members...
                             </a>
                         </li>
                         <li ng-if="club.admin">
@@ -38,6 +25,19 @@
                             <a ng-click="leave_club()">
                                 <i class="fa fa-sign-out fa-lg fa-fw"></i>
                                 Leave club
+                            </a>
+                        </li>
+                        <li ng-if="club.admin" class="divider"></li>
+                        <li ng-if="club.admin">
+                            <a ng-click="change_club_title()">
+                                <i class="fa fa-edit fa-lg fa-fw"></i>
+                                Change title
+                            </a>
+                        </li>
+                        <li ng-if="club.admin">
+                            <a ng-click="change_club_color()">
+                                <i class="fa fa-magic fa-lg fa-fw"></i>
+                                Change color
                             </a>
                         </li>
                         <li class="divider"></li>
