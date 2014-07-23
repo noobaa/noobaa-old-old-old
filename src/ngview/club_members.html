@@ -1,6 +1,6 @@
 <div>
     <div class="line headline">
-        MEMBERS
+        CLUB MEMBERS
         <a class="btn btn-link pull-right" ng-click="back()" style="padding-top: 0">
             <span class="close">&times;</span>
         </a>
@@ -11,9 +11,9 @@
             <img class="pull-left user-image" ng-src="{{nbUser.user_pic_url(member.user_info)}}" />
             <div class="pull-right" style="padding-left: 10px">
                 <button ng-click="remove_member(member)" ng-if="club.admin && !member.admin" style="margin-top: -10px" class="btn btn-link">
-                    <i class="fa fa-trash-o fa-lg fa-fw text-warning"></i>
+                    <i class="fa fa-trash-o fa-lg fa-fw text-muted"></i>
                 </button>
-                <span ng-show="member.admin">ADMIN</span>
+                <b ng-show="member.admin">OWNER</b>
             </div>
             <div class="hflow" style="padding-left: 10px">
                 <div class="text-ellipses">{{member.user_info.name}}</div>

@@ -4,14 +4,17 @@
         <div class="clearfix">
             <div ng-include="'action_bar_nav.html'" class="pull-left"></div>
             <div class="pull-right">
-                <a class="btn btn-link navbar-btn" ng-click="nbClub.create_new_club()">
-                    NEW CLUB
-                </a>
                 <div class="btn-group">
                     <a class="btn btn-link navbar-btn dropdown-toggle" data-toggle="dropdown">
                         <i class="fa fa-ellipsis-v fa-lg fa-fw"></i>
                     </a>
                     <ul class="dropdown-menu pull-right" role="menu">
+                        <li>
+                            <a ng-click="nbClub.create_new_club()">
+                                <i class="fa fa-plus fa-lg fa-lg"></i>
+                                New Club
+                            </a>
+                        </li>
                         <li>
                             <a ng-click="nbClub.poll_clubs()">
                                 <i class="fa fa-repeat fa-lg fa-lg"></i>
@@ -27,7 +30,7 @@
 
     <div class="view-animate-area">
         <div ng-repeat="club in nbClub.clubs_arr track by $index">
-            <a ng-href="club/{{club._id}}" class="club-bg club-title" style="display: block; background-color: hsl({{club.color}},50%,45%); padding: 80px 20px">
+            <a ng-href="club/{{club._id}}" class="club-bg club-title" style="display: block; background-color: hsl({{club.color}},60%,45%); padding: 80px 20px">
                 <span ng-show="club.new_msgs">
                     <!-- hidden bell on left for balance of title center -->
                     <i class="pull-left fa fa-bell fa-fw fa-lg" style="visibility: hidden"></i>
@@ -39,5 +42,8 @@
             </a>
             <hr class="headline" />
         </div>
+        <a ng-click="nbClub.create_new_club()" class="btn-line">
+            <img src="/public/images/thedude.png" height="90" style="vertical-align: middle; margin: 10px -10px" />LETS CREATE A NEW CLUB
+        </a>
     </div>
 </div>

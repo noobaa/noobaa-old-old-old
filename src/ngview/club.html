@@ -4,18 +4,6 @@
         <div class="clearfix">
             <div ng-include="'action_bar_nav.html'" class="pull-left"></div>
             <div class="pull-right">
-                <a class="btn btn-link navbar-btn" href="club/">
-                    <i class="fa fa-angle-left"></i>
-                    BACK
-                </a>
-                <a class="btn btn-link navbar-btn" ng-click="show_members()">
-                    <i class="fa fa-th-list fa-lg fa-fw"></i>
-                </a>
-                <!-- 
-                <button class="btn btn-link navbar-btn" ng-click="nbClub.poll_clubs()">
-                    <i class="fa fa-repeat fa-lg fa-fw"></i>
-                </button>
-                 -->
                 <div class="btn-group">
                     <a class="btn btn-link navbar-btn dropdown-toggle" data-toggle="dropdown">
                         <i class="fa fa-ellipsis-v fa-lg fa-fw"></i>
@@ -36,7 +24,7 @@
                         <li class="divider"></li>
                         <li>
                             <a ng-click="show_members()">
-                                <i class="fa fa-th-list fa-lg fa-fw"></i>
+                                <i class="fa fa-user fa-lg fa-fw"></i>
                                 Club members
                             </a>
                         </li>
@@ -68,59 +56,57 @@
 
     <div class="view-animate-area" ng-if="!club">
         <div class="line headline text-center text-muted">
-            <i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>
+            <i class="fa fa-circle-o-notch fa-spin fa-2x fa-fw"></i>
         </div>
     </div>
 
     <div class="view-animate-area" ng-if="!!club">
 
-        <div class="club-bg" style="background-color: hsl({{club.color}},50%,45%)">
+        <div class="club-bg clearfix" style="background-color: hsl({{club.color}},60%,45%)">
+            <a class="btn btn-link pull-left" href="club/" style="padding: 7px 15px">
+                <i class="fa fa-angle-left fa-2x"></i>
+                <!-- BACK -->
+            </a>
             <div class="text-center club-title" style="padding: 10px">
-                <img class="transition-fast" style="vertical-align: middle; width: 0; height: {{change_color_timeout && '200px' || '0'}}" src="" />
                 <span>{{club.title}}</span>
             </div>
         </div>
 
         <div class="club-input">
-            <div class="club-msg-btn pull-right">
-                <div class="btn-group" ng-if="!club.message_input.length">
-                    <button class="btn btn-link dropdown-toggle" data-toggle="dropdown" type="button">
-                        <i class="fa fa-paperclip fa-2x fa-rotate-90 fa-fw"></i>
-                        <!-- ATTACH -->
-                        <!-- <i class="fa fa-caret-down"></i> -->
-                    </button>
-                    <ul class="dropdown-menu pull-right" role="menu">
-                        <li>
-                            <a ng-click="select_files_to_club()" style="padding-left: 10px">
-                                <i class="fa fa-folder-open fa-lg fa-fw"></i>
-                                Select from files
-                            </a>
-                        </li>
-                        <li class="divider"></li>
-                        <li>
-                            <a ng-click="upload_files_to_club()" style="padding-left: 10px">
-                                <i class="fa fa-cloud-upload fa-lg fa-fw"></i>
-                                Upload files
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-                <button ng-if="club.message_input.length" ng-click="send_club_text()" class="btn btn-link" ng-disabled="club.sending_message">
-                    <i class="fa fa-send fa-lg fa-fw text-muted"></i>
-                    POST
+            <div class="btn-group club-msg-btn pull-left">
+                <button class="btn btn-link dropdown-toggle" data-toggle="dropdown" type="button">
+                    <i class="fa fa-paperclip fa-2x fa-rotate-90 text-muted"></i>
+                    <!-- ATTACH -->
+                    <!-- <i class="fa fa-caret-down"></i> -->
                 </button>
+                <ul class="dropdown-menu" role="menu">
+                    <li>
+                        <a ng-click="select_files_to_club()" style="padding-left: 10px">
+                            <i class="fa fa-folder-open fa-lg fa-fw"></i>
+                            Select from files
+                        </a>
+                    </li>
+                    <li class="divider"></li>
+                    <li>
+                        <a ng-click="upload_files_to_club()" style="padding-left: 10px">
+                            <i class="fa fa-cloud-upload fa-lg fa-fw"></i>
+                            Upload files
+                        </a>
+                    </li>
+                </ul>
             </div>
+            <button ng-if="club.message_input.length" ng-click="send_club_text()" class="btn btn-link club-msg-btn pull-right" ng-disabled="club.sending_message">
+                <i class="fa fa-send fa-lg text-muted"></i>
+                <!-- POST -->
+            </button>
             <div class="club-input-area">
                 <textarea placeholder="Share something..." ng-model="club.message_input" nb-enter="send_club_text()" nb-auto-height="club.message_input" nb-focus="false" ng-disabled="club.sending_message"></textarea>
             </div>
         </div>
 
-        <div class="line text-center" ng-if="club.admin && club.members.length < 2">
-            <button class="btn btn-default Xbtn-block " ng-click="add_member()">
-                <i class="fa fa-plus text-muted"></i>
-                ADD A FRIEND TO YOUR CLUB
-            </button>
-        </div>
+        <a ng-if="club.admin && club.members.length < 2" ng-click="add_member()" class="btn-line">
+            <img src="/public/images/thedude.png" height="90" style="vertical-align: middle; margin: 10px -10px" />LETS ADD A FRIEND TO YOUR CLUB
+        </a>
 
         <div class="club-content">
             <div ng-repeat="msg in club.msgs track by $index" class="clearfix">
@@ -159,7 +145,9 @@
                         </div>
                         <div>
                             <span class="club-msg-time">
-                                {{msg.user == nbUser.user.id && 'me' || msg.user_info.first_name}} &middot; {{moment(msg.time).fromNow()}}
+                                {{moment(msg.time).fromNow()}}
+                                <!-- &middot;  -->
+                                {{msg.user == nbUser.user.id && 'me' || msg.user_info.first_name}}
                             </span>
                         </div>
                     </a>
