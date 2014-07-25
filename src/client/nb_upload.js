@@ -1250,6 +1250,8 @@ nb_util.controller('UploadCtrl', ['$scope', 'nbUploadSrv',
         $scope.upload = nbUploadSrv.root;
         $scope.show_upload_details = false;
 
+        $scope.action_bar_title = 'UPLOADS';
+
         $scope.has_uploads = function() {
             return nbUploadSrv.has_uploads();
         };

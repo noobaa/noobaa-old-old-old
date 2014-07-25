@@ -1,106 +1,86 @@
-<div class="uploads panel" nb-panel-hfill>
+<div class="uploads navbar-top-pad">
 
-    <div class="panel-heading navbar navbar-default">
-        <div>
-            <div ng-if="!select_mode" class="btn-group pull-right">
-                <a class="btn btn-link dropdown-toggle" data-toggle="dropdown">
-                    <i class="fa fa-fw fa-2x fa-ellipsis-v"></i>
-                </a>
-                <ul class="dropdown-menu" role="menu">
-                    <li>
-                        <a ng-click="upsrv.clear_completed()">
-                            <i class="fa fa-eraser"></i>
-                            <span>Clear Completed</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-            <button ng-if="!select_mode" class="btn btn-success navbar-btn pull-right" ng-click="upsrv.open_file_input()">
-                UPLOAD FILES
-            </button>
-            <div ng-if="select_mode" class="btn-group pull-right">
-                <a class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                    ACTIONS
-                    <i class="fa fa-caret-down"></i>
-                </a>
-                <ul class="dropdown-menu" role="menu">
-                    <li>
-                        <a ng-click="resume_selected()">
-                            <i class="fa fa-play"></i>
-                            <span>Resume Selected</span>
-                        </a>
-                    </li>
-                    <li class="divider"></li>
-                    <li>
-                        <a ng-click="pause_selected()">
-                            <i class="fa fa-pause"></i>
-                            <span>Pause Selected</span>
-                        </a>
-                    </li>
-                    <li class="divider"></li>
-                    <li>
-                        <a ng-click="remove_selected()">
-                            <i class="fa fa-times"></i>
-                            <span>Remove Selected</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-            <button ng-if="select_mode" class="btn btn-default pull-right" ng-click="clear_select_mode()">
-                UNSELECT
-            </button>
-            <div class="navbar-text">
-                <i class="fa fa-cloud-upload fa-lg fa-fw text-muted" style="margin-left: 10px; margin-right: 15px"></i>Uploads
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="clearfix">
+            <div ng-include="'action_bar_nav.html'" class="pull-left"></div>
+            <div class="pull-right">
+                <button class="btn btn-success navbar-btn" ng-click="upsrv.open_file_input()">
+                    UPLOAD
+                </button>
+                <div class="btn-group">
+                    <a class="btn btn-link navbar-btn dropdown-toggle" data-toggle="dropdown">
+                        <i class="fa fa-ellipsis-v fa-2x fa-fw"></i>
+                    </a>
+                    <ul class="dropdown-menu pull-right" role="menu">
+                        <li>
+                            <a ng-click="upsrv.clear_completed()">
+                                <i class="fa fa-eraser"></i>
+                                <span>Clear Completed</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- 
+                <div ng-if="select_mode" class="btn-group">
+                    <a class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                        ACTIONS
+                        <i class="fa fa-caret-down"></i>
+                    </a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li>
+                            <a ng-click="resume_selected()">
+                                <i class="fa fa-play"></i>
+                                <span>Resume Selected</span>
+                            </a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a ng-click="pause_selected()">
+                                <i class="fa fa-pause"></i>
+                                <span>Pause Selected</span>
+                            </a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a ng-click="remove_selected()">
+                                <i class="fa fa-times"></i>
+                                <span>Remove Selected</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <button ng-if="select_mode" class="btn btn-default" ng-click="clear_select_mode()">
+                    UNSELECT
+                </button>
+                 -->
             </div>
         </div>
-    </div>
+        <div ng-include="'action_bar_progress.html'"></div>
+    </nav>
 
-    <div class="panel-body">
-        <div>
-            <a ng-repeat="(id,upload) in (upload | upload_sons_filter)" class="btn-line {{(upload.is_selected || upsrv.selected_all) && 'active'}} {{select_mode && !upload.is_selected && !upsrv.selected_all && 'select-pulse'}}" ng-click="click_upload(upload)" nb-right-click="click_upload(upload)">
-                <span class="pull-right" style="margin-left: 10px">
-                    <i ng-hide="upload.is_selected || upsrv.selected_all" class="fa fa-square-o fa-fw fa-lg"></i>
-                    <i ng-show="upload.is_selected || upsrv.selected_all" class="fa fa-check-square-o fa-fw fa-lg"></i>
-                </span>
-                <div class="pull-right" style="margin: 0 10px">
-                    {{upsrv.get_status(upload)}}
-                </div>
-                <div class="pull-right" style="margin: 0 10px">
-                    {{ human_size(upload.item.isDirectory && upload.total_size || upload.item.size) }}
-                </div>
-                <div class="hflow">
-                    <div class="text-ellipses">
-                        <i ng-show="upload.item.isDirectory" class="fa fa-folder-open fa-fw"></i>
-                        <i ng-show="!upload.item.isDirectory" class="fa fa-file-o fa-fw"></i>
-                        {{upload.item.name}}
+    <div class="view-animate-area">
+
+        <div ng-if="!has_uploads()" Xstyle="padding-top: 20px">
+            <img src="/public/images/thedude.png" height="90" class="pull-left" style="vertical-align: middle; margin: 10px -10px" />
+            <div class="hflow" style="padding-top: 20px;">
+                <div class="club-msg-user" style="float: none">
+                    <div class="line headline" style="padding-top: 10px">
+                        START UPLOADING
                     </div>
-                </div>
-            </a>
-            <div ng-hide="has_uploads()" Xstyle="padding-top: 20px">
-                <img src="/public/images/thedude.png" height="90" class="pull-left" style="vertical-align: middle; margin: 10px -10px" />
-                <div class="hflow" style="padding-top: 20px;">
-                    <div class="club-msg-user" style="float: none">
-                        <div class="line headline" style="padding-top: 10px">
-                            START UPLOADING
-                        </div>
-                        <hr class="headline" />
-                        <a class="line clickable" ng-click="upsrv.open_file_input()">
-                    	Click to choose files from your computer
-                	</a>
-                        <hr/>
-                        <div class="line text-muted">
-                            <i class="fa fa-copy fa-fw"></i>
-                            Drag &amp; Drop files from your computer
-                        </div>
+                    <hr class="headline" />
+                    <a class="line clickable" ng-click="upsrv.open_file_input()">
+                        Click to choose files from your computer
+                    </a>
+                    <hr/>
+                    <div class="line text-muted">
+                        <i class="fa fa-copy fa-fw"></i>
+                        Drag &amp; Drop files from your computer
                     </div>
                 </div>
             </div>
-            <!-- <div ng-include="'upload_node_template.html'" style="margin: 0; font-size: 15px; width: 100%; height: auto; overflow: auto"></div> -->
         </div>
-    </div>
 
-    <div class="panel-footer">
-        <div ng-if="has_uploads()">
+        <div ng-if="has_uploads()" class="clearfix">
             <div class="progress pull-right text-center" style="vertical-align: middle; margin: 10px; height: 25px; width: 70px; position: relative">
                 <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{100 * upsrv.root.total_upsize / upsrv.root.total_size}}" aria-valuemin="0" aria-valuemax="100" style="width: {{100 * upsrv.root.total_upsize / upsrv.root.total_size}}%">
                 </div>
@@ -125,23 +105,45 @@
                 <small>{{human_size(upsrv.speed)}}/sec</small>
             </div>
             <!-- 
-				<button ng-show="false" class="btn btn-default btn-sm"
-					ng-click="upsrv.show_advanced = !upsrv.show_advanced"
-					title="Advanced Stats">
-					<i style="color: black" class="icon-bar-chart"></i>
-				</button>
-				<div ng-show="upsrv.show_advanced">
-					<canvas width=50 height=20 id="upload_speed_gauge"></canvas>
-					<p><b>Load queue</b> {{upsrv.jobq_load.length}}</p>
-					<p><b>Small queue</b> {{upsrv.jobq_upload_small.length}}</p>
-					<p><b>Medium queue</b> {{upsrv.jobq_upload_medium.length}}</p>
-					<p><b>Large queue</b> {{upsrv.jobq_upload_large.length}}</p>
-					<p><b>Loading</b> {{upsrv.list_loading.length}}</p>
-					<p><b>Uploading</b> {{upsrv.list_uploading.length}}</p>
-					<p><b>Retrying</b> {{upsrv.list_retrying.length}}</p>
-				</div>
-				 -->
+                <button ng-show="false" class="btn btn-default btn-sm"
+                    ng-click="upsrv.show_advanced = !upsrv.show_advanced"
+                    title="Advanced Stats">
+                    <i style="color: black" class="icon-bar-chart"></i>
+                </button>
+                <div ng-show="upsrv.show_advanced">
+                    <canvas width=50 height=20 id="upload_speed_gauge"></canvas>
+                    <p><b>Load queue</b> {{upsrv.jobq_load.length}}</p>
+                    <p><b>Small queue</b> {{upsrv.jobq_upload_small.length}}</p>
+                    <p><b>Medium queue</b> {{upsrv.jobq_upload_medium.length}}</p>
+                    <p><b>Large queue</b> {{upsrv.jobq_upload_large.length}}</p>
+                    <p><b>Loading</b> {{upsrv.list_loading.length}}</p>
+                    <p><b>Uploading</b> {{upsrv.list_uploading.length}}</p>
+                    <p><b>Retrying</b> {{upsrv.list_retrying.length}}</p>
+                </div>
+                 -->
+        </div>
 
+        <div>
+            <a ng-repeat="(id,upload) in (upload | upload_sons_filter)" class="btn-line {{(upload.is_selected || upsrv.selected_all) && 'active'}} {{select_mode && !upload.is_selected && !upsrv.selected_all && 'select-pulse'}}" ng-click="click_upload(upload)" nb-right-click="click_upload(upload)">
+                <span class="pull-right" style="margin-left: 10px">
+                    <i ng-hide="upload.is_selected || upsrv.selected_all" class="fa fa-square-o fa-fw fa-lg"></i>
+                    <i ng-show="upload.is_selected || upsrv.selected_all" class="fa fa-check-square-o fa-fw fa-lg"></i>
+                </span>
+                <div class="pull-right" style="margin: 0 10px">
+                    {{upsrv.get_status(upload)}}
+                </div>
+                <div class="pull-right" style="margin: 0 10px">
+                    {{ human_size(upload.item.isDirectory && upload.total_size || upload.item.size) }}
+                </div>
+                <div class="hflow">
+                    <div class="text-ellipses">
+                        <i ng-show="upload.item.isDirectory" class="fa fa-folder-open fa-fw"></i>
+                        <i ng-show="!upload.item.isDirectory" class="fa fa-file-o fa-fw"></i>
+                        {{upload.item.name}}
+                    </div>
+                </div>
+            </a>
         </div>
     </div>
+
 </div>
