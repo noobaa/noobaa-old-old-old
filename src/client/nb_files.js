@@ -209,7 +209,11 @@ nb_util.directive('nbBrowse', function() {
 
                 function delete_inodes() {
                     var selected = selection.get_items();
-                    nbInode.delete_inodes(selected, $scope.current_inode);
+                    if (!selected.length) {
+                        return;
+                    }
+                    nbInode.delete_inodes(selected, $scope.current_inode)
+                        .then(clear_select_mode);
                 }
 
                 function move_inodes() {
@@ -251,6 +255,7 @@ nb_util.directive('nbBrowse', function() {
                                 promises[i] = nbInode.move_inode(selected[i], to_dir);
                             }
                             $q.all(promises)['finally'](function() {
+                                clear_select_mode();
                                 refresh_current('force');
                                 nbInode.load_inode(to_dir, 'force');
                             });

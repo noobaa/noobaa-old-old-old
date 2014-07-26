@@ -500,7 +500,7 @@ nb_util.factory('nbInode', [
                 }
                 read_dir_promises[i] = inode.isdir ? read_dir(inode) : $q.when(null);
             }
-            $q.all(read_dir_promises).then(function(read_dir_results) {
+            return $q.all(read_dir_promises).then(function(read_dir_results) {
                 var all_empty = _.reduce(read_dir_results, function(memo, inode) {
                     return memo && (!inode || inode.entries.length === 0);
                 }, true);
@@ -511,13 +511,18 @@ nb_util.factory('nbInode', [
                     'Are you sure you want to delete these items?' :
                     'Some of the selected folders are not empty. <br/>Are you sure you want to delete these items?';
                 var done = false;
+                var defer = $q.defer();
                 alertify.confirm(q, function(e) {
-                    if (!e) return;
+                    if (!e) {
+                        defer.reject();
+                        return;
+                    }
                     recursive_delete(inodes, del_scope, function() {
                         read_dir(current_inode);
                         alertify.log('Deleted total of ' + del_scope.count + ' items');
                         del_scope.$destroy();
                         done = true;
+                        defer.resolve();
                     });
                     var report_progress = function() {
                         if (done) return;
@@ -528,6 +533,7 @@ nb_util.factory('nbInode', [
                     };
                     $timeout(report_progress, 3000);
                 });
+                return defer.promise;
             }, function(err) {
                 console.error('FAILED TO CHECK DIR EMPTY', err);
                 throw err;

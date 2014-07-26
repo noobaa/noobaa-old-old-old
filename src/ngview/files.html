@@ -13,47 +13,39 @@
 
             <div ng-if="!dialog">
 
-                <div ng-include="'action_bar_nav.html'" class="pull-left"></div>
+                <div ng-if="!select_mode" ng-include="'action_bar_nav.html'" class="pull-left"></div>
 
-                <div class="pull-right">
-                    <div ng-if="select_mode">
-                        <button class="btn btn-link navbar-btn" ng-click="clear_select_mode()">
-                            <i class="fa fa-check fa-2x fa-fw text-lighter"></i>
+                <div ng-if="select_mode" class="text-center">
+                    <button class="btn btn-link navbar-btn pull-left" ng-click="clear_select_mode()">
+                        <i class="fa fa-check fa-lg fa-fw"></i>
+                    </button>
+                    <button class="btn btn-default navbar-btn" ng-click="share_inodes_with_club()">
+                        <i class="fa fa-share-alt fa-lg fa-fw text-primary"></i>
+                    </button>
+                    <div class="pull-right">
+                        <button class="btn btn-link navbar-btn" ng-click="move_inodes()">
+                            <i class="fa fa-arrows fa-lg fa-fw"></i>
                         </button>
-                        <button class="btn btn-link navbar-btn" ng-click="share_inodes_with_club()">
-                            <i class="fa fa-share-alt fa-2x fa-fw"></i>
+                        <button class="btn btn-link navbar-btn" ng-click="delete_inodes()">
+                            <i class="fa fa-trash-o fa-lg fa-fw"></i>
                         </button>
-                        <div class="btn-group">
-                            <a ng-disabled="selection_menu_disabled()" class="btn btn-link navbar-btn dropdown-toggle" data-toggle="dropdown">
-                                <i class="fa fa-ellipsis-v fa-2x fa-fw"></i>
-                            </a>
-                            <ul class="dropdown-menu pull-right" role="menu">
-                                <li class="text-center">
-                                    <span class="badge">{{num_selected()}} items selected</span>
-                                </li>
-                                <li>
-                                    <a ng-click="share_inodes_with_club()">
-                                        <i class="fa fa-cube"></i>
-                                        <span>Share with CLUB</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a ng-click="move_inodes()">
-                                        <i class="fa fa-arrows"></i>
-                                        Move items
-                                    </a>
-                                </li>
-                                <li>
-                                    <a ng-click="delete_inodes()">
-                                        <i class="fa fa-trash-o"></i>
-                                        Delete items
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
                     </div>
+                    <!-- 
+                    <div class="btn-group">
+                        <a class="btn btn-link navbar-btn dropdown-toggle" data-toggle="dropdown">
+                            <i class="fa fa-ellipsis-v fa-2x fa-fw"></i>
+                        </a>
+                        <ul class="dropdown-menu pull-right" role="menu">
+                            <li class="text-center">
+                                <span class="badge">{{num_selected()}} items selected</span>
+                            </li>
+                        </ul>
+                    </div>
+                     -->
+                </div>
 
-                    <div ng-if="!select_mode" class="btn-group">
+                <div ng-if="!select_mode" class="pull-right">
+                    <div class="btn-group">
                         <a class="btn btn-link navbar-btn dropdown-toggle" data-toggle="dropdown" Xng-click="toggle_select_mode()">
                             <i class="fa fa-fw fa-2x fa-ellipsis-v"></i>
                         </a>
@@ -151,37 +143,6 @@
         </div>
         <div ng-include="'action_bar_progress.html'"></div>
     </nav>
-
-
-    <!-- 
-    <div class="Xpanel-heading navbar navbar-default navbar-fixed-top">
-        <div class="clearfix">
-
-            <button class="btn btn-link btn-back pull-left" ng-click="go_up_level()" ng-disabled="!has_parent(current_inode)">
-                <!- - 
-                <span ng-show="has_parent(current_inode)">
-                    <span class="fa-stack">
-                        <i class="fa fa-folder fa-stack-2x"></i>
-                        <i class="fa fa-arrow-up fa-stack-1x fa-inverse" style="font-size: 0.8em"></i>
-                    </span>
-                </span>
-                - ->
-                <i ng-show="has_parent(current_inode)" class="fa fa-angle-left"></i>
-                <i ng-hide="has_parent(current_inode)" class="fa fa-home text-muted"></i>
-            </button>
-            <div class="hflow">
-                <div class="navbar-text text-left text-ellipses text-color">
-                    {{current_inode.name}}
-                </div>
-            </div>
-
-        </div>
-        <div class="progress" style="height: 5px; margin: 0">
-            <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="{{current_inode.is_loading && '100' || '0'}}" aria-valuemin="0" aria-valuemax="100" style="width: {{current_inode.is_loading && '100' || '0'}}%">
-            </div>
-        </div>
-    </div>
- -->
 
     <div class="view-animate-area hfill-scroll">
         <div class="hflow bggray-lighter bgnoise2">
