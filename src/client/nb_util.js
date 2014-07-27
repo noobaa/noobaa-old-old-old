@@ -97,15 +97,7 @@ nb_util.factory('nbUtil', [
             } else if (opt.size === 'sm') {
                 e.find('.modal-dialog').addClass('modal-sm');
             } else if (opt.size === 'fullscreen') {
-                e.find('.modal-dialog').css({
-                    position: 'absolute',
-                    left: 30,
-                    right: 30,
-                    top: 30,
-                    width: 'auto',
-                    height: 'auto',
-                    margin: '0 0 30px 0'
-                });
+                e.addClass('modal-fullscreen');
             }
             e.modal({
                 show: !opt.noshow

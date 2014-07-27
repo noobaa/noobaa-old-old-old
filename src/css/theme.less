@@ -217,6 +217,20 @@ hr.headline {
 .modal .navbar-fixed-top {
     position: absolute;
 }
+.modal.modal-fullscreen {
+    padding: 20px;
+    text-align: center;
+    .modal-dialog {
+        margin: 0 auto;
+        display: inline-block;
+        width: auto;
+    }
+}
+@media all and (max-width: 600px) {
+    .modal.modal-fullscreen {
+        padding: 0;
+    }
+}
 .noobaa-logo {
     // padding: 10px 10px;
     > img {

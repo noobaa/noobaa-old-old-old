@@ -43,7 +43,6 @@ nb_util.directive('nbBrowse', function() {
                 $scope.is_clickable = is_clickable;
                 $scope.click_inode = click_inode;
                 $scope.right_click_inode = right_click_inode;
-                $scope.play_inode = play_inode;
                 $scope.share_inode_with_club = share_inode_with_club;
                 $scope.share_inodes_with_club = share_inodes_with_club;
                 $scope.move_inodes = move_inodes;
@@ -147,7 +146,7 @@ nb_util.directive('nbBrowse', function() {
                     if ($scope.select_mode) {
                         return select_inode(inode, $index, $event);
                     } else {
-                        return open_inode(inode, $index, $event);
+                        return open_inode(inode);
                     }
                 }
 
@@ -167,44 +166,29 @@ nb_util.directive('nbBrowse', function() {
                     }
                 }
 
-                function open_inode(inode, $index, $event) {
+                function open_inode(inode) {
                     if ($scope.dialog) {
                         if ($scope.dialog.dir_select && !inode.isdir) {
                             return;
                         }
                         set_current_item(inode.id);
-                    } else {
-                        $location.path('/files/' + inode.id);
+                        return;
                     }
                     /*
-                    // must load in order to detect if dir at all
-                    if (!inode.loaded) {
-                        return nbInode.load_inode(inode).then(function() {
-                            open_inode(inode, $index, $event);
-                        });
-                    }
-                    if (true || inode.isdir) {
-                        $location.path('/files/' + inode.id);
-                    } else {
-                        nbInode.load_inode(inode);
-                        play_inode(inode);
-                        return stop_event($event);
-                    }
-                    */
-                }
-
-                function play_inode(inode, $index, $event) {
                     if (!inode.loaded) {
                         return nbInode.load_inode(inode).then(function() {
                             play_inode(inode, $index, $event);
                         });
                     }
-                    if (nbInode.play_inode(inode)) {
-                        return;
+                    */
+                    /*
+                    if (inode.content_kind === 'image') {
+                        if (nbInode.play_inode(inode)) {
+                            return;
+                        }
                     }
-                    if (inode.isdir) {
-                        open_inode(inode, $index, $event);
-                    }
+                    */
+                    $location.path('/files/' + inode.id);
                 }
 
                 function delete_inodes() {
@@ -313,31 +297,37 @@ nb_util.directive('nbMedia', ['$parse', '$timeout', 'nbInode', 'nbPlanet',
         return {
             templateUrl: 'media_template.html',
             link: function(scope, element, attr) {
-                scope.nbInode = nbInode;
-                scope.media_url = function(inode) {
-                    return nbInode.fobj_get_url(inode);
-                };
-                scope.media_open = function(inode) {
-                    return nbInode.seamless_open_inode(inode);
-                };
                 scope.autoplay = scope.$eval(attr.autoplay);
+                scope.playing = scope.$eval(attr.playing);
                 scope.media_events = scope.$eval(attr.mediaEvents) || {};
                 scope.$watch(attr.nbSubtitles, function(value) {
                     scope.media_subtitles = value;
                 });
                 scope.$watch(attr.nbMedia, function(value) {
                     scope.inode = scope.$eval(attr.nbMedia) || {};
-                    if (nbPlanet.on) {
+                    scope.url = nbInode.fobj_get_url(scope.inode);
+
+                    // TODO should be as a button instead of auto
+                    if (nbPlanet.on && scope.autoplay) {
                         if (nbPlanet.open_content(scope.inode)) {
                             return;
                         }
                     }
+
+                    // TODO unused code
                     scope.show_content = true;
                     // this is a little bit hacky way to call notify_layout...
                     if (scope.media_events.load) {
                         scope.media_events.load();
                     }
                 });
+            },
+            controller: function($scope) {
+                $scope.play = function() {
+                    if (!$scope.playing) {
+                        return nbInode.play_inode($scope.inode);
+                    }
+                };
             }
         };
     }

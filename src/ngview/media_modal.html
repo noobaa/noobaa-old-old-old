@@ -1,32 +1,30 @@
 <div class="modal">
     <div class="modal-dialog">
         <div class="modal-content">
-            
-            <div class="modal-body clearfix" style="padding: 20px; max-height: 100%; background-color: hsl(0,0%,15%); color: hsl(0,0%,90%)">
-                <div class="row">
-                    <div class="col-sm-9 text-left" style="min-height: 200px; border-right: 1px solid hsl(0,0%,30%)">
-                        <div nb-media="selected.item" nb-subtitles="selected.subtitles" media-events="media_events" style="Xdisplay: inline-block; width: auto; max-height: 100%"></div>
-                    </div>
-                    <div class="col-sm-3 clearfix">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
-                            <span class="text-white">&times;</span>
-                        </button>
-                        <h4 class="text-center text-wrap">{{name}}</h4>
-                        <div ng-if="items" style="padding-top: 15px">
-                            <b>Playing track:</b>
-                            <select ng-model="selected.item" ng-options="x.name group by x.content_kind for x in items" class="form-control"></select>
-                        </div>
-                        <div ng-if="subtitles" style="padding-top: 15px">
-                            <b>Subtitle track:</b>
-                            <select ng-model="selected.subtitles" ng-options="x.name for x in subtitles" class="form-control"></select>
-                        </div>
-                        <!-- <div class="text-center" style="padding: 20px"> -->
-                        <!-- <button class="btn btn-primary btn-lg" data-dismiss="modal">Close</button> -->
-                        <!-- </div> -->
-                    </div>
+            <div class="modal-header" style="padding: 0">
+                <div class="bggray-lighter bgnoise2 text-center text-ellipses" style="margin: 0">
+                    <a role="button" class="pull-left" data-dismiss="modal" aria-hidden="true" style="padding: 10px">
+                        <!-- <span class="close">&times;</span> -->
+                        <span class="active-link">
+                            <i class="fa fa-angle-left fa-lg"></i>
+                            <small style="color: hsl(0,0%,55%)">BACK</small>
+                        </span>
+                    </a>
+                    <span style="display: inline-block; margin: 10px">{{name}}</span>
+                </div>
+                <hr class="headline" />
+                <div ng-if="items" style="padding-top: 10px">
+                    <b>Showing:</b>
+                    <select ng-model="selected.item" ng-options="x.name group by x.content_kind for x in items" class="form-control"></select>
+                </div>
+                <div ng-if="subtitles" style="padding-top: 10px">
+                    <b>Subtitle:</b>
+                    <select ng-model="selected.subtitles" ng-options="x.name for x in subtitles" class="form-control"></select>
                 </div>
             </div>
-
+            <div class="modal-body" style="padding: 0">
+                <div nb-media="selected.item" nb-subtitles="selected.subtitles" playing="true" media-events="media_events"></div>
+            </div>
         </div>
     </div>
 </div>
