@@ -150,6 +150,20 @@ hr {
         padding-top: 30px;
         font-size: 1.15em;
     }
+    .line-thumb {
+        margin: -20px 10px -20px -15px;
+        width: 60px;
+        height: 60px;
+        line-height: 60px;
+        border-right: 1px solid @border-color-light;
+        // border-left: 1px solid @border-color-light;
+        vertical-align: middle;
+        text-align: center;
+        img {
+            max-width: 56px;
+            max-height: 56px;
+        }
+    }
 }
 .line-p1 {
     padding: 30px 15px;
@@ -673,6 +687,8 @@ a[ng-click], a[role=button] {
 .view-animate-container {
     height: 100%;
     position: relative;
+    .container;
+    max-width: 1000px;
 }
 .animate-switch-container {
     position: relative;

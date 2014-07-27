@@ -80,31 +80,32 @@
             </div>
         </div>
 
-        <div ng-if="has_uploads()" class="clearfix">
-            <div class="progress pull-right text-center" style="vertical-align: middle; margin: 10px; height: 25px; width: 70px; position: relative">
-                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{100 * upsrv.root.total_upsize / upsrv.root.total_size}}" aria-valuemin="0" aria-valuemax="100" style="width: {{100 * upsrv.root.total_upsize / upsrv.root.total_size}}%">
+        <div ng-if="has_uploads()">
+            <div class="line">
+                <div class="progress pull-right text-center" style="vertical-align: middle; margin: 10px; height: 25px; width: 70px; position: relative">
+                    <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{100 * upsrv.root.total_upsize / upsrv.root.total_size}}" aria-valuemin="0" aria-valuemax="100" style="width: {{100 * upsrv.root.total_upsize / upsrv.root.total_size}}%">
+                    </div>
+                    <div ng-show="upsrv.root.total_size-upsrv.root.total_upsize>0" class="cover">
+                        {{(100 * upsrv.root.total_upsize / upsrv.root.total_size).toFixed(0)}}%
+                    </div>
+                    <div ng-hide="upsrv.root.total_size-upsrv.root.total_upsize>0" class="cover">
+                        <i class="fa fa-check"></i>
+                    </div>
                 </div>
-                <div ng-show="upsrv.root.total_size-upsrv.root.total_upsize>0" class="cover">
-                    {{(100 * upsrv.root.total_upsize / upsrv.root.total_size).toFixed(0)}}%
-                </div>
-                <div ng-hide="upsrv.root.total_size-upsrv.root.total_upsize>0" class="cover">
-                    <i class="fa fa-check"></i>
-                </div>
-            </div>
 
-            <div class="pull-left text-center" style="margin: 5px 10px">
-                <div class="text-muted">items left</div>
-                <small>{{upsrv.root.total_sons- upsrv.root.total_completed}}</small>
-            </div>
-            <div class="pull-left text-center" style="margin: 5px 10px">
-                <div class="text-muted">size left</div>
-                <small>{{human_size(upsrv.root.total_size-upsrv.root.total_upsize)}}</small>
-            </div>
-            <div class="pull-left text-center" style="margin: 5px 10px">
-                <div class="text-muted">up speed</div>
-                <small>{{human_size(upsrv.speed)}}/sec</small>
-            </div>
-            <!-- 
+                <div class="pull-left text-center" style="margin: 5px 10px">
+                    <div class="text-muted">items left</div>
+                    <small>{{upsrv.root.total_sons- upsrv.root.total_completed}}</small>
+                </div>
+                <div class="pull-left text-center" style="margin: 5px 10px">
+                    <div class="text-muted">size left</div>
+                    <small>{{human_size(upsrv.root.total_size-upsrv.root.total_upsize)}}</small>
+                </div>
+                <div class="pull-left text-center" style="margin: 5px 10px">
+                    <div class="text-muted">up speed</div>
+                    <small>{{human_size(upsrv.speed)}}/sec</small>
+                </div>
+                <!-- 
                 <button ng-show="false" class="btn btn-default btn-sm"
                     ng-click="upsrv.show_advanced = !upsrv.show_advanced"
                     title="Advanced Stats">
@@ -121,10 +122,12 @@
                     <p><b>Retrying</b> {{upsrv.list_retrying.length}}</p>
                 </div>
                  -->
+            </div>
+            <hr/>
         </div>
 
-        <div>
-            <a ng-repeat="(id,upload) in (upload | upload_sons_filter)" class="btn-line {{(upload.is_selected || upsrv.selected_all) && 'active'}} {{select_mode && !upload.is_selected && !upsrv.selected_all && 'select-pulse'}}" ng-click="click_upload(upload)" nb-right-click="click_upload(upload)">
+        <div ng-repeat="(id,upload) in (upload | upload_sons_filter)">
+            <a class="line clickable Xbtn-line {{(upload.is_selected || upsrv.selected_all) && 'active'}} {{select_mode && !upload.is_selected && !upsrv.selected_all && 'select-pulse'}}" ng-click="click_upload(upload)" nb-right-click="click_upload(upload)">
                 <span class="pull-right" style="margin-left: 10px">
                     <i ng-hide="upload.is_selected || upsrv.selected_all" class="fa fa-square-o fa-fw fa-lg"></i>
                     <i ng-show="upload.is_selected || upsrv.selected_all" class="fa fa-check-square-o fa-fw fa-lg"></i>
@@ -143,6 +146,7 @@
                     </div>
                 </div>
             </a>
+            <hr/>
         </div>
     </div>
 

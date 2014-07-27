@@ -322,60 +322,11 @@ body {
  ******************************************************************************/
 
 .files-panel {
-    margin-bottom: 0;
-    > .panel-heading {
-        border: none;
-        .club-msg-mine {
-            padding: 2px 5px;
-            @c: lighten(@brand-success, 35%);
-            &::after {
-                content:"";
-                .club-triangle-base;
-                right: 10px;
-                top: -9px;
-                border-width: 0 7px 8px 7px;
-                border-color: transparent transparent @c transparent;
-            }
-        }
-    }
-    > .panel-body {
-        overflow-y: auto;
-        padding: 0;
-        .line {
-            min-height: 50px;
-            > a {
-                margin: -9px -9px -9px 10px;
-                padding: 12px 15px;
-                // border-left: 1px solid @border-color;
-
-            }
-        }
-    }
-    > .panel-footer {
-        border: none;
-    }
+    border-right: 1px solid @border-color-light;
+    border-left: 1px solid @border-color-light;
     .content-item {
         // border-radius: 4px;
-    }
-}
-.file_line {
-    line-height: 40px;
-    vertical-align: top;
-    border-color: transparent;
-    border-style: solid;
-    border-width: 0;
-    padding-left: 10px;
-    padding-right: 10px;
-    &.active {
-        background-color: @gray-lighter;
-    }
-    &:hover {
-        border-radius: 7px;
-        border-left-width: 7px;
-        border-right-width: 7px;
-        padding-left: 3px;
-        padding-right: 3px;
-        border-color: lighten(desaturate(@brand-primary, 60%), 10%);
+
     }
 }
 /**/
@@ -421,6 +372,7 @@ body {
 
 .blog-body {
     .bgnoise2;
+    background-color: hsl(0, 0%, 97%);
 }
 .blog-item {
     .well;
@@ -428,6 +380,8 @@ body {
     box-shadow: none;
     border-radius: 10px;
     margin: 20px 0;
+    font-size: 1.4em;
+    line-height: 1.8em;
     .blog-img {
         max-width: 25%;
     }
