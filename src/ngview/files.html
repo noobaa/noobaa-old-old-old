@@ -145,17 +145,20 @@
     </nav>
 
     <div class="view-animate-area hfill-scroll">
-        <div class="hflow bggray-lighter bgnoise2">
+
+        <div class="clearfix bggray-lighter bgnoise2">
             <a ng-if="has_parent(current_inode)" class="btn btn-link pull-left" ng-click="go_up_level()" style="padding: 10px">
                 <span class="active-link" style="margin: -5px">
                     <i class="fa fa-angle-left fa-lg"></i>
-                    <small style="color: hsl(0,0%,55%)">BACK</small>
+                    <small style="color: hsl(0,0%,55%); letter-spacing: -1px">BACK</small>
                 </span>
             </a>
-            <div class="text-center text-wrap text-color" style="padding: 10px">
+            <div class="Xtext-center text-wrap text-color" style="padding: 10px">
                 {{current_inode.name}}
             </div>
         </div>
+        <hr class="headline" />
+
         <div>
             <div ng-if="false && has_parent(current_inode)">
                 <div class="line clickable" ng-click="go_up_level()">
@@ -170,9 +173,11 @@
                 </div>
                 <hr />
             </div>
+
             <div ng-if="!current_inode.isdir" Xstyle="padding-top: 8px">
                 <div nb-media="current_inode" media-events="media_events" autoplay="true"></div>
             </div>
+
             <div ng-repeat="inode in entries">
                 <div class="line clickable Xbtn-line {{is_selected(inode) && 'active'}} {{select_mode && !is_selected(inode) && 'select-pulse'}} {{is_clickable(inode) || 'disabled'}}" ng-click="click_inode(inode, $index, $event)" nb-right-click="right_click_inode(inode, $index, $event)">
                     <div class="clearfix">
