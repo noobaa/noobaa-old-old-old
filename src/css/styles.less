@@ -25,18 +25,6 @@ body {
     HOME
  ******************************************************************************/
 
-@home-max-width: 600px;
- @home-max-height: 600px;
- .app-container {
-    // .center-block;
-    // max-width: @home-max-width;
-
-}
-.app-bg {
-    // background-color: @body-bg;
-    // .bgnoise2;
-
-}
 .navbar-top-pad {
     /* pad for navbar-fixed-top */
     padding-top: 50px;
@@ -52,101 +40,9 @@ body {
             padding: 0;
         }
     }
-    > .noobaa-logo {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-    }
-    .app-area {
-        height: 100%;
-        width: 100%;
-    }
-    .app-panel {
-        max-width: @home-max-width;
-        .center-block;
-        height: 100%;
-        margin-top: 0;
-        margin-bottom: 0;
-        padding: 0;
-        border: none;
-        > .panel-body {
-        }
-        > .panel-footer {
-            border: none;
-            padding: 10px 0;
-            background-color: @navbar-inverse-bg;
-            .bgnoise2;
-            .navbar {
-                .app-container;
-                border: 1px solid @border-color;
-            }
-        }
-    }
-    .app-view > .panel {
-        border: none;
-        height: 100%;
-        > .panel-heading, > .panel-body, > .panel-footer {
-            > div {
-                .app-container;
-            }
-        }
-        > .panel-body {
-            .app-bg;
-            // border-top: 1px solid @border-color-light;
-            // border-bottom: 1px solid @border-color-light;
-            overflow-y: auto;
-            > div {
-                // border-left: 1px solid @border-color-light;
-                // border-right: 1px solid @border-color-light;
-
-            }
-        }
-    }
     .feed-panel {
         max-width: 100%;
     }
-}
-@media all and (max-width: (@home-max-width+200px)) {
-    .app-body {
-        > .noobaa-logo {
-            display: none;
-        }
-    }
-}
-@media all and (max-height: @home-max-height), all and (max-width: @home-max-width) {
-    .app-body {
-        .app-area {
-            > .app-panel {
-                > .panel-footer {
-                    padding: 0;
-                    .navbar {
-                        border: none;
-                    }
-                }
-                .app-view > .panel > .panel-body {
-                    // border-top-width: 0;
-                    // border-bottom-width: 0;
-
-                }
-            }
-        }
-    }
-}
-.app-panel.panel-too-small {
-    > .panel-heading, > .panel-footer {
-        height: 0;
-        overflow: hidden;
-    }
-    /*
-    input:focus {
-        z-index: 1;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: white;
-    }*/
 }
 /**/
 

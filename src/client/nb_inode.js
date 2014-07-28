@@ -606,9 +606,10 @@ nb_util.factory('nbInode', [
             copy_scope.concurrency = 0;
             copy_scope.max_concurrency = 32;
 
+            var dir_inode_id = dir_inode ? dir_inode.id : null;
             var new_inode;
             var deferred = $q.defer(); // using a new defer for notifying on the top inode copy
-            single_copy(inode, dir_inode.id).then(function(res) {
+            single_copy(inode, dir_inode_id).then(function(res) {
                 copy_scope.count++;
                 new_inode = res.data;
                 deferred.notify(new_inode);
@@ -787,10 +788,9 @@ nb_util.factory('nbInode', [
                 inode.running_keep--;
                 throw err;
             }, function(new_inode) {
-                new_keep_inode_promise = read_dir(dir_inode).then(function() {
-                    inode.new_keep_inode = get_inode(new_inode.id);
-                    return inode.new_keep_inode;
-                });
+                inode.new_keep_inode = get_inode(new_inode.id);
+                new_keep_inode_promise = $q.when(inode.new_keep_inode);
+                return inode.new_keep_inode;
             });
         }
 
@@ -874,7 +874,8 @@ nb_util.factory('nbInode', [
             var play_scope = $rootScope.$new();
             play_scope.inode = inode;
             play_scope.dialog = {
-                dir_select: false,
+                no_multi_select: true,
+                root_inode_id: inode.id,
                 cancel_caption: 'CLOSE',
                 cancel: function() {
                     modal.modal('hide');
@@ -886,7 +887,7 @@ nb_util.factory('nbInode', [
 
             // TODO TODO TODO
             inode.gallery_mode = true;
-            
+
             /*
             play_scope.name = inode.name;
             play_scope.selected = {};

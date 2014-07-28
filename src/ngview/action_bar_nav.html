@@ -1,9 +1,7 @@
 <div class="btn-group">
     <a class="btn btn-link navbar-btn dropdown-toggle" data-toggle="dropdown">
-        <img class="user-image" ng-src="{{nbUser.user_pic_url(nbUser.user)}}" />
         <span class="active-link">
             {{action_bar_title}}
-            <!-- <i class="fa fa-fw fa-lg fa-bars"></i> -->
             <i class="fa fa-caret-down"></i>
         </span>
     </a>
@@ -35,6 +33,9 @@
                     MY ACCOUNT
                 </span>
             </a>
+        </li>
+        <li class="line text-center">
+            <img class="user-image" ng-src="{{nbUser.user_pic_url(nbUser.user)}}" />
         </li>
     </ul>
 </div>

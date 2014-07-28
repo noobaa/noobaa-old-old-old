@@ -33,6 +33,7 @@ nb_util.directive('nbBrowse', function() {
 
                 $scope.refresh_current = refresh_current;
                 $scope.go_up_level = go_up_level;
+                $scope.can_go_up_level = can_go_up_level;
                 $scope.has_parent = has_parent;
                 $scope.selection_menu_disabled = selection_menu_disabled;
                 $scope.num_selected = num_selected;
@@ -102,6 +103,13 @@ nb_util.directive('nbBrowse', function() {
                     }
                 }
 
+                function can_go_up_level() {
+                    if ($scope.dialog && $scope.dialog.root_inode_id === $scope.current_inode.id) {
+                        return false;
+                    }
+                    return has_parent($scope.current_inode);
+                }
+
                 function has_parent(dir_inode) {
                     return !!dir_inode.id;
                 }
@@ -127,7 +135,7 @@ nb_util.directive('nbBrowse', function() {
                 }
 
                 function set_select_mode() {
-                    if ($scope.dialog && $scope.dialog.dir_select) {
+                    if ($scope.dialog && $scope.dialog.no_multi_select) {
                         return;
                     }
                     $scope.select_mode = true;
@@ -143,7 +151,7 @@ nb_util.directive('nbBrowse', function() {
                 }
 
                 function is_clickable(inode) {
-                    if ($scope.dialog && $scope.dialog.dir_select && !inode.isdir) {
+                    if ($scope.dialog && $scope.dialog.open_only_dir && !inode.isdir) {
                         return false;
                     }
                     return true;
@@ -174,17 +182,19 @@ nb_util.directive('nbBrowse', function() {
 
                 function open_inode(inode) {
                     if ($scope.dialog) {
-                        if ($scope.dialog.dir_select && !inode.isdir) {
+                        if ($scope.dialog.open_only_dir && !inode.isdir) {
                             return;
                         }
                         set_current_item(inode.id);
                         return;
                     }
+                    /*
                     if (!inode.isdir) {
                         if (nbInode.play_inode(inode)) {
                             return;
                         }
                     }
+                    */
                     $location.path('/files/' + inode.id);
                 }
 
@@ -218,7 +228,8 @@ nb_util.directive('nbBrowse', function() {
                         current_inode: $scope.current_inode,
                     };
                     mv_scope.dialog = {
-                        dir_select: true,
+                        open_only_dir: true,
+                        no_multi_select: true,
                         run_caption: 'MOVE',
                         cancel: function() {
                             modal.modal('hide');
