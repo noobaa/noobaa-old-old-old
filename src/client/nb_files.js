@@ -40,7 +40,7 @@ nb_util.directive('nbBrowse', function() {
                 $scope.is_selected = is_selected;
                 $scope.set_select_mode = set_select_mode;
                 $scope.clear_select_mode = clear_select_mode;
-                $scope.toggle_list_mode = toggle_list_mode;
+                $scope.toggle_gallery_mode = toggle_gallery_mode;
                 $scope.is_clickable = is_clickable;
                 $scope.click_inode = click_inode;
                 $scope.right_click_inode = right_click_inode;
@@ -70,7 +70,9 @@ nb_util.directive('nbBrowse', function() {
                     if (!entries) {
                         $scope.entries = null;
                     } else {
-                        $scope.entries = _.sortBy(entries, 'name');
+                        $scope.entries = _.sortBy(entries, function(entry) {
+                            return nbUtil.order_by_kind(entry.content_kind) + entry.name;
+                        });
                     }
                 });
 
@@ -136,8 +138,8 @@ nb_util.directive('nbBrowse', function() {
                     selection.reset();
                 }
 
-                function toggle_list_mode() {
-                    $scope.current_inode.list_mode = !$scope.current_inode.list_mode;
+                function toggle_gallery_mode() {
+                    $scope.current_inode.gallery_mode = !$scope.current_inode.gallery_mode;
                 }
 
                 function is_clickable(inode) {
@@ -150,9 +152,8 @@ nb_util.directive('nbBrowse', function() {
                 function click_inode(inode, $index, $event) {
                     if ($scope.select_mode) {
                         return select_inode(inode, $index, $event);
-                    } else {
-                        return open_inode(inode);
                     }
+                    return open_inode(inode);
                 }
 
                 function right_click_inode(inode, $index, $event) {
@@ -179,21 +180,11 @@ nb_util.directive('nbBrowse', function() {
                         set_current_item(inode.id);
                         return;
                     }
-                    /*
-                    if (!inode.loaded) {
-                        return nbInode.load_inode(inode).then(function() {
-                            play_inode(inode, $index, $event);
-                        });
-                    }
-                    */
-                    
-                    // if (inode.content_kind === 'image') {
                     if (!inode.isdir) {
                         if (nbInode.play_inode(inode)) {
                             return;
                         }
                     }
-                    
                     $location.path('/files/' + inode.id);
                 }
 

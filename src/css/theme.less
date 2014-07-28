@@ -119,8 +119,8 @@ hr {
         border-right: 1px solid @border-color-light;
         border-left: 1px solid @border-color-light;
     }
-    .line-info {
-        .pull-right;
+    &.clickable.disabled {
+        &:extend(.btn.disabled);
     }
     .line-thumb {
         .pull-left;
@@ -161,14 +161,11 @@ hr.headline {
     &.active {
         .active-style;
     }
-    .line-info {
-        .pull-right;
-    }
     .rect-thumb {
         display: block;
         margin: 10px -10px -10px -10px;
-        height: 200px;
-        line-height: 200px;
+        height: 150px;
+        line-height: 150px;
         overflow: hidden;
         border-top: 1px solid @border-color-light;
         vertical-align: middle;
@@ -181,11 +178,12 @@ hr.headline {
         }
     }
 }
-.thumb-container {
+.rect-container {
     .text-center;
     overflow: hidden;
-    padding: 10px 0;
-    margin: 0 -10px;
+    padding: 10px;
+    // margin: 0 -10px;
+
 }
 .btn-line {
     .btn;
@@ -462,6 +460,12 @@ a.clickable {
         position: relative !important;
     }
 }
+.vjs-default-skin .vjs-big-play-button {
+    left: 50%;
+    top: 50%;
+    margin-top: -1.3em;
+    margin-left: -2em;
+}
 .btn-trans {
     &:extend(.btn-default);
     background-color: transparent;
@@ -734,11 +738,13 @@ a[ng-click], a[role=button] {
     // bottom: 0;
 
 }
+.app-container {
+    .center-block;
+    max-width: 900px;
+}
 .view-animate-container {
     height: 100%;
     position: relative;
-    .container;
-    max-width: 1000px;
 }
 .animate-switch-container {
     position: relative;

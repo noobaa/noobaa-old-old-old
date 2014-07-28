@@ -18,11 +18,11 @@
         </div>
 
         <a ng-switch-when="image" ng-click="play()">
-            <img ng-src="{{url}}" class="content-item img-responsive center-block" style="vertical-align: middle" nb-events="media_events" />
+            <img ng-src="{{url}}" class="content-item img-responsive center-block" style="vertical-align: middle; max-height: 100%" nb-events="media_events" />
         </a>
 
         <div ng-switch-when="video">
-            <video controls ng-src="{{url}}" class="content-item img-responsive center-block" nb-events="media_events" nb-video="{{inode.content_type}}">
+            <video controls ng-src="{{url}}" class="content-item img-responsive center-block" nb-events="media_events" nb-video="{{inode.content_type}}" style="width: 100%">
                 <source ng-src="{{url}}" ng-attr-type="{{inode.content_type}}" />
                 <object ng-attr-data="{{url}}" ng-attr-type="{{inode.content_type}}">
                     <embed ng-src="{{url}}">

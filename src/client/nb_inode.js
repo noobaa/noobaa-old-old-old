@@ -119,19 +119,19 @@ nb_util.factory('nbInode', [
         }
 
         function can_share_inode(inode) {
-            return !!inode && !inode.not_mine && !inode.ref_owner && !! inode.parent_id;
+            return !!inode && !inode.not_mine && !inode.ref_owner && !!inode.parent_id;
         }
 
         function can_keep_inode(inode) {
-            return !!inode && ( !! inode.ref_owner || !! inode.not_mine);
+            return !!inode && (!!inode.ref_owner || !!inode.not_mine);
         }
 
         function can_change_inode(inode) {
-            return !!inode && !inode.not_mine && !! inode.parent_id;
+            return !!inode && !inode.not_mine && !!inode.parent_id;
         }
 
         function can_move_inode(inode) {
-            return !!inode && !inode.not_mine && !inode.ref_owner && !! inode.parent_id;
+            return !!inode && !inode.not_mine && !inode.ref_owner && !!inode.parent_id;
         }
 
         function can_move_to_dir(inode) {
@@ -297,13 +297,13 @@ nb_util.factory('nbInode', [
             }
             var promise = read_dir(inode);
             if (!promise) {
-                callback( !! inode.entries.length);
+                callback(!!inode.entries.length);
             } else {
                 promise.then(function(res) {
-                    callback( !! inode.entries.length);
+                    callback(!!inode.entries.length);
                     return res;
                 }, function(err) {
-                    callback( !! inode.entries.length);
+                    callback(!!inode.entries.length);
                     throw err;
                 });
             }
@@ -869,7 +869,25 @@ nb_util.factory('nbInode', [
         }
 
         function play_inode(inode) {
+            load_inode(inode);
+            var modal;
             var play_scope = $rootScope.$new();
+            play_scope.inode = inode;
+            play_scope.dialog = {
+                dir_select: false,
+                cancel_caption: 'CLOSE',
+                cancel: function() {
+                    modal.modal('hide');
+                },
+            };
+            play_scope.context = {
+                current_inode: inode
+            };
+
+            // TODO TODO TODO
+            inode.gallery_mode = true;
+            
+            /*
             play_scope.name = inode.name;
             play_scope.selected = {};
             if (inode.isdir) {
@@ -903,8 +921,10 @@ nb_util.factory('nbInode', [
                 // }
                 play_scope.selected.item = inode;
             }
-            nbUtil.make_modal({
-                template: 'media_modal.html',
+                */
+            modal = nbUtil.make_modal({
+                // template: 'media_modal.html',
+                template: 'files_modal.html',
                 scope: play_scope,
                 size: 'fullscreen'
             });

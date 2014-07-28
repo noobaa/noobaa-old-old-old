@@ -561,6 +561,13 @@ nb_util.controller('ClubCtrl', [
             nbUtil.coming_soon('Leave club', 'club.leave');
         };
 
+        $scope.click_inode = function(inode, index, event) {
+            if (nbInode.play_inode(inode)) {
+                return;
+            }
+            $location.path('/files/' + inode.id);
+        };
+
     }
 ]);
 

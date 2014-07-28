@@ -28,24 +28,25 @@
         <div ng-include="'action_bar_progress.html'"></div>
     </nav>
 
-    <div class="view-animate-area">
-        <a ng-repeat="club in nbClub.clubs_arr track by $index" ng-href="club/{{club._id}}" class="club-bg btn-rect" style="background-color: hsl({{club.color}},60%,45%)">
-            <div class="text-center lead" style="height: 150px; font-weight: normal">{{club.title}}</div>
-            <div class="clearfix" style="height: 30px">
-                <span class="pull-right" ng-show="club.new_msgs">
-                    <i class="fa fa-bell fa-fw fa-lg tossing"></i>
-                </span>
-                <div class="hflow text-center text-ellipses">
-                    <img ng-repeat="member in club.members track by $index" class="user-image-sm" ng-src="{{nbUser.user_pic_url(member.user_info)}}" style="margin-right: 5px; opacity: 0.3" />
+    <div class="view-animate-area app-container">
+        <div class="rect-container">
+            <a ng-repeat="club in nbClub.clubs_arr track by $index" ng-href="club/{{club._id}}" class="club-bg btn-rect" style="background-color: hsl({{club.color}},60%,45%)">
+                <div class="text-center lead" style="height: 150px; font-weight: normal">{{club.title}}</div>
+                <div class="clearfix" style="height: 30px">
+                    <span class="pull-right" ng-show="club.new_msgs">
+                        <i class="fa fa-bell fa-fw fa-lg tossing"></i>
+                    </span>
+                    <div class="hflow text-center text-ellipses">
+                        <img ng-repeat="member in club.members track by $index" class="user-image-sm" ng-src="{{nbUser.user_pic_url(member.user_info)}}" style="margin-right: 5px; opacity: 0.3" />
+                    </div>
                 </div>
-            </div>
-        </a>
-        <a ng-click="nbClub.create_new_club()" class="btn-rect">
-            <div class="text-center lead" style="height: 90px; font-weight: normal">YOU SHOULD CREATE A NEW CLUB</div>
-            <div class="hflow text-center" style="height: 90px">
-                <img src="/public/images/thedude.png" height="90" />
-            </div>
-        </a>
-        <div class="pad-15"></div>
+            </a>
+            <a ng-click="nbClub.create_new_club()" class="btn-rect">
+                <div class="text-center lead" style="height: 90px; font-weight: normal">YOU SHOULD CREATE A NEW CLUB</div>
+                <div class="hflow text-center" style="height: 90px">
+                    <img src="/public/images/thedude.png" height="90" />
+                </div>
+            </a>
+        </div>
     </div>
 </div>

@@ -52,6 +52,7 @@ nb_util.factory('nbUtil', [
             modal_body_wrap: modal_body_wrap,
             track_event: track_event,
             icon_by_kind: icon_by_kind,
+            order_by_kind: order_by_kind,
             valid_email: valid_email,
             stop_event: stop_event,
             coming_soon: coming_soon,
@@ -162,14 +163,24 @@ nb_util.factory('nbUtil', [
 
         var ICONS_BY_KIND = {
             dir: 'fa-folder-open-o',
+            image: 'fa-picture-o',
             video: 'fa-film',
             audio: 'fa-music',
-            image: 'fa-picture-o',
             text: 'fa-file-text-o',
+        };
+        var ORDER_BY_KIND = {
+            dir: 1,
+            image: 2,
+            video: 3,
+            audio: 4,
+            text: 5,
         };
 
         function icon_by_kind(kind) {
             return ICONS_BY_KIND[kind] || 'fa-file-o';
+        }
+        function order_by_kind(kind) {
+            return ORDER_BY_KIND[kind] || 9;
         }
 
         var EMAIL_REGEX = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -427,19 +438,26 @@ nb_util.directive('nbVideo', ['$parse', '$timeout',
                 if (content_type === 'video/x-matroska') {
                     return;
                 }
-                $timeout(function() {
+                var player;
+                var timer = $timeout(function() {
                     element.addClass('video-js');
                     element.addClass('vjs-default-skin');
-                    videojs(element[0], {
+                    player = videojs(element[0], {
                         width: 'auto',
                         height: 'auto',
-                    }, function() {
-                        // Player (this) is initialized and ready.
-                        if (scope.autoplay) {
-                            this.play();
-                        }
+                        autoplay: scope.autoplay,
                     });
                 }, 1);
+                function cleanup() {
+                    $timeout.cancel(timer);
+                    if (player && player.dispose) {
+                        console.log('VIDEO DISPOSE');
+                        player.dispose();
+                        player = null;
+                    }
+                }
+                scope.$on('$destroy', cleanup);
+                element.on('remove', cleanup);
             }
         };
     }
