@@ -5,12 +5,20 @@
             <span class="label label-default">No preview</span>
         </h4>
 
-        <h4 ng-switch-when="dir" class="text-center">
-            <span class="label label-default">Folder</span>
-        </h4>
+        <div ng-switch-when="dir">
+            <!-- <div class="label label-default">Folder</div> -->
+            <hr/>
+            <div class="line clickable" ng-click="play()">
+                <div class="line-thumb pull-left">
+                    <i class="fa {{nbUtil.icon_by_kind(inode.content_kind)}} fa-fw fa-lg text-muted"></i>
+                </div>
+                <div class="text-ellipses">{{inode.name}}</div>
+            </div>
+            <hr/>
+        </div>
 
         <a ng-switch-when="image" ng-click="play()">
-            <img ng-src="{{url}}" class="content-item img-responsive center-block" style="vertical-align: middle" nb-events="media_events"  />
+            <img ng-src="{{url}}" class="content-item img-responsive center-block" style="vertical-align: middle" nb-events="media_events" />
         </a>
 
         <div ng-switch-when="video">

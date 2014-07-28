@@ -91,13 +91,11 @@
     <div class="view-animate-area" ng-if="!!club">
 
         <div class="club-input">
-            <button ng-if="club.message_input.length" ng-click="send_club_text()" class="btn btn-link club-msg-btn pull-right" ng-disabled="club.sending_message">
-                <i class="fa fa-send fa-lg text-muted"></i>
-                <!-- POST -->
+            <textarea placeholder="Write something..." ng-model="club.message_input" nb-enter="send_club_text()" nb-auto-height="club.message_input" nb-focus="false" ng-disabled="club.sending_message"></textarea>
+            <button ng-click="send_club_text()" class="btn btn-default" ng-disabled="!club.message_input.length || club.sending_message">
+                <i class="fa fa-send fa-lg fa-fw {{club.message_input.length && 'text-primary' || 'text-muted'}}"></i>
+                POST
             </button>
-            <div class="club-input-area">
-                <textarea placeholder="Share something..." ng-model="club.message_input" nb-enter="send_club_text()" nb-auto-height="club.message_input" nb-focus="false" ng-disabled="club.sending_message"></textarea>
-            </div>
         </div>
 
         <a ng-if="club.admin && club.members.length < 2" ng-click="add_member()" class="btn-line Xline Xclickable">
@@ -118,20 +116,26 @@
                     <hr/>
                 </div>
                 <div class="line">
-                    <!-- <img style="width: 0; min-height: 70px" src="" /> -->
-                    <img class="pull-left user-image" style="margin-right: 10px" ng-src="{{nbUser.user_pic_url(msg.user_info)}}" />
-                    <div class="hflow" Xng-click="click_msg($index)">
-                        <!-- 
-                        <div class="pull-right" style="padding-left: 10px">
-                            <i class="fa fa-chevron-circle-right fa-fw fa-lg text-muted"></i>
+                    <img class="user-image" style="margin-right: 10px; vertical-align: top" ng-src="{{nbUser.user_pic_url(msg.user_info)}}" rel="tooltip" ng-attr-title="{{msg.user_info.name}} - {{moment(msg.time).fromNow()}}" />
+                    <span ng-if="msg.text.length" class="text-wrap lead">
+                        <span ng-bind-html="msg.text | linky:'_blank'" style="white-space: pre-wrap"></span>
+                    </span>
+                    <div ng-if="msg.inode" ng-init="inode=msg.inode" class="btn-rect" style="margin: 0" ng-click="click_inode(inode, $index, $event)" nb-right-click="right_click_inode(inode, $index, $event)">
+                        <div class="line-info" style="margin-left: 10px">
+                            <i ng-show="select_mode && !is_selected(inode)" class="fa fa-square-o fa-fw fa-lg"></i>
+                            <i ng-show="select_mode && is_selected(inode)" class="fa fa-check-square-o fa-fw fa-lg"></i>
+                            <i ng-hide="select_mode" class="fa fa-chevron-circle-right fa-fw fa-lg text-muted"></i>
                         </div>
-                         -->
-                        <span ng-if="msg.text.length" class="text-wrap">
-                            <span ng-bind-html="msg.text | linky:'_blank'" style="white-space: pre-wrap"></span>
-                        </span>
+                        <div class="text-ellipses">{{inode.name}}</div>
+                        <div class="rect-thumb" style="{{inode.content_kind=='image' && 'background-image:url('+nbInode.fobj_get_url(inode)+')' || ''}}">
+                            <i class="fa {{nbUtil.icon_by_kind(inode.content_kind)}} fa-fw fa-lg text-muted" ng-if="inode.content_kind!='image'"></i>
+                        </div>
+                    </div>
+                    <!-- 
+                    <div class="hflow" Xng-click="click_msg($index)">
                         <div ng-if="msg.inode" class="hflow">
                             <div class="clearfix">
-                                <div class="pull-left" nb-media="msg.inode" autoplay="false"></div>
+                                <div class="Xpull-left" nb-media="msg.inode" autoplay="false"></div>
                             </div>
                             <a class="text-ellipses club-msg-muted" ng-href="{{msg.inode && ('files/'+msg.inode.id) || ''}}">
                                 <i class="fa {{nbUtil.icon_by_kind(msg.inode.content_kind)}} fa-fw" style="margin-right: 5px"></i>
@@ -140,12 +144,13 @@
                         </div>
                         <div>
                             <span class="club-msg-time">
-                                {{moment(msg.time).fromNow()}}
-                                <!-- &middot;  -->
                                 {{msg.user == nbUser.user.id && 'me' || msg.user_info.first_name}}
+                                &middot; 
+                                {{moment(msg.time).fromNow()}}
                             </span>
                         </div>
                     </div>
+                         -->
                 </div>
             </div>
         </div>

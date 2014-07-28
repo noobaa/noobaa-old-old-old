@@ -72,6 +72,19 @@
                                         <span>Select Items</span>
                                     </a>
                                 </li>
+                                <li ng-if="!current_inode.list_mode">
+                                    <a ng-click="toggle_list_mode()">
+                                        <i class="fa fa-list"></i>
+                                        List view
+                                    </a>
+                                </li>
+                                <li ng-if="current_inode.list_mode">
+                                    <a ng-click="toggle_list_mode()">
+                                        <i class="fa fa-th"></i>
+                                        Gallery view
+                                    </a>
+                                </li>
+                                <li class="divider"></li>
                                 <li ng-if="nbInode.can_upload_to_dir(current_inode)">
                                     <a ng-click="nbUploadSrv.open_file_input()">
                                         <i class="fa fa-cloud-upload"></i>
@@ -169,47 +182,35 @@
                 <div nb-media="current_inode" media-events="media_events" autoplay="true"></div>
             </div>
 
-            <div ng-repeat="inode in entries">
-                <div class="line clickable Xbtn-line {{is_selected(inode) && 'active'}} {{select_mode && !is_selected(inode) && 'select-pulse'}} {{is_clickable(inode) || 'disabled'}}" ng-click="click_inode(inode, $index, $event)" nb-right-click="right_click_inode(inode, $index, $event)">
-                    <div class="clearfix">
-                        <div class="pull-right" style="margin-left: 10px">
+            <div ng-if="current_inode.list_mode">
+                <div ng-repeat="inode in entries">
+                    <div class="line line-bar clickable {{is_selected(inode) && 'active'}} {{select_mode && !is_selected(inode) && 'select-pulse'}} {{is_clickable(inode) || 'disabled'}}" ng-click="click_inode(inode, $index, $event)" nb-right-click="right_click_inode(inode, $index, $event)">
+                        <div class="line-info" style="margin-left: 10px">
                             <i ng-show="select_mode && !is_selected(inode)" class="fa fa-square-o fa-fw fa-lg"></i>
                             <i ng-show="select_mode && is_selected(inode)" class="fa fa-check-square-o fa-fw fa-lg"></i>
                             <i ng-hide="select_mode" class="fa fa-chevron-circle-right fa-fw fa-lg text-muted"></i>
                         </div>
-                        <div class="hidden pull-right text-center" ng-if="inode.content_kind=='image'" style="margin: -10px 0 -10px 10px; height: 40px; width: 60px">
-                            <img ng-src="{{nbInode.fobj_get_url(inode)}}" style="vertical-align: top; max-width: 100%; max-height: 100%" />
-                        </div>
-                        <div class="pull-right hidden-xs hidden" style="margin-left: 10px">
-                            <span ng-show="inode.uploading">
-                                <i title="Incomplete upload..." rel="tooltip" class="fa fa-cloud-upload fa-lg fa-fw"></i>
-                            </span>
-                            <span ng-show="!inode.isdir" style="margin-right: 10px">
-                                {{human_size(inode.size)}}
-                            </span>
-                            <span ng-if="!!inode.ref_owner" style="margin-right: 10px">
-                                {{inode.ref_owner.first_name}} &nbsp;
-                                <img ng-src="{{nbUser.user_pic_url(inode.ref_owner)}}" class="user-image"></img>
-                            </span>
-                            <span>
-                                {{moment(inode.ctime).fromNow()}}
-                            </span>
-                            <!-- 
-                        <a class="btn btn-sm {{!inode.shr && 'btn-link' || inode.shr=='f' && 'btn-warning' || 'btn-warning btn-hover-only'}}" ng-if="nbInode.can_share_inode(inode)" ng-click="share_inode(inode)" ng-attr-title="{{!inode.shr && 'Click to invite' || inode.shr=='f' && 'Invited all friends' || 'Invited some friends'}}" rel="tooltip" style="margin-left: 5px">
-                            <i class="fa fa-{{!inode.shr && 'lock' || 'user'}} fa-lg fa-fw {{!inode.shr && 'text-muted'}}"></i>
-                        </a>
-                         -->
-                        </div>
-                        <div class="line-thumb pull-left">
+                        <div class="line-thumb">
                             <i class="fa {{nbUtil.icon_by_kind(inode.content_kind)}} fa-fw fa-lg text-muted" ng-if="inode.content_kind!='image'"></i>
                             <img ng-if="inode.content_kind=='image'" ng-src="{{nbInode.fobj_get_url(inode)}}" />
                         </div>
-                        <div class="text-ellipses">
-                            <span style="Xwhite-space: pre-wrap; vertical-align: top">{{inode.name}}</span>
-                        </div>
+                        <div class="text-ellipses">{{inode.name}}</div>
+                    </div>
+                    <hr/>
+                </div>
+            </div>
+            <div ng-if="!current_inode.list_mode" class="thumb-container">
+                <div ng-repeat="inode in entries" class="btn-rect {{is_selected(inode) && 'active'}} {{select_mode && !is_selected(inode) && 'select-pulse'}} {{is_clickable(inode) || 'disabled'}}" ng-click="click_inode(inode, $index, $event)" nb-right-click="right_click_inode(inode, $index, $event)">
+                    <div class="line-info" style="margin-left: 10px">
+                        <i ng-show="select_mode && !is_selected(inode)" class="fa fa-square-o fa-fw fa-lg"></i>
+                        <i ng-show="select_mode && is_selected(inode)" class="fa fa-check-square-o fa-fw fa-lg"></i>
+                        <i ng-hide="select_mode" class="fa fa-chevron-circle-right fa-fw fa-lg text-muted"></i>
+                    </div>
+                    <div class="text-ellipses">{{inode.name}}</div>
+                    <div class="rect-thumb" style="{{inode.content_kind=='image' && 'background-image:url('+nbInode.fobj_get_url(inode)+')' || ''}}">
+                        <i class="fa {{nbUtil.icon_by_kind(inode.content_kind)}} fa-fw fa-lg text-muted" ng-if="inode.content_kind!='image'"></i>
                     </div>
                 </div>
-                <hr/>
             </div>
             <div ng-if="current_inode.isdir && !entries.length">
                 <div ng-if="!current_inode.loaded || current_inode.is_loading">

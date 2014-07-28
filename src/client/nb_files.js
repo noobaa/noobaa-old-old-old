@@ -40,6 +40,7 @@ nb_util.directive('nbBrowse', function() {
                 $scope.is_selected = is_selected;
                 $scope.set_select_mode = set_select_mode;
                 $scope.clear_select_mode = clear_select_mode;
+                $scope.toggle_list_mode = toggle_list_mode;
                 $scope.is_clickable = is_clickable;
                 $scope.click_inode = click_inode;
                 $scope.right_click_inode = right_click_inode;
@@ -135,6 +136,10 @@ nb_util.directive('nbBrowse', function() {
                     selection.reset();
                 }
 
+                function toggle_list_mode() {
+                    $scope.current_inode.list_mode = !$scope.current_inode.list_mode;
+                }
+
                 function is_clickable(inode) {
                     if ($scope.dialog && $scope.dialog.dir_select && !inode.isdir) {
                         return false;
@@ -181,13 +186,14 @@ nb_util.directive('nbBrowse', function() {
                         });
                     }
                     */
-                    /*
-                    if (inode.content_kind === 'image') {
+                    
+                    // if (inode.content_kind === 'image') {
+                    if (!inode.isdir) {
                         if (nbInode.play_inode(inode)) {
                             return;
                         }
                     }
-                    */
+                    
                     $location.path('/files/' + inode.id);
                 }
 

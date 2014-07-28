@@ -223,21 +223,21 @@ body {
     }
     .club-input {
         .clearfix;
-        border-top: 1px solid @border-color-light;
-        border-bottom: 1px solid @border-color-light;
+        border: 1px solid @border-color-light;
+        &:extend(.narrow-unpad);
         padding: 0;
-        margin: 0;
-        .club-msg-btn {
-            height: 40px;
+        margin: 10px;
+        position: relative;
+        button {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            width: 90px;
         }
-        .club-input-area {
-            overflow: hidden;
-            border-left: 1px solid @border-color-light;
-            border-right: 1px solid @border-color-light;
-            textarea {
-                .inner-input;
-                padding: 10px 10px 0 10px;
-            }
+        textarea {
+            .inner-input;
+            padding: 10px 100px 0 10px;
         }
     }
     .club-msg-muted {
@@ -322,11 +322,8 @@ body {
  ******************************************************************************/
 
 .files-panel {
-    border-right: 1px solid @border-color-light;
-    border-left: 1px solid @border-color-light;
     .content-item {
         // border-radius: 4px;
-
     }
 }
 /**/
