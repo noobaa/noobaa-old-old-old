@@ -9,8 +9,8 @@
             <ul class="dropdown-menu pull-right" role="menu">
                 <li ng-if="nbInode.can_share_inode(current_inode)">
                     <a ng-click="share_inode_with_club(current_inode)">
-                        <i class="fa fa-cube"></i>
-                        <span>Share with CLUB</span>
+                        <i class="fa fa-share-alt"></i>
+                        <span>Share with Club</span>
                     </a>
                 </li>
                 <li ng-if="nbInode.can_keep_inode(current_inode)">
@@ -19,8 +19,6 @@
                         <span>Keep</span>
                     </a>
                 </li>
-
-                <li ng-if="nbInode.can_share_inode(current_inode) || nbInode.can_keep_inode(current_inode)" class="divider"></li>
 
                 <div nb-if-replace="current_inode.isdir">
                     <li ng-if="!!current_inode.id && entries.length && !dialog.no_multi_select">
@@ -41,7 +39,6 @@
                             Gallery view
                         </a>
                     </li>
-                    <li class="divider"></li>
                     <li ng-if="nbInode.can_upload_to_dir(current_inode)">
                         <a ng-click="nbUploadSrv.open_file_input()">
                             <i class="fa fa-cloud-upload"></i>
@@ -77,8 +74,6 @@
                         Rename
                     </a>
                 </li>
-
-                <li ng-if="current_inode.isdir && !!current_inode.id" class="divider"></li>
 
                 <li>
                     <a ng-click="refresh_current('force')">
@@ -180,8 +175,8 @@
         </div>
 
         <div class="app-container" ng-if="current_inode.isdir">
-            <hr />
             <div ng-if="!current_inode.gallery_mode">
+                <hr />
                 <div ng-repeat="inode in entries">
                     <div class="line line-bar clickable {{is_selected(inode) && 'active'}} {{select_mode && !is_selected(inode) && 'select-pulse'}} {{is_clickable(inode) || 'disabled'}}" ng-click="click_inode(inode, $index, $event)" nb-right-click="right_click_inode(inode, $index, $event)">
                         <div class="pull-right" style="margin-left: 10px">
@@ -221,9 +216,9 @@
                 </div>
                 <div ng-if="current_inode.loaded && !current_inode.is_loading && !current_inode.entries.length">
                     <h3 class="text-center text-muted">
-                        Folder is empty
+                        Empty folder
                     </h3>
-                    <div class="text-center" ng-if="!dialog && nbInode.can_upload_to_dir(current_inode)">
+                    <div class="text-center" ng-if="!dialog && nbInode.can_upload_to_dir(current_inode)" style="padding-top: 20px">
                         <a class="btn btn-default" ng-click="nbUploadSrv.open_file_input()">
                             <i class="fa fa-cloud-upload"></i>
                             Upload files

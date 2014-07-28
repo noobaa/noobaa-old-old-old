@@ -206,12 +206,15 @@ hr.headline {
     padding: 0;
     border: 1px solid @border-color-light;
     box-shadow: 0 0 10px 3px @border-color;
+    > li {
+        border-bottom: 1px solid hsl(0,0%,97%);
+    }
     > li.divider {
         margin: 0;
         border-color: @border-color-light;
     }
     > li > a {
-        padding: 15px;
+        padding: 18px;
         > .fa {
             .text-muted;
             .fa-lg;
