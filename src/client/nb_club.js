@@ -55,7 +55,9 @@ nb_util.factory('nbClub', [
         });
 
         // a promise for controllers to know when the initial load is done
-        $scope.init_promise = $q.when(nbUser.init_friends()).then(poll_clubs);
+        $scope.init_promise = $q.when(nbUser.init_friends()).then(poll_clubs).then(function() {
+            $scope.clubs_inited = true;
+        });
 
 
         function poll_clubs() {
@@ -484,6 +486,10 @@ nb_util.controller('ClubCtrl', [
             };
             scope.choose = function(friend) {
                 modal.modal('hide');
+                if (!friend.id) {
+                    nbUtil.coming_soon('Invite to club', 'club.invite');
+                    return;
+                }
                 var members = _.map(club.members, pick_member_fields);
                 members.push({
                     user: friend.id,

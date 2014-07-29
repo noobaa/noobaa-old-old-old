@@ -32,12 +32,10 @@
             <div class="pull-right show-on-disabled">
                 <i class="fa fa-lg fa-check"></i>
             </div>
-            <div class="hflow" style="padding: 5px 0 0 10px">
-                <div class="text-ellipses">{{friend.name}}</div>
-                <div>
-                    <i ng-show="!friend.id && friend.fbid" class="fa fa-lg fa-facebook-square text-primary"></i>
-                    <i ng-show="!friend.id && friend.googleid" class="fa fa-lg fa-google-plus-square text-danger"></i>
-                </div>
+            <div class="text-ellipses" style="padding: 5px 0 0 10px">
+                <i ng-show="!friend.id && friend.fbid" class="fa fa-lg fa-fw fa-facebook-square text-primary"></i>
+                <i ng-show="!friend.id && friend.googleid" class="fa fa-lg fa-fw fa-google-plus-square text-danger"></i>
+                {{friend.name}}
             </div>
         </a>
         <hr />

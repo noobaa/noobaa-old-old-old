@@ -28,7 +28,13 @@
         <div ng-include="'action_bar_progress.html'"></div>
     </nav>
 
-    <div class="view-animate-area app-container">
+    <div class="view-animate-area" ng-if="!nbClub.clubs_inited">
+        <div class="line headline text-center text-muted">
+            <i class="fa fa-circle-o-notch fa-spin fa-2x fa-fw"></i>
+        </div>
+    </div>
+
+    <div class="view-animate-area app-container" ng-if="nbClub.clubs_inited">
         <div class="rect-container">
             <a ng-repeat="club in nbClub.clubs_arr track by $index" ng-href="club/{{club._id}}" class="club-bg btn-rect" style="background-color: hsl({{club.color}},60%,45%)">
                 <div class="text-center lead" style="height: 150px; font-weight: normal">{{club.title}}</div>
