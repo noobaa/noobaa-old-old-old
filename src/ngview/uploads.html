@@ -4,7 +4,25 @@
         <div class="clearfix">
             <div ng-include="'action_bar_nav.html'" class="pull-left"></div>
             <div class="pull-right">
-                <button class="btn btn-primary navbar-btn" ng-click="upsrv.open_file_input()">
+                <div ng-if="select_mode" class="btn-group">
+                    <a class="btn btn-default navbar-btn" ng-click="clear_select_mode()">
+                        <i class="fa fa-square-o"></i>
+                        <!-- UNSELECT -->
+                    </a>
+                    <a class="btn btn-default navbar-btn" ng-click="resume_selected()">
+                        <i class="fa fa-play"></i>
+                        <!-- <span>Resume Selected</span> -->
+                    </a>
+                    <a class="btn btn-default navbar-btn" ng-click="pause_selected()">
+                        <i class="fa fa-pause"></i>
+                        <!-- <span>Pause Selected</span> -->
+                    </a>
+                    <a class="btn btn-default navbar-btn" ng-click="remove_selected()">
+                        <i class="fa fa-trash-o text-danger"></i>
+                        <!-- <span>Remove Selected</span> -->
+                    </a>
+                </div>
+                <button ng-if="!select_mode" class="btn btn-primary navbar-btn" ng-click="upsrv.open_file_input()">
                     UPLOAD
                 </button>
                 <div class="btn-group">
@@ -20,37 +38,6 @@
                         </li>
                     </ul>
                 </div>
-                <!-- 
-                <div ng-if="select_mode" class="btn-group">
-                    <a class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                        ACTIONS
-                        <i class="fa fa-caret-down"></i>
-                    </a>
-                    <ul class="dropdown-menu" role="menu">
-                        <li>
-                            <a ng-click="resume_selected()">
-                                <i class="fa fa-play"></i>
-                                <span>Resume Selected</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a ng-click="pause_selected()">
-                                <i class="fa fa-pause"></i>
-                                <span>Pause Selected</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a ng-click="remove_selected()">
-                                <i class="fa fa-times"></i>
-                                <span>Remove Selected</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-                <button ng-if="select_mode" class="btn btn-default" ng-click="clear_select_mode()">
-                    UNSELECT
-                </button>
-                 -->
             </div>
         </div>
         <div ng-include="'action_bar_progress.html'"></div>
@@ -81,13 +68,10 @@
         <div ng-if="has_uploads()">
             <div class="line">
                 <div class="progress pull-right text-center" style="vertical-align: middle; margin: 10px; height: 25px; width: 70px; position: relative">
-                    <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{100 * upsrv.root.total_upsize / upsrv.root.total_size}}" aria-valuemin="0" aria-valuemax="100" style="width: {{100 * upsrv.root.total_upsize / upsrv.root.total_size}}%">
+                    <div ng-show="upsrv.root.total_size-upsrv.root.total_upsize>0" class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{100 * upsrv.root.total_upsize / upsrv.root.total_size}}" aria-valuemin="0" aria-valuemax="100" style="width: {{100 * upsrv.root.total_upsize / upsrv.root.total_size}}%">
                     </div>
                     <div ng-show="upsrv.root.total_size-upsrv.root.total_upsize>0" class="cover">
                         {{(100 * upsrv.root.total_upsize / upsrv.root.total_size).toFixed(0)}}%
-                    </div>
-                    <div ng-hide="upsrv.root.total_size-upsrv.root.total_upsize>0" class="cover">
-                        <i class="fa fa-check"></i>
                     </div>
                 </div>
 

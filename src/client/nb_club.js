@@ -491,7 +491,7 @@ nb_util.controller('ClubCtrl', [
                 return nbClub.update_club(club, {
                     members: members
                 }).then(function() {
-                    alertify.success(friend.first_name + ' is now a member')
+                    alertify.success(friend.first_name + ' is now a member');
                 });
             };
             modal = nbUtil.make_modal({

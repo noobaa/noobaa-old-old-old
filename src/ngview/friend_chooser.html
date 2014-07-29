@@ -11,22 +11,22 @@
     <div ng-if="nbUser.friends.all.length">
         <div class="line clearfix">
             <div class="input-lg" style="padding: 0; height: auto">
-                <i class="pull-left fa fa-search fa-lg {{friend_input.length && 'text-primary' || 'text-muted'}}" style="margin-left: 5px; margin-right: 15px"></i>
+                <i class="pull-left fa fa-search fa-lg {{ctx.friend_input.length && 'text-primary' || 'text-muted'}}" style="margin-left: 5px; margin-right: 15px"></i>
                 <div class="hflow relpos">
-                    <input type="text" class="inner-input" placeholder="Search friends" ng-model="friend_input" nb-focus="search_friend" ng-focus="start_search_friend()" />
+                    <input type="text" class="inner-input" placeholder="Search friends" ng-model="ctx.friend_input" nb-focus="ctx.search_friend" ng-focus="start_search_friend()" />
                 </div>
             </div>
         </div>
         <hr/>
     </div>
 
-    <div ng-hide="filtered_friends.length || nbUtil.valid_email(friend_input)">
+    <div ng-hide="filtered_friends.length || nbUtil.valid_email(ctx.friend_input)">
         <div class="line text-center text-muted">
             <span class="lead">NO FRIENDS FOUND</span>
         </div>
     </div>
 
-    <div ng-repeat="friend in filtered_friends = (nbUser.friends.all | filter:{name:friend_input} | orderBy:'name' | limitTo:100) track by $index">
+    <div ng-repeat="friend in filtered_friends = (nbUser.friends.all | filter:{name:ctx.friend_input} | orderBy:'name' | limitTo:50) track by $index">
         <a class="line clickable {{was_chosen(friend) && 'disabled'}}" ng-click="choose_friend(friend)">
             <img class="pull-left user-image" ng-src="{{nbUser.user_pic_url(friend)}}" />
             <div class="pull-right show-on-disabled">
@@ -48,12 +48,12 @@
     </div>
     <hr class="headline" />
 
-    <a ng-click="choose_friend_email(friend_input)" class="line clickable">
+    <a ng-click="choose_friend_email(ctx.friend_input)" class="line clickable">
         <i class="fa fa-envelope fa-lg fa-fw"></i>
-        <span ng-show="nbUtil.valid_email(friend_input)">
-            Invite {{friend_input}}
+        <span ng-show="nbUtil.valid_email(ctx.friend_input)">
+            Invite {{ctx.friend_input}}
         </span>
-        <span ng-hide="nbUtil.valid_email(friend_input)">
+        <span ng-hide="nbUtil.valid_email(ctx.friend_input)">
             Invite by email
         </span>
     </a>

@@ -8,15 +8,17 @@
     <hr class="headline" />
     <div ng-repeat="member in club.members track by $index">
         <div class="line">
-            <img class="pull-left user-image" ng-src="{{nbUser.user_pic_url(member.user_info)}}" />
             <div class="pull-right" style="padding-left: 10px">
                 <button ng-click="remove_member(member)" ng-if="club.admin && !member.admin" style="margin-top: -10px" class="btn btn-link">
                     <i class="fa fa-trash-o fa-lg fa-fw text-muted"></i>
                 </button>
                 <b ng-show="member.admin">OWNER</b>
             </div>
-            <div class="hflow" style="padding-left: 10px">
-                <div class="text-ellipses">{{member.user_info.name}}</div>
+            <div class="hflow">
+                <div class="text-ellipses">
+                    <img class="user-image" ng-src="{{nbUser.user_pic_url(member.user_info)}}" style="margin-right: 10px" />
+                    {{member.user_info.name}}
+                </div>
                 <div>
                     <i ng-show="!member.user_info.id && member.user_info.fbid" class="fa fa-lg fa-facebook-square text-primary"></i>
                     <i ng-show="!member.user_info.id && member.user_info.googleid" class="fa fa-lg fa-google-plus-square text-danger"></i>

@@ -368,7 +368,7 @@ function club_reply(club, user, msgs) {
     // convert from mongoose to plain obj
     var c = club.toObject();
     _.each(c.members, function(m) {
-        if (m.user.equals(user.id)) {
+        if (m.user && m.user.equals(user.id)) {
             // propagate the current user info to the club scope 
             // to make it easier to reach
             c.seen_msg = m.seen_msg;

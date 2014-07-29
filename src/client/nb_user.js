@@ -259,7 +259,6 @@ nb_util.factory('nbUser', [
 
                 _.each($scope.friends.all, function(u) {
                     u.first_name = u.first_name || u.name.match(/\S+/)[0] || u.name;
-                    u.color = Math.floor(Math.random() * 360);
                 });
             }, function(err) {
                 $scope.refreshing_friends--;
@@ -443,18 +442,21 @@ nb_util.controller('FriendChooserCtrl', [
         $scope.nbUser = nbUser;
         nbUser.init_friends();
 
+        // using a wrapper object for the view to be able to use ng-model
+        // across different inner scopes and still work on the same data.
+        var ctx = $scope.ctx = {};
 
         $scope.start_search_friend = function() {
-            $scope.search_friend = true;
+            ctx.search_friend = true;
         };
 
         $scope.reset_search_friend = function() {
-            $scope.search_friend = false;
-            $scope.friend_input = '';
+            ctx.search_friend = false;
+            ctx.friend_input = '';
         };
 
         $scope.$on('$locationChangeStart', function(event) {
-            if ($scope.search_friend) {
+            if (ctx.search_friend) {
                 event.preventDefault();
             }
             $scope.reset_search_friend();
