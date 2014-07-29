@@ -176,7 +176,9 @@ nb_util.factory('nbUser', [
             nbUtil.coming_soon('Sign up with email. We support Facebook / Google+ signup for now.', 
                 'user.signup_email');
             return;
-            // TODO
+            
+            // TODO bring back email signup/in
+            /*
             $scope.running_signin = true;
             nbUtil.track_event('user.login_email', params).then(function() {
                 return $http.post('/auth/email/login/', params);
@@ -187,6 +189,8 @@ nb_util.factory('nbUser', [
             })['finally'](function() {
                 $scope.running_signin = false;
             });
+            */
+
             /*
                 alertify.alert('Thank you for signing up! We are working on email registration.' +
                     ' Currently we only support sign in with Facebook or Google+.' +

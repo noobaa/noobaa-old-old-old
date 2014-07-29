@@ -463,7 +463,7 @@ nb_util.controller('ClubCtrl', [
                 return nbClub.update_club(club, {
                     color: scope.color
                 }).then(function() {
-                    club.color = scope.color
+                    club.color = scope.color;
                 });
             };
             modal = nbUtil.make_modal({
@@ -518,7 +518,7 @@ nb_util.controller('ClubCtrl', [
                 return nbClub.update_club(club, {
                     members: members
                 }).then(function() {
-                    alertify.success(member.user_info.first_name + ' is no longer a member')
+                    alertify.success(member.user_info.first_name + ' is no longer a member');
                 });
             });
         };
