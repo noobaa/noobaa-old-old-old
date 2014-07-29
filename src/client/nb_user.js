@@ -173,6 +173,10 @@ nb_util.factory('nbUser', [
                 email: email,
                 password: password
             };
+            nbUtil.coming_soon('Sign up with email. We support Facebook / Google+ signup for now.', 
+                'user.signup_email');
+            return;
+            // TODO
             $scope.running_signin = true;
             nbUtil.track_event('user.login_email', params).then(function() {
                 return $http.post('/auth/email/login/', params);

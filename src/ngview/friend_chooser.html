@@ -8,7 +8,7 @@
     </div>
     <hr class="headline" />
 
-    <div ng-if="nbUser.friends.all.length">
+    <div ng-if="nbUser.friends.users.length">
         <div class="line clearfix">
             <div class="input-lg" style="padding: 0; height: auto">
                 <i class="pull-left fa fa-search fa-lg {{ctx.friend_input.length && 'text-primary' || 'text-muted'}}" style="margin-left: 5px; margin-right: 15px"></i>
@@ -26,7 +26,7 @@
         </div>
     </div>
 
-    <div ng-repeat="friend in filtered_friends = (nbUser.friends.all | filter:{name:ctx.friend_input} | orderBy:'name' | limitTo:50) track by $index">
+    <div ng-repeat="friend in filtered_friends = (nbUser.friends.users | filter:{name:ctx.friend_input} | orderBy:'name' | limitTo:50) track by $index">
         <a class="line clickable {{was_chosen(friend) && 'disabled'}}" ng-click="choose_friend(friend)">
             <img class="pull-left user-image" ng-src="{{nbUser.user_pic_url(friend)}}" />
             <div class="pull-right show-on-disabled">

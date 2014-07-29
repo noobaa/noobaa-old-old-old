@@ -280,7 +280,7 @@ nb_util.factory('nbClub', [
                 var club_data = angular.copy($scope.NEW_CLUB_OBJ);
                 club_data.title = title;
                 return create_club(club_data);
-            });
+            }, nbUser.user.first_name + '\'s favorite videos...');
         }
 
         function create_club(club_data) {
@@ -608,6 +608,10 @@ nb_util.controller('ClubMemberCtrl', [
             if (!$scope.was_chosen(friend)) {
                 $scope.choose(friend);
             }
+        };
+
+        $scope.choose_friend_email = function(email) {
+            return nbUtil.coming_soon('Inviting friend by email', 'club.invite_email');
         };
 
         // These are expected to be defined by parent scope
