@@ -170,6 +170,7 @@ nb_util.directive('nbBrowse', function() {
                         return;
                     }
                     select_inode(inode, $index, $event);
+                    return nbUtil.stop_event($event);
                 }
 
                 function select_inode(inode, $index, $event) {

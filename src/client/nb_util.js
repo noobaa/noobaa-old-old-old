@@ -164,7 +164,7 @@ nb_util.factory('nbUtil', [
         var ICONS_BY_KIND = {
             dir: 'fa-folder-open-o',
             image: 'fa-picture-o',
-            video: 'fa-film',
+            video: 'fa-play',// 'fa-film',
             audio: 'fa-music',
             text: 'fa-file-text-o',
         };
