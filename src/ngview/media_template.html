@@ -1,0 +1,45 @@
+<div>
+    <div ng-if="inode.loaded" ng-switch="inode.content_kind">
+
+        <h4 ng-switch-default class="text-center">
+            <span class="label label-default">No preview</span>
+        </h4>
+
+        <div ng-switch-when="dir">
+            <!-- <div class="label label-default">Folder</div> -->
+            <hr/>
+            <div class="line clickable" ng-click="play()">
+                <div class="line-thumb pull-left">
+                    <i class="fa {{nbUtil.icon_by_kind(inode.content_kind)}} fa-fw fa-lg text-muted"></i>
+                </div>
+                <div class="text-ellipses">{{inode.name}}</div>
+            </div>
+            <hr/>
+        </div>
+
+        <a ng-switch-when="image" ng-click="play()">
+            <img ng-src="{{url}}" class="content-item img-responsive center-block" style="vertical-align: middle; max-height: 100%" nb-events="media_events" />
+        </a>
+
+        <div ng-switch-when="video">
+            <video controls ng-src="{{url}}" class="content-item img-responsive center-block" nb-events="media_events" nb-video="{{inode.content_type}}" style="width: 100%">
+                <source ng-src="{{url}}" ng-attr-type="{{inode.content_type}}" />
+                <object ng-attr-data="{{url}}" ng-attr-type="{{inode.content_type}}">
+                    <embed ng-src="{{url}}">
+                </object>
+                <track ng-if="media_subtitles" ng-src="{{media_url(media_subtitles)}}" kind="subtitle" srclang="he" charset="UTF-8" default />
+            </video>
+        </div>
+
+        <div ng-switch-when="audio">
+            <audio controls ng-src="{{url}}" style="height: 50px" class="content-item img-responsive center-block" nb-events="media_events">
+                <source ng-src="{{url}}" ng-attr-type="{{inode.content_type}}">
+            </audio>
+        </div>
+
+        <div ng-switch-when="text">
+            <object ng-attr-data="{{url}}" type="text/plain" style="width: 100%; min-height: 90%" class="content-item Xcenter-block bggrey" nb-events="media_events" </object>
+        </div>
+
+    </div>
+</div>

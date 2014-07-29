@@ -1,0 +1,26 @@
+<div>
+    <div ng-repeat="blog in blogs" class="blog-item">
+        <a ng-href="item/{{blog.headline}}">
+            <h3 style="margin-top: 0">{{blog.subject}}</h3>
+        </a>
+        <p>
+            <small class="text-muted">
+                By {{blog.author.name}} &nbsp;&ndash;&nbsp; {{moment(blog.time).fromNow()}}
+            </small>
+        </p>
+        <hr />
+        <a ng-href="item/{{blog.headline}}">
+            <img ng-src="{{blog.image_url}}" class="blog-img" />
+        </a>
+        <div ng-show="blog.summary" style="margin-top: 10px">
+            <p>{{blog.summary}}</p>
+            <a ng-href="item/{{blog.headline}}">
+                <b>Continue reading</b>
+            </a>
+        </div>
+    </div>
+
+    <div class="text-center">
+        <button ng-if="has_more_blogs" class="btn btn-default">Load More...</button>
+    </div>
+</div>

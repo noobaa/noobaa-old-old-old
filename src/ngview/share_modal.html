@@ -1,0 +1,104 @@
+<div class="modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div style="max-height: 100%" ng-init="filter_friend_name=''">
+                
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4>Invite friends to {{share_inode.name}}</h4>
+                </div>
+                
+                <div class="modal-body" style="padding: 0">
+                    <div style="max-height: 100%">
+                        <div style="padding: 10px 20px">
+                            <div>Comments:</div>
+                            <div style="margin: 5px 0">
+                                <div ng-repeat="msg in share_inode.messages" class="clearfix hover-target" style="margin-bottom: 5px">
+                                    <img class="user-image pull-left" ng-src="{{nbUser.user_pic_url(msg.user)}}" style="margin-right: 5px; vertical-align: top" />
+                                    <div style="overflow: hidden">
+                                        <div>
+                                            <small class="text-primary"><b>{{msg.user.first_name}}</b>
+                                            </small>
+                                            &nbsp;
+                                            <small>
+                                                <span style="white-space: pre-wrap" ng-bind-html="msg.text | linky:'_blank'"></span>
+                                            </small>
+                                        </div>
+                                        <div>
+                                            <small class="text-muted">
+                                                {{moment(msg.create_time).fromNow()}}
+                                                <a ng-click="delete_inode_message(share_inode, msg)" class="visible-hover-only">
+                                                    <i class="fa fa-times fa-fw text-muted"></i>
+                                                </a>
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div ng-show="comments_loading" class="text-center" style="padding: 10px">
+                                    <i class="fa fa-circle-o-notch fa-spin fa-lg"></i>
+                                </div>
+                                <div>
+                                    <textarea ng-model="share_text" rows="2" class="form-control" placeholder="Write about it..." nb-focus="!share_list_loading"></textarea>
+                                    <div></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div ng-if="!share_list_loading && shr=='r'">
+                            <hr style="margin: 0" />
+                            <div class="center-block" style="width: 160px; padding: 0 20px 10px 20px">
+                                <div class="Xinput-group input-group-sm" style="position: relative">
+                                    <input type="text" class="form-control bottom-radius {{filter_friend_name && 'label-primary'}}" placeholder="Search friends" ng-model="filter_friend_name" />
+                                    <i ng-show="filter_friend_name" class="fa fa-times fa-fw" style="cursor: pointer; position: absolute; right: 8px; top: 8px" ng-click="filter_friend_name=''"></i>
+                                </div>
+                            </div>
+                            <div style="padding: 0 20px 10px 20px; max-height: 300px; overflow-y: scroll; overflow-x: hidden">
+                                <div ng-repeat="friend in share_list | filter:{name: filter_friend_name} | orderBy:'name'" class="text-ellipses {{friend.shared && 'label-warning'}}" style="display: inline-block; Xborder-radius: 20px; width: 260px; margin: 0 2px; padding: 5px 10px; cursor: pointer; text-align: left" ng-click="friend.shared = !friend.shared">
+                                    <i class="fa fa-{{friend.shared && 'check' || 'plus-square'}} fa-fw"></i>&nbsp;
+                                    <img width="32" height="32" ng-src="{{nbUser.user_pic_url(friend)}}" class="user-image" />&nbsp;
+                                    <span>{{friend.name}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-footer" style="margin-top: 0">
+                    <span ng-if="share_list_loading" class="text-center" style="padding: 20px">
+                        <i class="fa fa-circle-o-notch fa-spin fa-lg"></i>
+                    </span>
+                    <div class="btn-group dropdown dropdown-hover">
+                        <button class="btn btn-link dropdown-toggle" type="button" data-toggle="dropdown">
+                            <span ng-if="shr == 'f'">
+                                <i class="fa fa-users fa-fw"></i>
+                                All Friends
+                            </span>
+                            <span ng-if="shr == 'r'">
+                                <i class="fa fa-cog fa-fw"></i>
+                                Choose Friends
+                            </span>
+                            <i class="fa fa-caret-down"></i>
+                        </button>
+                        <ul class="dropdown-menu transition-fast text-left" role="menu">
+                            <li>
+                                <a ng-click="shr = 'f'">
+                                    <i class="fa fa-{{(shr=='f') && 'check'}} fa-fw"></i>
+                                    <i class="fa fa-users fa-fw"></i>
+                                    All Friends
+                                </a>
+                            </li>
+                            <li>
+                                <a ng-click="set_shr_refs()">
+                                    <i class="fa fa-{{(shr=='r') && 'check'}} fa-fw"></i>
+                                    <i class="fa fa-cog fa-fw"></i>
+                                    Choose Friends
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" ng-click="run()" ng-disabled="share_list_loading">Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

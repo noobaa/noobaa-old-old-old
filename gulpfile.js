@@ -1,3 +1,5 @@
+'use strict';
+
 var gulp = require('gulp');
 var gutil = require('gulp-util');
 var gulp_debug = require('gulp-debug');
@@ -24,7 +26,7 @@ var fs = require('fs');
 var path = require('path');
 var child_process = require('child_process');
 var dotenv = require('dotenv');
-var through = require('through2');
+var through2 = require('through2');
 var bower = require('bower');
 var Q = require('q');
 
@@ -56,6 +58,7 @@ process.on("SIGTERM", leave_no_wounded);
 
 var paths = {
     css: './src/css/**/*',
+    css_candidates: ['./src/css/styles.less'],
     fonts: [
         './bower_components/bootstrap/dist/fonts/*',
         './bower_components/font-awesome/fonts/*',
@@ -66,7 +69,7 @@ var paths = {
     assets: [
         './node_modules/video.js/dist/video-js/video-js.swf',
     ],
-    views_ng: './src/views_ng/**/*',
+    ngview: './src/ngview/**/*',
     scripts: ['./src/server/**/*.js', './src/client/**/*.js', './gulpfile.js'],
     server_main: './src/server/server.js',
     client_main: './src/client/main.js',
@@ -88,30 +91,45 @@ function gulp_size_log(title) {
 function simple_bower() {
     // create a pass through stream
     var done;
-    var stream = through.obj(function(file, enc, callback) {
-        // console.log('BOWER', JSON.stringify(file));
+    var stream = through2.obj(function(file, enc, callback) {
         var self = this;
         if (done) {
             self.push(file);
             callback();
+            return;
         }
         done = true;
-        // run bower but send events on the stream
         bower.commands.install([], {}, {
             directory: './bower_components'
-        })
-            .on('log', function(result) {
-                gutil.log('bower', gutil.colors.cyan(result.id), result.message);
-            })
-            .on('error', function(error) {
-                stream.emit('error', new gutil.PluginError('simple_bower', error));
-                stream.end();
-            })
-            .on('end', function() {
-                self.push(file);
-                callback();
-                stream.end();
-            });
+        }).on('log', function(result) {
+            gutil.log('bower', gutil.colors.cyan(result.id), result.message);
+        }).on('error', function(error) {
+            stream.emit('error', new gutil.PluginError('simple_bower', error));
+            stream.end();
+            callback();
+        }).on('end', function() {
+            self.push(file);
+            stream.end();
+            callback();
+        });
+    });
+    return stream;
+}
+
+function candidate(candidate_src) {
+    var done;
+    var stream = through2.obj(function(file, enc, callback) {
+        var self = this;
+        if (done) {
+            return callback();
+        }
+        done = true;
+        gulp.src(candidate_src).pipe(through2.obj(function(c_file, c_enc, c_callback) {
+            self.push(c_file);
+            c_callback();
+        }, function() {
+            callback();
+        }));
     });
     return stream;
 }
@@ -154,9 +172,13 @@ gulp.task('css', ['bower'], function() {
     var DEST = 'build/public/css';
     var NAME = 'styles.css';
     var NAME_MIN = 'styles.min.css';
-    return gulp.src(paths.css)
+    var dont_read = {
+        read: false
+    };
+    return gulp.src(paths.css, dont_read)
         .pipe(gulp_plumber(plumb_conf))
         .pipe(gulp_newer(path.join(DEST, NAME)))
+        .pipe(candidate(paths.css_candidates))
         .pipe(gulp_less())
         .pipe(gulp_rename(NAME))
         .pipe(gulp_size_log(NAME))
@@ -171,7 +193,7 @@ gulp.task('ng', function() {
     var DEST = 'build/public/js';
     var NAME = 'templates.js';
     var NAME_MIN = 'templates.min.js';
-    return gulp.src(paths.views_ng)
+    return gulp.src(paths.ngview)
         .pipe(gulp_plumber(plumb_conf))
         .pipe(gulp_newer(path.join(DEST, NAME)))
         .pipe(gulp_ng_template())
@@ -189,8 +211,9 @@ gulp.task('jshint', function() {
         .pipe(gulp_plumber(plumb_conf))
         .pipe(gulp_cached('jshint'))
         .pipe(gulp_jshint())
-        .pipe(gulp_jshint.reporter(jshint_stylish))
-        .pipe(gulp_jshint.reporter('fail'));
+        .pipe(gulp_jshint.reporter(jshint_stylish));
+        // avoid failing for watch to continue
+        // .pipe(gulp_jshint.reporter('fail'));
 });
 
 gulp.task('client', ['bower'], function() {
@@ -281,7 +304,7 @@ gulp.task('install_server_and_serve', ['jshint'], serve);
 
 gulp.task('start_dev', ['install_and_serve'], function() {
     gulp.watch('src/css/**/*', ['install_css_and_serve']);
-    gulp.watch('src/views_ng/**/*', ['install_ng_and_serve']);
+    gulp.watch('src/ngview/**/*', ['install_ng_and_serve']);
     gulp.watch('src/client/**/*', ['install_client_and_serve']);
     gulp.watch(['src/server/**/*', 'src/views/**/*', 'src/utils/**/*'], ['install_server_and_serve']);
 });

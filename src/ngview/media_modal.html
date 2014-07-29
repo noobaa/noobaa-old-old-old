@@ -1,0 +1,35 @@
+<div class="modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="padding: 0">
+                
+                <div class="bggray-lighter bgnoise2 text-center text-ellipses" style="margin: 0">
+                    <a role="button" class="pull-right btn btn-link navbar-btn" data-dismiss="modal" aria-hidden="true">
+                        <span class="close">&times;</span>
+                        <!-- 
+                        <span class="active-link">
+                            <i class="fa fa-angle-left fa-lg"></i>
+                            <small style="color: hsl(0,0%,55%)">BACK</small>
+                        </span>
+                         -->
+                    </a>
+                    <div class="navbar-text text-ellipses">{{name}}</div>
+                </div>
+                <hr class="headline" />
+
+                <div ng-if="items" style="padding-top: 10px">
+                    <b>Showing:</b>
+                    <select ng-model="selected.item" ng-options="x.name group by x.content_kind for x in items" class="form-control"></select>
+                </div>
+                <div ng-if="subtitles" style="padding-top: 10px">
+                    <b>Subtitle:</b>
+                    <select ng-model="selected.subtitles" ng-options="x.name for x in subtitles" class="form-control"></select>
+                </div>
+            </div>
+            <div class="modal-body" style="padding: 0">
+                <div ng-if="!inode.isdir" nb-media="selected.item" nb-subtitles="selected.subtitles" playing="true" media-events="media_events"></div>
+                <div ng-if="inode.isdir" nb-browse context="context"></div>
+            </div>
+        </div>
+    </div>
+</div>

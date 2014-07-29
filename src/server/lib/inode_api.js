@@ -80,14 +80,14 @@ function fobj_get_url(fobj_id, name, is_download) {
     // console.log('CF URL', signed_url);
     return signed_url;
     /*
-	var params = {
-		Bucket: process.env.S3_BUCKET,
-		Key: fobj_s3_key(fobj_id),
-		Expires: 24 * 60 * 60, // 24 hours
-		ResponseContentDisposition: name_to_content_dispos(name, is_download)
-	};
-	return S3.getSignedUrl('getObject', params);
-	*/
+    var params = {
+        Bucket: process.env.S3_BUCKET,
+        Key: fobj_s3_key(fobj_id),
+        Expires: 24 * 60 * 60, // 24 hours
+        ResponseContentDisposition: name_to_content_dispos(name, is_download)
+    };
+    return S3.getSignedUrl('getObject', params);
+    */
 }
 
 // return a signed POST form and url for the fobj in S3
@@ -131,6 +131,7 @@ function s3_post_info(fobj_id, name, content_type) {
 
 // transform the inode and optional fobj to an entry 
 // that is the interface for the client.
+exports.inode_to_entry = inode_to_entry;
 
 function inode_to_entry(inode, opt) {
 
@@ -462,10 +463,37 @@ exports.feed_query = function(req, res) {
             });
         }
 
-    ], common_api.reply_callback(req, res, 'INODE READ ALL'));
+    ], common_api.reply_callback(req, res, 'INODE FEED'));
 };
 
 
+
+exports.inode_get_ref = inode_get_ref;
+
+function inode_get_ref(req, res) {
+    var user_id = req.user.id;
+    var inode_id = req.params.inode_id;
+
+    async.waterfall([
+
+        function(next) {
+            return Inode.findOne({
+                ghost_ref: inode_id,
+                owner: user_id
+            }).populate('ref_owner').exec(next);
+        },
+
+        function(inode, next) {
+            return next(null, {
+                entry: inode && inode_to_entry(inode, {
+                    user: req.user,
+                    fobj_get_url: true
+                })
+            });
+        }
+
+    ], common_api.reply_callback(req, res, 'INODE GET REF'));
+}
 
 
 
@@ -667,47 +695,47 @@ function inode_create_action(inode, fobj, user, relative_path, callback) {
         },
 
         /* TODO THIS RELATIVE PATH HADNLING IS BROKEN AND SEEMS UNNEEDED FOR NOW
-		// create relative path if needed
-		// and update the created dir as the new inode parent
-		function(next) {
-			if (!relative_path) {
-				return next();
-			}
+        // create relative path if needed
+        // and update the created dir as the new inode parent
+        function(next) {
+            if (!relative_path) {
+                return next();
+            }
 
-			// make an array out of the relative path names
-			// and compact it to remove any empty strings
-			var paths = _.compact(relative_path.split('/'));
-			if (paths.length && paths[paths.length - 1] === inode.name) {
-				paths = paths.slice(0, paths.length - 1);
-			}
-			console.log('RELATIVE PATH:', relative_path, paths);
-			// do reduce on the paths array and for each name in the path
-			// try to find existing dir, or otherwise create it,
-			// and pass the parent to the next step.
-			return async.reduce(paths, inode.parent, function(parent_id, name, next) {
-				return Inode.findOneAndUpdate({
-					owner: user.id,
-					parent: parent_id,
-					name: name,
-					isdir: true
-				}, {}, {
-					// setting upsert to create if not exist
-					upsert: true
-				}, function(err, inode) {
-					if (err) {
-						return next(err);
-					}
-					console.log('RELATIVE PATH - REDUCE:', parent_id, name, inode._id);
-					return next(null, inode._id);
-				});
-			}, function(err, parent_id) {
-				// finally, set the new inode parent
-				console.log('RELATIVE PATH - RESULT:', parent_id);
-				inode.parent = parent_id;
-				next(err);
-			});
-		},
-		*/
+            // make an array out of the relative path names
+            // and compact it to remove any empty strings
+            var paths = _.compact(relative_path.split('/'));
+            if (paths.length && paths[paths.length - 1] === inode.name) {
+                paths = paths.slice(0, paths.length - 1);
+            }
+            console.log('RELATIVE PATH:', relative_path, paths);
+            // do reduce on the paths array and for each name in the path
+            // try to find existing dir, or otherwise create it,
+            // and pass the parent to the next step.
+            return async.reduce(paths, inode.parent, function(parent_id, name, next) {
+                return Inode.findOneAndUpdate({
+                    owner: user.id,
+                    parent: parent_id,
+                    name: name,
+                    isdir: true
+                }, {}, {
+                    // setting upsert to create if not exist
+                    upsert: true
+                }, function(err, inode) {
+                    if (err) {
+                        return next(err);
+                    }
+                    console.log('RELATIVE PATH - REDUCE:', parent_id, name, inode._id);
+                    return next(null, inode._id);
+                });
+            }, function(err, parent_id) {
+                // finally, set the new inode parent
+                console.log('RELATIVE PATH - RESULT:', parent_id);
+                inode.parent = parent_id;
+                next(err);
+            });
+        },
+        */
 
         // create the new fobj
         function(next) {

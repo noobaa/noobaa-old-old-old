@@ -3,7 +3,8 @@
 <!-- charset needs to appear as early as possible -->
 <meta charset="utf-8" />
 <meta name="description" content="NooBaa is a Crowd Cloud where users create the cloud service by Co-Sharing computer resources" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes" />
+<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+<meta name="fragment" content="!" />
 <title>NooBaa - Connecting The Dots</title>
 
 <!-- 'https://developers.facebook.com/docs/opengraph/'       -->
@@ -32,26 +33,31 @@
 
 <!-- <link href="/vendor/bootstrap-tour/css/bootstrap-tour.min.css" type="text/css" rel="stylesheet" /> -->
 <!-- <link href="//code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" type="text/css" rel="stylesheet" /> -->
-<!-- <link href="//ajax.googleapis.com/ajax/libs/jquerymobile/1.4.0/jquery.mobile.min.css" type="text/css" rel="stylesheet" /> -->
+<!-- <link href="//ajax.googleapis.com/ajax/libs/jquerymobile/1.4.2/jquery.mobile.min.css" type="text/css" rel="stylesheet" /> -->
 
 <!-- <link href="/vendor/animations.css" type="text/css" rel="stylesheet" /> -->
 <!-- <link href="/vendor/animate.css/animate.min.css" type="text/css" rel="stylesheet" /> -->
 <!-- <link href="/vendor/alertify.js/themes/alertify.core.css" rel="stylesheet"> -->
 <!-- <link href="/vendor/alertify.js/themes/alertify.default.css" rel="stylesheet"> -->
 <!-- <link href="/vendor/flowplayer-5.4.6/skin/minimalist.css" rel="stylesheet"> -->
+
 <link href="/public/css/styles.min.css" type="text/css" rel="stylesheet" />
 
 <!-- Google Fonts -->
-<!-- <link href='//fonts.googleapis.com/css?family=Finger+Paint' rel='stylesheet' type='text/css'> -->
-<!-- <link href='//fonts.googleapis.com/css?family=Finger+Paint|Ubuntu' rel='stylesheet' type='text/css'> -->
-<!-- <link href='//fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'> -->
-<!-- <link href='//fonts.googleapis.com/css?family=Salsa' rel='stylesheet' type='text/css'> -->
-<!-- <link href='//fonts.googleapis.com/css?family=Gilda+Display' rel='stylesheet' type='text/css'> -->
-<!-- <link href='//fonts.googleapis.com/css?family=Droid+Serif' rel='stylesheet' type='text/css'> -->
-<!-- <link href='//fonts.googleapis.com/css?family=Droid+Sans:400,700' rel='stylesheet' type='text/css'> -->
-<!-- <link href='//fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'> -->
-<!-- <link href='//fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'> -->
-<!-- <link href='//fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'> -->
+<link href='//fonts.googleapis.com/css?family=Open+Sans:300,400,700' rel='stylesheet' type='text/css'>
+<!-- SANS SERIF FONTS
+<link href='//fonts.googleapis.com/css?family=Noto+Sans:400,700' rel='stylesheet' type='text/css'>
+<link href='//fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+<link href='//fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+<link href='//fonts.googleapis.com/css?family=Droid+Sans:400,700' rel='stylesheet' type='text/css'>
+<link href='//fonts.googleapis.com/css?family=Droid+Serif' rel='stylesheet' type='text/css'>
+ -->
+
+<!-- CURSIVE FONTS
+<link href='//fonts.googleapis.com/css?family=Finger+Paint' rel='stylesheet' type='text/css'>
+<link href='//fonts.googleapis.com/css?family=Averia+Sans+Libre:400,700' rel='stylesheet' type='text/css'>
+<link href='//fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+ -->
 
 
 <!-- break out from iframe -->
@@ -76,7 +82,7 @@ if (top.location != self.location) {
         (i[r].q = i[r].q || []).push(arguments)
     }, i[r].l = 1 * new Date();
     a = s.createElement(o),
-    m = s.getElementsByTagName(o)[0];
+        m = s.getElementsByTagName(o)[0];
     a.async = 1;
     a.src = g;
     m.parentNode.insertBefore(a, m)
@@ -119,7 +125,7 @@ ga('send', 'pageview');
             }
             var c = b;
             "undefined" !==
-                typeof d ? c = b[d] = [] : d = "mixpanel";
+            typeof d ? c = b[d] = [] : d = "mixpanel";
             c.people = c.people || [];
             c.toString = function(b) {
                 var a = "mixpanel";
@@ -137,7 +143,7 @@ ga('send', 'pageview');
         b.__SV = 1.2
     }
 })(document, window.mixpanel || []);
-if ( <?= !! it.data.mixpanel_token ?> ) {
+if ( <?= !!it.data.mixpanel_token ?> ) {
     mixpanel.init("<?= it.data.mixpanel_token ?>");
     window.nb_mixpanel = true;
 }

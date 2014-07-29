@@ -1,0 +1,41 @@
+<nav class="navbar navbar-inverse navbar-bottom" role="navigation">
+    <ul>
+        <li ng-class="nbUtil.active_link('/home/club/')">
+            <a ng-click="click_clubs()">
+                <i class="fa fa-cube"></i>
+                <span>CLUBS</span>
+                <i ng-show="nbClub.total_new_msgs" class="fa fa-bell"></i>
+            </a>
+        </li>
+        <!-- 
+        <li ng-class="nbUtil.active_link('/home/watch/')">
+            <a ng-click="click_my_feed()">
+                <i class="fa {{fetching_feeds && 'fa-refresh fa-spin' || 'fa-play'}}"></i>
+                <span>WATCH</span>
+            </a>
+        </li>
+         -->
+        <li ng-class="nbUtil.active_link('/home/files/')">
+            <a ng-click="click_files()">
+                <i class="fa fa-folder-open"></i>
+                <span>FILES</span>
+            </a>
+        </li>
+        <li ng-class="nbUtil.active_link('/home/upload/')">
+            <a ng-click="click_uploads()">
+                <i class="fa fa-cloud-upload"></i>
+                <span>UPLOAD</span>
+                <span class="badge" ng-show="nbUploadSrv.root.total_sons - nbUploadSrv.root.total_completed">
+                    {{nbUploadSrv.root.total_sons - nbUploadSrv.root.total_completed}}
+                    <i class="fa fa-circle-o-notch fa-spin"></i>
+                </span>
+            </a>
+        </li>
+        <li ng-class="nbUtil.active_link('/home/account/')">
+            <a ng-click="click_account()">
+                <i class="fa fa-user"></i>
+                <span>ACCOUNT</span>
+            </a>
+        </li>
+    </ul>
+</nav>

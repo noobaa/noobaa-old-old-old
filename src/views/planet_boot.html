@@ -77,9 +77,10 @@
             var q = 'Closing the application will stop co-sharing, ' +
                 'which will affect your account quota and performance. ' +
                 'Click "No" to keep co-sharing:';
-            if (window.confirm(q)) {
+            alertify.confirm(q, function(e) {
+                if (!e) return;
                 gui.App.quit();
-            }
+            });
         }
 
         function show_win() {

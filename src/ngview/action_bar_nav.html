@@ -1,0 +1,41 @@
+<div class="btn-group">
+    <a class="btn btn-link navbar-btn dropdown-toggle" data-toggle="dropdown">
+        <span class="active-link">
+            {{action_bar_title}}
+            <i class="fa fa-caret-down"></i>
+        </span>
+    </a>
+    <ul class="dropdown-menu" role="menu">
+        <li>
+            <a href="club/">
+                <span class="{{nbUtil.active_link('/home/club/')}}-link">
+                    CLUBS
+                </span>
+            </a>
+        </li>
+        <li>
+            <a href="files/">
+                <span class="{{nbUtil.active_link('/home/files/')}}-link">
+                    FILES
+                </span>
+            </a>
+        </li>
+        <li>
+            <a href="upload/">
+                <span class="{{nbUtil.active_link('/home/upload/')}}-link">
+                    UPLOADS
+                </span>
+            </a>
+        </li>
+        <li>
+            <a href="account/">
+                <span class="{{nbUtil.active_link('/home/account/')}}-link">
+                    MY ACCOUNT
+                </span>
+            </a>
+        </li>
+        <li class="line text-center">
+            <img class="user-image" ng-src="{{nbUser.user_pic_url(nbUser.user)}}" />
+        </li>
+    </ul>
+</div>

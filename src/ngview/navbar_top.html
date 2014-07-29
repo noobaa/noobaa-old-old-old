@@ -1,0 +1,33 @@
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+
+    <div class="clearfix">
+        <a class="btn btn-link navbar-btn navbar-brand" href="/">
+            <img src="/public/images/noobaa_logo.png"></img>
+            <span>beta</span>
+        </a>
+        <a class="btn btn-link navbar-btn" href="/blog">
+            <span class="{{nbUtil.active_link('/blog')}}-link">
+                BLOG
+            </span>
+        </a>
+        <a class="btn btn-link navbar-btn" href="/blog/item/faq">
+            <span class="{{nbUtil.active_link('/blog/item/faq')}}-link">
+                FAQ
+            </span>
+        </a>
+        <div class="pull-right">
+            <button class="btn btn-default navbar-btn">
+                Login
+            </button>
+            <button class="btn btn-default navbar-btn">
+                Sign Up
+            </button>
+        </div>
+    </div>
+
+    <div class="progress">
+        <div class="progress-bar progress-bar-striped active {{home_context.action_bar.progress_complete && 'hidden'}}" role="progressbar" aria-valuenow="{{home_context.action_bar.progress_percent}}" aria-valuemin="0" aria-valuemax="100" style="width: {{home_context.action_bar.progress_percent}}%">
+        </div>
+    </div>
+
+</nav>

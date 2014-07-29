@@ -1,0 +1,36 @@
+<div class="modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4>CO-SHARING DEVICE SPACE</h4>
+            </div>
+
+            <div class="modal-body" style="padding: 10px">
+                <div class="line">
+                    Choosing an option will allocate that amount of space from the device hard-disk, and will increase the space of your cloud account by the same amount.
+                </div>
+                <div class="text-center" style="padding: 10px">
+                    <span ng-repeat="plan in nbPlanet.coshare_options">
+                        <button href="#" class="btn btn-lg Xbtn-block" ng-click="nbPlanet.select_coshare_option($index)" ng-class="nbPlanet.coshare_options_class($index)">
+                            {{plan.title}}
+                        </button>
+                    </span>
+                </div>
+                <!-- 
+                <button class="btn btn-link btn-block" Xonclick="$('#coshare_path').trigger('click')">
+                    Advanced...
+                </button>
+                <input id="coshare_path" type="file" name="file" nwdirectory>
+                </input>
+                 -->
+            </div>
+
+            <div class="modal-footer" style="margin-top: 0">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+
+        </div>
+    </div>
+</div>

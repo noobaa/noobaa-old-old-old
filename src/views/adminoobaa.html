@@ -12,11 +12,11 @@
 
 <body ng-cloak ng-controller="AdminoobaaCtrl">
 
-    <nav class="navbar navbar-static-top navbar-default" role="navigation" style="margin: 0">
+    <nav class="navbar navbar-top navbar-default" role="navigation" style="margin: 0">
         <div class="container clearfix">
             <div class="navbar-header pull-left">
                 <a id="logo_link" class="navbar-brand" href="/adminoobaa/">
-                    <span class="lead text-success fntpaint" style="vertical-align: middle">Admi</span>
+                    <span class="lead text-success" style="vertical-align: middle">Admi</span>
                     <img src="/public/images/noobaa_logo.png" style="vertical-align: middle"></img>
                     <small>BETA</small>
                 </a>
@@ -24,7 +24,7 @@
             <p class="navbar-text pull-right" ng-show="!!loading">
                 <span class="text-warning">
                     Loading
-                    <i class="fa fa-cog fa-spin fa-fw fa-lg"></i>
+                    <i class="fa fa-circle-o-notch fa-spin fa-fw fa-lg"></i>
                 </span>
             </p>
         </div>
@@ -45,29 +45,29 @@
                 </a>
             </li>
             <!-- 
-			<li ng-class="active_tab('funnels')">
-				<a class="btn-link btn-lg" style="padding: 5px 10px; cursor: pointer" ng-click="activate_tab('funnels')">
-					<i class="fa fa-filter fa-lg fa-fw"></i>
-					<span>Funnels</span>
-				</a>
-			</li>
-			 -->
+            <li ng-class="active_tab('funnels')">
+                <a class="btn-link btn-lg" style="padding: 5px 10px; cursor: pointer" ng-click="activate_tab('funnels')">
+                    <i class="fa fa-filter fa-lg fa-fw"></i>
+                    <span>Funnels</span>
+                </a>
+            </li>
+             -->
         </ul>
     </div>
 
     <div class="container" ng-show="current_tab=='users'">
         <!-- 
-		<div class="text-center" style="padding: 10px 0">
-			<button class="btn btn-default" ng-click="refresh_users()">
-				<i class="fa fa-refresh fa-fw fa-lg"></i>
-				Refresh Users
-			</button>
-			<button class="btn btn-default" ng-click="calculate_users_usage()">
-				<i class="fa fa-tachometer fa-fw fa-lg"></i>
-				Calculate Usage
-			</button>
-		</div>
-		 -->
+        <div class="text-center" style="padding: 10px 0">
+            <button class="btn btn-default" ng-click="refresh_users()">
+                <i class="fa fa-refresh fa-fw fa-lg"></i>
+                Refresh Users
+            </button>
+            <button class="btn btn-default" ng-click="calculate_users_usage()">
+                <i class="fa fa-tachometer fa-fw fa-lg"></i>
+                Calculate Usage
+            </button>
+        </div>
+         -->
 
         <div id="users_table"></div>
 
@@ -170,37 +170,49 @@
     <div style="height: 30px"></div>
 
 
-    <div style="display: none" ng-non-bindable>
-        <div id="user_info_modal" style="max-height: 100%">
-            <div style="padding: 0 30px">
-                <div class="row">
-                    <div class="col-sm-6">
-                        <h3>User</h3>
-                        <pre style="background-color: transparent; color: inherit; border: none">{{ printer(user) }}</pre>
+    <div id="user_info_modal" style="display: none" ng-non-bindable>
+        <div class="modal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4>User Info</h4>
                     </div>
-                    <div class="col-sm-6">
-                        <h3>Device</h3>
-                        <pre style="background-color: transparent; color: inherit; border: none">{{ printer(dev) }}</pre>
+
+                    <div class="modal-body" style="max-height: 100%">
+                        <div style="padding: 0 30px">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <h3>User</h3>
+                                    <pre style="background-color: transparent; color: inherit; border: none">{{ printer(user) }}</pre>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h3>Device</h3>
+                                    <pre style="background-color: transparent; color: inherit; border: none">{{ printer(dev) }}</pre>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <label class="btn btn-primary">
+                                    <input type="checkbox" ng-model="full" />
+                                    <span>Full</span>
+                                </label>
+                                <button class="btn btn-primary" ng-click="send_recent_swm(user)">
+                                    SWM Email
+                                </button>
+                                <button class="btn btn-primary" ng-click="toggle_email_silent(user)">
+                                    Silent
+                                </button>
+                            </div>
+                            <div ng-if="!full">
+                                <pre style="background-color: transparent; color: inherit; border: none">{{ printer(short_info) }}</pre>
+                            </div>
+                            <div ng-if="full" ng-repeat="(key,info) in drives_info">
+                                <h4>{{key}} {{info.time}}</h4>
+                                <pre style="background-color: transparent; color: inherit; border: none">{{ printer(info.info || info.text) }}</pre>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="text-center">
-                    <label class="btn btn-primary">
-                        <input type="checkbox" ng-model="full" />
-                        <span>Full</span>
-                    </label>
-                    <button class="btn btn-primary" ng-click="send_recent_swm(user)">
-                        SWM Email
-                    </button>
-                    <button class="btn btn-primary" ng-click="toggle_email_silent(user)">
-                        Silent
-                    </button>
-                </div>
-                <div ng-if="!full">
-                    <pre style="background-color: transparent; color: inherit; border: none">{{ printer(short_info) }}</pre>
-                </div>
-                <div ng-if="full" ng-repeat="(key,info) in drives_info">
-                    <h4>{{key}} {{info.time}}</h4>
-                    <pre style="background-color: transparent; color: inherit; border: none">{{ printer(info.info || info.text) }}</pre>
                 </div>
             </div>
         </div>
@@ -267,15 +279,15 @@
                 // for now prefer to keep the default style
                 var table_css_classes = undefined;
                 /*
-				var table_css_classes = {
-					tableRow: 'table-row',
-					headerRow: 'table-header-row',
-					tableCell: 'table-cell',
-					headerCell: 'table-header-cell',
-					selectedTableRow: 'table-row-selected',
-					hoverTableRow: 'table-row-hover'
-				};
-				*/
+                var table_css_classes = {
+                    tableRow: 'table-row',
+                    headerRow: 'table-header-row',
+                    tableCell: 'table-cell',
+                    headerCell: 'table-header-cell',
+                    selectedTableRow: 'table-row-selected',
+                    hoverTableRow: 'table-row-hover'
+                };
+                */
 
 
                 function refresh_users() {
@@ -473,7 +485,11 @@
                             return info;
                         }
                     };
-                    nbUtil.content_modal('<h4>User Info</h4>', $('#user_info_modal').html(), scope, 'lg');
+                    nbUtil.make_modal({
+                        html: $('#user_info_modal').html(),
+                        scope: scope,
+                        size: 'lg'
+                    });
                 }
 
 
@@ -694,12 +710,12 @@
                             draw_view();
                         }
                         /*
-						if (!selected.column) {
-						}
-						if (selected.column && selected.row) {
-							var value = data.getValue(selected.row, selected.column);
-						}
-						*/
+                        if (!selected.column) {
+                        }
+                        if (selected.column && selected.row) {
+                            var value = data.getValue(selected.row, selected.column);
+                        }
+                        */
                     });
                 }
 
@@ -717,20 +733,20 @@
                     var msg = action + err.toString();
                     alertify.error(msg);
                     /*
-					$.bootstrapGrowl(msg, {
-						ele: 'body',
-						type: 'error',
-						offset: {
-							from: 'top',
-							amount: 60
-						},
-						align: 'right',
-						width: 'auto',
-						delay: 5000,
-						allow_dismiss: true,
-						stackup_spacing: 20
-					});
-					*/
+                    $.bootstrapGrowl(msg, {
+                        ele: 'body',
+                        type: 'error',
+                        offset: {
+                            from: 'top',
+                            amount: 60
+                        },
+                        align: 'right',
+                        width: 'auto',
+                        delay: 5000,
+                        allow_dismiss: true,
+                        stackup_spacing: 20
+                    });
+                    */
                 }
 
 

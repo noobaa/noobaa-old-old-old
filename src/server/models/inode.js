@@ -5,6 +5,7 @@ var mongoose = require('mongoose');
 var types = mongoose.Schema.Types;
 var _ = require('underscore');
 
+var Inode;
 
 var inode_schema = new mongoose.Schema({
 	// user ownership
@@ -114,5 +115,5 @@ inode_schema.virtual('messages').get(function() {
 	this._messages = m;
 });
 
-var Inode = mongoose.model('Inode', inode_schema);
+Inode = mongoose.model('Inode', inode_schema);
 exports.Inode = Inode;

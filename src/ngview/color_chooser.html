@@ -1,0 +1,22 @@
+<div>
+    <div class="line headline">
+    	CHOOSE COLOR
+        <a class="btn btn-link pull-right" ng-click="back()" style="padding-top: 0">
+            <span class="close">&times;</span>
+        </a>
+    </div>
+    <hr class="headline" />
+
+    <div class="club-bg text-center" style="display: block; background-color: hsl({{color}},60%,45%); height: 250px">
+        <button class="btn btn-trans btn-lg pull-left hfill" ng-click="change_color(-1)">
+            <i class="fa fa-angle-left fa-fw fa-lg"></i>
+        </button>
+        <button class="btn btn-trans btn-lg hfill" ng-click="choose()">
+            <!-- <i class="fa fa-check fa-fw fa-2x"></i> -->
+            SAVE
+        </button>
+        <button class="btn btn-trans btn-lg pull-right hfill" ng-click="change_color(1)">
+            <i class="fa fa-angle-right fa-fw fa-lg"></i>
+        </button>
+    </div>
+</div>

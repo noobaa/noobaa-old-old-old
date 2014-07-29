@@ -1,4 +1,3 @@
-/* jshint node:true */
 'use strict';
 
 process.on('uncaughtException', function(err) {
@@ -70,6 +69,7 @@ var email = require('./lib/email');
 var device_api = require('./lib/device_api');
 var track_api = require('./lib/track_api');
 // var blog_api = require('./lib/blog_api');
+var club_api = require('./lib/club_api');
 var adminoobaa = require('./lib/adminoobaa');
 
 
@@ -181,6 +181,9 @@ app.get('/auth/logout/', auth.logout);
 
 app.get('/auth/facebook/login/', auth.provider_login.bind(null, 'facebook'));
 app.get('/auth/google/login/', auth.provider_login.bind(null, 'google'));
+app.post('/auth/email/login/', auth.provider_login.bind(null, 'local'), function(req, res) {
+    res.send(200);
+});
 
 
 // setup star API routes
@@ -191,6 +194,7 @@ app.get('/api/inode/:inode_id', inode_api.inode_read);
 app.put('/api/inode/:inode_id', inode_api.inode_update);
 app.put('/api/inode/:inode_id/copy', inode_api.inode_copy);
 app.del('/api/inode/:inode_id', inode_api.inode_delete);
+app.get('/api/inode/:inode_id/ref', inode_api.inode_get_ref);
 
 app.get('/api/inode/src_dev/:device_id', inode_api.inode_source_device);
 app.post('/api/inode/:inode_id/multipart/', inode_api.inode_multipart);
@@ -206,6 +210,15 @@ app.post('/api/inode/:inode_id/message/', message_api.post_inode_message);
 app.del('/api/inode/:inode_id/message/:message_id', message_api.delete_inode_message);
 
 app.get('/api/feed/', inode_api.feed_query);
+
+app.get('/api/club/', club_api.poll);
+app.post('/api/club/', club_api.create);
+app.put('/api/club/:club_id', club_api.update);
+app.del('/api/club/:club_id', club_api.leave);
+app.post('/api/club/:club_id/msg', club_api.send);
+app.put('/api/club/:club_id/msg', club_api.mark_seen);
+app.get('/api/club/:club_id/msg', club_api.read);
+app.get('/api/club/list/', club_api.list);
 
 app.get('/api/user/', user_api.user_read);
 app.put('/api/user/', user_api.user_update);
@@ -260,12 +273,12 @@ function redirect_no_user(req, res, next) {
         res.redirect(welcome_path);
         return;
     }
-    if (!req.session.accessToken || !req.session.tokens) {
-        console.log('NO TOKENS FORCE LOGOUT', req.user);
-        res.redirect('/auth/logout/?state=/home/#join');
-        return;
-    }
-    if (req.user.alpha_tester) {
+    // if (!req.session.tokens) {
+    //     console.log('NO TOKENS FORCE LOGOUT', req.user);
+    //     res.redirect('/auth/logout/');
+    //     return;
+    // }
+    if (true || req.user.alpha_tester) {
         return next();
     }
 
@@ -330,10 +343,6 @@ app.get('/home/*', redirect_no_user, function(req, res) {
 });
 app.get('/home', function(req, res) {
     return res.redirect('/home/');
-});
-
-app.get('/player', function(req, res) {
-    return res.render('player.html');
 });
 
 app.all('/', redirect_no_user, function(req, res) {
