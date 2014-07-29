@@ -569,7 +569,7 @@ nb_util.directive('nbAutoHeight', ['$timeout',
                         update_timeout = $timeout(function() {
                             update_height(e, min);
                             update_timeout = null;
-                        }, 1);
+                        }, 0);
                     }
                 };
                 if (attr.nbAutoHeight) {
@@ -582,6 +582,7 @@ nb_util.directive('nbAutoHeight', ['$timeout',
                     e.on('blur', do_update);
                 }
                 // Update as soon as it is added to the DOM
+                update_height(e, min);
                 do_update();
             }
         };

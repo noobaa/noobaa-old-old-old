@@ -886,7 +886,7 @@ nb_util.factory('nbInode', [
             };
 
             // TODO TODO TODO
-            inode.gallery_mode = true;
+            // inode.gallery_mode = true;
 
             /*
             play_scope.name = inode.name;

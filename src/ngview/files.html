@@ -195,16 +195,16 @@
             </div>
             <div ng-if="current_inode.gallery_mode" class="rect-container">
                 <div ng-repeat="inode in entries" class="btn-rect {{is_selected(inode) && 'active'}} {{select_mode && !is_selected(inode) && 'select-pulse'}} {{is_clickable(inode) || 'disabled'}}" ng-click="click_inode(inode, $index, $event)" nb-right-click="right_click_inode(inode, $index, $event)">
-                    <div class="clearfix" ng-click="click_inode_info(inode, $index, $event)">
-                        <div class="pull-right" style="margin-left: 10px">
+                    <div class="rect-thumb" style="{{inode.content_kind=='image' && 'background-image:url('+nbInode.fobj_get_url(inode)+')' || ''}}">
+                        <i class="fa {{nbUtil.icon_by_kind(inode.content_kind)}} fa-fw fa-lg text-muted" ng-if="inode.content_kind!='image'"></i>
+                    </div>
+                    <div class="clearfix" style="padding: 5px">
+                        <div class="pull-right" style="margin-left: 5px">
                             <i ng-show="select_mode && !is_selected(inode)" class="fa fa-square-o fa-fw fa-lg"></i>
                             <i ng-show="select_mode && is_selected(inode)" class="fa fa-check-square-o fa-fw fa-lg"></i>
                             <i ng-hide="select_mode" class="fa fa-chevron-circle-right fa-fw fa-lg text-muted"></i>
                         </div>
-                        <div class="text-ellipses">{{inode.name}}</div>
-                    </div>
-                    <div class="rect-thumb" style="{{inode.content_kind=='image' && 'background-image:url('+nbInode.fobj_get_url(inode)+')' || ''}}">
-                        <i class="fa {{nbUtil.icon_by_kind(inode.content_kind)}} fa-fw fa-lg text-muted" ng-if="inode.content_kind!='image'"></i>
+                        <div class="text-ellipses"><small>{{inode.name}}</small></div>
                     </div>
                 </div>
             </div>
