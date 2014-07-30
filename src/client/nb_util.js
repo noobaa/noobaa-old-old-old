@@ -575,30 +575,32 @@ nb_util.directive('nbOnFocus', function() {
 
 nb_util.directive('nbAutoHeight', ['$timeout',
     function($timeout) {
-        function update_height(e, min) {
-            e.height(0);
-            var height = e[0].scrollHeight;
+        function update_height(element, input, min) {
+            element.height(input.outerHeight());
+            input.height(0);
+            var height = input[0].scrollHeight;
             if (height < min) {
                 height = min;
             }
-            e.height(height);
-            e.parent().trigger('resize');
+            input.height(height);
+            element.height('auto');
+            // e.parent().trigger('resize');
         }
         return {
             restrict: 'A',
             link: function(scope, element, attr) {
-                var e = $(element);
-                var tmp = e.val();
-                e.val('');
-                e.height(0);
-                var min = e[0].scrollHeight;
-                e.val(tmp);
+                var input = $(element).find('textarea, input');
+                var tmp = input.val();
+                input.val('');
+                input.height(0);
+                var min = input[0].scrollHeight;
+                input.val(tmp);
                 tmp = null;
                 var update_timeout = null;
                 var do_update = function() {
                     if (!update_timeout) {
                         update_timeout = $timeout(function() {
-                            update_height(e, min);
+                            update_height(element, input, min);
                             update_timeout = null;
                         }, 0);
                     }
@@ -607,13 +609,13 @@ nb_util.directive('nbAutoHeight', ['$timeout',
                     scope.$watch(attr.nbAutoHeight, do_update);
                 } else {
                     // Update on relevant element events
-                    e.on('keydown', do_update);
-                    e.on('change', do_update);
-                    e.on('focus', do_update);
-                    e.on('blur', do_update);
+                    input.on('keydown', do_update);
+                    input.on('change', do_update);
+                    input.on('focus', do_update);
+                    input.on('blur', do_update);
                 }
                 // Update as soon as it is added to the DOM
-                update_height(e, min);
+                update_height(element, input, min);
                 do_update();
             }
         };
@@ -632,13 +634,6 @@ nb_util.directive('nbFixedResize', ['$timeout', '$timeonce',
                 var old_bottom = 0;
 
                 function do_resize() {
-                    // handle scroll on resize to push the page from the bottom when resizing, 
-                    // or more importantly - when opening keyboard on mobile
-                    var bottom = $(window).height();
-                    if (bottom < old_bottom) {
-                        scroll_target[0].scrollTop += (old_bottom - bottom);
-                    }
-                    old_bottom = bottom;
                     // set the parent pad to element's height to make room for the fixed element
                     var pad = e.outerHeight();
                     if (pad !== old_pad) {
