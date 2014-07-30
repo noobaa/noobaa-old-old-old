@@ -325,6 +325,8 @@ nb_util.controller('ClubsCtrl', [
         $scope.nbUser = nbUser;
         $scope.nbClub = nbClub;
 
+        nbUtil.track_event('clubs.list');
+
         $scope.action_bar_title = 'CLUBS';
         $scope.$watch('nbClub.poll_progress_percent', function(val) {
             $scope.action_bar_progress_percent = val;
@@ -356,6 +358,8 @@ nb_util.controller('ClubCtrl', [
 
         var club_id = $routeParams.id;
         var club;
+
+        nbUtil.track_event('club.enter');
 
         nbClub.init_promise.then(function() {
             $scope.club = club = nbClub.get_club_or_redirect(club_id);
