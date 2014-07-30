@@ -187,7 +187,7 @@ nb_util.factory('nbClub', [
             if (!club.msgs || !club.msgs.length) {
                 return;
             }
-            var last_msg_id = club.msgs[club.msgs.length-1]._id;
+            var last_msg_id = club.msgs[club.msgs.length - 1]._id;
             var prev_msg_id = club.seen_msg;
             if (prev_msg_id === last_msg_id) {
                 return;
@@ -267,7 +267,11 @@ nb_util.factory('nbClub', [
 
         function create_new_club() {
             alertify.prompt('Enter title for the new club:', function(e, title) {
-                if (!e) return;
+                if (!e) {
+                    nbUtil.track_event('club.create_canceled');
+                    return;
+                }
+                nbUtil.track_event('club.create');
                 var club_data = angular.copy($scope.NEW_CLUB_OBJ);
                 club_data.title = title;
                 return create_club(club_data);
@@ -366,7 +370,7 @@ nb_util.controller('ClubCtrl', [
         $scope.click_msg = function(msg_index) {
             // TODO
         };
-        
+
         $scope.input_focus = true;
 
         $scope.send_club_text = function() {
@@ -374,6 +378,7 @@ nb_util.controller('ClubCtrl', [
                 return;
             }
             $scope.input_focus = false;
+            nbUtil.track_event('club.send_text');
             return nbClub.send_club_message(club, {
                 text: club.message_input
             }).then(function() {
@@ -383,6 +388,7 @@ nb_util.controller('ClubCtrl', [
         };
 
         $scope.select_files_to_club = function() {
+            nbUtil.track_event('club.choose_inode');
             var modal;
             var choose_scope = $scope.$new();
             choose_scope.title = 'Select items to share';
@@ -410,6 +416,9 @@ nb_util.controller('ClubCtrl', [
                     }
                     modal.modal('hide');
                     for (i = 0; i < items.length; i++) {
+                        nbUtil.track_event('club.send_inode', {
+                            kind: items[i].content_kind
+                        });
                         nbClub.send_club_message(club, {
                             inode: items[i].id
                         });
@@ -429,6 +438,7 @@ nb_util.controller('ClubCtrl', [
         $scope.change_club_title = function() {
             alertify.prompt('Enter title for club:', function(e, title) {
                 if (!e) return;
+                nbUtil.track_event('club.update.title');
                 return nbClub.update_club(club, {
                     title: title
                 });
@@ -454,6 +464,7 @@ nb_util.controller('ClubCtrl', [
             };
             scope.choose = function() {
                 modal.modal('hide');
+                nbUtil.track_event('club.update.color');
                 return nbClub.update_club(club, {
                     color: scope.color
                 }).then(function() {
@@ -484,6 +495,7 @@ nb_util.controller('ClubCtrl', [
                     nbUtil.coming_soon('Invite to club', 'club.invite');
                     return;
                 }
+                nbUtil.track_event('club.add_member');
                 var members = _.map(club.members, pick_member_fields);
                 members.push({
                     user: friend.id,
@@ -506,6 +518,7 @@ nb_util.controller('ClubCtrl', [
         $scope.remove_member = function(member) {
             alertify.confirm('Remove member?', function(e) {
                 if (!e) return;
+                nbUtil.track_event('club.remove_member');
                 var members = _.map(
                     _.without(club.members, member),
                     pick_member_fields);
@@ -518,6 +531,7 @@ nb_util.controller('ClubCtrl', [
         };
 
         $scope.show_members = function() {
+            nbUtil.track_event('club.show_members');
             var modal;
             var scope = $scope.$new();
             scope.back = function() {
@@ -562,6 +576,7 @@ nb_util.controller('ClubCtrl', [
         };
 
         $scope.click_inode = function(inode, index, event) {
+            nbUtil.track_event('club.click_inode');
             if (nbInode.play_inode(inode)) {
                 return;
             }
