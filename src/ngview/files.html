@@ -3,6 +3,19 @@
     <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
         <div class="app-container">
 
+            <div ng-if="!!dialog">
+                <div class="pull-left" style="padding: 0 5px">
+                    <button class="btn btn-default navbar-btn" ng-click="dialog.cancel()">
+                        {{dialog.cancel_caption || 'CANCEL'}}
+                    </button>
+                </div>
+                <div class="pull-right" style="padding: 0 5px">
+                    <button ng-if="dialog.run" ng-click="dialog.run(selection)" class="btn btn-primary navbar-btn">
+                        {{dialog.run_caption}}
+                    </button>
+                </div>
+            </div>
+
             <div ng-if="!select_mode" class="pull-right btn-group">
                 <a class="btn btn-link navbar-btn dropdown-toggle" data-toggle="dropdown">
                     <i class="fa fa-fw fa-2x fa-ellipsis-v"></i>
@@ -95,52 +108,30 @@
                 </ul>
             </div>
 
-            <div ng-if="!dialog && !select_mode" class="clearfix">
-                <div ng-include="'action_bar_nav.html'" class="pull-left"></div>
+            <div ng-if="!dialog && !select_mode" ng-include="'action_bar_nav.html'" class="pull-left"></div>
+
+            <div ng-if="!select_mode" class="hflow">
                 <div class="navbar-text text-ellipses text-center" style="padding-left: 0">{{current_inode.name}}</div>
             </div>
 
-            <div ng-if="!dialog && select_mode" class="text-center">
+            <div ng-if="select_mode" class="text-center">
                 <button class="btn btn-link navbar-btn pull-left" ng-click="clear_select_mode()">
                     <i class="fa fa-check fa-lg fa-fw"></i>
+                    {{num_selected()}} selected
                 </button>
-                <button class="btn btn-default navbar-btn" ng-click="share_inodes_with_club()">
-                    <i class="fa fa-share-alt fa-lg fa-fw text-primary"></i>
-                </button>
-                <div class="pull-right">
-                    <button class="btn btn-link navbar-btn" ng-click="move_inodes()">
-                        <i class="fa fa-arrows fa-lg fa-fw"></i>
+                <div ng-if="!dialog">
+                    <button class="btn btn-default navbar-btn" ng-click="share_inodes_with_club()">
+                        <i class="fa fa-share-alt fa-lg fa-fw text-primary"></i>
                     </button>
-                    <button class="btn btn-link navbar-btn" ng-click="delete_inodes()">
-                        <i class="fa fa-trash-o fa-lg fa-fw"></i>
-                    </button>
+                    <div class="pull-right">
+                        <button class="btn btn-link navbar-btn" ng-click="move_inodes()">
+                            <i class="fa fa-arrows fa-lg fa-fw"></i>
+                        </button>
+                        <button class="btn btn-link navbar-btn" ng-click="delete_inodes()">
+                            <i class="fa fa-trash-o fa-lg fa-fw"></i>
+                        </button>
+                    </div>
                 </div>
-                <!-- 
-            <div class="btn-group">
-                <a class="btn btn-link navbar-btn dropdown-toggle" data-toggle="dropdown">
-                    <i class="fa fa-ellipsis-v fa-2x fa-fw"></i>
-                </a>
-                <ul class="dropdown-menu pull-right" role="menu">
-                    <li class="text-center">
-                        <span class="badge">{{num_selected()}} items selected</span>
-                    </li>
-                </ul>
-            </div>
-             -->
-            </div>
-
-            <div ng-if="!!dialog">
-                <div class="pull-left" style="padding: 0 5px">
-                    <button class="btn btn-default navbar-btn" ng-click="dialog.cancel()">
-                        {{dialog.cancel_caption || 'CANCEL'}}
-                    </button>
-                </div>
-                <div class="pull-right" style="padding: 0 5px">
-                    <button ng-if="dialog.run" ng-click="dialog.run(selection)" class="btn btn-primary navbar-btn">
-                        {{dialog.run_caption}}
-                    </button>
-                </div>
-                <div class="navbar-text text-ellipses text-center">{{current_inode.name}}</div>
             </div>
 
         </div>
