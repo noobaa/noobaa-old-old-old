@@ -284,8 +284,6 @@ nb_util.factory('nbInode', [
             });
         }
 
-        // TODO TEMPORARY
-
         function read_dir(inode) {
             return load_inode(inode, 'force');
         }

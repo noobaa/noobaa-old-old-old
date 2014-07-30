@@ -328,12 +328,14 @@ nb_util.controller('ClubsCtrl', [
         nbUtil.track_event('clubs.list');
 
         $scope.action_bar_title = 'CLUBS';
+        /*
         $scope.$watch('nbClub.poll_progress_percent', function(val) {
             $scope.action_bar_progress_percent = val;
         });
         $scope.$watch('nbClub.poll_in_progress', function(val) {
             $scope.action_bar_progress_complete = !val;
         });
+        */
     }
 ]);
 
@@ -347,14 +349,6 @@ nb_util.controller('ClubCtrl', [
         $scope.nbClub = nbClub;
 
         $scope.action_bar_title = 'CLUBS';
-        /*
-        $scope.$watch('nbClub.poll_progress_percent', function(val) {
-            $scope.action_bar_progress_percent = val;
-        });
-        $scope.$watch('nbClub.poll_in_progress', function(val) {
-            $scope.action_bar_progress_complete = !val;
-        });
-        */
 
         var club_id = $routeParams.id;
         var club;

@@ -67,27 +67,28 @@ function detect_content_type(type, name) {
 // return a signed GET url for the fobj in Cloudfront (origin from S3)
 
 function fobj_get_url(fobj_id, name, is_download) {
-    var dateLessThan = moment().utc().endOf('week').toDate();
-    var cloudfront_config = {
-        privateKey: CF_PK,
-        keyPairId: CF_KEY_PAIR_ID,
-        dateLessThan: dateLessThan
-    };
-    var content_dispos = rfc3986EncodeURIComponent(name_to_content_dispos(name, is_download));
-    var cloudfront_url = CF_PROTO + CF_DOMAIN + '/' + fobj_s3_key(fobj_id) +
-        '?response-content-disposition=' + content_dispos;
-    var signed_url = cloudfront_signer.signUrl(cloudfront_url, cloudfront_config);
-    // console.log('CF URL', signed_url);
-    return signed_url;
-    /*
-    var params = {
-        Bucket: process.env.S3_BUCKET,
-        Key: fobj_s3_key(fobj_id),
-        Expires: 24 * 60 * 60, // 24 hours
-        ResponseContentDisposition: name_to_content_dispos(name, is_download)
-    };
-    return S3.getSignedUrl('getObject', params);
-    */
+    if (process.env.USE_CLOUDFRONT) {
+        var dateLessThan = moment().utc().endOf('week').toDate();
+        var cloudfront_config = {
+            privateKey: CF_PK,
+            keyPairId: CF_KEY_PAIR_ID,
+            dateLessThan: dateLessThan
+        };
+        var content_dispos = rfc3986EncodeURIComponent(name_to_content_dispos(name, is_download));
+        var cloudfront_url = CF_PROTO + CF_DOMAIN + '/' + fobj_s3_key(fobj_id) +
+            '?response-content-disposition=' + content_dispos;
+        var signed_url = cloudfront_signer.signUrl(cloudfront_url, cloudfront_config);
+        // console.log('CF URL', signed_url);
+        return signed_url;
+    } else {
+        var params = {
+            Bucket: process.env.S3_BUCKET,
+            Key: fobj_s3_key(fobj_id),
+            Expires: 24 * 60 * 60, // 24 hours
+            ResponseContentDisposition: name_to_content_dispos(name, is_download)
+        };
+        return S3.getSignedUrl('getObject', params);
+    }
 }
 
 // return a signed POST form and url for the fobj in S3
@@ -289,6 +290,7 @@ exports.inode_source_device = function(req, res) {
     var device_id = req.params.device_id;
 
     async.waterfall([
+
         function(next) {
             var selector = {
                 owner: req.user.id,
@@ -406,6 +408,7 @@ exports.feed_query = function(req, res) {
     var groups;
 
     async.waterfall([
+
         function(next) {
             var match = {
                 owner: mongoose.Types.ObjectId(req.user.id)
@@ -668,7 +671,7 @@ exports.inode_create = function(req, res) {
             fobj = new Fobj({
                 size: args.size,
                 content_type: inode.content_type,
-                uploading: !! args.uploading,
+                uploading: !!args.uploading,
             });
             // link the inode to the fobj
             inode.fobj = fobj._id;
