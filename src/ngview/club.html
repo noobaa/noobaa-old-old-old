@@ -90,13 +90,10 @@
 
         <div ng-if="!!club" class="app-container">
 
-            <div style="margin: 10px">
-                <hr/>
-                <div class="clearfix"></div>
-                <div class="bggray-lighter text-muted hflow text-center">
-                    <span>Club created {{moment(club.create_time).calendar()}}</span>
-                </div>
-                <hr/>
+            <div class="text-center" style="padding: 15px">
+                <span class="active-link text-muted">
+                    Club created {{moment(club.create_time).calendar()}}
+                </span>
             </div>
 
             <div ng-repeat="msg in club.msgs track by $index" class="clearfix">
@@ -123,15 +120,14 @@
                         </div>
                     </div>
                 </div>
-                <div ng-if="last_seen_msg == msg._id && !$last" style="margin: 10px">
-                    <hr/>
-                    <div class="clearfix"></div>
-                    <div class="bggray-lighter text-muted hflow text-center">
+                
+                <div ng-if="last_seen_msg == msg._id && !$last" class="text-center" style="padding: 15px">
+                    <span class="active-link text-muted">
                         <span>new messages</span>
                         <i class="fa fa-caret-down fa-lg"></i>
-                    </div>
-                    <hr/>
+                    </span>
                 </div>
+                
                 <div ng-if="$last" nb-scroll-to="bottom"></div>
             </div>
 
