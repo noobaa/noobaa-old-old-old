@@ -45,23 +45,18 @@
 
     <div class="view-animate-area app-container">
 
-        <div ng-if="!has_uploads()" Xstyle="padding-top: 20px">
-            <img src="/public/images/thedude.png" height="90" class="pull-left" style="vertical-align: middle; margin: 10px -10px" />
-            <div class="hflow" style="padding-top: 20px;">
-                <div class="club-msg-user" style="float: none">
-                    <div class="line headline" style="padding-top: 10px">
-                        START UPLOADING
-                    </div>
-                    <hr class="headline" />
-                    <a class="line clickable" ng-click="upsrv.open_file_input()">
-                        Click to choose files from your computer
-                    </a>
-                    <hr/>
-                    <div class="line text-muted">
-                        <i class="fa fa-copy fa-fw"></i>
-                        Drag &amp; Drop files from your computer
-                    </div>
-                </div>
+        <div ng-if="!has_uploads()">
+            <div class="line headline">
+                START UPLOADING
+            </div>
+            <hr class="headline" />
+            <a class="line clickable" ng-click="upsrv.open_file_input()">
+                Click to choose files from your computer
+            </a>
+            <hr/>
+            <div class="line text-muted">
+                <i class="fa fa-copy fa-fw"></i>
+                Drag &amp; Drop files from your computer
             </div>
         </div>
 

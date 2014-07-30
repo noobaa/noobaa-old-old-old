@@ -104,7 +104,7 @@
                             <div ng-if="msg.text.length" class="text-wrap lead" style="margin: 0">
                                 <span ng-bind-html="msg.text | linky:'_blank'" style="white-space: pre-wrap"></span>
                             </div>
-                            <div ng-if="msg.inode" ng-init="inode=msg.inode" class="btn-rect-wrap">
+                            <div ng-if="msg.inode" ng-init="inode=msg.inode" class="btn-rect-wrap" style="padding-top: 0">
                                 <div class="btn-rect btn-rect-lg" Xstyle="max-width: 300px" ng-click="click_inode(inode, $index, $event)" nb-right-click="right_click_inode(inode, $index, $event)">
                                     <div class="rect-thumb" style="{{inode.content_kind=='image' && 'background-image:url('+nbInode.fobj_get_url(inode)+')' || ''}}">
                                         <i class="fa {{nbUtil.icon_by_kind(inode.content_kind)}} fa-fw fa-lg text-muted" ng-if="inode.content_kind!='image'"></i>
@@ -132,7 +132,7 @@
                     </div>
                     <div ng-if="$last" nb-scroll-to="bottom"></div>
                 </div>
-                <div ng-if="club.admin && club.members.length < 2" class="alert alert-info alert-dismissible" role="alert" style="margin: 10px">
+                <div ng-if="club.admin && club.members.length < 2" class="alert alert-info alert-dismissible text-center" role="alert" style="margin: 10px">
                     <a type="button" data-dismiss="alert">
                         <span class="close">&times;</span>
                     </a>

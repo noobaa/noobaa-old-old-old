@@ -669,7 +669,7 @@ nb_util.directive('nbScrollTo', ['$timeout', '$timeonce',
                         scroll_target[0].scrollHeight : 0;
                 }
 
-                var handler = $timeonce(do_scroll);
+                var handler = $timeonce(do_scroll, 5);
                 handler(); // handle as soon as it is added to the DOM
                 do_scroll();
             }

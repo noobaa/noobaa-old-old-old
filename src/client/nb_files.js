@@ -331,13 +331,15 @@ nb_util.directive('nbMedia', ['$parse', '$timeout', 'nbInode', 'nbPlanet',
                     }
                 });
             },
-            controller: function($scope) {
-                $scope.play = function() {
-                    if (!$scope.playing) {
-                        return nbInode.play_inode($scope.inode);
-                    }
-                };
-            }
+            controller: ['$scope',
+                function($scope) {
+                    $scope.play = function() {
+                        if (!$scope.playing) {
+                            return nbInode.play_inode($scope.inode);
+                        }
+                    };
+                }
+            ]
         };
     }
 ]);
