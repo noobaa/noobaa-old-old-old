@@ -103,8 +103,8 @@
                 <div style="padding: 10px" class="clearfix">
                     <img class="user-image pull-left" style="margin-right: 10px; vertical-align: top" ng-src="{{nbUser.user_pic_url(msg.user_info)}}" rel="tooltip" ng-attr-title="{{msg.user_info.name}} - {{moment(msg.time).fromNow()}}" />
                     <div class="hflow">
-                        <div ng-if="msg.text.length" class="text-wrap lead" style="margin: 0">
-                            <span ng-bind-html="msg.text | linky:'_blank'" style="white-space: pre-wrap"></span>
+                        <div ng-if="msg.text.length">
+                            <span dir="auto" class="lead" style="white-space: pre-wrap; margin: 0" ng-bind-html="msg.text | linky:'_blank'"></span>
                         </div>
                         <div ng-if="msg.inode" ng-init="inode=msg.inode" class="btn-rect-wrap" style="padding-top: 0">
                             <div class="btn-rect btn-rect-lg" Xstyle="max-width: 300px" ng-click="click_inode(inode, $index, $event)" nb-right-click="right_click_inode(inode, $index, $event)">
