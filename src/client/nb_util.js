@@ -81,6 +81,8 @@ nb_util.factory('nbUtil', [
                 back_unsubscribe = scope.$on('$locationChangeStart', function(event) {
                     e.modal('hide');
                     event.preventDefault();
+                    event.stopPropagation();
+                    return false;
                 });
             });
             e.on('hidden.bs.modal', function() {
@@ -164,7 +166,7 @@ nb_util.factory('nbUtil', [
         var ICONS_BY_KIND = {
             dir: 'fa-folder-open-o',
             image: 'fa-picture-o',
-            video: 'fa-play',// 'fa-film',
+            video: 'fa-play', // 'fa-film',
             audio: 'fa-music',
             text: 'fa-file-text-o',
         };
@@ -179,6 +181,7 @@ nb_util.factory('nbUtil', [
         function icon_by_kind(kind) {
             return ICONS_BY_KIND[kind] || 'fa-file-o';
         }
+
         function order_by_kind(kind) {
             return ORDER_BY_KIND[kind] || 9;
         }
@@ -347,6 +350,33 @@ nb_util.factory('$http_async', ['$http',
     }
 ]);
 
+// the $timeonce service takes a function, and returns a wrapper function,
+// such that calls to the wrapper will be executed on timeout,
+// and if called more than once during the timeout period, it will only run once.
+nb_util.factory('$timeonce', ['$timeout',
+    function($timeout) {
+        return function(func, time) {
+            time = time || 0;
+            var timer;
+            var once = function() {
+                if (timer) {
+                    return;
+                }
+                var args = arguments;
+                timer = $timeout(function() {
+                    timer = null;
+                    func.apply(null, args);
+                }, time);
+            };
+            once.cancel = function() {
+                $timeout.cancel(timer);
+                timer = null;
+            };
+            return once;
+        };
+    }
+]);
+
 /**
  * Return the DOM siblings between the first and last node in the given array.
  * @param {Array} array like object
@@ -448,6 +478,7 @@ nb_util.directive('nbVideo', ['$parse', '$timeout',
                         autoplay: scope.autoplay,
                     });
                 }, 1);
+
                 function cleanup() {
                     $timeout.cancel(timer);
                     if (player && player.dispose) {
@@ -589,46 +620,58 @@ nb_util.directive('nbAutoHeight', ['$timeout',
     }
 ]);
 
-nb_util.directive('nbPanelHfill', ['$timeout',
-    function($timeout) {
+nb_util.directive('nbFixedResize', ['$timeout', '$timeonce',
+    function($timeout, $timeonce) {
         return {
             restrict: 'A',
             link: function(scope, element, attr) {
                 var e = $(element);
-                var head = e.find('> .panel-heading');
-                var body = e.find('> .panel-body');
-                var foot = e.find('> .panel-footer');
-                e.on('resize', handle_resize);
-                head.on('resize DOMNodeInserted DOMNodeRemoved', handle_resize);
-                body.on('resize', handle_resize);
-                foot.on('resize DOMNodeInserted DOMNodeRemoved', handle_resize);
-                $(window).on('resize', handle_resize);
-                handle_resize(); // Expand as soon as it is added to the DOM
-
-                function handle_resize() {
-                    do_resize();
-                    $timeout(do_resize, 0);
-                }
+                var scroll_target = $('body');
+                var pad_type = attr.nbFixedResize;
+                var old_pad = 0;
+                var old_bottom = 0;
 
                 function do_resize() {
-                    var h = e.innerHeight();
-                    var hh = head.outerHeight();
-                    var fh = foot.outerHeight();
-                    var remain = h - hh - fh;
-                    body.outerHeight(remain);
-                    if (remain < 180) {
-                        if (!e.hasClass('panel-too-small')) {
-                            e.addClass('panel-too-small');
-                            handle_resize();
-                        }
-                    } else if (remain > 320) {
-                        if (e.hasClass('panel-too-small')) {
-                            e.removeClass('panel-too-small');
-                            handle_resize();
-                        }
+                    // handle scroll on resize to push the page from the bottom when resizing, 
+                    // or more importantly - when opening keyboard on mobile
+                    var bottom = $(window).height();
+                    if (bottom < old_bottom) {
+                        scroll_target[0].scrollTop += (old_bottom - bottom);
                     }
-                    // console.log('nbPanelHfill', h, hh, fh, remain, e);
+                    old_bottom = bottom;
+                    // set the parent pad to element's height to make room for the fixed element
+                    var pad = e.outerHeight();
+                    if (pad !== old_pad) {
+                        e.parent().css(pad_type, pad);
+                    }
+                    old_pad = pad;
                 }
+
+                var handler = $timeonce(do_resize);
+                e.on('resize DOMNodeInserted DOMNodeRemoved', handler);
+                $(window).on('resize', do_resize);
+                handler(); // handle as soon as it is added to the DOM
+            }
+        };
+    }
+]);
+
+nb_util.directive('nbScrollTo', ['$timeout', '$timeonce',
+    function($timeout, $timeonce) {
+        return {
+            restrict: 'A',
+            link: function(scope, element, attr) {
+                var scroll_target = $('body');
+                var to = attr.nbScrollTo;
+
+                function do_scroll() {
+                    scroll_target[0].scrollTop = (to === 'bottom') ?
+                        scroll_target[0].scrollHeight : 0;
+                }
+
+                var handler = $timeonce(do_scroll);
+                handler(); // handle as soon as it is added to the DOM
+                do_scroll();
             }
         };
     }

@@ -7,6 +7,10 @@ var _ = require('underscore');
 
 
 var club_schema = new mongoose.Schema({
+    create_time: {
+        type: Date,
+        default: Date.now
+    },
     ctime: {
         type: Date,
         default: Date.now

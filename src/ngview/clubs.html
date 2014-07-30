@@ -34,7 +34,7 @@
         </div>
     </div>
 
-    <div class="view-animate-area app-container" ng-if="nbClub.clubs_inited">
+    <div class="view-animate-area app-container" ng-if="nbClub.clubs_inited" nb-scroll-to="top">
         <div class="rect-container">
             <a ng-repeat="club in nbClub.clubs_arr track by $index" ng-href="club/{{club._id}}" class="btn-rect-wrap">
                 <div class="club-bg btn-rect" style="padding: 10px; background-color: hsl({{club.color}},60%,45%)">
@@ -51,15 +51,12 @@
             </a>
             <a ng-click="nbClub.create_new_club()" class="btn-rect-wrap">
                 <div class="btn-rect" style="padding: 10px">
-                    <div class="text-center lead" style="height: 130px; font-weight: light">Click to create a club for sharing media</div>
+                    <div class="text-center lead" style="height: 130px; font-weight: light">
+                        Click to create a club for sharing media
+                    </div>
                     <div class="clearfix text-center" style="height: 30px">
                         <i class="fa fa-plus fa-2x text-muted"></i>
                     </div>
-                    <!-- 
-                    <div class="hflow text-center" style="height: 90px">
-                        <img src="/public/images/thedude.png" height="90" />
-                    </div>
-                     -->
                 </div>
             </a>
         </div>

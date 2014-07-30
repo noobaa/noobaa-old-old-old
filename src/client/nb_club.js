@@ -106,8 +106,9 @@ nb_util.factory('nbClub', [
             _.each(club.msgs, set_message_info);
             var c = $scope.clubs[club._id];
             if (c) {
-                var msgs = club.msgs || [];
-                msgs = msgs.concat(c.msgs || []);
+                var new_msgs = club.msgs || [];
+                var msgs = c.msgs || [];
+                msgs = msgs.concat(new_msgs);
                 msgs = _.uniq(msgs, function(m) {
                     return m._id;
                 });
@@ -186,7 +187,7 @@ nb_util.factory('nbClub', [
             if (!club.msgs || !club.msgs.length) {
                 return;
             }
-            var last_msg_id = club.msgs[0]._id;
+            var last_msg_id = club.msgs[club.msgs.length-1]._id;
             var prev_msg_id = club.seen_msg;
             if (prev_msg_id === last_msg_id) {
                 return;
@@ -211,16 +212,17 @@ nb_util.factory('nbClub', [
             if (!club.msgs) {
                 return;
             }
+            var len = club.msgs.length;
             $scope.total_new_msgs -= (club.new_msgs || 0);
             if (!club.seen_msg) {
                 // all messages are considered new
-                club.new_msgs = club.msgs.length;
+                club.new_msgs = len;
                 $scope.total_new_msgs += club.new_msgs;
                 return;
             }
-            for (var i = 0; i < club.msgs.length; i++) {
+            for (var i = 0; i < len; i++) {
                 // go back and look for the last seen msg
-                var m = club.msgs[i];
+                var m = club.msgs[len - i - 1];
                 if (m.inode) {
                     club.last_new_msg_with_inode = m;
                 }
@@ -261,17 +263,6 @@ nb_util.factory('nbClub', [
                 // TODO retry?
                 m.original_inode = null;
             });
-        }
-
-        function scroll_club_to_bottom() {
-            return $timeout(function() {
-                var club_body = $('.club-panel .panel-body')[0];
-                if (!club_body) {
-                    return;
-                }
-                // console.log('scroll_club_to_bottom', club_body.scrollTop, club_body.scrollHeight);
-                club_body.scrollTop = club_body.scrollHeight;
-            }, 0);
         }
 
         function create_new_club() {
@@ -375,16 +366,19 @@ nb_util.controller('ClubCtrl', [
         $scope.click_msg = function(msg_index) {
             // TODO
         };
-
+        
+        $scope.input_focus = true;
 
         $scope.send_club_text = function() {
             if (!club.message_input.length) {
                 return;
             }
+            $scope.input_focus = false;
             return nbClub.send_club_message(club, {
                 text: club.message_input
             }).then(function() {
                 club.message_input = '';
+                $scope.input_focus = true;
             });
         };
 

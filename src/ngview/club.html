@@ -81,65 +81,80 @@
         <div ng-include="'action_bar_progress.html'"></div>
     </nav>
 
-    <div class="view-animate-area" ng-if="!club">
-        <div class="line headline text-center text-muted">
-            <i class="fa fa-circle-o-notch fa-spin fa-2x fa-fw"></i>
+    <div class="view-animate-area">
+        <div ng-if="!club">
+            <div class="line headline text-center text-muted">
+                <i class="fa fa-circle-o-notch fa-spin fa-2x fa-fw"></i>
+            </div>
         </div>
-    </div>
-
-    <div class="view-animate-area app-container" ng-if="!!club">
-
-        <div class="club-input">
-            <textarea placeholder="Write something..." ng-model="club.message_input" nb-enter="send_club_text()" nb-auto-height="club.message_input" nb-focus="false" ng-disabled="club.sending_message"></textarea>
-            <button ng-click="send_club_text()" class="btn btn-default" ng-disabled="!club.message_input.length || club.sending_message">
-                <i class="fa fa-send fa-lg fa-fw {{club.message_input.length && 'text-primary' || 'text-muted'}}"></i>
-                POST
-            </button>
-        </div>
-
-        <a ng-if="club.admin && club.members.length < 2" ng-click="add_member()" class="btn-line Xline Xclickable">
-            <!-- <img src="/public/images/thedude.png" height="90" style="vertical-align: middle; margin: -7px" /> -->
-            <i class="fa fa-plus fa-lg fa-fw text-muted"></i>
-            CLICK TO ADD A FRIEND TO YOUR CLUB
-        </a>
-
-        <div class="club-content">
-            <div ng-repeat="msg in club.msgs track by $index" class="clearfix">
-                <div ng-if="last_seen_msg == msg._id && !$first">
+        <div ng-if="!!club" class="app-container">
+            <div class="club-content">
+                <div style="margin: 10px">
                     <hr/>
-                    <div class="text-center">
-                        <div class="clearfix"></div>
-                        <div class="bggray-lighter text-muted hflow">
-                            <span>new messages</span>
-                            <i class="fa fa-caret-up fa-lg"></i>
-                        </div>
+                    <div class="clearfix"></div>
+                    <div class="bggray-lighter text-muted hflow text-center">
+                        <span>Club created {{moment(club.create_time).calendar()}}</span>
                     </div>
                     <hr/>
                 </div>
-                <div class="line">
-                    <img class="user-image pull-left" style="margin-right: 10px; vertical-align: top" ng-src="{{nbUser.user_pic_url(msg.user_info)}}" rel="tooltip" ng-attr-title="{{msg.user_info.name}} - {{moment(msg.time).fromNow()}}" />
-                    <div class="hflow">
-                        <div ng-if="msg.text.length" class="text-wrap lead">
-                            <span ng-bind-html="msg.text | linky:'_blank'" style="white-space: pre-wrap"></span>
-                        </div>
-                        <div ng-if="msg.inode" ng-init="inode=msg.inode" class="btn-rect btn-rect-lg" style="max-width: 350px" ng-click="click_inode(inode, $index, $event)" nb-right-click="right_click_inode(inode, $index, $event)">
-                            <div class="rect-thumb" style="{{inode.content_kind=='image' && 'background-image:url('+nbInode.fobj_get_url(inode)+')' || ''}}">
-                                <i class="fa {{nbUtil.icon_by_kind(inode.content_kind)}} fa-fw fa-lg text-muted" ng-if="inode.content_kind!='image'"></i>
+                <div ng-repeat="msg in club.msgs track by $index" class="clearfix">
+                    <div style="padding: 10px" class="clearfix">
+                        <img class="user-image pull-left" style="margin-right: 10px; vertical-align: top" ng-src="{{nbUser.user_pic_url(msg.user_info)}}" rel="tooltip" ng-attr-title="{{msg.user_info.name}} - {{moment(msg.time).fromNow()}}" />
+                        <div class="hflow">
+                            <div ng-if="msg.text.length" class="text-wrap lead" style="margin: 0">
+                                <span ng-bind-html="msg.text | linky:'_blank'" style="white-space: pre-wrap"></span>
                             </div>
-                            <div class="clearfix" style="padding: 5px">
-                                <div class="pull-right" style="margin-left: 5px">
-                                    <i class="fa fa-chevron-circle-right fa-fw text-muted"></i>
-                                </div>
-                                <div class="text-ellipses">
-                                    <small>{{inode.name}}</small>
+                            <div ng-if="msg.inode" ng-init="inode=msg.inode" class="btn-rect-wrap">
+                                <div class="btn-rect btn-rect-lg" Xstyle="max-width: 300px" ng-click="click_inode(inode, $index, $event)" nb-right-click="right_click_inode(inode, $index, $event)">
+                                    <div class="rect-thumb" style="{{inode.content_kind=='image' && 'background-image:url('+nbInode.fobj_get_url(inode)+')' || ''}}">
+                                        <i class="fa {{nbUtil.icon_by_kind(inode.content_kind)}} fa-fw fa-lg text-muted" ng-if="inode.content_kind!='image'"></i>
+                                    </div>
+                                    <div class="clearfix" style="padding: 5px">
+                                        <div class="pull-right" style="margin-left: 5px">
+                                            <i class="fa fa-chevron-circle-right fa-fw text-muted"></i>
+                                        </div>
+                                        <div class="text-ellipses">
+                                            <small>{{inode.name}}</small>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <div ng-if="last_seen_msg == msg._id && !$last" style="margin: 10px">
+                        <hr/>
+                        <div class="clearfix"></div>
+                        <div class="bggray-lighter text-muted hflow text-center">
+                            <span>new messages</span>
+                            <i class="fa fa-caret-down fa-lg"></i>
+                        </div>
+                        <hr/>
+                    </div>
+                    <div ng-if="$last" nb-scroll-to="bottom"></div>
+                </div>
+                <div ng-if="club.admin && club.members.length < 2" class="alert alert-info alert-dismissible" role="alert" style="margin: 10px">
+                    <a type="button" data-dismiss="alert">
+                        <span class="close">&times;</span>
+                    </a>
+                    <a ng-click="add_member()" class="alert-link">
+                        <i class="fa fa-plus fa-fw text-muted"></i>
+                        Add the first friend to this club
+                    </a>
                 </div>
             </div>
         </div>
+    </div>
 
+    <div class="club-bottom-area" nb-fixed-resize="padding-bottom">
+        <div class="app-container">
+            <div class="club-input">
+                <textarea placeholder="Write to the club..." ng-model="club.message_input" nb-enter="send_club_text()" nb-auto-height="club.message_input" nb-focus="input_focus" ng-disabled="club.sending_message"></textarea>
+                <button ng-click="send_club_text()" class="btn btn-default" ng-disabled="!club.message_input.length || club.sending_message">
+                    <i class="fa fa-send fa-lg fa-fw {{club.message_input.length && 'text-primary' || 'text-muted'}}"></i>
+                    POST
+                </button>
+            </div>
+        </div>
     </div>
 
 </div>
