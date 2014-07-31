@@ -747,13 +747,12 @@ a[ng-click], a[role=button] {
     &:extend(.activity-animate);
 }
 .view-animate {
-    .transition-time(0.4s);
+    .transition-time(0.2s);
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
-    // bottom: 0;
-
+    bottom: 0;
 }
 .app-container {
     .center-block;
@@ -950,7 +949,7 @@ a[ng-click], a[role=button] {
 }
 .activity-animate {
     &, &.modal {
-        .transition-time(0.4s);
+        .transition-time(0.2s);
         .activity-animate-off;
         &.in {
             .activity-animate-on;
@@ -959,17 +958,22 @@ a[ng-click], a[role=button] {
 }
 .activity-animate-off {
     opacity: 0;
-    @x: 5px;
-    @y: 10px;
-    // @x: -100%;
-    // @y: 0;
-    transform: translate(@x, @y);
-    -ms-transform: translate(@x, @y);
-    -webkit-transform: translate(@x, @y);
+    // @x: 5px;
+    // @y: 10px;
+    // transform: translate(@x, @y);
+    // -ms-transform: translate(@x, @y);
+    // -webkit-transform: translate(@x, @y);
+    @s: 0.9;
+    transform: scale(@s, @s);
+    -ms-transform: scale(@s, @s);
+    -webkit-transform: scale(@s, @s);
 }
 .activity-animate-on {
     opacity: 1;
-    transform: none;
-    -ms-transform: none;
-    -webkit-transform: none;
+    // transform: translate(0, 0);
+    // -ms-transform: translate(0, 0);
+    // -webkit-transform: translate(0, 0);
+    transform: scale(1, 1);
+    -ms-transform: scale(1, 1);
+    -webkit-transform: scale(1, 1);
 }
