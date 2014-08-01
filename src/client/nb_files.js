@@ -257,6 +257,7 @@ nb_util.directive('nbBrowse', function() {
                     modal = nbUtil.make_modal({
                         template: 'files_modal.html',
                         scope: mv_scope,
+                        size: 'fullscreen',
                     });
                 }
 

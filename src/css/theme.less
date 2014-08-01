@@ -61,6 +61,10 @@
 
 /**/
 
+.app-container {
+    .center-block;
+    max-width: 900px;
+}
 a, button, .btn {
     &, &:active, &:focus, &:hover {
         outline: none !important;
@@ -146,11 +150,12 @@ hr.headline {
 .rect-container {
     .text-left;
     overflow: hidden;
+    padding: 10px;
 }
 .btn-rect-wrap {
     display: inline-block;
-    padding: 20px;
-    width: 300px;
+    padding: 10px;
+    width: 220px;
     max-width: 50%;
 }
 .btn-rect {
@@ -734,6 +739,7 @@ a[ng-click], a[role=button] {
     left: 0;
     right: 0;
 }
+/*
 .view-animate.ng-enter .view-animate-area {
     &:extend(.activity-animate);
 }
@@ -746,17 +752,12 @@ a[ng-click], a[role=button] {
 .view-animate.ng-leave.ng-leave-active .view-animate-area {
     &:extend(.activity-animate);
 }
+*/
 .view-animate {
+    .cover;
+    /*
     .transition-time(0.2s);
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-}
-.app-container {
-    .center-block;
-    max-width: 900px;
+    */
 }
 .view-animate-container {
     height: 100%;
@@ -949,10 +950,14 @@ a[ng-click], a[role=button] {
 }
 .activity-animate {
     &, &.modal {
-        .transition-time(0.2s);
-        .activity-animate-off;
+        // .transition-time(0.2s);
+        // .activity-animate-off;
+        &:not(.in){   
+            .alertify-hidden;
+        }
         &.in {
-            .activity-animate-on;
+            .alertify-show;
+            // .activity-animate-on;
         }
     }
 }
