@@ -141,7 +141,7 @@
 
     <div class="view-animate-area hfill-scroll">
 
-        <div ng-if="can_go_up_level()" class="app-container">
+        <div ng-if="can_go_up_level()" class="app-container notextselect">
             <div class="line clickable" ng-click="go_up_level()">
                 <i class="fa fa-chevron-circle-left fa-lg fa-fw text-muted"></i>
                 <span class="text-muted">Back to parent</span>
@@ -172,12 +172,12 @@
                 <hr />
                 <div ng-repeat="inode in entries">
                     <div class="line line-bar clickable {{is_selected(inode) && 'active'}} {{select_mode && !is_selected(inode) && 'select-pulse'}} {{is_clickable(inode) || 'disabled'}}" ng-click="click_inode(inode, $index, $event)" nb-right-click="right_click_inode(inode, $index, $event)">
-                        <div class="pull-right" style="margin-left: 10px">
+                        <div class="pull-right notextselect" style="margin-left: 10px">
                             <i ng-show="select_mode && !is_selected(inode)" class="fa fa-square-o fa-fw fa-lg"></i>
                             <i ng-show="select_mode && is_selected(inode)" class="fa fa-check-square-o fa-fw fa-lg"></i>
                             <i ng-hide="select_mode" class="fa fa-chevron-circle-right fa-fw fa-lg text-muted"></i>
                         </div>
-                        <div class="line-thumb" ng-click="right_click_inode(inode, $index, $event)">
+                        <div class="line-thumb notextselect" ng-click="right_click_inode(inode, $index, $event)">
                             <i class="fa {{nbUtil.icon_by_kind(inode.content_kind)}} fa-fw fa-lg text-muted" ng-if="inode.content_kind!='image'"></i>
                             <img ng-if="inode.content_kind=='image'" ng-src="{{nbInode.fobj_get_url(inode)}}" />
                         </div>
@@ -189,11 +189,11 @@
             <div ng-if="current_inode.gallery_mode" class="rect-container">
                 <div ng-repeat="inode in entries" class="btn-rect-wrap">
                     <div class="btn-rect {{is_selected(inode) && 'active'}} {{select_mode && !is_selected(inode) && 'select-pulse'}} {{is_clickable(inode) || 'disabled'}}" ng-click="click_inode(inode, $index, $event)" nb-right-click="right_click_inode(inode, $index, $event)">
-                        <div class="rect-thumb" style="{{inode.content_kind=='image' && 'background-image:url('+nbInode.fobj_get_url(inode)+')' || ''}}">
+                        <div class="rect-thumb notextselect" style="{{inode.content_kind=='image' && 'background-image:url('+nbInode.fobj_get_url(inode)+')' || ''}}">
                             <i class="fa {{nbUtil.icon_by_kind(inode.content_kind)}} fa-fw fa-lg text-muted" ng-if="inode.content_kind!='image'"></i>
                         </div>
                         <div class="clearfix" style="padding: 5px" ng-click="right_click_inode(inode, $index, $event)">
-                            <div class="pull-right" style="margin-left: 5px">
+                            <div class="pull-right notextselect" style="margin-left: 5px">
                                 <i ng-show="select_mode && !is_selected(inode)" class="fa fa-square-o fa-fw fa-lg"></i>
                                 <i ng-show="select_mode && is_selected(inode)" class="fa fa-check-square-o fa-fw fa-lg"></i>
                                 <i ng-hide="select_mode" class="fa fa-chevron-circle-right fa-fw fa-lg text-muted"></i>
@@ -205,7 +205,7 @@
                     </div>
                 </div>
             </div>
-            <div ng-if="!entries.length">
+            <div ng-if="!entries.length" class="notextselect">
                 <div ng-if="!current_inode.loaded || current_inode.is_loading">
                     <h3 class="text-center text-muted">
                         <i class="fa fa-circle-o-notch fa-spin"></i>
