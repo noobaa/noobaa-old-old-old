@@ -21,19 +21,6 @@
                     <i class="fa fa-fw fa-2x fa-ellipsis-v"></i>
                 </a>
                 <ul class="dropdown-menu pull-right" role="menu">
-                    <li ng-if="false && nbInode.can_share_inode(current_inode)">
-                        <a ng-click="share_inode_with_club(current_inode)">
-                            <i class="fa fa-share-alt"></i>
-                            <span>Share with Club</span>
-                        </a>
-                    </li>
-                    <li ng-if="nbInode.can_keep_inode(current_inode)">
-                        <a ng-disabled="current_inode.running_keep || current_inode.done_keep" ng-click="keep_inode(current_inode)">
-                            <i class="fa fa-{{current_inode.done_keep && 'check' || 'plus'}}"></i>
-                            <span>Keep</span>
-                        </a>
-                    </li>
-
                     <div nb-if-replace="current_inode.isdir">
                         <li ng-if="current_inode.gallery_mode">
                             <a ng-click="toggle_gallery_mode()">
@@ -82,10 +69,24 @@
                             <span>Resume Upload</span>
                         </a>
                     </li>
+
+                    <li ng-if="false && nbInode.can_share_inode(current_inode)">
+                        <a ng-click="share_inode_with_club(current_inode)">
+                            <i class="fa fa-share-alt"></i>
+                            <span>Share with Club</span>
+                        </a>
+                    </li>
+                    <li ng-if="nbInode.can_keep_inode(current_inode)">
+                        <a ng-disabled="current_inode.running_keep || current_inode.done_keep" ng-click="keep_inode(current_inode)">
+                            <i class="fa fa-{{current_inode.done_keep && 'check' || 'plus'}}"></i>
+                            <span>Keep</span>
+                        </a>
+                    </li>
+
                     <li ng-if="!current_inode.ref_owner && nbInode.can_change_inode(current_inode)">
                         <a ng-click="nbInode.rename_inode(current_inode)">
                             <i class="fa fa-pencil fa-rotate-270"></i>
-                            Rename
+                            <span>Rename</span>
                         </a>
                     </li>
 
