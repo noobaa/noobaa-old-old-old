@@ -1,5 +1,9 @@
+'use strict';
 db.trackevents.find({
-	event: /blog/
+	event: /club/,
+	'user.name': {
+		$ne: 'Guy Margalit'
+	}
 }).sort({
 	time: 1
 }).forEach(function(e) {

@@ -1,5 +1,6 @@
+'use strict';
 db.trackevents.find({
-	event: /home\.scenes/
+	event: /blog/
 }).sort({
 	time: 1
 }).forEach(function(e) {

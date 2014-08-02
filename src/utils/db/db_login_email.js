@@ -1,3 +1,4 @@
+'use strict';
 db.trackevents.find({
 	$or: [{
 		event: 'user.login_email'

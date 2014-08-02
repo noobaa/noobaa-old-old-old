@@ -1,3 +1,4 @@
+'use strict';
 var i = 0;
 db.trackevents.aggregate([{
 	$match: {

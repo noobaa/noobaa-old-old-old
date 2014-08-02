@@ -1,3 +1,4 @@
+'use strict';
 print('Name , Email , Joined');
 db.users.find().sort({_id:1}).forEach(function(user) {
 	var name = user.fb && user.fb.name || user.google && user.google.name || '';

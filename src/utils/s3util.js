@@ -1,3 +1,4 @@
+'use strict';
 process.env.AWS_ACCESS_KEY_ID = 'AKIAI6M7LJIMXYCYMK7A';
 process.env.AWS_SECRET_ACCESS_KEY = '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';
 process.env.S3_BUCKET = 'noobaa-ireland';

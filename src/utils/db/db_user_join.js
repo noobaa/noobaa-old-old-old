@@ -1,3 +1,4 @@
+'use strict';
 var map_func = function() {
 	var date = this._id.getTimestamp();
 	var date_bucket = date.getFullYear() + '-' + (date.getMonth() + 1);

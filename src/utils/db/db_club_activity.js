@@ -1,3 +1,4 @@
+'use strict';
 db.clubmsgs.find({}).sort({
 	time: 1
 }).forEach(function(m) {

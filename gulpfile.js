@@ -70,7 +70,7 @@ var paths = {
         './node_modules/video.js/dist/video-js/video-js.swf',
     ],
     ngview: './src/ngview/**/*',
-    scripts: ['./src/server/**/*.js', './src/client/**/*.js', './gulpfile.js'],
+    scripts: ['./src/**/*.js', './*.js'],
     server_main: './src/server/server.js',
     client_main: './src/client/main.js',
     client_externals: [

@@ -1,0 +1,7 @@
+{
+    "browser": false,
+    "jquery": false,
+    "devel": true,
+    "node": true,
+    "predef": ["db", "print", "emit"]
+}

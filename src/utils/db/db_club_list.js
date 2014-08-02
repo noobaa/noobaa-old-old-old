@@ -1,3 +1,4 @@
+'use strict';
 db.clubs.find({}).sort({
 	mtime: 1
 }).forEach(function(c) {
