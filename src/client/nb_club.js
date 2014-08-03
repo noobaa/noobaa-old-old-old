@@ -426,6 +426,7 @@ nb_util.controller('ClubCtrl', [
             modal = nbUtil.make_modal({
                 template: 'files_modal.html',
                 scope: choose_scope,
+                size: 'fullscreen',
             });
         };
 
