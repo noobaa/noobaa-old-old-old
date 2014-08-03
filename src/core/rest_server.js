@@ -32,27 +32,32 @@ function setup(app_router, base_path, api, api_impl) {
         var method = api_func_info.method.toLowerCase();
         var route_func = app_router[method];
         // call the route function to set the route handler
-        route_func.call(app_router, path, function(req, res) {
-            // merge all the params from the request. 
-            // handles both POST/PUT body style, the GET style query, and the url path parameters.
-            var params = _.extend({}, req.params, req.body, req.query);
-            api_impl[api_func_name](params, function(err, reply) {
-                if (err) {
-                    var status = err.status || err.statusCode;
-                    var data = err.data || err.message;
-                    console.log(status === 200 ? 'COMPLETED' : 'FAILED', debug_info, ':', err);
-                    if (typeof status === 'number' &&
-                        status >= 100 &&
-                        status < 600
-                    ) {
-                        return res.json(status, data);
-                    } else {
-                        return res.json(500, err);
-                    }
-                }
-                console.log('COMPLETED', debug_info);
-                return res.json(200, reply);
-            });
-        });
+        var api_handler = create_api_handler(api_impl[api_func_name], api_func_name);
+        route_func.call(app_router, path, api_handler);
     }
+}
+
+function create_api_handler(handler, name) {
+    return function(req, res) {
+        // merge all the params from the request. 
+        // handles both POST/PUT body style, the GET style query, and the url path parameters.
+        var params = _.extend({}, req.params, req.body, req.query);
+        handler(params, function(err, reply) {
+            if (err) {
+                var status = err.status || err.statusCode;
+                var data = err.data || err.message;
+                console.log(status === 200 ? 'COMPLETED' : 'FAILED', name, ':', err);
+                if (typeof status === 'number' &&
+                    status >= 100 &&
+                    status < 600
+                ) {
+                    return res.json(status, data);
+                } else {
+                    return res.json(500, err);
+                }
+            }
+            console.log('COMPLETED', name);
+            return res.json(200, reply);
+        });
+    };
 }

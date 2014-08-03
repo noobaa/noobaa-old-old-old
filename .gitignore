@@ -6,3 +6,6 @@ node_modules/
 bower_components/
 noobaa-prod-dump/
 draft_*
+.coverdata/
+.coverrun
+coverage-report.html

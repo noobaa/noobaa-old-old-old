@@ -22,6 +22,8 @@ var vinyl_buffer = require('vinyl-buffer');
 var vinyl_source_stream = require('vinyl-source-stream');
 var browserify = require('browserify');
 var event_stream = require('event-stream');
+var gulp_mocha = require('gulp-mocha');
+var gulp_coverage = require('gulp-coverage');
 var fs = require('fs');
 var path = require('path');
 var child_process = require('child_process');
@@ -71,6 +73,7 @@ var paths = {
     ],
     ngview: './src/ngview/**/*',
     scripts: ['./src/**/*.js', './*.js'],
+    tests: ['./src/**/test*.js'],
     server_main: './src/server/server.js',
     client_main: './src/client/main.js',
     client_externals: [
@@ -80,6 +83,10 @@ var paths = {
         './node_modules/video.js/dist/video-js/video.dev.js',
         // './vendor/flowplayer-5.4.6/flowplayer.js',
     ]
+};
+
+var SRC_DONT_READ = {
+    read: false
 };
 
 function gulp_size_log(title) {
@@ -172,10 +179,7 @@ gulp.task('css', ['bower'], function() {
     var DEST = 'build/public/css';
     var NAME = 'styles.css';
     var NAME_MIN = 'styles.min.css';
-    var dont_read = {
-        read: false
-    };
-    return gulp.src(paths.css, dont_read)
+    return gulp.src(paths.css, SRC_DONT_READ)
         .pipe(gulp_plumber(plumb_conf))
         .pipe(gulp_newer(path.join(DEST, NAME)))
         .pipe(candidate(paths.css_candidates))
@@ -212,8 +216,8 @@ gulp.task('jshint', function() {
         .pipe(gulp_cached('jshint'))
         .pipe(gulp_jshint())
         .pipe(gulp_jshint.reporter(jshint_stylish));
-        // avoid failing for watch to continue
-        // .pipe(gulp_jshint.reporter('fail'));
+    // avoid failing for watch to continue
+    // .pipe(gulp_jshint.reporter('fail'));
 });
 
 gulp.task('client', ['bower'], function() {
@@ -251,6 +255,24 @@ gulp.task('client', ['bower'], function() {
         .pipe(gulp_size_log(NAME_MIN))
         .pipe(gulp.dest(DEST));
 });
+
+
+gulp.task('mocha', function() {
+    var mocha_options = {
+        reporter: 'nyan'
+    };
+    return gulp.src(paths.tests, SRC_DONT_READ)
+        .pipe(gulp_coverage.instrument({
+            pattern: paths.scripts,
+            // debugDirectory: '.coverdata'
+        }))
+        .pipe(gulp_mocha(mocha_options))
+        .pipe(gulp_coverage.report({
+            outFile: 'coverage-report.html'
+        }));
+});
+
+gulp.task('test', ['jshint', 'mocha']);
 
 
 function serve() {

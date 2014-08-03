@@ -5,8 +5,8 @@ var util = require('util');
 var stream = require('stream');
 var _ = require('underscore');
 var Q = require('q');
-var rest_client = require('rest_client');
-var object_api = require('object_api');
+var rest_client = require('./rest_client');
+var object_api = require('./object_api');
 
 var READ_SIZE_MARK = 128 * 1024;
 var WRITE_SIZE_MARK = 128 * 1024;

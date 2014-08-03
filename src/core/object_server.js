@@ -3,8 +3,8 @@
 
 var _ = require('underscore');
 var Q = require('q');
-var rest_server = require('rest_server');
-var object_api = require('object_api');
+var rest_server = require('./rest_server');
+var object_api = require('./object_api');
 
 var object_api_impl = {
     create_object: create_object,

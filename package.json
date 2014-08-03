@@ -91,6 +91,8 @@
     "gulp-plumber": "~0.6.1",
     "gulp-notify": "~1.2.5",
     "passport-local": "~1.0.0",
-    "bcrypt": "~0.7.8"
+    "bcrypt": "~0.7.8",
+    "gulp-mocha": "~0.5.2",
+    "gulp-coverage": "~0.1.24"
   }
 }
