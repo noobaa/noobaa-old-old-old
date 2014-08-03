@@ -110,7 +110,7 @@ function create_request(client_params, api_func_info, params) {
             } else {
                 path += '/null';
             }
-        } else {
+        } else if (p) {
             path += '/' + p;
         }
     }
@@ -147,7 +147,7 @@ function send_http(options) {
             data += chunk;
         });
         res.on('end', function() {
-            if (res.getHeader('content-type') === 'application/json') {
+            if (res.headers['content-type'] === 'application/json') {
                 data = JSON.parse(data);
             }
             var api_res = {

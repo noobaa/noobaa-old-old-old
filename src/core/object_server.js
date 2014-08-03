@@ -5,10 +5,18 @@ var _ = require('underscore');
 var Q = require('q');
 var rest_server = require('./rest_server');
 var object_api = require('./object_api');
+// db models
+var Account = require('./models/account');
+var Bucket = require('./models/bucket');
+var ObjectMD = require('./models/object_md');
+var ObjectMap = require('./models/object_map');
+var EdgeNode = require('./models/edge_node');
+var EdgeBlock = require('./models/edge_block');
+
 
 var object_api_impl = {
+    get_object: get_object,
     create_object: create_object,
-    read_object: read_object,
     update_object: update_object,
     delete_object: delete_object,
     map_object: map_object,
@@ -32,11 +40,11 @@ function setup(app_router, base_path) {
 }
 
 
-function create_object(params, callback) {
+function get_object(params, callback) {
     // TODO
 }
 
-function read_object(params, callback) {
+function create_object(params, callback) {
     // TODO
 }
 

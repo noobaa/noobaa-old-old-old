@@ -45,8 +45,9 @@ rest_client.setup(ObjectClient.prototype, object_api);
 //
 ObjectClient.prototype.read_maps = function(params) {
     var maps = params.maps;
+    var buffer = new Buffer('');
     // TODO
-    return Q.when(maps);
+    return Q.when(buffer);
 };
 
 // write_maps (API)
@@ -60,7 +61,7 @@ ObjectClient.prototype.read_maps = function(params) {
 ObjectClient.prototype.write_maps = function(params) {
     var maps = params.maps;
     // TODO
-    return Q.when(maps);
+    return Q.when();
 };
 
 
@@ -246,4 +247,3 @@ function slice_buffer(buffer, start, count) {
     }
     throw new Error('Cannot slice buffer');
 }
-
