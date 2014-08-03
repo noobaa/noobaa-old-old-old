@@ -2,41 +2,12 @@
 'use strict';
 
 var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
 var types = mongoose.Schema.Types;
 var _ = require('underscore');
 
 
-var bucket_schema = new mongoose.Schema({
-    name: String,
-});
-
-var objmd_schema = new mongoose.Schema({
-
-    // namespace
-
-    bucket: {
-        type: types.ObjectId,
-        ref: 'Bucket'
-    },
-    key: String,
-
-    // storage mapping
-
-    map: {
-        type: types.ObjectId,
-        ref: 'ObjectMap'
-    },
-
-    // attributes
-
-    size: Number,
-    create_time: {
-        type: Date,
-        default: Date.now
-    },
-});
-
-var objmap_schema = new mongoose.Schema({
+var objmap_schema = new Schema({
     ranges: [{
         // the range starting byte offset, and byte size
         offset: Number,
@@ -53,35 +24,14 @@ var objmap_schema = new mongoose.Schema({
         kwords: Number,
         words: [{
             index: Number,
-
-            // the storage node id that keeps this word 
-            node: {
+            block: {
                 type: types.ObjectId,
-                ref: 'Node'
+                ref: 'EdgeBlock'
             },
-            // the key dscribes how the node locates the data word
-            key: String,
         }]
     }]
 });
 
-
-// indexes
-
-objmd_schema.index({
-    bucket: 1,
-    key: 1,
-}, {
-    unique: true
-});
-
-
-var Bucket = mongoose.model('Bucket', bucket_schema);
-var ObjectMD = mongoose.model('ObjectMD', objmd_schema);
 var ObjectMap = mongoose.model('ObjectMap', objmap_schema);
 
-module.exports = {
-    Bucket: Bucket,
-    ObjectMD: ObjectMD,
-    ObjectMap: ObjectMap,
-};
+module.exports = ObjectMap;
