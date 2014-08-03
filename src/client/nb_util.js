@@ -337,6 +337,104 @@ nb_util.factory('nbMultiSelect', [
 ]);
 
 
+nb_util.factory('nbNotify', [
+    '$http', '$timeout', '$interval', '$q', '$rootScope',
+    function($http, $timeout, $interval, $q, $rootScope) {
+        var $scope = {
+            Notifier: Notifier
+        };
+
+        var Notification = window.Notification || function(text, options, events) {
+            // alertify.log(text);
+            return {};
+        };
+
+        request_permission();
+
+        function request_permission() {
+            return $q.when().then(function() {
+                if (Notification.permission === 'granted') {
+                    return Notification.permission;
+                }
+                if (!Notification.requestPermission) {
+                    return;
+                }
+                var defer = $q.defer();
+                Notification.requestPermission(defer.resolve);
+                return defer.promise;
+            }).then(function(perm) {
+                console.log('requestPermission', perm);
+                // set the Notification.permission property for older browsers who did not set it
+                if (Notification.permission !== perm) {
+                    Notification.permission = perm;
+                }
+                $scope.permitted = (perm === 'granted');
+            });
+        }
+
+
+        function Notifier(tag) {
+            this.srv = $scope;
+            this.tag = tag;
+            this.on = get_local_key(tag, 'on', true);
+        }
+
+        Notifier.prototype._set_on = function(on) {
+            this.on = !!on;
+            set_local_key(this.tag, 'on', this.on);
+        };
+
+        Notifier.prototype.enable = function() {
+            var me = this;
+            request_permission().then(function() {
+                if (!$scope.permitted) return;
+                me._set_on(true);
+                me.notify('Desktop notifications are now ON');
+            });
+        };
+
+        Notifier.prototype.disable = function() {
+            this._set_on(false);
+            this.notify('Desktop notifications are now OFF');
+        };
+
+        Notifier.prototype.notify = function(text, options, events) {
+            options = options || {};
+            // add the notifier tag as prefix
+            options.tag = this.tag + ':' + (options.tag || '');
+            options.icon = options.icon || '/public/images/noobaa_icon_bgpurple.ico';
+            do_notify(text, options, events);
+        };
+
+        function do_notify(text, options, events) {
+            request_permission().then(function() {
+                if (!$scope.permitted) return;
+                var n = new Notification(text, options);
+                for (var e in events) {
+                    n[e] = events[e];
+                }
+                return n;
+            });
+        }
+
+
+        function notifier_local_key(tag, key) {
+            return 'nbNotifier.' + tag + '.' + key;
+        }
+
+        function get_local_key(tag, key, def_val) {
+            var val = window.localStorage[notifier_local_key(tag, key)];
+            return (typeof(val) === 'undefined') ? def_val : val;
+        }
+
+        function set_local_key(tag, key, val) {
+            window.localStorage[notifier_local_key(tag, key)] = val;
+        }
+
+        return $scope;
+    }
+]);
+
 // http wrapper to be used with async library
 nb_util.factory('$http_async', ['$http',
     function($http) {
@@ -605,7 +703,9 @@ nb_util.directive('nbAutoHeight', ['$timeout',
                         }, 0);
                     }
                 };
-                if (attr.nbAutoHeight) {
+                if (false && attr.nbAutoHeight) {
+                    // using watch seems to be too heavy during typing
+                    // maybe because the added delay of waiting for the watch to fire
                     scope.$watch(attr.nbAutoHeight, do_update);
                 } else {
                     // Update on relevant element events

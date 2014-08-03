@@ -11,13 +11,25 @@
                     <ul class="dropdown-menu pull-right" role="menu">
                         <li>
                             <a ng-click="nbClub.create_new_club()">
-                                <i class="fa fa-plus fa-lg fa-lg"></i>
+                                <i class="fa fa-plus"></i>
                                 New Club...
+                            </a>
+                        </li>
+                        <li ng-if="!(nbClub.notifier.on && nbClub.notifier.srv.permitted)">
+                            <a ng-click="nbClub.notifier.enable()">
+                                <i class="fa fa-bell"></i>
+                                Desktop notifications
+                            </a>
+                        </li>
+                        <li ng-if="nbClub.notifier.on && nbClub.notifier.srv.permitted">
+                            <a ng-click="nbClub.notifier.disable()">
+                                <i class="fa fa-bell-o"></i>
+                                Stop desktop notifications
                             </a>
                         </li>
                         <li>
                             <a ng-click="nbClub.poll_clubs()">
-                                <i class="fa fa-repeat fa-lg fa-lg"></i>
+                                <i class="fa fa-repeat"></i>
                                 Refresh
                             </a>
                         </li>

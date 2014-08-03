@@ -10,11 +10,11 @@ var nb_util = angular.module('nb_util');
 nb_util.factory('nbClub', [
     '$http', '$timeout', '$interval', '$q',
     '$window', '$location', '$rootScope',
-    'nbUtil', 'nbUser', 'nbInode',
+    'nbUtil', 'nbUser', 'nbInode', 'nbNotify',
 
     function($http, $timeout, $interval, $q,
         $window, $location, $rootScope,
-        nbUtil, nbUser, nbInode) {
+        nbUtil, nbUser, nbInode, nbNotify) {
 
         var $scope = {
             get_club: get_club,
@@ -40,6 +40,7 @@ nb_util.factory('nbClub', [
                 }]
             },
             total_new_msgs: 0,
+            notifier: new nbNotify.Notifier('clubs')
         };
 
         $rootScope.$watch(function() {
@@ -109,6 +110,12 @@ nb_util.factory('nbClub', [
                 var new_msgs = club.msgs || [];
                 var msgs = c.msgs || [];
                 msgs = msgs.concat(new_msgs);
+                // filter out pending msgs which are inserted on send
+                // there is a small race here if poll occurs before send completes,
+                // but it's small so trying to ignore for now.
+                msgs = _.filter(msgs, function(m) {
+                    return !m.pending;
+                });
                 msgs = _.uniq(msgs, function(m) {
                     return m._id;
                 });
@@ -168,7 +175,12 @@ nb_util.factory('nbClub', [
         }
 
         function send_club_message(club, msg) {
-            club.sending_message = (club.sending_message || 0) + 1;
+            // insert the message immediately into the local list.
+            club.msgs.push(msg);
+            // mark the msg as sending so that merge will know it's still being sent
+            msg.sending = true;
+            // set the user to me so that it will not be counted as a new message for notifications.
+            msg.user = nbUser.user.id;
             return $http({
                 method: 'POST',
                 url: '/api/club/' + club._id + '/msg',
@@ -176,10 +188,12 @@ nb_util.factory('nbClub', [
                     text: msg.text,
                     inode: msg.inode
                 }
+            })['finally'](function() {
+                msg.sending = false;
+                // mark the msg as pending to filter it out on next poll.
+                msg.pending = true;
             }).then(poll_clubs).then(function() {
                 return mark_seen(club);
-            })['finally'](function() {
-                club.sending_message--;
             });
         }
 
@@ -214,25 +228,37 @@ nb_util.factory('nbClub', [
             }
             var len = club.msgs.length;
             $scope.total_new_msgs -= (club.new_msgs || 0);
+            var count = 0;
             if (!club.seen_msg) {
                 // all messages are considered new
-                club.new_msgs = len;
-                $scope.total_new_msgs += club.new_msgs;
-                return;
-            }
-            for (var i = 0; i < len; i++) {
+                count = len;
+            } else {
                 // go back and look for the last seen msg
-                var m = club.msgs[len - i - 1];
-                if (m.inode) {
-                    club.last_new_msg_with_inode = m;
-                }
-                if (m._id === club.seen_msg) {
-                    break;
+                // count all messages not sent by me
+                for (var i = 0; i < len; i++) {
+                    var m = club.msgs[len - i - 1];
+                    if (m._id === club.seen_msg) {
+                        break;
+                    }
+                    if (!m.sending && !m.pending && m.user !== nbUser.user.id) {
+                        count++;
+                    }
                 }
             }
             // we counted the messages till the seen one, 
             // each of these is considered an unseen message
-            club.new_msgs = i;
+            club.new_msgs = count;
+            if (club.new_msgs) {
+                $scope.notifier.notify(club.title, {
+                    body: club.new_msgs + ' new club messages',
+                    tag: club._id,
+                }, {
+                    onclick: function() {
+                        goto_club(club._id);
+                        this.close();
+                    }
+                });
+            }
             $scope.total_new_msgs += club.new_msgs;
         }
 
@@ -375,12 +401,13 @@ nb_util.controller('ClubCtrl', [
             if (!club.message_input.length) {
                 return;
             }
-            $scope.input_focus = false;
             nbUtil.track_event('club.send_text');
+            var text = club.message_input;
+            club.message_input = '';
+            $scope.input_focus = false;
             return nbClub.send_club_message(club, {
-                text: club.message_input
+                text: text
             }).then(function() {
-                club.message_input = '';
                 $scope.input_focus = true;
             });
         };
@@ -426,6 +453,7 @@ nb_util.controller('ClubCtrl', [
             modal = nbUtil.make_modal({
                 template: 'files_modal.html',
                 scope: choose_scope,
+                size: 'fullscreen',
             });
         };
 
