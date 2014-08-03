@@ -17,7 +17,7 @@ var object_api_impl = {
 
 // exporting all the object_api_impl functions (mostly for testing)
 // and also the setup function to be used when creating an express/connect app server.
-module.exports = _.extend(object_api_impl, {
+module.exports = _.extend({}, object_api_impl, {
     setup: setup,
 });
 

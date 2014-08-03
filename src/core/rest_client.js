@@ -10,6 +10,7 @@ var Q = require('q');
 
 module.exports = {
     setup: setup,
+    init: init,
     create_api_func: create_api_func,
     call_api_func: call_api_func,
     create_request: create_request,

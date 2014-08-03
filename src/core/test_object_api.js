@@ -1,12 +1,13 @@
 // make jshint ignore mocha globals
-/* global describe, it */
+/* global describe, it, before, after, beforeEach, afterEach */
 'use strict';
 
 var _ = require('underscore');
 var assert = require('assert');
-var object_api = require('./object_api');
 
 describe('object_api', function() {
+
+    var object_api = require('./object_api');
 
     it('should contain api functions with valid method and path', function() {
         var VALID_METHODS = {

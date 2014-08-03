@@ -20,7 +20,7 @@ module.exports = {
 function setup(app_router, base_path, api, api_impl) {
     // this checks that api_impl has exactly all and no other handlers
     // as defined by the api object.
-    if (!_.equal(_.keys(api), _.keys(api_impl))) {
+    if (!_.isEqual(_.keys(api), _.keys(api_impl))) {
         console.log('Mismatch between api and impl', api, api_impl);
         throw new Error('Mismatch between api and impl');
     }

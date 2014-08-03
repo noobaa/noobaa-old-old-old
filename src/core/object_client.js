@@ -8,13 +8,17 @@ var Q = require('q');
 var rest_client = require('./rest_client');
 var object_api = require('./object_api');
 
-var READ_SIZE_MARK = 128 * 1024;
-var WRITE_SIZE_MARK = 128 * 1024;
 
+// exporting the ObjectClient module as a class
+
+module.exports = {
+    ObjectClient: ObjectClient
+};
 
 
 // ctor of the object client.
 // the client provides api access to remote object storage.
+// the client API functions have the signature function(params), and return a promise.
 //
 // client_params (Object): see rest_client.init()
 //
@@ -22,7 +26,7 @@ function ObjectClient(client_params) {
     rest_client.init(this, client_params);
 }
 
-// setup the object_api functions to the ObjectClient.prototype
+// setup the object_api functions to the ObjectClient.prototype.
 
 rest_client.setup(ObjectClient.prototype, object_api);
 
@@ -127,6 +131,10 @@ ObjectClient.prototype.open_write_stream = function(params) {
     return new Writer(this, params);
 };
 
+
+
+var READ_SIZE_MARK = 128 * 1024;
+var WRITE_SIZE_MARK = 128 * 1024;
 
 
 // Reader is a Readable stream for the specified object and range.
@@ -239,6 +247,3 @@ function slice_buffer(buffer, start, count) {
     throw new Error('Cannot slice buffer');
 }
 
-// exporting the ObjectClient module as a class
-
-module.exports = ObjectClient;
