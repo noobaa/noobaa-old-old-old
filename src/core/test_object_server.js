@@ -11,7 +11,6 @@ describe('object_server', function() {
 
     var object_server = require('./object_server');
     var object_api = require('./object_api');
-    var rest_server = require('./rest_server');
 
     describe('setup', function() {
 
@@ -31,25 +30,6 @@ describe('object_server', function() {
             var app = express();
             object_server.setup(app, '/');
             assert(app);
-        });
-
-    });
-
-    describe('rest_server', function() {
-
-        it('should detect mismatch impl', function() {
-            var app_router = new express.Router();
-            var impl = {};
-            // check missing impl
-            assert.throws(function() {
-                rest_server.setup(app_router, '', object_api, impl);
-            }, Error);
-            // fill the impl and check again for extra impl
-            rest_server.fill_impl(object_api, impl);
-            impl.bla_bla = 1;
-            assert.throws(function() {
-                rest_server.setup(app_router, '', object_api, impl);
-            }, Error);
         });
 
     });

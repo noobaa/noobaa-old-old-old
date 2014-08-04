@@ -5,7 +5,7 @@ var util = require('util');
 var stream = require('stream');
 var _ = require('underscore');
 var Q = require('q');
-var rest_client = require('./rest_client');
+var restful_api = require('./restful_api');
 var object_api = require('./object_api');
 
 
@@ -16,24 +16,23 @@ module.exports = {
 };
 
 
+
 // ctor of the object client.
 // the client provides api access to remote object storage.
 // the client API functions have the signature function(params), and return a promise.
 //
-// client_params (Object): see rest_client.init()
+// client_params (Object): see restful_api.init_client()
 //
 function ObjectClient(client_params) {
-    rest_client.init(this, client_params);
+    restful_api.init_client(this, client_params);
 }
 
 // setup the object_api functions to the ObjectClient.prototype.
-
-rest_client.setup(ObjectClient.prototype, object_api);
+restful_api.setup_client(ObjectClient.prototype, object_api);
 
 
 // in addition to the api functions, the client implements more advanced functions
 // for read/write of objects according to the object mapping.
-
 
 
 // read_maps (API)

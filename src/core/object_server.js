@@ -3,7 +3,7 @@
 
 var _ = require('underscore');
 var Q = require('q');
-var rest_server = require('./rest_server');
+var restful_api = require('./restful_api');
 var object_api = require('./object_api');
 // db models
 var Account = require('./models/account');
@@ -38,11 +38,11 @@ module.exports = _.extend({}, object_api_impl, {
 
 // setup the app routes to handle object server on the specified path.
 //
-// app_router (Object) - see rest_server.setup()
-// base_path (String) - rest_server.setup
+// app_router (Object) - see restful_api.setup_server()
+// base_path (String) - see restful_api.setup_server()
 //
 function setup(app_router, base_path) {
-    rest_server.setup(app_router, base_path, object_api, object_api_impl);
+    restful_api.setup_server(app_router, base_path, object_api, object_api_impl);
 }
 
 
