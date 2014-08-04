@@ -5,6 +5,7 @@
 var _ = require('underscore');
 var assert = require('assert');
 
+
 describe('object_api', function() {
 
     var object_api = require('./object_api');
@@ -18,6 +19,7 @@ describe('object_api', function() {
         };
         var PATH_ITEM_NORMAL = /^\S*$/;
         var PATH_ITEM_PARAM = /^:\S*$/;
+        var method_and_path_collide = {};
         _.each(object_api, function(v, k) {
 
             assert(v.method in VALID_METHODS,
@@ -32,6 +34,11 @@ describe('object_api', function() {
                 assert(PATH_ITEM_PARAM.test(p) || PATH_ITEM_NORMAL.test(p),
                     'invalid path item: ' + k + ' -> ' + v);
             });
+
+            // test for colliding method+path
+            var collision = method_and_path_collide[v.method + v.path];
+            assert(!collision, 'collision of method+path: ' + k + ' ~ ' + collision);
+            method_and_path_collide[v.method + v.path] = k;
         });
     });
 

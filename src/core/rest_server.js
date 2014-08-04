@@ -10,6 +10,7 @@ var Q = require('q');
 
 module.exports = {
     setup: setup,
+    fill_impl: fill_impl,
 };
 
 
@@ -20,8 +21,8 @@ module.exports = {
 function setup(app_router, base_path, api, api_impl) {
     // this checks that api_impl has exactly all and no other handlers
     // as defined by the api object.
-    if (!_.isEqual(_.keys(api), _.keys(api_impl))) {
-        console.log('Mismatch between api and impl', api, api_impl);
+    if (!_.isEqual(_.keys(api).sort(), _.keys(api_impl).sort())) {
+        // console.log('Mismatch between api and impl', api, api_impl);
         throw new Error('Mismatch between api and impl');
     }
     // for each function in the api setup the server route handler
@@ -32,13 +33,32 @@ function setup(app_router, base_path, api, api_impl) {
         var method = api_func_info.method.toLowerCase();
         var route_func = app_router[method];
         // call the route function to set the route handler
-        var api_handler = create_api_handler(api_impl[api_func_name], api_func_name);
+        var api_handler = create_api_handler(api_impl, api_impl[api_func_name], api_func_name);
         route_func.call(app_router, path, api_handler);
     }
 }
 
-function create_api_handler(handler, name) {
-    return function(req, res) {
+
+// fill_impl will add the missing api functions with handlers 
+// that throw exception when called.
+// useful for creating a test impl.
+function fill_impl(api, impl) {
+    _.each(api, function(v, k) {
+        impl[k] = impl[k] || function(params, callback) {
+            callback({
+                data: 'Missing impl for ' + k
+            });
+        };
+    });
+}
+
+
+function create_api_handler(impl, handler, name) {
+    return function(req, res, next) {
+        // marking _removed on the impl will bypass all the routes it has.
+        if (impl._removed) {
+            return next();
+        }
         // merge all the params from the request. 
         // handles both POST/PUT body style, the GET style query, and the url path parameters.
         var params = _.extend({}, req.params, req.body, req.query);

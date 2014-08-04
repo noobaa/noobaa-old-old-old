@@ -15,12 +15,18 @@ var EdgeBlock = require('./models/edge_block');
 
 
 var object_api_impl = {
+    // bucket actions
+    get_bucket: get_bucket,
+    create_bucket: create_bucket,
+    update_bucket: update_bucket,
+    delete_bucket: delete_bucket,
+    list_objects: list_objects,
+    // object actions
     get_object: get_object,
     create_object: create_object,
     update_object: update_object,
     delete_object: delete_object,
     map_object: map_object,
-    list_objects: list_objects,
 };
 
 // exporting all the object_api_impl functions (mostly for testing)
@@ -40,6 +46,26 @@ function setup(app_router, base_path) {
 }
 
 
+function get_bucket(params, callback) {
+    // TODO
+}
+
+function create_bucket(params, callback) {
+    // TODO
+}
+
+function update_bucket(params, callback) {
+    // TODO
+}
+
+function delete_bucket(params, callback) {
+    // TODO
+}
+
+function list_objects(params, callback) {
+    // TODO
+}
+
 function get_object(params, callback) {
     // TODO
 }
@@ -57,9 +83,5 @@ function delete_object(params, callback) {
 }
 
 function map_object(params, callback) {
-    // TODO
-}
-
-function list_objects(params, callback) {
     // TODO
 }

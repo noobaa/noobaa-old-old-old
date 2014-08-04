@@ -97,6 +97,7 @@
   },
   "devDependencies": {
     "npm-license": "~0.2.2",
-    "bower-license": "~0.2.2"
+    "bower-license": "~0.2.2",
+    "mocha": "~1.21.3"
   }
 }

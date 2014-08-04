@@ -7,11 +7,29 @@ var assert = require('assert');
 var http = require('http');
 var express = require('express');
 
+
 describe('object_client', function() {
 
     var object_client = require('./object_client');
     var object_api = require('./object_api');
     var rest_server = require('./rest_server');
+
+    // we create a single express app and server to make the test faster,
+    // but there's a caveat - setting up routes on the same app has the issue
+    // that there is no way to remove/replace middlewares in express, and adding
+    // just adds to the end of the queue.
+    // do a test that installs impl routes do impl._removed=true to bypass its routes.
+    var app = express();
+    var server = http.createServer(app);
+
+    before(function(done) {
+        server.listen(done);
+    });
+
+    after(function() {
+        server.close();
+    });
+
 
     describe('setup', function() {
         it('should work', function() {
@@ -20,107 +38,86 @@ describe('object_client', function() {
         });
     });
 
+    describe('api', function() {
 
-    // for every api function create a test
-    _.each(object_api, function(func_info, func_name) {
-        describe(func_name, function() {
-            it('should pass the call to the server', test_api_func(func_name));
-        });
-    });
-
-
-    function test_api_func(func_name) {
-        return function(done) {
-            var BASE_PATH = '/1_base_path';
-            var BKT = '1_bucket';
-            var KEY = '1_key';
-            var REPLY = {
-                api: ['IS', {
-                    fucking: 'aWeSoMe'
-                }]
-            };
-            var impl = {};
-            impl[func_name] = function(params, callback) {
-                callback(null, REPLY);
-            };
-            mock_server(BASE_PATH, impl, function(client, server) {
-                client[func_name]({
-                    bucket: BKT,
-                    key: KEY
-                }).then(function(res) {
-                    assert.deepEqual(res.data, REPLY);
-                }).fin(function() {
-                    server.close();
-                }).nodeify(done);
-            });
+        var BASE_PATH = '/1_base_path';
+        var BKT = '1_bucket';
+        var KEY = '1_key';
+        var PARAMS = {
+            bucket: BKT,
+            key: KEY
         };
-    }
+        var REPLY = {
+            api: ['IS', {
+                fucking: 'aWeSoMe'
+            }]
+        };
+        var ERROR_REPLY = {
+            data: 'testing error',
+            status: 404,
+        };
 
-    function api_not_implemented(params, callback) {
-        callback(new Error('api_not_implemented'));
-    }
+        // for every api function create a test
+        _.each(object_api, function(func_info, func_name) {
+            describe(func_name, function() {
 
-    function mock_server(path, impl, client_callback) {
-        // create a mock api impl, add all the functions, either from given impl, 
-        // or as unimplemented throwing funcs.
-        var api_impl = {};
-        _.each(object_api, function(v, k) {
-            api_impl[k] = impl[k] || api_not_implemented;
-        });
-        // setup the server router
-        var app_router = express();
-        rest_server.setup(app_router, path, object_api, api_impl);
-        // create http server and start it
-        var server = http.createServer(app_router);
-        server.listen(function() {
-            // initialize the client to the server's port
-            var client = new object_client.ObjectClient({
-                port: server.address().port,
-                path: path,
-            });
-            // run the client callback function which should call server.close when done
-            client_callback(client, server);
-        });
-        return server;
-    }
+                var reply_error = false;
+                var impl = {};
+                var client;
 
+                before(function() {
+                    // init an impl for the currently tested func.
+                    // we use a dedicated impl per func so that all the other funcs 
+                    // of the impl return error in order to detect calling confusions.
+                    impl[func_name] = function(params, callback) {
+                        if (reply_error) {
+                            callback(ERROR_REPLY);
+                        } else {
+                            callback(null, REPLY);
+                        }
+                    };
+                    rest_server.fill_impl(object_api, impl);
 
-    describe.skip('create_object', function() {
-        it('should send http request', function(done) {
-            var BASE_PATH = '/1_base_path';
-            var BKT = '1_bucket';
-            var KEY = '1_key';
-            var REPLY = {
-                api: ['WORKS', {
-                    just: 'PERFECTLY'
-                }]
-            };
-            // setup a simple http server and check for the request it receives
-            var server = http.createServer(function(req, res) {
-                assert.strictEqual(req.method, 'POST'); // create_object is POST
-                assert.strictEqual(req.url, BASE_PATH + '/' + BKT + '/' + KEY);
-                res.setHeader('content-type', 'application/json');
-                res.end(JSON.stringify(REPLY));
-            });
-            // start the server
-            server.listen(function() {
-                // create client with the server port
-                var client = new object_client.ObjectClient({
-                    port: server.address().port,
-                    path: BASE_PATH
+                    // setup the impl on a server route - 
+                    // need a unique route per func because we can't update middlewares, only add.
+                    var path = BASE_PATH; // + '_' + func_name;
+                    var app_router = new express.Router();
+                    rest_server.setup(app_router, '', object_api, impl);
+                    app.use(path, app_router);
+
+                    // create a client
+                    client = new object_client.ObjectClient({
+                        port: server.address().port,
+                        path: path,
+                    });
                 });
-                // call api
-                client.create_object({
-                    bucket: BKT,
-                    key: KEY
-                }).then(function(res) {
-                    assert.deepEqual(res.data, REPLY);
-                }).fin(function() {
-                    server.close();
-                }).nodeify(done);
+
+                after(function() {
+                    // mark the impl removed to bypass its routes
+                    impl._removed = true;
+                });
+
+                it('should call and get reply', function(done) {
+                    reply_error = false;
+                    client[func_name](PARAMS).then(function(res) {
+                        assert.deepEqual(res.data, REPLY);
+                    }).nodeify(done);
+                });
+
+                it('should call and get error', function(done) {
+                    reply_error = true;
+                    client[func_name](PARAMS).then(function(res) {
+                        console.log(res);
+                        throw 'unexpected';
+                    }, function(err) {
+                        assert.deepEqual(err.data, ERROR_REPLY.data);
+                    }).nodeify(done);
+                });
+
             });
         });
     });
+
 
     describe.skip('open_read_stream', function() {
         it('should read object data', function(done) {
@@ -132,27 +129,24 @@ describe('object_client', function() {
                     fucking: 'aWeSoMe'
                 }]
             };
-            mock_server(BASE_PATH, {
-                map_object: function(params, callback) {
-                    callback(null, REPLY);
-                }
-            }, function(client, server) {
-                var data = '';
-                client.open_read_stream({
-                    bucket: BKT,
-                    key: KEY,
-                    start: 0,
-                    count: 10,
-                }).on('data', function(chunk) {
-                    data += chunk;
-                }).on('end', function() {
-                    assert.deepEqual(data, REPLY);
-                    server.close();
-                    done();
-                }).on('error', function(err) {
-                    server.close();
-                    done(err);
-                });
+            // TODO
+            var client;
+            var server;
+            var data = '';
+            client.open_read_stream({
+                bucket: BKT,
+                key: KEY,
+                start: 0,
+                count: 10,
+            }).on('data', function(chunk) {
+                data += chunk;
+            }).on('end', function() {
+                assert.deepEqual(data, REPLY);
+                server.close();
+                done();
+            }).on('error', function(err) {
+                server.close();
+                done(err);
             });
         });
     });

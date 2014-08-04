@@ -104,7 +104,7 @@ function create_request(client_params, api_func_info, params) {
         var p = path_items[i];
         if (p[0] === ':') {
             p = p.slice(1);
-            if (params[p]) {
+            if (p in params) {
                 path += '/' + params[p];
                 delete data[p];
             } else {
