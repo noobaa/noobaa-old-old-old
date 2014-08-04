@@ -44,8 +44,8 @@ function setup(app_router, base_path, api, api_impl) {
 // useful for creating a test impl.
 function fill_impl(api, impl) {
     _.each(api, function(v, k) {
-        impl[k] = impl[k] || function(params, callback) {
-            callback({
+        impl[k] = impl[k] || function(params) {
+            return Q.reject({
                 data: 'Missing impl for ' + k
             });
         };
@@ -62,22 +62,24 @@ function create_api_handler(impl, handler, name) {
         // merge all the params from the request. 
         // handles both POST/PUT body style, the GET style query, and the url path parameters.
         var params = _.extend({}, req.params, req.body, req.query);
-        handler(params, function(err, reply) {
-            if (err) {
-                var status = err.status || err.statusCode;
-                var data = err.data || err.message;
-                console.log(status === 200 ? 'COMPLETED' : 'FAILED', name, ':', err);
-                if (typeof status === 'number' &&
-                    status >= 100 &&
-                    status < 600
-                ) {
-                    return res.json(status, data);
-                } else {
-                    return res.json(500, err);
-                }
-            }
+        // handler functions are expected to return a promise
+        Q.when(handler(params)).then(function(reply) {
             console.log('COMPLETED', name);
             return res.json(200, reply);
+        }, function(err) {
+            var status = err.status || err.statusCode;
+            var data = err.data || err.message;
+            console.log(status === 200 ? 'COMPLETED' : 'FAILED', name, ':', err);
+            if (typeof status === 'number' &&
+                status >= 100 &&
+                status < 600
+            ) {
+                return res.json(status, data);
+            } else {
+                return res.json(500, err);
+            }
+        }).done(null, function(err) {
+            return next(err);
         });
     };
 }

@@ -46,42 +46,98 @@ function setup(app_router, base_path) {
 }
 
 
-function get_bucket(params, callback) {
-    // TODO
+function get_bucket(params) {
+    var info = {
+        name: params.bucket
+    };
+    return Bucket.findOne(info);
 }
 
-function create_bucket(params, callback) {
-    // TODO
+
+function create_bucket(params) {
+    var info = {
+        name: params.bucket
+    };
+    var bucket = new Bucket(info);
+    return bucket.save();
 }
 
-function update_bucket(params, callback) {
-    // TODO
+
+function update_bucket(params) {
+    var info = {
+        name: params.bucket
+    };
+    var updates = _.pick(params); // no fields can be updated for now
+    return Bucket.findOneAndUpdate(info, updates);
 }
 
-function delete_bucket(params, callback) {
-    // TODO
+
+function delete_bucket(params) {
+    var info = {
+        name: params.bucket
+    };
+    return Bucket.findOneAndDelete(info);
 }
 
-function list_objects(params, callback) {
-    // TODO
+
+function list_objects(params) {
+    var info = {
+        bucket: params.bucket,
+        key: params.key,
+    };
+    var select = {
+        map: 0
+    };
+    return ObjectMD.find(info, select);
 }
 
-function get_object(params, callback) {
-    // TODO
+
+function get_object(params) {
+    var info = {
+        bucket: params.bucket,
+        key: params.key,
+    };
+    var select = {
+        map: 0
+    };
+    return ObjectMD.findOne(info, select);
 }
 
-function create_object(params, callback) {
-    // TODO
+
+function create_object(params) {
+    var info = {
+        bucket: params.bucket,
+        key: params.key,
+        size: params.size,
+    };
+    var obj = new ObjectMD(info);
+    return obj.save();
 }
 
-function update_object(params, callback) {
-    // TODO
+
+function update_object(params) {
+    var info = {
+        bucket: params.bucket,
+        key: params.key,
+    };
+    var updates = _.pick(params); // no fields can be updated for now
+    return Bucket.findOneAndUpdate(info, updates);
 }
 
-function delete_object(params, callback) {
-    // TODO
+
+function delete_object(params) {
+    var info = {
+        bucket: params.bucket,
+        key: params.key,
+    };
+    return Bucket.findOneAndDelete(info);
 }
 
-function map_object(params, callback) {
-    // TODO
+
+function map_object(params) {
+    var info = {
+        bucket: params.bucket,
+        key: params.key,
+    };
+    return ObjectMD.findOne(info);
 }

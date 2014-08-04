@@ -3,6 +3,7 @@
 'use strict';
 
 var _ = require('underscore');
+var Q = require('q');
 var assert = require('assert');
 var http = require('http');
 var express = require('express');
@@ -69,11 +70,11 @@ describe('object_client', function() {
                     // init an impl for the currently tested func.
                     // we use a dedicated impl per func so that all the other funcs 
                     // of the impl return error in order to detect calling confusions.
-                    impl[func_name] = function(params, callback) {
+                    impl[func_name] = function(params) {
                         if (reply_error) {
-                            callback(ERROR_REPLY);
+                            return Q.reject(ERROR_REPLY);
                         } else {
-                            callback(null, REPLY);
+                            return Q.when(REPLY);
                         }
                     };
                     rest_server.fill_impl(object_api, impl);

@@ -40,9 +40,12 @@ describe('object_server', function() {
         it('should detect mismatch impl', function() {
             var app_router = new express.Router();
             var impl = {};
-            _.each(object_api, function(v, k) {
-                impl[k] = function(params, callback) {};
-            });
+            // check missing impl
+            assert.throws(function() {
+                rest_server.setup(app_router, '', object_api, impl);
+            }, Error);
+            // fill the impl and check again for extra impl
+            rest_server.fill_impl(object_api, impl);
             impl.bla_bla = 1;
             assert.throws(function() {
                 rest_server.setup(app_router, '', object_api, impl);
