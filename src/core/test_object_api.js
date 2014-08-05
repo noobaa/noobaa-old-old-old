@@ -3,43 +3,85 @@
 'use strict';
 
 var _ = require('underscore');
+var Q = require('q');
 var assert = require('assert');
+var http = require('http');
+var express = require('express');
 
 
 describe('object_api', function() {
 
-    var object_api = require('./object_api');
+    describe('object_server', function() {
 
-    it('should contain api functions with valid method and path', function() {
-        var VALID_METHODS = {
-            GET: 1,
-            PUT: 1,
-            POST: 1,
-            DELETE: 1
-        };
-        var PATH_ITEM_NORMAL = /^\S*$/;
-        var PATH_ITEM_PARAM = /^:\S*$/;
-        var method_and_path_collide = {};
-        _.each(object_api, function(v, k) {
+        var object_server = require('./object_server');
+        var object_api = require('./object_api');
 
-            assert(v.method in VALID_METHODS,
-                'unexpected method: ' + k + ' -> ' + v);
+        describe('setup', function() {
 
-            assert.strictEqual(typeof(v.path), 'string',
-                'unexpected path type: ' + k + ' -> ' + v);
-
-            var path_items = v.path.split('/');
-
-            _.each(path_items, function(p) {
-                assert(PATH_ITEM_PARAM.test(p) || PATH_ITEM_NORMAL.test(p),
-                    'invalid path item: ' + k + ' -> ' + v);
+            it('should work on mock router', function() {
+                var app_router = {
+                    all: function() {},
+                    get: function() {},
+                    put: function() {},
+                    post: function() {},
+                    delete: function() {},
+                };
+                object_server.setup(app_router, '/');
+                assert(app_router);
             });
 
-            // test for colliding method+path
-            var collision = method_and_path_collide[v.method + v.path];
-            assert(!collision, 'collision of method+path: ' + k + ' ~ ' + collision);
-            method_and_path_collide[v.method + v.path] = k;
+            it('should work on express app', function() {
+                var app = express();
+                object_server.setup(app, '/');
+                assert(app);
+            });
+
         });
+
+    });
+
+
+    describe('object_client', function() {
+
+        var object_client = require('./object_client');
+        var object_api = require('./object_api');
+
+        describe('setup', function() {
+            it('should work', function() {
+                var client = new object_client.ObjectClient();
+                assert(client, 'expected a valid client');
+            });
+        });
+
+        describe.skip('open_read_stream', function() {
+            it('should read object data', function(done) {
+                var BASE_PATH = '/1_base_path';
+                var BKT = '1_bucket';
+                var KEY = '1_key';
+                var REPLY = {
+                    api: ['IS', {
+                        fucking: 'aWeSoMe'
+                    }]
+                };
+                // TODO
+                var client = new object_client.ObjectClient();
+                var data = '';
+                client.open_read_stream({
+                    bucket: BKT,
+                    key: KEY,
+                    start: 0,
+                    count: 10,
+                }).on('data', function(chunk) {
+                    data += chunk;
+                }).on('end', function() {
+                    assert.deepEqual(data, REPLY);
+                    done();
+                }).on('error', function(err) {
+                    done(err);
+                });
+            });
+        });
+
     });
 
 });

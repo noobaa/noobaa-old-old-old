@@ -8,11 +8,16 @@ var _ = require('underscore');
 
 
 var bucket_schema = new Schema({
-    name: String,
+
+    // the service account
     account: {
         type: types.ObjectId,
         ref: 'Account'
     },
+
+    // bucket name - unique in the system
+    name: String,
+
 });
 
 // bucket name is unique across the entire service in order to resolve RESTful urls

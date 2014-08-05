@@ -16,14 +16,14 @@ var EdgeBlock = require('./models/edge_block');
 
 var object_api_impl = {
     // bucket actions
-    get_bucket: get_bucket,
     create_bucket: create_bucket,
+    read_bucket: read_bucket,
     update_bucket: update_bucket,
     delete_bucket: delete_bucket,
     list_objects: list_objects,
     // object actions
-    get_object: get_object,
     create_object: create_object,
+    read_object: read_object,
     update_object: update_object,
     delete_object: delete_object,
     map_object: map_object,
@@ -37,53 +37,50 @@ module.exports = _.extend({}, object_api_impl, {
 
 
 // setup the app routes to handle object server on the specified path.
-//
-// app_router (Object) - see restful_api.setup_server()
-// base_path (String) - see restful_api.setup_server()
-//
+// see restful_api.setup_server() for details about the arguments
 function setup(app_router, base_path) {
     restful_api.setup_server(app_router, base_path, object_api, object_api_impl);
 }
 
 
-function get_bucket(params) {
+function create_bucket(req) {
     var info = {
-        name: params.bucket
-    };
-    return Bucket.findOne(info);
-}
-
-
-function create_bucket(params) {
-    var info = {
-        name: params.bucket
+        name: req.restful_param('bucket')
     };
     var bucket = new Bucket(info);
     return bucket.save();
 }
 
 
-function update_bucket(params) {
+function read_bucket(req) {
     var info = {
-        name: params.bucket
+        name: req.restful_param('bucket')
     };
-    var updates = _.pick(params); // no fields can be updated for now
+    return Bucket.findOne(info);
+}
+
+
+function update_bucket(req) {
+    var info = {
+        name: req.restful_param('bucket')
+    };
+    var updates = _.pick(req.body); // no fields can be updated for now
     return Bucket.findOneAndUpdate(info, updates);
 }
 
 
-function delete_bucket(params) {
+function delete_bucket(req) {
     var info = {
-        name: params.bucket
+        name: req.restful_param('bucket')
     };
     return Bucket.findOneAndDelete(info);
 }
 
 
-function list_objects(params) {
+function list_objects(req) {
     var info = {
-        bucket: params.bucket,
-        key: params.key,
+        bucket: req.restful_param('bucket'),
+        key: req.restful_param('key'),
     };
     var select = {
         map: 0
@@ -92,10 +89,21 @@ function list_objects(params) {
 }
 
 
-function get_object(params) {
+function create_object(req) {
     var info = {
-        bucket: params.bucket,
-        key: params.key,
+        bucket: req.restful_param('bucket'),
+        key: req.restful_param('key'),
+        size: req.restful_param('size'),
+    };
+    var obj = new ObjectMD(info);
+    return obj.save();
+}
+
+
+function read_object(req) {
+    var info = {
+        bucket: req.restful_param('bucket'),
+        key: req.restful_param('key'),
     };
     var select = {
         map: 0
@@ -104,40 +112,30 @@ function get_object(params) {
 }
 
 
-function create_object(params) {
+function update_object(req) {
     var info = {
-        bucket: params.bucket,
-        key: params.key,
-        size: params.size,
+        bucket: req.restful_param('bucket'),
+        key: req.restful_param('key'),
     };
-    var obj = new ObjectMD(info);
-    return obj.save();
-}
-
-
-function update_object(params) {
-    var info = {
-        bucket: params.bucket,
-        key: params.key,
-    };
-    var updates = _.pick(params); // no fields can be updated for now
+    var updates = _.pick(req.body); // no fields can be updated for now
     return Bucket.findOneAndUpdate(info, updates);
 }
 
 
-function delete_object(params) {
+function delete_object(req) {
     var info = {
-        bucket: params.bucket,
-        key: params.key,
+        bucket: req.restful_param('bucket'),
+        key: req.restful_param('key'),
     };
     return Bucket.findOneAndDelete(info);
 }
 
 
-function map_object(params) {
+function map_object(req) {
     var info = {
-        bucket: params.bucket,
-        key: params.key,
+        bucket: req.restful_param('bucket'),
+        key: req.restful_param('key'),
+        // TODO
     };
     return ObjectMD.findOne(info);
 }

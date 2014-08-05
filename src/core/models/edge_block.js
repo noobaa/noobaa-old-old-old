@@ -8,13 +8,16 @@ var _ = require('underscore');
 
 
 var edge_block_schema = new Schema({
+
     // the storage node id that keeps this word 
     node: {
         type: types.ObjectId,
         ref: 'EdgeNode'
     },
+
     // the key dscribes how the node locates the data word
     key: String,
+
 });
 
 

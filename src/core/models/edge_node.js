@@ -9,11 +9,32 @@ var _ = require('underscore');
 
 var edge_node_schema = new Schema({
 
+	// the service account
+    account: {
+        type: types.ObjectId,
+        ref: 'Account'
+    },
+
+	// a randomly generated string for the node to identify itself
+	passkey: String,
+
+	// the latest public ip of the node
     public_ip: String,
 
-    // TODO
+    // the listening port of the agent running on the node
+    port: Number,
+
+	// the last time the node sent heartbeat    
+    hearbeat: Date,
 
 });
+
+edge_node_schema.index({
+    passkey: 1,
+}, {
+    unique: true
+});
+
 
 var EdgeNode = mongoose.model('EdgeNode', edge_node_schema);
 

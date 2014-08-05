@@ -13,8 +13,9 @@ var express_body_parser = require('body-parser');
 describe('restful_api', function() {
 
     var restful_api = require('./restful_api');
+    var account_api = require('./account_api');
     var object_api = require('./object_api');
-
+    var edge_node_api = require('./edge_node_api');
 
     describe('setup_server', function() {
 
@@ -35,7 +36,55 @@ describe('restful_api', function() {
 
     });
 
-    describe('round trip', function() {
+    describe('apis', function() {
+        var VALID_METHODS = {
+            GET: 1,
+            PUT: 1,
+            POST: 1,
+            DELETE: 1
+        };
+        var PATH_ITEM_NORMAL = /^\S*$/;
+        var PATH_ITEM_PARAM = /^:\S*$/;
+
+        _.each({
+            account_api: account_api,
+            object_api: object_api,
+            edge_node_api: edge_node_api,
+        }, function(api, api_name) {
+
+            describe(api_name, function() {
+
+                it('should contain api functions with valid method and path', function() {
+                    var method_and_path_collide = {};
+
+                    _.each(api, function(v, k) {
+
+                        assert(v.method in VALID_METHODS,
+                            'unexpected method: ' + k + ' -> ' + v);
+
+                        assert.strictEqual(typeof(v.path), 'string',
+                            'unexpected path type: ' + k + ' -> ' + v);
+
+                        var path_items = v.path.split('/');
+
+                        _.each(path_items, function(p) {
+                            assert(PATH_ITEM_PARAM.test(p) || PATH_ITEM_NORMAL.test(p),
+                                'invalid path item: ' + k + ' -> ' + v);
+                        });
+
+                        // test for colliding method+path
+                        var collision = method_and_path_collide[v.method + v.path];
+                        assert(!collision, 'collision of method+path: ' + k + ' ~ ' + collision);
+                        method_and_path_collide[v.method + v.path] = k;
+                    });
+                });
+            });
+        });
+    });
+
+
+
+    describe('object_api round trip', function() {
         // we create a single express app and server to make the test faster,
         // but there's a caveat - setting up routes on the same app has the issue
         // that there is no way to remove/replace middlewares in express, and adding
@@ -48,11 +97,9 @@ describe('restful_api', function() {
         var server = http.createServer(app);
 
         var BASE_PATH = '/1_base_path';
-        var BKT = '1_bucket';
-        var KEY = '1_key';
         var PARAMS = {
-            bucket: BKT,
-            key: KEY
+            bucket: '1_bucket',
+            key: '1_key'
         };
         var REPLY = {
             rest: ['IS', {
@@ -88,7 +135,8 @@ describe('restful_api', function() {
                     // init a server_impl for the currently tested func.
                     // we use a dedicated server_impl per func so that all the other funcs 
                     // of the server_impl return error in order to detect calling confusions.
-                    server_impl[func_name] = function(params) {
+                    server_impl[func_name] = function(req) {
+                        var params = _.extend({}, req.query, req.body, req.params);
                         assert.deepEqual(params, PARAMS);
                         if (reply_error) {
                             return Q.reject(ERROR_REPLY);

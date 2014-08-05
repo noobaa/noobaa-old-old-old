@@ -11,12 +11,12 @@ var Q = require('q');
 module.exports = {
 
     // client
-    
+
     setup_client: setup_client,
     init_client: init_client,
-    
+
     // server
-    
+
     setup_server: setup_server,
     init_server: init_server,
 
@@ -87,7 +87,7 @@ function setup_server(app_router, base_path, api, server_impl) {
         var method = func_info.method.toLowerCase();
         var route_func = app_router[method];
         // call the route function to set the route handler
-        var handler = create_server_handler(server_impl, func_name);
+        var handler = create_server_handler(server_impl, func_name, func_info);
         route_func.call(app_router, path, handler);
     });
 }
@@ -137,6 +137,14 @@ function create_client_request(client_params, func_info, params) {
             path += '/' + p;
         }
     }
+    /* 
+    // TODO verify data against func_info.params
+    for (i in data) {
+        if (!(i in func_info.params)) {
+            throw new Error('unexpected param which is not defined in the api - ' + i);
+        }
+    }
+    */
     var headers = {};
     if (method === 'POST' || method === 'PUT') {
         // send data in request body encoded as json
@@ -196,27 +204,37 @@ function send_http_request(options) {
 
 
 // return a route handler that calls the server function
-function create_server_handler(server_impl, name) {
-    var func = server_impl[name];
+function create_server_handler(server_impl, func_name, func_info) {
+    var func = server_impl[func_name];
+    var path_items = func_info.path.split('/').sort();
     return function(req, res, next) {
         // marking _removed on the server_impl will bypass all the routes it has.
         if (server_impl._removed) {
             return next();
         }
-        // merge all the params from the request. 
-        // handles both POST/PUT body style, the GET style query, and the url path parameters.
-        var params = _.extend({}, req.params, req.body, req.query);
+        req.restful_param = function(param_name) {
+            if (param_name in func_info.params) {
+                return req.param(param_name);
+            }
+            if (_.indexOf(path_items, ':' + param_name, true /*sorted*/ ) >= 0) {
+                return req.param(param_name);
+            }
+            throw new Error('requested undefined api param, func - ' +
+                func_name + ' param - ' + param_name);
+        };
         // server functions are expected to return a promise
-        Q.when(params).then(func).then(function(reply) {
+        Q.when().then(function() {
+            return func(req);
+        }).then(function(reply) {
             if (server_impl._log) {
-                server_impl._log('COMPLETED', name);
+                server_impl._log('COMPLETED', func_name);
             }
             return res.json(200, reply);
         }, function(err) {
             var status = err.status || err.statusCode;
             var data = err.data || err.message;
             if (server_impl._log) {
-                server_impl._log(status === 200 ? 'COMPLETED' : 'FAILED', name, ':', err);
+                server_impl._log(status === 200 ? 'COMPLETED' : 'FAILED', func_name, ':', err);
             }
             if (typeof status === 'number' &&
                 status >= 100 &&

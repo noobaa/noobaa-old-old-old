@@ -8,7 +8,16 @@ var _ = require('underscore');
 
 
 var account_schema = new Schema({
+
+    // account name
     name: String,
+
+    // account main contact email
+    email: String,
+
+    // the account secret password
+    password: String,
+
 });
 
 account_schema.index({

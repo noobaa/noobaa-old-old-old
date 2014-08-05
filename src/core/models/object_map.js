@@ -8,7 +8,9 @@ var _ = require('underscore');
 
 
 var objmap_schema = new Schema({
+
     ranges: [{
+
         // the range starting byte offset, and byte size
         offset: Number,
         size: Number,
@@ -29,7 +31,9 @@ var objmap_schema = new Schema({
                 ref: 'EdgeBlock'
             },
         }]
+
     }]
+
 });
 
 var ObjectMap = mongoose.model('ObjectMap', objmap_schema);
