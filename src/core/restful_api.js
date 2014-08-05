@@ -39,7 +39,7 @@ function setup_client(client_proto, api) {
     _.each(api, function(func_info, func_name) {
         client_proto[func_name] = function(params) {
             // resolve this._client_params to use the client object and not the .
-            return send_client_request(this._client_params, func_info, params);
+            return send_client_request(this._client_params, func_name, func_info, params);
         };
     });
 }
@@ -108,9 +108,9 @@ function init_server(api, server_impl) {
 
 
 // call a specific REST api function over http request.
-function send_client_request(client_params, func_info, params) {
+function send_client_request(client_params, func_name, func_info, params) {
     return Q.when().then(function() {
-        return create_client_request(client_params, func_info, params);
+        return create_client_request(client_params, func_name, func_info, params);
     }).then(function(options) {
         return send_http_request(options);
     });
@@ -118,7 +118,7 @@ function send_client_request(client_params, func_info, params) {
 
 
 // create a REST api call and return the options for http request.
-function create_client_request(client_params, func_info, params) {
+function create_client_request(client_params, func_name, func_info, params) {
     var method = func_info.method;
     var data = _.clone(params);
     var path = client_params.path || '';
@@ -137,14 +137,13 @@ function create_client_request(client_params, func_info, params) {
             path += '/' + p;
         }
     }
-    /* 
-    // TODO verify data against func_info.params
-    for (i in data) {
-        if (!(i in func_info.params)) {
-            throw new Error('unexpected param which is not defined in the api - ' + i);
+    if (!client_params._skip_api_params_validation) {
+        for (i in data) {
+            if (!is_accepting_param(i, func_info, path_items)) {
+                throw new Error('passed undefined api param "' + i + '" to ' + func_name);
+            }
         }
     }
-    */
     var headers = {};
     if (method === 'POST' || method === 'PUT') {
         // send data in request body encoded as json
@@ -206,22 +205,22 @@ function send_http_request(options) {
 // return a route handler that calls the server function
 function create_server_handler(server_impl, func_name, func_info) {
     var func = server_impl[func_name];
-    var path_items = func_info.path.split('/').sort();
+    var path_items = func_info.path.split('/');
     return function(req, res, next) {
         // marking _removed on the server_impl will bypass all the routes it has.
         if (server_impl._removed) {
             return next();
         }
-        req.restful_param = function(param_name) {
-            if (param_name in func_info.params) {
-                return req.param(param_name);
-            }
-            if (_.indexOf(path_items, ':' + param_name, true /*sorted*/ ) >= 0) {
-                return req.param(param_name);
-            }
-            throw new Error('requested undefined api param, func - ' +
-                func_name + ' param - ' + param_name);
-        };
+        if (server_impl._skip_api_params_validation) {
+            req.restful_param = req.param.bind(req);
+        } else {
+            req.restful_param = function(param_name) {
+                if (is_accepting_param(param_name, func_info, path_items)) {
+                    return req.param(param_name);
+                }
+                throw new Error('requested undefined api param "' + param_name + '" to ' + func_name);
+            };
+        }
         // server functions are expected to return a promise
         Q.when().then(function() {
             return func(req);
@@ -248,4 +247,15 @@ function create_server_handler(server_impl, func_name, func_info) {
             return next(err);
         });
     };
+}
+
+
+function is_accepting_param(param_name, func_info, path_items) {
+    if (param_name in func_info.params) {
+        return true;
+    }
+    if (_.indexOf(path_items, ':' + param_name) >= 0) {
+        return true;
+    }
+    return false;
 }

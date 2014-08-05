@@ -129,7 +129,10 @@ describe('restful_api', function() {
             describe(func_name, function() {
 
                 var reply_error = false;
-                var server_impl = {};
+                var server_impl = {
+                    // skip validations because the test sends extra params automatically
+                    _skip_api_params_validation: true,
+                };
 
                 before(function() {
                     // init a server_impl for the currently tested func.
@@ -157,6 +160,8 @@ describe('restful_api', function() {
                     restful_api.init_client(client, {
                         port: server.address().port,
                         path: path,
+                        // skip validations because the test sends extra params automatically
+                        _skip_api_params_validation: true,
                     });
                 });
 
