@@ -7,6 +7,7 @@ var Q = require('q');
 var assert = require('assert');
 var http = require('http');
 var express = require('express');
+var express_body_parser = require('body-parser');
 
 
 describe('restful_api', function() {
@@ -42,6 +43,8 @@ describe('restful_api', function() {
         // do a test that installs server_impl routes do server_impl._removed=true 
         // to bypass its routes.
         var app = express();
+        // must install a body parser for restful server to work
+        app.use(express_body_parser());
         var server = http.createServer(app);
 
         var BASE_PATH = '/1_base_path';
@@ -86,6 +89,7 @@ describe('restful_api', function() {
                     // we use a dedicated server_impl per func so that all the other funcs 
                     // of the server_impl return error in order to detect calling confusions.
                     server_impl[func_name] = function(params) {
+                        assert.deepEqual(params, PARAMS);
                         if (reply_error) {
                             return Q.reject(ERROR_REPLY);
                         } else {

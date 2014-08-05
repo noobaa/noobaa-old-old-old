@@ -8,11 +8,11 @@ var KEY_PATH = '/:bucket/:key';
 var BKT_PATH = '/:bucket';
 
 
-// ObjectRestAPI is the descriptor of NooBaa's Object API as a RESTful API.
-// this descriptor is used to generate both client side driver and server side routes.
+// object_api is NooBaa's Object API as a RESTful API.
+// this info is used to generate both client side driver and server side routes.
 var object_api = {
     
-    // bucket actions
+    // bucket functions
     
     get_bucket: {
         method: 'GET',
@@ -35,7 +35,7 @@ var object_api = {
         path: BKT_PATH + '/list',
     },
     
-    // object actions
+    // object functions
     
     get_object: {
         method: 'GET',

@@ -108,9 +108,9 @@ function init_server(api, server_impl) {
 
 
 // call a specific REST api function over http request.
-function send_client_request(client_params, api_func_info, params) {
+function send_client_request(client_params, func_info, params) {
     return Q.when().then(function() {
-        return create_client_request(client_params, api_func_info, params);
+        return create_client_request(client_params, func_info, params);
     }).then(function(options) {
         return send_http_request(options);
     });
@@ -118,11 +118,11 @@ function send_client_request(client_params, api_func_info, params) {
 
 
 // create a REST api call and return the options for http request.
-function create_client_request(client_params, api_func_info, params) {
-    var method = api_func_info.method;
+function create_client_request(client_params, func_info, params) {
+    var method = func_info.method;
     var data = _.clone(params);
     var path = client_params.path || '';
-    var path_items = api_func_info.path.split('/');
+    var path_items = func_info.path.split('/');
     for (var i in path_items) {
         var p = path_items[i];
         if (p[0] === ':') {
@@ -207,7 +207,7 @@ function create_server_handler(server_impl, name) {
         // handles both POST/PUT body style, the GET style query, and the url path parameters.
         var params = _.extend({}, req.params, req.body, req.query);
         // server functions are expected to return a promise
-        Q.when(func(params)).then(function(reply) {
+        Q.when(params).then(func).then(function(reply) {
             if (server_impl._log) {
                 server_impl._log('COMPLETED', name);
             }
