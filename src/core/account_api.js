@@ -1,10 +1,10 @@
 // this module is written for both nodejs, or for client with browserify.
 'use strict';
 
-var _ = require('underscore');
+var restful_api = require('./restful_api');
 
 
-var account_api = {
+module.exports = restful_api.define_api({
 
     create_account: {
         method: 'POST',
@@ -43,6 +43,4 @@ var account_api = {
         params: {},
     },
 
-};
-
-module.exports = account_api;
+});

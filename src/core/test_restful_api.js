@@ -17,6 +17,7 @@ describe('restful_api', function() {
     var object_api = require('./object_api');
     var edge_node_api = require('./edge_node_api');
 
+
     describe('setup_server', function() {
 
         it('should detect mismatch impl', function() {
@@ -35,53 +36,6 @@ describe('restful_api', function() {
         });
 
     });
-
-    describe('apis', function() {
-        var VALID_METHODS = {
-            GET: 1,
-            PUT: 1,
-            POST: 1,
-            DELETE: 1
-        };
-        var PATH_ITEM_NORMAL = /^\S*$/;
-        var PATH_ITEM_PARAM = /^:\S*$/;
-
-        _.each({
-            account_api: account_api,
-            object_api: object_api,
-            edge_node_api: edge_node_api,
-        }, function(api, api_name) {
-
-            describe(api_name, function() {
-
-                it('should contain api functions with valid method and path', function() {
-                    var method_and_path_collide = {};
-
-                    _.each(api, function(v, k) {
-
-                        assert(v.method in VALID_METHODS,
-                            'unexpected method: ' + k + ' -> ' + v);
-
-                        assert.strictEqual(typeof(v.path), 'string',
-                            'unexpected path type: ' + k + ' -> ' + v);
-
-                        var path_items = v.path.split('/');
-
-                        _.each(path_items, function(p) {
-                            assert(PATH_ITEM_PARAM.test(p) || PATH_ITEM_NORMAL.test(p),
-                                'invalid path item: ' + k + ' -> ' + v);
-                        });
-
-                        // test for colliding method+path
-                        var collision = method_and_path_collide[v.method + v.path];
-                        assert(!collision, 'collision of method+path: ' + k + ' ~ ' + collision);
-                        method_and_path_collide[v.method + v.path] = k;
-                    });
-                });
-            });
-        });
-    });
-
 
 
     describe('object_api round trip', function() {

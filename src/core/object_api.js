@@ -1,10 +1,10 @@
 // this module is written for both nodejs, or for client with browserify.
 'use strict';
 
-var _ = require('underscore');
+var restful_api = require('./restful_api');
 
 
-var object_api = {
+module.exports = restful_api.define_api({
 
     // bucket functions
 
@@ -61,6 +61,4 @@ var object_api = {
         path: '/:bucket/:key/map',
         params: {},
     },
-};
-
-module.exports = object_api;
+});

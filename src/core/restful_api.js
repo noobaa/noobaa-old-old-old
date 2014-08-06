@@ -6,9 +6,12 @@ var https = require('https');
 var querystring = require('querystring');
 var _ = require('underscore');
 var Q = require('q');
+var assert = require('assert');
 
 
 module.exports = {
+
+    define_api: define_api,
 
     // client
 
@@ -23,9 +26,17 @@ module.exports = {
 };
 
 
-// setup a REST client.
-//
-// client_proto (Object): can be object or prototype that will be added all the api functions
+var VALID_METHODS = {
+    GET: 1,
+    PUT: 1,
+    POST: 1,
+    DELETE: 1
+};
+var PATH_ITEM_NORMAL = /^\S*$/;
+var PATH_ITEM_PARAM = /^:\S*$/;
+
+
+// Check and initialize the api structure.
 //
 // api (Object): 
 // - each key is func_name (String)
@@ -34,12 +45,48 @@ module.exports = {
 //   - path (Function) - function(params) that returns the path (String) for the call
 //   - data (Function) - function(params) that returns the data (String|Buffer) for the call
 //
+function define_api(api) {
+    var method_and_path_collide = {};
+
+    _.each(api, function(func_info, func_name) {
+        func_info.name = func_name;
+
+        assert(func_info.method in VALID_METHODS,
+            'unexpected method: ' + func_name + ' -> ' + func_info);
+
+        assert.strictEqual(typeof(func_info.path), 'string',
+            'unexpected path type: ' + func_name + ' -> ' + func_info);
+
+        func_info.path_items = func_info.path.split('/');
+
+        _.each(func_info.path_items, function(p) {
+            assert(PATH_ITEM_PARAM.test(p) || PATH_ITEM_NORMAL.test(p),
+                'invalid path item: ' + func_name + ' -> ' + func_info);
+        });
+
+        // test for colliding method+path
+        var method_and_path = func_info.method + func_info.path;
+        var collision = method_and_path_collide[method_and_path];
+        assert(!collision, 'collision of method+path: ' + func_name + ' ~ ' + collision);
+        method_and_path_collide[method_and_path] = func_name;
+    });
+
+    return api;
+}
+
+
+// setup a REST client.
+//
+// client_proto (Object): can be object or prototype that will be added all the api functions
+//
+// api (Object): see define_api()
+//
 function setup_client(client_proto, api) {
     // create all the api functions
     _.each(api, function(func_info, func_name) {
         client_proto[func_name] = function(params) {
             // resolve this._client_params to use the client object and not the .
-            return send_client_request(this._client_params, func_name, func_info, params);
+            return send_client_request(this._client_params, func_info, params);
         };
     });
 }
@@ -66,7 +113,7 @@ function init_client(client, client_params) {
 //
 // base_path (String) - the base path for the routes.
 //
-// api (Object) - see setup_client().
+// api (Object) - see define_api().
 //
 // server_impl (Object) - the implementation of the api functions,
 // - keys are api function names and values are function(params) return promise.
@@ -108,9 +155,9 @@ function init_server(api, server_impl) {
 
 
 // call a specific REST api function over http request.
-function send_client_request(client_params, func_name, func_info, params) {
+function send_client_request(client_params, func_info, params) {
     return Q.when().then(function() {
-        return create_client_request(client_params, func_name, func_info, params);
+        return create_client_request(client_params, func_info, params);
     }).then(function(options) {
         return send_http_request(options);
     });
@@ -118,13 +165,12 @@ function send_client_request(client_params, func_name, func_info, params) {
 
 
 // create a REST api call and return the options for http request.
-function create_client_request(client_params, func_name, func_info, params) {
+function create_client_request(client_params, func_info, params) {
     var method = func_info.method;
     var data = _.clone(params);
     var path = client_params.path || '';
-    var path_items = func_info.path.split('/');
-    for (var i in path_items) {
-        var p = path_items[i];
+    for (var i in func_info.path_items) {
+        var p = func_info.path_items[i];
         if (p[0] === ':') {
             p = p.slice(1);
             if (p in params) {
@@ -139,8 +185,8 @@ function create_client_request(client_params, func_name, func_info, params) {
     }
     if (!client_params._skip_api_params_validation) {
         for (i in data) {
-            if (!is_accepting_param(i, func_info, path_items)) {
-                throw new Error('passed undefined api param "' + i + '" to ' + func_name);
+            if (!is_accepting_param(i, func_info)) {
+                throw new Error('passed undefined api param "' + i + '" to ' + func_info.name);
             }
         }
     }
@@ -205,7 +251,6 @@ function send_http_request(options) {
 // return a route handler that calls the server function
 function create_server_handler(server_impl, func_name, func_info) {
     var func = server_impl[func_name];
-    var path_items = func_info.path.split('/');
     return function(req, res, next) {
         // marking _removed on the server_impl will bypass all the routes it has.
         if (server_impl._removed) {
@@ -215,7 +260,7 @@ function create_server_handler(server_impl, func_name, func_info) {
             req.restful_param = req.param.bind(req);
         } else {
             req.restful_param = function(param_name) {
-                if (is_accepting_param(param_name, func_info, path_items)) {
+                if (is_accepting_param(param_name, func_info)) {
                     return req.param(param_name);
                 }
                 throw new Error('requested undefined api param "' + param_name + '" to ' + func_name);
@@ -250,11 +295,11 @@ function create_server_handler(server_impl, func_name, func_info) {
 }
 
 
-function is_accepting_param(param_name, func_info, path_items) {
+function is_accepting_param(param_name, func_info) {
     if (param_name in func_info.params) {
         return true;
     }
-    if (_.indexOf(path_items, ':' + param_name) >= 0) {
+    if (_.indexOf(func_info.path_items, ':' + param_name) >= 0) {
         return true;
     }
     return false;
