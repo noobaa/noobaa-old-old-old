@@ -85,8 +85,8 @@ function setup_client(client_proto, api) {
     // create all the api functions
     _.each(api, function(func_info, func_name) {
         client_proto[func_name] = function(params) {
-            // resolve this._client_params to use the client object and not the .
-            return send_client_request(this._client_params, func_info, params);
+            // resolve this._restful_client_params to use the client object and not the .
+            return send_client_request(this._restful_client_params, func_info, params);
         };
     });
 }
@@ -101,57 +101,8 @@ function setup_client(client_proto, api) {
 // - path (String) - base path for the host
 //
 function init_client(client, client_params) {
-    client._client_params = client_params;
+    client._restful_client_params = client_params;
 }
-
-
-// setup a REST server.
-// add routes for all the api functions to the server.
-//
-// app_router (Object) - express/connect style app router with the following functions:
-// - get,post,put,delete which are function(path, handler).
-//
-// base_path (String) - the base path for the routes.
-//
-// api (Object) - see define_api().
-//
-// server_impl (Object) - the implementation of the api functions,
-// - keys are api function names and values are function(params) return promise.
-// - _removed (Boolean) - specify that the server routes should call next as if they were removed.
-// - _log (function) - a console.log like function to use for logging server calls.
-//
-function setup_server(app_router, base_path, api, server_impl) {
-    // this checks that server_impl implements all the api.
-    for (var func_name in api) {
-        if (typeof(server_impl[func_name]) !== 'function') {
-            throw new Error('Missing server impl function ' + func_name);
-        }
-    }
-    // for each function in the api setup the server route handler
-    _.each(api, function(func_info, func_name) {
-        var path = base_path + func_info.path;
-        // route_func will point to the route functions app_router.get/post/put/delete
-        var method = func_info.method.toLowerCase();
-        var route_func = app_router[method];
-        // call the route function to set the route handler
-        var handler = create_server_handler(server_impl, func_name, func_info);
-        route_func.call(app_router, path, handler);
-    });
-}
-
-
-// init_server will add the missing api functions with handlers 
-// that throw exception when called. useful when creating a test server.
-function init_server(api, server_impl) {
-    _.each(api, function(v, k) {
-        server_impl[k] = server_impl[k] || function(params) {
-            return Q.reject({
-                data: 'Missing server impl for ' + k
-            });
-        };
-    });
-}
-
 
 
 // call a specific REST api function over http request.
@@ -183,11 +134,9 @@ function create_client_request(client_params, func_info, params) {
             path += '/' + p;
         }
     }
-    if (!client_params._skip_api_params_validation) {
-        for (i in data) {
-            if (!is_accepting_param(i, func_info)) {
-                throw new Error('passed undefined api param "' + i + '" to ' + func_info.name);
-            }
+    for (var param_name in data) {
+        if (!(param_name in func_info.params)) {
+            throw new Error('passed undefined api param "' + param_name + '" to ' + func_info.name);
         }
     }
     var headers = {};
@@ -248,37 +197,87 @@ function send_http_request(options) {
 }
 
 
+
+
+
+// setup a REST server.
+// add routes for all the api functions to the server.
+//
+// api (Object) - see define_api().
+//
+// server (Object) - the implementation of the api functions,
+// - keys are api function names and values are function(params) return promise.
+// - _removed (Boolean) - specify that the server routes should call next as if they were removed.
+// - _log (function) - a console.log like function to use for logging server calls.
+//
+function setup_server(api, server) {
+    server.router = server_router.bind(null, api, server);
+    return server;
+}
+
+
+// router (Object) - express/connect style app router with the following functions:
+// - get,post,put,delete which are function(path, handler).
+//
+// base_path (String) - the base path for the routes.
+//
+function server_router(api, server, router, base_path) {
+    _.each(api, function(func_info, func_name) {
+        var path = (base_path || '') + func_info.path;
+        var method = func_info.method.toLowerCase();
+        // route_func points to the route functions router.get/post/put/delete
+        var route_func = router[method];
+        var handler = create_server_handler(server, func_name, func_info);
+        // call the route function to set the route handler
+        route_func.call(router, path, handler);
+    });
+    return router;
+}
+
+
+// init_server will add the missing api functions with handlers 
+// that throw exception when called. useful when creating a test server.
+function init_server(api, server) {
+    _.each(api, function(func_info, func_name) {
+        server[func_name] = server[func_name] || function(params) {
+            return Q.reject({
+                data: 'Missing server impl for ' + func_name
+            });
+        };
+    });
+    return server;
+}
+
+
 // return a route handler that calls the server function
-function create_server_handler(server_impl, func_name, func_info) {
-    var func = server_impl[func_name];
+function create_server_handler(server, func_name, func_info) {
+    var func = server[func_name];
+    assert.strictEqual(typeof(func), 'function',
+        'Missing server function ' + func_name);
     return function(req, res, next) {
-        // marking _removed on the server_impl will bypass all the routes it has.
-        if (server_impl._removed) {
+        // marking _removed on the server will bypass all the routes it has.
+        if (server._removed) {
             return next();
         }
-        if (server_impl._skip_api_params_validation) {
-            req.restful_param = req.param.bind(req);
-        } else {
-            req.restful_param = function(param_name) {
-                if (is_accepting_param(param_name, func_info)) {
-                    return req.param(param_name);
-                }
+        req.restful_param = function(param_name) {
+            if (!(param_name in func_info.params)) {
                 throw new Error('requested undefined api param "' + param_name + '" to ' + func_name);
-            };
-        }
+            }
+            return req.param(param_name);
+        };
         // server functions are expected to return a promise
         Q.when().then(function() {
             return func(req);
         }).then(function(reply) {
-            if (server_impl._log) {
-                server_impl._log('COMPLETED', func_name);
+            if (server._log) {
+                server._log('COMPLETED', func_name);
             }
             return res.json(200, reply);
         }, function(err) {
             var status = err.status || err.statusCode;
-            var data = err.data || err.message;
-            if (server_impl._log) {
-                server_impl._log(status === 200 ? 'COMPLETED' : 'FAILED', func_name, ':', err);
+            var data = err.data || err.message || err.toString();
+            if (server._log) {
+                server._log(status === 200 ? 'COMPLETED' : 'FAILED', func_name, ':', err);
             }
             if (typeof status === 'number' &&
                 status >= 100 &&
@@ -286,21 +285,10 @@ function create_server_handler(server_impl, func_name, func_info) {
             ) {
                 return res.json(status, data);
             } else {
-                return res.json(500, err);
+                return res.json(500, data);
             }
         }).done(null, function(err) {
             return next(err);
         });
     };
-}
-
-
-function is_accepting_param(param_name, func_info) {
-    if (param_name in func_info.params) {
-        return true;
-    }
-    if (_.indexOf(func_info.path_items, ':' + param_name) >= 0) {
-        return true;
-    }
-    return false;
 }

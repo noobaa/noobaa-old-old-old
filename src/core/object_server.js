@@ -14,7 +14,7 @@ var EdgeNode = require('./models/edge_node');
 var EdgeBlock = require('./models/edge_block');
 
 
-var object_api_impl = {
+module.exports = restful_api.setup_server(object_api, {
     // bucket actions
     create_bucket: create_bucket,
     read_bucket: read_bucket,
@@ -27,20 +27,7 @@ var object_api_impl = {
     update_object: update_object,
     delete_object: delete_object,
     map_object: map_object,
-};
-
-// exporting all the object_api_impl functions (mostly for testing)
-// and also the setup function to be used when creating an express/connect app server.
-module.exports = _.extend({}, object_api_impl, {
-    setup: setup,
 });
-
-
-// setup the app routes to handle object server on the specified path.
-// see restful_api.setup_server() for details about the arguments
-function setup(app_router, base_path) {
-    restful_api.setup_server(app_router, base_path, object_api, object_api_impl);
-}
 
 
 function create_bucket(req) {

@@ -16,22 +16,42 @@ module.exports = restful_api.define_api({
     read_bucket: {
         method: 'GET',
         path: '/:bucket',
-        params: {},
+        params: {
+            bucket: {
+                type: String,
+                required: true,
+            },
+        },
     },
     update_bucket: {
         method: 'PUT',
         path: '/:bucket',
-        params: {},
+        params: {
+            bucket: {
+                type: String,
+                required: true,
+            },
+        },
     },
     delete_bucket: {
         method: 'DELETE',
         path: '/:bucket',
-        params: {},
+        params: {
+            bucket: {
+                type: String,
+                required: true,
+            },
+        },
     },
     list_objects: {
         method: 'GET',
         path: '/:bucket/list',
-        params: {},
+        params: {
+            bucket: {
+                type: String,
+                required: true,
+            },
+        },
     },
 
     // object functions
@@ -39,26 +59,67 @@ module.exports = restful_api.define_api({
     create_object: {
         method: 'POST',
         path: '/:bucket',
-        params: {},
+        params: {
+            bucket: {
+                type: String,
+                required: true,
+            },
+        },
     },
     read_object: {
         method: 'GET',
         path: '/:bucket/:key',
-        params: {},
+        params: {
+            bucket: {
+                type: String,
+                required: true,
+            },
+            key: {
+                type: String,
+                required: true,
+            },
+        },
     },
     update_object: {
         method: 'PUT',
         path: '/:bucket/:key',
-        params: {},
+        params: {
+            bucket: {
+                type: String,
+                required: true,
+            },
+            key: {
+                type: String,
+                required: true,
+            },
+        },
     },
     delete_object: {
         method: 'DELETE',
         path: '/:bucket/:key',
-        params: {},
+        params: {
+            bucket: {
+                type: String,
+                required: true,
+            },
+            key: {
+                type: String,
+                required: true,
+            },
+        },
     },
     map_object: {
         method: 'GET',
         path: '/:bucket/:key/map',
-        params: {},
+        params: {
+            bucket: {
+                type: String,
+                required: true,
+            },
+            key: {
+                type: String,
+                required: true,
+            },
+        },
     },
 });

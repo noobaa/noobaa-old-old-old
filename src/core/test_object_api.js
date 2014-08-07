@@ -16,24 +16,21 @@ describe('object_api', function() {
         var object_server = require('./object_server');
         var object_api = require('./object_api');
 
-        describe('setup', function() {
+        describe('router', function() {
 
             it('should work on mock router', function() {
-                var app_router = {
-                    all: function() {},
+                var router = {
                     get: function() {},
                     put: function() {},
                     post: function() {},
                     delete: function() {},
                 };
-                object_server.setup(app_router, '/');
-                assert(app_router);
+                object_server.router(router, '/');
             });
 
             it('should work on express app', function() {
                 var app = express();
-                object_server.setup(app, '/');
-                assert(app);
+                object_server.router(app, '/base/route/path/');
             });
 
         });
