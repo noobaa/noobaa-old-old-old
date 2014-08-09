@@ -13,6 +13,7 @@ module.exports = restful_api.define_api({
         path: '/',
         params: {},
     },
+
     read_bucket: {
         method: 'GET',
         path: '/:bucket',
@@ -23,6 +24,7 @@ module.exports = restful_api.define_api({
             },
         },
     },
+
     update_bucket: {
         method: 'PUT',
         path: '/:bucket',
@@ -33,19 +35,10 @@ module.exports = restful_api.define_api({
             },
         },
     },
+
     delete_bucket: {
         method: 'DELETE',
         path: '/:bucket',
-        params: {
-            bucket: {
-                type: String,
-                required: true,
-            },
-        },
-    },
-    list_objects: {
-        method: 'GET',
-        path: '/:bucket/list',
         params: {
             bucket: {
                 type: String,
@@ -66,6 +59,7 @@ module.exports = restful_api.define_api({
             },
         },
     },
+
     read_object: {
         method: 'GET',
         path: '/:bucket/:key',
@@ -80,6 +74,7 @@ module.exports = restful_api.define_api({
             },
         },
     },
+
     update_object: {
         method: 'PUT',
         path: '/:bucket/:key',
@@ -94,6 +89,7 @@ module.exports = restful_api.define_api({
             },
         },
     },
+
     delete_object: {
         method: 'DELETE',
         path: '/:bucket/:key',
@@ -108,6 +104,7 @@ module.exports = restful_api.define_api({
             },
         },
     },
+
     map_object: {
         method: 'GET',
         path: '/:bucket/:key/map',
@@ -122,4 +119,16 @@ module.exports = restful_api.define_api({
             },
         },
     },
+
+    list_objects: {
+        method: 'GET',
+        path: '/:bucket/list',
+        params: {
+            bucket: {
+                type: String,
+                required: true,
+            },
+        },
+    },
+
 });

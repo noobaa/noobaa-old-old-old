@@ -27,20 +27,35 @@ module.exports = restful_api.define_api({
 
     read_account: {
         method: 'GET',
-        path: '/:account',
-        params: {},
+        path: '/:account_id',
+        params: {
+            account_id: {
+                type: String,
+                required: true,
+            },
+        },
     },
 
     update_account: {
         method: 'PUT',
-        path: '/:account',
-        params: {},
+        path: '/:account_id',
+        params: {
+            account_id: {
+                type: String,
+                required: true,
+            },
+        },
     },
 
     delete_account: {
         method: 'DELETE',
-        path: '/:account',
-        params: {},
+        path: '/:account_id',
+        params: {
+            account_id: {
+                type: String,
+                required: true,
+            },
+        },
     },
 
 });

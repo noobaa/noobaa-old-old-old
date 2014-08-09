@@ -32,8 +32,7 @@ var VALID_METHODS = {
     POST: 1,
     DELETE: 1
 };
-var PATH_ITEM_NORMAL = /^\S*$/;
-var PATH_ITEM_PARAM = /^:\S*$/;
+var PATH_ITEM_RE = /^\S*$/;
 
 
 // Check and initialize the api structure.
@@ -52,23 +51,34 @@ function define_api(api) {
         func_info.name = func_name;
 
         assert(func_info.method in VALID_METHODS,
-            'unexpected method: ' + func_name + ' -> ' + func_info);
+            'unexpected method: ' + func_info);
 
         assert.strictEqual(typeof(func_info.path), 'string',
-            'unexpected path type: ' + func_name + ' -> ' + func_info);
+            'unexpected path type: ' + func_info);
 
-        func_info.path_items = func_info.path.split('/');
+        func_info.path_items = _.map(func_info.path.split('/'), function(p) {
+            assert(PATH_ITEM_RE.test(p),
+                'invalid path item: ' + p + ' for ' + func_info);
 
-        _.each(func_info.path_items, function(p) {
-            assert(PATH_ITEM_PARAM.test(p) || PATH_ITEM_NORMAL.test(p),
-                'invalid path item: ' + func_name + ' -> ' + func_info);
+            // if a normal path item, just return the string
+            if (p[0] !== ':') {
+                return p;
+            }
+            // if a param item (starts with colon) find the param info
+            p = p.slice(1);
+            var param = func_info.params[p];
+            assert(param, 'missing param info: ' + p + ' for ' + func_info);
+            return {
+                name: p,
+                param: param,
+            };
         });
 
         // test for colliding method+path
         var method_and_path = func_info.method + func_info.path;
         var collision = method_and_path_collide[method_and_path];
-        assert(!collision, 'collision of method+path: ' + func_name + ' ~ ' + collision);
-        method_and_path_collide[method_and_path] = func_name;
+        assert(!collision, 'collision of method+path: ' + func_info.name + ' ~ ' + collision);
+        method_and_path_collide[method_and_path] = func_info.name;
     });
 
     return api;
@@ -120,25 +130,17 @@ function create_client_request(client_params, func_info, params) {
     var method = func_info.method;
     var data = _.clone(params);
     var path = client_params.path || '';
-    for (var i in func_info.path_items) {
-        var p = func_info.path_items[i];
-        if (p[0] === ':') {
-            p = p.slice(1);
-            if (p in params) {
-                path += '/' + params[p];
-                delete data[p];
-            } else {
-                path += '/null';
-            }
-        } else if (p) {
+    check_undefined_params(func_info, params);
+    check_missing_params(func_info, params);
+    _.each(func_info.path_items, function(p) {
+        if (typeof(p) === 'string') {
             path += '/' + p;
+        } else {
+            assert(p.name in params, 'missing required path param: ' + p + ' to ' + func_info.name);
+            path += '/' + params[p.name];
+            delete data[p.name];
         }
-    }
-    for (var param_name in data) {
-        if (!(param_name in func_info.params)) {
-            throw new Error('passed undefined api param "' + param_name + '" to ' + func_info.name);
-        }
-    }
+    });
     var headers = {};
     if (method === 'POST' || method === 'PUT') {
         // send data in request body encoded as json
@@ -227,7 +229,7 @@ function server_router(api, server, router, base_path) {
         var method = func_info.method.toLowerCase();
         // route_func points to the route functions router.get/post/put/delete
         var route_func = router[method];
-        var handler = create_server_handler(server, func_name, func_info);
+        var handler = create_server_handler(server, func_info);
         // call the route function to set the route handler
         route_func.call(router, path, handler);
     });
@@ -250,18 +252,20 @@ function init_server(api, server) {
 
 
 // return a route handler that calls the server function
-function create_server_handler(server, func_name, func_info) {
-    var func = server[func_name];
+function create_server_handler(server, func_info) {
+    var func = server[func_info.name];
     assert.strictEqual(typeof(func), 'function',
-        'Missing server function ' + func_name);
+        'Missing server function ' + func_info);
     return function(req, res, next) {
         // marking _removed on the server will bypass all the routes it has.
         if (server._removed) {
             return next();
         }
+        var log_func = server._log || function() {};
+        check_missing_req_params(func_info, req);
         req.restful_param = function(param_name) {
             if (!(param_name in func_info.params)) {
-                throw new Error('requested undefined api param "' + param_name + '" to ' + func_name);
+                throw new Error('requested undefined api param "' + param_name + '" to ' + func_info.name);
             }
             return req.param(param_name);
         };
@@ -269,16 +273,12 @@ function create_server_handler(server, func_name, func_info) {
         Q.when().then(function() {
             return func(req);
         }).then(function(reply) {
-            if (server._log) {
-                server._log('COMPLETED', func_name);
-            }
+            log_func('COMPLETED', func_info.name);
             return res.json(200, reply);
         }, function(err) {
             var status = err.status || err.statusCode;
             var data = err.data || err.message || err.toString();
-            if (server._log) {
-                server._log(status === 200 ? 'COMPLETED' : 'FAILED', func_name, ':', err);
-            }
+            log_func(status === 200 ? 'COMPLETED' : 'FAILED', func_info.name, ':', err);
             if (typeof status === 'number' &&
                 status >= 100 &&
                 status < 600
@@ -291,4 +291,29 @@ function create_server_handler(server, func_name, func_info) {
             return next(err);
         });
     };
+}
+
+
+function check_undefined_params(func_info, params) {
+    _.each(params, function(value, name) {
+        if (!(name in func_info.params)) {
+            throw new Error('undefined api param: ' + name + ' to ' + func_info.name);
+        }
+    });
+}
+
+function check_missing_params(func_info, params) {
+    _.each(func_info.params, function(param_info, name) {
+        if (param_info.required && !(name in params)) {
+            throw new Error('missing required param: ' + name + ' to ' + func_info.name);
+        }
+    });
+}
+
+function check_missing_req_params(func_info, req) {
+    _.each(func_info.params, function(param_info, name) {
+        if (param_info.required && !req.param(name)) {
+            throw new Error('missing required param: ' + name + ' to ' + func_info.name);
+        }
+    });
 }
