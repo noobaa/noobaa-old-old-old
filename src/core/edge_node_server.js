@@ -11,25 +11,12 @@ var EdgeNode = require('./models/edge_node');
 var EdgeBlock = require('./models/edge_block');
 
 
-var edge_node_api_impl = {
+module.exports = new edge_node_api.Server({
     create_edge_node: create_edge_node,
     read_edge_node: read_edge_node,
     update_edge_node: update_edge_node,
     delete_edge_node: delete_edge_node,
-};
-
-// exporting all the edge_node_api_impl functions (mostly for testing)
-// and also the setup function to be used when creating an express/connect app server.
-module.exports = _.extend({}, edge_node_api_impl, {
-    setup: setup,
 });
-
-
-// setup the app routes to handle object server on the specified path.
-// see restful_api.setup_server() for details about the arguments
-function setup(app_router, base_path) {
-    restful_api.setup_server(app_router, base_path, edge_node_api, edge_node_api_impl);
-}
 
 
 function create_edge_node(req) {
@@ -64,5 +51,3 @@ function delete_edge_node(req) {
     };
     return EdgeNode.findOneAndDelete(info);
 }
-
-

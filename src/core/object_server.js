@@ -14,7 +14,7 @@ var EdgeNode = require('./models/edge_node');
 var EdgeBlock = require('./models/edge_block');
 
 
-module.exports = restful_api.setup_server(object_api, {
+module.exports = new object_api.Server({
     // bucket actions
     create_bucket: create_bucket,
     read_bucket: read_bucket,

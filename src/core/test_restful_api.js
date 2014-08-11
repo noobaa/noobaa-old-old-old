@@ -33,26 +33,29 @@ describe('restful_api', function() {
         },
     };
     var test_api = restful_api.define_api({
-        get: {
-            method: 'GET',
-            path: '/:param1/and/also/:param2',
-            params: test_params_info,
-        },
-        post: {
-            method: 'POST',
-            path: '/:param1/and/also/:param2',
-            params: test_params_info,
-        },
-        put: {
-            method: 'PUT',
-            path: '/:param1/and/also/:param3',
-            params: test_params_info,
-        },
-        delete: {
-            method: 'DELETE',
-            path: '/all/:param2',
-            params: test_params_info,
-        },
+        name: 'Test',
+        methods: {
+            get: {
+                method: 'GET',
+                path: '/:param1/and/also/:param2',
+                params: test_params_info,
+            },
+            post: {
+                method: 'POST',
+                path: '/:param1/and/also/:param2',
+                params: test_params_info,
+            },
+            put: {
+                method: 'PUT',
+                path: '/:param1/and/also/:param3',
+                params: test_params_info,
+            },
+            delete: {
+                method: 'DELETE',
+                path: '/all/:param2',
+                params: test_params_info,
+            },
+        }
     });
 
     describe('define_api', function() {
@@ -60,13 +63,15 @@ describe('restful_api', function() {
         it('should detect api with collision paths', function() {
             assert.throws(function() {
                 restful_api.define_api({
-                    a: {
-                        method: 'GET',
-                        path: '/'
-                    },
-                    b: {
-                        method: 'GET',
-                        path: '/'
+                    methods: {
+                        a: {
+                            method: 'GET',
+                            path: '/'
+                        },
+                        b: {
+                            method: 'GET',
+                            path: '/'
+                        }
                     }
                 });
             });
@@ -74,22 +79,19 @@ describe('restful_api', function() {
 
     });
 
-    describe('setup_server', function() {
+    describe('Server', function() {
 
         it('should work on server inited properly', function() {
             // init the server and add extra propoerty and check that it works
-            var server = {};
-            restful_api.init_server(test_api, server);
-            restful_api.setup_server(test_api, server);
-            server.bla_bla = 1;
-            server.router(new express.Router());
+            var router = new express.Router();
+            var server = new test_api.Server({}, 'allow_missing_methods');
+            server.install_routes(router);
         });
 
         it('should detect missing api func', function() {
             // check that missing functions are detected
             assert.throws(function() {
-                var server = restful_api.setup_server(test_api, {});
-                server.router(new express.Router());
+                var server = new test_api.Server({});
             }, Error);
         });
 
@@ -102,8 +104,6 @@ describe('restful_api', function() {
         // but there's a caveat - setting up routes on the same app has the issue
         // that there is no way to remove/replace middlewares in express, and adding
         // just adds to the end of the queue.
-        // do a test that installs server_impl routes do server_impl._removed=true 
-        // to bypass its routes.
         var app = express();
         // must install a body parser for restful server to work
         app.use(express_body_parser());
@@ -126,9 +126,6 @@ describe('restful_api', function() {
             status: 404,
         };
 
-        var client = {};
-        restful_api.setup_client(client, test_api);
-
         before(function(done) {
             http_server.listen(done);
         });
@@ -139,19 +136,20 @@ describe('restful_api', function() {
 
 
         // create a test for every api function
-        _.each(test_api, function(func_info, func_name) {
+        _.each(test_api.methods, function(func_info, func_name) {
 
             describe(func_name, function() {
 
                 var reply_error = false;
-                var server_impl;
+                var server;
+                var client;
 
                 before(function() {
-                    // init a server_impl for the currently tested func.
-                    // we use a dedicated server_impl per func so that all the other funcs 
-                    // of the server_impl return error in order to detect calling confusions.
-                    server_impl = restful_api.init_server(test_api, {});
-                    server_impl[func_name] = function(req) {
+                    // init a server for the currently tested func.
+                    // we use a dedicated server per func so that all the other funcs 
+                    // of the server return error in order to detect calling confusions.
+                    var methods = {};
+                    methods[func_name] = function(req) {
                         _.each(PARAMS, function(param, name) {
                             assert.deepEqual(param, req.restful_param(name));
                         });
@@ -161,38 +159,40 @@ describe('restful_api', function() {
                             return Q.when(REPLY);
                         }
                     };
+                    server = new test_api.Server(methods, 'allow_missing_methods');
+                    var router = new express.Router();
+                    server.install_routes(router);
+                    app.use(BASE_PATH, router);
+                    // server.install_routes(app, BASE_PATH);
+                    // server.set_logging();
 
-                    // setup the server_impl on a server route - 
-                    // need a unique route per func because we can't update middlewares, only add.
-                    var path = BASE_PATH; // + '_' + func_name;
-                    restful_api.setup_server(test_api, server_impl);
-                    app.use(path, server_impl.router(new express.Router()));
-
-                    // init the client params
-                    restful_api.init_client(client, {
+                    client = new test_api.Client({
                         port: http_server.address().port,
-                        path: path,
+                        path: BASE_PATH,
                     });
                 });
 
                 after(function() {
-                    // mark the server_impl removed to bypass its routes,
+                    // disable the server to bypass its routes,
                     // so that the next api function can put its routes too.
-                    server_impl._removed = true;
+                    server.disable_routes();
                 });
 
                 it('should call and get reply', function(done) {
                     reply_error = false;
                     client[func_name](PARAMS).then(function(res) {
                         assert.deepEqual(res.data, REPLY);
+                    }, function(err) {
+                        console.log('UNEXPECTED ERROR', err);
+                        throw 'UNEXPECTED ERROR';
                     }).nodeify(done);
                 });
 
                 it('should call and get error', function(done) {
                     reply_error = true;
                     client[func_name](PARAMS).then(function(res) {
-                        console.log(res);
-                        throw 'unexpected';
+                        console.log('UNEXPECTED REPLY', res);
+                        throw 'UNEXPECTED REPLY';
                     }, function(err) {
                         assert.deepEqual(err.data, ERROR_REPLY.data);
                     }).nodeify(done);

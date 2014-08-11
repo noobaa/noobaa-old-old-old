@@ -11,7 +11,7 @@ var express = require('express');
 
 describe('object_api', function() {
 
-    describe('object_server', function() {
+    describe('Server', function() {
 
         var object_server = require('./object_server');
         var object_api = require('./object_api');
@@ -25,12 +25,12 @@ describe('object_api', function() {
                     post: function() {},
                     delete: function() {},
                 };
-                object_server.router(router, '/');
+                object_server.install_routes(router, '/');
             });
 
             it('should work on express app', function() {
                 var app = express();
-                object_server.router(app, '/base/route/path/');
+                object_server.install_routes(app, '/base/route/path/');
             });
 
         });

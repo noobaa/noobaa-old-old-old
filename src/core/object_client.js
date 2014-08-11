@@ -24,11 +24,10 @@ module.exports = {
 // client_params (Object): see restful_api.init_client()
 //
 function ObjectClient(client_params) {
-    restful_api.init_client(this, client_params);
+    object_api.Client.call(this, client_params);
 }
 
-// setup the object_api functions to the ObjectClient.prototype.
-restful_api.setup_client(ObjectClient.prototype, object_api);
+util.inherits(ObjectClient, object_api.Client);
 
 
 // in addition to the api functions, the client implements more advanced functions

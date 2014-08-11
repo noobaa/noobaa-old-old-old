@@ -6,45 +6,50 @@ var restful_api = require('./restful_api');
 
 module.exports = restful_api.define_api({
 
-    create_node: {
-        method: 'POST',
-        path: '/',
-        params: {
-            // TODO
-        },
-    },
+    name: 'EdgeNode',
 
-    read_node: {
-        method: 'GET',
-        path: '/:node_id',
-        params: {
-            node_id: {
-                type: String,
-                required: true,
+    methods: {
+
+        create_edge_node: {
+            method: 'POST',
+            path: '/',
+            params: {
+                // TODO
             },
         },
-    },
 
-    update_node: {
-        method: 'PUT',
-        path: '/:node_id',
-        params: {
-            node_id: {
-                type: String,
-                required: true,
+        read_edge_node: {
+            method: 'GET',
+            path: '/:node_id',
+            params: {
+                node_id: {
+                    type: String,
+                    required: true,
+                },
             },
         },
-    },
 
-    delete_node: {
-        method: 'DELETE',
-        path: '/:node_id',
-        params: {
-            node_id: {
-                type: String,
-                required: true,
+        update_edge_node: {
+            method: 'PUT',
+            path: '/:node_id',
+            params: {
+                node_id: {
+                    type: String,
+                    required: true,
+                },
             },
         },
-    },
+
+        delete_edge_node: {
+            method: 'DELETE',
+            path: '/:node_id',
+            params: {
+                node_id: {
+                    type: String,
+                    required: true,
+                },
+            },
+        },
+    }
 
 });

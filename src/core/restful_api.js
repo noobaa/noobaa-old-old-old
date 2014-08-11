@@ -10,19 +10,7 @@ var assert = require('assert');
 
 
 module.exports = {
-
     define_api: define_api,
-
-    // client
-
-    setup_client: setup_client,
-    init_client: init_client,
-
-    // server
-
-    setup_server: setup_server,
-    init_server: init_server,
-
 };
 
 
@@ -45,9 +33,81 @@ var PATH_ITEM_RE = /^\S*$/;
 //   - data (Function) - function(params) that returns the data (String|Buffer) for the call
 //
 function define_api(api) {
+
+    // client class for the api.
+    // creating a client instance takes client_params,
+    // which is needed for when doing the actual calls.
+    // 
+    // client_params (Object):
+    // - host (String) - will be used instead of hostname:port
+    // - hostname (String)
+    // - port (Number)
+    // - path (String) - base path for the host
+    //
+    function Client(client_params) {
+        this._restful_client_params = client_params;
+    }
+
+    // server class for the api.
+    // 
+    // methods (Object): map of function names to function(params).
+    //
+    // allow_missing_methods (String): 
+    //    call with allow_missing_methods==='allow_missing_methods' to make the server 
+    //    accept missing functions, the handler for missing functions will fail on runtime.
+    //    useful for test servers.
+    //
+    function Server(methods, allow_missing_methods) {
+        var me = this;
+        if (allow_missing_methods) {
+            assert.strictEqual(allow_missing_methods, 'allow_missing_methods');
+        }
+        me._impl = {};
+        me._handlers = {};
+        _.each(api.methods, function(func_info, func_name) {
+            var func = methods[func_name];
+            if (!func && allow_missing_methods) {
+                func = function(params) {
+                    return Q.reject({
+                        data: 'Missing server impl for ' + func_name
+                    });
+                };
+            }
+            assert.strictEqual(typeof(func), 'function',
+                'Missing server function ' + func_name);
+            me._impl[func_name] = func;
+            me._handlers[func_name] = create_server_handler(me, func, func_info);
+        });
+    }
+
+    // install the server handlers to the given router.
+    //
+    // router (Object) - express/connect style app router with the following functions:
+    // - get,post,put,delete which are function(path, handler).
+    //
+    // base_path (String) - optional base path for the routes.
+    //
+    Server.prototype.install_routes = function(router, base_path) {
+        var me = this;
+        _.each(api.methods, function(func_info, func_name) {
+            var path = (base_path || '') + func_info.path;
+            var handler = me._handlers[func_name];
+            install_route(router, func_info.method, path, handler);
+        });
+    };
+    Server.prototype.disable_routes = function() {
+        this._disabled = true;
+    };
+    Server.prototype.set_logging = function() {
+        this._log = console.log.bind(console);
+    };
+
+
+    // go over the api and check its validity
+
     var method_and_path_collide = {};
 
-    _.each(api, function(func_info, func_name) {
+    _.each(api.methods, function(func_info, func_name) {
         func_info.name = func_name;
 
         assert(func_info.method in VALID_METHODS,
@@ -79,40 +139,21 @@ function define_api(api) {
         var collision = method_and_path_collide[method_and_path];
         assert(!collision, 'collision of method+path: ' + func_info.name + ' ~ ' + collision);
         method_and_path_collide[method_and_path] = func_info.name;
+
+        // set the client class prototype functions
+        Client.prototype[func_name] = function(params) {
+            // resolve this._restful_client_params to use the client object
+            return send_client_request(this._restful_client_params, func_info, params);
+        };
     });
+
+    // add the client and server classes to the api object
+    api.Client = Client;
+    api.Server = Server;
 
     return api;
 }
 
-
-// setup a REST client.
-//
-// client_proto (Object): can be object or prototype that will be added all the api functions
-//
-// api (Object): see define_api()
-//
-function setup_client(client_proto, api) {
-    // create all the api functions
-    _.each(api, function(func_info, func_name) {
-        client_proto[func_name] = function(params) {
-            // resolve this._restful_client_params to use the client object and not the .
-            return send_client_request(this._restful_client_params, func_info, params);
-        };
-    });
-}
-
-// setting the client_params as a property of the client,
-// which is needed for when doing the actual calls
-// 
-// client_params (Object):
-// - host (String) - will be used instead of hostname:port
-// - hostname (String)
-// - port (Number)
-// - path (String) - base path for the host
-//
-function init_client(client, client_params) {
-    client._restful_client_params = client_params;
-}
 
 
 // call a specific REST api function over http request.
@@ -201,76 +242,23 @@ function send_http_request(options) {
 
 
 
-
-// setup a REST server.
-// add routes for all the api functions to the server.
-//
-// api (Object) - see define_api().
-//
-// server (Object) - the implementation of the api functions,
-// - keys are api function names and values are function(params) return promise.
-// - _removed (Boolean) - specify that the server routes should call next as if they were removed.
-// - _log (function) - a console.log like function to use for logging server calls.
-//
-function setup_server(api, server) {
-    server.router = server_router.bind(null, api, server);
-    return server;
-}
-
-
-// router (Object) - express/connect style app router with the following functions:
-// - get,post,put,delete which are function(path, handler).
-//
-// base_path (String) - the base path for the routes.
-//
-function server_router(api, server, router, base_path) {
-    _.each(api, function(func_info, func_name) {
-        var path = (base_path || '') + func_info.path;
-        var method = func_info.method.toLowerCase();
-        // route_func points to the route functions router.get/post/put/delete
-        var route_func = router[method];
-        var handler = create_server_handler(server, func_info);
-        // call the route function to set the route handler
-        route_func.call(router, path, handler);
-    });
-    return router;
-}
-
-
-// init_server will add the missing api functions with handlers 
-// that throw exception when called. useful when creating a test server.
-function init_server(api, server) {
-    _.each(api, function(func_info, func_name) {
-        server[func_name] = server[func_name] || function(params) {
-            return Q.reject({
-                data: 'Missing server impl for ' + func_name
-            });
-        };
-    });
-    return server;
-}
-
-
 // return a route handler that calls the server function
-function create_server_handler(server, func_info) {
-    var func = server[func_info.name];
-    assert.strictEqual(typeof(func), 'function',
-        'Missing server function ' + func_info);
+function create_server_handler(server, func, func_info) {
     return function(req, res, next) {
-        // marking _removed on the server will bypass all the routes it has.
-        if (server._removed) {
+        // marking _disabled on the server will bypass all the routes it has.
+        if (server._disabled) {
             return next();
         }
         var log_func = server._log || function() {};
-        check_missing_req_params(func_info, req);
-        req.restful_param = function(param_name) {
-            if (!(param_name in func_info.params)) {
-                throw new Error('requested undefined api param "' + param_name + '" to ' + func_info.name);
-            }
-            return req.param(param_name);
-        };
-        // server functions are expected to return a promise
         Q.when().then(function() {
+            check_missing_req_params(func_info, req);
+            req.restful_param = function(param_name) {
+                if (!(param_name in func_info.params)) {
+                    throw new Error('requested undefined api param "' + param_name + '" to ' + func_info.name);
+                }
+                return req.param(param_name);
+            };
+            // server functions are expected to return a promise
             return func(req);
         }).then(function(reply) {
             log_func('COMPLETED', func_info.name);
@@ -291,6 +279,16 @@ function create_server_handler(server, func_info) {
             return next(err);
         });
     };
+}
+
+
+// install a route handler for the given router.
+// see install_routes().
+function install_route(router, method, path, handler) {
+    // route_func points to the route functions router.get/post/put/delete
+    var route_func = router[method.toLowerCase()];
+    // call the route function to set the route handler
+    route_func.call(router, path, handler);
 }
 
 
