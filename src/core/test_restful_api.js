@@ -32,6 +32,12 @@ describe('restful_api', function() {
             required: false,
         },
     };
+    var test_reply_info = {
+        rest: {
+            type: Array,
+            required: true,
+        }
+    }
     var test_api = restful_api.define_api({
         name: 'Test',
         methods: {
@@ -39,21 +45,25 @@ describe('restful_api', function() {
                 method: 'GET',
                 path: '/:param1/and/also/:param2',
                 params: test_params_info,
+                reply: test_reply_info,
             },
             post: {
                 method: 'POST',
                 path: '/:param1/and/also/:param2',
                 params: test_params_info,
+                reply: test_reply_info,
             },
             put: {
                 method: 'PUT',
                 path: '/:param1/and/also/:param3',
                 params: test_params_info,
+                reply: test_reply_info,
             },
             delete: {
                 method: 'DELETE',
                 path: '/all/:param2',
                 params: test_params_info,
+                reply: test_reply_info,
             },
         }
     });

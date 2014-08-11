@@ -69,7 +69,7 @@ function define_api(api) {
             if (!func && allow_missing_methods) {
                 func = function(params) {
                     return Q.reject({
-                        data: 'Missing server impl for ' + func_name
+                        data: 'Missing server impl of ' + func_name
                     });
                 };
             }
@@ -95,9 +95,13 @@ function define_api(api) {
             install_route(router, func_info.method, path, handler);
         });
     };
+
+    // call to bypass the server routes
     Server.prototype.disable_routes = function() {
         this._disabled = true;
     };
+
+    // call to start logging the server requests
     Server.prototype.set_logging = function() {
         this._log = console.log.bind(console);
     };
@@ -118,7 +122,7 @@ function define_api(api) {
 
         func_info.path_items = _.map(func_info.path.split('/'), function(p) {
             assert(PATH_ITEM_RE.test(p),
-                'invalid path item: ' + p + ' for ' + func_info);
+                'invalid path item: ' + p + ' of ' + func_info);
 
             // if a normal path item, just return the string
             if (p[0] !== ':') {
@@ -127,7 +131,7 @@ function define_api(api) {
             // if a param item (starts with colon) find the param info
             p = p.slice(1);
             var param = func_info.params[p];
-            assert(param, 'missing param info: ' + p + ' for ' + func_info);
+            assert(param, 'missing param info: ' + p + ' of ' + func_info);
             return {
                 name: p,
                 param: param,
@@ -162,6 +166,11 @@ function send_client_request(client_params, func_info, params) {
         return create_client_request(client_params, func_info, params);
     }).then(function(options) {
         return send_http_request(options);
+    }).then(function(res) {
+        var reply = res.data;
+        check_undefined_params(func_info.name, func_info.reply, reply);
+        check_params_by_info(func_info.name, func_info.reply, reply);
+        return res;
     });
 }
 
@@ -171,13 +180,13 @@ function create_client_request(client_params, func_info, params) {
     var method = func_info.method;
     var data = _.clone(params);
     var path = client_params.path || '';
-    check_undefined_params(func_info, params);
-    check_missing_params(func_info, params);
+    check_undefined_params(func_info.name, func_info.params, params);
+    check_params_by_info(func_info.name, func_info.params, params);
     _.each(func_info.path_items, function(p) {
         if (typeof(p) === 'string') {
             path += '/' + p;
         } else {
-            assert(p.name in params, 'missing required path param: ' + p + ' to ' + func_info.name);
+            assert(p.name in params, 'missing required path param: ' + p + ' of ' + func_info.name);
             path += '/' + params[p.name];
             delete data[p.name];
         }
@@ -251,10 +260,10 @@ function create_server_handler(server, func, func_info) {
         }
         var log_func = server._log || function() {};
         Q.when().then(function() {
-            check_missing_req_params(func_info, req);
+            check_req_params_by_info(func_info.name, func_info.params, req);
             req.restful_param = function(param_name) {
                 if (!(param_name in func_info.params)) {
-                    throw new Error('requested undefined api param "' + param_name + '" to ' + func_info.name);
+                    throw new Error('requested undefined api param "' + param_name + '" of ' + func_info.name);
                 }
                 return req.param(param_name);
             };
@@ -262,6 +271,8 @@ function create_server_handler(server, func, func_info) {
             return func(req);
         }).then(function(reply) {
             log_func('COMPLETED', func_info.name);
+            check_undefined_params(func_info.name, func_info.reply, reply);
+            check_params_by_info(func_info.name, func_info.reply, reply);
             return res.json(200, reply);
         }, function(err) {
             var status = err.status || err.statusCode;
@@ -292,26 +303,40 @@ function install_route(router, method, path, handler) {
 }
 
 
-function check_undefined_params(func_info, params) {
+function check_undefined_params(func_name, params_info, params) {
     _.each(params, function(value, name) {
-        if (!(name in func_info.params)) {
-            throw new Error('undefined api param: ' + name + ' to ' + func_info.name);
+        if (!(name in params_info)) {
+            throw new Error('undefined api param: ' + name + ' of ' + func_name);
         }
     });
 }
 
-function check_missing_params(func_info, params) {
-    _.each(func_info.params, function(param_info, name) {
-        if (param_info.required && !(name in params)) {
-            throw new Error('missing required param: ' + name + ' to ' + func_info.name);
-        }
+var TYPES = [String, Number, Date, RegExp, Array, Object];
+var TYPE_CHECKS = [_.isString, _.isNumber, _.isDate, _.isRegExp, _.isObject, _.isArray];
+
+function check_params_by_info(func_name, params_info, params) {
+    _.each(params_info, function(param_info, name) {
+        check_param_by_info(func_name, name, param_info, params[name]);
     });
 }
 
-function check_missing_req_params(func_info, req) {
-    _.each(func_info.params, function(param_info, name) {
-        if (param_info.required && !req.param(name)) {
-            throw new Error('missing required param: ' + name + ' to ' + func_info.name);
-        }
+function check_req_params_by_info(func_name, params_info, req) {
+    _.each(params_info, function(param_info, name) {
+        check_param_by_info(func_name, name, param_info, req.param(name));
     });
+}
+
+function check_param_by_info(func_name, name, info, value) {
+    assert(value || !info.required,
+        'missing required param: ' + name + ' of ' + func_name);
+    var type_index = _.indexOf(TYPES, info);
+    if (type_index < 0) {
+        type_index = _.indexOf(TYPES, info.type);
+    }
+    console.log('TYPE', name, value, typeof(value), type_index, func_name);
+    assert(type_index >= 0, 'missing type: ' + name + ' of ' + func_name);
+    var check = TYPE_CHECKS[type_index];
+
+    // TODO cast to type and replace the param value instead of failing...
+    // assert(check(value), 'param type error: ' + name + ' of ' + func_name);
 }
