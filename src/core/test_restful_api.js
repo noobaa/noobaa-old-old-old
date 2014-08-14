@@ -24,11 +24,15 @@ describe('restful_api', function() {
             required: true,
         },
         param3: {
-            type: String,
+            type: Boolean,
             required: true,
         },
         param4: {
-            type: Number,
+            type: Date,
+            required: true,
+        },
+        param5: {
+            type: Array,
             required: false,
         },
     };
@@ -37,7 +41,24 @@ describe('restful_api', function() {
             type: Array,
             required: true,
         }
-    }
+    };
+    var BASE_PATH = '/test/base/path';
+    var PARAMS = {
+        param1: '1',
+        param2: 2,
+        param3: true,
+        param4: new Date(),
+        param5: [1, 2, 3],
+    };
+    var REPLY = {
+        rest: ['IS', {
+            fucking: 'aWeSoMe'
+        }]
+    };
+    var ERROR_REPLY = {
+        data: 'testing error',
+        status: 404,
+    };
     var test_api = restful_api.define_api({
         name: 'Test',
         methods: {
@@ -67,6 +88,7 @@ describe('restful_api', function() {
             },
         }
     });
+
 
     describe('define_api', function() {
 
@@ -119,23 +141,6 @@ describe('restful_api', function() {
         app.use(express_body_parser());
         var http_server = http.createServer(app);
 
-        var BASE_PATH = '/test/base/path';
-        var PARAMS = {
-            param1: '1',
-            param2: 2,
-            param3: '3', //new Date(),
-            param4: 4,
-        };
-        var REPLY = {
-            rest: ['IS', {
-                fucking: 'aWeSoMe'
-            }]
-        };
-        var ERROR_REPLY = {
-            data: 'testing error',
-            status: 404,
-        };
-
         before(function(done) {
             http_server.listen(done);
         });
@@ -160,6 +165,7 @@ describe('restful_api', function() {
                     // of the server return error in order to detect calling confusions.
                     var methods = {};
                     methods[func_name] = function(req) {
+                        // console.log('TEST SERVER REQUEST');
                         _.each(PARAMS, function(param, name) {
                             assert.deepEqual(param, req.restful_param(name));
                         });
@@ -193,7 +199,7 @@ describe('restful_api', function() {
                     client[func_name](PARAMS).then(function(res) {
                         assert.deepEqual(res.data, REPLY);
                     }, function(err) {
-                        console.log('UNEXPECTED ERROR', err);
+                        console.log('UNEXPECTED ERROR', err, err.stack);
                         throw 'UNEXPECTED ERROR';
                     }).nodeify(done);
                 });
