@@ -5,9 +5,8 @@
 var _ = require('underscore');
 var Q = require('q');
 var assert = require('assert');
-var http = require('http');
 var express = require('express');
-var express_body_parser = require('body-parser');
+var utilitest = require('../utils/utilitest');
 
 
 describe('restful_api', function() {
@@ -42,7 +41,6 @@ describe('restful_api', function() {
             required: true,
         }
     };
-    var BASE_PATH = '/test/base/path';
     var PARAMS = {
         param1: '1',
         param2: 2,
@@ -132,24 +130,6 @@ describe('restful_api', function() {
 
     describe('test_api round trip', function() {
 
-        // we create a single express app and server to make the test faster,
-        // but there's a caveat - setting up routes on the same app has the issue
-        // that there is no way to remove/replace middlewares in express, and adding
-        // just adds to the end of the queue.
-        var app = express();
-        // must install a body parser for restful server to work
-        app.use(express_body_parser());
-        var http_server = http.createServer(app);
-
-        before(function(done) {
-            http_server.listen(done);
-        });
-
-        after(function() {
-            http_server.close();
-        });
-
-
         // create a test for every api function
         _.each(test_api.methods, function(func_info, func_name) {
 
@@ -176,21 +156,19 @@ describe('restful_api', function() {
                         }
                     };
                     server = new test_api.Server(methods, 'allow_missing_methods');
-                    var router = new express.Router();
-                    server.install_routes(router);
-                    app.use(BASE_PATH, router);
-                    // server.install_routes(app, BASE_PATH);
+                    server.install_routes(utilitest.router, '/test_restful_api');
                     // server.set_logging();
 
                     client = new test_api.Client({
-                        port: http_server.address().port,
-                        path: BASE_PATH,
+                        port: utilitest.http_server.address().port,
+                        path: '/test_restful_api',
                     });
                 });
 
                 after(function() {
                     // disable the server to bypass its routes,
-                    // so that the next api function can put its routes too.
+                    // this allows us to create a separate test for every function,
+                    // since the express middlewares cannot be removed.
                     server.disable_routes();
                 });
 

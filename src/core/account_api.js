@@ -14,10 +14,6 @@ module.exports = restful_api.define_api({
             method: 'POST',
             path: '/',
             params: {
-                name: {
-                    type: String,
-                    required: true,
-                },
                 email: {
                     type: String,
                     required: true,
@@ -28,7 +24,31 @@ module.exports = restful_api.define_api({
                 },
             },
             reply: {
-                
+                auth_key: {
+                    type: String,
+                    required: true,
+                }
+            }
+        },
+
+        authenticate: {
+            method: 'POST',
+            path: '/auth',
+            params: {
+                email: {
+                    type: String,
+                    required: true,
+                },
+                password: {
+                    type: String,
+                    required: true,
+                },
+            },
+            reply: {
+                auth_key: {
+                    type: String,
+                    required: true,
+                }
             }
         },
 

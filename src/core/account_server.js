@@ -10,6 +10,7 @@ var Account = require('./models/account');
 
 module.exports = new account_api.Server({
     create_account: create_account,
+    authenticate: authenticate,
     read_account: read_account,
     update_account: update_account,
     delete_account: delete_account,
@@ -18,12 +19,33 @@ module.exports = new account_api.Server({
 
 function create_account(req) {
     var info = {
-        name: req.restful_param('account_id')
+        email: req.restful_param('email'),
+        password: req.restful_param('password'),
     };
-    var account = new Account(info);
-    return account.save();
+    console.log('create_account', info);
+    return Account.create(info).then(function(account) {
+        console.log('create_account saved', account);
+        return {
+            auth_key: 'TODO-AUTH-KEY',
+        };
+    });
 }
 
+function authenticate(req) {
+    var info = {
+        email: req.restful_param('email'),
+    };
+    return Account.findOne(info).then(function(account) {
+        return Q.npost(account, 'verify_password', [req.restful_param('password')]);
+    }).then(function(matching) {
+        if (!matching) {
+            throw new Error('bad password');
+        }
+        return {
+            auth_key: 'TODO-AUTH-KEY',
+        };
+    });
+}
 
 function read_account(req) {
     var info = {
