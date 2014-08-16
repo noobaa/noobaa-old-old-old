@@ -10,10 +10,11 @@ var Account = require('./models/account');
 
 module.exports = new account_api.Server({
     create_account: create_account,
-    authenticate: authenticate,
     read_account: read_account,
     update_account: update_account,
     delete_account: delete_account,
+    authenticate: authenticate,
+    logout: logout,
 });
 
 
@@ -25,9 +26,35 @@ function create_account(req) {
     console.log('create_account', info);
     return Account.create(info).then(function(account) {
         console.log('create_account saved', account);
+        req.session.account_id = account.id;
+    });
+}
+
+function read_account(req) {
+    console.log('READ ACCOUNT', req.session.account_id);
+    return Account.findById(req.session.account_id).exec().then(function(account) {
+        if (!account) {
+            throw new Error('NO ACCOUNT ' + req.session.account_id);
+        }
         return {
-            auth_key: 'TODO-AUTH-KEY',
+            email: account.email,
         };
+    });
+}
+
+function update_account(req) {
+    var info = {
+        email: req.restful_param('email'),
+    };
+    return Account.findByIdAndUpdate(req.session.account_id, info).then(function() {
+        return undefined;
+    });
+}
+
+
+function delete_account(req) {
+    return Account.findByIdAndDelete(req.session.account_id).then(function() {
+        return undefined;
     });
 }
 
@@ -35,38 +62,18 @@ function authenticate(req) {
     var info = {
         email: req.restful_param('email'),
     };
+    var password = req.restful_param('password');
     return Account.findOne(info).then(function(account) {
-        return Q.npost(account, 'verify_password', [req.restful_param('password')]);
+        return Q.npost(account, 'verify_password', [password]);
     }).then(function(matching) {
         if (!matching) {
             throw new Error('bad password');
         }
-        return {
-            auth_key: 'TODO-AUTH-KEY',
-        };
+        req.session.account_id = account.id;
     });
 }
 
-function read_account(req) {
-    var info = {
-        name: req.restful_param('account_id')
-    };
-    return Account.findOne(info);
+function logout(req) {
+    delete req.session.account_id;
 }
 
-
-function update_account(req) {
-    var info = {
-        name: req.restful_param('account_id')
-    };
-    var updates = _.pick(req.body); // no fields can be updated for now
-    return Account.findOneAndUpdate(info, updates);
-}
-
-
-function delete_account(req) {
-    var info = {
-        name: req.restful_param('account_id')
-    };
-    return Account.findOneAndDelete(info);
-}

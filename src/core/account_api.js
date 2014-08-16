@@ -23,13 +23,35 @@ module.exports = restful_api.define_api({
                     required: true,
                 },
             },
+        },
+
+        read_account: {
+            method: 'GET',
+            path: '/',
             reply: {
-                auth_key: {
+                email: {
                     type: String,
                     required: true,
-                }
-            }
+                },
+            },
         },
+
+        update_account: {
+            method: 'PUT',
+            path: '/',
+            params: {
+                email: {
+                    type: String,
+                    required: true,
+                },
+            },
+        },
+
+        delete_account: {
+            method: 'DELETE',
+            path: '/',
+        },
+
 
         authenticate: {
             method: 'POST',
@@ -44,46 +66,13 @@ module.exports = restful_api.define_api({
                     required: true,
                 },
             },
-            reply: {
-                auth_key: {
-                    type: String,
-                    required: true,
-                }
-            }
         },
 
-        read_account: {
-            method: 'GET',
-            path: '/:account_id',
-            params: {
-                account_id: {
-                    type: String,
-                    required: true,
-                },
-            },
+        logout: {
+            method: 'POST',
+            path: '/auth/logout',
         },
 
-        update_account: {
-            method: 'PUT',
-            path: '/:account_id',
-            params: {
-                account_id: {
-                    type: String,
-                    required: true,
-                },
-            },
-        },
-
-        delete_account: {
-            method: 'DELETE',
-            path: '/:account_id',
-            params: {
-                account_id: {
-                    type: String,
-                    required: true,
-                },
-            },
-        },
     }
 
 });

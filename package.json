@@ -93,7 +93,8 @@
     "passport-local": "~1.0.0",
     "bcrypt": "~0.7.8",
     "gulp-mocha": "~0.5.2",
-    "gulp-coverage": "~0.1.24"
+    "gulp-coverage": "~0.1.24",
+    "request": "~2.40.0"
   },
   "devDependencies": {
     "npm-license": "~0.2.2",

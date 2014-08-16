@@ -13,6 +13,9 @@ describe('account_api', function() {
     var account_server = require('./account_server');
     var account_client;
 
+    var EMAIL = 'bla@bla.blabla';
+    var PASSWORD = 'supersecret';
+
     before(function() {
         account_server.install_routes(utilitest.router, '/account_api/');
         account_server.set_logging();
@@ -26,10 +29,18 @@ describe('account_api', function() {
 
         it('should work', function(done) {
             account_client.create_account({
-                email: 'bla bla',
-                password: 'tralalala',
-            }).then(function(res) {
-                console.log('REPLY', res.data);
+                email: EMAIL,
+                password: PASSWORD,
+            }).nodeify(done);
+        });
+
+    });
+
+    describe('read_account', function() {
+
+        it('should work', function(done) {
+            account_client.read_account().then(function(res) {
+            	assert.strictEqual(res.data.email, EMAIL);
             }).nodeify(done);
         });
 

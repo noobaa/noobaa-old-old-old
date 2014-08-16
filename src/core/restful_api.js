@@ -9,6 +9,7 @@ var Q = require('q');
 var assert = require('assert');
 var URL = require('url');
 var PATH = require('path');
+var request = require('request');
 
 
 module.exports = {
@@ -41,7 +42,6 @@ function define_api(api) {
     // which is needed for when doing the actual calls.
     // 
     // client_params (Object):
-    // - host (String) - will be used instead of hostname:port
     // - hostname (String)
     // - port (Number)
     // - path (String) - base path for the host
@@ -203,64 +203,53 @@ function create_client_request(client_params, func_info, params) {
             delete data[p.name];
         }
     });
-    var headers = {};
+    var query;
+    var body;
     if (method === 'POST' || method === 'PUT') {
-        // send data in request body encoded as json
-        headers['content-type'] = 'application/json';
-        data = JSON.stringify(data);
+        body = data;
     } else {
-        // send data in path query, encoded as querystring
-        path += '?' + querystring.stringify(data);
-        data = null;
+        query = data;
     }
-    return {
-        host: client_params.host,
-        hostname: client_params.hostname,
+    var url = URL.format({
+        // TODO what to do to support https?
+        protocol: 'http',
+        hostname: client_params.hostname || 'localhost',
         port: client_params.port,
+        pathname: path,
+    });
+    var options = {
+        jar: true,
+        json: true,
         method: method,
-        path: path,
-        headers: headers,
-        data: data,
+        url: url,
+        qs: query,
+        body: body,
     };
+    return options;
 }
 
 
 // send http request and return a promise for the response
 function send_http_request(options) {
     var defer = Q.defer();
-    // TODO what to do to support https?
-    var req = http.request(options, function(res) {
-        var data = '';
-        res.setEncoding('utf8');
-        res.on('data', function(chunk) {
-            data += chunk;
-        });
-        res.on('end', function() {
-            if (res.headers['content-type'] === 'application/json') {
-                data = JSON.parse(data);
-            }
-            if (res.statusCode !== 200) {
-                defer.reject({
-                    status: res.statusCode,
-                    data: data
-                });
-            } else {
-                defer.resolve({
-                    response: res,
-                    data: data,
-                });
-            }
-        });
+    request(options, function(err, res, body) {
+        if (err) {
+            return defer.reject({
+                data: err,
+            });
+        }
+        if (res.statusCode !== 200) {
+            return defer.reject({
+                status: res.statusCode,
+                data: body,
+            });
+        } else {
+            return defer.resolve({
+                response: res,
+                data: body,
+            });
+        }
     });
-    req.on('error', function(err) {
-        defer.reject({
-            data: err || 'unknown error'
-        });
-    });
-    if (options.data) {
-        req.write(options.data);
-    }
-    req.end();
     return defer.promise;
 }
 
@@ -278,11 +267,13 @@ function create_server_handler(server, func, func_info) {
         Q.when().then(function() {
             check_req_params_by_info(func_info.name, func_info.params, req, 'decode');
             // server functions are expected to return a promise
-            return func(req);
+            return func(req, res, next);
         }).then(function(reply) {
             log_func('COMPLETED', func_info.name);
-            check_undefined_params(func_info.name, func_info.reply, reply);
-            check_params_by_info(func_info.name, func_info.reply, reply, 'encode');
+            if (reply) {
+                check_undefined_params(func_info.name, func_info.reply, reply);
+                check_params_by_info(func_info.name, func_info.reply, reply, 'encode');
+            }
             return res.json(200, reply);
         }, function(err) {
             var status = err.status || err.statusCode;
