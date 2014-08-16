@@ -269,17 +269,16 @@ function create_server_handler(server, func, func_info) {
             // server functions are expected to return a promise
             return func(req, res, next);
         }).then(function(reply) {
-            log_func('COMPLETED', func_info.name);
+            log_func('SERVER COMPLETED', func_info.name);
             if (reply) {
                 check_undefined_params(func_info.name, func_info.reply, reply);
                 check_params_by_info(func_info.name, func_info.reply, reply, 'encode');
             }
             return res.json(200, reply);
         }, function(err) {
-            log_func('ERROR', err, err.stack);
+            log_func('SERVER ERROR', func_info.name, ':', err, err.stack);
             var status = err.status || err.statusCode;
             var data = err.data || err.message || err.toString();
-            log_func(status === 200 ? 'COMPLETED' : 'FAILED', func_info.name, ':', err);
             if (typeof status === 'number' &&
                 status >= 100 &&
                 status < 600
@@ -289,7 +288,7 @@ function create_server_handler(server, func, func_info) {
                 return res.json(500, data);
             }
         }).done(null, function(err) {
-            log_func('ERROR', err);
+            log_func('SERVER ERROR WHILE SENDING ERROR', func_info.name, ':', err, err.stack);
             return next(err);
         });
     };

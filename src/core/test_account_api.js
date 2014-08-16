@@ -42,7 +42,15 @@ describe('account_api', function() {
             }).then(function() {
                 return account_client.authenticate({
                     email: EMAIL,
-                    password: PASSWORD,                	
+                    password: PASSWORD,
+                });
+            }).then(function() {
+                return account_client.update_account({
+                    email: EMAIL + '123',
+                });
+            }).then(function() {
+                return account_client.read_account().then(function(res) {
+                    assert.strictEqual(res.data.email, EMAIL + '123');
                 });
             }).then(function() {
                 return account_client.delete_account();
