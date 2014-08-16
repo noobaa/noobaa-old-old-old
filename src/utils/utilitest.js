@@ -16,39 +16,40 @@ var mongoose = require('mongoose');
 // just adds to the end of the queue.
 var app = express();
 // must install a body parser for restful server to work
-app.use(express_body_parser()); 
+app.use(express_body_parser());
 var router = new express.Router();
-app.use('/', router);
+app.use(router);
 
 var http_server = http.createServer(app);
 
 before(function(done) {
     Q.when().then(function() {
-        console.log('HAHA');
         var defer = Q.defer();
         mongoose.connection.on('open', defer.resolve);
         mongoose.connect('mongodb://localhost/test');
         return defer.promise;
     }).then(function() {
-        console.log('HAHA2');
         // dropDatabase to clear the previous test
         return Q.npost(mongoose.connection.db, 'dropDatabase');
     }).then(function() {
-        console.log('HAHA3');
         return Q.npost(http_server, 'listen');
     }).then(function() {
-        console.log('HAHA4', http_server.address());
+        console.log('* utilitest server listening on port ', http_server.address().port);
+        console.log();
+    }, function(err) {
+        console.error('utilitest ERROR', err);
     }).nodeify(done);
 });
 
 after(function() {
-    console.log('HAHA AFTER');
     mongoose.disconnect();
     http_server.close();
 });
 
 module.exports = {
+    http_port: function() {
+        return http_server.address().port;
+    },
     router: router,
     app: app,
-    http_server: http_server,
 };

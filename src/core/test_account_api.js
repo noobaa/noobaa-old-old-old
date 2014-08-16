@@ -14,10 +14,11 @@ describe('account_api', function() {
     var account_client;
 
     before(function() {
-        account_server.install_routes(utilitest.router, '/account_api');
+        account_server.install_routes(utilitest.router, '/account_api/');
+        account_server.set_logging();
         account_client = new account_api.Client({
-            port: utilitest.http_server.address().port,
-            path: '/account_api',
+            port: utilitest.http_port(),
+            path: '/account_api/',
         });
     });
 

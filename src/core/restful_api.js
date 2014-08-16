@@ -7,6 +7,8 @@ var querystring = require('querystring');
 var _ = require('underscore');
 var Q = require('q');
 var assert = require('assert');
+var URL = require('url');
+var PATH = require('path');
 
 
 module.exports = {
@@ -89,8 +91,9 @@ function define_api(api) {
     //
     Server.prototype.install_routes = function(router, base_path) {
         var me = this;
+        base_path = base_path || '';
         _.each(api.methods, function(func_info, func_name) {
-            var path = (base_path || '') + func_info.path;
+            var path = PATH.join(base_path, func_info.path);
             var handler = me._handlers[func_name];
             install_route(router, func_info.method, path, handler);
         });
@@ -107,11 +110,11 @@ function define_api(api) {
     };
 
 
-    // go over the api and check its validity
-
     var method_and_path_collide = {};
 
+    // go over the api and check its validity
     _.each(api.methods, function(func_info, func_name) {
+        // add the name to the info
         func_info.name = func_name;
 
         assert(func_info.method in VALID_METHODS,
@@ -120,6 +123,7 @@ function define_api(api) {
         assert.strictEqual(typeof(func_info.path), 'string',
             'unexpected path type: ' + func_info);
 
+        // split the path to its items
         func_info.path_items = _.map(func_info.path.split('/'), function(p) {
             assert(PATH_ITEM_RE.test(p),
                 'invalid path item: ' + p + ' of ' + func_info);
@@ -147,7 +151,7 @@ function define_api(api) {
         // set the client class prototype functions
         Client.prototype[func_name] = function(params) {
             // resolve this._restful_client_params to use the client object
-            return send_client_request(this._restful_client_params, func_info, params);
+            return do_client_request(this._restful_client_params, func_info, params);
         };
     });
 
@@ -161,16 +165,22 @@ function define_api(api) {
 
 
 // call a specific REST api function over http request.
-function send_client_request(client_params, func_info, params) {
+function do_client_request(client_params, func_info, params) {
     return Q.when().then(function() {
+        // first prepare the request
         return create_client_request(client_params, func_info, params);
     }).then(function(options) {
+        // now send it over http
         return send_http_request(options);
     }).then(function(res) {
+        // get the reply and return
         var reply = res.data;
         check_undefined_params(func_info.name, func_info.reply, reply);
         check_params_by_info(func_info.name, func_info.reply, reply, 'decode');
         return res;
+    }).then(null, function(err) {
+        console.error('RESTFUL REQUEST FAILED', err, err.status || '');
+        throw err;
     });
 }
 
@@ -178,16 +188,18 @@ function send_client_request(client_params, func_info, params) {
 // create a REST api call and return the options for http request.
 function create_client_request(client_params, func_info, params) {
     var method = func_info.method;
-    var path = client_params.path || '';
+    var path = client_params.path || '/';
     var data = _.clone(params);
     check_undefined_params(func_info.name, func_info.params, data);
     check_params_by_info(func_info.name, func_info.params, data, 'encode');
     _.each(func_info.path_items, function(p) {
-        if (typeof(p) === 'string') {
-            path += '/' + p;
+        if (!p) {
+            return;
+        } else if (typeof(p) === 'string') {
+            path = PATH.join(path, p);
         } else {
             assert(p.name in params, 'missing required path param: ' + p + ' of ' + func_info.name);
-            path += '/' + data[p.name];
+            path = PATH.join(path, data[p.name].toString());
             delete data[p.name];
         }
     });
@@ -229,6 +241,7 @@ function send_http_request(options) {
             }
             if (res.statusCode !== 200) {
                 defer.reject({
+                    status: res.statusCode,
                     data: data
                 });
             } else {
@@ -406,6 +419,6 @@ function check_param_by_info(func_name, name, info, value, coder_type) {
     assert(t, 'unknown param type: ' + name + ' of ' + func_name);
     var result = t[coder_type].call(null, value);
     // console.log('TYPE RESULT', coder_type, func_name, name, t.type.name,
-        // result.valueOf(), typeof(result), '(value=', value.valueOf(), ')');
+    // result.valueOf(), typeof(result), '(value=', value.valueOf(), ')');
     return result;
 }

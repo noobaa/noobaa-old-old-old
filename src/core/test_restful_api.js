@@ -160,7 +160,7 @@ describe('restful_api', function() {
                     // server.set_logging();
 
                     client = new test_api.Client({
-                        port: utilitest.http_server.address().port,
+                        port: utilitest.http_port(),
                         path: '/test_restful_api',
                     });
                 });
