@@ -25,22 +25,27 @@ describe('account_api', function() {
         });
     });
 
-    describe('create_account', function() {
+    describe('account full flow', function() {
 
         it('should work', function(done) {
-            account_client.create_account({
-                email: EMAIL,
-                password: PASSWORD,
-            }).nodeify(done);
-        });
-
-    });
-
-    describe('read_account', function() {
-
-        it('should work', function(done) {
-            account_client.read_account().then(function(res) {
-            	assert.strictEqual(res.data.email, EMAIL);
+            Q.when().then(function() {
+                return account_client.create_account({
+                    email: EMAIL,
+                    password: PASSWORD,
+                });
+            }).then(function() {
+                return account_client.read_account().then(function(res) {
+                    assert.strictEqual(res.data.email, EMAIL);
+                });
+            }).then(function() {
+                return account_client.logout();
+            }).then(function() {
+                return account_client.authenticate({
+                    email: EMAIL,
+                    password: PASSWORD,                	
+                });
+            }).then(function() {
+                return account_client.delete_account();
             }).nodeify(done);
         });
 

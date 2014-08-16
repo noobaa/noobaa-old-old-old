@@ -276,6 +276,7 @@ function create_server_handler(server, func, func_info) {
             }
             return res.json(200, reply);
         }, function(err) {
+            log_func('ERROR', err, err.stack);
             var status = err.status || err.statusCode;
             var data = err.data || err.message || err.toString();
             log_func(status === 200 ? 'COMPLETED' : 'FAILED', func_info.name, ':', err);

@@ -23,15 +23,12 @@ function create_account(req) {
         email: req.restful_param('email'),
         password: req.restful_param('password'),
     };
-    console.log('create_account', info);
     return Account.create(info).then(function(account) {
-        console.log('create_account saved', account);
         req.session.account_id = account.id;
     });
 }
 
 function read_account(req) {
-    console.log('READ ACCOUNT', req.session.account_id);
     return Account.findById(req.session.account_id).exec().then(function(account) {
         if (!account) {
             throw new Error('NO ACCOUNT ' + req.session.account_id);
@@ -46,14 +43,14 @@ function update_account(req) {
     var info = {
         email: req.restful_param('email'),
     };
-    return Account.findByIdAndUpdate(req.session.account_id, info).then(function() {
+    return Account.findByIdAndUpdate(req.session.account_id, info).exec().then(function() {
         return undefined;
     });
 }
 
 
 function delete_account(req) {
-    return Account.findByIdAndDelete(req.session.account_id).then(function() {
+    return Account.findByIdAndRemove(req.session.account_id).exec().then(function() {
         return undefined;
     });
 }
@@ -63,7 +60,9 @@ function authenticate(req) {
         email: req.restful_param('email'),
     };
     var password = req.restful_param('password');
-    return Account.findOne(info).then(function(account) {
+    var account;
+    return Account.findOne(info).exec().then(function(account_arg) {
+        account = account_arg;
         return Q.npost(account, 'verify_password', [password]);
     }).then(function(matching) {
         if (!matching) {
