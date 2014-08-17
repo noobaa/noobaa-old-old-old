@@ -5,6 +5,7 @@ var _ = require('underscore');
 var Q = require('q');
 var restful_api = require('./restful_api');
 var object_api = require('./object_api');
+var account_server = require('./account_server');
 // db models
 var Account = require('./models/account');
 var Bucket = require('./models/bucket');
@@ -27,7 +28,10 @@ module.exports = new object_api.Server({
     update_object: update_object,
     delete_object: delete_object,
     map_object: map_object,
-});
+}, [
+    // middleware to verify the account session
+    account_server.verify_account_session
+]);
 
 
 function create_bucket(req) {

@@ -59,11 +59,12 @@ function define_api(api) {
     //    accept missing functions, the handler for missing functions will fail on runtime.
     //    useful for test servers.
     //
-    function Server(methods, allow_missing_methods) {
+    function Server(methods, middlewares, allow_missing_methods) {
         var me = this;
         if (allow_missing_methods) {
             assert.strictEqual(allow_missing_methods, 'allow_missing_methods');
         }
+        me._middlewares = middlewares || [];
         me._impl = {};
         me._handlers = {};
         _.each(api.methods, function(func_info, func_name) {
@@ -92,6 +93,17 @@ function define_api(api) {
     Server.prototype.install_routes = function(router, base_path) {
         var me = this;
         base_path = base_path || '';
+        _.each(me._middlewares, function(fn) {
+            router.use(base_path, function(req, res, next) {
+                Q.when().then(function() {
+                    return fn(req);
+                }).done(function() {
+                    return next();
+                }, function(err) {
+                    return next(err);
+                })
+            });
+        });
         _.each(api.methods, function(func_info, func_name) {
             var path = PATH.join(base_path, func_info.path);
             var handler = me._handlers[func_name];

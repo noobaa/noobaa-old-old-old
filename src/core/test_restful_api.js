@@ -114,14 +114,14 @@ describe('restful_api', function() {
         it('should work on server inited properly', function() {
             // init the server and add extra propoerty and check that it works
             var router = new express.Router();
-            var server = new test_api.Server({}, 'allow_missing_methods');
+            var server = new test_api.Server({}, [], 'allow_missing_methods');
             server.install_routes(router);
         });
 
         it('should detect missing api func', function() {
             // check that missing functions are detected
             assert.throws(function() {
-                var server = new test_api.Server({});
+                var server = new test_api.Server();
             }, Error);
         });
 
@@ -155,7 +155,7 @@ describe('restful_api', function() {
                             return Q.when(REPLY);
                         }
                     };
-                    server = new test_api.Server(methods, 'allow_missing_methods');
+                    server = new test_api.Server(methods, [], 'allow_missing_methods');
                     server.install_routes(utilitest.router, '/test_restful_api');
                     // server.set_logging();
 

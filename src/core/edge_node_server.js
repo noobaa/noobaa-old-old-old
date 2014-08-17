@@ -5,6 +5,7 @@ var _ = require('underscore');
 var Q = require('q');
 var restful_api = require('./restful_api');
 var edge_node_api = require('./edge_node_api');
+var account_server = require('./account_server');
 // db models
 var Account = require('./models/account');
 var EdgeNode = require('./models/edge_node');
@@ -16,7 +17,10 @@ module.exports = new edge_node_api.Server({
     read_edge_node: read_edge_node,
     update_edge_node: update_edge_node,
     delete_edge_node: delete_edge_node,
-});
+}, [
+    // middleware to verify the account session
+    account_server.verify_account_session
+]);
 
 
 function create_edge_node(req) {

@@ -24,6 +24,7 @@ describe('object_api', function() {
                     put: function() {},
                     post: function() {},
                     delete: function() {},
+                    use: function() {},
                 };
                 object_server.install_routes(router, '/');
             });
