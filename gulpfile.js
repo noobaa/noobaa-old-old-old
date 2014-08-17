@@ -262,7 +262,7 @@ gulp.task('client', ['bower'], function() {
 
 gulp.task('mocha', function() {
     var mocha_options = {
-        reporter: 'nyan'
+        reporter: 'spec'
     };
     // TODO limit mocha tests to src/core/ until we fix/delete the other failing tests
     return gulp.src(paths.core_tests, SRC_DONT_READ)

@@ -17,12 +17,18 @@ module.exports = restful_api.define_api({
                 email: {
                     type: String,
                     required: true,
+                    doc: [
+                        'email is used to identify the account. ',
+                        'an email can be used for one account only.',
+                    ].join(''),
                 },
                 password: {
                     type: String,
                     required: true,
+                    doc: 'password for account authentication',
                 },
             },
+            doc: 'create a new account',
         },
 
         read_account: {
@@ -34,6 +40,7 @@ module.exports = restful_api.define_api({
                     required: true,
                 },
             },
+            doc: 'return the current logged in account info',
         },
 
         update_account: {
@@ -45,15 +52,17 @@ module.exports = restful_api.define_api({
                     required: true,
                 },
             },
+            doc: 'update the current logged in account info',
         },
 
         delete_account: {
             method: 'DELETE',
             path: '/',
+            doc: 'delete the current logged in account',
         },
 
 
-        authenticate: {
+        login: {
             method: 'POST',
             path: '/auth',
             params: {
@@ -66,11 +75,13 @@ module.exports = restful_api.define_api({
                     required: true,
                 },
             },
+            doc: 'login into account',
         },
 
         logout: {
             method: 'POST',
             path: '/auth/logout',
+            doc: 'logout current account',
         },
 
     }

@@ -147,7 +147,7 @@ describe('restful_api', function() {
                     methods[func_name] = function(req) {
                         // console.log('TEST SERVER REQUEST');
                         _.each(PARAMS, function(param, name) {
-                            assert.deepEqual(param, req.restful_param(name));
+                            assert.deepEqual(param, req.restful_params[name]);
                         });
                         if (reply_error) {
                             return Q.reject(ERROR_REPLY);

@@ -95,13 +95,11 @@ function define_api(api) {
         base_path = base_path || '';
         _.each(me._middlewares, function(fn) {
             router.use(base_path, function(req, res, next) {
-                Q.when().then(function() {
-                    return fn(req);
-                }).done(function() {
+                Q.fcall(fn, req).done(function() {
                     return next();
                 }, function(err) {
                     return next(err);
-                })
+                });
             });
         });
         _.each(api.methods, function(func_info, func_name) {
@@ -178,7 +176,7 @@ function define_api(api) {
 
 // call a specific REST api function over http request.
 function do_client_request(client_params, func_info, params) {
-    return Q.when().then(function() {
+    return Q.fcall(function() {
         // first prepare the request
         return create_client_request(client_params, func_info, params);
     }).then(function(options) {
@@ -276,7 +274,7 @@ function create_server_handler(server, func, func_info) {
             return next();
         }
         var log_func = server._log || function() {};
-        Q.when().then(function() {
+        Q.fcall(function() {
             check_req_params_by_info(func_info.name, func_info.params, req, 'decode');
             // server functions are expected to return a promise
             return func(req, res, next);

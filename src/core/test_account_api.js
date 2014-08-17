@@ -28,7 +28,7 @@ describe('account_api', function() {
     describe('account full flow', function() {
 
         it('should work', function(done) {
-            Q.when().then(function() {
+            Q.fcall(function() {
                 return account_client.create_account({
                     email: EMAIL,
                     password: PASSWORD,
@@ -40,7 +40,7 @@ describe('account_api', function() {
             }).then(function() {
                 return account_client.logout();
             }).then(function() {
-                return account_client.authenticate({
+                return account_client.login({
                     email: EMAIL,
                     password: PASSWORD,
                 });

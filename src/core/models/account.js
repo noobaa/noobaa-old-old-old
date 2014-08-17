@@ -18,11 +18,13 @@ var account_schema = new Schema({
 
 });
 
+
 account_schema.index({
     email: 1,
 }, {
     unique: true
 });
+
 
 // password verification - callback is function(err,is_matching)
 account_schema.methods.verify_password = function(password, callback) {

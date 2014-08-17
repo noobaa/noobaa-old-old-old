@@ -35,7 +35,7 @@ var http_server = http.createServer(app);
 
 // initlizations before the tests
 before(function(done) {
-    Q.when().then(function() {
+    Q.fcall(function() {
         var defer = Q.defer();
         mongoose.connection.on('open', defer.resolve);
         mongoose.connect('mongodb://localhost/test');

@@ -15,7 +15,10 @@ var edge_node_schema = new Schema({
         ref: 'Account'
     },
 
-	// a randomly generated string for the node to identify itself
+	// node name
+	name: String,
+
+	// a generated string for the node to identify itself
 	passkey: String,
 
 	// the latest public ip of the node
@@ -28,6 +31,7 @@ var edge_node_schema = new Schema({
     hearbeat: Date,
 
 });
+
 
 edge_node_schema.index({
     passkey: 1,
