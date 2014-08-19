@@ -6,6 +6,7 @@ var _ = require('underscore');
 var Q = require('q');
 var assert = require('assert');
 var express = require('express');
+var request = require('request');
 var utilitest = require('../utils/utilitest');
 
 
@@ -65,24 +66,28 @@ describe('restful_api', function() {
                 path: '/:param1/and/also/:param2',
                 params: test_params_info,
                 reply: test_reply_info,
+                doc: 'get doc',
             },
             post: {
                 method: 'POST',
                 path: '/:param1/and/also/:param2',
                 params: test_params_info,
                 reply: test_reply_info,
+                doc: 'post doc',
             },
             put: {
                 method: 'PUT',
                 path: '/:param1/and/also/:param3',
                 params: test_params_info,
                 reply: test_reply_info,
+                doc: 'put doc',
             },
             delete: {
                 method: 'DELETE',
                 path: '/all/:param2',
                 params: test_params_info,
                 reply: test_reply_info,
+                doc: 'del doc',
             },
         }
     });
@@ -190,6 +195,17 @@ describe('restful_api', function() {
                     }, function(err) {
                         assert.deepEqual(err.data, ERROR_REPLY.data);
                     }).nodeify(done);
+                });
+
+                it('should return doc', function(done) {
+                    var doc_url = 'http://localhost:' + utilitest.http_port() +
+                        '/test_restful_api/doc/Test/' + func_name;
+                    request(doc_url, function(error, response, body) {
+                        assert(!error);
+                        assert.strictEqual(response.statusCode, 200);
+                        assert.strictEqual(body, test_api.methods[func_name].doc);
+                        done();
+                    });
                 });
 
             });

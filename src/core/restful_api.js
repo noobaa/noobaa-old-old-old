@@ -93,6 +93,7 @@ function define_api(api) {
     Server.prototype.install_routes = function(router, base_path) {
         var me = this;
         base_path = base_path || '';
+        var doc_base = PATH.join(base_path, 'doc', api.name);
         _.each(me._middlewares, function(fn) {
             router.use(base_path, function(req, res, next) {
                 Q.fcall(fn, req).done(function() {
@@ -106,6 +107,11 @@ function define_api(api) {
             var path = PATH.join(base_path, func_info.path);
             var handler = me._handlers[func_name];
             install_route(router, func_info.method, path, handler);
+            // install also the doc route
+            router.get(PATH.join(doc_base, func_name), function(req, res) {
+                res.send(func_info.doc);
+                // TODO should return also params/reply/other-info doc
+            });
         });
     };
 
