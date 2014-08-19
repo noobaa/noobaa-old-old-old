@@ -9,54 +9,16 @@ var Account = require('./models/account');
 var LinkedList = require('../utils/linked_list');
 
 module.exports = new account_api.Server({
+    login: login,
+    logout: logout,
     create_account: create_account,
     read_account: read_account,
     update_account: update_account,
     delete_account: delete_account,
-    login: login,
-    logout: logout,
     // functions extending the api
     verify_account_session: verify_account_session
 });
 
-
-function create_account(req) {
-    var info = _.pick(req.restful_params, 'email', 'password');
-    return Account.create(info).then(function(account) {
-        req.session.account_id = account.id;
-    });
-}
-
-function read_account(req) {
-    return Q.fcall(verify_account_session, req).then(function() {
-        return Account.findById(req.session.account_id).exec();
-    }).then(function(account) {
-        if (!account) {
-            throw new Error('NO ACCOUNT ' + req.session.account_id);
-        }
-        return {
-            email: account.email,
-        };
-    });
-}
-
-function update_account(req) {
-    return Q.fcall(verify_account_session, req).then(function() {
-        var info = _.pick(req.restful_params, 'email', 'password');
-        return Account.findByIdAndUpdate(req.session.account_id, info).exec();
-    }).then(function() {
-        return undefined;
-    });
-}
-
-
-function delete_account(req) {
-    return Q.fcall(verify_account_session, req).then(function() {
-        return Account.findByIdAndRemove(req.session.account_id).exec();
-    }).then(function() {
-        return undefined;
-    });
-}
 
 function login(req) {
     var info = {
@@ -75,8 +37,50 @@ function login(req) {
     });
 }
 
+
 function logout(req) {
     delete req.session.account_id;
+}
+
+
+function create_account(req) {
+    var info = _.pick(req.restful_params, 'email', 'password');
+    return Account.create(info).then(function(account) {
+        req.session.account_id = account.id;
+    });
+}
+
+
+function read_account(req) {
+    return Q.fcall(verify_account_session, req).then(function() {
+        return Account.findById(req.session.account_id).exec();
+    }).then(function(account) {
+        if (!account) {
+            throw new Error('NO ACCOUNT ' + req.session.account_id);
+        }
+        return {
+            email: account.email,
+        };
+    });
+}
+
+
+function update_account(req) {
+    return Q.fcall(verify_account_session, req).then(function() {
+        var info = _.pick(req.restful_params, 'email', 'password');
+        return Account.findByIdAndUpdate(req.session.account_id, info).exec();
+    }).then(function() {
+        return undefined;
+    });
+}
+
+
+function delete_account(req) {
+    return Q.fcall(verify_account_session, req).then(function() {
+        return Account.findByIdAndRemove(req.session.account_id).exec();
+    }).then(function() {
+        return undefined;
+    });
 }
 
 

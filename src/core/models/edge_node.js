@@ -9,25 +9,26 @@ var _ = require('underscore');
 
 var edge_node_schema = new Schema({
 
-	// the service account
+    // the service account
     account: {
         type: types.ObjectId,
         ref: 'Account'
     },
 
-	// node name
-	name: String,
+    // node name
+    name: String,
 
-	// a generated string for the node to identify itself
-	passkey: String,
+    // a generated string for the node to identify itself
+    passkey: String,
 
-	// the latest public ip of the node
-    public_ip: String,
+    net: {
+        // the latest public ip of the node
+        ip: String,
+        // the listening port of the agent running on the node
+        port: Number,
+    },
 
-    // the listening port of the agent running on the node
-    port: Number,
-
-	// the last time the node sent heartbeat    
+    // the last time the node sent heartbeat    
     hearbeat: Date,
 
 });

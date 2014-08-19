@@ -10,6 +10,28 @@ module.exports = restful_api.define_api({
 
     methods: {
 
+        login: {
+            method: 'POST',
+            path: '/auth',
+            params: {
+                email: {
+                    type: String,
+                    required: true,
+                },
+                password: {
+                    type: String,
+                    required: true,
+                },
+            },
+            doc: 'login into account',
+        },
+
+        logout: {
+            method: 'POST',
+            path: '/auth/logout',
+            doc: 'logout current account',
+        },
+
         create_account: {
             method: 'POST',
             path: '/',
@@ -59,29 +81,6 @@ module.exports = restful_api.define_api({
             method: 'DELETE',
             path: '/',
             doc: 'delete the current logged in account',
-        },
-
-
-        login: {
-            method: 'POST',
-            path: '/auth',
-            params: {
-                email: {
-                    type: String,
-                    required: true,
-                },
-                password: {
-                    type: String,
-                    required: true,
-                },
-            },
-            doc: 'login into account',
-        },
-
-        logout: {
-            method: 'POST',
-            path: '/auth/logout',
-            doc: 'logout current account',
         },
 
     }
