@@ -13,31 +13,7 @@ if (process.env.NODETIME_ACCOUNT_KEY) {
 
 // important - dot settings should run before any require() that might use dot
 // or else the it will get mess up (like the email.js code)
-var dot = require('dot');
-dot.templateSettings.strip = false;
-dot.templateSettings.cache = true;
-// replace dot regexp to use <? ?> to avoid collision with angular {{ }}
-for (var i in dot.templateSettings) {
-    var reg = dot.templateSettings[i];
-    if (!(reg instanceof RegExp)) {
-        continue;
-    }
-    var pattern = reg.source;
-    pattern = pattern.replace(/\\\{\\\{/g, '\\<\\?');
-    pattern = pattern.replace(/\\\}\\\}/g, '\\?\\>');
-    var flags = '';
-    if (reg.global) {
-        flags += 'g';
-    }
-    if (reg.ignoreCase) {
-        flags += 'i';
-    }
-    if (reg.multiline) {
-        flags += 'm';
-    }
-    dot.templateSettings[i] = new RegExp(pattern, flags);
-}
-
+var dot = require('../utils/dot');
 var path = require('path');
 var URL = require('url');
 var http = require('http');
@@ -369,9 +345,6 @@ app.use('/public/', cache_control(dev_mode ? 0 : 10 * 60)); // 10 minutes
 app.use('/public/', express.static(path.join(rootdir, 'build', 'public')));
 app.use('/public/images/', cache_control(dev_mode ? 3600 : 24 * 3600)); // 24 hours
 app.use('/public/images/', express.static(path.join(rootdir, 'images')));
-// app.use('/vendor/', express.static(path.join(rootdir, 'vendor')));
-// app.use('/vendor/', express.static(path.join(rootdir, 'node_modules')));
-// app.use('/vendor/', express.static(path.join(rootdir, 'bower_components')));
 app.use('/', express.static(path.join(rootdir, 'public')));
 
 
