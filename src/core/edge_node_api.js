@@ -10,31 +10,20 @@ module.exports = restful_api.define_api({
 
     methods: {
 
-        create_edge_node: {
+        connect_edge_node: {
             method: 'POST',
             path: '/',
             params: {
-                // TODO
-            },
-        },
-
-        read_edge_node: {
-            method: 'GET',
-            path: '/:node_id',
-            params: {
-                node_id: {
+                name: {
                     type: String,
                     required: true,
                 },
-            },
-        },
-
-        update_edge_node: {
-            method: 'PUT',
-            path: '/:node_id',
-            params: {
-                node_id: {
+                ip: {
                     type: String,
+                    required: true,
+                },
+                port: {
+                    type: Number,
                     required: true,
                 },
             },
@@ -42,9 +31,9 @@ module.exports = restful_api.define_api({
 
         delete_edge_node: {
             method: 'DELETE',
-            path: '/:node_id',
+            path: '/',
             params: {
-                node_id: {
+                name: {
                     type: String,
                     required: true,
                 },

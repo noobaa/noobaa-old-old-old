@@ -47,7 +47,11 @@ function define_api(api) {
     // - path (String) - base path for the host
     //
     function Client(client_params) {
-        this._restful_client_params = client_params;
+        this._restful_client_params = client_params || {};
+    }
+
+    Client.prototype.set_param = function(key, value) {
+        this._restful_client_params[key] = value;
     }
 
     // server class for the api.
@@ -95,7 +99,9 @@ function define_api(api) {
         base_path = base_path || '';
         var doc_base = PATH.join(base_path, 'doc', api.name);
         _.each(me._middlewares, function(fn) {
+            assert(fn, 'undefined middleware function');
             router.use(base_path, function(req, res, next) {
+                console.log('_middlewares', api.name, fn.name);
                 Q.fcall(fn, req).done(function() {
                     return next();
                 }, function(err) {
@@ -108,7 +114,7 @@ function define_api(api) {
             var path = PATH.join(base_path, func_info.path);
             var handler = me._handlers[func_name];
             install_route(router, func_info.method, path, handler);
-            
+
             // install also a documentation route
             router.get(PATH.join(doc_base, func_name), function(req, res) {
                 res.send(func_info.doc);
@@ -134,6 +140,8 @@ function define_api(api) {
     _.each(api.methods, function(func_info, func_name) {
         // add the name to the info
         func_info.name = func_name;
+        func_info.params = func_info.params || {};
+        func_info.reply = func_info.reply || {};
 
         assert(func_info.method in VALID_METHODS,
             'unexpected method: ' + func_info);
@@ -197,7 +205,7 @@ function do_client_request(client_params, func_info, params) {
         check_params_by_info(func_info.name, func_info.reply, reply, 'decode');
         return res;
     }).then(null, function(err) {
-        console.error('RESTFUL REQUEST FAILED', err, err.status || '');
+        console.error('RESTFUL REQUEST FAILED', err);
         throw err;
     });
 }
@@ -293,7 +301,7 @@ function create_server_handler(server, func, func_info) {
                 check_params_by_info(func_info.name, func_info.reply, reply, 'encode');
             }
             return res.json(200, reply);
-        }, function(err) {
+        }).then(null, function(err) {
             log_func('SERVER ERROR', func_info.name, ':', err, err.stack);
             var status = err.status || err.statusCode;
             var data = err.data || err.message || err.toString();

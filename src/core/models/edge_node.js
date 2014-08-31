@@ -18,15 +18,11 @@ var edge_node_schema = new Schema({
     // node name
     name: String,
 
-    // a generated string for the node to identify itself
-    passkey: String,
+    // the latest public ip of the node
+    ip: String,
 
-    net: {
-        // the latest public ip of the node
-        ip: String,
-        // the listening port of the agent running on the node
-        port: Number,
-    },
+    // the listening port of the agent running on the node
+    port: Number,
 
     // the last time the node sent heartbeat    
     hearbeat: Date,
@@ -35,7 +31,8 @@ var edge_node_schema = new Schema({
 
 
 edge_node_schema.index({
-    passkey: 1,
+    account: 1,
+    name: 1,
 }, {
     unique: true
 });

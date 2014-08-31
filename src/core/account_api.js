@@ -10,7 +10,7 @@ module.exports = restful_api.define_api({
 
     methods: {
 
-        login: {
+        login_account: {
             method: 'POST',
             path: '/login',
             params: {
@@ -26,7 +26,7 @@ module.exports = restful_api.define_api({
             doc: 'login into account',
         },
 
-        logout: {
+        logout_account: {
             method: 'POST',
             path: '/logout',
             doc: 'logout current account',

@@ -5,25 +5,14 @@
 var _ = require('underscore');
 var Q = require('q');
 var assert = require('assert');
-var utilitest = require('../utils/utilitest');
+var coretest = require('./coretest');
 
 describe('account_api', function() {
 
-    var account_api = require('./account_api');
-    var account_server = require('./account_server');
-    var account_client;
+    var account_client = coretest.account_client;
 
     var EMAIL = 'bla@bla.blabla';
     var PASSWORD = 'supersecret';
-
-    before(function() {
-        account_server.install_routes(utilitest.router, '/account_api/');
-        account_server.set_logging();
-        account_client = new account_api.Client({
-            port: utilitest.http_port(),
-            path: '/account_api/',
-        });
-    });
 
     describe('account full flow', function() {
 
@@ -38,9 +27,9 @@ describe('account_api', function() {
                     assert.strictEqual(res.data.email, EMAIL);
                 });
             }).then(function() {
-                return account_client.logout();
+                return account_client.logout_account();
             }).then(function() {
-                return account_client.login({
+                return account_client.login_account({
                     email: EMAIL,
                     password: PASSWORD,
                 });

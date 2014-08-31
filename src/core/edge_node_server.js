@@ -13,9 +13,7 @@ var EdgeBlock = require('./models/edge_block');
 
 
 module.exports = new edge_node_api.Server({
-    create_edge_node: create_edge_node,
-    read_edge_node: read_edge_node,
-    update_edge_node: update_edge_node,
+    connect_edge_node: connect_edge_node,
     delete_edge_node: delete_edge_node,
 }, [
     // middleware to verify the account session before any of this server calls
@@ -23,27 +21,19 @@ module.exports = new edge_node_api.Server({
 ]);
 
 
-function create_edge_node(req) {
-    var info = _.pick(req.restful_params, 'node');
+function connect_edge_node(req) {
+    console.log('CONNECT EDGE NODE', req.restful_params);
+    var info = _.pick(req.restful_params, 'name', 'ip', 'port');
     info.account = req.account;
-    return EdgeNode.create(info);
-}
-
-
-function read_edge_node(req) {
-    var info = _.pick(req.restful_params, 'node');
-    return EdgeNode.findOne(info);
-}
-
-
-function update_edge_node(req) {
-    var info = _.pick(req.restful_params, 'node');
-    var updates = _.pick(req.body); // no fields can be updated for now
-    return EdgeNode.findOneAndUpdate(info, updates);
+    return EdgeNode.create(info).then(function() {
+        return undefined;
+    });
 }
 
 
 function delete_edge_node(req) {
-    var info = _.pick(req.restful_params, 'node');
-    return EdgeNode.findOneAndDelete(info);
+    var info = _.pick(req.restful_params, 'name');
+    return EdgeNode.findOneAndDelete(info).then(function() {
+        return undefined;
+    });
 }

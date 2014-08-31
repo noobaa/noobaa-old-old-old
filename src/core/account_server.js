@@ -8,19 +8,21 @@ var account_api = require('./account_api');
 var Account = require('./models/account');
 var LRU = require('../utils/lru');
 
-module.exports = new account_api.Server({
-    login: login,
-    logout: logout,
+var account_server = new account_api.Server({
+    login_account: login_account,
+    logout_account: logout_account,
     create_account: create_account,
     read_account: read_account,
     update_account: update_account,
     delete_account: delete_account,
-    // functions extending the api
-    verify_account_session: verify_account_session
 });
 
+// utility function for other servers
+account_server.verify_account_session = verify_account_session;
 
-function login(req) {
+module.exports = account_server;
+
+function login_account(req) {
     var info = {
         email: req.restful_params.email,
     };
@@ -38,7 +40,7 @@ function login(req) {
 }
 
 
-function logout(req) {
+function logout_account(req) {
     delete req.session.account_id;
 }
 
@@ -95,7 +97,7 @@ function verify_account_session(req) {
         if (!account_id) {
             throw new Error('NO ACCOUNT ' + account_id);
         }
-        
+
         // use cached account if still valid by time
         var item = accounts_lru.find_or_add_item(account_id);
         var now = Date.now();
