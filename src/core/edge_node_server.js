@@ -24,15 +24,20 @@ module.exports = new edge_node_api.Server({
 function connect_edge_node(req) {
     var info = _.pick(req.restful_params, 'name', 'ip', 'port');
     info.account = req.account;
+    info.heartbeat = new Date();
     return Q.fcall(function() {
+        // query to find the node by account and name
         return EdgeNode.findOne({
             account: info.account,
             name: info.name,
         }).exec();
     }).then(function(edge_node) {
         if (edge_node) {
-            return edge_node;
+            // node exists - update its heartbeat
+            edge_node.heartbeat = info.heartbeat;
+            return edge_node.save();
         } else {
+            // doesn't exist - create the node
             return EdgeNode.create(info);
         }
     }).then(function() {
