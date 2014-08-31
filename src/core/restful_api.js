@@ -101,7 +101,6 @@ function define_api(api) {
         _.each(me._middlewares, function(fn) {
             assert(fn, 'undefined middleware function');
             router.use(base_path, function(req, res, next) {
-                console.log('_middlewares', api.name, fn.name);
                 Q.fcall(fn, req).done(function() {
                     return next();
                 }, function(err) {

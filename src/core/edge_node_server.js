@@ -22,10 +22,20 @@ module.exports = new edge_node_api.Server({
 
 
 function connect_edge_node(req) {
-    console.log('CONNECT EDGE NODE', req.restful_params);
     var info = _.pick(req.restful_params, 'name', 'ip', 'port');
     info.account = req.account;
-    return EdgeNode.create(info).then(function() {
+    return Q.fcall(function() {
+        return EdgeNode.findOne({
+            account: info.account,
+            name: info.name,
+        }).exec();
+    }).then(function(edge_node) {
+        if (edge_node) {
+            return edge_node;
+        } else {
+            return EdgeNode.create(info);
+        }
+    }).then(function() {
         return undefined;
     });
 }
@@ -33,7 +43,10 @@ function connect_edge_node(req) {
 
 function delete_edge_node(req) {
     var info = _.pick(req.restful_params, 'name');
-    return EdgeNode.findOneAndDelete(info).then(function() {
+    info.account = req.account;
+    return Q.fcall(function() {
+        return EdgeNode.findOneAndRemove(info).exec();
+    }).then(function() {
         return undefined;
     });
 }

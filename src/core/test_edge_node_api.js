@@ -10,20 +10,34 @@ describe('edge_node_api', function() {
 
     var coretest = require('./coretest');
 
-    describe('connect', function() {
 
-        it('should work', function(done) {
-            Q.fcall(function() {
-                return coretest.login_default_account();
-            }).then(function() {
-                return coretest.edge_node_client.connect_edge_node({
-                    name: 'haha',
-                    ip: '0.0.0.0',
-                    port: 9999,
-                })
-            }).nodeify(done);
-        });
-
+    it('should work', function(done) {
+        Q.fcall(function() {
+            return coretest.login_default_account();
+        }).then(function() {
+            return coretest.edge_node_client.connect_edge_node({
+                name: 'haha',
+                ip: '0.0.0.0',
+                port: 9999,
+            })
+        }).then(function() {
+            return coretest.edge_node_client.connect_edge_node({
+                name: 'haha',
+                ip: '0.0.0.0',
+                port: 9999,
+            })
+        }).then(function() {
+            return coretest.edge_node_client.delete_edge_node({
+                name: 'haha',
+            });
+        }).then(function() {
+            return coretest.edge_node_client.connect_edge_node({
+                name: 'haha',
+                ip: '0.0.0.0',
+                port: 9999,
+            })
+        }).nodeify(done);
     });
+
 
 });
