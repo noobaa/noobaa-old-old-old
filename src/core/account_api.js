@@ -12,7 +12,7 @@ module.exports = restful_api.define_api({
 
         login: {
             method: 'POST',
-            path: '/auth',
+            path: '/login',
             params: {
                 email: {
                     type: String,
@@ -28,7 +28,7 @@ module.exports = restful_api.define_api({
 
         logout: {
             method: 'POST',
-            path: '/auth/logout',
+            path: '/logout',
             doc: 'logout current account',
         },
 
