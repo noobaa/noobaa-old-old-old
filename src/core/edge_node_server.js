@@ -35,12 +35,13 @@ function connect_edge_node(req) {
         if (edge_node) {
             // node exists - update its heartbeat
             edge_node.heartbeat = info.heartbeat;
-            return edge_node.save();
+            return Q.ninvoke(edge_node, 'save');
         } else {
             // doesn't exist - create the node
             return EdgeNode.create(info);
         }
-    }).then(function() {
+    }).then(function(edge_node) {
+        req.session.edge_node_id = edge_node._id;
         return undefined;
     });
 }
@@ -52,6 +53,7 @@ function delete_edge_node(req) {
     return Q.fcall(function() {
         return EdgeNode.findOneAndRemove(info).exec();
     }).then(function() {
+        delete req.session.edge_node_id;
         return undefined;
     });
 }

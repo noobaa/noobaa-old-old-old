@@ -16,7 +16,7 @@ describe('account_api', function() {
 
     describe('account full flow', function() {
 
-        it('should work', function(done) {
+        it('works', function(done) {
             Q.fcall(function() {
                 return account_client.create_account({
                     email: EMAIL,

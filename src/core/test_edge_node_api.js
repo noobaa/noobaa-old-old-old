@@ -11,7 +11,7 @@ describe('edge_node_api', function() {
     var coretest = require('./coretest');
 
 
-    it('should work', function(done) {
+    it('works', function(done) {
         Q.fcall(function() {
             return coretest.login_default_account();
         }).then(function() {
