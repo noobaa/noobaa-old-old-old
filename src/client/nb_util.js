@@ -7,7 +7,7 @@ angular.module('templates', []);
 // require('../../build/templates.js');
 
 var nb_util = angular.module('nb_util', [
-    'templates'
+    'templates', 'ngCookies'
 ]);
 
 // initializations - setup functions on globalScope
@@ -40,8 +40,8 @@ nb_util.run(['$rootScope',
 
 
 nb_util.factory('nbUtil', [
-    '$http', '$timeout', '$interval', '$window', '$location', '$q', '$rootScope', '$compile', '$templateCache',
-    function($http, $timeout, $interval, $window, $location, $q, $rootScope, $compile, $templateCache) {
+    '$http', '$timeout', '$interval', '$window', '$location', '$q', '$rootScope', '$compile', '$templateCache', '$cookies',
+    function($http, $timeout, $interval, $window, $location, $q, $rootScope, $compile, $templateCache, $cookies) {
 
         var $scope = {
             bowser: require('bowser'),
@@ -126,6 +126,8 @@ nb_util.factory('nbUtil', [
 
 
         function track_event(event, data) {
+            data = data || {};
+            data.refid = $cookies.refid;
             var p1 = $q.when().then(function() {
                 if (!window.nb_mixpanel) {
                     return;

@@ -82,7 +82,7 @@ function sign_in_user(req, params, done) {
         },
 
         function(next) {
-            if (is_new) {
+            if (is_new && !provider) {
                 user.name = params.email;
                 user.email = params.email;
                 user.password = params.password;
@@ -93,6 +93,9 @@ function sign_in_user(req, params, done) {
                 } else {
                     user[provider] = params.profile._json;
                 }
+            }
+            if (is_new && req.cookies && req.cookies.refid) {
+                user.refid = req.cookies.refid;
             }
             return user.save(function(err) {
                 return next(err);
