@@ -5,7 +5,6 @@ var util = require('util');
 var stream = require('stream');
 var _ = require('underscore');
 var Q = require('q');
-var restful_api = require('./restful_api');
 var object_api = require('./object_api');
 
 

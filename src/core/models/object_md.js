@@ -9,6 +9,12 @@ var _ = require('underscore');
 
 var objmd_schema = new Schema({
 
+    // the service account
+    account: {
+        type: types.ObjectId,
+        ref: 'Account'
+    },
+
     // every object belongs to a single bucket
     bucket: {
         type: types.ObjectId,

@@ -86,8 +86,8 @@ function delete_account(req) {
 }
 
 
-var accounts_lru = new LRU(200, 'accounts_lru');
-var VALID_ACCOUNT_ENTRY_MS = 600000; // 10 minutes
+// 10 minutes expiry
+var accounts_lru = new LRU(200, 600000, 'accounts_lru');
 
 // verify that the session has a valid account using a cache
 // to be used by other servers
@@ -98,10 +98,10 @@ function verify_account_session(req) {
             throw new Error('NO ACCOUNT ' + account_id);
         }
 
-        // use cached account if still valid by time
         var item = accounts_lru.find_or_add_item(account_id);
-        var now = Date.now();
-        if (item && (now < item.time + VALID_ACCOUNT_ENTRY_MS)) {
+
+        // use cached account if not expired
+        if (item.account) {
             req.account = item.account;
             return req.account;
         }

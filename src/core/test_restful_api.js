@@ -130,6 +130,25 @@ describe('restful_api', function() {
             }, Error);
         });
 
+
+        it('should work on mock router', function() {
+            var router = {
+                get: function() {},
+                put: function() {},
+                post: function() {},
+                delete: function() {},
+                use: function() {},
+            };
+            var server = new test_api.Server({}, [], 'allow_missing_methods');
+            server.install_routes(router, '/');
+        });
+
+        it('should work on express app', function() {
+            var app = express();
+            var server = new test_api.Server({}, [], 'allow_missing_methods');
+            server.install_routes(app, '/base/route/path/');
+        });
+
     });
 
 

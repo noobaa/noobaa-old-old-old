@@ -5,81 +5,84 @@
 var _ = require('underscore');
 var Q = require('q');
 var assert = require('assert');
-var http = require('http');
-var express = require('express');
-
 
 describe('object_api', function() {
 
-    describe('Server', function() {
+    var coretest = require('./coretest');
+    var object_client = coretest.object_client;
 
-        var object_server = require('./object_server');
-        var object_api = require('./object_api');
+    var BKT = '1_bucket';
+    var KEY = '1_key';
 
-        describe('router', function() {
-
-            it('should work on mock router', function() {
-                var router = {
-                    get: function() {},
-                    put: function() {},
-                    post: function() {},
-                    delete: function() {},
-                    use: function() {},
-                };
-                object_server.install_routes(router, '/');
+    it('works', function(done) {
+        Q.fcall(function() {
+            return coretest.login_default_account();
+        }).then(function() {
+            return coretest.object_client.create_bucket({
+                bucket: BKT,
             });
-
-            it('should work on express app', function() {
-                var app = express();
-                object_server.install_routes(app, '/base/route/path/');
+        }).then(function() {
+            return coretest.object_client.read_bucket({
+                bucket: BKT,
             });
-
-        });
-
+        }).then(function() {
+            return coretest.object_client.update_bucket({
+                bucket: BKT,
+            });
+        }).then(function() {
+            return coretest.object_client.create_object({
+                bucket: BKT,
+                key: KEY,
+                size: 1,
+            });
+        }).then(function() {
+            return coretest.object_client.read_object_md({
+                bucket: BKT,
+                key: KEY,
+            });
+        }).then(function() {
+            return coretest.object_client.update_object_md({
+                bucket: BKT,
+                key: KEY,
+            });
+        }).then(function() {
+            return coretest.object_client.map_object({
+                bucket: BKT,
+                key: KEY,
+            });
+        }).then(function() {
+            return coretest.object_client.list_bucket_objects({
+                bucket: BKT,
+            });
+        }).then(function() {
+            return coretest.object_client.delete_object({
+                bucket: BKT,
+                key: KEY,
+            });
+        }).then(function() {
+            return coretest.object_client.delete_bucket({
+                bucket: BKT,
+            });
+        }).nodeify(done);
     });
 
 
-    describe('object_client', function() {
-
-        var object_client = require('./object_client');
-        var object_api = require('./object_api');
-
-        describe('setup', function() {
-            it('should work', function() {
-                var client = new object_client.ObjectClient();
-                assert(client, 'expected a valid client');
-            });
+    it.skip('should read object data', function(done) {
+        var EXPECTED_DATA = '';
+        var data = '';
+        coretest.object_client.open_read_stream({
+            bucket: BKT,
+            key: KEY,
+            start: 0,
+            count: 10,
+        }).on('data', function(chunk) {
+            data += chunk;
+        }).on('end', function() {
+            assert.deepEqual(data, EXPECTED_DATA);
+            done();
+        }).on('error', function(err) {
+            done(err);
         });
-
-        describe.skip('open_read_stream', function() {
-            it('should read object data', function(done) {
-                var BASE_PATH = '/1_base_path';
-                var BKT = '1_bucket';
-                var KEY = '1_key';
-                var REPLY = {
-                    api: ['IS', {
-                        fucking: 'aWeSoMe'
-                    }]
-                };
-                // TODO
-                var client = new object_client.ObjectClient();
-                var data = '';
-                client.open_read_stream({
-                    bucket: BKT,
-                    key: KEY,
-                    start: 0,
-                    count: 10,
-                }).on('data', function(chunk) {
-                    data += chunk;
-                }).on('end', function() {
-                    assert.deepEqual(data, REPLY);
-                    done();
-                }).on('error', function(err) {
-                    done(err);
-                });
-            });
-        });
-
     });
 
 });

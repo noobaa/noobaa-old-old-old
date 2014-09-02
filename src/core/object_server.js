@@ -21,11 +21,11 @@ module.exports = new object_api.Server({
     read_bucket: read_bucket,
     update_bucket: update_bucket,
     delete_bucket: delete_bucket,
-    list_objects: list_objects,
+    list_bucket_objects: list_bucket_objects,
     // object actions
     create_object: create_object,
-    read_object: read_object,
-    update_object: update_object,
+    read_object_md: read_object_md,
+    update_object_md: update_object_md,
     delete_object: delete_object,
     map_object: map_object,
 }, [
@@ -35,98 +35,166 @@ module.exports = new object_api.Server({
 
 
 function create_bucket(req) {
-    var info = {
-        name: req.restful_param('bucket')
-    };
-    var bucket = new Bucket(info);
-    return bucket.save();
+    var bucket_name = req.restful_param('bucket');
+    return Q.fcall(function() {
+        var info = {
+            account: req.account,
+            name: bucket_name,
+        };
+        return Bucket.create(info);
+    }).then(function() {
+        return undefined;
+    });
 }
 
 
 function read_bucket(req) {
-    var info = {
-        name: req.restful_param('bucket')
-    };
-    return Bucket.findOne(info);
+    var bucket_name = req.restful_param('bucket');
+    return find_bucket(req.account, bucket_name).then(function(bucket) {
+        return _.pick(bucket, 'name');
+    });
 }
 
 
 function update_bucket(req) {
-    var info = {
-        name: req.restful_param('bucket')
-    };
-    var updates = _.pick(req.body); // no fields can be updated for now
-    return Bucket.findOneAndUpdate(info, updates);
+    var bucket_name = req.restful_param('bucket');
+    return Q.fcall(function() {
+        // TODO no fields can be updated for now
+        var updates = _.pick(req.restful_params);
+        var info = {
+            account: req.account,
+            name: bucket_name,
+        };
+        return Bucket.findOneAndUpdate(info, updates).exec();
+    }).then(function() {
+        return undefined;
+    });
 }
 
 
 function delete_bucket(req) {
-    var info = {
-        name: req.restful_param('bucket')
-    };
-    return Bucket.findOneAndDelete(info);
+    var bucket_name = req.restful_param('bucket');
+    // TODO mark deleted on objects
+    return Q.fcall(function() {
+        var info = {
+            account: req.account,
+            name: bucket_name,
+        };
+        return Bucket.findOneAndDelete(info).exec();
+    }).then(function() {
+        return undefined;
+    });
 }
 
 
-function list_objects(req) {
-    var info = {
-        bucket: req.restful_param('bucket'),
-        key: req.restful_param('key'),
-    };
-    var select = {
-        map: 0
-    };
-    return ObjectMD.find(info, select);
+function list_bucket_objects(req) {
+    var bucket_name = req.restful_param('bucket');
+    var key = req.restful_param('key');
+    return find_bucket(req.account, bucket_name).then(function(bucket) {
+        var info = {
+            account: req.account,
+            bucket: bucket.id,
+            key: key,
+        };
+        return ObjectMD.find(info).exec();
+    }).then(function(objects) {
+        return _.map(objects, function(o) {
+            return _.pick(0, 'key', 'size', 'create_time');
+        });
+    });
 }
 
 
 function create_object(req) {
-    var info = {
-        bucket: req.restful_param('bucket'),
-        key: req.restful_param('key'),
-        size: req.restful_param('size'),
-    };
-    var obj = new ObjectMD(info);
-    return obj.save();
+    var bucket_name = req.restful_param('bucket');
+    var key = req.restful_param('key');
+    var size = req.restful_param('size');
+    return find_bucket(req.account, bucket_name).then(function(bucket) {
+        var info = {
+            account: req.account,
+            bucket: bucket.id,
+            key: key,
+            size: size,
+        };
+        return ObjectMD.create(info);
+    }).then(function() {
+        return undefined;
+    });
 }
 
 
-function read_object(req) {
+function read_object_md(req) {
     var info = {
+        account: req.account,
         bucket: req.restful_param('bucket'),
         key: req.restful_param('key'),
     };
-    var select = {
-        map: 0
-    };
-    return ObjectMD.findOne(info, select);
+    return Q.fcall(function() {
+        return ObjectMD.findOne(info).exec();
+    }).then(function() {
+        return undefined;
+    });
 }
 
 
-function update_object(req) {
+function update_object_md(req) {
     var info = {
+        account: req.account,
         bucket: req.restful_param('bucket'),
         key: req.restful_param('key'),
     };
-    var updates = _.pick(req.body); // no fields can be updated for now
-    return Bucket.findOneAndUpdate(info, updates);
+    // TODO no fields can be updated for now
+    var updates = _.pick(req.restful_params);
+    return Q.fcall(function() {
+        return Bucket.findOneAndUpdate(info, updates).exec();
+    }).then(function() {
+        return undefined;
+    });
 }
 
 
 function delete_object(req) {
     var info = {
+        account: req.account,
         bucket: req.restful_param('bucket'),
         key: req.restful_param('key'),
     };
-    return Bucket.findOneAndDelete(info);
+    return Q.fcall(function() {
+        return Bucket.findOneAndDelete(info).exec();
+    }).then(function() {
+        return undefined;
+    });
 }
 
 
 function map_object(req) {
     var info = {
+        account: req.account,
         bucket: req.restful_param('bucket'),
         key: req.restful_param('key'),
         // TODO
     };
-    return ObjectMD.findOne(info);
+    return Q.fcall(function() {
+        return ObjectMD.findOne(info).populate('map').exec();
+    }).then(function(object) {
+        return _.pick(object, 'key', 'size', 'create_time', 'map');
+    });
+}
+
+// 10 minutes expiry
+var buckets_lru = new LRU(200, 600000, 'buckets_lru');
+
+function find_bucket(account, bucket_name) {
+    var info = {
+        account: account,
+        name: bucket_name,
+    };
+    return Q.fcall(function() {
+        return Bucket.findOne(info).exec();
+    }).then(function(bucket) {
+        if (!bucket) {
+            throw new Error('NO BUCKET ' + bucket_name);
+        }
+        return bucket;
+    });
 }

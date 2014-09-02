@@ -19,6 +19,13 @@ var edge_node_client = new edge_node_api.Client({
     path: '/edge_node_api/',
 });
 
+var object_api = require('./object_api');
+var object_server = require('./object_server');
+var object_client_module = require('./object_client');
+var object_client = new object_client_module.ObjectClient({
+    path: '/object_api/',
+});
+
 var DEFAULT_EMAIL = 'coretest@core.test';
 var DEFAULT_PASSWORD = 'coretest';
 
@@ -31,6 +38,10 @@ before(function(done) {
         edge_node_server.set_logging();
         edge_node_server.install_routes(utilitest.router, '/edge_node_api/');
         edge_node_client.set_param('port', utilitest.http_port());
+
+        object_server.set_logging();
+        object_server.install_routes(utilitest.router, '/object_api/');
+        object_client.set_param('port', utilitest.http_port());
 
         return account_client.create_account({
             email: DEFAULT_EMAIL,
@@ -55,4 +66,5 @@ module.exports = {
     login_default_account: login_default_account,
     account_client: account_client,
     edge_node_client: edge_node_client,
+    object_client: object_client,
 };

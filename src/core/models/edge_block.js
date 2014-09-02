@@ -15,8 +15,8 @@ var edge_block_schema = new Schema({
         ref: 'EdgeNode'
     },
 
-    // the key dscribes how the node locates the data word
-    key: String,
+    // the length in bytes of this block
+    size: Number,
 
 });
 

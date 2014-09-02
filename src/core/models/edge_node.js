@@ -27,6 +27,11 @@ var edge_node_schema = new Schema({
     // the last time the node sent heartbeat    
     hearbeat: Date,
 
+    // the total allocation size in bytes
+    allocated_storage: Number,
+
+    // the used size in bytes - computed from the EdgeBlocks
+    used_storage: Number,
 });
 
 

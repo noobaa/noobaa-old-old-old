@@ -15,7 +15,12 @@ module.exports = restful_api.define_api({
         create_bucket: {
             method: 'POST',
             path: '/',
-            params: {},
+            params: {
+                bucket: {
+                    type: String,
+                    require: true,
+                }
+            }
         },
 
         read_bucket: {
@@ -27,6 +32,11 @@ module.exports = restful_api.define_api({
                     required: true,
                 },
             },
+            reply: {
+                name: {
+                    type: String
+                }
+            }
         },
 
         update_bucket: {
@@ -51,6 +61,17 @@ module.exports = restful_api.define_api({
             },
         },
 
+        list_bucket_objects: {
+            method: 'GET',
+            path: '/:bucket/list',
+            params: {
+                bucket: {
+                    type: String,
+                    required: true,
+                },
+            },
+        },
+
         // object functions
 
         create_object: {
@@ -61,10 +82,18 @@ module.exports = restful_api.define_api({
                     type: String,
                     required: true,
                 },
+                key: {
+                    type: String,
+                    required: true,
+                },
+                size: {
+                    type: Number,
+                    required: true,
+                },
             },
         },
 
-        read_object: {
+        read_object_md: {
             method: 'GET',
             path: '/:bucket/:key',
             params: {
@@ -79,7 +108,7 @@ module.exports = restful_api.define_api({
             },
         },
 
-        update_object: {
+        update_object_md: {
             method: 'PUT',
             path: '/:bucket/:key',
             params: {
@@ -124,16 +153,6 @@ module.exports = restful_api.define_api({
             },
         },
 
-        list_objects: {
-            method: 'GET',
-            path: '/:bucket/list',
-            params: {
-                bucket: {
-                    type: String,
-                    required: true,
-                },
-            },
-        },
     }
 
 });
