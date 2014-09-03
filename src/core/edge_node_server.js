@@ -17,13 +17,13 @@ module.exports = new edge_node_api.Server({
     delete_edge_node: delete_edge_node,
 }, [
     // middleware to verify the account session before any of this server calls
-    account_server.verify_account_session
+    account_server.account_session
 ]);
 
 
 function connect_edge_node(req) {
     var info = _.pick(req.restful_params, 'name', 'ip', 'port');
-    info.account = req.account;
+    info.account = req.account.id; // see account_server.account_session
     info.heartbeat = new Date();
     return Q.fcall(function() {
         // query to find the node by account and name
@@ -49,7 +49,7 @@ function connect_edge_node(req) {
 
 function delete_edge_node(req) {
     var info = _.pick(req.restful_params, 'name');
-    info.account = req.account;
+    info.account = req.account.id; // see account_server.account_session
     return Q.fcall(function() {
         return EdgeNode.findOneAndRemove(info).exec();
     }).then(function() {

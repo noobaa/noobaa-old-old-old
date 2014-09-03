@@ -23,6 +23,11 @@ describe('account_api', function() {
                     password: PASSWORD,
                 });
             }).then(function() {
+                return account_client.login_account({
+                    email: EMAIL,
+                    password: PASSWORD,
+                });
+            }).then(function() {
                 return account_client.read_account().then(function(res) {
                     assert.strictEqual(res.data.email, EMAIL);
                 });

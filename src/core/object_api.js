@@ -151,6 +151,20 @@ module.exports = restful_api.define_api({
                     required: true,
                 },
             },
+            reply: {
+                key: {
+                    type: String
+                },
+                size: {
+                    type: Number
+                },
+                create_time: {
+                    type: Date
+                },
+                map: {
+                    type: Object
+                },
+            }
         },
 
     }

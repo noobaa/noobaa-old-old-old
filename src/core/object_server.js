@@ -6,6 +6,7 @@ var Q = require('q');
 var restful_api = require('./restful_api');
 var object_api = require('./object_api');
 var account_server = require('./account_server');
+var LRU = require('../utils/lru');
 // db models
 var Account = require('./models/account');
 var Bucket = require('./models/bucket');
@@ -30,7 +31,7 @@ module.exports = new object_api.Server({
     map_object: map_object,
 }, [
     // middleware to verify the account session
-    account_server.verify_account_session
+    account_server.account_session
 ]);
 
 
@@ -38,7 +39,7 @@ function create_bucket(req) {
     var bucket_name = req.restful_param('bucket');
     return Q.fcall(function() {
         var info = {
-            account: req.account,
+            account: req.account.id,
             name: bucket_name,
         };
         return Bucket.create(info);
@@ -50,7 +51,7 @@ function create_bucket(req) {
 
 function read_bucket(req) {
     var bucket_name = req.restful_param('bucket');
-    return find_bucket(req.account, bucket_name).then(function(bucket) {
+    return find_bucket(req.account.id, bucket_name, 'force').then(function(bucket) {
         return _.pick(bucket, 'name');
     });
 }
@@ -62,7 +63,7 @@ function update_bucket(req) {
         // TODO no fields can be updated for now
         var updates = _.pick(req.restful_params);
         var info = {
-            account: req.account,
+            account: req.account.id,
             name: bucket_name,
         };
         return Bucket.findOneAndUpdate(info, updates).exec();
@@ -77,7 +78,7 @@ function delete_bucket(req) {
     // TODO mark deleted on objects
     return Q.fcall(function() {
         var info = {
-            account: req.account,
+            account: req.account.id,
             name: bucket_name,
         };
         return Bucket.findOneAndDelete(info).exec();
@@ -90,9 +91,9 @@ function delete_bucket(req) {
 function list_bucket_objects(req) {
     var bucket_name = req.restful_param('bucket');
     var key = req.restful_param('key');
-    return find_bucket(req.account, bucket_name).then(function(bucket) {
+    return find_bucket(req.account.id, bucket_name).then(function(bucket) {
         var info = {
-            account: req.account,
+            account: req.account.id,
             bucket: bucket.id,
             key: key,
         };
@@ -109,9 +110,9 @@ function create_object(req) {
     var bucket_name = req.restful_param('bucket');
     var key = req.restful_param('key');
     var size = req.restful_param('size');
-    return find_bucket(req.account, bucket_name).then(function(bucket) {
+    return find_bucket(req.account.id, bucket_name).then(function(bucket) {
         var info = {
-            account: req.account,
+            account: req.account.id,
             bucket: bucket.id,
             key: key,
             size: size,
@@ -124,12 +125,14 @@ function create_object(req) {
 
 
 function read_object_md(req) {
-    var info = {
-        account: req.account,
-        bucket: req.restful_param('bucket'),
-        key: req.restful_param('key'),
-    };
-    return Q.fcall(function() {
+    var bucket_name = req.restful_param('bucket');
+    var key = req.restful_param('key');
+    return find_bucket(req.account.id, bucket_name).then(function(bucket) {
+        var info = {
+            account: req.account.id,
+            bucket: bucket.id,
+            key: key,
+        };
         return ObjectMD.findOne(info).exec();
     }).then(function() {
         return undefined;
@@ -138,14 +141,16 @@ function read_object_md(req) {
 
 
 function update_object_md(req) {
-    var info = {
-        account: req.account,
-        bucket: req.restful_param('bucket'),
-        key: req.restful_param('key'),
-    };
-    // TODO no fields can be updated for now
-    var updates = _.pick(req.restful_params);
-    return Q.fcall(function() {
+    var bucket_name = req.restful_param('bucket');
+    var key = req.restful_param('key');
+    return find_bucket(req.account.id, bucket_name).then(function(bucket) {
+        var info = {
+            account: req.account.id,
+            bucket: bucket.id,
+            key: key,
+        };
+        // TODO no fields can be updated for now
+        var updates = _.pick(req.restful_params);
         return Bucket.findOneAndUpdate(info, updates).exec();
     }).then(function() {
         return undefined;
@@ -154,12 +159,14 @@ function update_object_md(req) {
 
 
 function delete_object(req) {
-    var info = {
-        account: req.account,
-        bucket: req.restful_param('bucket'),
-        key: req.restful_param('key'),
-    };
-    return Q.fcall(function() {
+    var bucket_name = req.restful_param('bucket');
+    var key = req.restful_param('key');
+    return find_bucket(req.account.id, bucket_name).then(function(bucket) {
+        var info = {
+            account: req.account.id,
+            bucket: bucket.id,
+            key: key,
+        };
         return Bucket.findOneAndDelete(info).exec();
     }).then(function() {
         return undefined;
@@ -168,13 +175,14 @@ function delete_object(req) {
 
 
 function map_object(req) {
-    var info = {
-        account: req.account,
-        bucket: req.restful_param('bucket'),
-        key: req.restful_param('key'),
-        // TODO
-    };
-    return Q.fcall(function() {
+    var bucket_name = req.restful_param('bucket');
+    var key = req.restful_param('key');
+    return find_bucket(req.account.id, bucket_name).then(function(bucket) {
+        var info = {
+            account: req.account.id,
+            bucket: bucket.id,
+            key: key,
+        };
         return ObjectMD.findOne(info).populate('map').exec();
     }).then(function(object) {
         return _.pick(object, 'key', 'size', 'create_time', 'map');
@@ -184,17 +192,27 @@ function map_object(req) {
 // 10 minutes expiry
 var buckets_lru = new LRU(200, 600000, 'buckets_lru');
 
-function find_bucket(account, bucket_name) {
-    var info = {
-        account: account,
-        name: bucket_name,
-    };
+function find_bucket(account_id, bucket_name, force) {
     return Q.fcall(function() {
-        return Bucket.findOne(info).exec();
-    }).then(function(bucket) {
-        if (!bucket) {
-            throw new Error('NO BUCKET ' + bucket_name);
+        var item = buckets_lru.find_or_add_item(account_id + ':' + bucket_name);
+        // use cached bucket if not expired
+        if (item.bucket && force !== 'force') {
+            return item.bucket;
         }
-        return bucket;
+        // fetch account from the database
+        var info = {
+            account: account_id,
+            name: bucket_name,
+        };
+        console.log('BUCKET MISS', info);
+        return Q.fcall(function() {
+            return Bucket.findOne(info).exec();
+        }).then(function(bucket) {
+            if (!bucket) {
+                throw new Error('NO BUCKET ' + bucket_name);
+            }
+            item.bucket = bucket;
+            return bucket;
+        });
     });
 }
