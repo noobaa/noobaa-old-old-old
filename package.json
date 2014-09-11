@@ -25,6 +25,7 @@
     "jquery": "global:$"
   },
   "dependencies": {
+    "noobaa-util": "git+https://github.com/noobaa/noobaa-util.git",
     "express": "~4.1.1",
     "static-favicon": "~1.0.2",
     "morgan": "~1.0.0",
