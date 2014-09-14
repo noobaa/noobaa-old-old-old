@@ -20,6 +20,7 @@ var user_schema = new mongoose.Schema({
     last_access_time: Date,
     tz_offset: Number, // timezone minutes offset from utc
     usage: Number, // cached usage value
+    refid: String, //referal id to relate to how we aquired this user initially
     quota: {
         type: Number,
         default: Math.pow(1024, 3)

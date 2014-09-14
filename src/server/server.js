@@ -120,6 +120,20 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(express_compress());
 
+app.use(function(req, res, next) {
+    //The refid will be a string we'll use to relate to the source
+    //store the reference id in a cookie if one exists
+    if (req.query.refid) {
+        // if (req.cookies && req.cookies.refid && req.cookies.refid != req.query.refid) {
+        //     console.log('About to overide existing refid in cookie. Old refid: ' + req.cookies.refid);
+        // }
+        // console.log('Setting refid in cookie. New refid' + req.query.refid);
+        res.cookie('refid', req.query.refid, {
+            httpOnly: false
+        });
+    }
+    return next();
+});
 
 
 ////////////
