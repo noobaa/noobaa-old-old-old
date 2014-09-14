@@ -5,7 +5,7 @@
 var _ = require('underscore');
 var Q = require('q');
 var assert = require('assert');
-var utilitest = require('../utils/utilitest');
+var utilitest = require('noobaa-util/utilitest');
 
 var account_api = require('./account_api');
 var account_server = require('./account_server');

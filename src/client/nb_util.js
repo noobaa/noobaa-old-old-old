@@ -2,8 +2,8 @@
 
 var _ = require('underscore');
 var moment = require('moment');
-var LinkedList = require('../utils/linked_list');
-var JobQueue = require('../utils/job_queue');
+var LinkedList = require('noobaa-util/linked_list');
+var JobQueue = require('noobaa-util/job_queue');
 
 angular.module('templates', []);
 // require('../../build/templates.js');

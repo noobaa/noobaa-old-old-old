@@ -7,7 +7,7 @@ var Q = require('q');
 var assert = require('assert');
 var express = require('express');
 var request = require('request');
-var utilitest = require('../utils/utilitest');
+var utilitest = require('noobaa-util/utilitest');
 
 
 describe('restful_api', function() {

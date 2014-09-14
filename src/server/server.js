@@ -13,7 +13,7 @@ if (process.env.NODETIME_ACCOUNT_KEY) {
 
 // important - dot settings should run before any require() that might use dot
 // or else the it will get mess up (like the email.js code)
-var dot = require('../utils/dot');
+var dot = require('noobaa-util/dot');
 var path = require('path');
 var URL = require('url');
 var http = require('http');

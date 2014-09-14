@@ -6,7 +6,7 @@ var Q = require('q');
 var restful_api = require('./restful_api');
 var account_api = require('./account_api');
 var Account = require('./models/account');
-var LRU = require('../utils/lru');
+var LRU = require('noobaa-util/lru');
 
 var account_server = new account_api.Server({
     login_account: login_account,
