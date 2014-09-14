@@ -487,7 +487,11 @@ nb_util.directive('nbVideo', ['$parse', '$timeout',
                     $timeout.cancel(timer);
                     if (player && player.dispose) {
                         console.log('VIDEO DISPOSE');
-                        player.dispose();
+                        // TODO not sure if should dispose the player, for now dont
+                        // when calling dispose we get a repeating exception like: 
+                        // Cannot read property 'vdata...' of null
+                        // but not sure if this is enough to get rid of the player resources.
+                        // player.dispose();
                         player = null;
                     }
                 }
