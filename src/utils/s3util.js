@@ -1,14 +1,21 @@
 'use strict';
-process.env.AWS_ACCESS_KEY_ID = 'AKIAI6M7LJIMXYCYMK7A';
-process.env.AWS_SECRET_ACCESS_KEY = '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';
-process.env.S3_BUCKET = 'noobaa-ireland';
+
+var optimist = require('optimist');
+var dotenv = require('dotenv');
+var async = require('async');
+var AWS = require('aws-sdk');
 
 process.on('uncaughtException', function(err) {
 	console.log(err.stack);
 });
 
-var async = require('async');
-var AWS = require('aws-sdk');
+dotenv.load();
+if (!process.env.AWS_ACCESS_KEY_ID || 
+	!process.env.AWS_SECRET_ACCESS_KEY || 
+	!process.env.S3_BUCKET) {
+	console.log('NO AWS PARAMS in process.env - .env file not found?');
+	process.exit(1);
+}
 
 AWS.config.update({
 	accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -100,7 +107,7 @@ function abort_upload(key, upload_id, callback) {
 
 
 function main() {
-	var argv = require('optimist').argv;
+	var argv = optimist.argv;
 	var cmd = argv._[0];
 	if (cmd === 'list_uploads') {
 		list_multipart_uploads(function(err, results) {

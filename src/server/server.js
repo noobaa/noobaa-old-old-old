@@ -13,31 +13,7 @@ if (process.env.NODETIME_ACCOUNT_KEY) {
 
 // important - dot settings should run before any require() that might use dot
 // or else the it will get mess up (like the email.js code)
-var dot = require('dot');
-dot.templateSettings.strip = false;
-dot.templateSettings.cache = true;
-// replace dot regexp to use <? ?> to avoid collision with angular {{ }}
-for (var i in dot.templateSettings) {
-    var reg = dot.templateSettings[i];
-    if (!(reg instanceof RegExp)) {
-        continue;
-    }
-    var pattern = reg.source;
-    pattern = pattern.replace(/\\\{\\\{/g, '\\<\\?');
-    pattern = pattern.replace(/\\\}\\\}/g, '\\?\\>');
-    var flags = '';
-    if (reg.global) {
-        flags += 'g';
-    }
-    if (reg.ignoreCase) {
-        flags += 'i';
-    }
-    if (reg.multiline) {
-        flags += 'm';
-    }
-    dot.templateSettings[i] = new RegExp(pattern, flags);
-}
-
+var dot = require('noobaa-util/dot');
 var path = require('path');
 var URL = require('url');
 var http = require('http');
@@ -104,7 +80,7 @@ app.engine('html', dot_emc_app.__express);
 // configure app middleware handlers in the order to use them
 
 app.use(express_favicon(path.join(rootdir, 'images', 'noobaa_icon16.ico')));
-app.use(express_morgan_logger());
+app.use(express_morgan_logger('combined'));
 app.use(function(req, res, next) {
     // HTTPS redirect:
     // since we want to provide secure and certified connections 
@@ -125,7 +101,12 @@ app.use(function(req, res, next) {
     return next();
 });
 app.use(express_cookie_parser(process.env.COOKIE_SECRET));
-app.use(express_body_parser());
+app.use(express_body_parser.json());
+app.use(express_body_parser.raw());
+app.use(express_body_parser.text());
+app.use(express_body_parser.urlencoded({
+    extended: false
+}));
 app.use(express_method_override());
 app.use(express_cookie_session({
     key: 'noobaa_session',
@@ -207,7 +188,7 @@ app.get('/api/inode/', inode_api.inode_query);
 app.get('/api/inode/:inode_id', inode_api.inode_read);
 app.put('/api/inode/:inode_id', inode_api.inode_update);
 app.put('/api/inode/:inode_id/copy', inode_api.inode_copy);
-app.del('/api/inode/:inode_id', inode_api.inode_delete);
+app.delete('/api/inode/:inode_id', inode_api.inode_delete);
 app.get('/api/inode/:inode_id/ref', inode_api.inode_get_ref);
 
 app.get('/api/inode/src_dev/:device_id', inode_api.inode_source_device);
@@ -217,18 +198,18 @@ app.get('/api/inode/:inode_id/share_list', inode_api.inode_get_share_list);
 app.put('/api/inode/:inode_id/share_list', inode_api.inode_set_share_list);
 
 // app.post('/api/inode/:inode_id/link', inode_api.inode_mklink);
-// app.del('/api/inode/:inode_id/link', inode_api.inode_rmlinks);
+// app.delete('/api/inode/:inode_id/link', inode_api.inode_rmlinks);
 
 app.get('/api/inode/:inode_id/message/', message_api.get_inode_messages);
 app.post('/api/inode/:inode_id/message/', message_api.post_inode_message);
-app.del('/api/inode/:inode_id/message/:message_id', message_api.delete_inode_message);
+app.delete('/api/inode/:inode_id/message/:message_id', message_api.delete_inode_message);
 
 app.get('/api/feed/', inode_api.feed_query);
 
 app.get('/api/club/', club_api.poll);
 app.post('/api/club/', club_api.create);
 app.put('/api/club/:club_id', club_api.update);
-app.del('/api/club/:club_id', club_api.leave);
+app.delete('/api/club/:club_id', club_api.leave);
 app.post('/api/club/:club_id/msg', club_api.send);
 app.put('/api/club/:club_id/msg', club_api.mark_seen);
 app.get('/api/club/:club_id/msg', club_api.read);
@@ -383,9 +364,6 @@ app.use('/public/', cache_control(dev_mode ? 0 : 10 * 60)); // 10 minutes
 app.use('/public/', express.static(path.join(rootdir, 'build', 'public')));
 app.use('/public/images/', cache_control(dev_mode ? 3600 : 24 * 3600)); // 24 hours
 app.use('/public/images/', express.static(path.join(rootdir, 'images')));
-// app.use('/vendor/', express.static(path.join(rootdir, 'vendor')));
-// app.use('/vendor/', express.static(path.join(rootdir, 'node_modules')));
-// app.use('/vendor/', express.static(path.join(rootdir, 'bower_components')));
 app.use('/', express.static(path.join(rootdir, 'public')));
 
 

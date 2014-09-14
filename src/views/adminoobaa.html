@@ -223,7 +223,6 @@
         <?# def.include( 'common_scripts.html') ?>
     </div>
 
-    <!-- // <script src="/vendor/d3.v3.min.js" type="text/javascript"></script> -->
     <script src="//www.google.com/jsapi" type="text/javascript"></script>
 
 
@@ -414,8 +413,8 @@
                             ]);
                         }
 
-                        var yesterday = moment().subtract('days', 1).toDate();
-                        var week_ago = moment().subtract('days', 7).toDate();
+                        var yesterday = moment().subtract(1, 'days').toDate();
+                        var week_ago = moment().subtract(7, 'days').toDate();
                         var date_color_fmt = new google.visualization.ColorFormat();
                         date_color_fmt.addRange(week_ago, yesterday, 'black', 'yellow');
                         date_color_fmt.addRange(yesterday, null, 'black', 'red');
