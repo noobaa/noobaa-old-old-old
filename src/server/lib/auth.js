@@ -18,7 +18,6 @@ var email = require('./email');
 var user_inodes = require('./user_inodes');
 var track_api = require('./track_api');
 
-var AUTO_ACCEPT_ALPHA_USERS = true;
 
 var provider_to_db_map = {
     'facebook': 'fb',
@@ -110,15 +109,15 @@ function sign_in_user(req, params, done) {
 
         function(next) {
             if (!is_new) return next();
+            // track the signup event, don't wait for ack
             track_api.track_event('auth.signup', null, user, req);
-            // TODO update the emails!
-            // return email.send_alpha_welcome(user, function(err) {
-            // if (err) return next(err);
-            // return email.send_alpha_approved_notification(user, function(err) {
-            // return next(err);
-            // });
-            // });
-            return next();
+            // send emails
+            return email.send_alpha_welcome(user, function(err) {
+                if (err) return next(err);
+                return email.send_alpha_approved_notification(user, function(err) {
+                    return next(err);
+                });
+            });
         }
 
     ], function(err) {
@@ -330,6 +329,7 @@ exports.get_friends_and_users = get_friends_and_users;
 
 function get_friends_and_users(tokens, callback) {
     return async.waterfall([
+
         function(next) {
             return get_friends(tokens, next);
         },
@@ -345,6 +345,7 @@ exports.get_friends_user_ids = get_friends_user_ids;
 
 function get_friends_user_ids(tokens, callback) {
     return async.waterfall([
+
         function(next) {
             return get_friends(tokens, next);
         },
