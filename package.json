@@ -7,7 +7,7 @@
     "npm": "1.3.x"
   },
   "scripts": {
-    "postinstall": "./node_modules/.bin/gulp install",
+    "prepublish": "./node_modules/.bin/gulp install",
     "start": "./node_modules/.bin/gulp start"
   },
   "browser": {

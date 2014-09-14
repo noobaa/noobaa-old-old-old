@@ -75,7 +75,7 @@ var PATHS = {
     ngview: './src/ngview/**/*',
     scripts: ['./src/**/*.js', './*.js'],
     tests: ['./src/**/test*.js'],
-    core_tests: ['./src/core/**/test*.js'],    
+    core_tests: ['./src/core/**/test*.js'],
 
     server_main: './src/server/server.js',
     client_main: './src/client/main.js',
@@ -337,7 +337,7 @@ gulp.task('start_dev', ['install_and_serve'], function() {
 
 gulp.task('start_prod', function() {
     console.log('~~~ START PROD ~~~');
-    require(PATHS.server_main);
+    require(path.join('..', PATHS.server_main));
 });
 
 if (process.env.DEV_MODE === 'true') {
