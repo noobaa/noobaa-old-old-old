@@ -189,13 +189,11 @@ nb_util.directive('nbBrowse', function() {
                         set_current_item(inode.id);
                         return;
                     }
-                    /*
                     if (!inode.isdir) {
                         if (nbInode.play_inode(inode)) {
                             return;
                         }
                     }
-                    */
                     $location.path('/files/' + inode.id);
                 }
 
