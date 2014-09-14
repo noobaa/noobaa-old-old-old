@@ -58,7 +58,7 @@ process.on("SIGINT", leave_no_wounded);
 process.on("SIGTERM", leave_no_wounded);
 
 
-var paths = {
+var PATHS = {
     css: './src/css/**/*',
     css_candidates: ['./src/css/styles.less'],
     fonts: [
@@ -144,7 +144,7 @@ function candidate(candidate_src) {
     return stream;
 }
 
-var plumb_conf = {
+var PLUMB_CONF = {
     errorHandler: gulp_notify.onError("Error: <%= error.message %>")
 };
 
@@ -152,7 +152,7 @@ gulp.task('bower', function() {
     var DEST = 'build';
     var NAME = 'bower.json';
     return gulp.src(NAME)
-        .pipe(gulp_plumber(plumb_conf))
+        .pipe(gulp_plumber(PLUMB_CONF))
         .pipe(gulp_newer(path.join(DEST, NAME)))
         .pipe(simple_bower())
         .pipe(gulp.dest(DEST));
@@ -163,16 +163,16 @@ gulp.task('assets', ['bower'], function() {
     var FONTS_DEST = 'build/public/fonts';
     var FONTS2_DEST = 'build/public/css/font';
     return Q.all([
-        gulp.src(paths.assets)
-        .pipe(gulp_plumber(plumb_conf))
+        gulp.src(PATHS.assets)
+        .pipe(gulp_plumber(PLUMB_CONF))
         .pipe(gulp_newer(DEST))
         .pipe(gulp.dest(DEST)),
-        gulp.src(paths.fonts)
-        .pipe(gulp_plumber(plumb_conf))
+        gulp.src(PATHS.fonts)
+        .pipe(gulp_plumber(PLUMB_CONF))
         .pipe(gulp_newer(FONTS_DEST))
         .pipe(gulp.dest(FONTS_DEST)),
-        gulp.src(paths.fonts2)
-        .pipe(gulp_plumber(plumb_conf))
+        gulp.src(PATHS.fonts2)
+        .pipe(gulp_plumber(PLUMB_CONF))
         .pipe(gulp_newer(FONTS2_DEST))
         .pipe(gulp.dest(FONTS2_DEST))
     ]);
@@ -182,10 +182,10 @@ gulp.task('css', ['bower'], function() {
     var DEST = 'build/public/css';
     var NAME = 'styles.css';
     var NAME_MIN = 'styles.min.css';
-    return gulp.src(paths.css, SRC_DONT_READ)
-        .pipe(gulp_plumber(plumb_conf))
+    return gulp.src(PATHS.css, SRC_DONT_READ)
+        .pipe(gulp_plumber(PLUMB_CONF))
         .pipe(gulp_newer(path.join(DEST, NAME)))
-        .pipe(candidate(paths.css_candidates))
+        .pipe(candidate(PATHS.css_candidates))
         .pipe(gulp_less())
         .pipe(gulp_rename(NAME))
         .pipe(gulp_size_log(NAME))
@@ -200,8 +200,8 @@ gulp.task('ng', function() {
     var DEST = 'build/public/js';
     var NAME = 'templates.js';
     var NAME_MIN = 'templates.min.js';
-    return gulp.src(paths.ngview)
-        .pipe(gulp_plumber(plumb_conf))
+    return gulp.src(PATHS.ngview)
+        .pipe(gulp_plumber(PLUMB_CONF))
         .pipe(gulp_newer(path.join(DEST, NAME)))
         .pipe(gulp_ng_template())
         .pipe(gulp_size_log(NAME))
@@ -214,8 +214,8 @@ gulp.task('ng', function() {
 });
 
 gulp.task('jshint', function() {
-    return gulp.src(paths.scripts)
-        .pipe(gulp_plumber(plumb_conf))
+    return gulp.src(PATHS.scripts)
+        .pipe(gulp_plumber(PLUMB_CONF))
         .pipe(gulp_cached('jshint'))
         .pipe(gulp_jshint())
         .pipe(gulp_jshint.reporter(jshint_stylish));
@@ -228,7 +228,7 @@ gulp.task('client', ['bower'], function() {
     var NAME = 'bundle.js';
     var NAME_MIN = 'bundle.min.js';
     var bundler = browserify({
-        entries: paths.client_main,
+        entries: PATHS.client_main,
         // bare is alias for both --no-builtins, --no-commondir, 
         // and sets --insert-global-vars to just "__filename,__dirname". 
         // This is handy if you want to run bundles in node.
@@ -245,10 +245,10 @@ gulp.task('client', ['bower'], function() {
         .pipe(gulp_replace(/\brequire_node\b/g, 'require'));
     var client_merged_stream = event_stream.merge(
         client_bundle_stream,
-        gulp.src(paths.client_externals)
+        gulp.src(PATHS.client_externals)
     );
     return client_merged_stream
-        .pipe(gulp_plumber(plumb_conf))
+        .pipe(gulp_plumber(PLUMB_CONF))
         .pipe(gulp_concat(NAME))
         .pipe(gulp_size_log(NAME))
         .pipe(gulp.dest(DEST))
@@ -265,9 +265,9 @@ gulp.task('mocha', function() {
         reporter: 'spec'
     };
     // TODO limit mocha tests to src/core/ until we fix/delete the other failing tests
-    return gulp.src(paths.core_tests, SRC_DONT_READ)
+    return gulp.src(PATHS.core_tests, SRC_DONT_READ)
         .pipe(gulp_coverage.instrument({
-            pattern: paths.scripts,
+            pattern: PATHS.scripts,
             // debugDirectory: '.coverdata'
         }))
         .pipe(gulp_mocha(mocha_options))
@@ -296,8 +296,8 @@ function serve() {
     console.log('~~~~~~~~~~~~~~~~~~~~~~');
     console.log(' ');
     active_server = child_process.fork(
-        path.basename(paths.server_main), [], {
-            cwd: path.dirname(paths.server_main)
+        path.basename(PATHS.server_main), [], {
+            cwd: path.dirname(PATHS.server_main)
         }
     );
     active_server.on('error', function(err) {
@@ -337,7 +337,7 @@ gulp.task('start_dev', ['install_and_serve'], function() {
 
 gulp.task('start_prod', function() {
     console.log('~~~ START PROD ~~~');
-    require(paths.server_main);
+    require(PATHS.server_main);
 });
 
 if (process.env.DEV_MODE === 'true') {

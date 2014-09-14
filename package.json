@@ -96,7 +96,8 @@
     "gulp-coverage": "~0.3.27",
     "request": "~2.42.0",
     "underscore": "~1.7.0",
-    "mocha": "~1.21.4"
+    "mocha": "~1.21.4",
+    "optimist": "~0.6.1"
   },
   "devDependencies": {
     "npm-license": "~0.2.2",
