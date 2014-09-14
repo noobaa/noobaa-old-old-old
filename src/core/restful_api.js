@@ -52,7 +52,7 @@ function define_api(api) {
 
     Client.prototype.set_param = function(key, value) {
         this._restful_client_params[key] = value;
-    }
+    };
 
     // server class for the api.
     // 

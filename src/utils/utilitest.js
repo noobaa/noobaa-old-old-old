@@ -38,7 +38,7 @@ before(function(done) {
     Q.fcall(function() {
         var defer = Q.defer();
         mongoose.connection.on('open', defer.resolve);
-        mongoose.connect('mongodb://localhost/test');
+        mongoose.connect('mongodb://localhost/utilitest');
         return defer.promise;
     }).then(function() {
         // dropDatabase to clear the previous test

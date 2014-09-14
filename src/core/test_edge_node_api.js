@@ -19,13 +19,13 @@ describe('edge_node_api', function() {
                 name: 'haha',
                 ip: '0.0.0.0',
                 port: 9999,
-            })
+            });
         }).then(function() {
             return coretest.edge_node_client.connect_edge_node({
                 name: 'haha',
                 ip: '0.0.0.0',
                 port: 9999,
-            })
+            });
         }).then(function() {
             return coretest.edge_node_client.delete_edge_node({
                 name: 'haha',
@@ -35,7 +35,7 @@ describe('edge_node_api', function() {
                 name: 'haha',
                 ip: '0.0.0.0',
                 port: 9999,
-            })
+            });
         }).nodeify(done);
     });
 
