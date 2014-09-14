@@ -227,8 +227,8 @@ gulp.task('client', ['bower'], function() {
     var DEST = 'build/public/js';
     var NAME = 'bundle.js';
     var NAME_MIN = 'bundle.min.js';
-    var bundler = browserify(paths.client_main);
-    var bundle_options = {
+    var bundler = browserify({
+        entries: paths.client_main,
         // bare is alias for both --no-builtins, --no-commondir, 
         // and sets --insert-global-vars to just "__filename,__dirname". 
         // This is handy if you want to run bundles in node.
@@ -236,9 +236,9 @@ gulp.task('client', ['bower'], function() {
         detectGlobals: false,
         list: true,
         debug: true
-    };
+    });
     // using gulp_replace to fix collision of requires
-    var client_bundle_stream = bundler.bundle(bundle_options)
+    var client_bundle_stream = bundler.bundle()
         .pipe(vinyl_source_stream(NAME))
         .pipe(vinyl_buffer())
         .pipe(gulp_replace(/\brequire\b/g, 'require_browserify'))

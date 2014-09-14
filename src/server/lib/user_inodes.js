@@ -348,7 +348,7 @@ function user_notify_by_email(user, callback) {
             if (dt) {
                 console.log(dt.getTime(), '<', 1393874656000);
                 if (dt.getTime() < 1393874656000) {
-                    dt = moment(dt).subtract('hours', 12).toDate();
+                    dt = moment(dt).subtract(12, 'hours').toDate();
                 }
             }
             */
@@ -379,7 +379,7 @@ function user_notify_by_email(user, callback) {
 
 function users_notify_by_email_job() {
     var now = new Date();
-    var yesterday = moment().subtract('days', 1).toDate();
+    var yesterday = moment().subtract(1, 'days').toDate();
     console.log('USERS NOTIFY EMAIL JOB - START');
 
     async.waterfall([
