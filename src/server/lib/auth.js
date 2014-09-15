@@ -9,7 +9,7 @@ var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 var LocalStrategy = require('passport-local').Strategy;
 var fbapi = require('facebook-api');
 var googleapis = require('googleapis');
-var OAuth2Client = googleapis.OAuth2Client;
+var googleplus = googleapis.plus('v1');
 var _ = require('underscore');
 var bcrypt = require('bcrypt');
 
@@ -293,17 +293,17 @@ function get_friends(tokens, callback) {
             if (!tokens.google) {
                 return cb(null, []);
             }
-            var oauth2Client =
-                new OAuth2Client(process.env.GOOGLE_APP_ID, process.env.GOOGLE_SECRET, process.env.GOOGLE_AUTHORIZED_URL);
-            googleapis.discover('plus', 'v1').execute(function(err, client) {
-                console.log('tokens.google: ', tokens.google);
-                oauth2Client.credentials = tokens.google;
-                client.plus.people.list({
-                    'userId': 'me',
-                    'collection': 'visible'
-                }).withAuthClient(oauth2Client).execute(function(err, results) {
-                    cb(err, results && results.items);
-                });
+            var oauth2 = new googleapis.auth.OAuth2(
+                process.env.GOOGLE_APP_ID,
+                process.env.GOOGLE_SECRET,
+                process.env.GOOGLE_AUTHORIZED_URL);
+            oauth2.setCredentials(tokens.google);
+            googleplus.people.list({
+                auth: oauth2,
+                userId: 'me',
+                collection: 'visible',
+            }, function(err, results) {
+                cb(err, results && results.items);
             });
         }
     }, callback);
