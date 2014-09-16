@@ -1281,10 +1281,5 @@ nb_util.controller('UploadCtrl', ['$scope', 'nbUploadSrv',
             nbUploadSrv.resume_selected();
             $scope.clear_select_mode();
         };
-
-        // console.log('SETUP DROP UPLOAD CTRL');
-        // nbUploadSrv.setup_file_input($('#file_upload_input'));
-        // nbUploadSrv.setup_file_input($('#dir_upload_input'));
-        nbUploadSrv.setup_drop($(document));
     }
 ]);

@@ -293,6 +293,8 @@ nb_home.controller('HomeCtrl', [
         }
 
 
+        console.log('SETUP DROP UPLOAD');
+        nbUploadSrv.setup_drop($(document));
 
         nbUploadSrv.get_upload_target = function(event) {
             var src_dev_id = nbPlanet.on ? nbPlanet.get_source_device_id() : undefined;
@@ -308,6 +310,7 @@ nb_home.controller('HomeCtrl', [
             console.log('UP', $scope.home_context);
             var dir_inode = $scope.home_context.current_inode;
             if (nbInode.can_upload_to_dir(dir_inode)) {
+                $scope.click_uploads();
                 return {
                     dir_inode_id: dir_inode.id,
                     src_dev_id: src_dev_id
@@ -315,6 +318,7 @@ nb_home.controller('HomeCtrl', [
             }
             if (nbInode.can_upload_to_dir($scope.mydata)) {
                 console.log('upload to mydata - since current_inode is', dir_inode);
+                $scope.click_uploads();
                 return {
                     dir_inode_id: $scope.mydata.id,
                     src_dev_id: src_dev_id
