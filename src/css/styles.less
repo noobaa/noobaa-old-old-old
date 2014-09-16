@@ -158,8 +158,34 @@ body {
  ******************************************************************************/
 
 .files-panel {
-    min-width: 50vw;
+    // using 50vw here breaks on node-webkit, so use media queries below instead
+    // min-width: 50vw;
     min-height: 50vh;
+}
+@media all and (max-width: 400px) {
+    .files-panel {
+        min-width: 100%;
+    }
+}
+@media all and (min-width: 400px) and (max-width: 600px) {
+    .files-panel {
+        min-width: 400px;
+    }
+}
+@media all and (min-width: 600px) and (max-width: 800px) {
+    .files-panel {
+        min-width: 500px;
+    }
+}
+@media all and (min-width: 800px) and (max-width: 1000px) {
+    .files-panel {
+        min-width: 600px;
+    }
+}
+@media all and (min-width: 1000px) {
+    .files-panel {
+        min-width: 700px;
+    }
 }
 /**/
 
