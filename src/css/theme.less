@@ -71,6 +71,14 @@ a, button, .btn {
         text-decoration: none !important;
     }
 }
+.a-link {
+    color: @brand-primary;
+    text-decoration: underline !important;
+    &:hover {
+        color: darken(@brand-primary, 10%);
+        text-decoration: underline !important;
+    }
+}
 .btn-link:hover {
     color: darken(@link-color, 20%);
 }
@@ -528,6 +536,10 @@ a.clickable {
 .btn-white:hover {
     background-color: hsl(0, 0%, 95%) !important;
 }
+.label.label-black {
+    .label-default;
+    background-color: black;
+}
 .bottom-radius {
     border-bottom-left-radius: 20px !important;
     border-bottom-right-radius: 20px !important;
@@ -716,6 +728,14 @@ a[ng-click], a[role=button] {
 .abspos {
     position: absolute;
 }
+.hflip {
+    -moz-transform: scaleX(-1);
+    -o-transform: scaleX(-1);
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
+    filter: FlipH;
+    -ms-filter:"FlipH";
+}
 .table-layout {
     display: table;
     .fill;
@@ -753,6 +773,7 @@ a[ng-click], a[role=button] {
     &:extend(.activity-animate);
 }
 */
+
 .view-animate {
     .cover;
     /*
@@ -952,12 +973,13 @@ a[ng-click], a[role=button] {
     &, &.modal {
         // .transition-time(0.2s);
         // .activity-animate-off;
-        &:not(.in){   
+        &:not(.in) {
             .alertify-hidden;
         }
         &.in {
             .alertify-show;
             // .activity-animate-on;
+
         }
     }
 }

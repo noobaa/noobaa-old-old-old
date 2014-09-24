@@ -1,6 +1,6 @@
 <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
 
-    <div class="clearfix">
+    <div class="container">
         <a class="btn btn-link navbar-btn navbar-brand" href="/">
             <img src="/public/images/noobaa_logo.png"></img>
             <span>beta</span>
@@ -16,11 +16,8 @@
             </span>
         </a>
         <div class="pull-right">
-            <button class="btn btn-default navbar-btn">
-                Login
-            </button>
-            <button class="btn btn-default navbar-btn">
-                Sign Up
+            <button class="btn btn-default navbar-btn" ng-click="nbUser.open_signin()">
+                Sign In
             </button>
         </div>
     </div>

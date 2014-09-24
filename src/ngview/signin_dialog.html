@@ -15,6 +15,27 @@
                         <i class="fa fa-spin fa-circle-o-notch fa-3x"></i>
                     </div>
                     <div ng-show="ready">
+                        <div class="center-block" style="max-width: 300px">
+                            <div class="clearfix">
+                                <button ng-click="login_facebook()" class="btn btn-link btn-block">
+                                    <img src="/public/images/facebook_sign_in.png" class="img-responsive" style="width:100%" />
+                                    <!-- <i class="fa fa-facebook fa-lg" style="margin-right: 10px"></i>Sign in with Facebook -->
+                                </button>
+                            </div>
+                            <div class="pad-10"></div>
+                            <div class="clearfix">
+                                <button ng-click="login_google()" class="btn btn-link btn-block">
+                                    <img src="/public/images/google_sign_in.jpg" class="img-responsive" style="width:100%; border-radius: 3px" />
+                                    <!-- <i class="fa fa-google-plus fa-lg" style="margin-right: 5px"></i>Sign in with Google+ -->
+                                </button>
+                            </div>
+                            <div class="pad-10"></div>
+                            <div class="nb-facepile">
+                                <div class="fb-facepile" data-width="290" data-max-rows="1" data-colorscheme="light" data-size="large" data-show-count="false" nb-xfbml></div>
+                            </div>
+                        </div>
+                        <!-- 
+                        <hr/>
                         <div class="clearfix">
                             <form class="form text-center" role="form" ng-submit="login_email(email,password)">
                                 <div class="form-group">
@@ -33,26 +54,7 @@
                                 </button>
                             </form>
                         </div>
-                        <hr/>
-                        <div class="center-block" style="max-width: 300px">
-                            <div class="clearfix">
-                                <button ng-click="login_facebook()" class="btn btn-primary btn-block">
-                                    <i class="fa fa-facebook fa-lg" style="margin-right: 10px"></i>
-                                    Sign in with Facebook
-                                </button>
-                            </div>
-                            <div class="pad-10"></div>
-                            <div class="clearfix">
-                                <button ng-click="login_google()" class="btn btn-danger btn-block">
-                                    <i class="fa fa-google-plus fa-lg" style="margin-right: 5px"></i>
-                                    Sign in with Google+
-                                </button>
-                            </div>
-                            <div class="pad-10"></div>
-                            <div class="nb-facepile">
-                                <div class="fb-facepile" data-width="290" data-max-rows="1" data-colorscheme="light" data-size="large" data-show-count="false" nb-xfbml></div>
-                            </div>
-                        </div>
+                         -->
                     </div>
                 </div>
             </div>

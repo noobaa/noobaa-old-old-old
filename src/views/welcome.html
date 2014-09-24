@@ -14,23 +14,54 @@
     <div class="welcome-page" id="page0">
         <div class="curtain">
             <div class="container">
-                <div class="col-left">
-                    <div class="text-center">
+                <div class="row">
+                    <div class="col-xs-12">
                         <a href="/">
                             <img class="logo" src="/public/images/noobaa_logo.png" height="40px"></img>
                             <small style="color: white">BETA</small>
                         </a>
                     </div>
-                    <div class="pad-20"></div>
-                    <h1 class="text-center">
-                        Cloud for your videos. Free.
-                    </h1>
-                    <div class="text-center">
-                        <a class="btn btn-trans btn-lg" ng-click="show_welcome_video()">
-                            <i class="fa fa-play fa-4x"></i>
-                            <div class="pad-10"></div>
-                            <small>Watch the video</small>
-                        </a>
+                </div>
+                <div class="pad-20"></div>
+                <div class="row">
+                    <div class="col-sm-8 col-md-9 Xcol-lg-10">
+                        <h1>
+                            Cloud for your videos. Free.
+                        </h1>
+                    </div>
+                    <div class="col-sm-4 col-md-3 Xcol-lg-2">
+                        <div class="pad-20"></div>
+                        <div>
+                            <div>
+                                <span class="label label-black">Watch the video</span>
+                            </div>
+                            <a class="relpos" ng-click="show_welcome_video()">
+                                <img src="/public/images/buddy.jpg" class="Ximg-thumbnail" width="200" height="150" />
+                                <div class="cover abspos text-white">
+                                    <div style="position: absolute; top: 50%; left: 50%; margin-top: -10px; margin-left: -10px" class="hover-grow transition-fast">
+                                        <i class="fa fa-play fa-2x"></i>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="pad-20"></div>
+                        <div>
+                            <div>
+                                <span class="label label-black">Click to start</span>
+                            </div>
+                            <div class="img-thumbnail" style="border: none; width: 200px; background-color: black; padding: 5px 0">
+                                <div>
+                                    <a ng-click="nbUser.login_facebook()" class="btn btn-block">
+                                        <img src="/public/images/facebook_sign_in.png" class="img-responsive" Xwidth="160" />
+                                    </a>
+                                </div>
+                                <div>
+                                    <a ng-click="nbUser.login_google()" class="btn btn-block">
+                                        <img src="/public/images/google_sign_in.jpg" class="img-responsive" style="border-radius: 3px" />
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -38,44 +69,13 @@
         </div>
         <div class="bottom-abs text-center">
             <div class="container">
-                <div class="col-left">
-                    <div style="width: 230px" class="center-block">
-                        <div class="text-center">
-                            <button ng-click="nbUser.login_facebook()" class="btn btn-primary btn-hover-only btn-block btn-lg">
-                                <i class="fa fa-facebook fa-lg" style="margin-right: 10px"></i>
-                                Sign in
-                            </button>
-                        </div>
-                        <div class="pad-10"></div>
-                        <div class="clearfix">
-                            <div class="pull-left" style="width: 50%; padding-right: 5px">
-                                <button ng-click="nbUser.login_google()" class="btn btn-danger btn-hover-only btn-sm btn-block">
-                                    <i class="fa fa-google-plus fa-lg" style="margin-right: 5px"></i>
-                                    Sign in
-                                </button>
-                            </div>
-                            <div class="pull-left" style="width: 50%; padding-left: 5px">
-                                <button ng-click="nbUser.open_signin()" class="btn btn-default btn-hover-only btn-sm btn-block">
-                                    <i class="fa fa-envelope-o fa-lg" style="margin-right: 5px"></i>
-                                    Sign in
-                                </button>
-                            </div>
-                        </div>
-                        <!-- 
-                <div class="pad-10"></div>
-                <div class="nb-facepile">
-                    <div class="fb-facepile" data-width="190" data-max-rows="1" data-colorscheme="light" data-size="medium" data-show-count="false"></div>
-                </div>
-                 -->
-                    </div>
-                    <a href="#page1" class="scroller btn btn-trans btn-lg">
-                        <i class="fa fa-angle-down fa-4x"></i>
-                    </a>
-                </div>
+                <a href="#page1" class="scroller btn btn-default">
+                    More info <i class="fa fa-angle-down fa-lg"></i>
+                </a>
             </div>
         </div>
         <div class="poster text-center">
-            <img src="/public/images/bg_wave.jpg" style="top: -20%; left:0; right:auto; min-height: 120%" />
+            <img src="/public/images/bg_wave.jpg" style="top: -20%; left:0; right:auto; min-height: 120%" class="hflip" />
         </div>
     </div>
 
@@ -94,14 +94,9 @@
         <div class="bottom-abs text-center">
             <div class="pad-20"></div>
             <div class="container">
-                <div class="col-left">
-                    <div class="text-center">
-                        <a class="btn btn-lg btn-primary btn-hover-only" ng-click="nbUser.open_signin()">Get Started</a>
-                    </div>
-                    <a href="#page2" class="scroller btn btn-trans btn-lg">
-                        <i class="fa fa-angle-down fa-4x"></i>
-                    </a>
-                </div>
+                <a href="#page2" class="scroller btn btn-default">
+                    More info <i class="fa fa-angle-down fa-lg"></i>
+                </a>
             </div>
         </div>
         <div class="poster text-center">
@@ -127,14 +122,9 @@
         <div class="bottom-abs text-center">
             <div class="pad-20"></div>
             <div class="container">
-                <div class="col-left">
-                    <div class="text-center">
-                        <a class="btn btn-lg btn-warning btn-hover-only" ng-click="nbUser.open_signin()">Get Started</a>
-                    </div>
-                    <a href="#page3" class="scroller btn btn-trans btn-lg">
-                        <i class="fa fa-angle-down fa-4x"></i>
-                    </a>
-                </div>
+                <a href="#page3" class="scroller btn btn-default">
+                    More info <i class="fa fa-angle-down fa-lg"></i>
+                </a>
             </div>
         </div>
         <div class="poster text-center">
@@ -158,14 +148,9 @@
         <div class="bottom-abs text-center">
             <div class="pad-20"></div>
             <div class="container">
-                <div class="col-left">
-                    <div class="text-center">
-                        <a class="btn btn-lg btn-danger btn-hover-only" ng-click="nbUser.open_signin()">Get Started</a>
-                    </div>
-                    <a href="#page4" class="scroller btn btn-trans btn-lg">
-                        <i class="fa fa-angle-down fa-4x"></i>
-                    </a>
-                </div>
+                <a href="#page4" class="scroller btn btn-default">
+                    More info <i class="fa fa-angle-down fa-lg"></i>
+                </a>
             </div>
         </div>
         <div class="poster text-center">
@@ -188,14 +173,9 @@
         <div class="bottom-abs text-center">
             <div class="pad-20"></div>
             <div class="container">
-                <div class="col-left">
-                    <div class="text-center">
-                        <a class="btn btn-lg btn-success btn-hover-only" ng-click="nbUser.open_signin()">Get Started</a>
-                    </div>
-                    <a href="#page5" class="scroller btn btn-trans btn-lg">
-                        <i class="fa fa-angle-down fa-4x"></i>
-                    </a>
-                </div>
+                <a href="#page5" class="scroller btn btn-default">
+                    More info <i class="fa fa-angle-down fa-lg"></i>
+                </a>
             </div>
         </div>
         <div class="poster text-center">
@@ -216,42 +196,41 @@
                 <div class="row">
                     <div class="col-sm-5">
                         <h2>
-                            <i class="fa fa-hdd-o fa-fw text-muted"></i>
-                            FREE
+                            <i class="fa fa-recycle fa-fw text-muted"></i>
+                            CO-SHARE
                         </h2>
                         <p class="lead">
-                            Our space plans (100GB, 200GB, 400GB, etc.) are free. What we ask is that you install our client on your device, and allocate unused disk space. The more space you allocate to the client the more you get in the cloud. It is a 1-1 ratio. You can try out the service before you allocate.
+                            Get up to 400 GB of cloud space by allocating unused space on your computer and get the same amount of space on the cloud.
                         </p>
                     </div>
                     <div class="col-sm-1"></div>
                     <div class="col-sm-5">
                         <h2>
-                            <i class="fa fa-lock fa-fw text-muted"></i>
-                            PRIVATE
+                            <i class="fa fa-mobile fa-fw text-muted"></i>
+                            DEVICES
                         </h2>
                         <p class="lead">
-                            We worry about privacy very much. As such we picked a very strong and well tested encryption for your data (AES 256 bits). Your data will be kept private unless you decide to share it with friends.
+                            Use web, desktop, and mobile devices to access your account seamlessly.
                         </p>
                     </div>
                 </div>
                 <div class="pad-20"></div>
                 <p>
                     Want to understand the technology that makes it possible?
-                    <a href="/blog/item/faq">Check out our FAQ</a>
+                    <br/><a href="/blog/item/faq" class="a-link">Check out our FAQ</a>
+                </p>
+                <p>
+                    Ready to go?
+                    <br/><a ng-click="nbUser.open_signin()" class="a-link">Click to get started</a>
                 </p>
             </div>
         </div>
         <div class="bottom-abs text-center">
             <div class="pad-20"></div>
             <div class="container">
-                <div class="col-left">
-                    <div class="text-center">
-                        <a class="btn btn-lg btn-warning" ng-click="nbUser.open_signin()">Get Started</a>
-                    </div>
-                    <a href="#page0" class="scroller btn btn-trans btn-lg">
-                        <h4>Top</h4>
-                    </a>
-                </div>
+                <a href="#page0" class="scroller btn btn-default">
+                    Top <i class="fa fa-angle-up fa-lg"></i>
+                </a>
             </div>
         </div>
     </div>

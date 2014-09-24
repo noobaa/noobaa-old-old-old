@@ -130,6 +130,10 @@ nb_util.factory('nbUser', [
         }
 
         $scope.open_signin = function() {
+            if ($scope.user) {
+                $window.location.href = '/home';
+                return;
+            }
             nbUtil.track_event('user.open_signin');
             var scope = $scope.$new();
             nbUtil.make_modal({
@@ -140,7 +144,7 @@ nb_util.factory('nbUser', [
             scope.ready = false;
             $timeout(function() {
                 scope.ready = true;
-            }, 1000);
+            }, 500);
         };
 
         $scope.signin_if_needed = function() {

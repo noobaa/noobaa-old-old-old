@@ -1,15 +1,20 @@
 /******************************************************************************
     WELCOME 
  ******************************************************************************/
- .welcome-page {
+
+.welcome-page {
     position: relative;
     margin-bottom: 1px;
-    padding-bottom: 100px;
     overflow: hidden;
     min-width: 100%;
     min-height: 95%;
     @c: hsl(0, 0%, 5%);
     color: @c;
+    @media all and (min-width: 1300px) {
+        .container {
+            width: 1270px;
+        }
+    }
     .col-left {
         max-width: 100%;
         width: 500px;
@@ -33,15 +38,6 @@
         text-align: justify;
         margin-bottom: 20px;
         color: @c;
-    }
-    .fa-play {
-        border-radius: 50%;
-        border-width: 2px;
-        border-style: solid;
-        border-color: inherit;
-        padding: 12px 10px 8px 26px;
-        min-width: 97px;
-        min-height: 96px;
     }
     .btn {
         color: @c;
@@ -83,7 +79,6 @@
         min-width: 100%;
         min-height: 100%;
         max-width: 150%;
-        opacity: 0.5;
     }
     .nb-facepile {
         .transition-fast;
@@ -151,7 +146,8 @@
     animation-duration: 20s;
 }
 */
- #clouds-viewport {
+
+#clouds-viewport {
     background-color: #87ceeb;
     position: absolute;
     top: 0;
