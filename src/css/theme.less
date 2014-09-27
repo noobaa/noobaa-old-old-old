@@ -64,6 +64,57 @@
 .app-container {
     .center-block;
     max-width: 900px;
+    @media (max-width: @screen-lg) {
+        max-width: 680px;
+    }
+    @media (max-width: @screen-md) {
+        max-width: 100%;
+    }
+}
+.navmenu {
+    .navmenu-title:not(.dropdown-toggle) {
+        display: none;
+    }
+    &.navmenu-open {
+        &.btn-group, & > .btn-group {
+            & > .dropdown-toggle.navmenu-title {
+                display: inline;
+                visibility: hidden;
+            }
+            & > .dropdown-toggle {
+                display: none;
+            }
+            & > .navmenu-title {
+                display: inline;
+            }
+            & > .dropdown-menu {
+                .bgnoise1;
+                background-color: @navbar-default-bg;
+                min-height: 100vh;
+                display: block !important;
+                border-left: none; //1px solid @border-color-light !important;
+                border-right: none; //1px solid @border-color-light !important;
+                border-top: none !important;
+                border-bottom: none !important;
+                box-shadow: none !important;
+                margin: 0 !important;
+                > li > a {
+                    padding: 15px;
+                }
+                > li {
+                    border-bottom: 1px solid hsl(0, 0%, 85%);
+                }
+            }
+        }
+    }
+}
+.container {
+    @media (min-width: 1400px) {
+        width: 1370px;
+    }
+    @media (min-width: 1300px) {
+        width: 1270px;
+    }
 }
 a, button, .btn {
     &, &:active, &:focus, &:hover {

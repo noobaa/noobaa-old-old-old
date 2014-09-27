@@ -2,81 +2,82 @@
 
     <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
         <div class="clearfix club-bg" style="background-color: hsl({{club.color}},60%,45%)">
-            <div class="app-container">
-                <!-- <div ng-include="'action_bar_nav.html'" class="pull-left"></div> -->
-                <a class="btn btn-link navbar-btn pull-left" href="club/">
-                    <span class="active-link" style="margin: -5px">
-                        <i class="fa fa-angle-left fa-lg"></i>
-                        <small style="color: hsl(0,0%,85%)">CLUBS</small>
-                    </span>
-                </a>
+            
+            <div ng-include="'action_bar_nav.html'" ng-repeat="menu_open in [0,1]" class="pull-left navmenu {{menu_open && 'navmenu-open visible-md visible-lg' || 'visible-xs visible-sm'}}"></div>
+            <!-- 
+            <a class="btn btn-link navbar-btn pull-left" href="club/">
+                <span class="active-link" style="margin: -5px">
+                    <i class="fa fa-angle-left fa-lg"></i>
+                    <small style="color: hsl(0,0%,85%)">CLUBS</small>
+                </span>
+            </a>
+             -->
 
-                <div class="pull-right">
-                    <div class="btn-group">
-                        <a class="btn btn-link dropdown-toggle" data-toggle="dropdown">
-                            <i class="fa fa-paperclip fa-2x fa-rotate-90 fa-fw"></i>
-                        </a>
-                        <ul class="dropdown-menu pull-right" role="menu">
-                            <li>
-                                <a ng-click="select_files_to_club()">
-                                    <i class="fa fa-folder-open fa-lg fa-fw"></i>
-                                    My files
-                                </a>
-                            </li>
-                            <li>
-                                <a ng-click="upload_files_to_club()">
-                                    <i class="fa fa-cloud-upload fa-lg fa-fw"></i>
-                                    Upload files
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="btn-group">
-                        <a class="btn btn-link navbar-btn dropdown-toggle" data-toggle="dropdown">
-                            <i class="fa fa-ellipsis-v fa-2x fa-fw"></i>
-                        </a>
-                        <ul class="dropdown-menu pull-right" role="menu">
-                            <li>
-                                <a ng-click="show_members()">
-                                    <i class="fa fa-user fa-lg fa-fw"></i>
-                                    Club members...
-                                </a>
-                            </li>
-                            <li ng-if="club.admin">
-                                <a ng-click="add_member()">
-                                    <i class="fa fa-plus fa-lg fa-fw"></i>
-                                    Add member
-                                </a>
-                            </li>
-                            <li ng-if="false">
-                                <a ng-click="leave_club()">
-                                    <i class="fa fa-sign-out fa-lg fa-fw"></i>
-                                    Leave club
-                                </a>
-                            </li>
-                            <li ng-if="club.admin">
-                                <a ng-click="change_club_title()">
-                                    <i class="fa fa-edit fa-lg fa-fw"></i>
-                                    Change title
-                                </a>
-                            </li>
-                            <li ng-if="club.admin">
-                                <a ng-click="change_club_color()">
-                                    <i class="fa fa-magic fa-lg fa-fw"></i>
-                                    Change color
-                                </a>
-                            </li>
-                            <li>
-                                <a ng-click="nbClub.poll_clubs()">
-                                    <i class="fa fa-repeat fa-lg fa-fw"></i>
-                                    Refresh
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
+            <div ng-repeat="menu_open in [0,1]" class="pull-right navmenu {{menu_open && 'navmenu-open visible-md visible-lg' || 'visible-xs visible-sm'}}">
+                <div class="btn-group">
+                    <a class="btn btn-link navbar-btn dropdown-toggle navmenu-title" data-toggle="dropdown">
+                        <i class="fa fa-ellipsis-v fa-2x fa-fw"></i>
+                    </a>
+                    <ul class="dropdown-menu pull-right" role="menu">
+                        <li>
+                            <a ng-click="show_members()">
+                                <i class="fa fa-user fa-lg fa-fw"></i>
+                                Club members...
+                            </a>
+                        </li>
+                        <li ng-if="club.admin">
+                            <a ng-click="add_member()">
+                                <i class="fa fa-plus fa-lg fa-fw"></i>
+                                Add member
+                            </a>
+                        </li>
+                        <li ng-if="false">
+                            <a ng-click="leave_club()">
+                                <i class="fa fa-sign-out fa-lg fa-fw"></i>
+                                Leave club
+                            </a>
+                        </li>
+                        <li ng-if="club.admin">
+                            <a ng-click="change_club_title()">
+                                <i class="fa fa-edit fa-lg fa-fw"></i>
+                                Change title
+                            </a>
+                        </li>
+                        <li ng-if="club.admin">
+                            <a ng-click="change_club_color()">
+                                <i class="fa fa-magic fa-lg fa-fw"></i>
+                                Change color
+                            </a>
+                        </li>
+                        <li ng-if="false">
+                            <a ng-click="nbClub.poll_clubs()">
+                                <i class="fa fa-repeat fa-lg fa-fw"></i>
+                                Refresh
+                            </a>
+                        </li>
+                    </ul>
                 </div>
-                <div class="text-ellipses navbar-text text-center">{{club.title}}</div>
             </div>
+            <div class="btn-group pull-right">
+                <a class="btn btn-link navbar-btn dropdown-toggle" data-toggle="dropdown">
+                    <i class="fa fa-paperclip fa-2x fa-rotate-90 fa-fw"></i>
+                </a>
+                <ul class="dropdown-menu pull-right" role="menu">
+                    <li>
+                        <a ng-click="select_files_to_club()">
+                            <i class="fa fa-folder-open fa-lg fa-fw"></i>
+                            My files
+                        </a>
+                    </li>
+                    <li>
+                        <a ng-click="upload_files_to_club()">
+                            <i class="fa fa-cloud-upload fa-lg fa-fw"></i>
+                            Upload files
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="text-ellipses navbar-text text-center">{{club.title}}</div>
         </div>
         <div ng-include="'action_bar_progress.html'"></div>
     </nav>
@@ -91,9 +92,9 @@
         <div ng-if="!!club" class="app-container">
 
             <div class="text-center" style="padding: 15px">
-                <span class="active-link text-muted">
+                <small class="text-muted">
                     Club created {{moment(club.create_time).calendar()}}
-                </span>
+                </small>
             </div>
 
             <div ng-repeat="msg in club.msgs track by $index" class="clearfix">
@@ -120,14 +121,14 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div ng-if="last_seen_msg == msg._id && !$last" class="text-center" style="padding: 15px">
-                    <span class="active-link text-muted">
+                    <small class="text-muted">
                         <span>new messages</span>
                         <i class="fa fa-caret-down fa-lg"></i>
-                    </span>
+                    </small>
                 </div>
-                
+
                 <div ng-if="$last" nb-scroll-to="bottom"></div>
             </div>
 

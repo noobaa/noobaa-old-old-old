@@ -1,13 +1,8 @@
 <div class="account navbar-top-pad">
 
     <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
-        <div class="clearfix app-container">
-            <div ng-include="'action_bar_nav.html'" class="pull-left"></div>
-            <div class="pull-right">
-                <a class="btn btn-link navbar-btn" href="club/">
-                    <span class="close">&times;</span>
-                </a>
-            </div>
+        <div class="clearfix">
+            <div ng-include="'action_bar_nav.html'" ng-repeat="menu_open in [0,1]" class="pull-left navmenu {{menu_open && 'navmenu-open visible-md visible-lg' || 'visible-xs visible-sm'}}"></div>
         </div>
         <div ng-include="'action_bar_progress.html'"></div>
     </nav>
