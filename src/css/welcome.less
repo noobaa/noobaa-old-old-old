@@ -4,14 +4,18 @@
 
 .welcome-page {
     position: relative;
-    margin-bottom: 1px;
     overflow: hidden;
-    min-width: 100%;
-    min-height: 95%;
+    min-height: 97vh;
+    // max-height: 1200px;
+    // min-height: 95%;
+    max-width: 1600px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 1px;
     @c: hsl(0, 0%, 5%);
     color: @c;
-    @media all and (min-width: 1300px) {
-        .container {
+    .container {
+        @media (min-width: 1300px) {
             width: 1270px;
         }
     }
@@ -46,7 +50,7 @@
             .pulse;
         }
     }
-    @media all and (min-width: 0px) and (max-width: 700px) {
+    @media (max-width: @screen-xs) {
         .col-left {
             width: 100%;
         }
@@ -68,17 +72,101 @@
         bottom: 0;
         left: 0;
         right: 0;
-        background-color: hsl(0, 0%, 45%);
+        background-color: hsl(0, 0%, 100%);
     }
-    .poster img {
+    .poster > img {
         position: absolute;
-        right: 0;
-        top: 0;
-        left: auto;
+        top: auto;
         bottom: auto;
-        min-width: 100%;
-        min-height: 100%;
-        max-width: 150%;
+        left: auto;
+        right: auto;
+        // min-width: 100%;
+        // min-height: 100%;
+        // max-width: 300%;
+        @media (max-width: @screen-sm) {
+            // opacity: 0.80;
+
+        }
+        &.wave-img {
+            .hflip;
+            top: -200px;
+            left: -200px;
+            @media (max-width: @screen-sm) {
+                left: -200px;
+                min-width: @screen-sm+200px;
+            }
+            @media (max-width: @screen-xs) {
+                left: -300px;
+                min-width: @screen-xs+300px;
+            }
+        }
+        &.bike-img {
+            bottom: -200px;
+            right: -600px;
+            @media (max-width: @screen-md) {
+                right: -750px;
+                bottom: -300px;
+            }
+            @media (max-width: @screen-sm) {
+                width: 1500px;
+                height: 970px;
+                right: -350px;
+                bottom: -100px;
+            }
+        }
+        &.snow-img {
+            top: -100px;
+            left: -200px;
+            @media (max-width: @screen-sm) {
+                width: 1200px;
+                height: 900px;
+            }
+        }
+        &.skate-img {
+            top: 0;
+            right: -100px;
+            @media (max-width: @screen-sm) {
+                right: -300px;
+            }
+        }
+        &.fall-img {
+            top: 0;
+            height: 100vh;
+            // min-width: 100%;
+            right: 0;
+            // right: -400px;
+            // transform: rotate(270deg);
+            @media (max-width: @screen-sm) {
+                // top: auto;
+                // bottom: 0;
+                // right: -500px;
+
+            }
+        }
+    }
+    .poster > div {
+        .cover;
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center center;
+        &.wave-img {
+            .hflip;
+            background-image: url('/public/images/bg_wave.jpg');
+            background-position: right center;
+        }
+        &.bike-img {
+            background-image: url('/public/images/bg_bike.jpg');
+        }
+        &.snow-img {
+            background-image: url('/public/images/bg_snow.jpg');
+            background-position: center top;
+        }
+        &.skate-img {
+            background-image: url('/public/images/bg_skate.jpg');
+        }
+        &.fall-img {
+            background-image: url('/public/images/bg_fall.jpg');
+        }
     }
     .nb-facepile {
         .transition-fast;
