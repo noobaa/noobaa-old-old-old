@@ -74,98 +74,53 @@
         right: 0;
         background-color: hsl(0, 0%, 100%);
     }
-    .poster > img {
-        position: absolute;
-        top: auto;
-        bottom: auto;
-        left: auto;
-        right: auto;
-        // min-width: 100%;
-        // min-height: 100%;
-        // max-width: 300%;
-        @media (max-width: @screen-sm) {
-            // opacity: 0.80;
-
-        }
-        &.wave-img {
-            .hflip;
-            top: -200px;
-            left: -200px;
-            @media (max-width: @screen-sm) {
-                left: -200px;
-                min-width: @screen-sm+200px;
-            }
-            @media (max-width: @screen-xs) {
-                left: -300px;
-                min-width: @screen-xs+300px;
-            }
-        }
-        &.bike-img {
-            bottom: -200px;
-            right: -600px;
-            @media (max-width: @screen-md) {
-                right: -750px;
-                bottom: -300px;
-            }
-            @media (max-width: @screen-sm) {
-                width: 1500px;
-                height: 970px;
-                right: -350px;
-                bottom: -100px;
-            }
-        }
-        &.snow-img {
-            top: -100px;
-            left: -200px;
-            @media (max-width: @screen-sm) {
-                width: 1200px;
-                height: 900px;
-            }
-        }
-        &.skate-img {
-            top: 0;
-            right: -100px;
-            @media (max-width: @screen-sm) {
-                right: -300px;
-            }
-        }
-        &.fall-img {
-            top: 0;
-            height: 100vh;
-            // min-width: 100%;
-            right: 0;
-            // right: -400px;
-            // transform: rotate(270deg);
-            @media (max-width: @screen-sm) {
-                // top: auto;
-                // bottom: 0;
-                // right: -500px;
-
-            }
-        }
-    }
     .poster > div {
         .cover;
         background-size: cover;
         background-repeat: no-repeat;
-        background-position: center center;
         &.wave-img {
             .hflip;
             background-image: url('/public/images/bg_wave.jpg');
-            background-position: right center;
+            background-position: center center;
+            bottom: -100px;
+            right: -400px;
+            @media (max-width: @screen-md) {
+                right: -300px;
+            }
+            @media (max-width: @screen-sm) {
+                right: -500px;
+            }
         }
         &.bike-img {
             background-image: url('/public/images/bg_bike.jpg');
+            background-position: right bottom;
         }
         &.snow-img {
             background-image: url('/public/images/bg_snow.jpg');
+            background-position: center center;
+            bottom: -200px;
+            right: -200px;
+            @media (max-width: @screen-sm) {
+            }
+        }
+        &.rock-img {
+            background-image: url('/public/images/bg_rock.jpg');
             background-position: center top;
         }
         &.skate-img {
             background-image: url('/public/images/bg_skate.jpg');
+            background-position: right center;
+            @media (max-width: @screen-sm) {
+                background-position: right top;
+                right: -200px;
+            }
         }
         &.fall-img {
             background-image: url('/public/images/bg_fall.jpg');
+            background-position: center bottom;
+            @media (max-width: @screen-sm) {
+                background-position: center center;
+            }
         }
     }
     .nb-facepile {
