@@ -37,7 +37,6 @@ for (var i in utm_tracked_field) {
     d[utm_tracked_field[i]] = 'string';
     user_schema.add(d);
 }
-console.log(user_schema);
 
 // create a unique index on the facebook id field
 user_schema.index({
