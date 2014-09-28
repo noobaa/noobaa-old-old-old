@@ -120,27 +120,15 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(express_compress());
 
+var utm_tracked_field = require('../utils/utm.js').utm_tracked_field;
 app.use(function(req, res,next) {
-    console.log('========================================================================');
-    // console.log(req);
-    // console.log(req.query);
-    // var tracked_field = ['refid', 'utm_source', 'utm_medium', 'utm_term', 'utm_content', 'utm_campaign'];
-    // for (var field in tracked_field) {
-    //     console.log('testing for:', tracked_field[field]);
-    //     if (req.query[tracked_field[field]]) {
-    //     console.log('Found and insert in cookie', tracked_field[field]);
-    //         res.cookie(tracked_field[field], req.query[tracked_field[field]], {
-    //             httpOnly: false
-    //         });
-    //     }
-    // }
-    //The refid will be a string we'll use to relate to the source
-    //store the reference id in a cookie if one exists
-    // if (req.query.refid) {
-    //     res.cookie('refid', req.query.refid, {
-    //         httpOnly: false
-    //     });
-    // }
+    for (var i in utm_tracked_field) {
+        if (req.query[utm_tracked_field[i]]) {
+            res.cookie(utm_tracked_field[i], req.query[utm_tracked_field[i]], {
+                httpOnly: false
+            });
+        }
+    }
     return next();
 });
 
