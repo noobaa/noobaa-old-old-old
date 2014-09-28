@@ -97,9 +97,9 @@ function sign_in_user(req, params, done) {
 
             //add utm_tracked_field for future ref to the user
             if (is_new && req.cookies) {
-                for (var field in utm_tracked_field) {
-                    if (req.cookies[utm_tracked_field[field]]) {
-                        user[utm_tracked_field[field]] = req.cookies[utm_tracked_field[field]];
+                for (var i in utm_tracked_field) {
+                    if (req.cookies[utm_tracked_field[i]]) {
+                        user[utm_tracked_field[i]] = req.cookies[utm_tracked_field[i]];
                     }
                 }
             }
