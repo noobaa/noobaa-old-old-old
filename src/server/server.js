@@ -120,18 +120,27 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(express_compress());
 
-app.use(function(req, res, next) {
+app.use(function(req, res,next) {
+    console.log('========================================================================');
+    // console.log(req);
+    // console.log(req.query);
+    // var tracked_field = ['refid', 'utm_source', 'utm_medium', 'utm_term', 'utm_content', 'utm_campaign'];
+    // for (var field in tracked_field) {
+    //     console.log('testing for:', tracked_field[field]);
+    //     if (req.query[tracked_field[field]]) {
+    //     console.log('Found and insert in cookie', tracked_field[field]);
+    //         res.cookie(tracked_field[field], req.query[tracked_field[field]], {
+    //             httpOnly: false
+    //         });
+    //     }
+    // }
     //The refid will be a string we'll use to relate to the source
     //store the reference id in a cookie if one exists
-    if (req.query.refid) {
-        // if (req.cookies && req.cookies.refid && req.cookies.refid != req.query.refid) {
-        //     console.log('About to overide existing refid in cookie. Old refid: ' + req.cookies.refid);
-        // }
-        // console.log('Setting refid in cookie. New refid' + req.query.refid);
-        res.cookie('refid', req.query.refid, {
-            httpOnly: false
-        });
-    }
+    // if (req.query.refid) {
+    //     res.cookie('refid', req.query.refid, {
+    //         httpOnly: false
+    //     });
+    // }
     return next();
 });
 
@@ -449,7 +458,6 @@ function error_501(req, res, next) {
 function can_accept_html(req) {
     return !req.xhr && req.accepts('html') && req.originalUrl.indexOf('/api/') !== 0;
 }
-
 
 
 
