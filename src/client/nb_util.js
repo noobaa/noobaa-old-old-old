@@ -127,9 +127,15 @@ nb_util.factory('nbUtil', [
         }
 
 
+        var utm_tracked_field = require('../utils/utm.js').utm_tracked_field;
+
         function track_event(event, data) {
             data = data || {};
-            data.refid = $cookies.refid;
+            for (var i in utm_tracked_field) {
+                if ($cookies[utm_tracked_field[i]]) {
+                    data[utm_tracked_field[i]] = $cookies[utm_tracked_field[i]];
+                }
+            }
             var p1 = $q.when().then(function() {
                 if (!window.nb_mixpanel) {
                     return;
