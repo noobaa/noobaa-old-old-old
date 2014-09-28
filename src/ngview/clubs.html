@@ -1,28 +1,26 @@
 <div class="club-list navbar-top-pad">
 
     <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
-        <div class="clearfix app-container">
-            <div ng-include="'action_bar_nav.html'" class="pull-left"></div>
-            <div class="pull-right">
-                <div class="btn-group">
-                    <a class="btn btn-link navbar-btn dropdown-toggle" data-toggle="dropdown">
-                        <i class="fa fa-ellipsis-v fa-2x fa-fw"></i>
-                    </a>
-                    <ul class="dropdown-menu pull-right" role="menu">
-                        <li>
-                            <a ng-click="nbClub.create_new_club()">
-                                <i class="fa fa-plus fa-lg fa-lg"></i>
-                                New Club...
-                            </a>
-                        </li>
-                        <li>
-                            <a ng-click="nbClub.poll_clubs()">
-                                <i class="fa fa-repeat fa-lg fa-lg"></i>
-                                Refresh
-                            </a>
-                        </li>
-                    </ul>
-                </div>
+        <div class="clearfix">
+            <div ng-include="'action_bar_nav.html'" ng-repeat="menu_open in [0,1]" class="pull-left navmenu {{menu_open && 'navmenu-open visible-md visible-lg' || 'visible-xs visible-sm'}}"></div>
+            <div ng-repeat="menu_open in [0,1]" class="btn-group pull-right navmenu {{menu_open && 'navmenu-open visible-md visible-lg' || 'visible-xs visible-sm'}}">
+                <a class="btn btn-link navbar-btn dropdown-toggle navmenu-title" data-toggle="dropdown">
+                    <i class="fa fa-ellipsis-v fa-2x fa-fw"></i>
+                </a>
+                <ul class="dropdown-menu pull-right" role="menu">
+                    <li>
+                        <a ng-click="nbClub.create_new_club()">
+                            <i class="fa fa-plus fa-lg fa-lg"></i>
+                            New Club...
+                        </a>
+                    </li>
+                    <li ng-if="false">
+                        <a ng-click="nbClub.poll_clubs()">
+                            <i class="fa fa-repeat fa-lg fa-lg"></i>
+                            Refresh
+                        </a>
+                    </li>
+                </ul>
             </div>
         </div>
         <div ng-include="'action_bar_progress.html'"></div>

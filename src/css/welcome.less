@@ -4,17 +4,16 @@
 
 .welcome-page {
     position: relative;
-    margin-bottom: 1px;
     overflow: hidden;
-    min-width: 100%;
-    min-height: 95%;
+    min-height: 97vh;
+    // max-height: 1200px;
+    // min-height: 95%;
+    max-width: 1600px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 1px;
     @c: hsl(0, 0%, 5%);
     color: @c;
-    @media all and (min-width: 1300px) {
-        .container {
-            width: 1270px;
-        }
-    }
     .col-left {
         max-width: 100%;
         width: 500px;
@@ -46,7 +45,7 @@
             .pulse;
         }
     }
-    @media all and (min-width: 0px) and (max-width: 700px) {
+    @media (max-width: @screen-xs) {
         .col-left {
             width: 100%;
         }
@@ -68,17 +67,56 @@
         bottom: 0;
         left: 0;
         right: 0;
-        background-color: hsl(0, 0%, 45%);
+        background-color: hsl(0, 0%, 100%);
     }
-    .poster img {
-        position: absolute;
-        right: 0;
-        top: 0;
-        left: auto;
-        bottom: auto;
-        min-width: 100%;
-        min-height: 100%;
-        max-width: 150%;
+    .poster > div {
+        .cover;
+        background-size: cover;
+        background-repeat: no-repeat;
+        &.wave-img {
+            .hflip;
+            background-image: url('/public/images/bg_wave.jpg');
+            background-position: center center;
+            bottom: -100px;
+            right: -400px;
+            @media (max-width: @screen-md) {
+                right: -300px;
+            }
+            @media (max-width: @screen-sm) {
+                right: -500px;
+            }
+        }
+        &.bike-img {
+            background-image: url('/public/images/bg_bike.jpg');
+            background-position: right bottom;
+        }
+        &.snow-img {
+            background-image: url('/public/images/bg_snow.jpg');
+            background-position: center center;
+            bottom: -200px;
+            right: -200px;
+            @media (max-width: @screen-sm) {
+            }
+        }
+        &.rock-img {
+            background-image: url('/public/images/bg_rock.jpg');
+            background-position: center top;
+        }
+        &.skate-img {
+            background-image: url('/public/images/bg_skate.jpg');
+            background-position: right center;
+            @media (max-width: @screen-sm) {
+                background-position: right top;
+                right: -200px;
+            }
+        }
+        &.fall-img {
+            background-image: url('/public/images/bg_fall.jpg');
+            background-position: center bottom;
+            @media (max-width: @screen-sm) {
+                background-position: center center;
+            }
+        }
     }
     .nb-facepile {
         .transition-fast;

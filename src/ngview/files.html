@@ -1,7 +1,7 @@
 <div class="files-panel navbar-top-pad text-left {{dialog && 'hfill-scroll' || ''}}">
 
     <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
-        <div class="app-container">
+        <div class="Xapp-container">
 
             <div ng-if="!!dialog">
                 <div class="pull-left" style="padding: 0 5px">
@@ -16,8 +16,8 @@
                 </div>
             </div>
 
-            <div ng-if="!select_mode" class="pull-right btn-group">
-                <a class="btn btn-link navbar-btn dropdown-toggle" data-toggle="dropdown">
+            <div ng-if="!select_mode" ng-repeat="menu_open in (dialog && [0] || [0,1])" class="pull-right btn-group {{!dialog && ('navmenu ' + (menu_open && 'navmenu-open visible-md visible-lg' || 'visible-xs visible-sm')) || ''}}">
+                <a class="btn btn-link navbar-btn dropdown-toggle navmenu-title" data-toggle="dropdown">
                     <i class="fa fa-fw fa-2x fa-ellipsis-v"></i>
                 </a>
                 <ul class="dropdown-menu pull-right" role="menu">
@@ -109,7 +109,7 @@
                 </ul>
             </div>
 
-            <div ng-if="!dialog && !select_mode" ng-include="'action_bar_nav.html'" class="pull-left"></div>
+            <div ng-if="!dialog && !select_mode" ng-include="'action_bar_nav.html'" ng-repeat="menu_open in [0,1]" class="pull-left navmenu {{menu_open && 'navmenu-open visible-md visible-lg' || 'visible-xs visible-sm'}}"></div>
 
             <div ng-if="!select_mode" class="hflow">
                 <div class="navbar-text text-ellipses text-center" style="padding-left: 0">{{current_inode.name}}</div>
@@ -142,8 +142,8 @@
 
     <div class="view-animate-area hfill-scroll">
 
-        <div ng-if="can_go_up_level()" class="app-container notextselect">
-            <div class="line clickable" ng-click="go_up_level()">
+        <div class="app-container notextselect">
+            <div ng-if="can_go_up_level()" class="line clickable" ng-click="go_up_level()">
                 <i class="fa fa-chevron-circle-left fa-lg fa-fw text-muted"></i>
                 <span class="text-muted">Back to parent</span>
             </div>
