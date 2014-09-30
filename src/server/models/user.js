@@ -2,6 +2,7 @@
 'use strict';
 
 var mongoose = require('mongoose');
+var types = mongoose.Schema.Types;
 var Device = require('./device');
 var _ = require('underscore');
 var bcrypt = require('bcrypt');
@@ -20,7 +21,10 @@ var user_schema = new mongoose.Schema({
     last_access_time: Date,
     tz_offset: Number, // timezone minutes offset from utc
     usage: Number, // cached usage value
-    refid: String, //referal id to relate to how we aquired this user initially
+    utm_id: {
+        type: types.ObjectId,
+        ref: 'UtmModel'
+    },
     quota: {
         type: Number,
         default: Math.pow(1024, 3)
@@ -87,7 +91,7 @@ user_schema.methods.get_user_identity_info = function(object) {
     object.first_name = user.get_first_name();
     providers.forEach(function(provider) {
         var p = user[provider];
-        if ( !! p) {
+        if (!!p) {
             object[provider + 'id'] = p.id;
         }
     });

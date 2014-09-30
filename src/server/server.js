@@ -47,7 +47,10 @@ var track_api = require('./lib/track_api');
 // var blog_api = require('./lib/blog_api');
 var club_api = require('./lib/club_api');
 var adminoobaa = require('./lib/adminoobaa');
-
+var UtmModel = require('./models/utm.js').UtmModel;
+var utm_tracked_field = require('./models/utm.js').utm_tracked_field;
+var empty_utm = require('./models/utm.js').empty_utm;
+var async = require('async');
 
 var rootdir = path.join(__dirname, '..', '..');
 var dev_mode = (process.env.DEV_MODE === 'true');
@@ -120,19 +123,29 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(express_compress());
 
+//Set the UTM id in the cookie
 app.use(function(req, res, next) {
-    //The refid will be a string we'll use to relate to the source
-    //store the reference id in a cookie if one exists
-    if (req.query.refid) {
-        // if (req.cookies && req.cookies.refid && req.cookies.refid != req.query.refid) {
-        //     console.log('About to overide existing refid in cookie. Old refid: ' + req.cookies.refid);
-        // }
-        // console.log('Setting refid in cookie. New refid' + req.query.refid);
-        res.cookie('refid', req.query.refid, {
+
+    //get the url vars that contain the UTM fields.
+    var utm_in_url = _.pick(req.query, utm_tracked_field);
+    if (_.isEmpty(utm_in_url)) {
+        return next();
+    }
+
+    _.defaults(utm_in_url, empty_utm);
+
+    //search for an existing utm entry or create one. Save the id in the cookie.
+    return UtmModel.findOneAndUpdate(utm_in_url, {}, {
+        upsert: true
+    }, function(err, utm_record) {
+        if (err) {
+            return (next(err));
+        }
+        res.cookie('utm_id', utm_record.id, {
             httpOnly: false
         });
-    }
-    return next();
+        return next(null);
+    });
 });
 
 
@@ -449,7 +462,6 @@ function error_501(req, res, next) {
 function can_accept_html(req) {
     return !req.xhr && req.accepts('html') && req.originalUrl.indexOf('/api/') !== 0;
 }
-
 
 
 
