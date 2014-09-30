@@ -7,6 +7,7 @@
 // exports.utm_tracked_field = utm_tracked_field;
 
 var mongoose = require('mongoose');
+var _ = require('underscore');
 
 var utm_schema = new mongoose.Schema({
 	utm_source: String,
@@ -19,3 +20,7 @@ var utm_schema = new mongoose.Schema({
 var UtmModel = mongoose.model('UtmModel', utm_schema);
 exports.UtmModel = UtmModel;
 
+
+//get the UTM field names from the DB scheme
+var utm_tracked_field = _.without(_.keys(UtmModel.schema.paths), '_id', '__v');
+exports.utm_tracked_field = utm_tracked_field;

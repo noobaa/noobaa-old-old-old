@@ -48,6 +48,7 @@ var track_api = require('./lib/track_api');
 var club_api = require('./lib/club_api');
 var adminoobaa = require('./lib/adminoobaa');
 var UtmModel = require('./models/utm.js').UtmModel;
+var utm_tracked_field = require('./models/utm.js').utm_tracked_field;
 var async = require('async');
 
 var rootdir = path.join(__dirname, '..', '..');
@@ -123,8 +124,6 @@ app.use(express_compress());
 
 //Set the UTM id in the cookie
 app.use(function(req, res, next) {
-    //get the UTM field names from the DB scheme
-    var utm_tracked_field = _.without(_.keys(UtmModel.schema.paths), '_id', '__v');
     //get the url vars that contain the UTM fields. 
     var utm_in_url = _.pick(req.query, utm_tracked_field);
     if (_.isEmpty(utm_in_url)) {
@@ -135,11 +134,12 @@ app.use(function(req, res, next) {
     return UtmModel.findOneAndUpdate(utm_in_url, {}, {
         upsert: true
     }, function(err, utm_record) {
-        if (!err) {
-            res.cookie('utm_id', utm_record.id, {
-                httpOnly: false
-            });
+        if (err) {
+            return (next(err));
         }
+        res.cookie('utm_id', utm_record.id, {
+            httpOnly: false
+        });
         return next(null);
     });
 });
