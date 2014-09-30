@@ -47,7 +47,8 @@ var track_api = require('./lib/track_api');
 // var blog_api = require('./lib/blog_api');
 var club_api = require('./lib/club_api');
 var adminoobaa = require('./lib/adminoobaa');
-
+var UtmModel = require('./models/utm.js').UtmModel;
+var async = require('async');
 
 var rootdir = path.join(__dirname, '..', '..');
 var dev_mode = (process.env.DEV_MODE === 'true');
@@ -120,16 +121,27 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(express_compress());
 
-var utm_tracked_field = require('../utils/utm.js').utm_tracked_field;
-app.use(function(req, res,next) {
-    for (var i in utm_tracked_field) {
-        if (req.query[utm_tracked_field[i]]) {
-            res.cookie(utm_tracked_field[i], req.query[utm_tracked_field[i]], {
+//Set the UTM id in the cookie
+app.use(function(req, res, next) {
+    //get the UTM field names from the DB scheme
+    var utm_tracked_field = _.without(_.keys(UtmModel.schema.paths), '_id', '__v');
+    //get the url vars that contain the UTM fields. 
+    var utm_in_url = _.pick(req.query, utm_tracked_field);
+    if (_.isEmpty(utm_in_url)) {
+        return next();
+    }
+
+    //search for an existing utm entry or create one. Save the id in the cookie. 
+    return UtmModel.findOneAndUpdate(utm_in_url, {}, {
+        upsert: true
+    }, function(err, utm_record) {
+        if (!err) {
+            res.cookie('utm_id', utm_record.id, {
                 httpOnly: false
             });
         }
-    }
-    return next();
+        return next(null);
+    });
 });
 
 

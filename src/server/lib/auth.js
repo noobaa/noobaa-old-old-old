@@ -12,10 +12,7 @@ var googleapis = require('googleapis');
 var googleplus = googleapis.plus('v1');
 var _ = require('underscore');
 var bcrypt = require('bcrypt');
-
 var User = require('../models/user').User;
-var utm_tracked_field = require('../../utils/utm.js').utm_tracked_field;
-
 var email = require('./email');
 var user_inodes = require('./user_inodes');
 var track_api = require('./track_api');
@@ -96,12 +93,8 @@ function sign_in_user(req, params, done) {
             }
 
             //add utm_tracked_field for future ref to the user
-            if (is_new && req.cookies) {
-                for (var i in utm_tracked_field) {
-                    if (req.cookies[utm_tracked_field[i]]) {
-                        user[utm_tracked_field[i]] = req.cookies[utm_tracked_field[i]];
-                    }
-                }
+            if (is_new && req.cookies && req.cookies.utm_id) {
+                user.utm_id =  req.cookies.utm_id;
             }
 
             return user.save(function(err) {

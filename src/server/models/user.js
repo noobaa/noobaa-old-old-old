@@ -2,6 +2,7 @@
 'use strict';
 
 var mongoose = require('mongoose');
+var types = mongoose.Schema.Types;
 var Device = require('./device');
 var _ = require('underscore');
 var bcrypt = require('bcrypt');
@@ -20,23 +21,16 @@ var user_schema = new mongoose.Schema({
     last_access_time: Date,
     tz_offset: Number, // timezone minutes offset from utc
     usage: Number, // cached usage value
-/*    
-//    --all the UTM fields will be inserted using schema.add below based on the UTM array. 
-*/
+    utm_id: {
+        type: types.ObjectId,
+        ref: 'UtmModel'
+    },
     quota: {
         type: Number,
         default: Math.pow(1024, 3)
     }, //default quota is 1GB for now
     alpha_tester: Boolean, // true to allow login to alpha testing
 });
-
-var utm_tracked_field = require('../../utils/utm.js').utm_tracked_field;
-var d = {};
-for (var i in utm_tracked_field) {
-    d = {};
-    d[utm_tracked_field[i]] = 'string';
-    user_schema.add(d);
-}
 
 // create a unique index on the facebook id field
 user_schema.index({
