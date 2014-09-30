@@ -19,12 +19,3 @@ var utm_schema = new mongoose.Schema({
 var UtmModel = mongoose.model('UtmModel', utm_schema);
 exports.UtmModel = UtmModel;
 
-/*
-var utm_tracked_field = require('../../utils/utm.js').utm_tracked_field;
-var d = {};
-for (var i in utm_tracked_field) {
-    d = {};
-    d[utm_tracked_field[i]] = 'string';
-    user_schema.add(d);
-}
- */
