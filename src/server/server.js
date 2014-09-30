@@ -49,6 +49,7 @@ var club_api = require('./lib/club_api');
 var adminoobaa = require('./lib/adminoobaa');
 var UtmModel = require('./models/utm.js').UtmModel;
 var utm_tracked_field = require('./models/utm.js').utm_tracked_field;
+var empty_utm = require('./models/utm.js').empty_utm;
 var async = require('async');
 
 var rootdir = path.join(__dirname, '..', '..');
@@ -124,13 +125,16 @@ app.use(express_compress());
 
 //Set the UTM id in the cookie
 app.use(function(req, res, next) {
-    //get the url vars that contain the UTM fields. 
+
+    //get the url vars that contain the UTM fields.
     var utm_in_url = _.pick(req.query, utm_tracked_field);
     if (_.isEmpty(utm_in_url)) {
         return next();
     }
 
-    //search for an existing utm entry or create one. Save the id in the cookie. 
+    _.defaults(utm_in_url, empty_utm);
+
+    //search for an existing utm entry or create one. Save the id in the cookie.
     return UtmModel.findOneAndUpdate(utm_in_url, {}, {
         upsert: true
     }, function(err, utm_record) {

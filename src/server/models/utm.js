@@ -24,3 +24,6 @@ exports.UtmModel = UtmModel;
 //get the UTM field names from the DB scheme
 var utm_tracked_field = _.without(_.keys(UtmModel.schema.paths), '_id', '__v');
 exports.utm_tracked_field = utm_tracked_field;
+
+var empty_utm = _.object(utm_tracked_field, Array.apply(null, new Array(utm_tracked_field.length)).map(String.prototype.valueOf, ''));
+exports.empty_utm = empty_utm;
