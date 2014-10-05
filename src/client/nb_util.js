@@ -259,18 +259,24 @@ nb_util.factory('nbMultiSelect', [
 
         MultiSelect.prototype.get_candidate = function() {
             var candidate;
-            for (var id in this._items) {
-                candidate = this._items[id];
-                break;
+            var id;
+            for (id in this._items) {
+                if (this._items.hasOwnProperty(id)) {
+                    candidate = this._items[id];
+                    break;
+                }
             }
             return candidate;
         };
 
         MultiSelect.prototype.foreach = function(fn) {
-            for (var id in this._items) {
-                var ret = fn(this._items[id]);
-                if (ret) {
-                    break;
+            var id;
+            for (id in this._items) {
+                if (this._items.hasOwnProperty(id)) {
+                    var ret = fn(this._items[id]);
+                    if (ret) {
+                        break;
+                    }
                 }
             }
         };
@@ -528,8 +534,11 @@ nb_util.directive('nbEvents', ['$parse',
             restrict: 'A', // use as attribute
             link: function(scope, element, attr) {
                 var events = scope.$eval(attr.nbEvents) || {};
-                for (var e in events) {
-                    $(element).on(e, scope.safe_callback(events[e]));
+                var e;
+                for (e in events) {
+                    if (events.hasOwnProperty(e)) {
+                        $(element).on(e, scope.safe_callback(events[e]));
+                    }
                 }
             }
         };

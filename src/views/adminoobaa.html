@@ -297,6 +297,7 @@
                     }).then(function(res) {
                         $scope.loading--;
                         var old_users = $scope.users || {};
+                        var user_id
                         $scope.users = res.data;
                         $scope.users_array = _.sortBy(_.values($scope.users), function(user) {
                             return -parseInt(user._id, 16);
@@ -308,62 +309,66 @@
                             num_files: 0
                         };
 
-                        for (var user_id in $scope.users) {
-                            var user = $scope.users[user_id];
-                            var old_user = old_users[user_id];
-                            if (old_user) {
-                                user.usage = old_user.usage;
-                            }
-                            user.email_addr = user.email ||
-                                (user.google && user.google.email) ||
-                                (user.fb && user.fb.email);
-                            for (var dev_id in user.devices) {
-                                $scope.totals.num_devices++;
-                                var dev = user.devices[dev_id];
-                                var dev_time = dev.last_update;
-                                if (dev_time) {
-                                    dev_time = new Date(dev_time);
-                                    if (!user.main_dev_time ||
-                                        (dev_time.getTime() > user.main_dev_time.getTime())) {
-                                        user.main_dev_time = dev_time;
-                                        user.main_device = dev;
+                        for (user_id in $scope.users) {
+                            if ($scope.users.hasOwnProperty(user_id)) {
+                                var user = $scope.users[user_id];
+                                var old_user = old_users[user_id];
+                                if (old_user) {
+                                    user.usage = old_user.usage;
+                                }
+                                user.email_addr = user.email ||
+                                    (user.google && user.google.email) ||
+                                    (user.fb && user.fb.email);
+                                for (var dev_id in user.devices) {
+                                    if (user.devices.hasOwnProperty(dev_id)) {
+                                        $scope.totals.num_devices++;
+                                        var dev = user.devices[dev_id];
+                                        var dev_time = dev.last_update;
+                                        if (dev_time) {
+                                            dev_time = new Date(dev_time);
+                                            if (!user.main_dev_time ||
+                                                (dev_time.getTime() > user.main_dev_time.getTime())) {
+                                                user.main_dev_time = dev_time;
+                                                user.main_device = dev;
 
-                                    }
-                                }
-                                if (dev.drives_info) {
-                                    if (typeof dev.drives_info.win_wmic_logicaldisk === 'object') {
-                                        dev.free_space = 0;
-                                        dev.total_space = 0;
-                                        dev.short_info = _.map(dev.drives_info.win_wmic_logicaldisk.info,
-                                            function(disk) {
-                                                var x;
-                                                if (disk.FreeSpace) {
-                                                    x = parseInt(disk.FreeSpace, 10);
-                                                    dev.free_space += x || 0;
-                                                }
-                                                if (disk.Size) {
-                                                    x = parseInt(disk.Size, 10);
-                                                    dev.total_space += x || 0;
-                                                }
-                                                return disk.Name + ' (' + disk.VolumeName + ') ' +
-                                                    $scope.human_size(disk.Size) + ' - ' + $scope.human_size(disk.FreeSpace) + ' free';
                                             }
-                                        );
-                                    } else if (typeof dev.drives_info.df === 'object') {
-                                        dev.short_info = dev.drives_info.df.info;
+                                        }
+                                        if (dev.drives_info) {
+                                            if (typeof dev.drives_info.win_wmic_logicaldisk === 'object') {
+                                                dev.free_space = 0;
+                                                dev.total_space = 0;
+                                                dev.short_info = _.map(dev.drives_info.win_wmic_logicaldisk.info,
+                                                    function(disk) {
+                                                        var x;
+                                                        if (disk.FreeSpace) {
+                                                            x = parseInt(disk.FreeSpace, 10);
+                                                            dev.free_space += x || 0;
+                                                        }
+                                                        if (disk.Size) {
+                                                            x = parseInt(disk.Size, 10);
+                                                            dev.total_space += x || 0;
+                                                        }
+                                                        return disk.Name + ' (' + disk.VolumeName + ') ' +
+                                                            $scope.human_size(disk.Size) + ' - ' + $scope.human_size(disk.FreeSpace) + ' free';
+                                                    }
+                                                );
+                                            } else if (typeof dev.drives_info.df === 'object') {
+                                                dev.short_info = dev.drives_info.df.info;
+                                            }
+                                        }
                                     }
                                 }
+                                if (user.quota > 1024 * 1024 * 1024) {
+                                    $scope.totals.quota += user.quota;
+                                }
+                                if (user.usage) {
+                                    $scope.totals.usage += user.usage;
+                                }
+                                if (user.files) {
+                                    $scope.totals.num_files += user.files;
+                                }
+                                user.last_access_time = user.last_access_time && new Date(user.last_access_time);
                             }
-                            if (user.quota > 1024 * 1024 * 1024) {
-                                $scope.totals.quota += user.quota;
-                            }
-                            if (user.usage) {
-                                $scope.totals.usage += user.usage;
-                            }
-                            if (user.files) {
-                                $scope.totals.num_files += user.files;
-                            }
-                            user.last_access_time = user.last_access_time && new Date(user.last_access_time);
                         }
 
                         var data = new google.visualization.DataTable();
@@ -516,11 +521,14 @@
 
                 function calculate_users_usage() {
                     var jobq = new JobQueue(10);
-                    for (var user_id in $scope.users) {
-                        var user = $scope.users[user_id];
-                        jobq.add({
-                            run: calculate_user_usage.bind(null, user)
-                        });
+                    var user_id;
+                    for (user_id in $scope.users) {
+                        if($scope.users.hasOwnProperty(user_id)){
+                            var user = $scope.users[user_id];
+                            jobq.add({
+                                run: calculate_user_usage.bind(null, user)
+                            });
+                        }
                     }
                 }
 
