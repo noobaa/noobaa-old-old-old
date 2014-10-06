@@ -64,6 +64,12 @@ sudo echo "mongodb-10gen hold" | sudo dpkg --set-selections
 ```
 To create the DB:
 ```
+#ET
+
+sudo mkdir -p /data/db
+sudo mongod --smallfiles
+
+#end ET
 #---get into mongo:
 # mongo
 #---To create db nb
