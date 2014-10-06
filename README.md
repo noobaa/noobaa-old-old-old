@@ -91,6 +91,7 @@ git clone https://github.com/guymguym/noobaa.git
 cd ~/workspace/noobaa
 sudo npm install
 ```
+#Get updated env file from Guy and update the bucket prefix
 
 #Start it:
 > foreman start
