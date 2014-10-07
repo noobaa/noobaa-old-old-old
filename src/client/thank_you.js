@@ -26,7 +26,7 @@ nb_thankyou.controller('ThankYouCtrl', [
             if (!$scope.new_email) {
                 return $scope.finished_with_error(err_msg_invalid_email);
             }
-            if ($scope.new_email == nbUser.user.email) {
+            if ($scope.new_email === nbUser.user.email) {
                 return $scope.finished_with_success(err_msg_known_email);
             }
 

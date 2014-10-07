@@ -1557,7 +1557,7 @@ function validate_access_to_inode(user_id, inode, callback) {
     // first try to check if the user is the owner, which is a fast check
     return common_api.check_ownership(user_id, inode, function(err) {
         // if no error or inode missing we can reply
-        if (!err || err.status == 404) {
+        if (!err || err.status === 404) {
             return callback(err, inode);
         }
         // check if one of the inode ancestors are shared to the user

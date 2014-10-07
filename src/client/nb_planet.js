@@ -181,7 +181,7 @@ nb_util.factory('nbPlanet', [
                     $rootScope.safe_apply();
                 });
                 $scope.srv.on('error', function(err) {
-                    if (err.code == 'EADDRINUSE') {
+                    if (err.code === 'EADDRINUSE') {
                         console.log('Address in use, retrying...');
                         setTimeout(srv_start, 1000);
                     } else {

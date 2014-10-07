@@ -202,7 +202,7 @@ nb_util.directive('nbBrowse', function() {
                     if (!selected.length) {
                         return;
                     }
-                    nbInode.delete_inodes(selected, $scope.current_inode)
+                    $q.when(nbInode.delete_inodes(selected, $scope.current_inode))
                         .then(clear_select_mode);
                 }
 

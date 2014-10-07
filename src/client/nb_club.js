@@ -138,7 +138,7 @@ nb_util.factory('nbClub', [
             if (item.user_info) {
                 return;
             }
-            if (item.user == nbUser.user.id) {
+            if (item.user === nbUser.user.id) {
                 item.user_info = nbUser.user;
             } else {
                 item.user_info = nbUser.get_friend_by_id(item.user);

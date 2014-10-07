@@ -229,7 +229,7 @@ exports.provider_login = function(provider, req, res, next) {
         scope: auth_provider_conf[provider].scope
     };
 
-    if (auth_options.state && auth_options.state.indexOf('planet') != -1) {
+    if (auth_options.state && auth_options.state.indexOf('planet') !== -1) {
         auth_options.display = 'popup';
     }
 
