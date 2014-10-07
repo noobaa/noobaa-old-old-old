@@ -31,6 +31,7 @@ var dotenv = require('dotenv');
 var through2 = require('through2');
 var bower = require('bower');
 var Q = require('q');
+var _ = require('underscore');
 
 if (!process.env.PORT) {
     console.log('loading .env file ( no foreman ;)');
@@ -76,6 +77,7 @@ var PATHS = {
     scripts: ['./src/**/*.js', './*.js'],
     // TODO limit mocha tests to src/core/ until we fix/delete the other failing tests
     test_scripts: './src/**/test*.js',
+    html_scripts: ['./src/views/adminoobaa.html'],
 
     server_main: './src/server/server.js',
     client_main: './src/client/main.js',
@@ -214,9 +216,10 @@ gulp.task('ng', function() {
 });
 
 gulp.task('jshint', function() {
-    return gulp.src(PATHS.scripts)
+    return gulp.src(_.flatten([PATHS.scripts, PATHS.html_scripts]))
         .pipe(gulp_plumber(PLUMB_CONF))
         .pipe(gulp_cached('jshint'))
+        .pipe(gulp_jshint.extract('always'))
         .pipe(gulp_jshint())
         .pipe(gulp_jshint.reporter(jshint_stylish));
     // avoid failing for watch to continue

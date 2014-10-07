@@ -4,7 +4,8 @@
 <head>
     <?# def.include( 'common_head.html') ?>
         <style>
-        .google-visualization-table-th, .google-visualization-table-td {
+        .google-visualization-table-th,
+        .google-visualization-table-td {
             /*white-space: nowrap;*/
         }
         </style>
@@ -228,6 +229,8 @@
 
     <script type="text/javascript">
     (function() {
+        /* jshint jquery:true, browser:true */
+        /* global google, angular, alertify */
         'use strict';
 
         google.load('visualization', '1.1', {
@@ -276,7 +279,7 @@
 
 
                 // for now prefer to keep the default style
-                var table_css_classes = undefined;
+                var table_css_classes;
                 /*
                 var table_css_classes = {
                     tableRow: 'table-row',
@@ -308,8 +311,7 @@
                             num_files: 0
                         };
 
-                        for (var user_id in $scope.users) {
-                            var user = $scope.users[user_id];
+                        _.each($scope.users, function(user, user_id) {
                             var old_user = old_users[user_id];
                             if (old_user) {
                                 user.usage = old_user.usage;
@@ -317,9 +319,8 @@
                             user.email_addr = user.email ||
                                 (user.google && user.google.email) ||
                                 (user.fb && user.fb.email);
-                            for (var dev_id in user.devices) {
+                            _.each(user.devices, function(dev, dev_id) {
                                 $scope.totals.num_devices++;
-                                var dev = user.devices[dev_id];
                                 var dev_time = dev.last_update;
                                 if (dev_time) {
                                     dev_time = new Date(dev_time);
@@ -353,7 +354,7 @@
                                         dev.short_info = dev.drives_info.df.info;
                                     }
                                 }
-                            }
+                            });
                             if (user.quota > 1024 * 1024 * 1024) {
                                 $scope.totals.quota += user.quota;
                             }
@@ -364,7 +365,7 @@
                                 $scope.totals.num_files += user.files;
                             }
                             user.last_access_time = user.last_access_time && new Date(user.last_access_time);
-                        }
+                        });
 
                         var data = new google.visualization.DataTable();
                         data.addColumn('number', '#');
@@ -518,16 +519,15 @@
                     var jobq = new JobQueue({
                         concurrency: 10
                     });
-                    for (var user_id in $scope.users) {
-                        var user = $scope.users[user_id];
+                    _.each($scope.users, function(user, user_id) {
                         jobq.add({
                             run: calculate_user_usage.bind(null, user)
                         });
-                    }
+                    });
                 }
 
                 function send_recent_swm(user) {
-                    var question = 'Send Email with Recent-SWM to ' + user.name + '?'
+                    var question = 'Send Email with Recent-SWM to ' + user.name + '?';
                     if (!$window.confirm(question)) {
                         return;
                     }
@@ -626,7 +626,7 @@
                     for (i = 0; i < events.length; i++) {
                         data.addColumn('number', events[i]);
                     }
-                    var current_tick = tracks_sorted_by_time[0].tick;
+                    var current_tick = tracks_sorted_by_time[0] ? tracks_sorted_by_time[0].tick : 0;
                     var num_ticks = 0;
                     _.each(tracks_sorted_by_time, function(tr) {
                         // fill zero rows even when there are time jumps 
@@ -805,7 +805,7 @@
                 }
             }
 
-        ])
+        ]);
 
     })();
     </script>

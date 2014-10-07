@@ -98,10 +98,10 @@ UploadSrv.prototype.has_unfinished_uploads = function() {
     return (!this.list_loading.is_empty()) ||
         (!this.list_uploading.is_empty()) ||
         (!this.list_retrying.is_empty()) ||
-        ( !! this.jobq_load.length) ||
-        ( !! this.jobq_upload_small.length) ||
-        ( !! this.jobq_upload_medium.length) ||
-        ( !! this.jobq_upload_large.length);
+        (!!this.jobq_load.length) ||
+        (!!this.jobq_upload_small.length) ||
+        (!!this.jobq_upload_medium.length) ||
+        (!!this.jobq_upload_large.length);
 };
 
 
@@ -495,8 +495,8 @@ function find_existing_dirent_in_parent(upload) {
 }
 
 function fill_existing_dirent(upload, ent) {
-    var ent_isdir = !! ent.isdir;
-    var item_isdir = !! upload.item.isDirectory;
+    var ent_isdir = !!ent.isdir;
+    var item_isdir = !!upload.item.isDirectory;
     if (ent_isdir !== item_isdir) {
         return false;
     }
@@ -968,11 +968,14 @@ UploadSrv.prototype.get_status = function(upload) {
 
 
 UploadSrv.prototype.clear_completed = function() {
-    for (var id in this.root.sons) {
-        var upload = this.root.sons[id];
-        if (!upload.is_pin && this.is_completed(upload)) {
-            console.log('CLEAR COMPLETED', upload);
-            this.do_remove(upload);
+    var id;
+    for (id in this.root.sons) {
+        if (!this.root.sons.hasOwnProperty(id)) {
+            var upload = this.root.sons[id];
+            if (!upload.is_pin && this.is_completed(upload)) {
+                console.log('CLEAR COMPLETED', upload);
+                this.do_remove(upload);
+            }
         }
     }
 };
@@ -1025,6 +1028,7 @@ UploadSrv.prototype.pin_selected = function() {
 
 
 UploadSrv.prototype.do_stop = function(upload, func) {
+    var id;
     upload.is_stopped = true;
     if (func) {
         func(upload);
@@ -1045,16 +1049,21 @@ UploadSrv.prototype.do_stop = function(upload, func) {
         upload.xhr.abort();
     }
     // propagate to sons
-    for (var id in upload.sons) {
-        var son = upload.sons[id];
-        this.do_stop(son, func);
+    for (id in upload.sons) {
+        if (upload.sons.hasOwnProperty(id)) {
+            var son = upload.sons[id];
+            this.do_stop(son, func);
+        }
     }
 };
 
 UploadSrv.prototype.do_resume = function(upload) {
-    for (var id in upload.sons) {
-        var son = upload.sons[id];
-        this.do_resume(son);
+    var id;
+    for (id in upload.sons) {
+        if (upload.sons.hasOwnProperty(id)) {
+            var son = upload.sons[id];
+            this.do_resume(son);
+        }
     }
     upload.is_stopped = false;
     // add to proper job queue
@@ -1157,11 +1166,14 @@ UploadSrv.prototype.reload_source = function(device_id) {
 
 
 UploadSrv.prototype.clear_selection = function(leave_global) {
+    var id;
     var had_any = false;
-    for (var id in this.selection) {
-        var upload = this.selection[id];
-        upload.is_selected = false;
-        had_any = true;
+    for (id in this.selection) {
+        if (this.selection.hasOwnProperty(id)) {
+            var upload = this.selection[id];
+            upload.is_selected = false;
+            had_any = true;
+        }
     }
     if (had_any) {
         this.selection = {};
@@ -1205,23 +1217,26 @@ UploadSrv.prototype.foreach_selected = function(func) {
 };
 
 UploadSrv.prototype.foreach_collection = function(col, func) {
-    for (var id in col) {
-        var upload = col[id];
-        var ignore_selection = false;
-        for (var p = upload.parent; p; p = p.parent) {
-            // make sure not to iterate sons of already selected items
-            // the parent will be iterated instead.
-            // also ignore if any parent is not expanded to avoid unwanted actions
-            if (p.is_selected || !p.is_expanded) {
-                ignore_selection = true;
-                break;
+    var id;
+    for (id in col) {
+        if (col.hasOwnProperty(id)) {
+            var upload = col[id];
+            var ignore_selection = false;
+            for (var p = upload.parent; p; p = p.parent) {
+                // make sure not to iterate sons of already selected items
+                // the parent will be iterated instead.
+                // also ignore if any parent is not expanded to avoid unwanted actions
+                if (p.is_selected || !p.is_expanded) {
+                    ignore_selection = true;
+                    break;
+                }
             }
-        }
-        if (!ignore_selection) {
-            var ret = func(upload);
-            // allow to break from the loop by returning false (exactly false, not undefined)
-            if (ret === false) {
-                break;
+            if (!ignore_selection) {
+                var ret = func(upload);
+                // allow to break from the loop by returning false (exactly false, not undefined)
+                if (ret === false) {
+                    break;
+                }
             }
         }
     }
