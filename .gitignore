@@ -7,7 +7,5 @@ noobaa-prod-dump/
 .env
 draft_*
 
-## gulp-coverage outputs
-.coverdata/
-.coverrun
-coverage-report.html
+## istanbul coverage
+coverage/

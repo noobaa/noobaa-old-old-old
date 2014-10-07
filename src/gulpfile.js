@@ -23,7 +23,7 @@ var vinyl_source_stream = require('vinyl-source-stream');
 var browserify = require('browserify');
 var event_stream = require('event-stream');
 var gulp_mocha = require('gulp-mocha');
-var gulp_coverage = require('gulp-coverage');
+var gulp_istanbul = require('gulp-istanbul');
 var fs = require('fs');
 var path = require('path');
 var child_process = require('child_process');
@@ -74,8 +74,8 @@ var PATHS = {
 
     ngview: './src/ngview/**/*',
     scripts: ['./src/**/*.js', './*.js'],
-    tests: ['./src/**/test*.js'],
-    core_tests: ['./src/core/**/test*.js'],
+    // TODO limit mocha tests to src/core/ until we fix/delete the other failing tests
+    test_scripts: './src/**/test*.js',
 
     server_main: './src/server/server.js',
     client_main: './src/client/main.js',
@@ -264,16 +264,13 @@ gulp.task('mocha', function() {
     var mocha_options = {
         reporter: 'spec'
     };
-    // TODO limit mocha tests to src/core/ until we fix/delete the other failing tests
-    return gulp.src(PATHS.core_tests, SRC_DONT_READ)
-        .pipe(gulp_coverage.instrument({
-            pattern: PATHS.scripts,
-            // debugDirectory: '.coverdata'
-        }))
-        .pipe(gulp_mocha(mocha_options))
-        .pipe(gulp_coverage.report({
-            outFile: 'coverage-report.html'
-        }));
+    return gulp.src(PATHS.scripts)
+        .pipe(gulp_istanbul())
+        .on('finish', function() {
+            return gulp.src(PATHS.test_scripts, SRC_DONT_READ)
+                .pipe(gulp_mocha(mocha_options))
+                .pipe(gulp_istanbul.writeReports());
+        });
 });
 
 gulp.task('test', ['jshint', 'mocha']);
