@@ -970,7 +970,7 @@ UploadSrv.prototype.get_status = function(upload) {
 UploadSrv.prototype.clear_completed = function() {
     var id;
     for (id in this.root.sons) {
-        if (!this.root.sons.hasOwnProperty(id)) {
+        if (this.root.sons.hasOwnProperty(id)) {
             var upload = this.root.sons[id];
             if (!upload.is_pin && this.is_completed(upload)) {
                 console.log('CLEAR COMPLETED', upload);
