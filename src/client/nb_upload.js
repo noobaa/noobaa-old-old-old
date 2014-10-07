@@ -29,15 +29,19 @@ function UploadSrv($q, $http, $timeout, $rootScope, nbUtil, LinkedList, JobQueue
     this.list_retrying = new LinkedList('rt');
 
     this.jobq_load = new JobQueue({
+        name: 'jld',
         concurrency: 4
     });
     this.jobq_upload_small = new JobQueue({
+        name: 'jus',
         concurrency: 4
     });
     this.jobq_upload_medium = new JobQueue({
+        name: 'jum',
         concurrency: 2
     });
     this.jobq_upload_large = new JobQueue({
+        name: 'jul',
         concurrency: 1
     });
     this.medium_threshold = 512 * 1024; // ~5 seconds upload with 100 KB/s
@@ -994,7 +998,7 @@ UploadSrv.prototype.resume_selected = function() {
     this.clear_selection();
 };
 
-UploadSrv.prototype.remove_selected = function() {
+UploadSrv.prototype.remove_selected = function(callback) {
     var me = this;
     // check if there are selected uploads which are not completed
     var has_incomplete = false;
@@ -1007,12 +1011,17 @@ UploadSrv.prototype.remove_selected = function() {
     if (!has_incomplete) {
         me.foreach_selected(me.do_remove.bind(me));
         me.clear_selection();
+        callback();
     } else {
         alertify.confirm('Some of the selected uploads did not complete. Are you sure?',
             me.$cb(function(e) {
-                if (!e) return;
+                if (!e) {
+                    callback();
+                    return;
+                }
                 me.foreach_selected(me.do_remove.bind(me));
                 me.clear_selection();
+                callback();
             })
         );
     }
@@ -1293,8 +1302,10 @@ nb_util.controller('UploadCtrl', ['$scope', 'nbUploadSrv',
         };
 
         $scope.remove_selected = function() {
-            nbUploadSrv.remove_selected();
-            $scope.clear_select_mode();
+            nbUploadSrv.remove_selected(function() {
+                // clear the select mode only after finished processing the selected items
+                $scope.clear_select_mode();
+            });
         };
         $scope.pause_selected = function() {
             nbUploadSrv.pause_selected();
