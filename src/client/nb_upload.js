@@ -28,10 +28,18 @@ function UploadSrv($q, $http, $timeout, $rootScope, nbUtil, LinkedList, JobQueue
     this.list_uploading = new LinkedList('up');
     this.list_retrying = new LinkedList('rt');
 
-    this.jobq_load = new JobQueue(4);
-    this.jobq_upload_small = new JobQueue(4);
-    this.jobq_upload_medium = new JobQueue(2);
-    this.jobq_upload_large = new JobQueue(1);
+    this.jobq_load = new JobQueue({
+        concurrency: 4
+    });
+    this.jobq_upload_small = new JobQueue({
+        concurrency: 4
+    });
+    this.jobq_upload_medium = new JobQueue({
+        concurrency: 2
+    });
+    this.jobq_upload_large = new JobQueue({
+        concurrency: 1
+    });
     this.medium_threshold = 512 * 1024; // ~5 seconds upload with 100 KB/s
     this.large_threshold = 8 * 1024 * 1024;
 

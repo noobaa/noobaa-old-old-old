@@ -515,7 +515,9 @@
                 }
 
                 function calculate_users_usage() {
-                    var jobq = new JobQueue(10);
+                    var jobq = new JobQueue({
+                        concurrency: 10
+                    });
                     for (var user_id in $scope.users) {
                         var user = $scope.users[user_id];
                         jobq.add({

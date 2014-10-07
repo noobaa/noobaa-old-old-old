@@ -1,6 +1,7 @@
 'use strict';
 
 var _ = require('underscore');
+var util = require('util');
 var moment = require('moment');
 var LinkedList = require('noobaa-util/linked_list');
 var JobQueue = require('noobaa-util/job_queue');
@@ -257,21 +258,16 @@ nb_util.factory('nbMultiSelect', [
         };
 
         MultiSelect.prototype.get_candidate = function() {
-            var candidate;
-            for (var id in this._items) {
-                candidate = this._items[id];
-                break;
-            }
+            // _.find without a predicate just returns the first value it encounters
+            var candidate = _.find(this._items);
             return candidate;
         };
 
         MultiSelect.prototype.foreach = function(fn) {
-            for (var id in this._items) {
-                var ret = fn(this._items[id]);
-                if (ret) {
-                    break;
-                }
-            }
+            // find will break once the call to fn will return true
+            _.find(this._items, function(item) {
+                return fn(item);
+            });
         };
 
         MultiSelect.prototype.reset = function() {
@@ -527,9 +523,9 @@ nb_util.directive('nbEvents', ['$parse',
             restrict: 'A', // use as attribute
             link: function(scope, element, attr) {
                 var events = scope.$eval(attr.nbEvents) || {};
-                for (var e in events) {
-                    $(element).on(e, scope.safe_callback(events[e]));
-                }
+                _.each(events, function(val, key) {
+                    $(element).on(key, scope.safe_callback(val));
+                });
             }
         };
     }
@@ -1016,7 +1012,15 @@ nb_util.factory('LinkedList', function() {
 
 nb_util.factory('JobQueue', ['$timeout',
     function($timeout) {
-        return JobQueue.bind(JobQueue, $timeout);
+        // return here a JobQueue class suitable for angular usage
+        // which means it uses the $timeout service.
+        function AngularJobQueue(params) {
+            JobQueue.call(this, _.defaults(params, {
+                timeout: $timeout
+            }));
+        }
+        util.inherits(AngularJobQueue, JobQueue);
+        return AngularJobQueue;
     }
 ]);
 
@@ -1027,7 +1031,7 @@ nb_util.factory('JobQueue', ['$timeout',
 function safe_apply(func) {
     /* jshint validthis:true */
     var phase = this.$root.$$phase;
-    if (phase == '$apply' || phase == '$digest') {
+    if (phase === '$apply' || phase === '$digest') {
         return this.$eval(func);
     } else {
         return this.$apply(func);
@@ -1039,7 +1043,7 @@ function safe_apply(func) {
 
 function safe_callback(func) {
     /* jshint validthis:true */
-    var me = this;
+    var self = this;
     return function() {
         // build the args array to have null for 'this' 
         // and rest is taken from the callback arguments
@@ -1050,7 +1054,7 @@ function safe_callback(func) {
         }
         // the following is in fact calling func.bind(null, a1, a2, ...)
         var fn = Function.prototype.bind.apply(func, args);
-        return me.safe_apply(fn);
+        return self.safe_apply(fn);
     };
 }
 

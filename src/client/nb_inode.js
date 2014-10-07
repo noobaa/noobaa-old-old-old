@@ -219,7 +219,15 @@ nb_util.factory('nbInode', [
                 inode.entries = merge_inode_entries(entry.entries);
                 inode.entries.sort(inode.sorting_func || default_sort_func);
                 inode.entries_by_kind = _.groupBy(inode.entries, 'content_kind');
+                // TODO show a thumbnail image for dirs
+                // if (inode.entries_by_kind.image && inode.entries_by_kind.image.length) {
+                // inode.thumb_url = fobj_get_url(inode.entries_by_kind.image[0]);
+                // }
             }
+            // TODO show a thumbnail image for other files
+            // if (inode.content_kind === 'image') {
+            // inode.thumb_url = fobj_get_url(inode);
+            // }
             if (!entry.isdir || entry.entries) {
                 // for dirs only mark loaded if the merge contained the entries
                 inode.loaded = Date.now();
@@ -424,7 +432,9 @@ nb_util.factory('nbInode', [
 
 
         function recursive_delete(inodes, del_scope, complete) {
-            var jobq = new JobQueue($timeout, 32);
+            var jobq = new JobQueue({
+                concurrency: 32
+            });
             var do_delete = function(inode_id, ctx) {
                 if (!inode_id) {
                     ctx.complete();
