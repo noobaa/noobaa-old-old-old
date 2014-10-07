@@ -64,6 +64,12 @@ sudo echo "mongodb-10gen hold" | sudo dpkg --set-selections
 ```
 To create the DB:
 ```
+#ET
+
+sudo mkdir -p /data/db
+sudo mongod --smallfiles
+
+#end ET
 #---get into mongo:
 # mongo
 #---To create db nb
@@ -85,6 +91,7 @@ git clone https://github.com/guymguym/noobaa.git
 cd ~/workspace/noobaa
 sudo npm install
 ```
+#Get updated env file from Guy and update the bucket prefix
 
 #Start it:
 > foreman start

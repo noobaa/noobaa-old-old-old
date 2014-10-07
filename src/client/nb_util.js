@@ -127,10 +127,11 @@ nb_util.factory('nbUtil', [
             ].join('\n');
         }
 
-
         function track_event(event, data) {
             data = data || {};
-            data.refid = $cookies.refid;
+            if ($cookies.utm_id) {
+                data.utm_id = $cookies.utm_id;
+            }
             var p1 = $q.when().then(function() {
                 if (!window.nb_mixpanel) {
                     return;

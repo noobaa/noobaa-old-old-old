@@ -12,7 +12,6 @@ var googleapis = require('googleapis');
 var googleplus = googleapis.plus('v1');
 var _ = require('underscore');
 var bcrypt = require('bcrypt');
-
 var User = require('../models/user').User;
 var email = require('./email');
 var user_inodes = require('./user_inodes');
@@ -29,7 +28,6 @@ function clear_session(req) {
     delete req.session.singin;
     delete req.session.singup;
 }
-
 
 function sign_in_user(req, params, done) {
     var user;
@@ -93,9 +91,12 @@ function sign_in_user(req, params, done) {
                     user[provider] = params.profile._json;
                 }
             }
-            if (is_new && req.cookies && req.cookies.refid) {
-                user.refid = req.cookies.refid;
+
+            //add utm_tracked_field for future ref to the user
+            if (is_new && req.cookies && req.cookies.utm_id) {
+                user.utm_id =  req.cookies.utm_id;
             }
+
             return user.save(function(err) {
                 return next(err);
             });
