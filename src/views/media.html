@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html ng-app="noobaa_app" xmlns:fb="http://ogp.me/ns/fb#" lang="en">
 <head>
-	<?# def.include('common_head.html') ?>
+	{{{# def.include('common_head.html') }}}
 </head>
 <body>
-	<?# def.include('common_menubar.html') ?>
+	{{{# def.include('common_menubar.html') }}}
 	<div class="row">
 		<video controls class="col-md-10 col-md-offset-1">
-			<source src="<?! it.url ?>">
+			<source src="{{{! it.url }}}">
 			<!-- <source src="movie.ogg" type="video/ogg"> -->
 		</video>
 		<embed hidden type="application/x-vlc-plugin" pluginspage="http://www.videolan.org" />

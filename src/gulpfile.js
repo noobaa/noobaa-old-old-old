@@ -77,7 +77,10 @@ var PATHS = {
     scripts: ['./src/**/*.js', './*.js'],
     // TODO limit mocha tests to src/core/ until we fix/delete the other failing tests
     test_scripts: './src/**/test*.js',
-    html_scripts: ['./src/views/adminoobaa.html'],
+    html_scripts: [
+        './src/views/adminoobaa.html',
+        './src/views/planet_boot.html',
+    ],
 
     server_main: './src/server/server.js',
     client_main: './src/client/main.js',
@@ -232,8 +235,8 @@ gulp.task('client', ['bower'], function() {
     var NAME_MIN = 'bundle.min.js';
     var bundler = browserify({
         entries: PATHS.client_main,
-        // bare is alias for both --no-builtins, --no-commondir, 
-        // and sets --insert-global-vars to just "__filename,__dirname". 
+        // bare is alias for both --no-builtins, --no-commondir,
+        // and sets --insert-global-vars to just "__filename,__dirname".
         // This is handy if you want to run bundles in node.
         bare: true,
         detectGlobals: false,

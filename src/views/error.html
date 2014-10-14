@@ -2,7 +2,7 @@
 <html ng-app="nb_util" xmlns:fb="http://ogp.me/ns/fb#" lang="en">
 
 <head>
-	<?# def.include( 'common_head.html') ?>
+	{{{# def.include( 'common_head.html') }}}
 		<style>
 		.sketch {
 			background-image: url('/public/images/sketch_skate.png');
@@ -22,7 +22,7 @@
 
 	<div class="container text-center">
 		<h1>
-			<?! it.message ?>
+			{{{! it.message }}}
 		</h1>
 		<div style="padding: 20px">
 			<a class="btn btn-primary btn-lg" href="/">
@@ -32,15 +32,15 @@
 		<div class="sketch"></div>
 		<p class="lead">
 			( Status
-			<?! it.status ?>)
+			{{{! it.status }}})
 		</p>
 		<div>
-			<?! it.stack ?>
+			{{{! it.stack }}}
 		</div>
 	</div>
 
 	<div>
-		<?# def.include( 'common_scripts.html') ?>
+		{{{# def.include( 'common_scripts.html') }}}
 	</div>
 
 </body>

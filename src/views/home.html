@@ -2,14 +2,14 @@
 <html ng-app="nb_home" xmlns:fb="http://ogp.me/ns/fb#" lang="en">
 
 <head>
-    <?# def.include( 'common_head.html') ?>
+    {{{# def.include( 'common_head.html') }}}
         <base href="/home/">
 </head>
 
 <body ng-cloak ng-controller="HomeCtrl" class="app-body" Xng-swipe-left="swipe_left()" Xng-swipe-right="swipe_right()">
 
     <div>
-        <?# def.facebook_init_body ?>
+        {{{# def.facebook_init_body }}}
     </div>
 
     <div class="view-animate-container">
@@ -17,7 +17,7 @@
     </div>
 
     <div>
-        <?# def.include( 'common_scripts.html') ?>
+        {{{# def.include( 'common_scripts.html') }}}
     </div>
 
 </body>
