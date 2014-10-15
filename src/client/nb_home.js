@@ -32,6 +32,9 @@ nb_home.config(['$routeProvider', '$locationProvider',
                     $scope.set_current_item($routeParams.id);
                 }
             ]
+        }).when('/feed/', {
+            templateUrl: 'feed.html',
+            controller: 'FeedCtrl'
         }).when('/club/', {
             templateUrl: 'clubs.html',
             controller: 'ClubsCtrl'
@@ -45,7 +48,7 @@ nb_home.config(['$routeProvider', '$locationProvider',
             templateUrl: 'uploads.html',
             controller: 'UploadCtrl'
         }).otherwise({
-            redirectTo: '/club'
+            redirectTo: '/feed'
         });
     }
 ]);
@@ -72,6 +75,7 @@ nb_home.controller('HomeCtrl', [
         $scope.nbUploadSrv = nbUploadSrv;
         $scope.nbPlanet = nbPlanet;
         $scope.nbClub = nbClub;
+        $scope.nbFeed = nbFeed;
         $scope.moment = moment;
 
         $scope.root_dir = nbInode.get_inode();

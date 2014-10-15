@@ -183,13 +183,15 @@ nb_util.factory('nbFeed', [
 nb_util.controller('FeedCtrl', [
     '$scope', '$q', '$location', '$timeout', 'nbUtil', 'nbUser', 'nbFeed',
     function($scope, $q, $location, $timeout, nbUtil, nbUser, nbFeed) {
+        $scope.action_bar_title = 'FEED';
         $scope.feeds = nbFeed.feeds;
+        nbFeed.refresh_feeds();
     }
 ]);
 
 nb_util.controller('FeedItemCtrl', [
-    '$scope', '$q', '$location', '$timeout', 'nbUtil', 'nbUser', 'nbInode',
-    function($scope, $q, $location, $timeout, nbUtil, nbUser, nbInode) {
+    '$scope', '$q', '$location', '$timeout', 'nbUtil', 'nbUser', 'nbInode', 'nbFeed',
+    function($scope, $q, $location, $timeout, nbUtil, nbUser, nbInode, nbFeed) {
         $scope.reload_feed = reload_feed;
         $scope.current_entry = current_entry;
         $scope.current_entry_index = 0;
@@ -230,14 +232,14 @@ nb_util.controller('FeedItemCtrl', [
 
         $scope.next_entry = function() {
             $scope.current_entry_index++;
-            $scope.notify_layout();
+            nbFeed.notify_layout();
         };
         $scope.prev_entry = function() {
             $scope.current_entry_index--;
-            $scope.notify_layout();
+            nbFeed.notify_layout();
         };
         $scope.media_events = {
-            load: $scope.notify_layout,
+            load: nbFeed.notify_layout,
             ended: function() {
                 $scope.next_entry();
             },
@@ -245,7 +247,7 @@ nb_util.controller('FeedItemCtrl', [
                 $scope.open_feed_inode(current_entry());
             },
         };
-        $scope.$watch('feed.expanded', $scope.notify_layout);
+        $scope.$watch('feed.expanded', nbFeed.notify_layout);
 
         $scope.open_feed_inode = function(inode) {
             $location.path('/files/' + inode.id);
@@ -305,7 +307,7 @@ nb_util.controller('FeedItemCtrl', [
 
         $scope.show_comment_box = function(comment_box) {
             comment_box.show = !comment_box.show;
-            $scope.notify_layout();
+            nbFeed.notify_layout();
         };
 
         $scope.post_comment = function(comment_box) {
