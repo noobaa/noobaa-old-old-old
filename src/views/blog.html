@@ -2,14 +2,14 @@
 <html ng-app="nb_blog" xmlns:fb="http://ogp.me/ns/fb#" lang="en">
 
 <head>
-    <?# def.include( 'common_head.html') ?>
+    {{{# def.include( 'common_head.html') }}}
         <base href="/blog/">
 </head>
 
 <body ng-cloak ng-controller="BlogCtrl" class="blog-body navbar-top-pad">
 
     <div>
-        <?# def.facebook_init_body ?>
+        {{{# def.facebook_init_body }}}
     </div>
 
     <div ng-include="'navbar_top.html'"></div>
@@ -43,7 +43,7 @@
     </div>
 
     <div>
-        <?# def.include( 'common_scripts.html') ?>
+        {{{# def.include( 'common_scripts.html') }}}
     </div>
 
 </body>

@@ -146,7 +146,7 @@ nb_util.factory('nbInode', [
         };
 
         function sync_missing_key(target, src, key) {
-            // remove the key from the target object 
+            // remove the key from the target object
             // according to it's state in the source object
             if (!src[key]) {
                 delete target[key];
@@ -336,7 +336,7 @@ nb_util.factory('nbInode', [
                 return;
             }
             // check dir creation conditions
-            // the first condition is true when looking at a directory 
+            // the first condition is true when looking at a directory
             // which is not owned by the user.
             // the second is true for ghosts or when not owned by the user
             if (is_not_mine(dir_inode) || dir_inode.ref_owner) {
@@ -796,8 +796,10 @@ nb_util.factory('nbInode', [
                 inode.running_keep--;
                 throw err;
             }, function(new_inode) {
+                // this is the "progress handler", we use it to get the top copied inode
+                // see the call to deferred.notify() in copy_inode().
                 inode.new_keep_inode = get_inode(new_inode.id);
-                new_keep_inode_promise = $q.when(inode.new_keep_inode);
+                new_keep_inode_promise = $q.when(load_inode(inode.new_keep_inode));
                 return inode.new_keep_inode;
             });
         }

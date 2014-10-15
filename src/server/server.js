@@ -13,11 +13,10 @@ if (process.env.NODETIME_ACCOUNT_KEY) {
 
 // important - dot settings should run before any require() that might use dot
 // or else the it will get mess up (like the email.js code)
-var dot = require('noobaa-util/dot');
+var dot_engine = require('noobaa-util/dot_engine');
 var path = require('path');
 var URL = require('url');
 var http = require('http');
-var dot_emc = require('dot-emc');
 var express = require('express');
 var express_favicon = require('static-favicon');
 var express_morgan_logger = require('morgan');
@@ -67,12 +66,9 @@ var web_port = process.env.PORT || 5000;
 app.set('port', web_port);
 
 // setup view template engine with doT
-var dot_emc_app = dot_emc.init({
-    app: app
-});
-app.set('views', path.join(rootdir, 'src', 'views'));
-app.engine('dot', dot_emc_app.__express);
-app.engine('html', dot_emc_app.__express);
+var views_path = path.join(rootdir, 'src', 'views');
+app.set('views', views_path);
+app.engine('html', dot_engine(views_path));
 
 
 
@@ -86,7 +82,7 @@ app.use(express_favicon(path.join(rootdir, 'images', 'noobaa_icon16.ico')));
 app.use(express_morgan_logger('combined'));
 app.use(function(req, res, next) {
     // HTTPS redirect:
-    // since we want to provide secure and certified connections 
+    // since we want to provide secure and certified connections
     // for the entire application, so once a request for http arrives,
     // we redirect it to https.
     // it was suggested to use the req.secure flag to check that.

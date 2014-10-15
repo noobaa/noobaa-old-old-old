@@ -2,9 +2,9 @@
 
     <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
         <div class="clearfix club-bg" style="background-color: hsl({{club.color}},60%,45%)">
-            
+
             <div ng-include="'action_bar_nav.html'" ng-repeat="menu_open in [0,1]" class="pull-left navmenu {{menu_open && 'navmenu-open visible-md visible-lg' || 'visible-xs visible-sm'}}"></div>
-            <!-- 
+            <!--
             <a class="btn btn-link navbar-btn pull-left" href="club/">
                 <span class="active-link" style="margin: -5px">
                     <i class="fa fa-angle-left fa-lg"></i>

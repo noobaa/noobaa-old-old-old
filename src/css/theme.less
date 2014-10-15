@@ -1,61 +1,61 @@
 /******************************************************************************
-    IMPORTS 
+    IMPORTS
  ******************************************************************************/
 
 @import (less)"../../bower_components/bootstrap/less/bootstrap.less";
- @import (less)"../../bower_components/font-awesome/less/font-awesome.less";
- @import (less)"../../bower_components/alertify.js/themes/alertify.core.css";
- @import (less)"../../bower_components/alertify.js/themes/alertify.default.css";
- @import (inline)"../../node_modules/video.js/dist/video-js/video-js.css";
- @import (less)"../../bower_components/animate.css/animate.min.css";
- @import (less)"animations.css";
+@import (less)"../../bower_components/font-awesome/less/font-awesome.less";
+@import (less)"../../bower_components/alertify.js/themes/alertify.core.css";
+@import (less)"../../bower_components/alertify.js/themes/alertify.default.css";
+@import (inline)"../../node_modules/video.js/dist/video-js/video-js.css";
+@import (less)"../../bower_components/animate.css/animate.min.css";
+@import (less)"animations.css";
 
 /******************************************************************************
-    THEME 
+    THEME
  ******************************************************************************/
 
 @gray: hsl(0, 0%, 50%);
- @gray-dark: darken(@gray, 20%);
- @gray-darker: darken(@gray-dark, 10%);
- @gray-light: lighten(@gray, 20%);
- @gray-lighter: lighten(@gray-light, 15%);
+@gray-dark: darken(@gray, 20%);
+@gray-darker: darken(@gray-dark, 10%);
+@gray-light: lighten(@gray, 20%);
+@gray-lighter: lighten(@gray-light, 15%);
 // @body-bg: hsl(0, 0%, 90%);
- @body-bg: hsl(0, 0%, 100%);
- @border-color: hsl(0, 0%, 40%);
- @border-color-light: darken(@body-bg, 20%);
- @text-color: hsl(0, 0%, 5%);
- @link-color: hsl(0, 0%, 25%);
- @brand-primary: hsl(202, 83%, 47%);
- @brand-success: hsl(150, 72%, 49%);
- @brand-info: hsl(188, 90%, 48%);
- @brand-danger: hsl(350, 100%, 45%);
- @brand-warning: hsl(48, 89%, 50%);
- @state-primary-text: @brand-primary;
- @state-success-text: @brand-success;
- @state-info-text: @brand-info;
- @state-danger-text: @brand-danger;
- @state-warning-text: @brand-warning;
- @well-bg: white;
- @well-border: @border-color-light;
- @panel-bg: transparent;
- @panel-footer-bg: transparent;
- @panel-default-heading-bg: white;
- @modal-content-bg: white;
- @modal-backdrop-opacity: 0.7;
- @navbar-default-color: @text-color;
- @navbar-default-bg: hsl(0, 0%, 90%);
- @navbar-default-border: none;
- @navbar-inverse-color: @text-color;
- @navbar-inverse-bg: darken(@body-bg, 30%);
- @navbar-inverse-border: none;
- @navbar-top-height: 50px;
- @navbar-bottom-height: 50px;
- @border-radius-base: 0;
- @border-radius-large: 0;
- @border-radius-small: 0;
- @line-height-tall: 3em;
+@body-bg: hsl(0, 0%, 100%);
+@border-color: hsl(0, 0%, 40%);
+@border-color-light: darken(@body-bg, 20%);
+@text-color: hsl(0, 0%, 5%);
+@link-color: hsl(0, 0%, 25%);
+@brand-primary: hsl(197, 83%, 47%);
+@brand-success: hsl(150, 72%, 49%);
+@brand-info: hsl(188, 90%, 48%);
+@brand-danger: hsl(350, 100%, 45%);
+@brand-warning: hsl(48, 89%, 50%);
+@state-primary-text: @brand-primary;
+@state-success-text: @brand-success;
+@state-info-text: @brand-info;
+@state-danger-text: @brand-danger;
+@state-warning-text: @brand-warning;
+@well-bg: white;
+@well-border: @border-color-light;
+@panel-bg: transparent;
+@panel-footer-bg: transparent;
+@panel-default-heading-bg: white;
+@modal-content-bg: white;
+@modal-backdrop-opacity: 0.7;
+@navbar-default-color: @text-color;
+@navbar-default-bg: hsl(0, 0%, 85%);
+@navbar-default-border: none;
+@navbar-inverse-color: @text-color;
+@navbar-inverse-bg: darken(@body-bg, 30%);
+@navbar-inverse-border: none;
+@navbar-top-height: 50px;
+@navbar-bottom-height: 50px;
+@border-radius-base: 0;
+@border-radius-large: 0;
+@border-radius-small: 0;
+@line-height-tall: 3em;
 // @font-family-sans-serif:"Averia Sans Libre", "Helvetica Neue", Helvetica, Arial, sans-serif;
- @font-family-sans-serif:"Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+@font-family-sans-serif: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 
 /**/
 
@@ -70,16 +70,19 @@
     @media (max-width: @screen-md) {
         max-width: 100%;
     }
+
 }
 .navmenu {
     .navmenu-title:not(.dropdown-toggle) {
         display: none;
     }
     &.navmenu-open {
-        &.btn-group, & > .btn-group {
+        &.btn-group,
+        & > .btn-group {
             & > .dropdown-toggle.navmenu-title {
                 display: inline;
                 visibility: hidden;
+                height: 51px;
             }
             & > .dropdown-toggle {
                 display: none;
@@ -89,24 +92,29 @@
             }
             & > .dropdown-menu {
                 .bgnoise1;
-                background-color: @navbar-default-bg;
+                background-color: lighten(@navbar-default-bg, 7%);
+                color: @navbar-default-color;
                 min-height: 100vh;
                 display: block !important;
-                border-left: none; //1px solid @border-color-light !important;
-                border-right: none; //1px solid @border-color-light !important;
+                border-left: none;
+                //1px solid @border-color-light !important;
+                border-right: none;
+                //1px solid @border-color-light !important;
                 border-top: none !important;
                 border-bottom: none !important;
                 box-shadow: none !important;
                 margin: 0 !important;
                 > li > a {
-                    padding: 15px;
+                    padding: 20px;
+                    color: @navbar-default-color;
                 }
                 > li {
-                    border-bottom: 1px solid hsl(0, 0%, 85%);
+                    border-bottom: 1px solid hsl(0,0%,85%);
                 }
             }
         }
     }
+
 }
 .container {
     @media (min-width: 1400px) {
@@ -115,12 +123,19 @@
     @media (min-width: 1300px) {
         width: 1270px;
     }
+
 }
-a, button, .btn {
-    &, &:active, &:focus, &:hover {
+a,
+button,
+.btn {
+    &,
+    &:active,
+    &:focus,
+    &:hover {
         outline: none !important;
         text-decoration: none !important;
     }
+
 }
 .a-link {
     color: @brand-primary;
@@ -129,6 +144,7 @@ a, button, .btn {
         color: darken(@brand-primary, 10%);
         text-decoration: underline !important;
     }
+
 }
 .btn-link:hover {
     color: darken(@link-color, 20%);
@@ -138,7 +154,7 @@ a, button, .btn {
     .bgnoise2;
 }
 .active-style {
-    background-color: lighten(@brand-success, 35%);
+    background-color: lighten(@brand-primary, 35%);
     .bgnoise2;
 }
 .inner-input {
@@ -152,7 +168,9 @@ a, button, .btn {
     padding: 0;
     margin: 0;
 }
-.panel, .panel .panel-heading, .panel .panel-footer {
+.panel,
+.panel .panel-heading,
+.panel .panel-footer {
     // border-color: @border-color;
     box-shadow: none;
 }
@@ -199,6 +217,7 @@ hr {
             max-height: 56px;
         }
     }
+
 }
 .line-p1 {
     padding: 30px 15px;
@@ -247,6 +266,7 @@ hr.headline {
         .fa {
             .fa-3x;
         }
+
     }
     &.btn-rect-lg {
         .rect-thumb {
@@ -254,6 +274,7 @@ hr.headline {
             line-height: 150px;
         }
     }
+
 }
 .btn-line {
     .btn;
@@ -271,6 +292,7 @@ hr.headline {
     &.active {
         .active-style;
     }
+
 }
 .dropdown-menu {
     padding: 0;
@@ -296,12 +318,13 @@ hr.headline {
             margin-right: 10px;
         }
     }
+
 }
 .bg-cover {
     background-position: center center;
     background-size: cover;
     background-repeat: no-repeat;
-    background-attachment: scroll
+    background-attachment: scroll;
 }
 .progress-bar {
     min-width: initial !important;
@@ -334,6 +357,7 @@ hr.headline {
         max-height: 100%;
         min-width: 250px;
     }
+
 }
 @media all and (max-width: 600px) {
     .modal.modal-fullscreen {
@@ -343,6 +367,7 @@ hr.headline {
             width: 100%;
         }
     }
+
 }
 .noobaa-logo {
     // padding: 10px 10px;
@@ -351,11 +376,13 @@ hr.headline {
         width: 80px;
         vertical-align: top;
     }
-    > div, > span {
+    > div,
+    > span {
         .text-center;
         font-size: 10px;
         line-height: 8px;
     }
+
 }
 .navbar {
     &.navbar-fixed-top {
@@ -370,6 +397,7 @@ hr.headline {
         &.btn-link.navbar-btn {
             padding: 10px;
         }
+
     }
     .navbar-btn.btn-link {
         padding-top: 14px;
@@ -385,6 +413,7 @@ hr.headline {
             > span {
                 .active-link;
             }
+
         }
         .fa.fa-2x {
             line-height: 0;
@@ -395,18 +424,23 @@ hr.headline {
         .fa.fa-2x.fa-ellipsis-v {
             vertical-align: -6px;
         }
+
     }
     .navbar-text {
         float: none;
         margin: 0;
         padding: 15px;
+        .user-image {
+            margin-top: -10px;
+            margin-bottom: -10px;
+        }
     }
     .progress {
         position: absolute;
         bottom: 0;
         left: 0;
         right: 0;
-        height: 4px;
+        height: 3px;
         margin: 0;
         padding: 0;
         border: none;
@@ -419,6 +453,7 @@ hr.headline {
             box-shadow: none;
         }
     }
+
 }
 .bggray {
     background-color: @gray;
@@ -429,6 +464,7 @@ hr.headline {
             color: @gray-dark;
         }
     }
+
 }
 .bggray-light {
     background-color: @gray-light;
@@ -464,7 +500,7 @@ a.clickable {
 }
 .closer {
     &:before {
-        content:"x";
+        content: "x";
         font-size: 130%;
         line-height: 75%;
         font-weight: lighter;
@@ -489,6 +525,7 @@ a.clickable {
     hr {
         border-color: @border-color;
     }
+
 }
 .bgdark {
     background-color: @gray-dark;
@@ -499,6 +536,12 @@ a.clickable {
 }
 .hover-target:not(:hover) .opaque-hover-only {
     opacity: 0;
+}
+.opaque-not-hover-only {
+    opacity: 0;
+}
+.hover-target:not(:hover) .opaque-not-hover-only {
+    opacity: 1;
 }
 .hover-target:not(:hover) .show-hover-only {
     display: none;
@@ -512,10 +555,10 @@ a.clickable {
     -webkit-transform: scale(1.2);
 }
 .bgnoise1 {
-    background-image: url('/public/images/pattern-noise1.png');
+    background-image: url("/public/images/pattern-noise1.png");
 }
 .bgnoise2 {
-    background-image: url('/public/images/pattern-noise2.png');
+    background-image: url("/public/images/pattern-noise2.png");
 }
 .play-btn {
     background-color: hsla(0, 0%, 0%, 0.2) !important;
@@ -537,6 +580,7 @@ a.clickable {
     > video {
         position: relative !important;
     }
+
 }
 .vjs-default-skin .vjs-big-play-button {
     left: 50%;
@@ -547,15 +591,18 @@ a.clickable {
 .btn-trans {
     &:extend(.btn-default);
     background-color: transparent;
-    border: none;
+    border-color: transparent;
 }
 .btn-hover-only {
     .transition-fast;
 }
 .btn-hover-only:not(:hover) {
     background-color: transparent !important;
-    /*border-color: transparent !important;*/
     color: inherit !important;
+}
+.btn-appear {
+    &:extend(.btn-hover-only);
+    border-color: transparent !important;
 }
 .transition-time(@time) {
     transition: all @time;
@@ -606,7 +653,7 @@ a.clickable {
     display: block;
 }
 .user-image {
-    .img-circle;
+    // .img-circle;
     width: 32px;
     height: 32px;
     vertical-align: middle;
@@ -635,7 +682,8 @@ a.clickable {
 :-webkit-full-screen-ancestor > *:not(:-webkit-full-screen):not(:-webkit-full-screen-ancestor) {
     display: none !important;
 }
-a[ng-click], a[role=button] {
+a[ng-click],
+a[role=button] {
     cursor: pointer;
 }
 .alertify-button {
@@ -681,6 +729,7 @@ a[ng-click], a[role=button] {
         color: @text-color;
         background-color: @brand-danger;
     }
+
 }
 .text-light {
     font-weight: 200;
@@ -703,6 +752,7 @@ a[ng-click], a[role=button] {
     .H1 {
         font-size: 50px;
     }
+
 }
 .notextselect {
     /* begin disable text selection highlight */
@@ -785,7 +835,7 @@ a[ng-click], a[role=button] {
     -webkit-transform: scaleX(-1);
     transform: scaleX(-1);
     filter: FlipH;
-    -ms-filter:"FlipH";
+    -ms-filter: "FlipH";
 }
 .table-layout {
     display: table;
@@ -809,6 +859,7 @@ a[ng-click], a[role=button] {
     bottom: 0;
     left: 0;
     right: 0;
+
 }
 /*
 .view-animate.ng-enter .view-animate-area {
@@ -852,22 +903,28 @@ a[ng-click], a[role=button] {
     -webkit-transition: all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
     transition: all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
 }
-.animate-switch.ng-leave.ng-leave-active, .animate-switch.ng-enter {
+.animate-switch.ng-leave.ng-leave-active,
+.animate-switch.ng-enter {
     top: -100%;
 }
-.animate-switch.ng-leave, .animate-switch.ng-enter.ng-enter-active {
+.animate-switch.ng-leave,
+.animate-switch.ng-enter.ng-enter-active {
     top: 0;
+
 }
 /**/
 
 /*
-    Allow angular.js to be loaded in body, hiding cloaked elements until 
-    templates compile.  The !important is important given that there may be 
-    other selectors that are more specific or come later and might alter display.  
+    Allow angular.js to be loaded in body, hiding cloaked elements until
+    templates compile.  The !important is important given that there may be
+    other selectors that are more specific or come later and might alter display.
 */
 
-[ng\:cloak], [ng-cloak], .ng-cloak {
+[ng\:cloak],
+[ng-cloak],
+.ng-cloak {
     display: none !important;
+
 }
 /**/
 
@@ -888,6 +945,7 @@ a[ng-click], a[role=button] {
     font-size: 23px;
     direction: ltr;
     cursor: pointer;
+
 }
 /**/
 
@@ -907,7 +965,7 @@ a[ng-click], a[role=button] {
     */
 }
 @select-pulse-scale: 0.99;
- .select-pulse-scale-off {
+.select-pulse-scale-off {
     transform: scaleX(1);
     -ms-transform: scaleX(1);
     -webkit-transform: scaleX(1);
@@ -927,6 +985,7 @@ a[ng-click], a[role=button] {
     100% {
         .select-pulse-scale-off;
     }
+
 }
 @keyframes select-pulser {
     0% {
@@ -938,6 +997,7 @@ a[ng-click], a[role=button] {
     100% {
         .select-pulse-scale-off;
     }
+
 }
 @-webkit-keyframes opacity-fader {
     0% {
@@ -952,6 +1012,7 @@ a[ng-click], a[role=button] {
     100% {
         opacity: 0;
     }
+
 }
 @keyframes opacity-fader {
     0% {
@@ -966,6 +1027,7 @@ a[ng-click], a[role=button] {
     100% {
         opacity: 0;
     }
+
 }
 @-webkit-keyframes opacity-fader-2 {
     0% {
@@ -980,6 +1042,7 @@ a[ng-click], a[role=button] {
     100% {
         opacity: 0;
     }
+
 }
 @keyframes opacity-fader-2 {
     0% {
@@ -994,6 +1057,7 @@ a[ng-click], a[role=button] {
     100% {
         opacity: 0;
     }
+
 }
 /**/
 
@@ -1003,7 +1067,7 @@ a[ng-click], a[role=button] {
     height: 22px;
     background-position: 0 0;
     background-size: 160px 22px;
-    background-image: url('/public/images/sprite_social.png');
+    background-image: url("/public/images/sprite_social.png");
     background-repeat: no-repeat;
     background-color: transparent;
     vertical-align: middle;
@@ -1021,7 +1085,8 @@ a[ng-click], a[role=button] {
     background-position: 32% 0;
 }
 .activity-animate {
-    &, &.modal {
+    &,
+    &.modal {
         // .transition-time(0.2s);
         // .activity-animate-off;
         &:not(.in) {
@@ -1030,9 +1095,9 @@ a[ng-click], a[role=button] {
         &.in {
             .alertify-show;
             // .activity-animate-on;
-
         }
     }
+
 }
 .activity-animate-off {
     opacity: 0;

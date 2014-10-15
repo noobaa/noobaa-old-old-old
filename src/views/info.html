@@ -2,7 +2,7 @@
 <html ng-app="nb_info" xmlns:fb="http://ogp.me/ns/fb#" lang="en">
 
 <head>
-	<?# def.include( 'common_head.html') ?>
+	{{{# def.include( 'common_head.html') }}}
 		<style>
 		.question, .answer {
 			-webkit-transition: all 0.4s;
@@ -35,7 +35,7 @@
 <body ng-cloak ng-controller="InfoCtrl">
 
 	<div>
-		<?# def.facebook_init_body ?>
+		{{{# def.facebook_init_body }}}
 	</div>
 
 	<nav class="navbar navbar-default" role="navigation">
@@ -99,7 +99,7 @@
 
 
 	<div>
-		<?# def.include( 'common_scripts.html') ?>
+		{{{# def.include( 'common_scripts.html') }}}
 	</div>
 	<script src="/public/js/nb_info.js" type="text/javascript"></script>
 

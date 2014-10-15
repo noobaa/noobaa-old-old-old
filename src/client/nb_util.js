@@ -172,7 +172,7 @@ nb_util.factory('nbUtil', [
         var ICONS_BY_KIND = {
             dir: 'fa-folder-open-o',
             image: 'fa-picture-o',
-            video: 'fa-play', // 'fa-film',
+            video: 'fa-video-camera', // 'fa-play', // 'fa-film',
             audio: 'fa-music',
             text: 'fa-file-text-o',
         };
@@ -485,7 +485,7 @@ nb_util.directive('nbVideo', ['$parse', '$timeout',
                     if (player && player.dispose) {
                         console.log('VIDEO DISPOSE');
                         // TODO not sure if should dispose the player, for now dont
-                        // when calling dispose we get a repeating exception like: 
+                        // when calling dispose we get a repeating exception like:
                         // Cannot read property 'vdata...' of null
                         // but not sure if this is enough to get rid of the player resources.
                         // player.dispose();
@@ -1046,7 +1046,7 @@ function safe_callback(func) {
     /* jshint validthis:true */
     var self = this;
     return function() {
-        // build the args array to have null for 'this' 
+        // build the args array to have null for 'this'
         // and rest is taken from the callback arguments
         var args = new Array(arguments.length + 1);
         args[0] = null;

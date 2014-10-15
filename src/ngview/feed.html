@@ -1,0 +1,208 @@
+<div class="feed-panel navbar-top-pad">
+
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="clearfix">
+            <div ng-include="'action_bar_nav.html'" ng-repeat="menu_open in [0,1]" class="pull-left navmenu {{menu_open && 'navmenu-open visible-md visible-lg' || 'visible-xs visible-sm'}}"></div>
+            <div ng-repeat="menu_open in [0,1]" class="btn-group pull-right navmenu {{menu_open && 'navmenu-open visible-md visible-lg' || 'visible-xs visible-sm'}}">
+                <a class="btn btn-link navbar-btn dropdown-toggle navmenu-title" data-toggle="dropdown">
+                    <i class="fa fa-ellipsis-v fa-2x fa-fw"></i>
+                </a>
+                <ul class="dropdown-menu pull-right" role="menu">
+                    <li>
+                        <a ng-click="nbFeed.refresh_feeds()">
+                            <i class="fa fa-repeat fa-lg fa-lg"></i> Refresh
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div ng-include="'action_bar_progress.html'"></div>
+    </nav>
+
+    <div class="view-animate-area app-container">
+
+        <div ng-if="nbFeed.feeds && nbFeed.feeds.length<5 && !nbFeed.fetching_feeds && !nbFeed.search_feed.query && !nbFeed.search_feed.timeout" class="text-center">
+            <p class="text-muted lead" style="padding-top: 20px">
+                Your feed can be much more fun
+                <br/> when your friends will give you videos,
+                <br/>so try to
+                <a class="a-link" ng-click="nbUser.invite_friends()" Xhref="/home/friends/">
+                    <span>tell a friend about NooBaa</span>
+                </a>
+            </p>
+            <p class="text-muted lead" style="padding-top: 20px">
+                You can also explore the options of the main menu
+                <span ng-include="'action_bar_nav.html'" class="navmenu"></span>
+            </p>
+        </div>
+
+        <div ng-if="nbUser.user && (nbFeed.feeds.length || nbFeed.fetching_feeds || nbFeed.search_feed.query || nbFeed.search_feed.timeout)" style="padding-top: 10px">
+            <div class="feed_item center-block">
+                <div Xclass="input-group" style="position: relative">
+                    <input type="text" class="form-control input-lg" maxlength="100" placeholder="Instant search ..." ng-model="nbFeed.search_feed.query" ng-change="nbFeed.search_feed_changed()" />
+                    <i ng-show="nbFeed.search_feed.query" class="fa fa-times fa-lg fa-fw text-primary" style="cursor: pointer; position: absolute; right: 8px; top: 17px" ng-click="nbFeed.search_feed.query = nbFeed.search_feed_changed()"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="feeds_container center-block clearfix">
+
+            <div ng-repeat="feed in feeds" ng-controller="FeedItemCtrl" class="feed_item">
+
+                <div class="panel">
+
+                    <div class="panel-body hover-target text-center" ng-click="play_feed_inode(current_inode)">
+                        <div ng-if="current_entry().content_kind == 'image'" class="feed-media" nb-media="current_entry()" media-events="media_events" class="text-center" style="width: 100%; min-height: 100px"></div>
+                        <div ng-if="current_entry().content_kind != 'image'" class="feed-media" style="padding: 20px 0">
+                            <i class="fa {{nbUtil.icon_by_kind(current_inode.content_kind)}} fa-fw fa-4x text-muted"></i>
+                        </div>
+                        <div class="cover opaque-hover-only transition-fast feed-cover-bg">
+                            <button class="open-btn Xplay-btn hover-grow">
+                                Open
+                                <!-- <i class="fa fa-play fa-3x"></i> -->
+                            </button>
+                        </div>
+                    </div>
+
+
+                    <div class="panel-footer">
+
+                        <div class="text-ellipses">
+                            <h4><b>{{feed.name}}</b></h4>
+                        </div>
+
+                        <div ng-if="feed.expanded" style="padding-top: 10px">
+                            <div class="pullDown">
+                                <div ng-repeat="feed_inode in feed.inodes track by $index" ng-init="comment_box={inode: feed_inode}">
+                                    <hr/>
+                                    <div style="padding: 10px 7px 7px 7px">
+                                        <div style="overflow: hidden">
+                                            <img class="user-image" ng-src="{{nbUser.user_pic_url(feed_inode.ref_owner || nbUser.user)}}" style="width: 30px; height: 30px; margin-right: 5px; vertical-align: top" />
+                                            <small class="text-primary"><b>{{(feed_inode.ref_owner || nbUser.user).first_name}}</b>
+                                        </small>
+                                            <a class="btn btn-link btn-lg pull-right" ng-click="show_comment_box(comment_box)" ng-attr-title="Comment to {{(feed_inode.ref_owner || nbUser.user).first_name}}" rel="tooltip" nb-tooltip="{placement: 'bottom'}" style="padding: 2px 7px">
+                                                <i class="fa fa-reply-all"></i>
+                                            </a>
+                                            <a class="btn btn-link btn-lg pull-right" ng-click="open_feed_inode(feed_inode)" title="Go to files" rel="tooltip" nb-tooltip="{placement: 'bottom'}" style="padding: 2px 7px">
+                                                <i class="fa fa-file-o text-muted"></i>
+                                            </a>
+                                        </div>
+                                        <div style="margin: 5px 0 0 15px">
+                                            <div ng-repeat="msg in feed_inode.messages" class="clearfix hover-target">
+                                                <img class="user-image pull-left" ng-src="{{nbUser.user_pic_url(msg.user)}}" style="width: 30px; height: 30px; margin-right: 5px; vertical-align: top" />
+                                                <div style="overflow: hidden">
+                                                    <div class="Xtext-wrap">
+                                                        <small class="text-primary"><b>{{msg.user.first_name}}</b>
+                                            </small>
+                                                        <small>
+                                                <span style="white-space: pre-wrap" ng-bind-html="msg.text | linky:'_blank'"></span>
+                                            </small>
+                                                    </div>
+                                                    <div class="visible-hover-only">
+                                                        <small class="text-muted">
+                                                {{moment(msg.create_time).fromNow()}}
+                                                <a ng-click="nbInode.delete_inode_message(feed_inode, msg)" ng-if="msg.is_mine">
+                                                    <i class="fa fa-times fa-fw text-muted"></i>
+                                                </a>
+                                            </small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div ng-if="comment_box.show" class="clearfix">
+                                                <img class="user-image pull-left" ng-src="{{nbUser.user_pic_url(nbUser.user)}}" style="width: 30px; height: 30px; margin-right: 5px" />
+                                                <div style="overflow: hidden">
+                                                    <div nb-auto-height="comment_box.text.length">
+                                                        <textarea dir="auto" ng-model="comment_box.text" class="form-control" style="resize: none" placeholder="Write about it..." nb-focus="comment_box.show" ng-attr-tabindex="{{($index*10)+100}}"></textarea>
+                                                    </div>
+                                                    <div class="text-right" style="padding-top: 5px">
+                                                        <button class="btn btn-default" ng-click="post_comment(comment_box)" ng-disabled="comment_box.posting" ng-attr-tabindex="{{($index*10)+101}}">
+                                                            &nbsp;&nbsp;&nbsp;&nbsp; Send
+                                                            <span ng-if="comment_box.posting">
+                                                    <i class="fa fa-spin fa-circle-o-notch"></i>
+                                                </span> &nbsp;&nbsp;&nbsp;&nbsp;
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr/>
+                            </div>
+                        </div>
+
+                        <div class="clearfix" style="padding-top: 10px">
+                            <a ng-click="feed.expanded = !feed.expanded" rel="tooltip">
+                                <!-- {{feed.inodes.length}} -->
+                                <!-- <i class="fa fa-user"></i> -->
+                                <!-- &nbsp; {{num_messages()}} -->
+                                <!-- <i class="fa fa-comments"></i> -->
+                                <!-- &nbsp; -->
+
+                                <span ng-if="!feed.expanded">
+                                    <div class="text-ellipsis text-left">
+                                        got it from
+                                        <span ng-repeat="feed_inode in feed.inodes track by $index | limitTo:10">
+                                                <img class="user-image" ng-src="{{nbUser.user_pic_url(feed_inode.ref_owner || nbUser.user)}}" style="width: 28px; height: 28px; margin-right: -4px; margin-left: 12px; vertical-align: middle" />
+                                                <span class="label label-info" style="margin-right: -3px; line-height: 28px; padding: 7px">{{feed_inode.messages && feed_inode.messages.length || ''}}</span>
+                                        </span>
+                                    </div>
+                                </span>
+                                <span ng-if="feed.expanded" class="pull-right">
+                                    Close
+                                    <i class="fa fa-caret-up"></i>
+                                </span>
+                            </a>
+                        </div>
+
+                        <div style="padding-top: 10px; margin-left: -10px">
+                            <button class="btn btn-default btn-appear" ng-click="keep_feed()" ng-disabled="running_keep() || done_keep()" ng-switch="done_keep()">
+                                <span ng-switch-when="true" class="text-muted">
+                                    <i class="fa fa-check"></i> Owned
+                                </span>
+                                <span ng-switch-default>
+                                    <span ng-if="running_keep()">
+                                        <i class="fa fa-spin fa-circle-o-notch text-muted"></i>
+                                    </span>
+                                <i class="fa fa-hand-o-up fa-lg text-muted"></i>
+                                <span class="text-primary">Take</span>
+                                </span>
+                            </button>
+                            <button class="btn btn-default btn-appear" ng-click="keep_and_share_feed()" ng-switch="current_inode.shr">
+                                <span ng-switch-when="f" class="text-muted">
+                                    <i class="fa fa-check"></i> Giving
+                                </span>
+                                <span ng-switch-default>
+                                    <i class="fa fa-share-alt fa-lg text-muted"></i>
+                                    <span class="text-primary">Give</span>
+                                </span>
+                            </button>
+                            <button class="btn btn-default btn-appear" ng-click="feed.expanded = !feed.expanded">
+                                <i class="fa fa-comment fa-lg text-muted"></i>
+                                <span class="text-info">Comments</span>
+                            </button>
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="text-center" ng-show="nbFeed.feeds.length && nbFeed.has_more_feeds">
+            <button class="btn btn-primary text-primary" ng-click="nbFeed.more_feeds()" ng-disabled="nbFeed.fetching_feeds">
+                Load more
+                <span ng-if="nbFeed.fetching_feeds">
+                    <i class="fa fa-circle-o-notch fa-spin fa-lg"></i>
+                </span>
+            </button>
+            <div style="height: 15px"></div>
+            <div id="more_feeds_marker"></div>
+        </div>
+
+    </div>
+
+</div>
