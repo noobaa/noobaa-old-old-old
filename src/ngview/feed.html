@@ -132,26 +132,18 @@
                         </div>
 
                         <div class="clearfix" style="padding-top: 10px">
-                            <a ng-click="feed.expanded = !feed.expanded" rel="tooltip">
-                                <!-- {{feed.inodes.length}} -->
-                                <!-- <i class="fa fa-user"></i> -->
-                                <!-- &nbsp; {{num_messages()}} -->
-                                <!-- <i class="fa fa-comments"></i> -->
-                                <!-- &nbsp; -->
-
-                                <span ng-if="!feed.expanded">
-                                    <div class="text-ellipsis text-left">
-                                        got it from
-                                        <span ng-repeat="feed_inode in feed.inodes track by $index | limitTo:10">
-                                                <img class="user-image" ng-src="{{nbUser.user_pic_url(feed_inode.ref_owner || nbUser.user)}}" style="width: 28px; height: 28px; margin-right: -4px; margin-left: 12px; vertical-align: middle" />
-                                                <span class="label label-info" style="margin-right: -3px; line-height: 28px; padding: 7px">{{feed_inode.messages && feed_inode.messages.length || ''}}</span>
-                                        </span>
-                                    </div>
-                                </span>
-                                <span ng-if="feed.expanded" class="pull-right">
-                                    Close
-                                    <i class="fa fa-caret-up"></i>
-                                </span>
+                            <span ng-if="!feed.expanded">
+                                <div class="text-ellipsis text-left">
+                                    got it from
+                                    <span ng-repeat="feed_inode in feed.inodes track by $index | limitTo:10" ng-attr-title="{{(feed_inode.ref_owner || nbUser.user).first_name}}" rel="tooltip">
+                                            <img class="user-image" ng-src="{{nbUser.user_pic_url(feed_inode.ref_owner || nbUser.user)}}" style="width: 28px; height: 28px; margin-right: -4px; margin-left: 12px; vertical-align: middle" />
+                                            <span class="label label-info" style="margin-right: -3px; line-height: 28px; padding: 7px">{{feed_inode.messages && feed_inode.messages.length || ''}}</span>
+                                    </span>
+                                </div>
+                            </span>
+                            <a ng-if="feed.expanded" ng-click="feed.expanded = !feed.expanded" class="pull-right">
+                                Close comments
+                                <i class="fa fa-caret-up"></i>
                             </a>
                         </div>
 
