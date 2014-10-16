@@ -4,7 +4,7 @@
 var mongoose = require('mongoose');
 var types = mongoose.Schema.Types;
 var Device = require('./device');
-var _ = require('underscore');
+var _ = require('lodash');
 var bcrypt = require('bcrypt');
 
 var providers = ['fb', 'google'];

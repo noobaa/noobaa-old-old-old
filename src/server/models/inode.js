@@ -3,7 +3,7 @@
 
 var mongoose = require('mongoose');
 var types = mongoose.Schema.Types;
-var _ = require('underscore');
+var _ = require('lodash');
 
 var Inode;
 

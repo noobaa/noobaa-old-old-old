@@ -1,6 +1,6 @@
 'use strict';
 
-var _ = require('underscore');
+var _ = require('lodash');
 var moment = require('moment');
 // var masonry = require('masonry-shim');
 // var masonry = require('masonry.js/dist/masonry.pkgd.js');

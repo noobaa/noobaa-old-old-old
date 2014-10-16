@@ -1,6 +1,6 @@
 'use strict';
 
-var _ = require('underscore');
+var _ = require('lodash');
 
 // TODO: any better way than making so global? we need them at body scope...
 var global_menu_bar_first_guide;

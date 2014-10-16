@@ -1,7 +1,7 @@
 'use strict';
 var mongoose = require('mongoose');
 var events = require('events');
-var _ = require('underscore');
+var _ = require('lodash');
 
 var ev = new events.EventsEmitter();
 

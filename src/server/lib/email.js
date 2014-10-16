@@ -8,7 +8,7 @@ var async = require('async');
 var common_api = require('./common_api');
 var track_api = require('./track_api');
 var dot = require('noobaa-util/dot');
-var _ = require('underscore');
+var _ = require('lodash');
 
 var EMAIL_STYLES = [
 	'<style>',

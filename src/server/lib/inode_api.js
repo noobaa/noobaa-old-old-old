@@ -2,7 +2,7 @@
 /* jshint -W099 */
 'use strict';
 
-var _ = require('underscore');
+var _ = require('lodash');
 var AWS = require('aws-sdk');
 var URL = require('url');
 var cloudfront_signer = require('cloudfront-private-url-creator');
