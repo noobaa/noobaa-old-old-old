@@ -149,14 +149,18 @@
     <div class="view-animate-area hfill-scroll">
 
         <div class="app-container notextselect">
-            <div class="clearfix" style="min-height: 60px">
-                <a ng-if="can_go_up_level()" class="btn btn-default btn-appear pull-left" ng-click="go_up_level()" style="margin: 10px 0; padding: 10px">
-                    <i class="fa fa-chevron-left fa-lg fa-fw text-muted"></i>
-                    <span class="text-muted">Back to parent</span>
-                </a>
-                <span ng-if="current_inode.ref_owner" class="pull-right" style="margin: 10px 0; padding: 5px 10px">
-                    got it from: {{current_inode.ref_owner.first_name}}
-                    <img class="user-image" ng-src="{{nbUser.user_pic_url(current_inode.ref_owner)}}" />
+            <div class="clearfix">
+                <span ng-if="can_go_up_level()">
+                    <a class="btn btn-default btn-appear pull-left" ng-click="go_up_level()" style="margin: 10px 0; padding: 10px">
+                        <i class="fa fa-chevron-left fa-lg fa-fw text-muted"></i>
+                        <span class="text-muted">Back to parent</span>
+                    </a>
+                </span>
+                <span ng-if="current_inode.ref_owner">
+                    <span class="pull-right" style="margin: 10px 0; padding: 5px 10px">
+                        got it from {{current_inode.ref_owner.first_name}}
+                        <img class="user-image" ng-src="{{nbUser.user_pic_url(current_inode.ref_owner)}}" />
+                    </span>
                 </span>
             </div>
         </div>
