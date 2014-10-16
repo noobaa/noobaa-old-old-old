@@ -1,7 +1,7 @@
 /* jshint node:true */
 'use strict';
 
-var _ = require('underscore');
+var _ = require('lodash');
 var async = require('async');
 var common_api = require('./common_api');
 var user_inodes = require('./user_inodes');

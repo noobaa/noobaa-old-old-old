@@ -1,7 +1,7 @@
 /* jshint node:true */
 'use strict';
 
-var _ = require('underscore');
+var _ = require('lodash');
 var mongoose = require('mongoose');
 var crypto = require('crypto');
 var StarLog = require('../models/starlog.js').StarLog;

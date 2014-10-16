@@ -1,6 +1,6 @@
 'use strict';
 
-var _ = require('underscore');
+var _ = require('lodash');
 var moment = require('moment');
 
 var nb_blog = angular.module('nb_blog', [

@@ -29,7 +29,7 @@ var express_minify = require('express-minify');
 var uglifyjs = require('uglify-js');
 var passport = require('passport');
 var mongoose = require('mongoose');
-var _ = require('underscore');
+var _ = require('lodash');
 var fs = require('fs');
 var mime = require('mime');
 // var fbapi = require('facebook-api');
@@ -127,6 +127,29 @@ app.use(function(req, res, next) {
     if (_.isEmpty(utm_in_url)) {
         return next();
     }
+
+    // the following part is meant to keep the utm when redirecting between our pages.
+    // we override the res.redirect() function and add the utm params to the location.
+    // NOTE: this is only for locations in our domain.
+    var original_redirect_func = res.redirect;
+    res.redirect = function(status, location) {
+        // handle optional status with default 302 - copycat from express res.redirect
+        if (typeof(location) === 'undefined') {
+            location = status;
+            status = 302;
+        }
+        var u = URL.parse(location);
+        // check if inside our domain
+        if (!u.hostname) {
+            var utm_fields = _.pick(utm_in_url, function(val, key) {
+                return !!val;
+            });
+            u.query = _.extend(utm_fields, u.query);
+            location = URL.format(u);
+            console.log('REDIRECT WITH UTM', status, location);
+        }
+        original_redirect_func.call(res, status, location);
+    };
 
     _.defaults(utm_in_url, empty_utm);
 

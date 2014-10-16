@@ -1,6 +1,6 @@
 'use strict';
 
-var _ = require('underscore');
+var _ = require('lodash');
 var util = require('util');
 var moment = require('moment');
 var LinkedList = require('noobaa-util/linked_list');
@@ -48,7 +48,7 @@ nb_util.factory('nbUtil', [
 
         var $scope = {
             bowser: require('bowser'),
-            underscore: require('underscore'),
+            lodash: require('lodash'),
             moment: require('moment'),
             active_link: active_link,
             make_modal: make_modal,

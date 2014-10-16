@@ -1,7 +1,7 @@
 /* jshint node:true */
 'use strict';
 
-var _ = require('underscore');
+var _ = require('lodash');
 var async = require('async');
 var Device = require('../models/device').Device;
 var User = require('../models/user').User;

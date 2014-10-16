@@ -45,7 +45,7 @@
                     <span>Charts</span>
                 </a>
             </li>
-            <!-- 
+            <!--
             <li ng-class="active_tab('funnels')">
                 <a class="btn-link btn-lg" style="padding: 5px 10px; cursor: pointer" ng-click="activate_tab('funnels')">
                     <i class="fa fa-filter fa-lg fa-fw"></i>
@@ -57,7 +57,7 @@
     </div>
 
     <div class="container" ng-show="current_tab=='users'">
-        <!-- 
+        <!--
         <div class="text-center" style="padding: 10px 0">
             <button class="btn btn-default" ng-click="refresh_users()">
                 <i class="fa fa-refresh fa-fw fa-lg"></i>
@@ -243,7 +243,7 @@
             '$scope', '$http', '$window', '$timeout', 'JobQueue', 'nbUtil',
             function AdminoobaaCtrl($scope, $http, $window, $timeout, JobQueue, nbUtil) {
                 var moment = nbUtil.moment;
-                var _ = nbUtil.underscore;
+                var _ = nbUtil.lodash;
                 $scope._ = _;
                 $scope.nbUtil = nbUtil;
 
@@ -629,7 +629,7 @@
                     var current_tick = tracks_sorted_by_time[0] ? tracks_sorted_by_time[0].tick : 0;
                     var num_ticks = 0;
                     _.each(tracks_sorted_by_time, function(tr) {
-                        // fill zero rows even when there are time jumps 
+                        // fill zero rows even when there are time jumps
                         // which the server might send us when there are no events in that period
                         // but the data table can't take it so have to fill zero rows
                         while (current_tick !== tr.tick + 1) {

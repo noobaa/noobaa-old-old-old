@@ -7,7 +7,7 @@
 // exports.utm_tracked_field = utm_tracked_field;
 
 var mongoose = require('mongoose');
-var _ = require('underscore');
+var _ = require('lodash');
 
 var utm_schema = new mongoose.Schema({
 	utm_source: String,
