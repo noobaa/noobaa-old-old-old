@@ -17,7 +17,6 @@
 
 
 <script src="/public/js/bundle.min.js" type="text/javascript"></script>
-<script src="/public/js/templates.min.js" type="text/javascript"></script>
 
 
 <script type="text/javascript">
@@ -25,13 +24,13 @@
         'use strict';
         if (typeof(window.videojs) !== 'undefined') {
             console.log('init video.js');
-            window.videojs.options.flash.swf = "/public/video-js.swf";
+            window.videojs.options.flash.swf = "{{{= it.data.cdn }}}/public/video-js.swf";
         }
         /*
         if (typeof(flowplayer) !== 'undefined') {
             console.log('init flowplayer');
             flowplayer.conf = {
-                swf: '/public/flowplayer.swf',
+                swf: '{{{= it.data.cdn }}}/public/flowplayer.swf',
                 embed: false,
                 // ratio: 5/12,
                 // analytics: 'UA-27182341-1'

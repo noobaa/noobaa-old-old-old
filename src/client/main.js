@@ -1,5 +1,7 @@
 'use strict';
 
+require('../../build/public/js/templates.js');
+
 // feature modules
 require('./nb_util.js');
 require('./nb_user.js');

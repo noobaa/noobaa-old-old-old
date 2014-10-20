@@ -10,7 +10,7 @@
             <div class="hflow">
                 <a ng-href="item/{{blog.headline}}">
                     <h4 style="margin-top: 0">{{blog.subject}}</h4>
-                    <div class="text-muted" style="font-size: 14px; line-height: 20px">
+                    <div class="text-muted" style="font-size: 12px; line-height: 20px">
                         By {{blog.author.name}} &nbsp;&ndash;&nbsp; {{moment(blog.time).fromNow()}}
                     </div>
                 </a>
@@ -21,7 +21,7 @@
             <div style="margin-top: 10px">
                 <small>{{blog.summary}}</small>
                 <a ng-href="item/{{blog.headline}}" class="a-link">
-                    Continue reading
+                    <small>Continue reading</small>
                 </a>
             </div>
         </div>

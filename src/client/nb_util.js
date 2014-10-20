@@ -6,9 +6,6 @@ var moment = require('moment');
 var LinkedList = require('noobaa-util/linked_list');
 var JobQueue = require('noobaa-util/job_queue');
 
-angular.module('templates', []);
-// require('../../build/templates.js');
-
 var nb_util = angular.module('nb_util', [
     'templates', 'ngCookies'
 ]);

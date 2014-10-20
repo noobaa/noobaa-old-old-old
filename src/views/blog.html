@@ -3,10 +3,10 @@
 
 <head>
     {{{# def.include( 'common_head.html') }}}
-        <base href="/blog/">
+    <base href="/blog/">
 </head>
 
-<body ng-cloak ng-controller="BlogCtrl" class="blog-body navbar-top-pad">
+<body ng-cloak ng-controller="BlogCtrl" class="blog-body navbar-top-pad" style="font-size: 12px; line-height: 20px">
 
     <div>
         {{{# def.facebook_init_body }}}
@@ -14,30 +14,20 @@
 
     <div ng-include="'navbar_top.html'"></div>
 
-    <div class="container">
-        <div class="row">
-            <div class="col-md-8">
-                <a href="./">
-                    <div class="blog-item clearfix" style="margin-bottom: 0">
-                        <img src="/public/images/thedude.png" height="90" class="pull-left" style="vertical-align: middle; margin: 0 20px 0 0" />
-                        <h2 style="margin-top: 10px" class="Xtext-center Xpull-left">
-                            <small>The NooBaa</small>
-                            <div></div>
-                            Blog
-                        </h2>
-                        <!-- <img src="/public/images/walter_budha.png" height="80" class="pull-right" style="vertical-align: middle; margin: 0 0 0 20px" /> -->
-                    </div>
-                </a>
-            </div>
+    <div class="line text-center bgnoise1" style="background-color: hsl(0,0%,50%)">
+        <div class="container">
+            <a href="./">
+                <h2 style="margin: 10px 0 10px 0">
+                    <small>The NooBaa</small> Blog
+                </h2>
+            </a>
         </div>
     </div>
 
     <div class="container">
-        <div class="row">
-            <div class="col-md-10">
-                <div class="view-animate-container">
-                    <div ng-view class="view-animate"></div>
-                </div>
+        <div class="center-block" style="max-width: 1000px; background-color: white">
+            <div class="view-animate-container">
+                <div ng-view class="view-animate"></div>
             </div>
         </div>
     </div>

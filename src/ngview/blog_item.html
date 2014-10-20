@@ -1,12 +1,16 @@
 <div>
     <div ng-if="blog" class="blog-item">
-
-        <h1 ng-bind="blog.subject" style="margin-top: 0"></h1>
-        <p>
-            <small class="text-muted">
-                By {{blog.author.name}} &nbsp;&ndash;&nbsp; {{moment(blog.time).fromNow()}}
-            </small>
-        </p>
+        <div class="clearfix">
+            <h1 ng-bind="blog.subject" style="margin: 10px 0 15px 0"></h1>
+            <a href="./" class="a-link pull-right">
+                <small>back to blogs list</small>
+            </a>
+            <p>
+                <small class="text-muted">
+                    By {{blog.author.name}} &nbsp;&ndash;&nbsp; {{moment(blog.time).fromNow()}}
+                </small>
+            </p>
+        </div>
 
         <hr />
         <div class="clearfix">
@@ -18,7 +22,7 @@
             <div class="fb-comments" nb-xfbml="{href: blog_location()}" data-numposts="5" data-colorscheme="light"></div>
         </div>
         <div class="text-center" style="padding-top: 10px; padding-bottom: 30px">
-            <a href="./" class="btn btn-default btn-lg">
+            <a href="./" class="btn btn-link a-link btn-lg">
                 back to blogs list
             </a>
         </div>
@@ -27,14 +31,14 @@
     <div ng-if="!blog" class="blog-item">
         <div ng-if="!blog_not_found" class="text-center">
             Loading...
-            <i class="fa fa-circle-o-notch fa-spin fa-2x"></i> 
+            <i class="fa fa-circle-o-notch fa-spin fa-2x"></i>
         </div>
         <div ng-if="blog_not_found" class="text-center">
             <p class="lead">Oops, this blog entry was not found</p>
             <p>Redirecting to blogs list in {{time_to_redirect}} seconds...</p>
         </div>
         <div class="text-center" style="padding: 20px">
-            <a href="./" class="btn btn-default">
+            <a href="./" class="btn btn-link a-link btn-lg">
                 go to blogs list
             </a>
         </div>
