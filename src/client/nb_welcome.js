@@ -28,6 +28,7 @@ nb_welcome.controller('WelcomeCtrl', [
                 };
             };
             var scope = $scope.$new();
+            scope.autoplay = true;
             scope.sources = [
                 video_source('buddy', 'webm'),
                 video_source('buddy', 'ogv'),
