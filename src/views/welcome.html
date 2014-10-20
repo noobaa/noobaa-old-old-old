@@ -17,7 +17,7 @@
                 <div class="row">
                     <div class="col-xs-12">
                         <a href="/">
-                            <img class="logo" src="/public/images/noobaa_logo.png" height="40px"></img>
+                            <img class="logo" src="{{{= it.data.cdn }}}/public/images/noobaa_logo.png" height="40px"></img>
                             <small style="color: white">BETA</small>
                         </a>
                     </div>
@@ -35,7 +35,7 @@
                                 <span class="label label-black">Watch the video</span>
                             </div>
                             <a class="relpos" ng-click="show_welcome_video()">
-                                <img src="/public/images/buddy.jpg" class="Ximg-thumbnail" width="200" height="150" />
+                                <img src="{{{= it.data.cdn }}}/public/images/buddy.jpg" class="Ximg-thumbnail" width="200" height="150" />
                                 <div class="cover abspos text-white">
                                     <div style="position: absolute; top: 50%; left: 50%; margin-top: -10px; margin-left: -10px" class="hover-grow transition-fast">
                                         <i class="fa fa-play fa-2x"></i>
@@ -50,12 +50,12 @@
                             <div class="img-thumbnail" style="border: none; width: 200px; background-color: black; padding: 5px 0">
                                 <div>
                                     <a ng-click="nbUser.login_facebook()" class="btn btn-block">
-                                        <img src="/public/images/facebook_sign_in.png" class="img-responsive" Xwidth="160" />
+                                        <img src="{{{= it.data.cdn }}}/public/images/facebook_sign_in.png" class="img-responsive" Xwidth="160" />
                                     </a>
                                 </div>
                                 <div>
                                     <a ng-click="nbUser.login_google()" class="btn btn-block">
-                                        <img src="/public/images/google_sign_in.jpg" class="img-responsive" style="border-radius: 3px" />
+                                        <img src="{{{= it.data.cdn }}}/public/images/google_sign_in.jpg" class="img-responsive" style="border-radius: 3px" />
                                     </a>
                                 </div>
                             </div>

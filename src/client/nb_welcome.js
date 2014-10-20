@@ -1,5 +1,7 @@
 'use strict';
 
+var cf_config = require('../utils/cf_config');
+
 var nb_welcome = angular.module('nb_welcome', ['nb_util']);
 
 nb_welcome.controller('WelcomeCtrl', [
@@ -18,7 +20,7 @@ nb_welcome.controller('WelcomeCtrl', [
 
         $scope.show_welcome_video = function() {
             nbUtil.track_event('welcome.play_video');
-            var base_url = 'https://d11c7vtptj6nd7.cloudfront.net/messaging/';
+            var base_url = cf_config.DEFAULT_PROTO + cf_config.PUBLIC_CF + '/messaging/';
             var video_source = function(name, ext) {
                 return {
                     src: $sce.trustAsResourceUrl(base_url + name + '.' + ext),
@@ -68,7 +70,7 @@ nb_welcome.controller('WelcomeCtrl', [
             // Defining our variables
             // world and viewport are DOM elements,
             // worldXAngle and worldYAngle are floats that hold the world rotations,
-            // d is an int that defines the distance of the world from the camera 
+            // d is an int that defines the distance of the world from the camera
             var world = document.getElementById('clouds-world');
             var viewport = document.getElementById('clouds-viewport');
             var worldXAngle = 0;
@@ -82,7 +84,7 @@ nb_welcome.controller('WelcomeCtrl', [
             generate();
             update_view();
 
-            // Event listener to transform mouse position into angles 
+            // Event listener to transform mouse position into angles
             // from -180 to 180 degress, both vertically and horizontally
             viewport.parentNode.addEventListener('mousemove', function(e) {
                 worldYAngle = -(0.5 - (e.clientX / window.innerWidth)) * 180;
@@ -169,7 +171,7 @@ nb_welcome.controller('WelcomeCtrl', [
                 return cloud;
             }
 
-            // Clears the DOM of previous clouds bases 
+            // Clears the DOM of previous clouds bases
             // and generates a new set of cloud bases
 
             function generate() {

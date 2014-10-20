@@ -22,6 +22,7 @@ var auth = require('./auth');
 var user_inodes = require('./user_inodes');
 var common_api = require('./common_api');
 var message_api = require('./message_api');
+var cf_config = require('../../utils/cf_config');
 
 
 var NBLINK_SECRET = 'try-da-link'; // TODO: do something with the secret
@@ -34,9 +35,6 @@ AWS.config.update({
 });
 var S3 = new AWS.S3();
 
-var CF_PROTO = 'https://',
-    CF_DOMAIN = 'd3mqcgvn18z8e9.cloudfront.net'; // WEB
-// var CF_PROTO = 'rtmp://', CF_DOMAIN = 's2eqm7dj8vji1h.cloudfront.net'; // RTMP
 var CF_KEY_PAIR_ID = 'APKAITLQGNC5OYPIAU3A';
 var CF_PK_PATH = path.join(__dirname, '..', 'cloudfront-keypairs', 'pk-' + CF_KEY_PAIR_ID + '.pem');
 var CF_PK = fs.readFileSync(CF_PK_PATH, {
@@ -75,7 +73,7 @@ function fobj_get_url(fobj_id, name, is_download) {
             dateLessThan: dateLessThan
         };
         var content_dispos = rfc3986EncodeURIComponent(name_to_content_dispos(name, is_download));
-        var cloudfront_url = CF_PROTO + CF_DOMAIN + '/' + fobj_s3_key(fobj_id) +
+        var cloudfront_url = cf_config.DEFAULT_PROTO + cf_config.IRELAND_CF + '/' + fobj_s3_key(fobj_id) +
             '?response-content-disposition=' + content_dispos;
         var signed_url = cloudfront_signer.signUrl(cloudfront_url, cloudfront_config);
         // console.log('CF URL', signed_url);
@@ -130,7 +128,7 @@ function s3_post_info(fobj_id, name, content_type) {
     };
 }
 
-// transform the inode and optional fobj to an entry 
+// transform the inode and optional fobj to an entry
 // that is the interface for the client.
 exports.inode_to_entry = inode_to_entry;
 
@@ -531,7 +529,7 @@ exports.inode_read = function(req, res) {
             if (req.query.nblink) {
                 // when nblink is sent in url query, parse it
                 // and decode the link options inside.
-                // these options were encoded by the owner which 
+                // these options were encoded by the owner which
                 // allowed access a file for read, to certain users.
                 var nblink = JSON.parse(req.query.nblink);
                 var link = common_api.json_decode_sign(
@@ -805,7 +803,7 @@ exports.inode_update = function(req, res) {
         // check inode ownership
         common_api.req_ownership_checker(req),
 
-        // verify that the parent is owned by the user and that it is not a ghost 
+        // verify that the parent is owned by the user and that it is not a ghost
         function(inode, next) {
             if (inode_args && inode_args.parent) {
                 return validate_assignment_to_parent(inode_args.parent, req.user.id, function(err, parent) {
@@ -1098,7 +1096,7 @@ exports.inode_multipart = function(req, res) {
 
         // check if upload is complete and reply.
         // if missing parts - return the first missing part numbers.
-        // if done, complete the upload and save the 
+        // if done, complete the upload and save the
         // complete is only relevant if we didn't receive a skip marker
         function(parts, upsize, next) {
             var missing_parts = find_missing_parts(fobj, parts);
@@ -1494,7 +1492,7 @@ function validate_assignment_to_parent(parent_inode_id, user_id, callback) {
     }
 
     return Inode.findById(parent_inode_id, function(err, parent_inode) {
-        //if error - well - we failed. 
+        //if error - well - we failed.
         if (err) {
             return callback(err);
         }
@@ -1568,7 +1566,7 @@ function validate_access_to_inode(user_id, inode, callback) {
                     message: 'Access Denied'
                 });
             }
-            // fix the parent to trace back to the ghost ref, 
+            // fix the parent to trace back to the ghost ref,
             // since this user can only follow it through this path.
             // this is only to return as reply, certainly not to be saved to DB!
             if (inode.parent.equals(ghost_ref.ghost_ref)) {

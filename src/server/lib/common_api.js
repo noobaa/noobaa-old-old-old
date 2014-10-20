@@ -5,6 +5,7 @@ var _ = require('lodash');
 var mongoose = require('mongoose');
 var crypto = require('crypto');
 var StarLog = require('../models/starlog.js').StarLog;
+var cf_config = require('../../utils/cf_config');
 
 
 // simple builder function to return a callback that onlt propagates the first err arg
@@ -149,6 +150,8 @@ function req_ownership_checker(req) {
 }
 
 function common_server_data(req) {
+    var CDN = (process.env.DEV_MODE === 'true' ? '' :
+        (cf_config.DEFAULT_PROTO + cf_config.WEBSITE_CF));
     return {
         data: {
             user: req.user,
@@ -156,7 +159,7 @@ function common_server_data(req) {
             // TODO: channel_url expects absolute/relative/even needed?
             channel_url: '/auth/facebook/channel.html',
             mixpanel_token: process.env.MIXPANEL_TOKEN,
-            cdn: process.env.CDN || '',
+            cdn: CDN,
         }
     };
 }
