@@ -38,6 +38,12 @@ if (!process.env.PORT) {
     dotenv.load();
 }
 
+if (process.env.DEV_MODE !== 'true') {
+    // TODO temp hack - need to get rid of the process.env usage during heroku buildpack
+    console.log('CDN - was set manually');
+    process.env.CDN = 'https://d1en9d3nwxtmlp.cloudfront.net';
+}
+
 var active_server;
 
 function leave_no_wounded(err) {
