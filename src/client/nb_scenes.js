@@ -2,6 +2,7 @@
 
 var _ = require('lodash');
 var moment = require('moment');
+var cf_config = require('../utils/cf_config');
 
 var nb_util = angular.module('nb_util');
 
@@ -15,7 +16,7 @@ nb_util.factory('nbScenes', ['nbUtil', 'nbInode',
             nbUtil.track_event('home.scenes.load', {
                 uid: uid
             });
-            var base_distro = 'https://d11c7vtptj6nd7.cloudfront.net/' + uid + '_scenes/';
+            var base_distro = cf_config.DEFAULT_PROTO + cf_config.PUBLIC_CF + '/' + uid + '_scenes/';
             scope.scene_owner = owner;
             scope.scenes = _.map(scenes, function(s) {
                 var scene = {

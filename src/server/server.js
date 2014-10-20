@@ -332,15 +332,6 @@ app.get('/welcome', function(req, res) {
     return res.render('welcome.html', common_api.common_server_data(req));
 });
 
-/*
-app.get('/gopro', function(req, res) {
-    return res.render('welcome.html', common_api.common_server_data(req));
-});
-app.get('/info', function(req, res) {
-    return res.render('info.html', common_api.common_server_data(req));
-});
-*/
-
 app.get('/thankyou', function(req, res) {
     if (!req.user) {
         return res.redirect(welcome_path);
