@@ -236,6 +236,9 @@ nb_util.factory('nbUser', [
         // nbUtil.track_event('home.friends.show');
 
         function refresh_friends() {
+            if (!$scope.user) {
+                return $q.when();
+            }
             $scope.fb_invites = {};
             $scope.google_invites = {};
             $scope.sending_fb_invites = false;

@@ -5,7 +5,7 @@
     {{{# def.include( 'common_head.html') }}}
         <style>
         body {
-            background-image: url('/public/images/bg_rock.jpg');
+            background-image: url('{{{= it.data.cdn }}}/public/images/bg_rock.jpg');
             background-repeat: no-repeat;
             background-attachment: fixed;
             background-size: cover;
@@ -19,6 +19,7 @@
     <div class="table-layout hfill">
         <div class="table-row" ng-include="'navbar_top.html'"></div>
         <div class="table-row-expand">
+            <div class="pad-40"></div>
             <div class="container">
                 <div class="col-md-8" style="padding-left: 0">
                     <br/>

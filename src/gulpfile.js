@@ -191,7 +191,11 @@ gulp.task('css', ['bower'], function() {
         .pipe(gulp_plumber(PLUMB_CONF))
         .pipe(gulp_newer(path.join(DEST, NAME)))
         .pipe(candidate(PATHS.css_candidates))
-        .pipe(gulp_less())
+        .pipe(gulp_less({
+            modifyVars: {
+                cdn: '"' + (process.env.CDN || '') + '"',
+            },
+        }))
         .pipe(gulp_rename(NAME))
         .pipe(gulp_size_log(NAME))
         .pipe(gulp.dest(DEST))
@@ -208,7 +212,9 @@ gulp.task('ng', function() {
     return gulp.src(PATHS.ngview)
         .pipe(gulp_plumber(PLUMB_CONF))
         .pipe(gulp_newer(path.join(DEST, NAME)))
-        .pipe(gulp_ng_template())
+        .pipe(gulp_ng_template({
+            standalone: true
+        }))
         .pipe(gulp_size_log(NAME))
         .pipe(gulp.dest(DEST))
         .pipe(gulp_cached(NAME))
@@ -229,19 +235,19 @@ gulp.task('jshint', function() {
     // .pipe(gulp_jshint.reporter('fail'));
 });
 
-gulp.task('client', ['bower'], function() {
+gulp.task('client', ['bower', 'ng'], function() {
     var DEST = 'build/public/js';
     var NAME = 'bundle.js';
     var NAME_MIN = 'bundle.min.js';
     var bundler = browserify({
         entries: PATHS.client_main,
+        debug: (process.env.DEBUG_MODE === 'true'),
         // bare is alias for both --no-builtins, --no-commondir,
         // and sets --insert-global-vars to just "__filename,__dirname".
         // This is handy if you want to run bundles in node.
         bare: true,
         detectGlobals: false,
         list: true,
-        debug: true
     });
     // using gulp_replace to fix collision of requires
     var client_bundle_stream = bundler.bundle()
@@ -327,14 +333,12 @@ function serve() {
 gulp.task('install', ['bower', 'assets', 'css', 'ng', 'jshint', 'client']);
 gulp.task('install_and_serve', ['install'], serve);
 gulp.task('install_css_and_serve', ['css'], serve);
-gulp.task('install_ng_and_serve', ['ng'], serve);
 gulp.task('install_client_and_serve', ['jshint', 'client'], serve);
 gulp.task('install_server_and_serve', ['jshint'], serve);
 
 gulp.task('start_dev', ['install_and_serve'], function() {
     gulp.watch('src/css/**/*', ['install_css_and_serve']);
-    gulp.watch('src/ngview/**/*', ['install_ng_and_serve']);
-    gulp.watch('src/client/**/*', ['install_client_and_serve']);
+    gulp.watch(['src/client/**/*', 'src/ngview/**/*'], ['install_client_and_serve']);
     gulp.watch(['src/server/**/*', 'src/views/**/*', 'src/utils/**/*'], ['install_server_and_serve']);
 });
 

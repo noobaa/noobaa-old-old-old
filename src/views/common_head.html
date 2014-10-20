@@ -17,7 +17,7 @@
 <meta content="{{{= it.data.app_id }}}" property="fb:app_id" />
 <meta name="google-site-verification" content="b9-qjbu-C0OP5e7s-CzA0z02i-xggvWs-Op9hlJikL0" />
 
-<link rel="shortcut icon" href="/public/images/noobaa_icon16.ico" />
+<link rel="shortcut icon" href="{{{= it.data.cdn }}}/public/images/noobaa_icon16.ico" />
 
 <!-- STYLES -->
 
@@ -40,6 +40,9 @@
 <link href='//fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
  -->
 
+<!-- Google plus verification code as described in http://goo.gl/mPH7rU -->
+<a href="https://plus.google.com/116978426061448110693" rel="publisher" style="display:none;">Google+</a>
+
 
 <!-- break out from iframe -->
 <script type="text/javascript">
@@ -52,9 +55,6 @@
 </script>
 
 
-
-<!-- Google plus verification code as described in http://goo.gl/mPH7rU -->
-<a href="https://plus.google.com/116978426061448110693" rel="publisher" style="display:none;">Google+</a>
 
 <!-- Google analytics snippet - best included as soon as possible -->
 <script>
@@ -76,6 +76,7 @@
 </script>
 
 
+{{{? it.data.mixpanel_token }}}
 <!-- start Mixpanel -->
 <script type="text/javascript">
     /* jshint ignore:start */
@@ -120,14 +121,12 @@
             b.__SV = 1.2
         }
     })(document, window.mixpanel || []);
-    var mixpanel_token = "{{{= it.data.mixpanel_token }}}";
-    if (mixpanel_token) {
-        mixpanel.init(mixpanel_token);
-        window.nb_mixpanel = true;
-    }
+    mixpanel.init("{{{= it.data.mixpanel_token }}}");
+    window.nb_mixpanel = true;
     /* jshint ignore:end */
 </script>
 <!-- end Mixpanel -->
+{{{?}}}
 
 
 
