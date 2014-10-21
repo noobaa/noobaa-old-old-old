@@ -64,14 +64,6 @@
 
         <div ng-if="has_uploads()">
             <div class="line">
-                <div class="progress pull-right text-center" style="vertical-align: middle; margin: 10px; height: 25px; width: 70px; position: relative">
-                    <div ng-show="upsrv.root.total_size-upsrv.root.total_upsize>0" class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{100 * upsrv.root.total_upsize / upsrv.root.total_size}}" aria-valuemin="0" aria-valuemax="100" style="width: {{100 * upsrv.root.total_upsize / upsrv.root.total_size}}%">
-                    </div>
-                    <div ng-show="upsrv.root.total_size-upsrv.root.total_upsize>0" class="cover">
-                        {{(100 * upsrv.root.total_upsize / upsrv.root.total_size).toFixed(0)}}%
-                    </div>
-                </div>
-
                 <div class="pull-left text-center" style="margin: 5px 10px">
                     <div class="text-muted">items left</div>
                     <small>{{upsrv.root.total_sons- upsrv.root.total_completed}}</small>
@@ -84,8 +76,21 @@
                     <div class="text-muted">up speed</div>
                     <small>{{human_size(upsrv.speed)}}/sec</small>
                 </div>
+                <div class="pull-left text-center" style="margin: 5px 10px">
+                    <div class="text-muted">time left</div>
+                    <small>{{(((upsrv.root.total_size-upsrv.root.total_upsize)/upsrv.speed)||0).toFixed(0)}} sec</small>
+                </div>
+
+                <div class="progress pull-right text-center" style="vertical-align: middle; margin: 10px; height: 25px; width: 150px; position: relative">
+                    <div ng-show="upsrv.root.total_size-upsrv.root.total_upsize>0" class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{100 * upsrv.root.total_upsize / upsrv.root.total_size}}" aria-valuemin="0" aria-valuemax="100" style="width: {{100 * upsrv.root.total_upsize / upsrv.root.total_size}}%">
+                    </div>
+                    <div ng-show="upsrv.root.total_size-upsrv.root.total_upsize>0" class="cover">
+                        {{(100 * upsrv.root.total_upsize / upsrv.root.total_size).toFixed(0)}}%
+                    </div>
+                </div>
+
             </div>
-            <!-- 
+            <!--
             <button ng-show="false" class="btn btn-default btn-sm"
                 ng-click="upsrv.show_advanced = !upsrv.show_advanced"
                 title="Advanced Stats">
