@@ -10,14 +10,12 @@
                 <ul class="dropdown-menu pull-right" role="menu">
                     <li>
                         <a ng-click="nbClub.create_new_club()">
-                            <i class="fa fa-plus fa-lg fa-lg"></i>
-                            New Club...
+                            <i class="fa fa-plus fa-lg fa-lg"></i> New Club...
                         </a>
                     </li>
                     <li ng-if="false">
                         <a ng-click="nbClub.poll_clubs()">
-                            <i class="fa fa-repeat fa-lg fa-lg"></i>
-                            Refresh
+                            <i class="fa fa-repeat fa-lg fa-lg"></i> Refresh
                         </a>
                     </li>
                 </ul>
@@ -35,11 +33,11 @@
     <div class="view-animate-area app-container" ng-if="nbClub.clubs_inited" nb-scroll-to="top">
         <div class="rect-container">
             <div ng-repeat="club in nbClub.clubs_arr track by $index" class="btn-rect-wrap">
-                <a ng-href="club/{{club._id}}" class="club-bg btn-rect" style="padding: 10px; background-color: hsl({{club.color}},60%,45%)">
-                    <div class="text-center lead" style="height: 130px; font-weight: normal">{{club.title}}</div>
+                <a ng-href="club/{{club._id}}" class="club-bg btn-rect" style="padding: 10px; background-color: hsl({{club.color}},60%,55%)">
+                    <div class="text-center lead" style="height: 120px; font-weight: normal">{{club.title}}</div>
                     <div class="clearfix" style="height: 30px">
-                        <span class="pull-right" ng-show="club.new_msgs">
-                            <i class="fa fa-bell fa-fw fa-lg tossing"></i>
+                        <span class="pull-left" ng-show="club.new_msgs">
+                            <i class="fa fa-bell fa-fw fa-2x tossing"></i>&nbsp;
                         </span>
                         <div class="hflow text-center text-ellipses">
                             <img ng-repeat="member in club.members track by $index" class="user-image-sm" ng-src="{{nbUser.user_pic_url(member.user_info)}}" style="margin-right: 5px; opacity: 0.8" />
@@ -49,8 +47,8 @@
             </div>
             <div class="btn-rect-wrap">
                 <a ng-click="nbClub.create_new_club()" class="btn-rect" style="padding: 10px">
-                    <div class="text-center lead" style="height: 130px; font-weight: light">
-                        Click to create a club for sharing media
+                    <div class="text-center lead" style="height: 120px; font-weight: normal">
+                        Create a club for sharing media
                     </div>
                     <div class="clearfix text-center" style="height: 30px">
                         <i class="fa fa-plus fa-2x text-muted"></i>

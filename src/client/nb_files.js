@@ -21,13 +21,14 @@ nb_util.directive('nbBrowse', function() {
         },
         controller: [
             '$scope', '$http', '$timeout', '$q', '$compile', '$location', '$rootScope',
-            'nbUtil', 'nbMultiSelect', 'nbUser', 'nbInode', 'nbUploadSrv', 'JobQueue',
+            'nbUtil', 'nbMultiSelect', 'nbUser', 'nbInode', 'nbUploadSrv', 'JobQueue', 'nbClub',
             function($scope, $http, $timeout, $q, $compile, $location, $rootScope,
-                nbUtil, nbMultiSelect, nbUser, nbInode, nbUploadSrv, JobQueue) {
+                nbUtil, nbMultiSelect, nbUser, nbInode, nbUploadSrv, JobQueue, nbClub) {
                 $scope.human_size = $rootScope.human_size;
                 $scope.nbUtil = nbUtil;
                 $scope.nbUser = nbUser;
                 $scope.nbInode = nbInode;
+                $scope.nbClub = nbClub; // needed here for action_bar_nav.html
                 $scope.nbUploadSrv = nbUploadSrv;
                 $scope.moment = moment;
 
