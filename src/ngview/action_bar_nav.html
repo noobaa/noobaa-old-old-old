@@ -13,35 +13,38 @@
     <ul class="dropdown-menu" role="menu">
         <li class="{{nbUtil.active_link('/home/feed/')}}">
             <a href="feed/">
-                <span Xclass="{{nbUtil.active_link('/home/feed/')}}-link">
+                <span>
                     FEED
                 </span>
             </a>
         </li>
         <li class="{{nbUtil.active_link('/home/club/')}}">
             <a href="club/">
-                <span Xclass="{{nbUtil.active_link('/home/club/')}}-link">
+                <span>
                     CLUBS
+                </span>
+                <span class="pull-right" ng-show="nbClub.total_new_msgs">
+                    <i class="fa fa-bell fa-fw fa-2x tossing text-badge"></i>
                 </span>
             </a>
         </li>
         <li class="{{nbUtil.active_link('/home/files/')}}">
             <a href="files/">
-                <span Xclass="{{nbUtil.active_link('/home/files/')}}-link">
+                <span>
                     FILES
                 </span>
             </a>
         </li>
         <li class="{{nbUtil.active_link('/home/upload/')}}">
             <a href="upload/">
-                <span Xclass="{{nbUtil.active_link('/home/upload/')}}-link">
+                <span>
                     UPLOADS
                 </span>
             </a>
         </li>
         <li class="{{nbUtil.active_link('/home/account/')}}">
             <a href="account/">
-                <span Xclass="{{nbUtil.active_link('/home/account/')}}-link">
+                <span>
                     MY ACCOUNT
                 </span>
             </a>
