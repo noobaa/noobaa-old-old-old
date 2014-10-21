@@ -171,6 +171,7 @@ nb_util.factory('nbUtil', [
             image: 'fa-picture-o',
             video: 'fa-video-camera', // 'fa-play', // 'fa-film',
             audio: 'fa-music',
+            application: 'fa-file-text-o',
             text: 'fa-file-text-o',
         };
         var ORDER_BY_KIND = {
@@ -178,7 +179,8 @@ nb_util.factory('nbUtil', [
             image: 2,
             video: 3,
             audio: 4,
-            text: 5,
+            application: 5,
+            text: 6,
         };
 
         function icon_by_kind(kind) {

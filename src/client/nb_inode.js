@@ -142,6 +142,7 @@ nb_util.factory('nbInode', [
             'image': 'image',
             'video': 'video',
             'audio': 'audio',
+            'application': 'application', // mostly pdfs
             'text': 'text',
         };
 
@@ -867,7 +868,8 @@ nb_util.factory('nbInode', [
             video: -5,
             audio: -4,
             image: -3,
-            text: -2,
+            application: -2,
+            text: -1,
         };
 
         function sort_inodes_for_play(a, b) {
