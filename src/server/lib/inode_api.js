@@ -65,7 +65,7 @@ function detect_content_type(type, name) {
 // return a signed GET url for the fobj in Cloudfront (origin from S3)
 
 function fobj_get_url(fobj_id, name, is_download) {
-    if (!process.env.DONT_USE_CLOUDFRONT) {
+    if (!is_download && !process.env.DONT_USE_CLOUDFRONT) {
         var dateLessThan = moment().utc().endOf('week').toDate();
         var cloudfront_config = {
             privateKey: CF_PK,
