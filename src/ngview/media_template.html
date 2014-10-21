@@ -2,7 +2,7 @@
     <div ng-if="inode.loaded" ng-switch="inode.content_kind">
 
         <h4 ng-switch-default class="text-center">
-            <span class="label label-default">No preview</span>
+            <span class="label label-default">No Preview</span>
         </h4>
 
         <div ng-switch-when="dir">
@@ -38,7 +38,11 @@
         </div>
 
         <div ng-switch-when="text">
-            <object ng-attr-data="{{url}}" type="text/plain" style="width: 100%; min-height: 90%" class="content-item Xcenter-block bggrey" nb-events="media_events" </object>
+            <object ng-attr-data="{{url}}" type="text/plain" width="100%" style="width: 100%; min-height: 90%" class="content-item Xcenter-block bggrey" nb-events="media_events"></object>
+        </div>
+
+        <div ng-switch-when="application">
+            <object ng-attr-data="{{url}}" type="{{inode.content_type}}" width="100%" style="width: 100%; min-height: 90%" class="content-item Xcenter-block bggrey" nb-events="media_events"></object>
         </div>
 
     </div>
