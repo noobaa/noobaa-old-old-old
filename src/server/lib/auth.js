@@ -179,14 +179,15 @@ passport.use(new LocalStrategy({
 
 var adminoobaa_fbid_list = [
     '532326962', // guy
-    '100000601353304' // yuval
+    '100000601353304', //yuval
+    '580536053' // eran
 ];
 
 exports.adminoobaa_fbid_list = adminoobaa_fbid_list;
 
 // define what kind of info will be saved in the session.
 // this info will be encoded inside a cookie,
-// but can't keep the entire facebook info because 
+// but can't keep the entire facebook info because
 // it might be too big for the cookie size limits.
 // so keep only what is must.
 // if we will need more info, deserialize can fetch from the database
