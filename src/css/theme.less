@@ -2,10 +2,14 @@
     IMPORTS
  ******************************************************************************/
 
-@import (less)"../../bower_components/bootstrap/less/bootstrap.less";
-@import (less)"../../bower_components/font-awesome/less/font-awesome.less";
+@import (less)"../../node_modules/bootstrap/less/bootstrap.less";
+@import (less)"../../bower_components/bootstrap-material-design/less/material.less";
+/* @import (less)"../../bower_components/bootstrap-material-design/less/material-wfont.less"; */
+@import (less)"../../bower_components/bootstrap-material-design/less/ripples.less";
+@import (less)"../../node_modules/font-awesome/less/font-awesome.less";
 @import (less)"../../bower_components/alertify.js/themes/alertify.core.css";
 @import (less)"../../bower_components/alertify.js/themes/alertify.default.css";
+@import (less)"../../bower_components/ladda/dist/ladda-themeless.min.css";
 @import (inline)"../../node_modules/video.js/dist/video-js/video-js.css";
 @import (less)"../../bower_components/animate.css/animate.min.css";
 @import (less)"animations.css";
@@ -55,7 +59,7 @@
 @border-radius-small: 0;
 @line-height-tall: 3em;
 // @font-family-sans-serif:"Averia Sans Libre", "Helvetica Neue", Helvetica, Arial, sans-serif;
-@font-family-sans-serif: "Paprika", "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+/* @font-family-sans-serif: "Paprika", "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif; */
 /**/
 
 /**/
@@ -173,6 +177,10 @@ button,
     // border-color: @border-color;
     box-shadow: none;
 }
+.modal-backdrop.in {
+    display: block;
+
+}
 hr {
     border-color: @border-color-light;
 }
@@ -199,8 +207,8 @@ hr {
         border-right: 1px solid @border-color-light;
         border-left: 1px solid @border-color-light;
     }
-    &.clickable.disabled {
-        &:extend(.btn.disabled);
+    &.clickable.disabled:extend(.btn.disabled) {
+
     }
     .line-thumb {
         .pull-left;
@@ -433,6 +441,7 @@ hr.headline {
             margin-top: -10px;
             margin-bottom: -10px;
         }
+
     }
     .progress {
         position: absolute;
@@ -593,8 +602,7 @@ a.clickable {
     margin-top: -1.3em;
     margin-left: -2em;
 }
-.btn-trans {
-    &:extend(.btn-default);
+.btn-trans:extend(.btn-default) {
     background-color: transparent;
     border-color: transparent;
 }
@@ -605,8 +613,7 @@ a.clickable {
     background-color: transparent !important;
     color: inherit !important;
 }
-.btn-appear {
-    &:extend(.btn-hover-only);
+.btn-appear:extend(.btn-hover-only) {
     border-color: transparent !important;
 }
 .transition-time(@time) {
@@ -686,55 +693,6 @@ a.clickable {
 }
 :-webkit-full-screen-ancestor > *:not(:-webkit-full-screen):not(:-webkit-full-screen-ancestor) {
     display: none !important;
-}
-a[ng-click],
-a[role=button] {
-    cursor: pointer;
-}
-.alertify-button {
-    text-shadow: none;
-    box-shadow: none;
-}
-.alertify-button.alertify-button-ok {
-    .btn;
-    .btn-primary;
-}
-.alertify-button.alertify-button-cancel {
-    .btn;
-    .btn-default;
-}
-.alertify-cover {
-    .modal-backdrop;
-    .modal-backdrop.in;
-    z-index: 1060;
-}
-.alertify {
-    border-radius: @border-radius-base;
-    border-width: 1px;
-    border-color: @modal-content-border-color;
-    background-color: @modal-content-bg;
-    color: @text-color;
-    font-family: @font-family-sans-serif;
-}
-.alertify-text {
-    .form-control;
-    .input-lg;
-}
-.alertify-log {
-    font-family: @font-family-sans-serif;
-    text-shadow: none;
-    color: @text-color;
-    background-color: @brand-info;
-    border: 1px solid @border-color;
-    &.alertify-log-success {
-        color: @text-color;
-        background-color: @brand-success;
-    }
-    &.alertify-log-error {
-        color: @text-color;
-        background-color: @brand-danger;
-    }
-
 }
 .text-light {
     font-weight: 200;
@@ -919,12 +877,55 @@ a[role=button] {
 }
 /**/
 
-/*
-    Allow angular.js to be loaded in body, hiding cloaked elements until
-    templates compile.  The !important is important given that there may be
-    other selectors that are more specific or come later and might alter display.
-*/
+////////////////////////////
+// ladda progress buttons //
+////////////////////////////
+.ladda-button[data-loading] {
+    &,
+    &.disabled,
+    &:hover {
+        &:before {
+            content: "";
+            z-index: -1;
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            background-color: hsla(0,0%,0%,0.3);
+        }
+    }
 
+}
+.ladda-button .ladda-progress {
+    background-color: hsla(0,0%,0%,0.8);
+}
+.ladda-button[data-style=zoom-out] > .ladda-spinner,
+.ladda-button[data-style=zoom-out][data-loading] > .ladda-spinner {
+    margin: 0 !important;
+    transform: none;
+    -o-transform: none;
+    -moz-transform: none;
+    -webkit-transform: none;
+
+}
+/**/
+/////////////
+// angular //
+/////////////
+
+// use pointer cursor for clickable elements
+*[ng-click],
+*[nb-click-ladda],
+*[role=button],
+.dropdown-toggle {
+    cursor: pointer;
+
+}
+/* Allow angular.js to be loaded in body, hiding cloaked elements until
+* templates compile.  The !important is important given that there may be
+* other selectors that are more specific or come later and might alter display.
+*/
 [ng\:cloak],
 [ng-cloak],
 .ng-cloak {
@@ -933,6 +934,64 @@ a[role=button] {
 }
 /**/
 
+//////////////
+// alertify //
+//////////////
+
+// style alertify from bootstrap theme
+.alertify {
+    border-radius: @border-radius-base;
+    border-width: 1px;
+    border-color: @modal-content-border-color;
+    background-color: @modal-content-bg;
+    color: @text-color;
+    font-family: @font-family-sans-serif;
+}
+.alertify-cover:not(.alertify-cover-hidden) {
+    .modal-backdrop;
+    .in;
+    display: block;
+    z-index: 1060;
+}
+.alertify-button.alertify-button-ok {
+    &,
+    &:not(.btn-flat) {
+        .btn;
+        .btn-primary;
+    }
+
+}
+.alertify-button.alertify-button-cancel {
+    &,
+    &:not(.btn-flat) {
+        .btn;
+        .btn-default;
+    }
+
+}
+.alertify-text-wrapper {
+    .form-control-wrapper;
+}
+.alertify-text {
+    .form-control;
+    .input-lg;
+}
+.alertify-log {
+    font-family: @font-family-sans-serif;
+    text-shadow: none;
+    color: @text-color;
+    background-color: @brand-info;
+    border: 1px solid @border-color;
+    &.alertify-log-success {
+        color: @text-color;
+        background-color: @brand-success;
+    }
+    &.alertify-log-error {
+        color: @text-color;
+        background-color: @brand-danger;
+    }
+
+}
 /**/
 
 .fileinput-button {
@@ -1089,6 +1148,7 @@ a[role=button] {
 .social-sprite-youtube {
     background-position: 32% 0;
 }
+/* not working with new bootstrap because the backdrop is now inside the modal
 .activity-animate {
     &,
     &.modal {
@@ -1102,8 +1162,8 @@ a[role=button] {
             // .activity-animate-on;
         }
     }
-
 }
+*/
 .activity-animate-off {
     opacity: 0;
     // @x: 5px;

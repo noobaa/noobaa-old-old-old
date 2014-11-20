@@ -73,16 +73,21 @@ process.on("SIGTERM", leave_no_wounded);
 var PATHS = {
     css: './src/css/**/*',
     css_candidates: ['./src/css/styles.less'],
-    fonts: [
-        './bower_components/bootstrap/dist/fonts/*',
-        './bower_components/font-awesome/fonts/*',
-    ],
-    fonts2: [
-        './node_modules/video.js/dist/video-js/font/*',
-    ],
-    assets: [
-        './node_modules/video.js/dist/video-js/video-js.swf',
-    ],
+
+    assets: {
+        'build/public': [
+            './node_modules/video.js/dist/video-js/video-js.swf',
+        ],
+        'build/public/css': [],
+        'build/public/fonts': [
+            './node_modules/bootstrap/dist/fonts/*',
+            './node_modules/font-awesome/fonts/*',
+            './bower_components/bootstrap-material-design/fonts/*',
+        ],
+        'build/public/css/font': [
+            './node_modules/video.js/dist/video-js/font/*',
+        ],
+    },
 
     ngview: './src/ngview/**/*',
     scripts: ['./src/**/*.js', './*.js'],
@@ -96,7 +101,11 @@ var PATHS = {
     server_main: './src/server/server.js',
     client_main: './src/client/main.js',
     client_externals: [
-        './bower_components/bootstrap/dist/js/bootstrap.min.js',
+        './node_modules/bootstrap/dist/js/bootstrap.min.js',
+        './bower_components/bootstrap-material-design/scripts/material.js',
+        './bower_components/bootstrap-material-design/scripts/ripples.js',
+        './bower_components/ladda/js/spin.js',
+        './bower_components/ladda/js/ladda.js',
         './node_modules/masonry.js/dist/masonry.pkgd.min.js',
         './bower_components/alertify.js/lib/alertify.min.js',
         './node_modules/video.js/dist/video-js/video.dev.js',
@@ -175,23 +184,14 @@ gulp.task('bower', function() {
 });
 
 gulp.task('assets', ['bower'], function() {
-    var DEST = 'build/public';
-    var FONTS_DEST = 'build/public/fonts';
-    var FONTS2_DEST = 'build/public/css/font';
-    return Q.all([
-        gulp.src(PATHS.assets)
-        .pipe(gulp_plumber(PLUMB_CONF))
-        .pipe(gulp_newer(DEST))
-        .pipe(gulp.dest(DEST)),
-        gulp.src(PATHS.fonts)
-        .pipe(gulp_plumber(PLUMB_CONF))
-        .pipe(gulp_newer(FONTS_DEST))
-        .pipe(gulp.dest(FONTS_DEST)),
-        gulp.src(PATHS.fonts2)
-        .pipe(gulp_plumber(PLUMB_CONF))
-        .pipe(gulp_newer(FONTS2_DEST))
-        .pipe(gulp.dest(FONTS2_DEST))
-    ]);
+    return Q.all(_.map(PATHS.assets,
+        function(src, target) {
+            return gulp.src(src)
+                .pipe(gulp_plumber(PLUMB_CONF))
+                .pipe(gulp_newer(target))
+                .pipe(gulp.dest(target));
+        }
+    ));
 });
 
 gulp.task('css', ['bower'], function() {

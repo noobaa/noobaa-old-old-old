@@ -34,6 +34,8 @@ nb_util.run(['$rootScope',
         $('body').popover({
             selector: '[rel=popover]'
         });
+
+        $.material.init();
     }
 ]);
 
