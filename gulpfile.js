@@ -1,5 +1,6 @@
 'use strict';
 
+var async = require('async');
 var gulp = require('gulp');
 var gutil = require('gulp-util');
 var gulp_debug = require('gulp-debug');
@@ -342,24 +343,20 @@ function serve() {
     gulp_notify('noobaa serving...').end('stam');
 }
 
-gulp.task('clean:node_modules', function(cb) {
+// followed example from  https://github.com/orchestrator/orchestrator/issues/17 (robich Jan25th)
+var clean_subfolder = function(subfolder, cb) {
     console.log('~~~~~~~~~~~~~~~~~~~~~~');
-    console.log('~~~  clearing node_module/ folder  ~~~');
-    console.log('~~~~~~~~~~~~~~~~~~~~~~');
-    del([
-        'node_modules/**'
-    ], cb);
-});
-gulp.task('clean:bower_components', function(cb) {
-    console.log('~~~~~~~~~~~~~~~~~~~~~~');
-    console.log('~~~  clearing bower_components/ folder  ~~~');
+    console.log('~~~  clearing ' + subfolder + '/ folder  ~~~');
     console.log('~~~~~~~~~~~~~~~~~~~~~~');
     del([
-        'bower_components/**'
+        subfolder + '/**'
     ], cb);
-});
-gulp.task('clean_all', ['clean:node_modules', 'clean:bower_components']);
+};
 
+var folders_to_clean = ['node_modules', 'bower_components', 'build'];
+gulp.task('clean', function(cb) {
+    async.each(folders_to_clean, clean_subfolder, cb);
+});
 
 gulp.task('install', ['bower', 'assets', 'css', 'ng', 'jshint', 'client']);
 gulp.task('install_and_serve', ['install'], serve);

@@ -95,13 +95,12 @@
     "request": "~2.42.0",
     "mocha": "~1.21.4",
     "optimist": "~0.6.1",
+    "del": "~0.1.3",
     "lodash": "~2.4.1"
   },
   "devDependencies": {
     "npm-license": "~0.2.2",
     "bower-license": "~0.2.2",
     "mocha": "~1.21.3",
-    "del": "~0.1.3",
-    "gulp": "~3.8.10"
   }
 }
