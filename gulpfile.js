@@ -1,6 +1,5 @@
 'use strict';
 
-var async = require('async');
 var gulp = require('gulp');
 var gutil = require('gulp-util');
 var gulp_debug = require('gulp-debug');
@@ -343,19 +342,14 @@ function serve() {
     gulp_notify('noobaa serving...').end('stam');
 }
 
-// followed example from  https://github.com/orchestrator/orchestrator/issues/17 (robich Jan25th)
-var clean_subfolder = function(subfolder, cb) {
-    console.log('~~~~~~~~~~~~~~~~~~~~~~');
-    console.log('~~~  clearing ' + subfolder + '/ folder  ~~~');
-    console.log('~~~~~~~~~~~~~~~~~~~~~~');
-    del([
-        subfolder + '/**'
-    ], cb);
-};
-
-var folders_to_clean = ['node_modules', 'bower_components', 'build'];
 gulp.task('clean', function(cb) {
-    async.each(folders_to_clean, clean_subfolder, cb);
+    var folders_to_del = ['node_modules/', 'bower_components/', 'build/'];
+    console.log('~~~~~~~~~~~~~~~~~~~~~~');
+    _.each(folders_to_del, function(folder) {
+        console.log('~~~  delete folder ' + folder + '  ~~~');
+    });
+    console.log('~~~~~~~~~~~~~~~~~~~~~~');
+    del(folders_to_del, cb);
 });
 
 gulp.task('install', ['bower', 'assets', 'css', 'ng', 'jshint', 'client']);
