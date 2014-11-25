@@ -33,6 +33,7 @@ var bower = require('bower');
 var Q = require('q');
 var _ = require('lodash');
 var cf_config = require('./src/utils/cf_config');
+var del = require('del');
 
 // NOTE !!!
 // process.env is not available during heroku builds because .env is not loaded there,
@@ -340,6 +341,16 @@ function serve() {
     });
     gulp_notify('noobaa serving...').end('stam');
 }
+
+gulp.task('clean', function(cb) {
+    var folders_to_del = ['node_modules/', 'bower_components/', 'build/'];
+    console.log('~~~~~~~~~~~~~~~~~~~~~~');
+    _.each(folders_to_del, function(folder) {
+        console.log('~~~  delete folder ' + folder + '  ~~~');
+    });
+    console.log('~~~~~~~~~~~~~~~~~~~~~~');
+    del(folders_to_del, cb);
+});
 
 gulp.task('install', ['bower', 'assets', 'css', 'ng', 'jshint', 'client']);
 gulp.task('install_and_serve', ['install'], serve);
