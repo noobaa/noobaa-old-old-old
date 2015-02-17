@@ -121,7 +121,9 @@ ln -s ../nsis-3.0b1 nsis
 http://nsis.sourceforge.net/mediawiki/images/1/18/NsProcess.zip
 ```
 unzip
+
 copy <extracted folder>/Include/nsProcess.nsh to <nsis folder>/Include
+
 copy <extracted folder>/Plugin/nsProcess.dll to <nsis folder>/Plugins/x86-ansi
 
 build (TODO: add to gulp) - under folder /noobaa/src/planet-app/prod
