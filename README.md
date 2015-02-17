@@ -93,5 +93,9 @@ sudo npm install
 ```
 #Get updated env file from Guy and update the bucket prefix
 
+# install makensis for installation build
+# download nsis from here:
+
+
 #Start it:
 > foreman start
