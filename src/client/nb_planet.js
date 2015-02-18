@@ -14,7 +14,7 @@ nb_util.factory('nbPlanet', [
 
         var $scope = {};
         if (window.require_node) {
-            console.log('nbPlanet on');
+            console.log('nbPlanet on', $scope);
             $scope.on = true;
         } else {
             console.log('nbPlanet off');
@@ -146,9 +146,13 @@ nb_util.factory('nbPlanet', [
 
 
         // on load show the window.
-        // TODO: this might be too annoying if triggered by auto update
-        // or even some crashing bug, so maybe only when the user requested...
-        $scope.show();
+        // note to self:
+        //      this might be too annoying if triggered by auto update
+        //      or even some crashing bug, so maybe only when the user requested...
+        // reply from future self:
+        //      yes - it is annoying. made silent.
+        // $scope.show();
+
 
         // dev mode to open dev tools
         var dev_mode = (gui.App.argv.indexOf('--noobaadev') >= 0);
@@ -207,95 +211,20 @@ nb_util.factory('nbPlanet', [
         srv_start();
 
 
-        ////////////////////////////////////////////////////////////
-        /*
-
-        // init the planet authentication.
-        // user login state
-        $scope.planet_loading = false;
-        $scope.planet_user = null;
-
-        var auth_frame = $('#auth_frame')[0];
-        var auth_frame_window = window.frames.auth_frame.window;
-
-        // update the connect frame src to load a new url
-        // the hidden frame is used to maintain the login/logout state
-        // this could also be done with ajax, but in order to reuse 
-        // the existing login/logout paths it was a bit shorter with a frame.
-        $scope.auth_frame_path = function(path) {
-            auth_frame.src = path;
-            $scope.planet_loading = true;
-            $rootScope.safe_apply();
-        };
-
-        // pull info from the frame once it loads
-        auth_frame.onload = function() {
-            // when the user login returned info, pull it to our state
-            console.log('USER:', auth_frame_window.noobaa_user, auth_frame, auth_frame_window);
-            $scope.planet_loading = false;
-            $scope.planet_user = auth_frame_window.noobaa_user;
-            schedule_device(1);
-            get_user_folders();
-            $rootScope.safe_apply();
-        };
-
-        var login_window;
-
-        // submit connect request - will open facebook/google login dialog window.
-        $scope.do_connect = function(provider) {
-            // if the window exists, just show it
-            if (login_window) {
-                show_window(login_window);
-                return;
-            }
-            // create the login window according to the provider
-            var login_path = '/auth/' + provider + '/login/?state=/planet/auth';
-            var login_url = window.location.protocol + '//' + window.location.host + login_path;
-            login_window = gui.Window.open(login_url, {
-                toolbar: false,
-                frame: true,
-                focus: true,
-                position: 'center',
-            });
-            // set event handler to nullify the window variable once closed
-            // which will allow to open it again if canceled, or later on.
-            login_window.on('closed', function() {
-                login_window = null;
-            });
-            login_window.on('loaded', function() {
-                // after the window loads new content refresh the user in the auth frame
-                // it might be right after successful login, but might also occur on bad password etc.
-                // in any case we refresh the frame which is the decision point about login success.
-                $scope.auth_frame_path('/planet/auth');
-                // auto close window on successful login
-                if (this.window.frames && this.window.frames.noobaa_user) {
-                    login_window.close();
-                }
-            });
-        };
-
-        // logout - mostly for testing
-        $scope.do_logout = function() {
-            var q = 'Logging out will stop co-sharing.<br/>' +
-                'which will affect your account quota and performance.<br/>' +
-                'Click "No" to keep co-sharing:';
-            $scope.planet_confirm(q, function(e) {
-                if (!e) return;
-                $scope.auth_frame_path('/auth/logout/?state=/planet/auth');
-            });
-        };
-
-        // on init load the auth login page into the frame.
-        $scope.auth_frame_path('/planet/auth');
-*/
-
 
         ////////////////////////////////////////////////////////////
 
 
-        // if (localStorage.planet_device) {
-        //  $scope.planet_device = JSON.parse(localStorage.planet_device);
-        // }
+        var last_full_heartbeat = 0;
+
+        $scope.host_info = {
+            hostname: os.hostname(),
+            platform: os.platform()
+        };
+
+        $scope.get_source_device_id = function() {
+            return $scope.device_id;
+        };
 
         function close_if_reload_requested(data) {
             if (data && data.reload) {
@@ -304,108 +233,71 @@ nb_util.factory('nbPlanet', [
             }
         }
 
-        function reconnect_device() {
-            delete $scope.planet_device;
-            delete localStorage.planet_device;
-            schedule_device(1000);
-        }
-
-        function save_device_info(data) {
-            if (data && data.device) {
-                $scope.planet_device = data.device;
-                localStorage.planet_device = JSON.stringify(data.device);
-                var space = $scope.planet_device.coshare_space;
-                for (var i = 0; i < $scope.coshare_options.length; i++) {
-                    if (space === $scope.coshare_options[i].space) {
-                        $scope.coshare_selection = i;
-                        break;
-                    }
-                }
-            }
-        }
-
-        function schedule_device(time) {
+        function schedule_device() {
             $timeout.cancel($scope.device_promise);
-            $scope.device_promise = $timeout(periodic_device, time);
+            $scope.device_promise = $timeout(device_heartbeat, $scope.hearbeat_delay);
         }
 
-        function periodic_device() {
-            if (!nbUser.user) {
-                // no user connected, reschedule to check later
-                schedule_device(10000);
-            } else if (!$scope.planet_device) {
-                // no device id - ask to create
-                create_device();
+        function device_heartbeat(coshare_space) {
+            var data;
+            var now = Date.now();
+            if (now < last_full_heartbeat + 3600000) {
+                data = {};
             } else {
-                update_device();
+                data = {
+                    host_info: $scope.host_info,
+                    srv_port: $scope.srv_port,
+                    drives_info: $scope.drives_info,
+                };
             }
-        }
-
-        function create_device() {
+            if (coshare_space) {
+                data.coshare_space = coshare_space;
+            }
             return $http({
                 method: 'POST',
-                url: '/api/device/',
-                data: {
-                    host_info: get_host_info(),
-                    srv_port: $scope.srv_port,
-                    drives_info: $scope.drives_info
-                }
+                url: '/device_api/',
+                data: data
             }).then(function(res) {
-                console.log('[ok] create device', res);
-                close_if_reload_requested(res.data);
-                save_device_info(res.data);
-            }).then(function() {
-                if (!$scope.loaded_source_dev) {
-                    console.log('RELOAD SOURCE DEVICE', $scope.planet_device);
-                    return nbUploadSrv.reload_source($scope.planet_device._id).then(function() {
-                        $scope.loaded_source_dev = true;
-                    });
+                console.log('device heartbeat', res.data);
+                if (res.data) {
+                    close_if_reload_requested(res.data);
+                    $scope.device_id = res.data.device_id;
+                    $scope.hearbeat_delay = res.data.delay;
+                    if (res.data.coshare_space) {
+                        $scope.coshare_space = res.data.coshare_space;
+                        for (var i = 0; i < $scope.coshare_options.length; i++) {
+                            if ($scope.coshare_space === $scope.coshare_options[i].space) {
+                                $scope.coshare_selection = i;
+                                break;
+                            }
+                        }
+                    }
                 }
-            }).then(function() {
-                schedule_device(5000);
-            }, function(err) {
-                console.error('[ERR] create device', err);
+                last_full_heartbeat = now;
+                if (nbUser.user && !$scope.loaded_source_dev) {
+                    console.log('RELOAD SOURCE DEVICE', $scope.device_id);
+                    return nbUploadSrv.reload_source($scope.device_id)
+                        .then(function() {
+                            $scope.loaded_source_dev = true;
+                        }, function(err) {
+                            console.error('FAILED RELOAD SOURCE DEVICE', $scope.device_id);
+                            throw err;
+                        });
+                }
+            }).then(null, function(err) {
+                console.error('FAILED DEVICE HEARTBEAT', err);
                 close_if_reload_requested(err.data);
-                schedule_device(5000);
+                $scope.hearbeat_delay = 10000;
+            })['finally'](function() {
+                schedule_device();
             });
         }
 
-        function update_device(coshare_space) {
-            return $http({
-                method: 'PUT',
-                url: '/api/device/' + $scope.planet_device._id,
-                data: {
-                    host_info: get_host_info(),
-                    srv_port: $scope.srv_port,
-                    coshare_space: coshare_space,
-                    drives_info: $scope.drives_info
-                }
-            }).then(function(res) {
-                console.log('[ok] update device', res);
-                close_if_reload_requested(res.data);
-                if (coshare_space) {
-                    save_device_info(res.data);
-                }
-                schedule_device(60000);
-            }, function(err) {
-                console.error('[ERR] update device', err);
-                reconnect_device();
-                close_if_reload_requested(err.data);
-            });
-        }
+        $scope.hearbeat_delay = 3000;
+        schedule_device();
 
-        function get_host_info() {
-            return {
-                hostname: os.hostname(),
-                platform: os.platform()
-            };
-        }
 
-        $scope.get_source_device_id = function() {
-            return $scope.planet_device ? $scope.planet_device._id : undefined;
-        };
 
-        periodic_device();
 
         var GB = 1024 * 1024 * 1024;
         $scope.coshare_options = [{
@@ -430,7 +322,7 @@ nb_util.factory('nbPlanet', [
 
         $scope.select_coshare_option = function(index) {
             var opt = $scope.coshare_options[index];
-            update_device(opt.space).then(function() {
+            device_heartbeat(opt.space).then(function() {
                 return nbUser.update_user_info();
             }).then(function() {
                 console.log('USER SPACE UPDATED');
@@ -539,7 +431,7 @@ nb_util.factory('nbPlanet', [
                     child_process.spawn($scope.media_player_path, args);
                     nbUtil.track_event('planet.media_player.run', {
                         name: inode.name,
-                        subs: !! local_sub_file
+                        subs: !!local_sub_file
                     });
                 }, function(err) {
                     console.error('FAILED PLANET OPEN CONTENT GET ATTR', err);
@@ -643,7 +535,7 @@ nb_util.factory('nbPlanet', [
 
         function wmic_parse_list(buffer) {
             var text = buffer.toString();
-            // split by double eol - 
+            // split by double eol -
             // we get two \r between the \n, so we tolerate any whitespace
             var list = text.trim().split(/\s*\n\s*\n\s*/);
             for (var i = 0; i < list.length; i++) {
@@ -668,7 +560,8 @@ nb_util.factory('nbPlanet', [
         }
 
         function wmic_get_list(topic, callback) {
-            execute_os(WINDOWS.CMD, ['/c', 'wmic', topic, 'get', '/value'], wmic_parse_list, callback);
+            execute_os(WINDOWS.CMD, ['/c', 'wmic', topic, 'get', '/value'],
+                wmic_parse_list, callback);
         }
 
         function wmic_save_info(topic) {
@@ -695,6 +588,7 @@ nb_util.factory('nbPlanet', [
                     wmic_save_info('computersystem');
                     wmic_save_info('os');
                     wmic_save_info('cpu');
+
                     /*
                         execute_os(WINDOWS.FSUTIL, ['fsinfo', 'drives'],
                             set_drives_info_callback('win_fsinfo_drives'));
@@ -729,7 +623,7 @@ nb_util.factory('nbPlanet', [
         nbfs.zero_chunk = new Buffer(nbfs.chunk_size);
         nbfs.zero_chunk.fill(0);
 
-        init_nbfs_chunks();
+        // init_nbfs_chunks();
 
         // create chunk files in the app directory for co-sharing
 

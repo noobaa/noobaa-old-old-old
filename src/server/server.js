@@ -255,10 +255,12 @@ app.post('/api/user/add_ghosts/', user_api.add_ghosts);
 app.post('/api/user/feedback/', email.user_feedback);
 app.get('/api/emailtest/', email.test_email_templates);
 
-app.post('/api/device/', device_api.device_create);
-app.get('/api/device/', device_api.device_list);
-app.put('/api/device/:device_id', device_api.device_update);
-app.get('/api/device/current/', device_api.device_current);
+// device_api is exposed also without /api/ forced user session
+app.post('/device_api/', device_api.device_heartbeat);
+// TODO remove these /api/device/ routes after old devices are updated to /device_api/
+app.post('/api/device/', device_api.device_reload);
+app.put('/api/device/:device_id', device_api.device_reload);
+
 
 // app.get('/public_api/blog/', blog_api.blog_list);
 // app.get('/public_api/blog/:headline', blog_api.blog_get);
@@ -283,7 +285,7 @@ app.get('/adminoobaa/pull_inodes_shr/', adminoobaa.admin_pull_inodes_shr);
 
 // setup planet pages
 
-app.get('/planet', function(req, res) {
+app.get('/planet', device_api.update_session, function(req, res) {
     return res.render('planet_boot.html', common_api.common_server_data(req));
 });
 app.get('/planet/window', redirect_no_user, function(req, res) {
@@ -441,19 +443,10 @@ function error_403(req, res, next) {
             }
         }));
     }
-    var err = {
+    return next({
         status: 403, // forbidden
         message: 'NO USER',
-        reload: true
-    };
-    if (req.originalUrl.indexOf('/api/device') === 0) {
-        // TEMP FIX:
-        // when device api fails on no user, we send the error as success status (200)
-        // because old planet code was not reloading on error.
-        console.log('FORCE RELOAD DEVICE', req.originalUrl);
-        return res.json(200, err);
-    }
-    return next(err);
+    });
 }
 
 function error_501(req, res, next) {
