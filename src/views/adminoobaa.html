@@ -319,8 +319,10 @@
                             user.email_addr = user.email ||
                                 (user.google && user.google.email) ||
                                 (user.fb && user.fb.email);
+                            user.num_devices = 0;
                             _.each(user.devices, function(dev, dev_id) {
                                 $scope.totals.num_devices++;
+                                user.num_devices++;
                                 var dev_time = dev.last_update;
                                 if (dev_time) {
                                     dev_time = new Date(dev_time);
@@ -328,7 +330,6 @@
                                         (dev_time.getTime() > user.main_dev_time.getTime())) {
                                         user.main_dev_time = dev_time;
                                         user.main_device = dev;
-
                                     }
                                 }
                                 if (dev.drives_info) {
