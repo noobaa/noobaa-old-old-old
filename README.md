@@ -93,5 +93,43 @@ sudo npm install
 ```
 #Get updated env file from Guy and update the bucket prefix
 
+# install makensis for installation build (MAC)
+download nsis from here:
+(for more information) follow http://blog.alejandrocelaya.com/2014/02/01/compile-nsis-scripts-in-linux/
+```
+curl http://downloads.sourceforge.net/project/nsis/NSIS%203%20Pre-release/3.0b1/nsis-3.0b1-src.tar.bz2?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fnsis%2Ffiles%2FNSIS%25203%2520Pre-release%2F3.0b1%2F&ts=1423381229&use_mirror=garr >nsis-3.0b1-src.tar.bz2
+curl http://downloads.sourceforge.net/project/nsis/NSIS%203%20Pre-release/3.0b1/nsis-3.0b1.zip?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fnsis%2Ffiles%2FNSIS%25203%2520Pre-release%2F3.0b1%2F&ts=1423381286&use_mirror=garr >> nsis-3.0b1.zip
+unzip nsis-3.0b1.zip -d nsis-3.0b1
+bzip2 -dk nsis-3.0b1-src.tar.bz2
+```
+before you run the following command scons command, update SConstruct file under nsis source folder with 
+opts.Add(BoolVariable('STRIP_CP', 'Strips cross-platform executables of any unrequired data such as symbols', 'no'))
+```
+sed -i 's/"('STRIP_CP', 'Strips cross-platform executables of any unrequired data such as symbols', 'yes'"/"('STRIP_CP', 'Strips cross-platform executables of any unrequired data such as symbols', 'no'"/g' ./nsis-3.0b1-src/SConstruct
+
+scons SKIPSTUBS=all SKIPPLUGINS=all SKIPUTILS=all SKIPMISC=all NSIS_CONFIG_CONST_DATA=no PREFIX=./nsis-3.0b1 install-compiler
+chmod +x ./nsis-3.0b1/bin/makensis
+ln -s //nsis-3.0b1/bin/makensis /usr/local/bin/makensis
+mkdir ./nsis-3.0b1/share
+cd ./nsis-3.0b1/share
+ln -s ../nsis-3.0b1 nsis
+```
+
+# download nsis plugin 
+
+```
+http://nsis.sourceforge.net/mediawiki/images/1/18/NsProcess.zip
+```
+1. unzip
+2. copy <extracted folder>/Include/nsProcess.nsh to <nsis folder>/Include
+3. copy <extracted folder>/Plugin/nsProcess.dll to <nsis folder>/Plugins/x86-ansi
+
+#build under folder /noobaa/src/planet-app/prod
+[TODO - Add to gulp script]
+
+```
+makensis noobaa.nsi
+```
+
 #Start it:
 > foreman start

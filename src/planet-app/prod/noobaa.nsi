@@ -2,7 +2,9 @@
 !define ICON "noobaa_icon24.ico"
 !define SMDIR "$SMPROGRAMS\${NB}"
 !define UNINST "Uninstall-${NB}"
+!include "nsProcess.nsh"
 
+SilentInstall silent
 OutFile "noobaa-setup.exe"
 Name "${NB}"
 Icon "${ICON}"
@@ -32,17 +34,22 @@ Section "install"
 SectionEnd
 
 Section "uninstall"
+	${nsProcess::KillProcess} "noobaa.exe" $R0
+	DetailPrint "nsProcess::KillProcess$\n$\n\	Errorlevel: [$R0]"
+    Sleep 3000
 	Delete "$INSTDIR\${ICON}"
 	Delete "$INSTDIR\noobaa.exe"
 	Delete "$INSTDIR\nw.pak"
 	Delete "$INSTDIR\ffmpegsumo.dll"
 	Delete "$INSTDIR\icudt.dll"
 	Delete "$INSTDIR\libEGL.dll"
+	Delete "$INSTDIR\debug.log"
 	Delete "$INSTDIR\libGLESv2.dll"
 	Delete "$INSTDIR\uninstall-noobaa.exe"
 	Delete "$SMSTARTUP\${NB}.lnk"
 	Delete "${SMDIR}\${NB}.lnk"
 	Delete "${SMDIR}\${UNINST}.lnk"
+	RMDir /r "$LOCALAPPDATA\NooBaaApp"
 	RMDir "${SMDIR}"
-	RMDir "$INSTDIR"
+	RMDir /r "$INSTDIR"
 SectionEnd
