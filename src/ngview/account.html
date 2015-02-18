@@ -22,9 +22,12 @@
         <div ng-if="nbPlanet.on">
             <a class="line clickable" ng-click="show_client_expansion()">
                 <i class="fa fa-desktop fa-fw"></i>
-                <i>{{nbPlanet.planet_device.host_info.hostname}}</i>
-                <span class="badge pull-right" style="font-size: 15px">
-                    {{human_size(nbPlanet.planet_device.coshare_space)}}
+                <i>{{nbPlanet.host_info.hostname}}</i>
+                <span ng-if="nbPlanet.coshare_space" class="badge pull-right" style="font-size: 15px">
+                    {{human_size(nbPlanet.coshare_space)}}
+                </span>
+                <span ng-if="!nbPlanet.coshare_space" class="label label-primary pull-right" style="font-size: 15px">
+                    Click to Add Space
                 </span>
             </a>
             <hr />

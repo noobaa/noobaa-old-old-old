@@ -63,15 +63,16 @@ exports.admin_get_users = function(req, res) {
 				merge_users[u._id] = user_plain_obj;
 			});
 			_.each(result.devices, function(d) {
-				var u = merge_users[d.owner];
-				if (!u) {
-					u = merge_users[d.owner] = {};
-				}
+				var owner = d.owner || d._id; // use device id as user if no owner
+				var u = merge_users[owner] = merge_users[owner] || {
+					_id: d._id,
+					name: 'device without a user'
+				};
 				u.devices = u.devices || {};
 				u.devices[d._id] = d.toObject();
 			});
 			_.each(result.files, function(f) {
-				// currenlty _id is the file owner. 
+				// currenlty _id is the file owner.
 				// didn't manage to do it differently in the aggregate
 				var u = merge_users[f._id];
 				if (u) {

@@ -4,7 +4,6 @@
 var _ = require('lodash');
 var mongoose = require('mongoose');
 var crypto = require('crypto');
-var StarLog = require('../models/starlog.js').StarLog;
 var cf_config = require('../../utils/cf_config');
 
 
@@ -16,51 +15,6 @@ function err_only(next) {
     };
 }
 
-// add data to the request starlog, which will be attached
-// to the log record that reply callback will write to the DB.
-// TODO: add info in the relevant routes - tests code complicates stuff because req is not available
-
-function starlog(req, data) {
-    if (!req.starlog) {
-        req.starlog = {};
-    }
-    _.extend(req.starlog, data);
-}
-
-// submit a starlog to the DB but don't wait for it
-
-function submit_starlog(err, req) {
-    // for now we don't want to log and READS, only WRITES
-    // so filtering simply by method type which is usually correct.
-    if (req.method === 'GET') {
-        return;
-    }
-    var record = new StarLog();
-    // pick fields from the request to be added to the log record
-    record.req = _.pick(req,
-        'user',
-        'method',
-        'url',
-        'originalMethod',
-        'originalUrl',
-        'query',
-        'body'
-    );
-    // attach error info
-    if (err) {
-        record.err = err;
-    }
-    // attach info which was put on the request with starlog()
-    if (req.starlog) {
-        record.log = req.starlog;
-    }
-    // submit save but don't wait for it, just continue and reply to the client
-    record.save(function(save_err) {
-        if (save_err) {
-            console.error('FAILED TO SAVE STARLOG', save_err, record);
-        }
-    });
-}
 
 // Convinient callback maker for handling the reply of async control flows.
 // Example usage:
@@ -68,13 +22,8 @@ function submit_starlog(err, req) {
 //          ...
 //      ], reply_callback(req, res, debug_info));
 
-function reply_callback(req, res, debug_info, skip_starlog) {
+function reply_callback(req, res, debug_info) {
     return function(err, reply) {
-        /* unused for now
-        if (skip_starlog !== 'skip_starlog') {
-            submit_starlog(err, req);
-        }
-        */
         if (err) {
             var status = err.status || err.statusCode;
             var data = err.data || err.message;
@@ -83,14 +32,14 @@ function reply_callback(req, res, debug_info, skip_starlog) {
                 status >= 100 &&
                 status < 600
             ) {
-                return res.json(status, data);
+                return res.status(status).send(data);
             } else {
-                return res.json(500, err);
+                return res.status(500).send(err);
             }
         }
         if (!res.headerSent) {
             console.log('COMPLETED', debug_info);
-            return res.json(200, reply);
+            return res.status(200).send(reply);
         }
     };
 }
@@ -166,7 +115,6 @@ function common_server_data(req) {
 
 
 exports.err_only = err_only;
-exports.starlog = starlog;
 exports.reply_callback = reply_callback;
 exports.json_encode_sign = json_encode_sign;
 exports.json_decode_sign = json_decode_sign;

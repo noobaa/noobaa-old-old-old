@@ -2,21 +2,237 @@
 'use strict';
 
 var _ = require('lodash');
+var Q = require('q');
 var async = require('async');
 var Device = require('../models/device').Device;
 var User = require('../models/user').User;
 var common_api = require('./common_api');
 
+var DEVICE_STATE_FRAME_MS = parseInt(process.env.DEVICE_STATE_FRAME_MS, 10);
+var DEVICE_HEARTBEAT_DELAY_MS = parseInt(process.env.DEVICE_HEARTBEAT_DELAY_MS, 10);
 
-var MILLIS_IN_HOUR = 1000 * 60 * 60;
+exports.device_reload = function(req, res) {
+    return res.send({
+        reload: true
+    });
+};
 
-function push_update(date, dev, next) {
+exports.update_session = function(req, res, next) {
+    if (process.env.DEVICE_VERSION) {
+        req.session.device_version = process.env.DEVICE_VERSION;
+    }
+    return next();
+};
+
+
+exports.device_heartbeat = function(req, res) {
+    var params;
+    var updates = {};
+    var remote_ip;
+    var user_id = (req.user && req.user.id) ? req.user.id.toString() : undefined;
+    var device_detached = false;
+    var coshare_space;
+
+    // check version
+    // reply immediately with reload if mismatching
+    // the server's /planet/ route will update the session version once reloaded
+    if (process.env.DEVICE_VERSION &&
+        process.env.DEVICE_VERSION !== req.session.device_version) {
+        console.log('DEVICE RELOAD VERSION',
+            process.env.DEVICE_VERSION, req.session.device_version);
+        return res.send({
+            reload: true
+        });
+    }
+
+
+    Q.fcall(function() {
+
+        // prepare params
+        params = _.pick(req.body,
+            'name',
+            'coshare_space',
+            'srv_port',
+            'host_info',
+            'drives_info'
+        );
+        params.name = params.name || 'MyDevice';
+        params.ip_address = req.get('X-Forwarded-For') || req.socket.remoteAddress;
+        if (params.coshare_space) {
+            if (typeof(params.coshare_space) !== 'number' ||
+                params.coshare_space > 500 * 1024 * 1024 * 1024) {
+                throw new Error('invalid coshare_space ' + params.coshare_space);
+            }
+        }
+        console.log('hearbeat params:',
+            'device_id', req.session.device_id,
+            'user_id', user_id,
+            _.omit(params, 'drives_info'));
+
+        if (!req.session.device_id) {
+
+            // no device_id in session - this is a fresh install
+
+            return Q.fcall(function() {
+                    if (!user_id) return;
+                    // lookup the device by owner and name
+                    var q = {
+                        owner: user_id,
+                        name: params.name,
+                    };
+                    return Q.when(Device.find(q).exec());
+                })
+                .then(function(devs) {
+                    if (devs && devs.length) {
+                        console.log('DEVICE FOUND FOR USER', user_id, 'count', devs.length);
+                        return devs[0];
+                    } else {
+                        return do_create(params, user_id);
+                    }
+                })
+                .then(function(dev) {
+                    req.session.device_id = dev._id.toString();
+                    return dev;
+                });
+
+        } else {
+
+            // existing device_id in session
+            // in this case we only expect an update for existing device
+            // so find it by id and verify that it exists and with proper owner
+            return Q.when(Device.findById(req.session.device_id).exec())
+                .then(function(dev) {
+                    if (!dev) {
+                        console.error('DEVICE SESSION MISSING', req.session.device_id);
+                        delete req.session.device_id;
+                        throw new Error('device api error');
+                    }
+                    var owner = dev.owner ? dev.owner.toString() : undefined;
+                    if (!owner && user_id) {
+                        // we set the device owner once the user login's
+                        // and sends first update on a device (still without owner)
+                        updates.owner = user_id;
+                    } else if (owner !== user_id) {
+                        // in case a user with owned device has logged-out
+                        // and another user logged-in then we will see this case
+                        // and we just keep the device owner by initial user.
+                        // this might need to be revised if it becomes a common case.
+                        console.log('DEVICE DETACHED',
+                            'owner', owner,
+                            'device_id', dev._id,
+                            'user', req.user);
+                        device_detached = true;
+                    }
+                    return dev;
+                });
+        }
+
+    }).then(function(dev) {
+
+        return do_update(dev, params, updates).thenResolve(dev);
+
+    }).then(function(dev) {
+
+        if (device_detached) return;
+
+        coshare_space = updates.coshare_space || dev.coshare_space;
+
+        // TODO we assume here that there is single device per user for now
+        if (user_id && updates.coshare_space) {
+            return Q.when(
+                User.update({
+                    _id: user_id
+                }, {
+                    quota: updates.coshare_space
+                }).exec());
+        }
+
+    }).then(function() {
+
+        var reply = {
+            delay: DEVICE_HEARTBEAT_DELAY_MS,
+        };
+        if (!device_detached) {
+            reply.device_id = req.session.device_id;
+            reply.coshare_space = coshare_space;
+        }
+        return reply;
+
+    }).nodeify(common_api.reply_callback(
+        req, res, 'DEVICE HEARTBEAT'));
+};
+
+
+
+
+function do_create(params, user_id) {
+    // create a new device
+    var new_dev = new Device({
+        name: params.name,
+        ip_address: params.ip_address,
+        srv_port: params.srv_port || 0,
+        coshare_space: params.coshare_space || 0,
+        host_info: params.host_info,
+        drives_info: params.drives_info,
+        total_updates: 0,
+        last_update: Date.now()
+    });
+    if (user_id) {
+        new_dev.owner = user_id;
+    }
+    console.log('DEVICE CREATE', new_dev._id, 'owner', user_id);
+    return Device.create(new_dev);
+}
+
+
+function do_update(dev, params, updates) {
     // prepare the change set assuming the update will be pushed
-    var changes = {
-        // TODO: remove this temporary removal of old updates_log
-        $unset: {
-            updates_log: 1
-        },
+    var date = new Date();
+    var update_keys = ['name', 'ip_address', 'srv_port', 'coshare_space'];
+    _.each(update_keys, function(key) {
+        if (params[key] && dev[key] !== params[key]) {
+            updates[key] = params[key];
+        }
+    });
+    if (params.host_info) updates.host_info = params.host_info;
+    if (params.drives_info) updates.drives_info = params.drives_info;
+
+    if (!dev.updates_stats.length) {
+        add_new_stat(updates, date);
+    } else {
+        // check if the current update is close enough (1 hour diff)
+        // to the last update record, and if so update
+        // the last record instead of pushing new one.
+        var last = dev.updates_stats.length - 1;
+        var stat = dev.updates_stats[last];
+        var start = stat.start.getTime();
+        var end = stat.end.getTime();
+        var curr = date.getTime();
+        if (curr > end && curr > start && curr - start <= DEVICE_STATE_FRAME_MS) {
+            // update count of last stat
+            _.merge(updates, {
+                $inc: {
+                    total_updates: 1,
+                },
+                $set: {
+                    last_update: date
+                },
+            });
+            // update the last stat instead of adding
+            updates.$set['updates_stats.' + last + '.end'] = date;
+            updates.$inc['updates_stats.' + last + '.count'] = 1;
+        } else {
+            add_new_stat(updates, date);
+        }
+    }
+
+    console.log('DEVICE UPDATE:', dev._id);
+    return Q.when(dev.update(updates).exec());
+}
+
+
+function add_new_stat(updates, date) {
+    _.merge(updates, {
         $inc: {
             total_updates: 1
         },
@@ -30,193 +246,5 @@ function push_update(date, dev, next) {
                 count: 1
             }
         }
-    };
-    if (dev.updates_stats.length) {
-        // check if the current update is close enough (1 hour diff)
-        // to the last update record, and if so update
-        // the last record instead of pushing new one.
-        var last = dev.updates_stats.length - 1;
-        var stat = dev.updates_stats[last];
-        var start = stat.start.getTime();
-        var end = stat.end.getTime();
-        var curr = date.getTime();
-        if (curr <= end || curr <= start) {
-            console.error('ignoring early date', stat, date);
-            changes = {};
-        } else if (curr - start <= MILLIS_IN_HOUR) {
-            // remove the $push and update the last element instead
-            delete changes.$push;
-            changes.$set['updates_stats.' + last + '.end'] = date;
-            changes.$inc['updates_stats.' + last + '.count'] = 1;
-        }
-    }
-    console.log('DEVICE UPDATE:', dev.id);
-    return dev.update(changes, function(err, num, raw) {
-        return next(err, dev);
     });
 }
-
-
-// DEVICE CRUD - CREATE
-
-exports.device_create = function(req, res) {
-    // create args are passed in post body
-    var args = req.body;
-    var remote_ip = req.get('X-Forwarded-For') || req.socket.remoteAddress;
-
-    // prepare the device object (auto generate id).
-    var new_dev = new Device({
-        owner: req.user.id,
-        name: args.name || 'MyDevice',
-        host_info: args.host_info,
-        drives_info: args.drives_info,
-        ip_address: remote_ip,
-        srv_port: args.srv_port,
-        total_updates: 0,
-        last_update: Date.now()
-    });
-    console.log('DEVICE CREATE', _.omit(new_dev, 'drives_info'));
-
-    async.waterfall([
-        // lookup the device by owner and name
-        function(next) {
-            return Device.findOne({
-                owner: new_dev.owner,
-                name: new_dev.name
-            }, {
-                updates_stats: 0 // dont fetch all the stats
-            }, next);
-        },
-
-        // if found pass it, otherwise save the new device
-        function(dev, next) {
-            if (dev) {
-                return next(null, dev);
-            } else {
-                return new_dev.save(function(err) {
-                    return next(err, new_dev);
-                });
-            }
-        },
-
-        // make the reply
-        function(dev, next) {
-            return next(null, {
-                reload: false,
-                device: dev
-            });
-        }
-    ], common_api.reply_callback(req, res, 'DEVICE CREATE ' + new_dev.name));
-};
-
-// DEVICE CRUD - UPDATE
-
-exports.device_update = function(req, res) {
-    // the device_id param is parsed as url param (/path/to/api/:device_id/...)
-    var dev_id = req.params.device_id;
-    var remote_ip = req.get('X-Forwarded-For') || req.socket.remoteAddress;
-
-    // pick valid updates
-    var updates = _.pick(req.body, 'coshare_space', 'srv_port', 'drives_info');
-
-    if (updates.coshare_space && typeof updates.coshare_space !== 'number') {
-        console.error('invalid coshare_space', updates.coshare_space);
-        delete updates.coshare_space;
-    }
-
-    async.waterfall([
-
-        // pass the id
-        function(next) {
-            return next(null, dev_id);
-        },
-
-        // find the device in the db
-        Device.findById.bind(Device),
-
-        // check device ownership
-        common_api.req_ownership_checker(req),
-
-        function(dev, next) {
-            if (dev.srv_port === updates.srv_port) {
-                delete updates.srv_port;
-            }
-            if (dev.ip_address !== remote_ip) {
-                updates.ip_address = remote_ip;
-            }
-            if (_.isEmpty(updates)) {
-                return next(null, dev);
-            }
-            return dev.update(updates, function(err) {
-                return next(err, dev);
-            });
-        },
-
-        function(dev, next) {
-            if (!updates.coshare_space) {
-                return next(null, dev);
-            }
-            console.log(updates);
-            // TODO we assume here that there is single device per user for now
-            return User.findByIdAndUpdate(req.user.id, {
-                quota: updates.coshare_space
-            }, function(err) {
-                return next(err, dev);
-            });
-        },
-
-        // update the device
-        push_update.bind(null, new Date()),
-
-        // make the reply
-        function(dev, next) {
-            _.extend(dev, updates); // TODO: not deep!
-            dev.updates_stats = null; // dont return all the stats
-            return next(null, {
-                reload: false,
-                device: dev
-            });
-        }
-    ], common_api.reply_callback(req, res, 'DEVICE UPDATE ' + dev_id, 'skip_starlog'));
-};
-
-exports.device_list = function(req, res) {
-    console.log('DEVICE LIST');
-    async.waterfall([
-        // lookup devices by owner
-        function(next) {
-            return Device.find({
-                owner: req.user.id
-            }, {
-                owner: 0,
-                updates_stats: 0 // dont fetch all the stats
-            }, next);
-        }
-    ], common_api.reply_callback(req, res, 'DEVICE LIST ' + req.user.id));
-};
-
-exports.device_current = function(req, res) {
-    var remote_ip = req.get('X-Forwarded-For') || req.socket.remoteAddress;
-    console.log('DEVICE CURRENT', remote_ip);
-    async.waterfall([
-        // lookup devices by owner
-        function(next) {
-            return Device.find({
-                owner: req.user.id,
-                ip_address: remote_ip,
-            }, {
-                owner: 0,
-                updates_stats: 0 // dont fetch all the stats
-            }, next);
-        },
-
-        function(devices, next) {
-            console.log('CURRENT DEVICES', devices);
-            var dev = devices.length ? devices[0] : null;
-            return next(null, {
-                device: dev
-            });
-        }
-
-    ], common_api.reply_callback(req, res, 'DEVICE CURRENT ' + req.user.id));
-};
