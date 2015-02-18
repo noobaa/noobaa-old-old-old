@@ -30,6 +30,7 @@ nb_util.factory('nbClub', [
             clubs: {},
             last_poll: 0,
             poll_progress_percent: 0,
+            poll_quickly: 0,
             NEW_CLUB_OBJ: {
                 title: '',
                 admin: true,
@@ -95,7 +96,8 @@ nb_util.factory('nbClub', [
                 $scope.poll_in_progress = $timeout(function() {
                     $scope.poll_progress_percent = 0;
                     $scope.poll_in_progress = null;
-                    $scope.poll_timeout = $timeout(poll_clubs, 10000);
+                    $scope.poll_timeout = $timeout(poll_clubs,
+                        $scope.poll_quickly ? 10000 : 3600000);
                 }, 500); // short delay for progress animation
             });
             return $scope.poll_in_progress;
@@ -230,7 +232,7 @@ nb_util.factory('nbClub', [
                     break;
                 }
             }
-            // we counted the messages till the seen one, 
+            // we counted the messages till the seen one,
             // each of these is considered an unseen message
             club.new_msgs = i;
             $scope.total_new_msgs += club.new_msgs;
@@ -328,6 +330,13 @@ nb_util.controller('ClubsCtrl', [
         nbUtil.track_event('clubs.list');
 
         $scope.action_bar_title = 'CLUBS';
+
+        nbClub.poll_quickly += 1;
+        $scope.$on('$destroy', function() {
+            nbClub.poll_quickly -= 1;
+        });
+        nbClub.poll_clubs();
+
         /*
         $scope.$watch('nbClub.poll_progress_percent', function(val) {
             $scope.action_bar_progress_percent = val;
@@ -364,6 +373,12 @@ nb_util.controller('ClubCtrl', [
             $scope.last_seen_msg = club.seen_msg;
             nbClub.mark_seen(club);
         });
+
+        nbClub.poll_quickly += 1;
+        $scope.$on('$destroy', function() {
+            nbClub.poll_quickly -= 1;
+        });
+        nbClub.poll_clubs();
 
         $scope.click_msg = function(msg_index) {
             // TODO
