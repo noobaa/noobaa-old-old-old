@@ -84,7 +84,7 @@ nb_util.factory('nbPlanet', [
             if (win.noobaa_reload) {
                 win.noobaa_reload();
             }
-            win.close(true); // force close, since close only hides
+            //win.close(true); // force close, since close only hides
         };
 
         $scope.open_noobaa = function(path) {
@@ -231,7 +231,7 @@ nb_util.factory('nbPlanet', [
 
         function close_if_reload_requested(data) {
             if (data && data.reload) {
-                console.log(new Date(), 'RELOAD REQUESTED');
+                console.log(new Date().toString(), 'RELOAD REQUESTED');
                 return $scope.close_win();
             }
         }
@@ -264,7 +264,7 @@ nb_util.factory('nbPlanet', [
                 url: '/device_api/',
                 data: data
             }).then(function(res) {
-                console.log(new Date(), 'device heartbeat', res.data);
+                console.log(new Date().toString(), 'device heartbeat', res.data);
                 if (res.data) {
                     close_if_reload_requested(res.data);
                     $scope.device_id = res.data.device_id;
