@@ -81,6 +81,9 @@ nb_util.factory('nbPlanet', [
         // make window hide on close
         win.on('close', $scope.hide_win);
         $scope.close_win = function() {
+            if (win.noobaa_reload) {
+                win.noobaa_reload();
+            }
             win.close(true); // force close, since close only hides
         };
 

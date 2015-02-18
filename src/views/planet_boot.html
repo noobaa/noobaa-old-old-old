@@ -126,6 +126,7 @@
                     });
                     // when the window closed due to some issue, open a new one.
                     $scope.win.on('closed', reload);
+                    $scope.win.noobaa_reload = reload;
                     // check if the window was not loaded properly.
                     // this might occur if the connection to the star is offline,
                     // or someother issue. for now we just give alert.
