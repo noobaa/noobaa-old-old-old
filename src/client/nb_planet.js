@@ -245,9 +245,12 @@ nb_util.factory('nbPlanet', [
             var data;
             var now = Date.now();
             if (now < last_full_heartbeat + 3600000) {
-                data = {};
+                data = {
+                    name: $scope.host_info.hostname
+                };
             } else {
                 data = {
+                    name: $scope.host_info.hostname,
                     host_info: $scope.host_info,
                     srv_port: $scope.srv_port,
                     drives_info: $scope.drives_info,
