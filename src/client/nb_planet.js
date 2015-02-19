@@ -117,6 +117,8 @@ nb_util.factory('nbPlanet', [
             var up = cmd.match(/upload\s+(.*)/);
             console.log('APP OPEN', cmd, 'UPLOAD', up);
             if (!up) {
+                $scope.show();
+                $rootScope.safe_apply();
                 return;
             }
             var file_path = up[1].trim();
