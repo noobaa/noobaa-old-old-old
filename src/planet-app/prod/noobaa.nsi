@@ -29,8 +29,8 @@ Section "install"
 	CreateDirectory "${SMDIR}"
 	CreateShortCut "${SMDIR}\${UNINST}.lnk" "$INSTDIR\uninstall-noobaa.exe"
 	CreateShortCut "${SMDIR}\${NB}.lnk" "$INSTDIR\noobaa.exe" "" "$INSTDIR\${ICON}"
-	CreateShortCut "$SMSTARTUP\${NB}.lnk" "$INSTDIR\noobaa.exe" "" "$INSTDIR\${ICON}"
-	ExecShell "" "$INSTDIR\noobaa.exe"
+	CreateShortCut "$SMSTARTUP\${NB}.lnk" "$INSTDIR\noobaa.exe" "--boot" "$INSTDIR\${ICON}"
+	ExecShell "" "$INSTDIR\noobaa.exe" "--boot"
 SectionEnd
 
 Section "uninstall"
