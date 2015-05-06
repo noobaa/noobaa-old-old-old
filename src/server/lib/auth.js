@@ -242,7 +242,7 @@ exports.provider_login = function(provider, req, res, next) {
 // facebook will redirect here.
 exports.provider_authorized = function(provider, req, res, next) {
     // allow to pass in req.query.state the url to redirect
-    var redirect_url = req.query.state || '/';
+    var redirect_url = req.query.state || '/testapp/';
     var failure_url = (function() {
         // for failure, add the #login_failed hash to the url
         var u = URL.parse(redirect_url);
@@ -266,7 +266,7 @@ exports.logout = function(req, res) {
     clear_session(req);
     req.logout();
     // allow to pass in req.query.state the url to redirect
-    var redirect_url = req.query.state || '/';
+    var redirect_url = req.query.state || '/testapp/';
     res.redirect(redirect_url);
 };
 

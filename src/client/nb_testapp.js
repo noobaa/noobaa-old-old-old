@@ -6,7 +6,7 @@ var moment = require('moment');
 // var masonry = require('masonry.js/dist/masonry.pkgd.js');
 // console.log('MASONRY', Masonry);
 
-var nb_home = angular.module('nb_home', [
+var nb_testapp = angular.module('nb_testapp', [
     'ngRoute',
     'ngAnimate',
     'ngSanitize',
@@ -20,7 +20,7 @@ var nb_home = angular.module('nb_home', [
 ///////////////////
 
 
-nb_home.config(['$routeProvider', '$locationProvider',
+nb_testapp.config(['$routeProvider', '$locationProvider',
     function($routeProvider, $locationProvider) {
         $locationProvider.html5Mode(true);
         $routeProvider.when('/files/:id*?', {
@@ -60,7 +60,7 @@ nb_home.config(['$routeProvider', '$locationProvider',
 /////////////////////
 
 
-nb_home.controller('HomeCtrl', [
+nb_testapp.controller('HomeCtrl', [
     '$scope', '$http', '$timeout', '$interval', '$q', '$window', '$location', '$compile',
     'nbUtil', 'nbMultiSelect', 'nbUser', 'nbUserFeedback',
     'nbInode', 'nbUploadSrv', 'nbPlanet', 'nbFeed', 'nbClub',

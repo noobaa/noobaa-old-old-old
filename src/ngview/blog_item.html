@@ -7,7 +7,13 @@
             </a>
             <p>
                 <small class="text-muted">
-                    By {{blog.author.name}} &nbsp;&ndash;&nbsp; {{moment(blog.time).fromNow()}}
+                    <span ng-show="blog.author">
+                        By {{blog.author.name}}
+                        &nbsp;&ndash;&nbsp;
+                    </span>
+                    <span ng-show="blog.time">
+                        Updated {{moment(blog.time).fromNow()}}
+                    </span>
                 </small>
             </p>
         </div>

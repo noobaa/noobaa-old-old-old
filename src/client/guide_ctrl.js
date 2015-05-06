@@ -65,7 +65,7 @@ function GuideCtrl($scope) {
         this.tour = new Tour({
             name: name,
             debug: true,
-            path: '/home',
+            path: '/testapp/',
             backdrop: true,
             orphan: true,
             template: guide_template,
@@ -114,7 +114,7 @@ function GuideCtrl($scope) {
     };
 
     Guide.prototype.is_completed = function() {
-        // TODO: for now just check for tour end, but this is where we want 
+        // TODO: for now just check for tour end, but this is where we want
         // to check for more complex conditions - such as did the user really share, etc
         return this.completed_steps === this.steps.length;
     };
