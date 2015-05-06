@@ -91,7 +91,7 @@ nb_util.factory('nbPlanet', [
             // using the same host and protocol as the local window
             // to support also testing env.
             var url = window.location.protocol + '//' +
-                window.location.host + (path || '/');
+                window.location.host + (path || '/testapp/');
             gui.Shell.openExternal(url);
         };
 

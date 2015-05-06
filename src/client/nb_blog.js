@@ -66,10 +66,9 @@ nb_blog.controller('BlogCtrl', [
                 headline: 'faq',
                 subject: 'How NooBaa Works',
                 image_url: '/public/images/bg1.jpg',
-                time: moment("20140406", "YYYYMMDD").toDate(),
-                author: yuval,
-            }, {
-            /*
+                time: moment("20150406", "YYYYMMDD").toDate(),
+                // author: yuval,
+            }, /*{
                 headline: 'why-we-make-noobaa',
                 subject: 'Why We Make NooBaa',
                 // image_url: '/public/images/cloud.png',
@@ -83,7 +82,6 @@ nb_blog.controller('BlogCtrl', [
                     ''
                 ].join('')
             }, {
-            */
                 headline: 'trash-the-welcome-page-part-1',
                 subject: 'Trash The Welcome Page',
                 image_url: '/public/images/yoda.png',
@@ -96,7 +94,7 @@ nb_blog.controller('BlogCtrl', [
                     'The narrator is very articulate: “Be simple, clear, and to the point,” ',
                     'he calls, and the cars answer in a roar...'
                 ].join('')
-            }];
+            }*/];
             $scope.blogs_by_headline = _.indexBy($scope.blogs, 'headline');
             /*
             console.log('LOAD BLOGS');

@@ -11,7 +11,13 @@
                 <a ng-href="item/{{blog.headline}}">
                     <h4 style="margin-top: 0">{{blog.subject}}</h4>
                     <div class="text-muted" style="font-size: 12px; line-height: 20px">
-                        By {{blog.author.name}} &nbsp;&ndash;&nbsp; {{moment(blog.time).fromNow()}}
+                        <span ng-show="blog.author">
+                            By {{blog.author.name}}
+                            &nbsp;&ndash;&nbsp;
+                        </span>
+                        <span ng-show="blog.time">
+                            Updated {{moment(blog.time).fromNow()}}
+                        </span>
                     </div>
                 </a>
             </div>

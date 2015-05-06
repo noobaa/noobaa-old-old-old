@@ -160,7 +160,7 @@ var SWM_TEMAPLATE = dot.template([
 	'  <div style="padding-top: 10px; padding-bottom: 15px;" class="border-top hoverable">',
 	'   <div style="padding: 0px 0 0 0">',
 	'    <div style="float: right">',
-	'     <a href="https://www.noobaa.com/home/">',
+	'     <a href="https://www.noobaa.com/testapp/">',
 	'      <div class="action-btn"><div class="caret"></div></div>',
 	'     </a>',
 	'    </div>',

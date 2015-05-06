@@ -7,7 +7,7 @@ nb_thankyou.controller('ThankYouCtrl', [
     function($scope, $http, $window, $location, nbUser) {
         $scope.nbUser = nbUser;
         $scope.click_profile = function() {
-            $window.location = '/';
+            $window.location = '/testapp/';
         };
         $scope.submitting = false;
         $scope.submitted = false;

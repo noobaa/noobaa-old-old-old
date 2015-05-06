@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html Xng-app="nb_website" xmlns:fb="http://ogp.me/ns/fb#" lang="en">
+
+<head>
+    {{{# def.include( 'common_head.html') }}}
+</head>
+
+<body Xng-cloak Xng-controller="WebSiteCtrl" class="website">
+
+    <div>
+        {{{# def.facebook_init_body }}}
+    </div>
+
+    <div class="bgtile cover"></div>
+
+    <div class="cover">
+        <div class="container text-center">
+            <div style="margin: 100px 0">
+                <img class="hatch" src="{{{= it.data.cdn }}}/public/images/noobaa_logo.png" style="max-width: 100%; width: 500px"></img>
+            </div>
+            <div style="margin: 20px 0">
+                <h5>Outsmarting Datacenters</h5>
+            </div>
+            <div style="margin: 20px 0">
+                Contact us with <a href="mailto:info@noobaa.com" target="_blank">info@noobaa.com</a>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        {{{# def.include( 'common_scripts.html') }}}
+    </div>
+
+</body>
+
+</html>

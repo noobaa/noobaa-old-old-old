@@ -289,13 +289,12 @@ app.get('/planet', device_api.update_session, function(req, res) {
     return res.render('planet_boot.html', common_api.common_server_data(req));
 });
 app.get('/planet/window', redirect_no_user, function(req, res) {
-    return res.redirect('/home/');
+    return res.redirect('/testapp/');
 });
 
 
 // setup user pages
-var welcome_path = '/welcome';
-// var welcome_path = '/home/';
+var welcome_path = '/testapp/welcome';
 
 function redirect_no_user(req, res, next) {
     if (!req.user) {
@@ -329,12 +328,11 @@ function redirect_no_user(req, res, next) {
     });
 }
 
-app.get('/welcome', function(req, res) {
-    // return res.redirect('/home/');
+app.get('/testapp/welcome', function(req, res) {
     return res.render('welcome.html', common_api.common_server_data(req));
 });
 
-app.get('/thankyou', function(req, res) {
+app.get('/testapp/thankyou', function(req, res) {
     if (!req.user) {
         return res.redirect(welcome_path);
     }
@@ -342,14 +340,14 @@ app.get('/thankyou', function(req, res) {
 });
 
 
-app.get('/blog/*', function(req, res) {
+app.get('/testapp/blog/*', function(req, res) {
     return res.render('blog.html', common_api.common_server_data(req));
 });
-app.get('/blog', function(req, res) {
-    return res.redirect('/blog/');
+app.get('/testapp/blog', function(req, res) {
+    return res.redirect('/testapp/blog/');
 });
 
-app.get('/home/*', redirect_no_user, function(req, res) {
+app.get('/testapp/*', redirect_no_user, function(req, res) {
     var ctx = common_api.common_server_data(req);
     if (req.session.signup) {
         ctx.data.signup = req.session.signup;
@@ -359,14 +357,14 @@ app.get('/home/*', redirect_no_user, function(req, res) {
         ctx.data.signin = req.session.signin;
         delete req.session.signin;
     }
-    return res.render('home.html', ctx);
+    return res.render('testapp.html', ctx);
 });
-app.get('/home', function(req, res) {
-    return res.redirect('/home/');
+app.get('/testapp', function(req, res) {
+    return res.redirect('/testapp/');
 });
 
-app.all('/', redirect_no_user, function(req, res) {
-    return res.redirect('/home/');
+app.all('/', function(req, res) {
+    return res.render('website.html', common_api.common_server_data(req));
 });
 
 

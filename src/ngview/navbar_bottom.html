@@ -1,27 +1,27 @@
 <nav class="navbar navbar-inverse navbar-bottom" role="navigation">
     <ul>
-        <li ng-class="nbUtil.active_link('/home/club/')">
+        <li ng-class="nbUtil.active_link('/testapp/club/')">
             <a ng-click="click_clubs()">
                 <i class="fa fa-cube"></i>
                 <span>CLUBS</span>
                 <i ng-show="nbClub.total_new_msgs" class="fa fa-bell"></i>
             </a>
         </li>
-        <!-- 
-        <li ng-class="nbUtil.active_link('/home/watch/')">
+        <!--
+        <li ng-class="nbUtil.active_link('/testapp/watch/')">
             <a ng-click="click_my_feed()">
                 <i class="fa {{fetching_feeds && 'fa-refresh fa-spin' || 'fa-play'}}"></i>
                 <span>WATCH</span>
             </a>
         </li>
          -->
-        <li ng-class="nbUtil.active_link('/home/files/')">
+        <li ng-class="nbUtil.active_link('/testapp/files/')">
             <a ng-click="click_files()">
                 <i class="fa fa-folder-open"></i>
                 <span>FILES</span>
             </a>
         </li>
-        <li ng-class="nbUtil.active_link('/home/upload/')">
+        <li ng-class="nbUtil.active_link('/testapp/upload/')">
             <a ng-click="click_uploads()">
                 <i class="fa fa-cloud-upload"></i>
                 <span>UPLOAD</span>
@@ -31,7 +31,7 @@
                 </span>
             </a>
         </li>
-        <li ng-class="nbUtil.active_link('/home/account/')">
+        <li ng-class="nbUtil.active_link('/testapp/account/')">
             <a ng-click="click_account()">
                 <i class="fa fa-user"></i>
                 <span>ACCOUNT</span>

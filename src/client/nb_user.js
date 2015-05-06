@@ -131,7 +131,7 @@ nb_util.factory('nbUser', [
 
         $scope.open_signin = function() {
             if ($scope.user) {
-                $window.location.href = '/home';
+                $window.location.href = '/testapp/';
                 return;
             }
             nbUtil.track_event('user.open_signin');
@@ -187,7 +187,7 @@ nb_util.factory('nbUser', [
             nbUtil.track_event('user.login_email', params).then(function() {
                 return $http.post('/auth/email/login/', params);
             }).then(function() {
-                $window.location.href = '/home/';
+                $window.location.href = '/testapp/';
             }).then(null, function(err) {
                 alertify.error('Sign in failed. <a>Did you forget your password?</a>');
             })['finally'](function() {
