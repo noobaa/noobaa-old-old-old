@@ -15,6 +15,7 @@ require('./nb_feed.js');
 require('./nb_scenes.js');
 
 // page modules
+require('./nb_website.js');
 require('./nb_testapp.js');
 require('./nb_welcome.js');
 require('./nb_info.js');

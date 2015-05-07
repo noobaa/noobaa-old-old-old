@@ -1,30 +1,34 @@
 <!DOCTYPE html>
-<html Xng-app="nb_website" xmlns:fb="http://ogp.me/ns/fb#" lang="en">
+<html ng-app="nb_website" xmlns:fb="http://ogp.me/ns/fb#" lang="en">
 
 <head>
     {{{# def.include( 'common_head.html') }}}
 </head>
 
-<body Xng-cloak Xng-controller="WebSiteCtrl" class="website">
+<body ng-cloak ng-controller="WebSiteCtrl" class="website">
 
     <div>
         {{{# def.facebook_init_body }}}
     </div>
 
-    <div class="bgtile cover"></div>
+    <div ng-class="{anima: bg_anima, anima2: bg_anima2}" class="bg-anima cover">
+        <div class="bgtile cover"></div>
+    </div>
 
-    <div class="cover">
-        <div class="container text-center">
-            <div style="margin: 100px 0">
-                <img class="hatch" src="{{{= it.data.cdn }}}/public/images/noobaa_logo.png" style="max-width: 100%; width: 500px"></img>
-            </div>
-            <div style="margin: 20px 0">
-                <h5>Outsmarting Datacenters</h5>
-            </div>
-            <div style="margin: 20px 0">
-                Contact us with <a href="mailto:info@noobaa.com" target="_blank">info@noobaa.com</a>
-            </div>
+    <div class="cover text-center">
+
+        <div style="margin: 100px 30px 0 3px">
+            <img ng-class="{anima: logo_anima, anima2: logo_anima2}" class="logo-anima" src="{{{= it.data.cdn }}}/public/images/noobaa_logo.png" style="max-width: 100%; width: 500px"></img>
         </div>
+
+        <div ng-class="{anima: desc_anima}" class="desc-anima" style="margin: 80px 30px 0 30px">
+            A software defined storage company in stealth mode
+        </div>
+
+        <div ng-class="{anima: contact_anima}" class="contact-anima" style="margin: 50px 30px 0 30px">
+            Contact us with <a href="mailto:info@noobaa.com" target="_blank">info@noobaa.com</a>
+        </div>
+
     </div>
 
     <div>
