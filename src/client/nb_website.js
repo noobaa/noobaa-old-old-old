@@ -18,7 +18,7 @@ nb_website.controller('WebSiteCtrl', [
 
         $timeout(function() {
             $scope.bg_anima = true;
-        }, 2000);
+        }, 1500);
 
         $timeout(function() {
             $scope.desc_anima = true;
@@ -27,6 +27,11 @@ nb_website.controller('WebSiteCtrl', [
         $timeout(function() {
             $scope.contact_anima = true;
         }, 6000);
+
+        $timeout(function() {
+            $scope.bg_anima2 = true;
+            $scope.logo_anima2 = true;
+        }, 8500);
 
     }
 ]);

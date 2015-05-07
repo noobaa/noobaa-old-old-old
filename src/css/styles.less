@@ -28,23 +28,29 @@ body {
  ******************************************************************************/
 .website {
     background-color: hsl(0, 0%, 0%);
+    color: hsl(0, 0%, 40%);
     .logo-anima {
-        .transition-time(2s);
+        .transition-time(3s);
         opacity: 0;
         &.anima {
             opacity: 1;
+        }
+        &.anima2 {
+            transform: scale(1.05);
         }
     }
     .bg-anima {
+        > .bgtile {
+            opacity: 0.2;
+        }
         .transition-time(2s);
         background-color: hsl(0, 0%, 10%);
         opacity: 0;
-        > .bgtile {
-            opacity: 0.5;
-        }
         &.anima {
             opacity: 1;
-            background-color: hsl(0, 0%, 100%);
+        }
+        &.anima2 {
+            opacity: 0.6;
         }
     }
     .desc-anima {
@@ -55,7 +61,10 @@ body {
         }
     }
     .contact-anima {
-        .transition-time(2s);
+        > a:hover {
+            color: hsl(0, 0%, 70%);
+        }
+        .transition-time(1.5s);
         opacity: 0;
         &.anima {
             opacity: 1;
