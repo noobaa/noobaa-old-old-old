@@ -27,9 +27,39 @@ body {
     WEBSITE
  ******************************************************************************/
 .website {
-    background-color: hsl(0, 0%, 25%);
-    .bgtile {
-        opacity: 0.5;
+    background-color: hsl(0, 0%, 0%);
+    .logo-anima {
+        .transition-time(2s);
+        opacity: 0;
+        &.anima {
+            opacity: 1;
+        }
+    }
+    .bg-anima {
+        .transition-time(2s);
+        background-color: hsl(0, 0%, 10%);
+        opacity: 0;
+        > .bgtile {
+            opacity: 0.5;
+        }
+        &.anima {
+            opacity: 1;
+            background-color: hsl(0, 0%, 100%);
+        }
+    }
+    .desc-anima {
+        .transition-time(2s);
+        opacity: 0;
+        &.anima {
+            opacity: 1;
+        }
+    }
+    .contact-anima {
+        .transition-time(2s);
+        opacity: 0;
+        &.anima {
+            opacity: 1;
+        }
     }
 }
 
