@@ -115,7 +115,7 @@ tar -xvf nsis-3.0b1-src.tar
 **BEFORE** you run the following command scons command, update SConstruct file under nsis-3.0b1-src folder with 
 opts.Add(BoolVariable('STRIP_CP', 'Strips cross-platform executables of any unrequired data such as symbols', '**no**'))
 ```
-
+cd nsis-3.0b1-src
 scons SKIPSTUBS=all SKIPPLUGINS=all SKIPUTILS=all SKIPMISC=all NSIS_CONFIG_CONST_DATA=no PREFIX=./nsis-3.0b1 install-compiler
 chmod +x ./nsis-3.0b1/bin/makensis
 ln -s //nsis-3.0b1/bin/makensis /usr/local/bin/makensis
