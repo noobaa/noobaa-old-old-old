@@ -117,11 +117,11 @@ opts.Add(BoolVariable('STRIP_CP', 'Strips cross-platform executables of any unre
 ```
 cd nsis-3.0b1-src
 scons SKIPSTUBS=all SKIPPLUGINS=all SKIPUTILS=all SKIPMISC=all NSIS_CONFIG_CONST_DATA=no PREFIX=./nsis-3.0b1 install-compiler
-chmod +x ./nsis-3.0b1/bin/makensis
-ln -s //nsis-3.0b1/bin/makensis /usr/local/bin/makensis
+chmod +x <FULL_PATH>/nsis-3.0b1/bin/makensis
+ln -s <FULL_PATH>/nsis-3.0b1/bin/makensis /usr/local/bin/makensis
 mkdir ./nsis-3.0b1/share
 cd ./nsis-3.0b1/share
-ln -s ../nsis-3.0b1 nsis
+ln -s <FULL_PATH>/nsis-3.0b1 nsis
 ```
 
 # download nsis plugin 
