@@ -97,10 +97,11 @@ sudo npm install
 download nsis from here:
 (for more information) follow http://blog.alejandrocelaya.com/2014/02/01/compile-nsis-scripts-in-linux/
 ```
-curl http://downloads.sourceforge.net/project/nsis/NSIS%203%20Pre-release/3.0b1/nsis-3.0b1-src.tar.bz2?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fnsis%2Ffiles%2FNSIS%25203%2520Pre-release%2F3.0b1%2F&ts=1423381229&use_mirror=garr >nsis-3.0b1-src.tar.bz2
-curl http://downloads.sourceforge.net/project/nsis/NSIS%203%20Pre-release/3.0b1/nsis-3.0b1.zip?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fnsis%2Ffiles%2FNSIS%25203%2520Pre-release%2F3.0b1%2F&ts=1423381286&use_mirror=garr >> nsis-3.0b1.zip
+curl -L "http://downloads.sourceforge.net/project/nsis/NSIS%203%20Pre-release/3.0b1/nsis-3.0b1-src.tar.bz2?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fnsis%2Ffiles%2FNSIS%25203%2520Pre-release%2F3.0b1%2F&ts=1423381229&use_mirror=garr" > nsis-3.0b1-src.tar.bz2
+curl -L "http://downloads.sourceforge.net/project/nsis/NSIS%203%20Pre-release/3.0b1/nsis-3.0b1.zip?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fnsis%2Ffiles%2FNSIS%25203%2520Pre-release%2F3.0b1%2F&ts=1423381286&use_mirror=garr" >> nsis-3.0b1.zip
 unzip nsis-3.0b1.zip -d nsis-3.0b1
 bzip2 -dk nsis-3.0b1-src.tar.bz2
+tar -xvf nsis-3.0b1-src.tar
 ```
 before you run the following command scons command, update SConstruct file under nsis source folder with 
 opts.Add(BoolVariable('STRIP_CP', 'Strips cross-platform executables of any unrequired data such as symbols', 'no'))
