@@ -93,7 +93,11 @@ sudo npm install
 ```
 #Get updated env file from Guy and update the bucket prefix
 
+# Installing Scons
+```easy_install scons```
+
 # install makensis for installation build (MAC)
+Make sure you have scons installed ([Installing Scons](# Installing Scons))
 download nsis from here:
 (for more information) follow http://blog.alejandrocelaya.com/2014/02/01/compile-nsis-scripts-in-linux/
 ```
