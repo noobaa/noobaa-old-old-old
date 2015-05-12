@@ -94,7 +94,12 @@ sudo npm install
 #Get updated env file from Guy and update the bucket prefix
 
 # Installing Scons
-```easy_install scons```
+download scones from http://downloads.sourceforge.net/project/scons/scons/2.3.4/scons-2.3.4.tar.gz?r=http%3A%2F%2Fwww.scons.org%2Fdownload.php&ts=1431437307&use_mirror=garr
+``` 
+tar -xzvf scons-2.3.4.tar.gz
+cd scons-2.3.4
+python setup.py install
+```
 
 # install makensis for installation build (MAC)
 Make sure you have scons installed ([Installing Scons](# Installing Scons))
