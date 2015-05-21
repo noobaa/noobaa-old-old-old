@@ -123,6 +123,7 @@ mkdir ./nsis-3.0b1/share
 cd ./nsis-3.0b1/share
 ln -s <FULL_PATH>/nsis-3.0b1 nsis
 ```
+If there are problems with running scons regarding zlib errors, try installing zlib-devel
 
 # download nsis plugin 
 
