@@ -58,6 +58,9 @@ function sign_in_user(req, params, done) {
         function(user_arg, next) {
             // new user
             if (!user_arg) {
+                return next({
+                    message: 'Sorry, but only existing users can sign in.'
+                });
                 req.session.signup = true;
                 is_new = true;
                 user = new User();
