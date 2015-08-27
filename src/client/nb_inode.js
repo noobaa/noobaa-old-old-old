@@ -100,7 +100,7 @@ nb_util.factory('nbInode', [
                             link.click();
                             dl.state = 'done';
                         }
-                        return $timeout(function() {}, 1000);
+                        return $timeout(function() {}, 200);
                     });
                 });
                 promise.then(function() {
