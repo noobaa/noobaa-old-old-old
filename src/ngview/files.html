@@ -47,6 +47,12 @@
                             <span>Download</span>
                         </a>
                     </li>
+                    <li ng-if="current_inode.isdir">
+                        <a ng-click="nbInode.download_dir(current_inode)">
+                            <i class="fa fa-cloud-download"></i>
+                            <span>Download Folder</span>
+                        </a>
+                    </li>
                     <li ng-if="nbInode.can_upload_file(current_inode)">
                         <a ng-click="resume_upload(current_inode)">
                             <i class="fa fa-cloud-upload"></i>

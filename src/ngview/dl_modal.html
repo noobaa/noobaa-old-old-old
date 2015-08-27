@@ -1,0 +1,26 @@
+<div class="modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4>Download Folder</h4>
+            </div>
+            <div class="modal-body" style="max-height: 500px; padding: 0; overflow: scroll">
+                <div class="text-left">
+                    <div ng-repeat="dl in downloads" style="padding: 5px">
+                        <span ng-switch="dl.state">
+                            <i ng-switch-when="loading" class="fa fa-fw fa-spinner text-muted"></i>
+                            <i ng-switch-when="dir" class="fa fa-fw fa-folder text-muted"></i>
+                            <i ng-switch-when="ready" class="fa fa-fw fa-file-o text-muted"></i>
+                            <i ng-switch-when="done" class="fa fa-fw fa-check text-success"></i>
+                        </span>
+                        {{dl.path}}
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="margin-top: 0">
+                <button type="button" class="btn btn-default" ng-click="close()">Close</button>
+                <button type="button" class="btn {{done && 'btn-default' || 'btn-primary'}}" ng-click="run()" ng-disabled="!ready || done">Run</button>
+            </div>
+        </div>
+    </div>
+</div>

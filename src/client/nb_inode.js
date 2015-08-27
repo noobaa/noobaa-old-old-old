@@ -17,7 +17,7 @@ nb_util.factory('nbInode', [
             fobj_get_url: fobj_get_url,
             seamless_open_inode: seamless_open_inode,
             download_url: download_url,
-            download_inode: download_inode,
+            download_dir: download_dir,
             is_root_inode: is_root_inode,
             is_my_data_dir: is_my_data_dir,
             is_swm_dir: is_swm_dir,
@@ -38,6 +38,7 @@ nb_util.factory('nbInode', [
             read_dir: read_dir,
             is_dir_non_empty: is_dir_non_empty,
             parents_path: parents_path,
+            parents_path_str: parents_path_str,
             new_folder: new_folder,
             rename_inode: rename_inode,
             move_inode: move_inode,
@@ -80,11 +81,72 @@ nb_util.factory('nbInode', [
             return inode_api_url(inode.id) + '?is_download=1';
         }
 
-        function download_inode(inode) {
-            console.log('DOWNLOAD INODE', inode.name, download_url(inode));
-            $('<iframe style="display: none">')[0].src = download_url(inode);
-            // var win = window.open(url, '_blank');
-            // win.focus();
+        function download_dir(dir_inode) {
+            var modal;
+            var dl_scope = $rootScope.$new();
+            dl_scope.downloads = [];
+            dl_scope.run = function() {
+                var promise = $q.when();
+                var link = $window.document.createElement("a");
+                _.each(dl_scope.downloads, function(dl) {
+                    promise = promise.then(function() {
+                        if (dl_scope.closed) {
+                            return;
+                        }
+                        if (dl.state === 'ready') {
+                            console.log('DOWNLOAD', dl.path);
+                            link.download = dl.path;
+                            link.href = download_url(dl.inode);
+                            link.click();
+                            dl.state = 'done';
+                        }
+                        return $timeout(function() {}, 1000);
+                    });
+                });
+                promise.then(function() {
+                    dl_scope.done = true;
+                });
+                return promise;
+            };
+            dl_scope.close = function() {
+                dl_scope.closed = true;
+                modal.modal('hide');
+                modal = null;
+            };
+            add_to_downloads(dir_inode).then(function() {
+                dl_scope.ready = true;
+            });
+            modal = nbUtil.make_modal({
+                template: 'dl_modal.html',
+                scope: dl_scope,
+                size: 'lg',
+            });
+
+            function add_to_downloads(dir_inode) {
+                return $q.when(read_dir(dir_inode)).then(function() {
+                    var promise = $.when();
+                    _.each(dir_inode.entries, function(inode) {
+                        if (dl_scope.closed) {
+                            return;
+                        }
+                        var dl = {
+                            state: 'loading',
+                            inode: inode,
+                            path: parents_path_str(inode)
+                        };
+                        if (inode.isdir) {
+                            dl.state = 'dir';
+                            promise = promise.then(function() {
+                                return add_to_downloads(inode);
+                            });
+                        } else {
+                            dl_scope.downloads.push(dl);
+                            dl.state = 'ready';
+                        }
+                    });
+                    return promise;
+                });
+            }
         }
 
         // return true for "My Data" and "Shared With Me"
@@ -325,6 +387,16 @@ nb_util.factory('nbInode', [
             } while (p && p.id);
             // console.log('PARENTS', parents);
             return parents;
+        }
+
+        function parents_path_str(inode) {
+            var path = '';
+            var p = inode;
+            do {
+                path = '/' + p.name + path;
+                p = get_inode(p.parent_id);
+            } while (p && p.id);
+            return path;
         }
 
 
