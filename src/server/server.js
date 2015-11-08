@@ -174,6 +174,16 @@ app.use(function(req, res, next) {
 // using router before static files is optimized
 // since we have less routes then files, and the routes are in memory.
 
+// TODO disabled the routes to the testapp for now -
+app.use([
+    '/api',
+    '/track',
+    '/auth',
+    '/device_api',
+    '/planet',
+    '/testapp'
+], error_404);
+
 app.use('/api/', function(req, res, next) {
     // general validations preceding all the star api functions
     if (!req.user) {
